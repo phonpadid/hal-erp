@@ -1,0 +1,22 @@
+@import "../assets/font/Montserrat/Montserrat.css";
+@import "../assets/font/NotoSansLao/NotoSansLao.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *,
+  html,
+  .ant-input {
+    font-family: "NotoSansLao", "Montserrat", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.ant-btn-default:hover,
+.ant-btn-default:focus {
+  border-color: inherit !important;
+  color: inherit !important;
+}
