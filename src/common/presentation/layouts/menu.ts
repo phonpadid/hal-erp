@@ -38,6 +38,17 @@ export const menuItems: ItemType[] = reactive([
             }),
           ]),
       },
+      {
+        key: "UnitList",
+        label: "ຫົວໜ່ວຍ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-receipt",
+              class: "text-base",
+            }),
+          ]),
+      },
     ],
 
     type: "group",
