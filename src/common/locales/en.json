@@ -1,0 +1,11 @@
+{
+    "lang": {
+        "en": "English",
+        "la": "Laos"
+    },
+    "deshboard": "Home system ERP",
+    "menu_sidebar": {
+        "menu": "Menu",
+        "deshboard": "Deshboard"
+    }
+}
