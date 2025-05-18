@@ -11,7 +11,6 @@ const authAxios = axios.create({
   },
 });
 
-// ✅ ฟังก์ชันเพิ่ม Header ให้ Request
 function addHeaders(config?: AxiosRequestConfig, data?: unknown): AxiosRequestConfig {
   const token = localStorage.getItem("access_token") || null;
 

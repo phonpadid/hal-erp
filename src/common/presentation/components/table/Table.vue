@@ -35,7 +35,7 @@ interface TableRecord {
   [key: string]: unknown;
 }
 
-interface TablePaginationType {
+export interface TablePaginationType {
   current?: number;
   pageSize?: number;
   total?: number;
