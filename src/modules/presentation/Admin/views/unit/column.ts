@@ -17,6 +17,6 @@ export const columns = [
   {
     title: "ຈັດການຂໍ້ມູນ",
     dataIndex: "actions",
-    key: "action",
+    key: "actions",
   },
 ];
