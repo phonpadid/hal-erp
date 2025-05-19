@@ -1,6 +1,6 @@
-import type { Unit } from "../../../domain/entities/Unit";
-import type { CreateUnitDTO, UpdateUnitDTO } from "../../dtos/UnitDTO";
-import type { PaginationParams, PaginatedResult } from "@/modules/shared/paagination";
+import type { Unit } from "../../../domain/entities/unit.entities";
+import type { CreateUnitDTO, UpdateUnitDTO } from "../../dtos/unit.dto";
+import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
 export interface UnitService {
   createUnit(createUnitDTO: CreateUnitDTO): Promise<Unit>;

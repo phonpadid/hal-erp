@@ -1,5 +1,5 @@
-import { Unit } from "../entities/Unit";
-import type { PaginationParams, PaginatedResult } from "@/modules/shared/paagination";
+import { Unit } from "../entities/unit.entities";
+import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
 export interface UnitRepository {
   create(unit: Unit): Promise<Unit>;

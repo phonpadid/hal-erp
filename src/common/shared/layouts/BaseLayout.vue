@@ -11,8 +11,8 @@ const toggle = ref<boolean>(true);
     <a-config-provider
       :theme="{
         token: {
-          colorPrimary: 'red'
-        }
+          colorPrimary: 'red',
+        },
       }"
     ></a-config-provider>
     <BaseSidebar :toggle />
