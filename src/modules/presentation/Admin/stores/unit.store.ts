@@ -1,20 +1,23 @@
-import { ref } from "vue";
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
 import type { Ref } from "vue";
-import type { CreateUnitDTO, UpdateUnitDTO } from "@/modules/application/dtos/UnitDTO";
-import { UnitServiceImpl } from "@/modules/application/useCases/services/UnitService";
-import { ApiUnitRepository } from "@/modules/infrastructure/ApiUnitRepository";
-import type { Unit } from "@/modules/domain/entities/Unit";
-import type { PaginationParams } from "@/modules/shared/paagination";
+import { UnitServiceImpl } from "@/modules/application/services/unit.service";
+import { ApiUnitRepository } from "@/modules/infrastructure/api-unit.repository";
+import { Unit } from "@/modules/domain/entities/unit.entities";
+import type { CreateUnitDTO, UpdateUnitDTO } from "@/modules/application/dtos/unit.dto";
+import type { PaginationParams } from "@/modules/shared/pagination";
 
-// Factory for UnitService
+// สร้าง unit service
 const createUnitService = () => {
   const unitRepository = new ApiUnitRepository();
   return new UnitServiceImpl(unitRepository);
 };
 
-export function useUnits() {
+export const useUnitStore = defineStore("unit", () => {
+  // สร้าง service
   const unitService = createUnitService();
 
+  // State
   const units: Ref<Unit[]> = ref([]);
   const currentUnit: Ref<Unit | null> = ref(null);
   const loading = ref(false);
@@ -26,6 +29,13 @@ export function useUnits() {
     totalPages: 0,
   });
 
+  // Getters
+  const activeUnits = computed(() => units.value.filter((unit) => !unit.isDeleted()));
+  const deletedUnits = computed(() => units.value.filter((unit) => unit.isDeleted()));
+  const totalActiveUnits = computed(() => activeUnits.value.length);
+  const totalDeletedUnits = computed(() => deletedUnits.value.length);
+
+  // Actions
   // Create Unit
   const createUnit = async (data: CreateUnitDTO) => {
     loading.value = true;
@@ -60,8 +70,10 @@ export function useUnits() {
         total: result.total,
         totalPages: result.totalPages,
       };
+      return result;
     } catch (err) {
       error.value = err as Error;
+      throw err;
     } finally {
       loading.value = false;
     }
@@ -80,6 +92,16 @@ export function useUnits() {
       return null;
     } finally {
       loading.value = false;
+    }
+  };
+
+  // Get Unit By Name
+  const getUnitByName = async (name: string) => {
+    try {
+      return await unitService.getUnitByName(name);
+    } catch (err) {
+      console.error("Failed to check unit by name:", err);
+      return null;
     }
   };
 
@@ -121,8 +143,22 @@ export function useUnits() {
     try {
       const result = await unitService.deleteUnit(id);
 
-      // Refresh the list after deletion
-      await fetchUnits({ page: pagination.value.page, limit: pagination.value.limit });
+      // Update units list if it's loaded
+      if (units.value.length > 0) {
+        const index = units.value.findIndex((u) => u.getId() === id);
+        if (index !== -1) {
+          // Mark as deleted in the local array
+          const deletedUnit = units.value[index];
+          // Here we're simulating a soft delete by manually updating the unit status
+          units.value[index] = new Unit(
+            deletedUnit.getId(),
+            deletedUnit.getName(),
+            deletedUnit.getCreatedAt(),
+            new Date(),
+            new Date()
+          );
+        }
+      }
 
       return result;
     } catch (err) {
@@ -141,8 +177,21 @@ export function useUnits() {
     try {
       const result = await unitService.restoreUnit(id);
 
-      // Refresh the list after restoration
-      await fetchUnits({ page: pagination.value.page, limit: pagination.value.limit }, true);
+      // Update units list if it's loaded
+      if (units.value.length > 0) {
+        const index = units.value.findIndex((u) => u.getId() === id);
+        if (index !== -1) {
+          // Mark as restored in the local array
+          const restoredUnit = units.value[index];
+          units.value[index] = new Unit(
+            restoredUnit.getId(),
+            restoredUnit.getName(),
+            restoredUnit.getCreatedAt(),
+            new Date(),
+            null // Set deletedAt to null
+          );
+        }
+      }
 
       return result;
     } catch (err) {
@@ -153,7 +202,7 @@ export function useUnits() {
     }
   };
 
-  // Search Unit
+  // Search Units
   const searchUnitsByName = async (
     name: string,
     params: PaginationParams = { page: 1, limit: 10 }
@@ -162,33 +211,56 @@ export function useUnits() {
     error.value = null;
 
     try {
-      // ในกรณีจริง คุณอาจจะเพิ่มเมธอด findByNamePattern ใน UnitRepository
-      // สำหรับตัวอย่างนี้ เราจะใช้ API ที่มี query parameter
-      const response = await unitService.getAllUnits({
+      const result = await unitService.getAllUnits({
         ...params,
         search: name,
       });
 
-      units.value = response.data;
+      units.value = result.data;
       pagination.value = {
-        page: response.page,
-        limit: response.limit,
-        total: response.total,
-        totalPages: response.totalPages,
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
       };
+
+      return result;
     } catch (err) {
       error.value = err as Error;
+      throw err;
     } finally {
       loading.value = false;
     }
   };
 
+  // Reset state
+  const resetState = () => {
+    units.value = [];
+    currentUnit.value = null;
+    error.value = null;
+    pagination.value = {
+      page: 1,
+      limit: 10,
+      total: 0,
+      totalPages: 0,
+    };
+  };
+
   return {
+    // State
     units,
     currentUnit,
     loading,
     error,
     pagination,
+
+    // Getters
+    activeUnits,
+    deletedUnits,
+    totalActiveUnits,
+    totalDeletedUnits,
+
+    // Actions
     createUnit,
     fetchUnits,
     fetchUnitById,
@@ -196,5 +268,7 @@ export function useUnits() {
     deleteUnit,
     restoreUnit,
     searchUnitsByName,
+    getUnitByName,
+    resetState,
   };
-}
+});

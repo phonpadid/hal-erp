@@ -32,7 +32,7 @@ onMounted(() => {
   >
     <div class="flex flex-row items-center gap-2 mt-4 ml-4">
       <img
-        src="/src/common/presentation/assets/images/logo-Hal-ERP.png"
+        src="/src/common/shared/assets/images/logo-Hal-ERP.png"
         alt="logo"
         class="w-16 h-16 rounded-full"
       />

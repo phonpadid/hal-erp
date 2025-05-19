@@ -40,8 +40,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import type { PropType } from "vue";
-import type { Unit } from "@/modules/domain/entities/Unit";
-import type { CreateUnitDTO, UpdateUnitDTO } from "@/modules/application/dtos/UnitDTO";
+import type { Unit } from "@/modules/domain/entities/unit.entities";
+import type { CreateUnitDTO, UpdateUnitDTO } from "@/modules/application/dtos/unit.dto";
 
 const props = defineProps({
   unit: {

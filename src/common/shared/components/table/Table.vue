@@ -7,7 +7,6 @@
     :pagination="pagination"
     :rowClassName="rowClassName"
     :loading="loading"
-    class="custom-table dark:bg-gray-800 dark:text-white dark:border-gray-700"
     @change="
       (pagination: TablePaginationType, filters: Record<string, string[]>, sorter: SorterResult) =>
         $emit('change', pagination, filters, sorter)

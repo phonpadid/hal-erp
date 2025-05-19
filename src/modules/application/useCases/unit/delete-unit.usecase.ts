@@ -1,4 +1,4 @@
-import type { UnitRepository } from "@/modules/domain/repository/UnitRepository";
+import type { UnitRepository } from "@/modules/domain/repository/unit.repository";
 
 export class DeleteUnitUseCase {
   constructor(private readonly unitRepository: UnitRepository) {}

@@ -1,4 +1,4 @@
-import type { UnitRepository } from "@/modules/domain/repository/UnitRepository";
+import type { UnitRepository } from "@/modules/domain/repository/unit.repository";
 
 export class RestoreUnitUseCase {
   constructor(private readonly unitRepository: UnitRepository) {}

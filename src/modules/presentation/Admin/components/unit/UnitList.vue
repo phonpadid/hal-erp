@@ -412,7 +412,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import type { PropType } from "vue";
-import type { Unit } from "@/modules/domain/entities/Unit";
+import type { Unit } from "@/modules/domain/entities/unit.entities";
 import { debounce } from "@/modules/shared/helpers";
 
 const props = defineProps({

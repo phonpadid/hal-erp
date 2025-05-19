@@ -1,13 +1,13 @@
-import type { UnitRepository } from "@/modules/domain/repository/UnitRepository";
-import type { UnitService } from "../../ports/input/Unitservice";
-import type { Unit } from "../../../domain/entities/Unit";
-import type { CreateUnitDTO, UpdateUnitDTO } from "../../dtos/UnitDTO";
-import type { PaginationParams, PaginatedResult } from "@/modules/shared/paagination";
-import { CreateUnitUseCase } from "../unit/CreateUnitUseCase";
-import { GetUnitUseCase } from "../unit/GetUnitUseCase";
-import { UpdateUnitUseCase } from "../unit/UpdateUnitUseCase";
-import { DeleteUnitUseCase } from "../unit/DeleteUnitUseCase";
-import { RestoreUnitUseCase } from "../unit/RestoreUnitUseCase";
+import type { UnitRepository } from "@/modules/domain/repository/unit.repository";
+import type { UnitService } from "../ports/input/unit.service";
+import type { Unit } from "../../domain/entities/unit.entities";
+import type { CreateUnitDTO, UpdateUnitDTO } from "../dtos/unit.dto";
+import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
+import { CreateUnitUseCase } from "../useCases/unit/create-unit.usecase";
+import { GetUnitUseCase } from "../useCases/unit/get-unit.usecase";
+import { UpdateUnitUseCase } from "../useCases/unit/update-unit.usecase";
+import { DeleteUnitUseCase } from "../useCases/unit/delete-unit.usecase";
+import { RestoreUnitUseCase } from "../useCases/unit/restore-unit.usecase";
 
 export class UnitServiceImpl implements UnitService {
   private readonly createUnitUseCase: CreateUnitUseCase;
