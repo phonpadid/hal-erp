@@ -2,75 +2,19 @@
 import { ref, reactive, onMounted } from "vue";
 import type { UnitApiModel } from "@/modules/interfaces/unit.interface";
 import { useUnitStore } from "@/modules/presentation/Admin/stores/unit.store";
+import { Unit } from "@/modules/domain/entities/unit.entities";
+import { columns } from "./column";
+import { dataUnits } from "@/modules/shared/utils/data.unit";
+import { rules } from "./validation/unit.validate";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
-import { Unit } from "@/modules/domain/entities/unit.entities";
 
 // Initialize the unit store
 const unitStore = useUnitStore();
-
-// Table columns definition
-const columns = [
-  {
-    title: "ຊື່ຫົວໜ່ວຍ",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "ເວລາສ້າງ",
-    dataIndex: "created_at",
-    key: "created_at",
-  },
-  {
-    title: "ເວລາອັບເດດ",
-    dataIndex: "updated_at",
-    key: "updated_at",
-  },
-  {
-    title: "ຈັດການຂໍ້ມູນ",
-    dataIndex: "actions",
-    key: "actions",
-  },
-];
-
-// Mock data for units (keep it for fallback)
-const mockUnits = ref<UnitApiModel[]>([
-  {
-    id: 1,
-    name: "ກິໂລກຣາມ",
-    created_at: "2025-05-10 09:30:00",
-    updated_at: "2025-05-10 09:30:00",
-  },
-  {
-    id: 2,
-    name: "ລິດ",
-    created_at: "2025-05-10 10:15:00",
-    updated_at: "2025-05-18 14:22:00",
-  },
-  {
-    id: 3,
-    name: "ຊິ້ນ",
-    created_at: "2025-05-11 08:45:00",
-    updated_at: "2025-05-11 08:45:00",
-  },
-  {
-    id: 4,
-    name: "ແມັດ",
-    created_at: "2025-05-12 13:20:00",
-    updated_at: "2025-05-15 11:10:00",
-  },
-  {
-    id: 5,
-    name: "ກ່ອງ",
-    created_at: "2025-05-13 15:30:00",
-    updated_at: "2025-05-13 15:30:00",
-  },
-]);
-
 // Units data that will be displayed (from API or mock)
 const units = ref<UnitApiModel[]>([]);
 const useRealApi = ref<boolean>(false); // Toggle between mock and real API
@@ -87,12 +31,6 @@ const selectedUnit = ref<UnitApiModel | null>(null);
 const formModel = reactive({
   name: "",
 });
-
-// Form validation rules
-const rules = {
-  name: [{ required: true, message: "ກະລຸນາປ້ອນຊື່ຫົວໜ່ວຍ", trigger: "blur" }],
-};
-
 // Load data on component mount
 onMounted(async () => {
   await loadUnits();
@@ -115,13 +53,13 @@ const loadUnits = async (): Promise<void> => {
     } catch (error) {
       console.error("Failed to fetch units from API:", error);
       // Fallback to mock data if API fails
-      units.value = [...mockUnits.value];
+      units.value = [...dataUnits.value];
     } finally {
       loading.value = false;
     }
   } else {
     // Use mock data
-    units.value = [...mockUnits.value];
+    units.value = [...dataUnits.value];
   }
 };
 
@@ -167,7 +105,7 @@ const handleCreate = async (): Promise<void> => {
         updated_at: now,
       };
       units.value.push(newUnit);
-      mockUnits.value.push(newUnit); // Update mock data for consistency
+      dataUnits.value.push(newUnit); // Update mock data for consistency
     }
 
     createModalVisible.value = false;
@@ -201,9 +139,9 @@ const handleEdit = async (): Promise<void> => {
             updated_at: now,
           };
           // Update mock data too
-          const mockIndex = mockUnits.value.findIndex((u) => u.id === selectedUnit.value!.id);
+          const mockIndex = dataUnits.value.findIndex((u) => u.id === selectedUnit.value!.id);
           if (mockIndex !== -1) {
-            mockUnits.value[mockIndex] = { ...units.value[index] };
+            dataUnits.value[mockIndex] = { ...units.value[index] };
           }
         }
       }
@@ -235,7 +173,7 @@ const handleDelete = async (): Promise<void> => {
     // Filter out the deleted unit locally
     units.value = units.value.filter((u) => u.id !== selectedUnit.value!.id);
     // Update mock data too
-    mockUnits.value = mockUnits.value.filter((u) => u.id !== selectedUnit.value!.id);
+    dataUnits.value = dataUnits.value.filter((u) => u.id !== selectedUnit.value!.id);
   }
 
   deleteModalVisible.value = false;
