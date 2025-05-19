@@ -10,8 +10,8 @@ const { t, locale } = useI18n();
 const currentLang = ref<string>("");
 
 const lang = computed(() => [
-  { name: t('lang.en'), value: "en", icon: "/en.png" },
-  { name: t('lang.la'), value: "la", icon: "/lo.png" },
+  { name: t("lang.en"), value: "en", icon: "/en.png" },
+  { name: t("lang.la"), value: "la", icon: "/lo.png" },
 ]);
 
 const updateCurrentLang = () => {
@@ -34,7 +34,9 @@ watch(locale, updateCurrentLang);
 </script>
 
 <template>
-  <header class="fixed top-0 z-50 flex items-center justify-between w-full h-16 px-4 bg-white transition-all">
+  <header
+    class="fixed top-0 z-50 flex items-center justify-between w-full h-16 px-4 bg-white transition-all"
+  >
     <Icon
       icon="lucide-align-justify"
       width="24"
@@ -47,7 +49,7 @@ watch(locale, updateCurrentLang);
     <div class="header-action-container">
       <a-dropdown>
         <a
-          class="ant-dropdown-link flex items-center ring-1 ring-slate-200 shadow-sm px-2 h-8 rounded-sm gap-2"
+          class="ant-dropdown-link flex items-center ring-1 ring-slate-200 shadow-sm px-2 h-8 rounded-full bg-slate-50 gap-2"
           @click.prevent
         >
           <img
@@ -56,18 +58,19 @@ watch(locale, updateCurrentLang);
             width="20"
             height="20"
           />
-          {{ currentLang }}
+          <span class="text-[14px] leading-none">{{ currentLang }}</span>
           <DownOutlined :style="{ fontSize: '12px' }" />
         </a>
+
         <template #overlay>
           <a-menu>
             <a-menu-item
-              v-for="langue in lang.filter(l => l.value !== locale)"
+              v-for="langue in lang.filter((l) => l.value !== locale)"
               :key="langue.value"
               @click="changeLang(langue.value)"
             >
               <div class="flex items-center gap-2">
-                <img :src="langue.icon" alt="flag" width="20" height="20" />
+                <img :src="langue.icon" alt="flag" width="18" height="18" />
                 <span>{{ langue.name }}</span>
               </div>
             </a-menu-item>

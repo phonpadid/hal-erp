@@ -1,4 +1,4 @@
-export class Unit {
+export class Role {
   private id: string;
   private display_name: string;
   private name: string;
