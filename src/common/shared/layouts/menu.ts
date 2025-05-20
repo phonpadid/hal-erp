@@ -54,6 +54,39 @@ export const menuItems: ItemType[] = reactive([
     type: "group",
   },
   {
+    label: "",
+    children: [
+      { type: "divider" },
+
+      {
+        key: "12",
+        label: "ຈັດການຜູ້ໃຊ້",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "mdi:user",
+              class: "text-base",
+            }),
+          ]),
+        children: [
+          {
+            key: "users",
+            label: "ຜູ້ໃຊ້",
+          },
+          {
+            key: "roleList",
+            label: "ບົດບາດ",
+          },
+          {
+            key: "permissionsList",
+            label: "ການອານຸຍາດ",
+          },
+        ],
+      },
+    ],
+    type: "group",
+  },
+  {
     label: "ລາຍງານ",
     children: [
       {
