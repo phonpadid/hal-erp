@@ -96,7 +96,7 @@ export const departmentStore = defineStore("department", () => {
   };
 
   // Get Unit By Name
-  const getUnitByName = async (name: string) => {
+  const getDepartmentByName = async (name: string) => {
     try {
       return await departmentService.getDepartmentByName(name);
     } catch (err) {
@@ -136,7 +136,7 @@ export const departmentStore = defineStore("department", () => {
   };
 
   // Delete Unit
-  const deleteUnit = async (id: string) => {
+  const deleteDepartment = async (id: string) => {
     loading.value = true;
     error.value = null;
 
@@ -155,8 +155,8 @@ export const departmentStore = defineStore("department", () => {
             deletedDpm.getName(),
             deletedDpm.getCode(),
             deletedDpm.getCreatedAt(),
-            new Date(),
-            new Date()
+            new Date().toString(),
+            new Date().toString()
           );
         }
       }
@@ -233,9 +233,9 @@ export const departmentStore = defineStore("department", () => {
     fetchDepartment,
     fetchDepartmentById,
     updateDepartment,
-    deleteUnit,
+    deleteDepartment,
     searchDepartmentByName,
-    getUnitByName,
+    getDepartmentByName,
     resetState,
   };
 });
