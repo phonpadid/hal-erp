@@ -49,8 +49,9 @@ export class DepartmentEntity {
     return this.deletedAt !== null
   }
 
-  public updateName(name: string): void {
+  public updateName(name: string, code: string): void {
     this.name = name
+    this.code = code
     this.updatedAt = new Date()
   }
 

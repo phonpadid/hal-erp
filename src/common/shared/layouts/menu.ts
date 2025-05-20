@@ -49,6 +49,17 @@ export const menuItems: ItemType[] = reactive([
             }),
           ]),
       },
+      {
+        key: "department.index",
+        label: "ພະແນກ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-imagesearch-roller",
+              class: "text-base",
+            }),
+          ]),
+      },
     ],
 
     type: "group",
