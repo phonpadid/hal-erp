@@ -3,9 +3,47 @@
         "en": "ອັງກິດ",
         "la": "ລາວ"
     },
+    "button": {
+        "ok": "ຕົກລົງ",
+        "cancel": "ຍົກເລີກ"
+    },
+    "messages": {
+        "loading": "ກຳລັງໂຫລດ..."
+    },
     "deshboard": "ໜ້າຫຼັກລະບົບ ERP",
     "menu_sidebar": {
         "menu": "ເມນູ",
         "deshboard": "ແດຊບອດ"
+    },
+    "departments": {
+        "dpm": {
+            "title": "ຂໍ້ມູນພະແນກ",
+            "add": "ເພີ່ມພະແນກ",
+            "header_form": {
+                "add": "ຟອມເພີ່ມຂໍ້ມູນພະແນກ",
+                "edit": "ຟອມແກ້ໄຂຂໍ້ມູນພະແນກ"
+            },
+            "placeholder":{
+                "code": "ປ້ອນລະຫັດ (code)",
+                "name": "ປ້ອນຊື່ພະແນກ"
+            },
+            "error": { 
+                "code": "ກະລຸນາປ້ອນລະຫັດ(code) ກ່ອນ",
+                "name": "ກະລຸນາປ້ອນຊື່ພະແນກກ່ອນ"
+            },
+            "field": {
+                "code": "ລະຫັດ",
+                "name": "ຊື່ພະແນກ",
+                "created": "ເວລາສ້າງ",
+                "updated": "ເວລາແກ້ໄຂ",
+                "manege": "ຈັດການ"
+            }
+        },
+        "dpm_user": {
+
+        },
+        "dpm_approver": {
+
+        }
     }
 }
