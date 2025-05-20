@@ -111,8 +111,8 @@ export class ApiDepartmentRepository implements DepartmentRepository {
       id: parseInt(unit.getId(), 10),
       name: unit.getName(),
       code: unit.getCode(),
-      created_at: unit.getCreatedAt().toISOString(),
-      updated_at: unit.getUpdatedAt().toISOString(),
+      created_at: unit.getCreatedAt(),
+      updated_at: unit.getUpdatedAt(),
     };
   }
 
@@ -120,9 +120,9 @@ export class ApiDepartmentRepository implements DepartmentRepository {
     return new DepartmentEntity(
       data.id.toString(),
       data.name,
-      data.code,
-      new Date(data.created_at),
-      new Date(data.updated_at)
+      data.code || "",
+      data.created_at || "",
+      data.updated_at || ""
     );
   }
 

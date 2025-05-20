@@ -14,12 +14,13 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import { dpmRules } from "../../unit/validation/departments/department.validate";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-const { t } = useI18n()
+
+const { t } = useI18n();
 // Initialize the unit store
 const dpmStore = departmentStore();
 // departments data that will be displayed (from API or mock)
 const department = ref<DepartmentApiModel[]>([]);
-const useRealApi = ref<boolean>(false); // Toggle between mock and real API
+const useRealApi = ref<boolean>(true); // Toggle between mock and real API
 
 // Form related
 const formRef = ref();
@@ -34,49 +35,111 @@ const formModel = reactive({
   name: "",
   code: "",
 });
+
+// Function to parse date string in DD-MM-YYYY HH:MM:SS format
+const parseLaoDateFormat = (dateStr: string): Date | null => {
+  try {
+    // Expected format: "20-05-2025 00:28:51"
+    const [datePart, timePart] = dateStr.split(" ");
+    if (!datePart || !timePart) return null;
+
+    const [day, month, year] = datePart.split("-").map(Number);
+    const [hours, minutes, seconds] = timePart.split(":").map(Number);
+
+    // Create date using UTC to prevent timezone issues
+    // Month is 0-indexed in JavaScript Date
+    return new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
+  } catch (error) {
+    console.error("Error parsing date string:", dateStr, error);
+    return null;
+  }
+};
+
+// Function to safely format dates for display
+const formatDateForDisplay = (dateValue: string | Date | null | undefined): string => {
+  if (!dateValue) return "";
+
+  try {
+    let date: Date | null = null;
+
+    // If it's already a Date object
+    if (dateValue instanceof Date) {
+      date = dateValue;
+    }
+    // If it's a string in Lao format (DD-MM-YYYY HH:MM:SS)
+    else if (typeof dateValue === "string" && dateValue.includes("-") && dateValue.includes(":")) {
+      date = parseLaoDateFormat(dateValue);
+    }
+    // If it's any other string format
+    else if (typeof dateValue === "string") {
+      date = new Date(dateValue);
+    }
+
+    // Check if we have a valid date
+    if (date && !isNaN(date.getTime())) {
+      // Format as DD-MM-YYYY HH:MM:SS for consistency with API
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const seconds = String(date.getSeconds()).padStart(2, "0");
+
+      return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+    }
+
+    // If all else fails, return the original string if it's a string
+    return typeof dateValue === "string" ? dateValue : "";
+  } catch (error) {
+    console.warn("Error formatting date:", error, "Value was:", dateValue);
+    return typeof dateValue === "string" ? dateValue : "";
+  }
+};
+
 // Load data on component mount
 onMounted(async () => {
   await loadDpm();
 });
 
-// Function to load units from API or use mock data
 const loadDpm = async (): Promise<void> => {
-  // if (useRealApi.value) {
+  if (useRealApi.value) {
     try {
       loading.value = true;
       const result = await dpmStore.fetchDepartment();
 
-      // Convert domain entities to API model format
-      department.value = result.data.map((department: DepartmentEntity) => ({
-        id: parseInt(department.getId()),
-        name: department.getName(),
-        code: department.getCode(),
-        // created_at: department?.getCreatedAt().toISOString().replace("T", " ").substring(0, 19),
-        // updated_at: department?.getUpdatedAt().toISOString().replace("T", " ").substring(0, 19),
-      }));
+      department.value = result.data.map((dpm: any) => {
+        return {
+          id: dpm.id ? parseInt(dpm.id) : 0,
+          name: dpm.name || "",
+          code: dpm.code || "",
+          createdAt: dpm.createdAt || "",
+          updatedAt: dpm.updatedAt || "",
+        };
+      });
+
+      console.log("Department data loaded:", department.value);
     } catch (error) {
       console.error("Failed to fetch department from API:", error);
-      // Fallback to mock data if API fails
-      // department.value = [...dataUnits.value];
+      department.value = [...dataDpm.value];
     } finally {
       loading.value = false;
     }
-  // } else {
-  //   // Use mock data
-  //   department.value = [...dataDpm.value];
-  // }
+  } else {
+    department.value = [...dataDpm.value];
+  }
 };
 
 // CRUD operations
 const showCreateModal = (): void => {
   formModel.name = "";
+  formModel.code = "";
   createModalVisible.value = true;
 };
 
 const showEditModal = (record: DepartmentApiModel): void => {
   selectedDpm.value = record;
   formModel.name = record.name;
-  formModel.code = record.code;
+  formModel.code = record.code || "";
   editModalVisible.value = true;
 };
 
@@ -90,26 +153,26 @@ const handleCreate = async (): Promise<void> => {
     loading.value = true;
     await formRef.value.submitForm();
 
-    // if (useRealApi.value) {
+    if (useRealApi.value) {
       // Use API to create
       await dpmStore.createDepartment({ name: formModel.name, code: formModel.code });
       await loadDpm(); // Refresh the list
-    // } else {
-    //   // Create new unit with current timestamp (mock)
-    //   const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-    //   const newDpm: DepartmentApiModel = {
-    //     id: department.value.length + 1,
-    //     created_at: now,
-    //     name: formModel.name,
-    //     code: formModel.code,
-    //     updated_at: now,
-    //   };
-    //   department.value.push(newDpm);
-    //   // dataUnits.value.push(newDpm); // Update mock data for consistency
-    // }
+    } else {
+      // Create new unit with current timestamp (mock)
+      const now = formatDateForDisplay(new Date());
+      const newDpm: DepartmentApiModel = {
+        id: department.value.length + 1,
+        name: formModel.name,
+        code: formModel.code,
+        created_at: now,
+        updated_at: now,
+      };
+      department.value.push(newDpm);
+    }
 
     createModalVisible.value = false;
     formModel.name = "";
+    formModel.code = "";
   } catch (error) {
     console.error("Create form validation failed:", error);
   } finally {
@@ -126,23 +189,19 @@ const handleEdit = async (): Promise<void> => {
       if (useRealApi.value) {
         // Use API to update
         const id = selectedDpm.value.id.toString();
-        await dpmStore.updateDepartment(id, { id: id,  name: formModel.name, code: formModel.code });
-        await loadDpm(); // Refresh the list
+        await dpmStore.updateDepartment(id, { id, name: formModel.name, code: formModel.code });
+        await loadDpm();
       } else {
         // Update the unit locally (mock)
         const index = department.value.findIndex((u) => u.id === selectedDpm.value!.id);
         if (index !== -1) {
-          const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+          const now = formatDateForDisplay(new Date());
           department.value[index] = {
             ...department.value[index],
             name: formModel.name,
+            code: formModel.code,
             updated_at: now,
           };
-          // Update mock data too
-          // const mockIndex = dataUnits.value.findIndex((u) => u.id === selectedDpm.value!.id);
-          // if (mockIndex !== -1) {
-          //   dataUnits.value[mockIndex] = { ...units.value[index] };
-          // }
         }
       }
     }
@@ -164,7 +223,7 @@ const handleDelete = async (): Promise<void> => {
     try {
       // Use API to delete
       const id = selectedDpm.value.id.toString();
-      await dpmStore.deleteUnit(id);
+      await dpmStore.deleteDepartment(id);
       await loadDpm(); // Refresh the list
     } catch (error) {
       console.error("Delete failed:", error);
@@ -185,9 +244,8 @@ const handleDelete = async (): Promise<void> => {
   <div class="unit-list-container p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">{{ $t('departments.dpm.title') }}</h1>
+        <h1 class="text-2xl font-semibold">{{ $t("departments.dpm.title") }}</h1>
       </div>
-
 
       <UiButton
         type="primary"
@@ -195,17 +253,22 @@ const handleDelete = async (): Promise<void> => {
         @click="showCreateModal"
         colorClass="flex items-center"
       >
-        {{ $t('departments.dpm.add') }}
+        {{ $t("departments.dpm.add") }}
       </UiButton>
     </div>
 
     <!-- Loading indicator -->
     <div v-if="dpmStore.loading || loading" class="text-center py-4">
-      <p>{{ $t('messages.loading') }}</p>
+      <p>{{ $t("messages.loading") }}</p>
     </div>
 
     <!-- Units Table -->
-    <Table :columns="columns(t)" :dataSource="department" :pagination="{ pageSize: 10 }" row-key="id">
+    <Table
+      :columns="columns(t)"
+      :dataSource="department"
+      :pagination="{ pageSize: 10 }"
+      row-key="id"
+    >
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
