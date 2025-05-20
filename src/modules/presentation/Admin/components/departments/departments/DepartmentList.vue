@@ -1,7 +1,7 @@
 <template>
   <div class="unit-list">
     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-xl font-semibold text-gray-800">Units</h2>
+      <h2 class="text-xl font-semibold text-gray-800">Department</h2>
 
       <div class="flex space-x-2">
         <button
@@ -23,7 +23,7 @@
               d="M12 4v16m8-8H4"
             ></path>
           </svg>
-          New Unit
+          New department
         </button>
       </div>
     </div>
@@ -410,14 +410,14 @@
 </template>
 
 <script setup lang="ts">
+import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
+import { debounce } from "@/modules/shared/helpers";
 import { ref, computed } from "vue";
 import type { PropType } from "vue";
-import type { Unit } from "@/modules/domain/entities/unit.entities";
-import { debounce } from "@/modules/shared/helpers";
 
 const props = defineProps({
-  units: {
-    type: Array as PropType<Unit[]>,
+  department: {
+    type: Array as PropType<DepartmentEntity[]>,
     required: true,
   },
   pagination: {

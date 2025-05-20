@@ -38,14 +38,14 @@
 </template>
 
 <script setup lang="ts">
+import type { CreateDepartmentDTO, UpdateDepartmentDTO } from "@/modules/application/dtos/departments/deparment.dto";
+import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
 import { ref, computed, onMounted, watch } from "vue";
 import type { PropType } from "vue";
-import type { Unit } from "@/modules/domain/entities/unit.entities";
-import type { CreateUnitDTO, UpdateUnitDTO } from "@/modules/application/dtos/unit.dto";
 
 const props = defineProps({
-  unit: {
-    type: Object as PropType<Unit>,
+  department: {
+    type: Object as PropType<DepartmentEntity>,
     default: null,
   },
   loading: {
@@ -59,25 +59,26 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (e: "submit", data: CreateUnitDTO | UpdateUnitDTO): void;
+  (e: "submit", data: CreateDepartmentDTO | UpdateDepartmentDTO): void;
   (e: "cancel"): void;
 }>();
 
 const form = ref({
   name: "",
+  code: ""
 });
 
 const nameError = ref("");
-const isEdit = computed(() => !!props.unit);
+const isEdit = computed(() => !!props.department);
 
 onMounted(() => {
-  if (props.unit) {
-    form.value.name = props.unit.getName();
+  if (props.department) {
+    form.value.name = props.department.getName();
   }
 });
 
 watch(
-  () => props.unit,
+  () => props.department,
   (newValue) => {
     if (newValue) {
       form.value.name = newValue.getName();
@@ -101,7 +102,7 @@ const validateName = async () => {
   }
 
   // ตรวจสอบว่าชื่อซ้ำหรือไม่ (เฉพาะกรณีสร้างใหม่หรือชื่อเปลี่ยน)
-  if (!isEdit.value || (props.unit && form.value.name !== props.unit.getName())) {
+  if (!isEdit.value || (props.department && form.value.name !== props.department.getName())) {
     const exists = await props.nameExists(form.value.name);
     if (exists) {
       nameError.value = `Unit name '${form.value.name}' already exists`;
@@ -115,7 +116,7 @@ const validateName = async () => {
 
 const onSubmit = async () => {
   if (await validateName()) {
-    emit("submit", { name: form.value.name.trim() });
+    emit("submit", { name: form.value.name.trim(), code: form.value.code.trim() });
   }
 };
 </script>

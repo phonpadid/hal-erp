@@ -1,4 +1,4 @@
-export class Role {
+export class Permission {
   private id: string;
   private name: string;
   private display_name: string;
@@ -70,8 +70,8 @@ export class Role {
     this.updatedAt = new Date();
   }
 
-  public static create(id: string, name: string, display_name: string): Role {
+  public static create(id: string, name: string, display_name: string): Permission {
     const now = new Date();
-    return new Role(id, name, display_name, now, now);
+    return new Permission(id, name, display_name, now, now);
   }
 }

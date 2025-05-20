@@ -3,9 +3,47 @@
         "en": "English",
         "la": "Laos"
     },
+    "button": {
+        "ok": "Ok",
+        "cancel": "Cancel"
+    },
+    "messages": {
+        "loading": "Loading..."
+    },
     "deshboard": "Home system ERP",
     "menu_sidebar": {
         "menu": "Menu",
         "deshboard": "Deshboard"
+    },
+    "departments": {
+        "dpm": {
+            "title": "Department information",
+            "add": "Add departments",
+            "header_form": {
+                "add": "Departments creation form",
+                "edit": "Departments update form"
+            },
+            "placeholder":{
+                "code": "Enter code",
+                "name": "Enter departments name"
+            },
+            "error": { 
+                "code": "Please enter code",
+                "name": "Please enter departments name"
+            },
+            "field": {
+                "code": "Code",
+                "name": "Departments name",
+                "created": "Created At",
+                "updated": "Updated At",
+                "manege": "Manage"
+            }
+        },
+        "dpm_user": {
+
+        },
+        "dpm_approver": {
+
+        }
     }
 }

@@ -1,14 +1,14 @@
-import type { RoleRepository } from "./../../../domain/repository/role.repository";
-import type { Role } from "./../../../domain/entities/role.entities";
+import type { Role } from "@/modules/domain/entities/role.entities";
+import type { RoleRepository } from "@/modules/domain/repository/role.repository";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
 export class GetAllRolesUseCase {
   constructor(private readonly roleRepository: RoleRepository) {}
 
   async execute(
-    params: PaginationParams = { page: 1, limit: 10 },
+    params: PaginationParams,
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<Role>> {
-    return await this.roleRepository.findRoleAll(params, includeDeleted);
+    return await this.roleRepository.findAll(params, includeDeleted);
   }
 }
