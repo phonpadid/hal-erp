@@ -49,6 +49,28 @@ export const menuItems: ItemType[] = reactive([
             }),
           ]),
       },
+      {
+        key: "CategoryList",
+        label: "ປະເພດ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-receipt",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "ProductList",
+        label: "ສິນຄ້າ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-receipt",
+              class: "text-base",
+            }),
+          ]),
+      },
     ],
 
     type: "group",
