@@ -1,7 +1,7 @@
 export class Role {
   private id: string;
-  private display_name: string;
   private name: string;
+  private display_name: string;
   private createdAt: Date;
   private updatedAt: Date;
   private deletedAt: Date | null;
@@ -16,7 +16,7 @@ export class Role {
   ) {
     this.id = id;
     this.name = name;
-    this.display_name = name;
+    this.display_name = display_name;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.deletedAt = deletedAt;
@@ -29,6 +29,7 @@ export class Role {
   public getName(): string {
     return this.name;
   }
+
   public getDisplayname(): string {
     return this.display_name;
   }
@@ -54,8 +55,23 @@ export class Role {
     this.updatedAt = new Date();
   }
 
+  public updateDisplayName(display_name: string): void {
+    this.display_name = display_name;
+    this.updatedAt = new Date();
+  }
+
   public delete(): void {
     this.deletedAt = new Date();
     this.updatedAt = new Date();
+  }
+
+  public restore(): void {
+    this.deletedAt = null;
+    this.updatedAt = new Date();
+  }
+
+  public static create(id: string, name: string, display_name: string): Role {
+    const now = new Date();
+    return new Role(id, name, display_name, now, now);
   }
 }

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted,computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { UnitApiModel } from "@/modules/interfaces/unit.interface";
 import { useUnitStore } from "@/modules/presentation/Admin/stores/unit.store";
 import { Unit } from "@/modules/domain/entities/unit.entities";
-import { columns } from "./column";
+import { getColumns } from "./column";
 import { dataUnits } from "@/modules/shared/utils/data.unit";
 import { rules } from "./validation/unit.validate";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -12,6 +13,11 @@ import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
+
+// change the language in the system
+const { t } = useI18n();
+// Make columns reactive to language changes
+const columns = computed(() => getColumns(t));
 
 // Initialize the unit store
 const unitStore = useUnitStore();
@@ -185,14 +191,17 @@ const handleDelete = async (): Promise<void> => {
   <div class="unit-list-container p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">ລາຍການຫົວໜ່ວຍ</h1>
+        <h1 class="text-2xl font-semibold">{{ t('units.title') }}</h1>
         <div class="flex items-center mt-2">
-          <span class="mr-2 text-sm">ໂໝດ: {{ useRealApi ? "API ແທ້" : "Mock Data" }}</span>
+          <!-- Mode display -->
+          <span class="mr-2 text-sm">
+            {{ t('button.mode') }}: {{ useRealApi ? "API" : "Mock Data" }}
+          </span>
           <button
             @click="toggleApiMode"
             class="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded"
           >
-            ສະລັບໂໝດ
+            {{ t('button.mode') }}
           </button>
         </div>
       </div>
@@ -203,13 +212,13 @@ const handleDelete = async (): Promise<void> => {
         @click="showCreateModal"
         colorClass="flex items-center"
       >
-        ເພີ່ມຫົວໜ່ວຍໃໝ່
+        {{ t('units.add') }}
       </UiButton>
     </div>
 
     <!-- Loading indicator -->
     <div v-if="unitStore.loading || loading" class="text-center py-4">
-      <p>ກຳລັງໂຫຼດ...</p>
+      <p>{{ t('messages.loading') }}</p>
     </div>
 
     <!-- Units Table -->
@@ -223,7 +232,7 @@ const handleDelete = async (): Promise<void> => {
             @click="showEditModal(record)"
             colorClass="flex items-center"
           >
-            ແກ້ໄຂ
+            {{ t('button.edit') }}
           </UiButton>
           <UiButton
             type="primary"
@@ -233,7 +242,7 @@ const handleDelete = async (): Promise<void> => {
             size="small"
             @click="showDeleteModal(record)"
           >
-            ລຶບ
+            {{ t('button.delete') }}
           </UiButton>
         </div>
       </template>
@@ -241,49 +250,54 @@ const handleDelete = async (): Promise<void> => {
 
     <!-- Create Modal -->
     <UiModal
-      title="ເພີ່ມຫົວໜ່ວຍໃໝ່"
+      :title="t('units.header_form.add')"
       :visible="createModalVisible"
       :confirm-loading="loading"
       @update:visible="createModalVisible = $event"
       @ok="handleCreate"
       @cancel="createModalVisible = false"
+      :cancelText="t('button.cancel')"
+      :okText="t('button.confirm')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem label="ຊື່ຫົວໜ່ວຍ" name="name" required>
-          <UiInput v-model="formModel.name" placeholder="ກະລຸນາປ້ອນຊື່ຫົວໜ່ວຍ" />
+        <UiFormItem :label="t('units.field.name')" name="name" required>
+          <UiInput v-model="formModel.name" :placeholder="t('units.placeholder.name')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Edit Modal -->
     <UiModal
-      title="ແກ້ໄຂຫົວໜ່ວຍ"
+      :title="t('units.header_form.edit')"
       :visible="editModalVisible"
       :confirm-loading="loading"
       @update:visible="editModalVisible = $event"
       @ok="handleEdit"
       @cancel="editModalVisible = false"
+      :cancelText="t('button.cancel')"
+      :okText="t('button.confirm')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem label="ຊື່ຫົວໜ່ວຍ" name="name" required>
-          <UiInput v-model="formModel.name" placeholder="ກະລຸນາປ້ອນຊື່ຫົວໜ່ວຍ" />
+        <UiFormItem :label="t('units.field.name')" name="name" required>
+          <UiInput v-model="formModel.name" :placeholder="t('units.placeholder.name')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
     <UiModal
-      title="ຢືນຢັນການລຶບ"
+      :title="t('units.header_form.delete.title')"
       :visible="deleteModalVisible"
       :confirm-loading="loading"
       @update:visible="deleteModalVisible = $event"
       @ok="handleDelete"
+      :cancelText="t('button.cancel')"
       @cancel="deleteModalVisible = false"
-      okText="ຢືນຢັນ"
+      :okText="t('button.confirm')"
       okType="primary"
     >
-      <p>ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຫົວໜ່ວຍ "{{ selectedUnit?.name }}"?</p>
-      <p class="text-red-500">ການດຳເນີນການນີ້ບໍ່ສາມາດຍົກເລີກໄດ້.</p>
+      <p>{{ t('units.header_form.delete.content') }} "{{ selectedUnit?.name }}"?</p>
+      <p class="text-red-500">{{ t('units.header_form.delete.description') }}</p>
     </UiModal>
   </div>
 </template>

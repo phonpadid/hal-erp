@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted,computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { CategoryApiModel } from "@/modules/interfaces/category.interface";
 import { useCategoryStore } from "@/modules/presentation/Admin/stores/category.store";
 import { Category } from "@/modules/domain/entities/categories.entities";
-import { columns } from "./column";
+import { getColumns } from "./column";
 import { dataCategories } from "@/modules/shared/utils/data.category";
 import { rules } from "./validation/category.vallidate";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -13,7 +14,11 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 
-// Initialize the category store
+// change the language in the system
+const { t } = useI18n();
+// Make columns reactive to language changes
+const columns = computed(()=>getColumns(t));
+
 const categoryStore = useCategoryStore();
 const categories = ref<CategoryApiModel[]>([]);
 const useRealApi = ref<boolean>(false);
@@ -170,14 +175,16 @@ const handleDelete = async (): Promise<void> => {
   <div class="category-list-container p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">ລາຍການໝວດໝູ່</h1>
+        <h1 class="text-2xl font-semibold">{{ t('categories.title') }}</h1>
         <div class="flex items-center mt-2">
-          <span class="mr-2 text-sm">ໂໝດ: {{ useRealApi ? "API ແທ້" : "Mock Data" }}</span>
+          <span class="mr-2 text-sm">
+            {{ t('categories.mode', 'ໂໝດ') }}: {{ useRealApi ? t('categories.real_api', 'API ແທ້') : t('categories.mock_data', 'Mock Data') }}
+          </span>
           <button
             @click="toggleApiMode"
             class="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded"
           >
-            ສະລັບໂໝດ
+            {{ t('button.mode', 'ສະລັບໂໝດ') }}
           </button>
         </div>
       </div>
@@ -188,12 +195,12 @@ const handleDelete = async (): Promise<void> => {
         @click="showCreateModal"
         colorClass="flex items-center"
       >
-        ເພີ່ມໝວດໝູ່ໃໝ່
+        {{ t('categories.add') }}
       </UiButton>
     </div>
 
     <div v-if="categoryStore.loading || loading" class="text-center py-4">
-      <p>ກຳລັງໂຫຼດ...</p>
+      <p>{{ t('messages.loading') }}</p>
     </div>
 
     <Table :columns="columns" :dataSource="categories" :pagination="{ pageSize: 10 }" row-key="id">
@@ -206,7 +213,7 @@ const handleDelete = async (): Promise<void> => {
             @click="showEditModal(record)"
             colorClass="flex items-center"
           >
-            ແກ້ໄຂ
+            {{ t('button.edit') }}
           </UiButton>
           <UiButton
             type="primary"
@@ -216,7 +223,7 @@ const handleDelete = async (): Promise<void> => {
             colorClass="flex items-center"
             @click="showDeleteModal(record)"
           >
-            ລຶບ
+            {{ t('button.delete') }}
           </UiButton>
         </div>
       </template>
@@ -224,49 +231,54 @@ const handleDelete = async (): Promise<void> => {
 
     <!-- Create Modal -->
     <UiModal
-      title="ເພີ່ມໝວດໝູ່ໃໝ່"
+      :title="t('categories.header_form.add')"
       :visible="createModalVisible"
       :confirm-loading="loading"
       @update:visible="createModalVisible = $event"
       @ok="handleCreate"
       @cancel="createModalVisible = false"
+      :cancelText="t('button.cancel')"
+      :okText="t('button.confirm')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem label="ຊື່ໝວດໝູ່" name="name" required>
-          <UiInput v-model="formModel.name" placeholder="ກະລຸນາປ້ອນຊື່ໝວດໝູ່" />
+        <UiFormItem :label="t('categories.field.name')" name="name" required>
+          <UiInput v-model="formModel.name" :placeholder="t('categories.placeholder.name')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Edit Modal -->
     <UiModal
-      title="ແກ້ໄຂໝວດໝູ່"
+      :title="t('categories.header_form.edit')"
       :visible="editModalVisible"
       :confirm-loading="loading"
       @update:visible="editModalVisible = $event"
       @ok="handleEdit"
       @cancel="editModalVisible = false"
+      :cancelText="t('button.cancel')"
+      :okText="t('button.confirm')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem label="ຊື່ໝວດໝູ່" name="name" required>
-          <UiInput v-model="formModel.name" placeholder="ກະລຸນາປ້ອນຊື່ໝວດໝູ່" />
+        <UiFormItem :label="t('categories.field.name')" name="name" required>
+          <UiInput v-model="formModel.name" :placeholder="t('categories.placeholder.name')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Delete Modal -->
     <UiModal
-      title="ຢືນຢັນການລຶບ"
+      :title="t('categories.header_form.delete.title')"
       :visible="deleteModalVisible"
       :confirm-loading="loading"
       @update:visible="deleteModalVisible = $event"
       @ok="handleDelete"
       @cancel="deleteModalVisible = false"
-      okText="ຢືນຢັນ"
+      :okText="t('button.confirm')"
+      :cancelText="t('button.cancel')"
       okType="primary"
     >
-      <p>ທ່ານແນ່ໃຈບໍ່ວ່າຈະລຶບ "{{ selectedCategory?.name }}"?</p>
-      <p class="text-red-500">ການລຶບນີ້ບໍ່ສາມາດຍົກເລີກໄດ້.</p>
+      <p>{{ t('categories.header_form.delete.content') }} "{{ selectedCategory?.name }}"?</p>
+      <p class="text-red-500">{{ t('categories.header_form.delete.description') }}</p>
     </UiModal>
   </div>
 </template>
