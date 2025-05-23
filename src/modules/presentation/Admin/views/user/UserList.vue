@@ -7,7 +7,7 @@ import { useUserStore } from "../../stores/user.store";
 import { columns } from "./column";
 import { formatDate } from "@/modules/shared/formatdate";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
-import { message } from "ant-design-vue";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -16,7 +16,7 @@ import UserForm from "../../components/user/UserForm.vue";
 
 const { t } = useI18n();
 const userStore = useUserStore();
-const useRealApi = ref<boolean>(false);
+const { success, error } = useNotification();
 // State
 const users = ref<UserInterface[]>([]);
 const loading = ref<boolean>(false);
@@ -71,15 +71,15 @@ const loadUsers = async (
     pagination.pageSize = result.limit;
     pagination.total = result.total;
     pagination.totalPages = result.totalPages;
-  } catch (error) {
-    console.error("Error loading users:", error);
-    message.error(t("user.error.loadFailed"));
+  } catch (err) {
+    console.error("Error loading users:", err);
+    error(t("user.error.loadFailed"));
   } finally {
     loading.value = false;
   }
 };
 
-// จัดการการเปลี่ยนแปลงของตาราง (pagination, sorting)
+// (pagination, sorting)
 const handleTableChange = (
   paginationInfo: TablePaginationType,
   _filters: Record<string, string[]>,
@@ -130,76 +130,41 @@ const handleModalCancel = () => {
 };
 
 const handleFormSubmit = async (formData: any) => {
-  console.log("Form data being submitted:", formData);
-
   try {
-    // ตรวจสอบชื่อผู้ใช้ซ้ำก่อนส่งไปที่ API
-    if (!isEditMode.value) {
-      const isAvailable = await userStore.checkUsernameAvailability(formData.username);
-      if (!isAvailable) {
-        message.error(`ชื่อผู้ใช้ "${formData.username}" มีผู้ใช้งานแล้ว กรุณาเลือกชื่อผู้ใช้อื่น`);
-        return;
-      }
-    }
-
     submitLoading.value = true;
+
     if (isEditMode.value && selectedUser.value) {
-      // ถ้าพาสเวิร์ดว่าง ให้ลบออกจาก formData
       if (formData.password === "") {
         delete formData.password;
       }
-
       await userStore.updateUser(selectedUser.value.id.toString(), formData);
-      message.success(t("user.success.updated"));
+      success(t("user.success.title"), t("user.success.updated"));
     } else {
       await userStore.createUser(formData);
-      message.success(t("user.success.created"));
+      success(t("user.success.title"), t("user.success.created"));
     }
 
     modalVisible.value = false;
     await loadUsers();
   } catch (error: any) {
     console.error("Error saving user:", error);
-
-    // แสดงข้อความที่เฉพาะเจาะจงมากขึ้น
-    if (
-      error.message &&
-      error.message.includes("Username") &&
-      error.message.includes("already exists")
-    ) {
-      message.error(`ชื่อผู้ใช้ "${formData.username}" มีผู้ใช้งานแล้ว`);
-    } else if (
-      error.message &&
-      error.message.includes("Email") &&
-      error.message.includes("already exists")
-    ) {
-      message.error(`อีเมล "${formData.email}" มีผู้ใช้งานแล้ว`);
-    } else {
-      message.error(t("user.error.saveFailed"));
-    }
   } finally {
     submitLoading.value = false;
   }
 };
-
 const handleDeleteConfirm = async () => {
   if (!selectedUser.value) return;
 
   try {
     submitLoading.value = true;
-
-    if (useRealApi.value) {
-      await userStore.deleteUser(selectedUser.value.id.toString());
-      message.success(t("user.success.deleted"));
-    } else {
-      return;
-    }
+    await userStore.deleteUser(selectedUser.value.id.toString());
+    success(t("user.success.title"), t("user.success.deleted"));
 
     deleteModalVisible.value = false;
     await loadUsers();
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    message.error(t("user.error.deleteFailed"));
+  } catch (err) {
+    console.error("Error deleting user:", err);
+    error(t("user.error.deleteFailed"));
   } finally {
     submitLoading.value = false;
   }
@@ -281,7 +246,6 @@ const handleDeleteConfirm = async () => {
         </div>
       </template>
     </Table>
-
     <!-- Create/Edit User Modal -->
     <UiModal
       :title="isEditMode ? t('user.modal.edit') : t('user.modal.create')"

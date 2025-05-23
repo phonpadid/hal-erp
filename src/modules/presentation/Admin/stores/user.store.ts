@@ -1,3 +1,4 @@
+import type { UserCreatePayload } from "./../../../interfaces/user.interface";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { Ref } from "vue";
@@ -86,13 +87,7 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
-  // Create User
-  const createUser = async (userData: {
-    username: string;
-    email: string;
-    password: string;
-    tel?: string;
-  }) => {
+  const createUser = async (userData: UserCreatePayload) => {
     loading.value = true;
     error.value = null;
 
@@ -107,32 +102,6 @@ export const useUserStore = defineStore("user", () => {
       loading.value = false;
     }
   };
-  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
-    loading.value = true;
-    error.value = null;
-
-    try {
-
-      const existingUser = users.value.find(
-        (user) => user.getUsername().toLowerCase() === username.toLowerCase()
-      );
-
-      if (existingUser) {
-        return false; // มีผู้ใช้นี้แล้ว
-      }
-
-      const userRepo = new ApiUserRepository();
-      const user = await userRepo.findByUsername(username);
-      return !user; // ถ้าไม่พบ user จะ return true (สามารถใช้ได้)
-    } catch (err) {
-      error.value = err as Error;
-      console.error("Error checking username:", err);
-      return false; // กรณีเกิดข้อผิดพลาดให้ถือว่าใช้ไม่ได้เพื่อความปลอดภัย
-    } finally {
-      loading.value = false;
-    }
-  };
-
   // Update User
   const updateUser = async (
     id: string,
@@ -143,13 +112,10 @@ export const useUserStore = defineStore("user", () => {
 
     try {
       const updatedUser = await userService.updateUser(id, userData);
-
-      // Update users list if it's loaded
       const index = users.value.findIndex((u) => u.getId() === id);
       if (index !== -1) {
         users.value[index] = updatedUser;
       }
-
       // Update current user if it's loaded
       if (currentUser.value && currentUser.value.getId() === id) {
         currentUser.value = updatedUser;
@@ -171,16 +137,12 @@ export const useUserStore = defineStore("user", () => {
 
     try {
       const result = await userService.deleteUser(id);
-
       if (result) {
-        // Update users list if it's loaded
         const index = users.value.findIndex((u) => u.getId() === id);
         if (index !== -1) {
-          // เรียกใช้เมธอด delete ในอ็อบเจกต์ UserEntity
           users.value[index].delete();
         }
       }
-
       return result;
     } catch (err) {
       error.value = err as Error;
@@ -221,7 +183,6 @@ export const useUserStore = defineStore("user", () => {
     loading,
     error,
     pagination,
-    checkUsernameAvailability,
 
     // Getters
     activeUsers,

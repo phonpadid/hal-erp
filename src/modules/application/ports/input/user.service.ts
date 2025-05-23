@@ -5,9 +5,11 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 export interface UserService {
   createUser(createUnitDTO: CreateUserDTO): Promise<UserEntity>;
   getUserById(id: string): Promise<UserEntity | null>;
-  getUserByName(name: string): Promise<UserEntity | null>;
-  getAllUser(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<UserEntity>>;
+  getUserByName(username: string): Promise<UserEntity | null>;
+  getAllUser(
+    params: PaginationParams,
+    includeDeleted?: boolean
+  ): Promise<PaginatedResult<UserEntity>>;
   updateUser(id: string, updateUnitDTO: UpdateUserDTO): Promise<UserEntity>;
   deleteUser(id: string): Promise<boolean>;
-
 }

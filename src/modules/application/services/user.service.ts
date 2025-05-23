@@ -31,16 +31,10 @@ export class UserServiceImpl implements UserServices {
     return await this.userRepository.findById(id);
   }
 
+  async getUserByUsername(username: string): Promise<UserEntity | null> {
+    return await this.userRepository.findByUsername(username);
+  }
   async createUser(userData: UserCreatePayload): Promise<UserEntity> {
-    const existingUsername = await this.userRepository.findByUsername(userData.username);
-    if (existingUsername) {
-      throw new Error(`Username ${userData.username} already exists`);
-    }
-    const existingEmail = await this.userRepository.findByEmail(userData.email);
-    if (existingEmail) {
-      throw new Error(`Email ${userData.email} already exists`);
-    }
-
     return await this.userRepository.create(userData);
   }
 
