@@ -4,6 +4,7 @@ import { rolesRoutes } from "@/modules/presentation/Admin/router/roleRoutes";
 import { departmentRoutes } from "@/modules/presentation/Admin/router/departments/department.routers";
 import { unitRoutes } from "@/modules/presentation/Admin/router/unitRoutes";
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import { userRoutes } from "@/modules/presentation/Admin/router/userRoutes";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -15,6 +16,7 @@ const routes: RouteRecordRaw[] = [
       ...rolesRoutes,
       ...permissionRoutes,
       ...departmentRoutes,
+      ...userRoutes,
     ],
   },
 ];

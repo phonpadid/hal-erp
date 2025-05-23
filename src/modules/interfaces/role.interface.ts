@@ -16,5 +16,7 @@ export interface RoleUpdate {
 export interface RoleResponse {
   id: number;
   name: string;
-  display_name: string;
+  created_at: string;
+  updated_at: string;
+  // display_name: string;
 }

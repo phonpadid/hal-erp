@@ -1,0 +1,145 @@
+import type { UserCreatePayload } from "./../interfaces/user.interface";
+import { UserEntity } from "@/modules/domain/entities/user.entities";
+import type { UserRepository } from "@/modules/domain/repository/user.repository";
+import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
+import { api } from "@/common/config/axios/axios";
+import type { AxiosError } from "axios";
+
+export class ApiUserRepository implements UserRepository {
+  private readonly baseUrl = "/users";
+
+  async findAll(
+    params: PaginationParams,
+    includeDeleted: boolean = false
+  ): Promise<PaginatedResult<UserEntity>> {
+    try {
+      const response = await api.get(this.baseUrl, {
+        params: {
+          page: params.page || 1,
+          limit: params.limit || 10,
+          search: params.search || "",
+          sort_by: params.sortBy,
+          sortDirection: params.sortDirection,
+          include_deleted: includeDeleted,
+        },
+      });
+      return {
+        data: response.data.data.map((user: unknown) => this.toDomainModel(user)),
+        total: response.data.total,
+        page: response.data.page,
+        limit: response.data.limit,
+        totalPages: Math.ceil(response.data.total / response.data.limit),
+      };
+    } catch (error) {
+      this.handleApiError(error, "Failed to fetch users list");
+    }
+  }
+
+  async findById(id: string): Promise<UserEntity | null> {
+    try {
+      const response = await api.get(`${this.baseUrl}/${id}`);
+      return this.toDomainModel(response.data.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response?.status === 404) {
+        return null;
+      }
+      this.handleApiError(error, `Failed to find user with id ${id}`);
+    }
+  }
+
+  async findByUsername(username: string): Promise<UserEntity | null> {
+    try {
+      const response = await api.get(this.baseUrl, {
+        params: { username, limit: 1 },
+      });
+
+      if (response.data.data.length === 0) {
+        return null;
+      }
+
+      return this.toDomainModel(response.data.data[0]);
+    } catch (error) {
+      console.error(`Error finding user by username '${username}':`, error);
+      return null;
+    }
+  }
+
+  async findByEmail(email: string): Promise<UserEntity | null> {
+    try {
+      const response = await api.get(this.baseUrl, {
+        params: { email, limit: 1 },
+      });
+
+      if (response.data.data.length === 0) {
+        return null;
+      }
+
+      return this.toDomainModel(response.data.data[0]);
+    } catch (error) {
+      console.error(`Error finding user by email '${email}':`, error);
+      return null;
+    }
+  }
+
+  async create(userData: UserCreatePayload): Promise<UserEntity> {
+    try {
+      const response = await api.post(this.baseUrl, userData);
+      return this.toDomainModel(response.data.data);
+    } catch (error) {
+      this.handleApiError(error, "Failed to create user");
+    }
+  }
+
+  async update(
+    id: string,
+    userData: { username?: string; email?: string; password?: string; tel?: string }
+  ): Promise<UserEntity> {
+    try {
+      const response = await api.put(`${this.baseUrl}/${id}`, userData);
+      return this.toDomainModel(response.data.data);
+    } catch (error) {
+      this.handleApiError(error, `Failed to update user with id ${id}`);
+    }
+  }
+
+  async delete(id: string): Promise<boolean> {
+    try {
+      await api.delete(`${this.baseUrl}/${id}`);
+      return true;
+    } catch (error) {
+      this.handleApiError(error, `Failed to delete user with id ${id}`);
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private toDomainModel(user: any): UserEntity {
+    return new UserEntity(
+      user.id.toString(),
+      user.username,
+      user.email,
+      user.created_at || "",
+      user.updated_at || "",
+      user.deleted_at || null,
+      user.password,
+      user.tel
+    );
+  }
+
+  private handleApiError(error: unknown, defaultMessage: string): never {
+    const axiosError = error as AxiosError<{ message?: string }>;
+
+    if (axiosError.response) {
+      const statusCode = axiosError.response.status;
+      const serverMessage = axiosError.response.data?.message || defaultMessage;
+
+      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+    } else if (axiosError.request) {
+      throw new Error(
+        `Network Error: The request was made but no response was received. Please check your connection.`
+      );
+    } else {
+      throw new Error(`${defaultMessage}: ${(error as Error).message || "Unknown error"}`);
+    }
+  }
+}
