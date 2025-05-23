@@ -1,9 +1,4 @@
-interface Column {
-  title: string; // must be string exactly
-  dataIndex: string;
-  key: string;
-  align?: string;
-}
+import type { Column } from "@/modules/shared/column/column";
 
 export function columns(t: (key: string) => string): Column[] {
   return [

@@ -3,7 +3,7 @@ import { ref, reactive, onMounted } from "vue";
 import { columns } from "./column";
 import { departmentStore } from "../../../stores/departments/department.store";
 import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
-import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
+// import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -13,7 +13,7 @@ import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import { dpmRules } from "../../unit/validation/departments/department.validate";
 import { useI18n } from "vue-i18n";
-import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+// import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
 const { t } = useI18n();
 // Initialize the unit store
@@ -107,6 +107,7 @@ const loadDpm = async (): Promise<void> => {
       loading.value = true;
       const result = await dpmStore.fetchDepartment();
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       department.value = result.data.map((dpm: any) => {
         return {
           id: dpm.id ? parseInt(dpm.id) : 0,

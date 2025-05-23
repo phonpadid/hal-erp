@@ -6,6 +6,16 @@ import { ApiRoleRepository } from "@/modules/infrastructure/api-role.repository"
 import type { Role } from "@/modules/domain/entities/role.entities";
 import type { PaginationParams } from "@/modules/shared/pagination";
 
+// เพิ่ม interface สำหรับข้อมูลดิบ
+interface RawRole {
+  id: number | string;
+  name: string;
+  display_name?: string;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
+
 //  role service
 const createRoleService = () => {
   const roleRepository = new ApiRoleRepository();
@@ -17,6 +27,8 @@ export const useRoleStore = defineStore("roles", () => {
   const roleService = createRoleService();
   // State
   const roles: Ref<Role[]> = ref([]);
+  // เพิ่ม state ใหม่สำหรับเก็บข้อมูลดิบจาก API
+  const rawRoles: Ref<RawRole[]> = ref([]);
   const currentRole: Ref<Role | null> = ref(null);
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
@@ -44,14 +56,27 @@ export const useRoleStore = defineStore("roles", () => {
 
     try {
       const result = await roleService.getAllRoles(params, includeDeleted);
+
+      // เก็บข้อมูลดิบจาก API ก่อนที่จะถูกแปลงเป็น Entity
+      // เพิ่มบรรทัดนี้เพื่อเก็บข้อมูลดิบ
+      rawRoles.value = JSON.parse(JSON.stringify(result.data));
+      console.log("Raw roles data:", rawRoles.value);
+
       roles.value = result.data;
+      console.log("Roles fetched successfully:", roles.value);
+
       pagination.value = {
         page: result.page,
         limit: result.limit,
         total: result.total,
         totalPages: result.totalPages,
       };
-      return result;
+
+      // ส่งคืนข้อมูลดิบ
+      return {
+        ...result,
+        raw_data: rawRoles.value,
+      };
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -63,6 +88,7 @@ export const useRoleStore = defineStore("roles", () => {
   // Reset state
   const resetState = () => {
     roles.value = [];
+    rawRoles.value = [];
     currentRole.value = null;
     error.value = null;
     pagination.value = {
@@ -76,6 +102,7 @@ export const useRoleStore = defineStore("roles", () => {
   return {
     // State
     roles,
+    rawRoles, // เพิ่มการ export rawRoles
     fetchRoles,
     currentRole,
     loading,

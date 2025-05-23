@@ -12,7 +12,7 @@ export class ApiPermissionRepository implements PermissionRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<Permission>> {
     try {
-      const response = (await api.get("/permission", {
+      const response = (await api.get("/permissions", {
         params: {
           page: params.page,
           limit: params.limit,
@@ -41,8 +41,8 @@ export class ApiPermissionRepository implements PermissionRepository {
       data.id.toString(),
       data.name,
       data.display_name,
-      new Date(data.created_at),
-      new Date(data.updated_at)
+      data.created_at,
+      data.updated_at
     );
   }
 

@@ -13,17 +13,7 @@ export class ApiRoleRepository implements RoleRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<Role>> {
     try {
-      console.log("API Request - findAll:", {
-        url: "/role",
-        params: {
-          page: params.page,
-          limit: params.limit,
-          search: params.search || "",
-          status: includeDeleted ? undefined : "active",
-        },
-      });
-
-      const response = (await api.get("/role", {
+      const response = (await api.get("/roles", {
         params: {
           page: params.page,
           limit: params.limit,
@@ -53,7 +43,7 @@ export class ApiRoleRepository implements RoleRepository {
         url: `/role/${id}`,
       });
 
-      const response = (await api.get(`/role/${id}`)) as { data: ApiResponse<Roleinterface> };
+      const response = (await api.get(`/roles/${id}`)) as { data: ApiResponse<Roleinterface> };
 
       console.log("API Response - findById:", response.data);
 
@@ -76,7 +66,7 @@ export class ApiRoleRepository implements RoleRepository {
         params: { name },
       });
 
-      const response = (await api.get("/role", {
+      const response = (await api.get("/roles", {
         params: { name, limit: 1 },
       })) as { data: ApiListResponse<Roleinterface> };
 
@@ -95,12 +85,7 @@ export class ApiRoleRepository implements RoleRepository {
 
   async create(data: { name: string; display_name: string }): Promise<Role> {
     try {
-      console.log("API Request - create:", {
-        url: "/role",
-        data,
-      });
-
-      const response = (await api.post("/role", data)) as {
+      const response = (await api.post("/roles", data)) as {
         data: ApiResponse<Roleinterface>;
       };
 
@@ -125,7 +110,7 @@ export class ApiRoleRepository implements RoleRepository {
         data: payload,
       });
 
-      const response = (await api.put(`/role/${id}`, payload)) as {
+      const response = (await api.put(`/roles/${id}`, payload)) as {
         data: ApiResponse<Roleinterface>;
       };
 
@@ -140,14 +125,7 @@ export class ApiRoleRepository implements RoleRepository {
 
   async delete(id: string): Promise<boolean> {
     try {
-      console.log("API Request - delete:", {
-        url: `/role/${id}`,
-      });
-
-      await api.delete(`/role/${id}`);
-
-      console.log("API Response - delete: Success");
-
+      await api.delete(`/roles/${id}`);
       return true;
     } catch (error) {
       console.error("API Error - delete:", error);
@@ -160,8 +138,8 @@ export class ApiRoleRepository implements RoleRepository {
       data.id.toString(),
       data.name,
       data.display_name,
-      new Date(data.created_at),
-      new Date(data.updated_at)
+      data.created_at,
+      data.updated_at
     );
   }
 

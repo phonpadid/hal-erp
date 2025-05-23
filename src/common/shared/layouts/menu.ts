@@ -81,7 +81,7 @@ export const menuItems: ItemType[] = reactive([
           ]),
         children: [
           {
-            key: "users",
+            key: "userList",
             label: "ຜູ້ໃຊ້",
           },
           {
