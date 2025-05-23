@@ -76,7 +76,7 @@
     "header_form": {
       "add": "Add new category",
       "edit": "Update category",
-      "delete":{
+      "delete": {
         "title": "Confirm delete",
         "content": "Are you sure you want to delete",
         "description": "This action cannot be undone"
@@ -115,6 +115,31 @@
     },
     "field": {
       "name": "Unit name",
+      "created": "Created At",
+      "updated": "Updated At",
+      "manage": "Manage"
+    }
+  },
+  "positions": {
+    "title": "Position information",
+    "add": "Add new position",
+    "header_form": {
+      "add": "Add new position",
+      "edit": "Update position",
+      "delete": {
+        "title": "Confirm delete",
+        "content": "Are you sure you want to delete",
+        "description": "This action cannot be undone"
+      }
+    },
+    "placeholder": {
+      "name": "Please enter position name"
+    },
+    "error": {
+      "name": "Please enter position name"
+    },
+    "field": {
+      "name": "Position name",
       "created": "Created At",
       "updated": "Updated At",
       "manage": "Manage"

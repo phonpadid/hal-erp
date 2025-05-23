@@ -9,7 +9,7 @@ function logout() {
     .push({
       name: "login",
     })
-    .catch(() => {});
+    .catch(() => { });
 }
 
 export const menuItems: ItemType[] = reactive([
@@ -30,6 +30,17 @@ export const menuItems: ItemType[] = reactive([
       {
         key: "",
         label: "ສ້າງໃບສະເໜີ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-receipt",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "PositionList",
+        label: "ຕຳແໜ່ງ",
         icon: () =>
           h("div", {}, [
             h(Icon, {

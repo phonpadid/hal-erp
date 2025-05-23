@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted,computed } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import type { CategoryApiModel } from "@/modules/interfaces/category.interface";
-import { useCategoryStore } from "@/modules/presentation/Admin/stores/category.store";
-import { Category } from "@/modules/domain/entities/categories.entities";
+import type { PositionApiModel } from "@/modules/interfaces/position.interface";
+import { usePositionStore } from "@/modules/presentation/Admin/stores/position.store";
+import { Position } from "@/modules/domain/entities/position.entities";
 import { getColumns } from "./column";
-import { dataCategories } from "@/modules/shared/utils/data.category";
-import { rules } from "./validation/category.vallidate";
+import {dataPositions} from "@/modules/shared/utils/data.position";
+import { rules } from "./validation/position.validate";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -17,10 +17,10 @@ import UiForm from "@/common/shared/components/Form/UiForm.vue";
 // change the language in the system
 const { t } = useI18n();
 // Make columns reactive to language changes
-const columns = computed(()=>getColumns(t));
+const columns = computed(() => getColumns(t));
 
-const categoryStore = useCategoryStore();
-const categories = ref<CategoryApiModel[]>([]);
+const positionStore = usePositionStore();
+const positions = ref<PositionApiModel[]>([]);
 const useRealApi = ref<boolean>(false);
 
 // Form related
@@ -29,7 +29,7 @@ const createModalVisible = ref<boolean>(false);
 const editModalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
-const selectedCategory = ref<CategoryApiModel | null>(null);
+const selectedPosition = ref<PositionApiModel | null>(null);
 
 // Form model
 const formModel = reactive({
@@ -37,35 +37,35 @@ const formModel = reactive({
 });
 
 onMounted(async () => {
-  await loadCategories();
+  await loadPositions();
 });
 
-const loadCategories = async (): Promise<void> => {
+const loadPositions = async (): Promise<void> => {
   if (useRealApi.value) {
     try {
       loading.value = true;
-      const result = await categoryStore.fetchCategories();
+      const result = await positionStore.fetchPositions();
 
-      categories.value = result.data.map((category: Category) => ({
-        id: parseInt(category.getId()),
-        name: category.getName(),
-        created_at: category.getCreatedAt().toISOString().replace("T", " ").substring(0, 19),
-        updated_at: category.getUpdatedAt().toISOString().replace("T", " ").substring(0, 19),
+      positions.value = result.data.map((position: Position) => ({
+        id: parseInt(position.getId()),
+        name: position.getName(),
+        created_at: position.getCreatedAt().toISOString().replace("T", " ").substring(0, 19),
+        updated_at: position.getUpdatedAt().toISOString().replace("T", " ").substring(0, 19),
       }));
     } catch (error) {
-      console.error("Failed to fetch categories from API:", error);
-      categories.value = [...dataCategories.value];
+      console.error("Failed to fetch positions from API:", error);
+      positions.value = [...dataPositions.value];
     } finally {
       loading.value = false;
     }
   } else {
-    categories.value = [...dataCategories.value];
+    positions.value = [...dataPositions.value];
   }
 };
 
 const toggleApiMode = (): void => {
   useRealApi.value = !useRealApi.value;
-  loadCategories();
+  loadPositions();
 };
 
 const showCreateModal = (): void => {
@@ -73,14 +73,14 @@ const showCreateModal = (): void => {
   createModalVisible.value = true;
 };
 
-const showEditModal = (record: CategoryApiModel): void => {
-  selectedCategory.value = record;
+const showEditModal = (record: PositionApiModel): void => {
+  selectedPosition.value = record;
   formModel.name = record.name;
   editModalVisible.value = true;
 };
 
-const showDeleteModal = (record: CategoryApiModel): void => {
-  selectedCategory.value = record;
+const showDeleteModal = (record: PositionApiModel): void => {
+  selectedPosition.value = record;
   deleteModalVisible.value = true;
 };
 
@@ -90,18 +90,18 @@ const handleCreate = async (): Promise<void> => {
     await formRef.value.submitForm();
 
     if (useRealApi.value) {
-      await categoryStore.createCategory({ name: formModel.name });
-      await loadCategories();
+      await positionStore.createPosition({ name: formModel.name });
+      await loadPositions();
     } else {
       const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-      const newCategory: CategoryApiModel = {
-        id: categories.value.length + 1,
+      const newPosition: PositionApiModel = {
+        id: positions.value.length + 1,
         name: formModel.name,
         created_at: now,
         updated_at: now,
       };
-      categories.value.push(newCategory);
-      dataCategories.value.push(newCategory);
+      positions.value.push(newPosition);
+      dataPositions.value.push(newPosition);
     }
 
     createModalVisible.value = false;
@@ -118,23 +118,23 @@ const handleEdit = async (): Promise<void> => {
     loading.value = true;
     await formRef.value.submitForm();
 
-    if (selectedCategory.value) {
+    if (selectedPosition.value) {
       if (useRealApi.value) {
-        const id = selectedCategory.value.id.toString();
-        await categoryStore.updateCategory(id, { name: formModel.name });
-        await loadCategories();
+        const id = selectedPosition.value.id.toString();
+        await positionStore.updatePosition(id, { name: formModel.name });
+        await loadPositions();
       } else {
-        const index = categories.value.findIndex((c) => c.id === selectedCategory.value!.id);
+        const index = positions.value.findIndex((p) => p.id === selectedPosition.value!.id);
         if (index !== -1) {
           const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-          categories.value[index] = {
-            ...categories.value[index],
+          positions.value[index] = {
+            ...positions.value[index],
             name: formModel.name,
             updated_at: now,
           };
-          const mockIndex = dataCategories.value.findIndex((c) => c.id === selectedCategory.value!.id);
+          const mockIndex = dataPositions.value.findIndex((p) => p.id === selectedPosition.value!.id);
           if (mockIndex !== -1) {
-            dataCategories.value[mockIndex] = { ...categories.value[index] };
+            dataPositions.value[mockIndex] = { ...positions.value[index] };
           }
         }
       }
@@ -149,21 +149,21 @@ const handleEdit = async (): Promise<void> => {
 };
 
 const handleDelete = async (): Promise<void> => {
-  if (!selectedCategory.value) return;
+  if (!selectedPosition.value) return;
 
   loading.value = true;
 
   if (useRealApi.value) {
     try {
-      const id = selectedCategory.value.id.toString();
-      await categoryStore.deleteCategory(id);
-      await loadCategories();
+      const id = selectedPosition.value.id.toString();
+      await positionStore.deletePosition(id);
+      await loadPositions();
     } catch (error) {
       console.error("Delete failed:", error);
     }
   } else {
-    categories.value = categories.value.filter((c) => c.id !== selectedCategory.value!.id);
-    dataCategories.value = dataCategories.value.filter((c) => c.id !== selectedCategory.value!.id);
+    positions.value = positions.value.filter((p) => p.id !== selectedPosition.value!.id);
+    dataPositions.value = dataPositions.value.filter((p) => p.id !== selectedPosition.value!.id);
   }
 
   deleteModalVisible.value = false;
@@ -172,13 +172,13 @@ const handleDelete = async (): Promise<void> => {
 </script>
 
 <template>
-  <div class="category-list-container p-6">
+  <div class="position-list-container p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">{{ t('categories.title') }}</h1>
+        <h1 class="text-2xl font-semibold">{{ t('positions.title') }}</h1>
         <div class="flex items-center mt-2">
           <span class="mr-2 text-sm">
-            {{ t('button.mode') }}: {{ useRealApi ? t('categories.real_api', 'API ແທ້') : t('categories.mock_data', 'Mock Data') }}
+            {{ t('button.mode') }}: {{ useRealApi ? t('positions.real_api', 'API ແທ້') : t('positions.mock_data', 'Mock Data') }}
           </span>
           <button
             @click="toggleApiMode"
@@ -195,15 +195,15 @@ const handleDelete = async (): Promise<void> => {
         @click="showCreateModal"
         colorClass="flex items-center"
       >
-        {{ t('categories.add') }}
+        {{ t('positions.add') }}
       </UiButton>
     </div>
 
-    <div v-if="categoryStore.loading || loading" class="text-center py-4">
+    <div v-if="positionStore.loading || loading" class="text-center py-4">
       <p>{{ t('messages.loading') }}</p>
     </div>
 
-    <Table :columns="columns" :dataSource="categories" :pagination="{ pageSize: 10 }" row-key="id">
+    <Table :columns="columns" :dataSource="positions" :pagination="{ pageSize: 10 }" row-key="id">
       <template #actions="{ record }">
         <div class="flex gap-2">
           <UiButton
@@ -231,7 +231,7 @@ const handleDelete = async (): Promise<void> => {
 
     <!-- Create Modal -->
     <UiModal
-      :title="t('categories.header_form.add')"
+      :title="t('positions.header_form.add')"
       :visible="createModalVisible"
       :confirm-loading="loading"
       @update:visible="createModalVisible = $event"
@@ -241,15 +241,15 @@ const handleDelete = async (): Promise<void> => {
       :okText="t('button.confirm')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem :label="t('categories.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('categories.placeholder.name')" />
+        <UiFormItem :label="t('positions.field.name')" name="name" required>
+          <UiInput v-model="formModel.name" :placeholder="t('positions.placeholder.name')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Edit Modal -->
     <UiModal
-      :title="t('categories.header_form.edit')"
+      :title="t('positions.header_form.edit')"
       :visible="editModalVisible"
       :confirm-loading="loading"
       @update:visible="editModalVisible = $event"
@@ -259,15 +259,15 @@ const handleDelete = async (): Promise<void> => {
       :okText="t('button.confirm')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem :label="t('categories.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('categories.placeholder.name')" />
+        <UiFormItem :label="t('positions.field.name')" name="name" required>
+          <UiInput v-model="formModel.name" :placeholder="t('positions.placeholder.name')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Delete Modal -->
     <UiModal
-      :title="t('categories.header_form.delete.title')"
+      :title="t('positions.header_form.delete.title')"
       :visible="deleteModalVisible"
       :confirm-loading="loading"
       @update:visible="deleteModalVisible = $event"
@@ -277,14 +277,14 @@ const handleDelete = async (): Promise<void> => {
       :cancelText="t('button.cancel')"
       okType="primary"
     >
-      <p>{{ t('categories.header_form.delete.content') }} "{{ selectedCategory?.name }}"?</p>
-      <p class="text-red-500">{{ t('categories.header_form.delete.description') }}</p>
+      <p>{{ t('positions.header_form.delete.content') }} "{{ selectedPosition?.name }}"?</p>
+      <p class="text-red-500">{{ t('positions.header_form.delete.description') }}</p>
     </UiModal>
   </div>
 </template>
 
 <style scoped>
-.category-list-container {
+.position-list-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);

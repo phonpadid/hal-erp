@@ -5,12 +5,13 @@ import { departmentRoutes } from "@/modules/presentation/Admin/router/department
 import { unitRoutes } from "@/modules/presentation/Admin/router/unitRoutes";
 import { categoryRoutes } from "@/modules/presentation/Admin/router/categoryRoutes";
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import { positionRoutes } from "@/modules/presentation/Admin/router/positionRountes";
 
 const routes: RouteRecordRaw[] = [
   {
     path: "/admin",
     component: () => import("../layouts/BaseLayout.vue"),
-    children: [...dashboardRoute, ...unitRoutes,...categoryRoutes],
+    children: [...dashboardRoute, ...unitRoutes,...categoryRoutes,...positionRoutes,...departmentRoutes,...permissionRoutes,...rolesRoutes],
   },
 ];
 
