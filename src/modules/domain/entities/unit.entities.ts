@@ -1,22 +1,22 @@
 export class Unit {
   private id: string
   private name: string
-  private createdAt: Date
-  private updatedAt: Date
-  private deletedAt: Date | null
+  private created_at: string
+  private updated_at: string
+  private deleted_at: Date | null
 
   constructor(
     id: string,
     name: string,
-    createdAt: Date,
-    updatedAt: Date,
-    deletedAt: Date | null = null
+    created_at: string,
+    updated_at: string,
+    deleted_at: Date | null = null
   ) {
     this.id = id
     this.name = name
-    this.createdAt = createdAt
-    this.updatedAt = updatedAt
-    this.deletedAt = deletedAt
+    this.created_at = created_at
+    this.updated_at = updated_at
+    this.deleted_at = deleted_at
   }
 
   public getId(): string {
@@ -27,39 +27,39 @@ export class Unit {
     return this.name
   }
 
-  public getCreatedAt(): Date {
-    return this.createdAt
+  public getCreatedAt(): string {
+    return this.created_at
   }
 
-  public getUpdatedAt(): Date {
-    return this.updatedAt
+  public getUpdatedAt(): string {
+    return this.updated_at
   }
 
   public getDeletedAt(): Date | null {
-    return this.deletedAt
+    return this.deleted_at
   }
 
   public isDeleted(): boolean {
-    return this.deletedAt !== null
+    return this.deleted_at !== null
   }
 
   public updateName(name: string): void {
     this.name = name
-    this.updatedAt = new Date()
+    this.updated_at = new Date().toString()
   }
 
   public delete(): void {
-    this.deletedAt = new Date()
-    this.updatedAt = new Date()
+    this.deleted_at = new Date()
+    this.updated_at = new Date().toString()
   }
 
   public restore(): void {
-    this.deletedAt = null
-    this.updatedAt = new Date()
+    this.deleted_at = null
+    this.updated_at = new Date().toString()
   }
 
   public static create(id: string, name: string): Unit {
     const now = new Date()
-    return new Unit(id, name, now, now)
+    return new Unit(id, name, now.toString(), now.toString())
   }
 }
