@@ -122,7 +122,7 @@ export class ApiDepartmentRepository implements DepartmentRepository {
       data.name,
       data.code || "",
       data.created_at || "",
-      data.updated_at || ""
+      data.updated_at || "",
     );
   }
 

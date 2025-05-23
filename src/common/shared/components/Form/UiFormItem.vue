@@ -6,7 +6,7 @@ defineProps<{
   label?: string;
   name?: string | string[];
   rules?: RuleObject | RuleObject[];
-  required?: boolean;
+  required?: string | boolean;
 }>();
 </script>
 
