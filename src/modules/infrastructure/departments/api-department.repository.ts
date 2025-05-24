@@ -15,13 +15,13 @@ export class ApiDepartmentRepository implements DepartmentRepository {
       };
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      return this.handleApiError(error, "Failed to create unit");
+      return this.handleApiError(error, "Failed to create");
     }
   }
 
   async findById(id: string): Promise<DepartmentEntity | null> {
     try {
-      const response = (await api.get(`/contact/${id}`)) as {
+      const response = (await api.get(`/department/${id}`)) as {
         data: ApiResponse<DepartmentApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -30,24 +30,7 @@ export class ApiDepartmentRepository implements DepartmentRepository {
       if (axiosError.response?.status === 404) {
         return null;
       }
-      return this.handleApiError(error, `Failed to find unit with id ${id}`);
-    }
-  }
-
-  async findByName(name: string): Promise<DepartmentEntity | null> {
-    try {
-      const response = (await api.get("/contact", {
-        params: { name },
-      })) as { data: ApiListResponse<DepartmentApiModel> };
-
-      if (response.data.data.length === 0) {
-        return null;
-      }
-
-      return this.toDomainModel(response.data.data[0]);
-    } catch (error) {
-      console.error(`Error finding unit by name '${name}':`, error);
-      return null;
+      return this.handleApiError(error, `Failed to find with id ${id}`);
     }
   }
 
@@ -56,63 +39,56 @@ export class ApiDepartmentRepository implements DepartmentRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<DepartmentEntity>> {
     try {
-      const response = (await api.get("/department", {
+      const response = await api.get("/department", {
         params: {
           page: params.page,
           limit: params.limit,
           includeDeleted,
           ...(params.search && { search: params.search }),
         },
-      })) as { data: ApiListResponse<DepartmentApiModel> };
-
+      }) as { data: ApiListResponse<DepartmentApiModel> };
+      const { pagination } = response.data;
       return {
         data: response.data.data.map((item) => this.toDomainModel(item)),
-        total: response.data.total,
-        page: response.data.page,
-        limit: response.data.limit,
-        totalPages: Math.ceil(response.data.total / response.data.limit),
+        total: pagination.total,
+        page: pagination.page,
+        limit: pagination.limit,
+        totalPages: pagination.total_pages,
       };
     } catch (error) {
-      return this.handleApiError(error, "Failed to fetch units list");
+      return this.handleApiError(error, "Failed to fetch list");
     }
   }
 
+
   async update(id: string, department: DepartmentEntity): Promise<DepartmentEntity> {
     try {
-      const response = (await api.put(`/contact/${id}`, this.toApiModel(department))) as {
+      const response = (await api.put(`/department/${id}`, this.toApiModel(department))) as {
         data: ApiResponse<DepartmentApiModel>;
       };
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      return this.handleApiError(error, `Failed to update unit with id ${department.getId()}`);
+      return this.handleApiError(error, `Failed to update with id ${department.getId()}`);
     }
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await api.delete(`/contact/${id}`);
+      await api.delete(`/department/${id}`);
       return true;
     } catch (error) {
-      return this.handleApiError(error, `Failed to delete unit with id ${id}`);
+      return this.handleApiError(error, `Failed to delete with id ${id}`);
     }
   }
 
-  async restore(id: string): Promise<boolean> {
-    try {
-      await api.post(`/contact/${id}/restore`);
-      return true;
-    } catch (error) {
-      return this.handleApiError(error, `Failed to restore unit with id ${id}`);
-    }
-  }
 
-  private toApiModel(unit: DepartmentEntity): DepartmentApiModel {
+  private toApiModel(input: DepartmentEntity): DepartmentApiModel {
     return {
-      id: parseInt(unit.getId(), 10),
-      name: unit.getName(),
-      code: unit.getCode(),
-      created_at: unit.getCreatedAt(),
-      updated_at: unit.getUpdatedAt(),
+      id: parseInt(input.getId(), 10),
+      name: input.getName(),
+      code: input.getCode(),
+      created_at: input.getCreatedAt(),
+      updated_at: input.getUpdatedAt(),
     };
   }
 

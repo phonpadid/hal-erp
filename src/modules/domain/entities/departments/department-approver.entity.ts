@@ -49,7 +49,7 @@ export class DepartmentApproverEntity {
     return this.deletedAt !== null
   }
 
-  public updateName(department_id: string, user_id: string): void {
+  public updated(department_id: string, user_id: string): void {
     this.department_id = department_id
     this.user_id = user_id
     this.updatedAt = new Date()

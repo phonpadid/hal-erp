@@ -1,0 +1,211 @@
+import { defineStore } from "pinia";
+import { ref, computed, reactive } from "vue";
+import type { Ref } from "vue";
+import type { PaginationParams } from "@/modules/shared/pagination";
+import { ApiDepartmentUserRepository } from "@/modules/infrastructure/departments/api-department-user.repository";
+import { DepartmentUserEntity } from "@/modules/domain/entities/departments/department-user.entity";
+import { DepartmentUserServiceImpl } from "@/modules/application/services/departments/department-user.service";
+import type { CreateDepartmentUserDTO, UpdateDepartmentUserDTO } from "@/modules/application/dtos/departments/department-user.dto";
+export const dpmUserFormModel = reactive({
+  user_id: "",
+  position_id: "",
+  department_id: "",
+  signature_file: null as File | string | null,
+})
+// สร้าง unit service
+const createDepartmentUserService = () => {
+  const dpmUserRepository = new ApiDepartmentUserRepository();
+  return new DepartmentUserServiceImpl(dpmUserRepository);
+};
+
+export const departmenUsertStore = defineStore("department-user", () => {
+  // สร้าง service
+  const departmentUserService = createDepartmentUserService();
+
+  // State
+  const departmentUser: Ref<DepartmentUserEntity[]> = ref([]);
+  const currentDpmUser: Ref<DepartmentUserEntity | null> = ref(null);
+  const loading = ref(false);
+  const error: Ref<Error | null> = ref(null);
+  const pagination = ref({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
+
+  // Getters
+  const activeDepartmentUser = computed(() => departmentUser.value.filter((dpm) => !dpm.isDeleted()));
+  const deletedDepartmentUser = computed(() => departmentUser.value.filter((dpm) => dpm.isDeleted()));
+  const totalActiveDepartmentUser = computed(() => activeDepartmentUser.value.length);
+  const totalDeletedDepartmentUser = computed(() => deletedDepartmentUser.value.length);
+
+  // Actions
+  // Create Unit
+  const createDepartmentUser = async (input: CreateDepartmentUserDTO) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const dpm = await departmentUserService.createDepartmentUser(input);
+      departmentUser.value = [dpm, ...departmentUser.value];
+      return dpm;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // Get All Units
+  const fetchDepartmentUser = async (
+    params: PaginationParams = { page: 1, limit: 10 },
+    includeDeleted: boolean = false
+  ) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const result = await departmentUserService.getAllDepartmentUser(params, includeDeleted);
+      departmentUser.value = result.data;
+      pagination.value = {
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
+      };
+      return result;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // Get Unit By ID
+  const fetchDepartmentUserById = async (id: string) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      currentDpmUser.value = await departmentUserService.getDepartmentUserById(id);
+      return currentDpmUser.value;
+    } catch (err) {
+      error.value = err as Error;
+      return null;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // Update Unit
+  const updateDepartmentUser = async (input: UpdateDepartmentUserDTO) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const updatedDpm = await departmentUserService.updateDepartmentUser(input.id, input);
+
+      // Update units list if it's loaded
+      if (departmentUser.value.length > 0) {
+        const index = departmentUser.value.findIndex((u) => u.getId() === input.id);
+        if (index !== -1) {
+          departmentUser.value[index] = updatedDpm;
+        }
+      }
+
+      // Update current unit if it's loaded
+      if (currentDpmUser.value && currentDpmUser.value.getId() === input.id) {
+        currentDpmUser.value = updatedDpm;
+      }
+
+      return currentDpmUser;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // Delete Unit
+  const deleteDepartmentUser = async (id: string) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const result = await departmentUserService.deleteDepartmentUser(id);
+
+      // Update units list if it's loaded
+      if (departmentUser.value.length > 0) {
+        const index = departmentUser.value.findIndex((u) => u.getId() === id);
+        if (index !== -1) {
+          // Mark as deleted in the local array
+          const deletedDpmUser = departmentUser.value[index];
+          // Here we're simulating a soft delete by manually updating the unit status
+          departmentUser.value[index] = new DepartmentUserEntity(
+            deletedDpmUser.getId(),
+            deletedDpmUser.getUser_id(),
+            deletedDpmUser.getPosition_id(),
+            deletedDpmUser.getdepartment_id(),
+            deletedDpmUser.getSignature_file(),
+            deletedDpmUser.getCreatedAt(),
+            new Date(),
+            new Date()
+          );
+        }
+      }
+
+      return result;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // Reset state
+  const resetState = () => {
+    departmentUser.value = [];
+    currentDpmUser.value = null;
+    error.value = null;
+    pagination.value = {
+      page: 1,
+      limit: 10,
+      total: 0,
+      totalPages: 0,
+    };
+  };
+const resetForm = () => {
+  dpmUserFormModel.user_id = "",
+  dpmUserFormModel.position_id = "",
+  dpmUserFormModel.department_id = "",
+  dpmUserFormModel.signature_file = null
+}
+  return {
+    // State
+    departmentUser,
+    currentDpmUser,
+    loading,
+    error,
+    pagination,
+
+    // Getters
+    activeDepartmentUser,
+    deletedDepartmentUser,
+    totalActiveDepartmentUser,
+    totalDeletedDepartmentUser,
+
+    // Actions
+    createDepartmentUser,
+    fetchDepartmentUser,
+    fetchDepartmentUserById,
+    updateDepartmentUser,
+    deleteDepartmentUser,
+    resetState,
+    resetForm
+  };
+});
