@@ -55,6 +55,7 @@
       "updatedAt": "Updated At",
       "actions": "Actions"
     },
+
     "status": {
       "active": "Active",
       "inactive": "Deleted"
@@ -70,7 +71,9 @@
       "confirmPassword": "Confirm Password",
       "confirmPasswordPlaceholder": "Confirm your password",
       "tel": "Phone Number",
-      "telPlaceholder": "Enter phone number"
+      "telPlaceholder": "Enter phone number",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password"
     },
     "validation": {
       "usernameRequired": "Please enter username",
@@ -82,7 +85,8 @@
       "passwordLength": "Password must be at least 6 characters",
       "confirmPasswordRequired": "Please confirm your password",
       "passwordMismatch": "Passwords do not match",
-      "telPattern": "Phone number can only contain numbers"
+      "telPattern": "Phone number can only contain numbers",
+      "passwordMin": "Password must be at least 6 characters"
     },
     "modal": {
       "create": "Create New User",
@@ -91,19 +95,23 @@
       "restore": "Restore User",
       "deleteConfirm": "Are you sure you want to delete user \"{username}\"?",
       "deleteWarning": "This action cannot be undone.",
-      "restoreConfirm": "Are you sure you want to restore user \"{username}\"?"
+      "restoreConfirm": "Are you sure you want to restore user \"{username}\"?",
+      "resetPassword": "Reset Password",
+      "resetPasswordConfirm": "Reset password for user {username}?"
     },
     "success": {
       "created": "User created successfully",
       "updated": "User updated successfully",
       "deleted": "User deleted successfully",
-      "restored": "User restored successfully"
+      "restored": "User restored successfully",
+      "passwordReset": "Password has been reset successfully"
     },
     "error": {
       "loadFailed": "Failed to load users",
       "saveFailed": "Failed to save user",
       "deleteFailed": "Failed to delete user",
-      "restoreFailed": "Failed to restore user"
+      "restoreFailed": "Failed to restore user",
+      "passwordResetFailed": "Failed to reset password"
     }
   },
   "role": {

@@ -70,7 +70,9 @@
       "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
       "confirmPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານອີກຄັ້ງ",
       "tel": "ເບີໂທ",
-      "telPlaceholder": "ປ້ອນເບີໂທ"
+      "telPlaceholder": "ປ້ອນເບີໂທ",
+      "newPassword": "ລະຫັດຜ່ານໃໝ່",
+      "newPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານໃໝ່"
     },
     "validation": {
       "usernameRequired": "ກະລຸນາປ້ອນຊື່ຜູ້ໃຊ້ກ່ອນ",
@@ -82,7 +84,8 @@
       "passwordLength": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງນ້ອຍ 6 ຕົວອັກສອນ",
       "confirmPasswordRequired": "ກະລຸນາຢືນຢັນລະຫັດຜ່ານກ່ອນ",
       "passwordMismatch": "ລະຫັດຜ່ານບໍ່ຕົງກັນ",
-      "telPattern": "ເບີໂທຕ້ອງເປັນຕົວເລກເທົ່ານັ້ນ"
+      "telPattern": "ເບີໂທຕ້ອງເປັນຕົວເລກເທົ່ານັ້ນ",
+      "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ"
     },
     "modal": {
       "create": "ເພີ່ມຜູ້ໃຊ້ງານໃໝ່",
@@ -91,20 +94,24 @@
       "restore": "ກູ້ຄືນຜູ້ໃຊ້ງານ",
       "deleteConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຜູ້ໃຊ້ງານ \"{username}\"?",
       "deleteWarning": "ການດຳເນີນການນີ້ບໍ່ສາມາດຍົກເລີກໄດ້.",
-      "restoreConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການກູ້ຄືນຜູ້ໃຊ້ງານ \"{username}\"?"
+      "restoreConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການກູ້ຄືນຜູ້ໃຊ້ງານ \"{username}\"?",
+      "resetPassword": "ຣີເຊັດລະຫັດຜ່ານ",
+      "resetPasswordConfirm": "ຣີເຊັດລະຫັດຜ່ານສຳລັບຜູ້ໃຊ້ {username}?"
     },
     "success": {
       "title": "ສຳເລັດ",
       "created": "ເພີ່ມຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
       "updated": "ແກ້ໄຂຂໍ້ມູນຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
       "deleted": "ລຶບຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
-      "restored": "ກູ້ຄືນຜູ້ໃຊ້ງານສຳເລັດແລ້ວ"
+      "restored": "ກູ້ຄືນຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
+      "passwordReset": "ຣີເຊັດລະຫັດຜ່ານສຳເລັດແລ້ວ"
     },
     "error": {
       "loadFailed": "ບໍ່ສາມາດໂຫລດຂໍ້ມູນຜູ້ໃຊ້ງານໄດ້",
       "saveFailed": "ບໍ່ສາມາດບັນທຶກຂໍ້ມູນຜູ້ໃຊ້ງານໄດ້",
       "deleteFailed": "ບໍ່ສາມາດລຶບຜູ້ໃຊ້ງານໄດ້",
-      "restoreFailed": "ບໍ່ສາມາດກູ້ຄືນຜູ້ໃຊ້ງານໄດ້"
+      "restoreFailed": "ບໍ່ສາມາດກູ້ຄືນຜູ້ໃຊ້ງານໄດ້",
+      "passwordResetFailed": "ບໍ່ສາມາດຣີເຊັດລະຫັດຜ່ານໄດ້"
     }
   },
   "role": {
@@ -129,13 +136,19 @@
       "display_name": "ຊື່ສະແດງ",
       "display_namePlaceholder": "ປ້ອນຊື່ສະແດງ",
       "description": "ຄຳອະທິບາຍ",
-      "descriptionPlaceholder": "ປ້ອນຄຳອະທິບາຍ (ຖ້າມີ)"
+      "descriptionPlaceholder": "ປ້ອນຄຳອະທິບາຍ (ຖ້າມີ)",
+      "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
+      "confirmPasswordPlaceholder": "ຢືນຢັນລະຫັດຜ່ານໃໝ່"
     },
     "validation": {
       "nameRequired": "ກະລຸນາປ້ອນຊື່ບົດບາດກ່ອນ",
       "nameLength": "ຊື່ບົດບາດຕ້ອງມີຢ່າງນ້ອຍ 3 ຕົວອັກສອນ",
       "namePattern": "ຊື່ບົດບາດສາມາດມີຕົວອັກສອນ, ຕົວເລກ ແລະ _ ເທົ່ານັ້ນ",
-      "displayNameRequired": "ກະລຸນາປ້ອນຊື່ສະແດງກ່ອນ"
+      "displayNameRequired": "ກະລຸນາປ້ອນຊື່ສະແດງກ່ອນ",
+      "passwordRequired": "ກະລຸນາປ້ອນລະຫັດຜ່ານ",
+      "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ",
+      "confirmPasswordRequired": "ກະລຸນາຢືນຢັນລະຫັດຜ່ານ",
+      "passwordMismatch": "ລະຫັດຜ່ານບໍ່ກົງກັນ"
     },
     "modal": {
       "create": "ເພີ່ມບົດບາດໃໝ່",
