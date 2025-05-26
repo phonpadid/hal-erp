@@ -3,7 +3,7 @@ export class DepartmentUserEntity {
   private department_id: string
   private position_id: string
   private user_id: string
-  private signature_file: string
+  private signature_file: string | File
   private createdAt: Date
   private updatedAt: Date
   private deletedAt: Date | null
@@ -13,7 +13,7 @@ export class DepartmentUserEntity {
     department_id: string,
     position_id: string,
     user_id: string,
-    signature_file: string,
+    signature_file: string | File,
     createdAt: Date,
     updatedAt: Date,
     deletedAt: Date | null = null
@@ -42,7 +42,7 @@ export class DepartmentUserEntity {
   public getUser_id(): string {
     return this.user_id
   }
-  public getSignature_file(): string {
+  public getSignature_file(): string | File{
     return this.signature_file
   }
   public getCreatedAt(): Date {
@@ -61,7 +61,7 @@ export class DepartmentUserEntity {
     return this.deletedAt !== null
   }
 
-  public updateName(department_id: string, position_id: string, user_id: string, signature_file: string): void {
+  public updateDpmUser(department_id: string, position_id: string, user_id: string, signature_file: string | File): void {
     this.department_id = department_id
     this.position_id = position_id
     this.user_id = user_id
@@ -79,7 +79,7 @@ export class DepartmentUserEntity {
     this.updatedAt = new Date()
   }
 
-  public static create(id: string, department_id: string, position_id: string, user_id: string, signature_file: string): DepartmentUserEntity {
+  public static create(id: string, department_id: string, position_id: string, user_id: string, signature_file: string | File): DepartmentUserEntity {
     const now = new Date()
     return new DepartmentUserEntity(id,department_id, position_id, user_id, signature_file, now, now)
   }

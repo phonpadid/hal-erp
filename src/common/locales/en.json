@@ -5,7 +5,10 @@
   },
   "button": {
     "ok": "Ok",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "edit": "Update",
+    "save": "Save",
+    "update": "Update"
   },
   "messages": {
     "loading": "Loading..."
@@ -15,15 +18,22 @@
     "menu": "Menu",
     "deshboard": "Deshboard"
   },
+
   "departments": {
+    "alert": {
+      "confirm": "Confirm deletion",
+      "message": "Are you sure you want to delete this data",
+      "remark": "This action cannot be undone once you have confirmed it."
+    },
     "dpm": {
-      "title": "Department information",
+      "title": "Departments information",
       "add": "Add departments",
       "header_form": {
         "add": "Departments creation form",
         "edit": "Departments update form"
       },
       "placeholder": {
+        "search": "Search for department information",
         "code": "Enter code",
         "name": "Enter departments name"
       },
@@ -39,8 +49,35 @@
         "manege": "Manage"
       }
     },
-    "dpm_user": {},
-    "dpm_approver": {}
+    "dpm_user": {
+      "title": "Departments user information",
+      "add": "Add departments user",
+      "header_form": {
+        "add": "Departments user creation form",
+        "edit": "Departments user update form"
+      },
+      "field": {
+        "department": "Departments",
+        "user": "Department user",
+        "position": "Position",
+        "signature": "Signature file"
+      },
+      "placeholder": {
+        "search": "Search for department user information",
+        "user": "Select a user",
+        "position": "Select a position",
+        "dpm": "Select a department"
+      },
+      "error": {
+        "signature": "Please choose a signature file",
+        "user": "Please select a user",
+        "position": "Please select a position",
+        "dpm": "Please select a department"
+      }
+    },
+    "dpm_approver": {
+      "title": "Departments approvers information"
+    }
   },
   "user": {
     "list": {
@@ -55,6 +92,7 @@
       "updatedAt": "Updated At",
       "actions": "Actions"
     },
+
     "status": {
       "active": "Active",
       "inactive": "Deleted"
@@ -70,7 +108,9 @@
       "confirmPassword": "Confirm Password",
       "confirmPasswordPlaceholder": "Confirm your password",
       "tel": "Phone Number",
-      "telPlaceholder": "Enter phone number"
+      "telPlaceholder": "Enter phone number",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password"
     },
     "validation": {
       "usernameRequired": "Please enter username",
@@ -82,7 +122,8 @@
       "passwordLength": "Password must be at least 6 characters",
       "confirmPasswordRequired": "Please confirm your password",
       "passwordMismatch": "Passwords do not match",
-      "telPattern": "Phone number can only contain numbers"
+      "telPattern": "Phone number can only contain numbers",
+      "passwordMin": "Password must be at least 6 characters"
     },
     "modal": {
       "create": "Create New User",
@@ -91,19 +132,32 @@
       "restore": "Restore User",
       "deleteConfirm": "Are you sure you want to delete user \"{username}\"?",
       "deleteWarning": "This action cannot be undone.",
-      "restoreConfirm": "Are you sure you want to restore user \"{username}\"?"
+      "restoreConfirm": "Are you sure you want to restore user \"{username}\"?",
+      "resetPassword": "Reset Password",
+      "resetPasswordConfirm": "Reset password for user {username}?"
     },
     "success": {
       "created": "User created successfully",
       "updated": "User updated successfully",
       "deleted": "User deleted successfully",
-      "restored": "User restored successfully"
+      "restored": "User restored successfully",
+      "passwordReset": "Password has been reset successfully"
     },
     "error": {
       "loadFailed": "Failed to load users",
       "saveFailed": "Failed to save user",
       "deleteFailed": "Failed to delete user",
-      "restoreFailed": "Failed to restore user"
+      "restoreFailed": "Failed to restore user",
+      "passwordResetFailed": "Failed to reset password",
+
+      "messages": {
+        "loading": "Loading..."
+      },
+      "deshboard": "Home system ERP",
+      "menu_sidebar": {
+        "menu": "Menu",
+        "deshboard": "Deshboard"
+      }
     }
   },
   "role": {

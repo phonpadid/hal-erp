@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import type { CreateDepartmentDTO, UpdateDepartmentDTO } from "@/modules/application/dtos/departments/deparment.dto";
+import type { CreateDepartmentDTO, UpdateDepartmentDTO } from "@/modules/application/dtos/departments/department.dto";
 import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
 import { ref, computed, onMounted, watch } from "vue";
 import type { PropType } from "vue";

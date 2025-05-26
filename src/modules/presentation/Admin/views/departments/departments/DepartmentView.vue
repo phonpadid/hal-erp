@@ -3,7 +3,7 @@ import { ref, reactive, onMounted } from "vue";
 import { columns } from "./column";
 import { departmentStore } from "../../../stores/departments/department.store";
 import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
-// import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
+import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -11,9 +11,9 @@ import { dataDpm } from "@/modules/shared/utils/data.department";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import { dpmRules } from "../../unit/validation/departments/department.validate";
 import { useI18n } from "vue-i18n";
-// import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import { dpmRules } from "./validation/department.validate";
 
 const { t } = useI18n();
 // Initialize the unit store
@@ -36,66 +36,6 @@ const formModel = reactive({
   code: "",
 });
 
-// Function to parse date string in DD-MM-YYYY HH:MM:SS format
-const parseLaoDateFormat = (dateStr: string): Date | null => {
-  try {
-    // Expected format: "20-05-2025 00:28:51"
-    const [datePart, timePart] = dateStr.split(" ");
-    if (!datePart || !timePart) return null;
-
-    const [day, month, year] = datePart.split("-").map(Number);
-    const [hours, minutes, seconds] = timePart.split(":").map(Number);
-
-    // Create date using UTC to prevent timezone issues
-    // Month is 0-indexed in JavaScript Date
-    return new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
-  } catch (error) {
-    console.error("Error parsing date string:", dateStr, error);
-    return null;
-  }
-};
-
-// Function to safely format dates for display
-const formatDateForDisplay = (dateValue: string | Date | null | undefined): string => {
-  if (!dateValue) return "";
-
-  try {
-    let date: Date | null = null;
-
-    // If it's already a Date object
-    if (dateValue instanceof Date) {
-      date = dateValue;
-    }
-    // If it's a string in Lao format (DD-MM-YYYY HH:MM:SS)
-    else if (typeof dateValue === "string" && dateValue.includes("-") && dateValue.includes(":")) {
-      date = parseLaoDateFormat(dateValue);
-    }
-    // If it's any other string format
-    else if (typeof dateValue === "string") {
-      date = new Date(dateValue);
-    }
-
-    // Check if we have a valid date
-    if (date && !isNaN(date.getTime())) {
-      // Format as DD-MM-YYYY HH:MM:SS for consistency with API
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      const seconds = String(date.getSeconds()).padStart(2, "0");
-
-      return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
-    }
-
-    // If all else fails, return the original string if it's a string
-    return typeof dateValue === "string" ? dateValue : "";
-  } catch (error) {
-    console.warn("Error formatting date:", error, "Value was:", dateValue);
-    return typeof dateValue === "string" ? dateValue : "";
-  }
-};
-
 // Load data on component mount
 onMounted(async () => {
   await loadDpm();
@@ -105,16 +45,18 @@ const loadDpm = async (): Promise<void> => {
   if (useRealApi.value) {
     try {
       loading.value = true;
-      const result = await dpmStore.fetchDepartment();
+      const result = await dpmStore.fetchDepartment({
+        page: dpmStore.pagination.page,
+        limit: dpmStore.pagination.limit,
+      });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      department.value = result.data.map((dpm: any) => {
+      department.value = result.data.map((dpm: DepartmentEntity) => {
         return {
-          id: dpm.id ? parseInt(dpm.id) : 0,
-          name: dpm.name || "",
-          code: dpm.code || "",
-          createdAt: dpm.createdAt || "",
-          updatedAt: dpm.updatedAt || "",
+          id: Number(dpm.getId()),
+          name: dpm.getName(),
+          code: dpm.getCode(),
+          createdAt: dpm.getCreatedAt(),
+          updatedAt: dpm.getUpdatedAt(),
         };
       });
 
@@ -154,23 +96,11 @@ const handleCreate = async (): Promise<void> => {
     loading.value = true;
     await formRef.value.submitForm();
 
-    if (useRealApi.value) {
-      // Use API to create
-      await dpmStore.createDepartment({ name: formModel.name, code: formModel.code });
-      await loadDpm(); // Refresh the list
-    } else {
-      // Create new unit with current timestamp (mock)
-      const now = formatDateForDisplay(new Date());
-      const newDpm: DepartmentApiModel = {
-        id: department.value.length + 1,
-        name: formModel.name,
-        code: formModel.code,
-        created_at: now,
-        updated_at: now,
-      };
-      department.value.push(newDpm);
-    }
-
+    await dpmStore.createDepartment({
+      name: formModel.name,
+      code: formModel.code,
+    });
+    await loadDpm(); // Refresh the list
     createModalVisible.value = false;
     formModel.name = "";
     formModel.code = "";
@@ -187,24 +117,13 @@ const handleEdit = async (): Promise<void> => {
     await formRef.value.submitForm();
 
     if (selectedDpm.value) {
-      if (useRealApi.value) {
-        // Use API to update
-        const id = selectedDpm.value.id.toString();
-        await dpmStore.updateDepartment(id, { id, name: formModel.name, code: formModel.code });
-        await loadDpm();
-      } else {
-        // Update the unit locally (mock)
-        const index = department.value.findIndex((u) => u.id === selectedDpm.value!.id);
-        if (index !== -1) {
-          const now = formatDateForDisplay(new Date());
-          department.value[index] = {
-            ...department.value[index],
-            name: formModel.name,
-            code: formModel.code,
-            updated_at: now,
-          };
-        }
-      }
+      const id = selectedDpm.value.id.toString();
+      await dpmStore.updateDepartment(id, {
+        id,
+        name: formModel.name,
+        code: formModel.code,
+      });
+      await loadDpm();
     }
 
     editModalVisible.value = false;
@@ -219,56 +138,60 @@ const handleDelete = async (): Promise<void> => {
   if (!selectedDpm.value) return;
 
   loading.value = true;
-
-  if (useRealApi.value) {
-    try {
-      // Use API to delete
-      const id = selectedDpm.value.id.toString();
-      await dpmStore.deleteDepartment(id);
-      await loadDpm(); // Refresh the list
-    } catch (error) {
-      console.error("Delete failed:", error);
-    }
-  } else {
-    // Filter out the deleted unit locally
-    department.value = department.value.filter((u) => u.id !== selectedDpm.value!.id);
-    // Update mock data too
-    dataDpm.value = dataDpm.value.filter((u) => u.id !== selectedDpm.value!.id);
+  try {
+    // Use API to delete
+    const id = selectedDpm.value.id.toString();
+    await dpmStore.deleteDepartment(id);
+    await loadDpm(); // Refresh the list
+  } catch (error) {
+    console.error("Delete failed:", error);
   }
 
   deleteModalVisible.value = false;
   loading.value = false;
 };
+const handleTableChange = async (pagination: any) => {
+  dpmStore.setPagination({
+    page: pagination.current,
+    limit: pagination.pageSize,
+  });
+  await loadDpm();
+};
 </script>
 
 <template>
   <div class="unit-list-container p-6">
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-2xl font-semibold">{{ $t("departments.dpm.title") }}</h1>
+    <div class="mb-6 gap-4">
+      <h1 class="text-2xl font-semibold">
+        {{ $t("departments.dpm.title") }}
+      </h1>
+      <div class="flex justify-between gap-20">
+        <div class="w-[20rem]">
+          <InputSearch :placeholder="t('departments.dpm.placeholder.search')" />
+        </div>
+        <UiButton
+          type="primary"
+          icon="ant-design:plus-outlined"
+          @click="showCreateModal"
+          colorClass="flex items-center"
+        >
+          {{ $t("departments.dpm.add") }}
+        </UiButton>
       </div>
-
-      <UiButton
-        type="primary"
-        icon="ant-design:plus-outlined"
-        @click="showCreateModal"
-        colorClass="flex items-center"
-      >
-        {{ $t("departments.dpm.add") }}
-      </UiButton>
     </div>
 
-    <!-- Loading indicator -->
-    <div v-if="dpmStore.loading || loading" class="text-center py-4">
-      <p>{{ $t("messages.loading") }}</p>
-    </div>
-
-    <!-- Units Table -->
+    <!--  Table -->
     <Table
       :columns="columns(t)"
       :dataSource="department"
-      :pagination="{ pageSize: 10 }"
+      :pagination="{
+        current: dpmStore.pagination.page,
+        pageSize: dpmStore.pagination.limit,
+        total: dpmStore.pagination.total,
+      }"
       row-key="id"
+      :loading="dpmStore.loading"
+      @change="handleTableChange"
     >
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
@@ -301,6 +224,8 @@ const handleDelete = async (): Promise<void> => {
       @update:visible="createModalVisible = $event"
       @ok="handleCreate"
       @cancel="createModalVisible = false"
+      :okText="t('button.save')"
+      :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
         <UiFormItem :label="t('departments.dpm.field.code')" name="code" required>
@@ -320,6 +245,8 @@ const handleDelete = async (): Promise<void> => {
       @update:visible="editModalVisible = $event"
       @ok="handleEdit"
       @cancel="editModalVisible = false"
+      :okText="t('button.edit')"
+      :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
         <UiFormItem :label="t('departments.dpm.field.code')" name="code" required>
@@ -333,17 +260,20 @@ const handleDelete = async (): Promise<void> => {
 
     <!-- Delete Confirmation Modal -->
     <UiModal
-      title="ຢືນຢັນການລຶບ"
+      :title="t('departments.alert.confirm')"
       :visible="deleteModalVisible"
       :confirm-loading="loading"
       @update:visible="deleteModalVisible = $event"
       @ok="handleDelete"
       @cancel="deleteModalVisible = false"
-      okText="ຢືນຢັນ"
+      :okText="t('button.ok')"
+      :cancelText="t('button.cancel')"
       okType="primary"
     >
-      <p>ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບພະແພກ: "{{ selectedDpm?.name }}"?</p>
-      <p class="text-red-500">ການດຳເນີນການນີ້ບໍ່ສາມາດຍົກເລີກໄດ້ ຫຼັງຈາກທ່ານຢືນຢັນສຳເລັດ.</p>
+      <p>{{ $t("departments.alert.message") }}: "{{ selectedDpm?.name }}"?</p>
+      <p class="text-red-500">
+        {{ t("departments.alert.remark") }}
+      </p>
     </UiModal>
   </div>
 </template>
