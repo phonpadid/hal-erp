@@ -178,16 +178,20 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="category in categories" :key="category.getId()" :class="{ 'bg-red-50': category.isDeleted() }">
+          <tr
+            v-for="category in categories"
+            :key="category.getId()"
+            :class="{ 'bg-red-50': category.isDeleted() }"
+          >
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
               {{ category.getName() }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               {{ formatDate(category.getCreatedAt()) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            </td> -->
+            <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               {{ formatDate(category.getUpdatedAt()) }}
-            </td>
+            </td> -->
             <td class="px-6 py-4 whitespace-nowrap">
               <span
                 :class="
@@ -471,15 +475,15 @@ const displayedPages = computed(() => {
   return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 });
 
-const formatDate = (date: Date): string => {
-  return new Intl.DateTimeFormat("th-TH", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-};
+// const formatDate = (date: Date): string => {
+//   return new Intl.DateTimeFormat("th-TH", {
+//     year: "numeric",
+//     month: "2-digit",
+//     day: "2-digit",
+//     hour: "2-digit",
+//     minute: "2-digit",
+//   }).format(date);
+// };
 
 const onSearch = debounce(() => {
   emit("search", searchQuery.value);
