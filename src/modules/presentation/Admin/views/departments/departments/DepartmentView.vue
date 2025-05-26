@@ -14,6 +14,7 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { dpmRules } from "./validation/department.validate";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 
 const { t } = useI18n();
 // Initialize the unit store
@@ -21,7 +22,7 @@ const dpmStore = departmentStore();
 // departments data that will be displayed (from API or mock)
 const department = ref<DepartmentApiModel[]>([]);
 const useRealApi = ref<boolean>(true); // Toggle between mock and real API
-
+const {success, error} = useNotification()
 // Form related
 const formRef = ref();
 const createModalVisible = ref<boolean>(false);
@@ -100,6 +101,7 @@ const handleCreate = async (): Promise<void> => {
       name: formModel.name,
       code: formModel.code,
     });
+    success(t('departments.notify.created'))
     await loadDpm(); // Refresh the list
     createModalVisible.value = false;
     formModel.name = "";
@@ -123,6 +125,7 @@ const handleEdit = async (): Promise<void> => {
         name: formModel.name,
         code: formModel.code,
       });
+      success(t('departments.notify.update'))
       await loadDpm();
     }
 
@@ -142,6 +145,7 @@ const handleDelete = async (): Promise<void> => {
     // Use API to delete
     const id = selectedDpm.value.id.toString();
     await dpmStore.deleteDepartment(id);
+    success(t('departments.notify.delete'))
     await loadDpm(); // Refresh the list
   } catch (error) {
     console.error("Delete failed:", error);
