@@ -4,7 +4,7 @@ import type { PropType } from "vue";
 
 defineProps({
   modelValue: {
-    type: [String, Number] as PropType<string | number>,
+    type: [String, Number, null] as PropType<string | number | null>,
     default: null, // Default value set to null
   },
   options: {

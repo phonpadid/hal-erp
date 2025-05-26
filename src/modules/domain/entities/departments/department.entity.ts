@@ -37,7 +37,10 @@ export class DepartmentEntity {
   public getDeleteddAt(): string {
     return this.updatedAt;
   }
-
+  public updateDpm(name: string, code: string): void {
+    this.name = name
+    this.code = code
+  }
   public isDeleted(): boolean {
     return this.deletedAt !== null
   }
@@ -48,5 +51,9 @@ export class DepartmentEntity {
   // เพิ่มเมธอดเพื่อตรวจสอบว่าวันที่ถูกต้องหรือไม่
   public hasValidDates(): boolean {
     return Boolean(this.createdAt && this.updatedAt);
+  }
+  public static create(id: string, name: string, code: string): DepartmentEntity {
+    const now = new Date().toString()
+    return new DepartmentEntity(id, name, code, now, now)
   }
 }

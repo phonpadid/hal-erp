@@ -55,6 +55,28 @@ export const menuItems: ItemType[] = reactive([
         icon: () =>
           h("div", {}, [
             h(Icon, {
+              icon: "ic:outline-lan",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "department_user.index",
+        label: "ຜູ້​ໃຊ້​ພະ​ແນກ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-lan",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "department_approver.index",
+        label: "ຜູ້​ອະ​ນຸ​ມັດ​ພະ​ແນກ​​",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
               icon: "ic:outline-imagesearch-roller",
               class: "text-base",
             }),
