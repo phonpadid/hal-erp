@@ -1,3 +1,4 @@
+<!-- filepath: e:\project_ERP\hal-erp\src\modules\presentation\Admin\views\user\UserList.vue -->
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive } from "vue";
@@ -17,6 +18,7 @@ import UserForm from "../../components/user/UserForm.vue";
 const { t } = useI18n();
 const userStore = useUserStore();
 const { success, error } = useNotification();
+
 // State
 const users = ref<UserInterface[]>([]);
 const loading = ref<boolean>(false);
@@ -57,15 +59,12 @@ const loadUsers = async (
   loading.value = true;
 
   try {
-    const result = await userStore.fetchUsers(
-      {
-        page,
-        limit: pageSize,
-        search,
-        sortBy,
-      },
-      true
-    );
+    const result = await userStore.fetchUsers({
+      page,
+      limit: pageSize,
+      search,
+      sortBy,
+    });
     users.value = result.data;
     pagination.current = result.page;
     pagination.pageSize = result.limit;
@@ -79,7 +78,7 @@ const loadUsers = async (
   }
 };
 
-// (pagination, sorting)
+// Handle pagination and sorting
 const handleTableChange = (
   paginationInfo: TablePaginationType,
   _filters: Record<string, string[]>,
@@ -121,6 +120,7 @@ const showDeleteModal = (user: UserInterface) => {
   selectedUser.value = user;
   deleteModalVisible.value = true;
 };
+
 const handleModalOk = () => {
   userFormRef.value?.submitForm();
 };
@@ -152,6 +152,7 @@ const handleFormSubmit = async (formData: any) => {
     submitLoading.value = false;
   }
 };
+
 const handleDeleteConfirm = async () => {
   if (!selectedUser.value) return;
 
@@ -186,7 +187,6 @@ const handleDeleteConfirm = async () => {
           @update:modelvalue="handleSearch"
           class="w-64"
         />
-
         <UiButton
           type="primary"
           icon="ant-design:plus-outlined"
@@ -246,6 +246,7 @@ const handleDeleteConfirm = async () => {
         </div>
       </template>
     </Table>
+
     <!-- Create/Edit User Modal -->
     <UiModal
       :title="isEditMode ? t('user.modal.edit') : t('user.modal.create')"

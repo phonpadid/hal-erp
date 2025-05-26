@@ -8,14 +8,14 @@ import { UserServiceImpl } from "@/modules/application/services/user.service";
 import { ApiUserRepository } from "@/modules/infrastructure/api-user.repository";
 import type { UserInterface } from "@/modules/interfaces/user.interface";
 
-// สร้าง user service
+// user service
 const createUserService = () => {
   const userRepository = new ApiUserRepository();
   return new UserServiceImpl(userRepository);
 };
 
 export const useUserStore = defineStore("user", () => {
-  // สร้าง service
+  // service
   const userService = createUserService();
 
   // State
@@ -38,14 +38,14 @@ export const useUserStore = defineStore("user", () => {
 
   // Get All Users
   const fetchUsers = async (
-    params: PaginationParams = { page: 1, limit: 10 },
-    includeDeleted: boolean = false
+    params: PaginationParams = { page: 1, limit: 10 }
+    // includeDeleted: boolean = false
   ) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const result = await userService.getAllUsers(params, includeDeleted);
+      const result = await userService.getAllUsers(params);
       users.value = result.data;
       pagination.value = {
         page: result.page,
@@ -53,8 +53,6 @@ export const useUserStore = defineStore("user", () => {
         total: result.total,
         totalPages: result.totalPages,
       };
-
-      // แปลงข้อมูลสำหรับส่งกลับไปให้ component
       return {
         data: result.data.map(userEntityToInterface),
         page: result.page,
