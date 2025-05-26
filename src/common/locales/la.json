@@ -7,7 +7,6 @@
     "mode": "ສະລັບໂໝດ",
     "ok": "ຕົກລົງ",
     "cancel": "ຍົກເລີກ",
-<<<<<<< HEAD
     "delete": "ລຶບ",
     "edit": "ແກ້ໄຂ",
     "add": "ເພີ່ມ",
@@ -34,11 +33,6 @@
     "reject": "ບໍ່ອະນຸມັດ",
     "send": "ສົ່ງ",
     "apply": "ນໍາໃຊ້"
-=======
-    "edit": "ແກ້ໄຂ",
-    "save": "ບັນທຶກ",
-    "update": "ອັບເດດ"
->>>>>>> d0fd1f9a49f4086a3cb14469e700661be7545c03
   },
   "messages": {
     "loading": "ກຳລັງໂຫລດ..."
@@ -120,7 +114,6 @@
         "description": "ການລຶບນີ້ບໍ່ສາມາດກັບຄືນໄດ້"
       }
     },
-<<<<<<< HEAD
     "placeholder": {
       "name": "ກະລຸນາປ້ອນຊື່ປະເພດ"
     },
@@ -132,65 +125,6 @@
       "created": "ເວລາສ້າງ",
       "updated": "ເວລາແກ້ໄຂ",
       "manage": "ຈັດການ"
-=======
-    "status": {
-      "active": "ໃຊ້ງານຢູ່",
-      "inactive": "ຖືກລຶບແລ້ວ"
-    },
-    "form": {
-      "username": "ຊື່ຜູ້ໃຊ້",
-      "usernamePlaceholder": "ປ້ອນຊື່ຜູ້ໃຊ້",
-      "email": "ອີເມວ",
-      "emailPlaceholder": "ປ້ອນອີເມວ",
-      "password": "ລະຫັດຜ່ານ",
-      "passwordPlaceholder": "ປ້ອນລະຫັດຜ່ານ",
-      "passwordEditPlaceholder": "ປ້ອນລະຫັດຜ່ານໃໝ່ (ປະວ່າງໄວ້ຖ້າບໍ່ຕ້ອງການປ່ຽນ)",
-      "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
-      "confirmPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານອີກຄັ້ງ",
-      "tel": "ເບີໂທ",
-      "telPlaceholder": "ປ້ອນເບີໂທ",
-      "newPassword": "ລະຫັດຜ່ານໃໝ່",
-      "newPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານໃໝ່"
-    },
-    "validation": {
-      "usernameRequired": "ກະລຸນາປ້ອນຊື່ຜູ້ໃຊ້ກ່ອນ",
-      "usernameLength": "ຊື່ຜູ້ໃຊ້ຕ້ອງມີຢ່າງນ້ອຍ 3 ຕົວອັກສອນ",
-      "usernamePattern": "ຊື່ຜູ້ໃຊ້ສາມາດມີຕົວອັກສອນ, ຕົວເລກ ແລະ _ ເທົ່ານັ້ນ",
-      "emailRequired": "ກະລຸນາປ້ອນອີເມວກ່ອນ",
-      "emailValid": "ກະລຸນາປ້ອນອີເມວທີ່ຖືກຕ້ອງ",
-      "passwordRequired": "ກະລຸນາປ້ອນລະຫັດຜ່ານກ່ອນ",
-      "passwordLength": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງນ້ອຍ 6 ຕົວອັກສອນ",
-      "confirmPasswordRequired": "ກະລຸນາຢືນຢັນລະຫັດຜ່ານກ່ອນ",
-      "passwordMismatch": "ລະຫັດຜ່ານບໍ່ຕົງກັນ",
-      "telPattern": "ເບີໂທຕ້ອງເປັນຕົວເລກເທົ່ານັ້ນ",
-      "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ"
-    },
-    "modal": {
-      "create": "ເພີ່ມຜູ້ໃຊ້ງານໃໝ່",
-      "edit": "ແກ້ໄຂຂໍ້ມູນຜູ້ໃຊ້ງານ",
-      "delete": "ລຶບຜູ້ໃຊ້ງານ",
-      "restore": "ກູ້ຄືນຜູ້ໃຊ້ງານ",
-      "deleteConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຜູ້ໃຊ້ງານ \"{username}\"?",
-      "deleteWarning": "ການດຳເນີນການນີ້ບໍ່ສາມາດຍົກເລີກໄດ້.",
-      "restoreConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການກູ້ຄືນຜູ້ໃຊ້ງານ \"{username}\"?",
-      "resetPassword": "ຣີເຊັດລະຫັດຜ່ານ",
-      "resetPasswordConfirm": "ຣີເຊັດລະຫັດຜ່ານສຳລັບຜູ້ໃຊ້ {username}?"
-    },
-    "success": {
-      "title": "ສຳເລັດ",
-      "created": "ເພີ່ມຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
-      "updated": "ແກ້ໄຂຂໍ້ມູນຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
-      "deleted": "ລຶບຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
-      "restored": "ກູ້ຄືນຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
-      "passwordReset": "ຣີເຊັດລະຫັດຜ່ານສຳເລັດແລ້ວ"
-    },
-    "error": {
-      "loadFailed": "ບໍ່ສາມາດໂຫລດຂໍ້ມູນຜູ້ໃຊ້ງານໄດ້",
-      "saveFailed": "ບໍ່ສາມາດບັນທຶກຂໍ້ມູນຜູ້ໃຊ້ງານໄດ້",
-      "deleteFailed": "ບໍ່ສາມາດລຶບຜູ້ໃຊ້ງານໄດ້",
-      "restoreFailed": "ບໍ່ສາມາດກູ້ຄືນຜູ້ໃຊ້ງານໄດ້",
-      "passwordResetFailed": "ບໍ່ສາມາດຣີເຊັດລະຫັດຜ່ານໄດ້"
->>>>>>> d0fd1f9a49f4086a3cb14469e700661be7545c03
     }
   },
   "units": {
@@ -205,49 +139,8 @@
         "description": "ການລຶບນີ້ບໍ່ສາມາດກັບຄືນໄດ້"
       }
     },
-<<<<<<< HEAD
     "placeholder": {
       "name": "ກະລຸນາປ້ອນຊື່ຫົວໜ່ວຍ"
-=======
-    "status": {
-      "active": "ໃຊ້ງານຢູ່",
-      "inactive": "ຖືກລຶບແລ້ວ"
-    },
-    "form": {
-      "name": "ຊື່ບົດບາດ",
-      "namePlaceholder": "ປ້ອນຊື່ບົດບາດ",
-      "display_name": "ຊື່ສະແດງ",
-      "display_namePlaceholder": "ປ້ອນຊື່ສະແດງ",
-      "description": "ຄຳອະທິບາຍ",
-      "descriptionPlaceholder": "ປ້ອນຄຳອະທິບາຍ (ຖ້າມີ)",
-      "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
-      "confirmPasswordPlaceholder": "ຢືນຢັນລະຫັດຜ່ານໃໝ່"
-    },
-    "validation": {
-      "nameRequired": "ກະລຸນາປ້ອນຊື່ບົດບາດກ່ອນ",
-      "nameLength": "ຊື່ບົດບາດຕ້ອງມີຢ່າງນ້ອຍ 3 ຕົວອັກສອນ",
-      "namePattern": "ຊື່ບົດບາດສາມາດມີຕົວອັກສອນ, ຕົວເລກ ແລະ _ ເທົ່ານັ້ນ",
-      "displayNameRequired": "ກະລຸນາປ້ອນຊື່ສະແດງກ່ອນ",
-      "passwordRequired": "ກະລຸນາປ້ອນລະຫັດຜ່ານ",
-      "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ",
-      "confirmPasswordRequired": "ກະລຸນາຢືນຢັນລະຫັດຜ່ານ",
-      "passwordMismatch": "ລະຫັດຜ່ານບໍ່ກົງກັນ"
-    },
-    "modal": {
-      "create": "ເພີ່ມບົດບາດໃໝ່",
-      "edit": "ແກ້ໄຂຂໍ້ມູນບົດບາດ",
-      "delete": "ລຶບບົດບາດ",
-      "restore": "ກູ້ຄືນບົດບາດ",
-      "deleteConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບບົດບາດ \"{roleName}\"?",
-      "deleteWarning": "ການດຳເນີນການນີ້ບໍ່ສາມາດຍົກເລີກໄດ້.",
-      "restoreConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການກູ້ຄືນບົດບາດ \"{roleName}\"?"
-    },
-    "success": {
-      "created": "ເພີ່ມບົດບາດສຳເລັດແລ້ວ",
-      "updated": "ແກ້ໄຂຂໍ້ມູນບົດບາດສຳເລັດແລ້ວ",
-      "deleted": "ລຶບບົດບາດສຳເລັດແລ້ວ",
-      "restored": "ກູ້ຄືນບົດບາດສຳເລັດແລ້ວ"
->>>>>>> d0fd1f9a49f4086a3cb14469e700661be7545c03
     },
     "error": {
       "name": "ກະລຸນາປ້ອນຊື່ຫົວໜ່ວຍກ່ອນ"

@@ -7,7 +7,6 @@
     "mode": "Mode",
     "ok": "Ok",
     "cancel": "Cancel",
-<<<<<<< HEAD
     "delete": "Delete",
     "edit": "Edit",
     "add": "Add",
@@ -35,11 +34,6 @@
     "send": "Send",
     "apply": "Apply",
     "apply_all": "Apply all"
-=======
-    "edit": "Update",
-    "save": "Save",
-    "update": "Update"
->>>>>>> d0fd1f9a49f4086a3cb14469e700661be7545c03
   },
   "messages": {
     "loading": "Loading..."
@@ -57,13 +51,8 @@
       "remark": "This action cannot be undone once you have confirmed it."
     },
     "dpm": {
-<<<<<<< HEAD
       "title": "Department information",
       "add": "Add department",
-=======
-      "title": "Departments information",
-      "add": "Add departments",
->>>>>>> d0fd1f9a49f4086a3cb14469e700661be7545c03
       "header_form": {
         "add": "Department creation form",
         "edit": "Department update form"
@@ -127,7 +116,6 @@
         "description": "This action cannot be undone"
       }
     },
-<<<<<<< HEAD
     "placeholder": {
       "name": "Please enter category name"
     },
@@ -139,74 +127,6 @@
       "created": "Created At",
       "updated": "Updated At",
       "manage": "Manage"
-=======
-
-    "status": {
-      "active": "Active",
-      "inactive": "Deleted"
-    },
-    "form": {
-      "username": "Username",
-      "usernamePlaceholder": "Enter username",
-      "email": "Email",
-      "emailPlaceholder": "Enter email",
-      "password": "Password",
-      "passwordPlaceholder": "Enter password",
-      "passwordEditPlaceholder": "Enter new password (leave empty to keep current)",
-      "confirmPassword": "Confirm Password",
-      "confirmPasswordPlaceholder": "Confirm your password",
-      "tel": "Phone Number",
-      "telPlaceholder": "Enter phone number",
-      "newPassword": "New Password",
-      "newPasswordPlaceholder": "Enter new password"
-    },
-    "validation": {
-      "usernameRequired": "Please enter username",
-      "usernameLength": "Username must be at least 3 characters",
-      "usernamePattern": "Username can only contain letters, numbers and underscore",
-      "emailRequired": "Please enter email",
-      "emailValid": "Please enter valid email",
-      "passwordRequired": "Please enter password",
-      "passwordLength": "Password must be at least 6 characters",
-      "confirmPasswordRequired": "Please confirm your password",
-      "passwordMismatch": "Passwords do not match",
-      "telPattern": "Phone number can only contain numbers",
-      "passwordMin": "Password must be at least 6 characters"
-    },
-    "modal": {
-      "create": "Create New User",
-      "edit": "Edit User",
-      "delete": "Delete User",
-      "restore": "Restore User",
-      "deleteConfirm": "Are you sure you want to delete user \"{username}\"?",
-      "deleteWarning": "This action cannot be undone.",
-      "restoreConfirm": "Are you sure you want to restore user \"{username}\"?",
-      "resetPassword": "Reset Password",
-      "resetPasswordConfirm": "Reset password for user {username}?"
-    },
-    "success": {
-      "created": "User created successfully",
-      "updated": "User updated successfully",
-      "deleted": "User deleted successfully",
-      "restored": "User restored successfully",
-      "passwordReset": "Password has been reset successfully"
-    },
-    "error": {
-      "loadFailed": "Failed to load users",
-      "saveFailed": "Failed to save user",
-      "deleteFailed": "Failed to delete user",
-      "restoreFailed": "Failed to restore user",
-      "passwordResetFailed": "Failed to reset password",
-
-      "messages": {
-        "loading": "Loading..."
-      },
-      "deshboard": "Home system ERP",
-      "menu_sidebar": {
-        "menu": "Menu",
-        "deshboard": "Deshboard"
-      }
->>>>>>> d0fd1f9a49f4086a3cb14469e700661be7545c03
     }
   },
   "units": {
