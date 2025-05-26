@@ -4,7 +4,7 @@ export const formatDate = (dateValue: string | Date | undefined): string => {
   if (!dateValue) return "-";
   try {
     if (typeof dateValue === "string" && dateValue.includes("-") && dateValue.includes(":")) {
-      return dayjs(dateValue, "DD/MM/YYYY HH:mm:ss").format("DD-MM-YYYY HH:mm:ss");
+      return dayjs(dateValue, "DD/MM/YYYY HH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
     }
     const formattedDate = dayjs(dateValue).format("DD/MM/YYYY HH:mm:ss");
 

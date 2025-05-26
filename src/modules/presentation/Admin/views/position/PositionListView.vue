@@ -5,7 +5,7 @@ import type { PositionApiModel } from "@/modules/interfaces/position.interface";
 import { usePositionStore } from "@/modules/presentation/Admin/stores/position.store";
 import { Position } from "@/modules/domain/entities/position.entities";
 import { getColumns } from "./column";
-import {dataPositions} from "@/modules/shared/utils/data.position";
+import { dataPositions } from "@/modules/shared/utils/data.position";
 import { rules } from "./validation/position.validate";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -62,12 +62,6 @@ const loadPositions = async (): Promise<void> => {
     positions.value = [...dataPositions.value];
   }
 };
-
-const toggleApiMode = (): void => {
-  useRealApi.value = !useRealApi.value;
-  loadPositions();
-};
-
 const showCreateModal = (): void => {
   formModel.name = "";
   createModalVisible.value = true;
@@ -132,7 +126,9 @@ const handleEdit = async (): Promise<void> => {
             name: formModel.name,
             updated_at: now,
           };
-          const mockIndex = dataPositions.value.findIndex((p) => p.id === selectedPosition.value!.id);
+          const mockIndex = dataPositions.value.findIndex(
+            (p) => p.id === selectedPosition.value!.id
+          );
           if (mockIndex !== -1) {
             dataPositions.value[mockIndex] = { ...positions.value[index] };
           }
@@ -175,18 +171,7 @@ const handleDelete = async (): Promise<void> => {
   <div class="position-list-container p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">{{ t('positions.title') }}</h1>
-        <div class="flex items-center mt-2">
-          <span class="mr-2 text-sm">
-            {{ t('button.mode') }}: {{ useRealApi ? t('positions.real_api', 'API ແທ້') : t('positions.mock_data', 'Mock Data') }}
-          </span>
-          <button
-            @click="toggleApiMode"
-            class="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded"
-          >
-            {{ t('button.mode', 'ສະລັບໂໝດ') }}
-          </button>
-        </div>
+        <h1 class="text-2xl font-semibold">{{ t("positions.title") }}</h1>
       </div>
 
       <UiButton
@@ -195,12 +180,12 @@ const handleDelete = async (): Promise<void> => {
         @click="showCreateModal"
         colorClass="flex items-center"
       >
-        {{ t('positions.add') }}
+        {{ t("positions.add") }}
       </UiButton>
     </div>
 
     <div v-if="positionStore.loading || loading" class="text-center py-4">
-      <p>{{ t('messages.loading') }}</p>
+      <p>{{ t("messages.loading") }}</p>
     </div>
 
     <Table :columns="columns" :dataSource="positions" :pagination="{ pageSize: 10 }" row-key="id">
@@ -213,7 +198,7 @@ const handleDelete = async (): Promise<void> => {
             @click="showEditModal(record)"
             colorClass="flex items-center"
           >
-            {{ t('button.edit') }}
+            {{ t("button.edit") }}
           </UiButton>
           <UiButton
             type="primary"
@@ -223,7 +208,7 @@ const handleDelete = async (): Promise<void> => {
             colorClass="flex items-center"
             @click="showDeleteModal(record)"
           >
-            {{ t('button.delete') }}
+            {{ t("button.delete") }}
           </UiButton>
         </div>
       </template>
@@ -277,8 +262,8 @@ const handleDelete = async (): Promise<void> => {
       :cancelText="t('button.cancel')"
       okType="primary"
     >
-      <p>{{ t('positions.header_form.delete.content') }} "{{ selectedPosition?.name }}"?</p>
-      <p class="text-red-500">{{ t('positions.header_form.delete.description') }}</p>
+      <p>{{ t("positions.header_form.delete.content") }} "{{ selectedPosition?.name }}"?</p>
+      <p class="text-red-500">{{ t("positions.header_form.delete.description") }}</p>
     </UiModal>
   </div>
 </template>

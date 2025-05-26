@@ -9,7 +9,7 @@ function logout() {
     .push({
       name: "login",
     })
-    .catch(() => { });
+    .catch(() => {});
 }
 
 export const menuItems: ItemType[] = reactive([
@@ -66,18 +66,54 @@ export const menuItems: ItemType[] = reactive([
         icon: () =>
           h("div", {}, [
             h(Icon, {
+<<<<<<< HEAD
               icon: "ic:outline-receipt",
+=======
+              icon: "ic:outline-lan",
+
+>>>>>>> 4ecac6a119ac2b7fd3bbe4b6e8e3e2c99f9ca2d6
               class: "text-base",
             }),
           ]),
       },
       {
+<<<<<<< HEAD
         key: "ProductList",
         label: "ສິນຄ້າ",
         icon: () =>
           h("div", {}, [
             h(Icon, {
               icon: "ic:outline-receipt",
+=======
+        key: "department.index",
+        label: "ພະແນກ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-lan",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "department_user.index",
+        label: "ຜູ້​ໃຊ້​ພະ​ແນກ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-lan",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "department_approver.index",
+        label: "ຜູ້​ອະ​ນຸ​ມັດ​ພະ​ແນກ​​",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-imagesearch-roller",
+>>>>>>> 4ecac6a119ac2b7fd3bbe4b6e8e3e2c99f9ca2d6
               class: "text-base",
             }),
           ]),

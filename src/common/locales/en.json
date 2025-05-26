@@ -4,13 +4,19 @@
     "la": "Laos"
   },
   "button": {
-    "mode": "Mode",
     "ok": "Ok",
     "cancel": "Cancel",
+<<<<<<< HEAD
     "delete": "Delete",
     "edit": "Edit",
     "add": "Add",
+=======
+    "edit": "Update",
+>>>>>>> 4ecac6a119ac2b7fd3bbe4b6e8e3e2c99f9ca2d6
     "save": "Save",
+    "update": "Update",
+    "delete": "Delete",
+    "add": "Add",
     "search": "Search",
     "reset": "Reset",
     "confirm": "Confirm",
@@ -38,10 +44,10 @@
   "messages": {
     "loading": "Loading..."
   },
-  "dashboard": "Home system ERP",
+  "deshboard": "Home system ERP",
   "menu_sidebar": {
     "menu": "Menu",
-    "dashboard": "Dashboard"
+    "deshboard": "Deshboard"
   },
 
   "departments": {
@@ -51,27 +57,32 @@
       "remark": "This action cannot be undone once you have confirmed it."
     },
     "dpm": {
+<<<<<<< HEAD
       "title": "Department information",
       "add": "Add department",
+=======
+      "title": "Departments information",
+      "add": "Add departments",
+>>>>>>> 4ecac6a119ac2b7fd3bbe4b6e8e3e2c99f9ca2d6
       "header_form": {
-        "add": "Department creation form",
-        "edit": "Department update form"
+        "add": "Departments creation form",
+        "edit": "Departments update form"
       },
       "placeholder": {
         "search": "Search for department information",
         "code": "Enter code",
-        "name": "Enter department name"
+        "name": "Enter departments name"
       },
       "error": {
         "code": "Please enter code",
-        "name": "Please enter department name"
+        "name": "Please enter departments name"
       },
       "field": {
         "code": "Code",
-        "name": "Department name",
+        "name": "Departments name",
         "created": "Created At",
         "updated": "Updated At",
-        "manage": "Manage"
+        "manege": "Manage"
       }
     },
     "dpm_user": {
@@ -104,6 +115,164 @@
       "title": "Departments approvers information"
     }
   },
+  "user": {
+    "list": {
+      "title": "User Management",
+      "add": "Add User",
+      "search": "Search users...",
+      "username": "Username",
+      "email": "Email",
+      "tel": "Phone Number",
+      "status": "Status",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "actions": "Actions"
+    },
+<<<<<<< HEAD
+=======
+
+    "status": {
+      "active": "Active",
+      "inactive": "Deleted"
+    },
+    "form": {
+      "username": "Username",
+      "usernamePlaceholder": "Enter username",
+      "email": "Email",
+      "emailPlaceholder": "Enter email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter password",
+      "passwordEditPlaceholder": "Enter new password (leave empty to keep current)",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "tel": "Phone Number",
+      "telPlaceholder": "Enter phone number",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password"
+    },
+    "validation": {
+      "usernameRequired": "Please enter username",
+      "usernameLength": "Username must be at least 3 characters",
+      "usernamePattern": "Username can only contain letters, numbers and underscore",
+      "emailRequired": "Please enter email",
+      "emailValid": "Please enter valid email",
+      "passwordRequired": "Please enter password",
+      "passwordLength": "Password must be at least 6 characters",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordMismatch": "Passwords do not match",
+      "telPattern": "Phone number can only contain numbers",
+      "passwordMin": "Password must be at least 6 characters"
+    },
+    "modal": {
+      "create": "Create New User",
+      "edit": "Edit User",
+      "delete": "Delete User",
+      "restore": "Restore User",
+      "deleteConfirm": "Are you sure you want to delete user \"{username}\"?",
+      "deleteWarning": "This action cannot be undone.",
+      "restoreConfirm": "Are you sure you want to restore user \"{username}\"?",
+      "resetPassword": "Reset Password",
+      "resetPasswordConfirm": "Reset password for user {username}?"
+    },
+    "success": {
+      "created": "User created successfully",
+      "updated": "User updated successfully",
+      "deleted": "User deleted successfully",
+      "restored": "User restored successfully",
+      "passwordReset": "Password has been reset successfully"
+    },
+    "error": {
+      "loadFailed": "Failed to load users",
+      "saveFailed": "Failed to save user",
+      "deleteFailed": "Failed to delete user",
+      "restoreFailed": "Failed to restore user",
+      "passwordResetFailed": "Failed to reset password",
+
+      "messages": {
+        "loading": "Loading..."
+      },
+      "deshboard": "Home system ERP",
+      "menu_sidebar": {
+        "menu": "Menu",
+        "deshboard": "Deshboard"
+      }
+    }
+  },
+  "role": {
+    "list": {
+      "title": "Role Management",
+      "add": "Add Role",
+      "search": "Search roles...",
+      "rolename": "Role Name",
+      "displayName": "Display Name",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "actions": "Actions",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Deleted"
+    },
+    "form": {
+      "name": "Role Name",
+      "namePlaceholder": "Enter role name",
+      "display_name": "Display Name",
+      "display_namePlaceholder": "Enter display name",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter description (optional)"
+    },
+    "validation": {
+      "nameRequired": "Please enter role name",
+      "nameLength": "Role name must be at least 3 characters",
+      "namePattern": "Role name can only contain letters, numbers and underscore",
+      "displayNameRequired": "Please enter display name"
+    },
+    "modal": {
+      "create": "Create New Role",
+      "edit": "Edit Role",
+      "delete": "Delete Role",
+      "restore": "Restore Role",
+      "deleteConfirm": "Are you sure you want to delete role \"{roleName}\"?",
+      "deleteWarning": "This action cannot be undone.",
+      "restoreConfirm": "Are you sure you want to restore role \"{roleName}\"?"
+    },
+    "success": {
+      "created": "Role created successfully",
+      "updated": "Role updated successfully",
+      "deleted": "Role deleted successfully",
+      "restored": "Role restored successfully"
+    },
+    "error": {
+      "loadFailed": "Failed to load roles",
+      "saveFailed": "Failed to save role",
+      "deleteFailed": "Failed to delete role",
+      "restoreFailed": "Failed to restore role",
+      "duplicateName": "This role name already exists"
+    }
+  },
+  "permissions": {
+    "list": {
+      "title": "List Permissions",
+      "add": "Add Permission",
+      "search": "Search permission...",
+      "permissionname": "Permission Name",
+      "displayName": "Display Name",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "actions": "Actions",
+      "status": "Status"
+    },
+    "title": "Permissions",
+    "assignPermissions": "Assign Permissions",
+    "module": "Module",
+    "action": "Action",
+    "description": "Description",
+    "selectAll": "Select All",
+    "selectNone": "Select None",
+    "saveSuccess": "Permissions saved successfully",
+    "saveFailed": "Failed to save permissions"
+  },
   "categories": {
     "title": "Category information",
     "add": "Add new category",
@@ -116,6 +285,7 @@
         "description": "This action cannot be undone"
       }
     },
+>>>>>>> 4ecac6a119ac2b7fd3bbe4b6e8e3e2c99f9ca2d6
     "placeholder": {
       "name": "Please enter category name"
     },
@@ -127,6 +297,14 @@
       "created": "Created At",
       "updated": "Updated At",
       "manage": "Manage"
+<<<<<<< HEAD
+=======
+    },
+
+    "status": {
+      "active": "Active",
+      "inactive": "Deleted"
+>>>>>>> 4ecac6a119ac2b7fd3bbe4b6e8e3e2c99f9ca2d6
     }
   },
   "units": {

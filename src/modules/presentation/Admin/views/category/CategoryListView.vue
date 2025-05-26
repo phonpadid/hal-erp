@@ -17,7 +17,6 @@ const { t } = useI18n();
 const columns = computed(() => getColumns(t));
 const categoryStore = useCategoryStore();
 const categories = ref<CategoryApiModel[]>([]);
-const useRealApi = ref<boolean>(false);
 
 const formRef = ref();
 const createModalVisible = ref(false);
@@ -44,17 +43,13 @@ const loadCategories = async (): Promise<void> => {
       updated_at: category.getUpdatedAt(),
     }));
   } catch (error) {
+    console.log("error", error);
+
     // handle error if needed
   } finally {
     loading.value = false;
   }
 };
-
-const toggleApiMode = (): void => {
-  useRealApi.value = !useRealApi.value;
-  loadCategories();
-};
-
 const showCreateModal = (): void => {
   formModel.name = "";
   errorMessage.value = "";
@@ -84,9 +79,13 @@ const handleCreate = async (): Promise<void> => {
 
     createModalVisible.value = false;
     formModel.name = "";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.message && error.message.includes("already exists")) {
-      errorMessage.value = t("categories.error.duplicateName", "A category with this name already exists.");
+      errorMessage.value = t(
+        "categories.error.duplicateName",
+        "A category with this name already exists."
+      );
     } else {
       errorMessage.value = error.message || "Create failed. Please try again.";
     }
@@ -108,9 +107,13 @@ const handleEdit = async (): Promise<void> => {
       await loadCategories();
       editModalVisible.value = false;
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.message && error.message.includes("already exists")) {
-      errorMessage.value = t("categories.error.duplicateName", "A category with this name already exists.");
+      errorMessage.value = t(
+        "categories.error.duplicateName",
+        "A category with this name already exists."
+      );
     } else {
       errorMessage.value = error.message || "Edit failed. Please try again.";
     }
@@ -141,40 +144,61 @@ const handleDelete = async (): Promise<void> => {
   <div class="category-list-container p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">{{ t('categories.title') }}</h1>
-        <div class="flex items-center mt-2">
-          <span class="mr-2 text-sm">
-            {{ t('button.mode') }}: {{ useRealApi ? "API" : "Mock Data" }}
-          </span>
-          <button @click="toggleApiMode" class="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded">
-            {{ t('button.mode') }}
-          </button>
-        </div>
+        <h1 class="text-2xl font-semibold">{{ t("categories.title") }}</h1>
       </div>
-      <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal" colorClass="flex items-center">
-        {{ t('categories.add') }}
+      <UiButton
+        type="primary"
+        icon="ant-design:plus-outlined"
+        @click="showCreateModal"
+        colorClass="flex items-center"
+      >
+        {{ t("categories.add") }}
       </UiButton>
     </div>
 
-    <Table :columns="columns" :dataSource="categories" :loading="loading" :pagination="{ pageSize: 10 }" row-key="id">
+    <Table
+      :columns="columns"
+      :dataSource="categories"
+      :loading="loading"
+      :pagination="{ pageSize: 10 }"
+      row-key="id"
+    >
       <template #actions="{ record }">
         <div class="flex gap-2">
-          <UiButton type="primary" icon="ant-design:edit-outlined" size="small" @click="showEditModal(record)"
-            colorClass="flex items-center">
-            {{ t('button.edit') }}
+          <UiButton
+            type="primary"
+            icon="ant-design:edit-outlined"
+            size="small"
+            @click="showEditModal(record)"
+            colorClass="flex items-center"
+          >
+            {{ t("button.edit") }}
           </UiButton>
-          <UiButton type="primary" danger icon="ant-design:delete-outlined" colorClass="flex items-center" size="small"
-            @click="showDeleteModal(record)">
-            {{ t('button.delete') }}
+          <UiButton
+            type="primary"
+            danger
+            icon="ant-design:delete-outlined"
+            colorClass="flex items-center"
+            size="small"
+            @click="showDeleteModal(record)"
+          >
+            {{ t("button.delete") }}
           </UiButton>
         </div>
       </template>
     </Table>
 
     <!-- Create Modal -->
-    <UiModal :title="t('categories.header_form.add')" :visible="createModalVisible" :confirm-loading="loading"
-      @update:visible="createModalVisible = $event" @ok="handleCreate" @cancel="createModalVisible = false"
-      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
+    <UiModal
+      :title="t('categories.header_form.add')"
+      :visible="createModalVisible"
+      :confirm-loading="loading"
+      @update:visible="createModalVisible = $event"
+      @ok="handleCreate"
+      @cancel="createModalVisible = false"
+      :cancelText="t('button.cancel')"
+      :okText="t('button.confirm')"
+    >
       <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('categories.field.name')" name="name" required>
@@ -184,9 +208,16 @@ const handleDelete = async (): Promise<void> => {
     </UiModal>
 
     <!-- Edit Modal -->
-    <UiModal :title="t('categories.header_form.edit')" :visible="editModalVisible" :confirm-loading="loading"
-      @update:visible="editModalVisible = $event" @ok="handleEdit" @cancel="editModalVisible = false"
-      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
+    <UiModal
+      :title="t('categories.header_form.edit')"
+      :visible="editModalVisible"
+      :confirm-loading="loading"
+      @update:visible="editModalVisible = $event"
+      @ok="handleEdit"
+      @cancel="editModalVisible = false"
+      :cancelText="t('button.cancel')"
+      :okText="t('button.confirm')"
+    >
       <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('categories.field.name')" name="name" required>
@@ -196,11 +227,19 @@ const handleDelete = async (): Promise<void> => {
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
-    <UiModal :title="t('categories.header_form.delete.title')" :visible="deleteModalVisible" :confirm-loading="loading"
-      @update:visible="deleteModalVisible = $event" @ok="handleDelete" :cancelText="t('button.cancel')"
-      @cancel="deleteModalVisible = false" :okText="t('button.confirm')" okType="primary">
-      <p>{{ t('categories.header_form.delete.content') }} "{{ selectedCategory?.name }}"?</p>
-      <p class="text-red-500">{{ t('categories.header_form.delete.description') }}</p>
+    <UiModal
+      :title="t('categories.header_form.delete.title')"
+      :visible="deleteModalVisible"
+      :confirm-loading="loading"
+      @update:visible="deleteModalVisible = $event"
+      @ok="handleDelete"
+      :cancelText="t('button.cancel')"
+      @cancel="deleteModalVisible = false"
+      :okText="t('button.confirm')"
+      okType="primary"
+    >
+      <p>{{ t("categories.header_form.delete.content") }} "{{ selectedCategory?.name }}"?</p>
+      <p class="text-red-500">{{ t("categories.header_form.delete.description") }}</p>
     </UiModal>
   </div>
 </template>

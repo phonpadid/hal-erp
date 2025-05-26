@@ -13,12 +13,10 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 
-
 const { t } = useI18n();
 const columns = computed(() => getColumns(t));
 const unitStore = useUnitStore();
 const units = ref<UnitApiModel[]>([]);
-const useRealApi = ref<boolean>(false);
 
 const formRef = ref();
 const createModalVisible = ref(false);
@@ -43,17 +41,13 @@ const loadUnits = async (): Promise<void> => {
       created_at: unit.getCreatedAt(),
       updated_at: unit.getUpdatedAt(),
     }));
-
   } catch (error) {
+    console.log("error", error);
+
     // handle error if needed
   } finally {
     loading.value = false;
   }
-};
-
-const toggleApiMode = (): void => {
-  useRealApi.value = !useRealApi.value;
-  loadUnits();
 };
 
 const showCreateModal = (): void => {
@@ -129,41 +123,61 @@ const handleDelete = async (): Promise<void> => {
   <div class="unit-list-container p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">{{ t('units.title') }}</h1>
-        <div class="flex items-center mt-2">
-
-          <span class="mr-2 text-sm">
-            {{ t('button.mode') }}: {{ useRealApi ? "API" : "Mock Data" }}
-          </span>
-          <button @click="toggleApiMode" class="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded">
-            {{ t('button.mode') }}
-          </button>
-        </div>
+        <h1 class="text-2xl font-semibold">{{ t("units.title") }}</h1>
       </div>
-      <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal" colorClass="flex items-center">
-        {{ t('units.add') }}
+      <UiButton
+        type="primary"
+        icon="ant-design:plus-outlined"
+        @click="showCreateModal"
+        colorClass="flex items-center"
+      >
+        {{ t("units.add") }}
       </UiButton>
     </div>
 
-    <Table :columns="columns" :dataSource="units" :loading="loading" :pagination="{ pageSize: 10 }" row-key="id">
+    <Table
+      :columns="columns"
+      :dataSource="units"
+      :loading="loading"
+      :pagination="{ pageSize: 10 }"
+      row-key="id"
+    >
       <template #actions="{ record }">
         <div class="flex gap-2">
-          <UiButton type="primary" icon="ant-design:edit-outlined" size="small" @click="showEditModal(record)"
-            colorClass="flex items-center">
-            {{ t('button.edit') }}
+          <UiButton
+            type="primary"
+            icon="ant-design:edit-outlined"
+            size="small"
+            @click="showEditModal(record)"
+            colorClass="flex items-center"
+          >
+            {{ t("button.edit") }}
           </UiButton>
-          <UiButton type="primary" danger icon="ant-design:delete-outlined" colorClass="flex items-center" size="small"
-            @click="showDeleteModal(record)">
-            {{ t('button.delete') }}
+          <UiButton
+            type="primary"
+            danger
+            icon="ant-design:delete-outlined"
+            colorClass="flex items-center"
+            size="small"
+            @click="showDeleteModal(record)"
+          >
+            {{ t("button.delete") }}
           </UiButton>
         </div>
       </template>
     </Table>
 
     <!-- Create Modal -->
-    <UiModal :title="t('units.header_form.add')" :visible="createModalVisible" :confirm-loading="loading"
-      @update:visible="createModalVisible = $event" @ok="handleCreate" @cancel="createModalVisible = false"
-      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
+    <UiModal
+      :title="t('units.header_form.add')"
+      :visible="createModalVisible"
+      :confirm-loading="loading"
+      @update:visible="createModalVisible = $event"
+      @ok="handleCreate"
+      @cancel="createModalVisible = false"
+      :cancelText="t('button.cancel')"
+      :okText="t('button.confirm')"
+    >
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('units.field.name')" name="name" required>
           <UiInput v-model="formModel.name" :placeholder="t('units.placeholder.name')" />
@@ -172,9 +186,16 @@ const handleDelete = async (): Promise<void> => {
     </UiModal>
 
     <!-- Edit Modal -->
-    <UiModal :title="t('units.header_form.edit')" :visible="editModalVisible" :confirm-loading="loading"
-      @update:visible="editModalVisible = $event" @ok="handleEdit" @cancel="editModalVisible = false"
-      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
+    <UiModal
+      :title="t('units.header_form.edit')"
+      :visible="editModalVisible"
+      :confirm-loading="loading"
+      @update:visible="editModalVisible = $event"
+      @ok="handleEdit"
+      @cancel="editModalVisible = false"
+      :cancelText="t('button.cancel')"
+      :okText="t('button.confirm')"
+    >
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('units.field.name')" name="name" required>
           <UiInput v-model="formModel.name" :placeholder="t('units.placeholder.name')" />
@@ -183,11 +204,19 @@ const handleDelete = async (): Promise<void> => {
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
-    <UiModal :title="t('units.header_form.delete.title')" :visible="deleteModalVisible" :confirm-loading="loading"
-      @update:visible="deleteModalVisible = $event" @ok="handleDelete" :cancelText="t('button.cancel')"
-      @cancel="deleteModalVisible = false" :okText="t('button.confirm')" okType="primary">
-      <p>{{ t('units.header_form.delete.content') }} "{{ selectedUnit?.name }}"?</p>
-      <p class="text-red-500">{{ t('units.header_form.delete.description') }}</p>
+    <UiModal
+      :title="t('units.header_form.delete.title')"
+      :visible="deleteModalVisible"
+      :confirm-loading="loading"
+      @update:visible="deleteModalVisible = $event"
+      @ok="handleDelete"
+      :cancelText="t('button.cancel')"
+      @cancel="deleteModalVisible = false"
+      :okText="t('button.confirm')"
+      okType="primary"
+    >
+      <p>{{ t("units.header_form.delete.content") }} "{{ selectedUnit?.name }}"?</p>
+      <p class="text-red-500">{{ t("units.header_form.delete.description") }}</p>
     </UiModal>
   </div>
 </template>
