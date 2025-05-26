@@ -126,8 +126,8 @@ export const useCategoryStore = defineStore("category", () => {
           deletedCategory.getId(),
           deletedCategory.getName(),
           deletedCategory.getCreatedAt(),
-          new Date(),
-          new Date()
+          new Date().toString(),
+          new Date().toString()
         );
       }
       return result;
@@ -151,7 +151,7 @@ export const useCategoryStore = defineStore("category", () => {
           restoredCategory.getId(),
           restoredCategory.getName(),
           restoredCategory.getCreatedAt(),
-          new Date(),
+          new Date().toString(),
           null
         );
       }

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted,computed } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { CategoryApiModel } from "@/modules/interfaces/category.interface";
 import { useCategoryStore } from "@/modules/presentation/Admin/stores/category.store";
 import { Category } from "@/modules/domain/entities/categories.entities";
 import { getColumns } from "./column";
-import { dataCategories } from "@/modules/shared/utils/data.category";
 import { rules } from "./validation/category.vallidate";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -14,52 +13,40 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 
-// change the language in the system
 const { t } = useI18n();
-// Make columns reactive to language changes
-const columns = computed(()=>getColumns(t));
-
+const columns = computed(() => getColumns(t));
 const categoryStore = useCategoryStore();
 const categories = ref<CategoryApiModel[]>([]);
 const useRealApi = ref<boolean>(false);
 
-// Form related
 const formRef = ref();
-const createModalVisible = ref<boolean>(false);
-const editModalVisible = ref<boolean>(false);
-const deleteModalVisible = ref<boolean>(false);
-const loading = ref<boolean>(false);
+const createModalVisible = ref(false);
+const editModalVisible = ref(false);
+const deleteModalVisible = ref(false);
+const loading = ref(false);
 const selectedCategory = ref<CategoryApiModel | null>(null);
+const errorMessage = ref(""); // For showing errors in modal
 
-// Form model
-const formModel = reactive({
-  name: "",
-});
+const formModel = reactive({ name: "" });
 
 onMounted(async () => {
   await loadCategories();
 });
 
 const loadCategories = async (): Promise<void> => {
-  if (useRealApi.value) {
-    try {
-      loading.value = true;
-      const result = await categoryStore.fetchCategories();
-
-      categories.value = result.data.map((category: Category) => ({
-        id: parseInt(category.getId()),
-        name: category.getName(),
-        created_at: category.getCreatedAt().toISOString().replace("T", " ").substring(0, 19),
-        updated_at: category.getUpdatedAt().toISOString().replace("T", " ").substring(0, 19),
-      }));
-    } catch (error) {
-      console.error("Failed to fetch categories from API:", error);
-      categories.value = [...dataCategories.value];
-    } finally {
-      loading.value = false;
-    }
-  } else {
-    categories.value = [...dataCategories.value];
+  loading.value = true;
+  try {
+    const result = await categoryStore.fetchCategories();
+    categories.value = result.data.map((category: Category) => ({
+      id: parseInt(category.getId()),
+      name: category.getName(),
+      created_at: category.getCreatedAt(),
+      updated_at: category.getUpdatedAt(),
+    }));
+  } catch (error) {
+    // handle error if needed
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -70,12 +57,14 @@ const toggleApiMode = (): void => {
 
 const showCreateModal = (): void => {
   formModel.name = "";
+  errorMessage.value = "";
   createModalVisible.value = true;
 };
 
 const showEditModal = (record: CategoryApiModel): void => {
   selectedCategory.value = record;
   formModel.name = record.name;
+  errorMessage.value = "";
   editModalVisible.value = true;
 };
 
@@ -85,28 +74,22 @@ const showDeleteModal = (record: CategoryApiModel): void => {
 };
 
 const handleCreate = async (): Promise<void> => {
+  loading.value = true;
+  errorMessage.value = "";
   try {
-    loading.value = true;
     await formRef.value.submitForm();
 
-    if (useRealApi.value) {
-      await categoryStore.createCategory({ name: formModel.name });
-      await loadCategories();
-    } else {
-      const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-      const newCategory: CategoryApiModel = {
-        id: categories.value.length + 1,
-        name: formModel.name,
-        created_at: now,
-        updated_at: now,
-      };
-      categories.value.push(newCategory);
-      dataCategories.value.push(newCategory);
-    }
+    await categoryStore.createCategory({ name: formModel.name });
+    await loadCategories();
 
     createModalVisible.value = false;
     formModel.name = "";
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message && error.message.includes("already exists")) {
+      errorMessage.value = t("categories.error.duplicateName", "A category with this name already exists.");
+    } else {
+      errorMessage.value = error.message || "Create failed. Please try again.";
+    }
     console.error("Create form validation failed:", error);
   } finally {
     loading.value = false;
@@ -114,35 +97,25 @@ const handleCreate = async (): Promise<void> => {
 };
 
 const handleEdit = async (): Promise<void> => {
+  loading.value = true;
+  errorMessage.value = "";
   try {
-    loading.value = true;
     await formRef.value.submitForm();
 
     if (selectedCategory.value) {
-      if (useRealApi.value) {
-        const id = selectedCategory.value.id.toString();
-        await categoryStore.updateCategory(id, { name: formModel.name });
-        await loadCategories();
-      } else {
-        const index = categories.value.findIndex((c) => c.id === selectedCategory.value!.id);
-        if (index !== -1) {
-          const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-          categories.value[index] = {
-            ...categories.value[index],
-            name: formModel.name,
-            updated_at: now,
-          };
-          const mockIndex = dataCategories.value.findIndex((c) => c.id === selectedCategory.value!.id);
-          if (mockIndex !== -1) {
-            dataCategories.value[mockIndex] = { ...categories.value[index] };
-          }
-        }
-      }
+      const id = selectedCategory.value.id.toString();
+      await categoryStore.updateCategory(id, { name: formModel.name });
+      await loadCategories();
+      editModalVisible.value = false;
     }
-
-    editModalVisible.value = false;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message && error.message.includes("already exists")) {
+      errorMessage.value = t("categories.error.duplicateName", "A category with this name already exists.");
+    } else {
+      errorMessage.value = error.message || "Edit failed. Please try again.";
+    }
     console.error("Edit form validation failed:", error);
+    // Do NOT close the modal here
   } finally {
     loading.value = false;
   }
@@ -150,24 +123,17 @@ const handleEdit = async (): Promise<void> => {
 
 const handleDelete = async (): Promise<void> => {
   if (!selectedCategory.value) return;
-
   loading.value = true;
-
-  if (useRealApi.value) {
-    try {
-      const id = selectedCategory.value.id.toString();
-      await categoryStore.deleteCategory(id);
-      await loadCategories();
-    } catch (error) {
-      console.error("Delete failed:", error);
-    }
-  } else {
-    categories.value = categories.value.filter((c) => c.id !== selectedCategory.value!.id);
-    dataCategories.value = dataCategories.value.filter((c) => c.id !== selectedCategory.value!.id);
+  try {
+    const id = selectedCategory.value.id.toString();
+    await categoryStore.deleteCategory(id);
+    await loadCategories();
+    deleteModalVisible.value = false;
+  } catch (error) {
+    console.error("Delete failed:", error);
+  } finally {
+    loading.value = false;
   }
-
-  deleteModalVisible.value = false;
-  loading.value = false;
 };
 </script>
 
@@ -178,51 +144,27 @@ const handleDelete = async (): Promise<void> => {
         <h1 class="text-2xl font-semibold">{{ t('categories.title') }}</h1>
         <div class="flex items-center mt-2">
           <span class="mr-2 text-sm">
-            {{ t('button.mode') }}: {{ useRealApi ? t('categories.real_api', 'API ແທ້') : t('categories.mock_data', 'Mock Data') }}
+            {{ t('button.mode') }}: {{ useRealApi ? "API" : "Mock Data" }}
           </span>
-          <button
-            @click="toggleApiMode"
-            class="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded"
-          >
-            {{ t('button.mode', 'ສະລັບໂໝດ') }}
+          <button @click="toggleApiMode" class="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded">
+            {{ t('button.mode') }}
           </button>
         </div>
       </div>
-
-      <UiButton
-        type="primary"
-        icon="ant-design:plus-outlined"
-        @click="showCreateModal"
-        colorClass="flex items-center"
-      >
+      <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal" colorClass="flex items-center">
         {{ t('categories.add') }}
       </UiButton>
     </div>
 
-    <div v-if="categoryStore.loading || loading" class="text-center py-4">
-      <p>{{ t('messages.loading') }}</p>
-    </div>
-
-    <Table :columns="columns" :dataSource="categories" :pagination="{ pageSize: 10 }" row-key="id">
+    <Table :columns="columns" :dataSource="categories" :loading="loading" :pagination="{ pageSize: 10 }" row-key="id">
       <template #actions="{ record }">
         <div class="flex gap-2">
-          <UiButton
-            type="primary"
-            icon="ant-design:edit-outlined"
-            size="small"
-            @click="showEditModal(record)"
-            colorClass="flex items-center"
-          >
+          <UiButton type="primary" icon="ant-design:edit-outlined" size="small" @click="showEditModal(record)"
+            colorClass="flex items-center">
             {{ t('button.edit') }}
           </UiButton>
-          <UiButton
-            type="primary"
-            danger
-            icon="ant-design:delete-outlined"
-            size="small"
-            colorClass="flex items-center"
-            @click="showDeleteModal(record)"
-          >
+          <UiButton type="primary" danger icon="ant-design:delete-outlined" colorClass="flex items-center" size="small"
+            @click="showDeleteModal(record)">
             {{ t('button.delete') }}
           </UiButton>
         </div>
@@ -230,16 +172,10 @@ const handleDelete = async (): Promise<void> => {
     </Table>
 
     <!-- Create Modal -->
-    <UiModal
-      :title="t('categories.header_form.add')"
-      :visible="createModalVisible"
-      :confirm-loading="loading"
-      @update:visible="createModalVisible = $event"
-      @ok="handleCreate"
-      @cancel="createModalVisible = false"
-      :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
-    >
+    <UiModal :title="t('categories.header_form.add')" :visible="createModalVisible" :confirm-loading="loading"
+      @update:visible="createModalVisible = $event" @ok="handleCreate" @cancel="createModalVisible = false"
+      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
+      <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('categories.field.name')" name="name" required>
           <UiInput v-model="formModel.name" :placeholder="t('categories.placeholder.name')" />
@@ -248,16 +184,10 @@ const handleDelete = async (): Promise<void> => {
     </UiModal>
 
     <!-- Edit Modal -->
-    <UiModal
-      :title="t('categories.header_form.edit')"
-      :visible="editModalVisible"
-      :confirm-loading="loading"
-      @update:visible="editModalVisible = $event"
-      @ok="handleEdit"
-      @cancel="editModalVisible = false"
-      :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
-    >
+    <UiModal :title="t('categories.header_form.edit')" :visible="editModalVisible" :confirm-loading="loading"
+      @update:visible="editModalVisible = $event" @ok="handleEdit" @cancel="editModalVisible = false"
+      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
+      <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('categories.field.name')" name="name" required>
           <UiInput v-model="formModel.name" :placeholder="t('categories.placeholder.name')" />
@@ -265,18 +195,10 @@ const handleDelete = async (): Promise<void> => {
       </UiForm>
     </UiModal>
 
-    <!-- Delete Modal -->
-    <UiModal
-      :title="t('categories.header_form.delete.title')"
-      :visible="deleteModalVisible"
-      :confirm-loading="loading"
-      @update:visible="deleteModalVisible = $event"
-      @ok="handleDelete"
-      @cancel="deleteModalVisible = false"
-      :okText="t('button.confirm')"
-      :cancelText="t('button.cancel')"
-      okType="primary"
-    >
+    <!-- Delete Confirmation Modal -->
+    <UiModal :title="t('categories.header_form.delete.title')" :visible="deleteModalVisible" :confirm-loading="loading"
+      @update:visible="deleteModalVisible = $event" @ok="handleDelete" :cancelText="t('button.cancel')"
+      @cancel="deleteModalVisible = false" :okText="t('button.confirm')" okType="primary">
       <p>{{ t('categories.header_form.delete.content') }} "{{ selectedCategory?.name }}"?</p>
       <p class="text-red-500">{{ t('categories.header_form.delete.description') }}</p>
     </UiModal>

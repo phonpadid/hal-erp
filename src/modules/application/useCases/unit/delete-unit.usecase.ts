@@ -11,8 +11,6 @@ export class DeleteUnitUseCase {
     if (unit.isDeleted()) {
       throw new Error(`Unit with id ${id} is already deleted`);
     }
-
-
     return await this.unitRepository.delete(id);
   }
 }

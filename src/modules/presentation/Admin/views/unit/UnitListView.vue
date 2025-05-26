@@ -12,8 +12,7 @@ import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
-import { formatDate } from "@/modules/shared/formatdate";
-import { dataUnits } from "@/modules/shared/utils/data.unit"; // mock data file
+
 
 const { t } = useI18n();
 const columns = computed(() => getColumns(t));
@@ -112,12 +111,9 @@ const handleEdit = async (): Promise<void> => {
 const handleDelete = async (): Promise<void> => {
   if (!selectedUnit.value) return;
   console.log("Deleting unit:", selectedUnit.value);
-
   loading.value = true;
   try {
     const id = selectedUnit.value.id.toString();
-    //console.log("Deleting unit with ID:", id);
-
     await unitStore.deleteUnit(id);
     await loadUnits();
     deleteModalVisible.value = false;

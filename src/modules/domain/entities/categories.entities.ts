@@ -1,15 +1,15 @@
 export class Category {
   private id: string
   private name: string
-  private createdAt: Date
-  private updatedAt: Date
-  private deletedAt: Date | null
+  private createdAt: string
+  private updatedAt: string
+  private deletedAt: string | null
   constructor(
     id: string,
     name: string,
-    createdAt: Date,
-    updatedAt: Date,
-    deletedAt: Date | null = null
+    createdAt: string,
+    updatedAt: string,
+    deletedAt: string | null = null
   ) {
     this.id = id
     this.name = name
@@ -23,13 +23,13 @@ export class Category {
   public getName(): string {
     return this.name
   }
-  public getCreatedAt(): Date {
+  public getCreatedAt(): string {
     return this.createdAt
   }
-  public getUpdatedAt(): Date {
+  public getUpdatedAt(): string {
     return this.updatedAt
   }
-  public getDeletedAt(): Date | null {
+  public getDeletedAt(): string | null {
     return this.deletedAt
   }
   public isDeleted(): boolean {
@@ -37,18 +37,18 @@ export class Category {
   }
   public updateName(name: string): void {
     this.name = name
-    this.updatedAt = new Date()
+    this.updatedAt = new Date().toString()
   }
   public delete(): void {
-    this.deletedAt = new Date()
-    this.updatedAt = new Date()
+    this.deletedAt = new Date().toString()
+    this.updatedAt = new Date().toString()
   }
   public restore(): void {
     this.deletedAt = null
-    this.updatedAt = new Date()
+    this.updatedAt = new Date().toString()
   }
   public static create(id: string, name: string): Category {
     const now = new Date()
-    return new Category(id, name, now, now)
+    return new Category(id, name, now.toString(), now.toString())
   }
 }

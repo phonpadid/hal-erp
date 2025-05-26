@@ -8,9 +8,9 @@ import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 
 export class ApiCategoryRepository implements CategoryRepository {
-  async create(category: Category): Promise<Category> {
+  async create(input: Category): Promise<Category> {
     try {
-      const response = (await api.post("/category", this.toApiModel(category))) as {
+      const response = (await api.post("/categories", this.toApiModel(input))) as {
         data: ApiResponse<CategoryApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -21,7 +21,7 @@ export class ApiCategoryRepository implements CategoryRepository {
 
   async findById(id: string): Promise<Category | null> {
     try {
-      const response = (await api.get(`/category/${id}`)) as {
+      const response = (await api.get(`/categories/${id}`)) as {
         data: ApiResponse<CategoryApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -36,7 +36,7 @@ export class ApiCategoryRepository implements CategoryRepository {
 
   async findByName(name: string): Promise<Category | null> {
     try {
-      const response = (await api.get("/category", {
+      const response = (await api.get("/categories", {
         params: { name },
       })) as { data: ApiListResponse<CategoryApiModel> };
 
@@ -56,7 +56,7 @@ export class ApiCategoryRepository implements CategoryRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<Category>> {
     try {
-      const response = (await api.get("/category", {
+      const response = (await api.get("/categories", {
         params: {
           page: params.page,
           limit: params.limit,
@@ -77,21 +77,21 @@ export class ApiCategoryRepository implements CategoryRepository {
     }
   }
 
-  async update(category: Category): Promise<Category> {
+  async update(input: Category): Promise<Category> {
     try {
       const response = (await api.put(
-        `/category/${category.getId()}`,
-        this.toApiModel(category)
+        `/categories/${input.getId()}`,
+        this.toApiModel(input)
       )) as { data: ApiResponse<CategoryApiModel> };
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      this.handleApiError(error, `Failed to update category with id ${category.getId()}`);
+      this.handleApiError(error, `Failed to update category with id ${input.getId()}`);
     }
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await api.delete(`/category/${id}`);
+      await api.delete(`/categories/${id}`);
       return true;
     } catch (error) {
       this.handleApiError(error, `Failed to delete category with id ${id}`);
@@ -100,19 +100,19 @@ export class ApiCategoryRepository implements CategoryRepository {
 
   async restore(id: string): Promise<boolean> {
     try {
-      await api.post(`/category/${id}/restore`);
+      await api.post(`/categories/${id}/restore`);
       return true;
     } catch (error) {
       this.handleApiError(error, `Failed to restore category with id ${id}`);
     }
   }
 
-  private toApiModel(category: Category): CategoryApiModel {
+  private toApiModel(input: Category): CategoryApiModel {
     return {
-      id: parseInt(category.getId(), 10),
-      name: category.getName(),
-      created_at: category.getCreatedAt().toISOString(),
-      updated_at: category.getUpdatedAt().toISOString(),
+      id: parseInt(input.getId(), 10),
+      name: input.getName(),
+      created_at: input.getCreatedAt(),
+      updated_at: input.getUpdatedAt()
     };
   }
 
@@ -120,8 +120,8 @@ export class ApiCategoryRepository implements CategoryRepository {
     return new Category(
       data.id.toString(),
       data.name,
-      new Date(data.created_at),
-      new Date(data.updated_at)
+      data.created_at.toString(),
+      data.updated_at.toString()
     );
   }
 
