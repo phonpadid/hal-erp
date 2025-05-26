@@ -14,9 +14,7 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 
-// change the language in the system
 const { t } = useI18n();
-// Make columns reactive to language changes
 const columns = computed(() => getColumns(t));
 
 const positionStore = usePositionStore();
@@ -174,12 +172,7 @@ const handleDelete = async (): Promise<void> => {
         <h1 class="text-2xl font-semibold">{{ t("positions.title") }}</h1>
       </div>
 
-      <UiButton
-        type="primary"
-        icon="ant-design:plus-outlined"
-        @click="showCreateModal"
-        colorClass="flex items-center"
-      >
+      <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal" colorClass="flex items-center">
         {{ t("positions.add") }}
       </UiButton>
     </div>
@@ -191,40 +184,20 @@ const handleDelete = async (): Promise<void> => {
     <Table :columns="columns" :dataSource="positions" :pagination="{ pageSize: 10 }" row-key="id">
       <template #actions="{ record }">
         <div class="flex gap-2">
-          <UiButton
-            type="primary"
-            icon="ant-design:edit-outlined"
-            size="small"
-            @click="showEditModal(record)"
-            colorClass="flex items-center"
-          >
-            {{ t("button.edit") }}
+          <UiButton type="" icon="ant-design:edit-outlined" size="small" @click="showEditModal(record)"
+            colorClass="flex items-center justify-center text-orange-400">
           </UiButton>
-          <UiButton
-            type="primary"
-            danger
-            icon="ant-design:delete-outlined"
-            size="small"
-            colorClass="flex items-center"
-            @click="showDeleteModal(record)"
-          >
-            {{ t("button.delete") }}
+          <UiButton type="" danger icon="ant-design:delete-outlined" size="small"
+            colorClass="flex items-center justify-center text-red-700" @click="showDeleteModal(record)">
           </UiButton>
         </div>
       </template>
     </Table>
 
     <!-- Create Modal -->
-    <UiModal
-      :title="t('positions.header_form.add')"
-      :visible="createModalVisible"
-      :confirm-loading="loading"
-      @update:visible="createModalVisible = $event"
-      @ok="handleCreate"
-      @cancel="createModalVisible = false"
-      :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
-    >
+    <UiModal :title="t('positions.header_form.add')" :visible="createModalVisible" :confirm-loading="loading"
+      @update:visible="createModalVisible = $event" @ok="handleCreate" @cancel="createModalVisible = false"
+      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('positions.field.name')" name="name" required>
           <UiInput v-model="formModel.name" :placeholder="t('positions.placeholder.name')" />
@@ -233,16 +206,9 @@ const handleDelete = async (): Promise<void> => {
     </UiModal>
 
     <!-- Edit Modal -->
-    <UiModal
-      :title="t('positions.header_form.edit')"
-      :visible="editModalVisible"
-      :confirm-loading="loading"
-      @update:visible="editModalVisible = $event"
-      @ok="handleEdit"
-      @cancel="editModalVisible = false"
-      :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
-    >
+    <UiModal :title="t('positions.header_form.edit')" :visible="editModalVisible" :confirm-loading="loading"
+      @update:visible="editModalVisible = $event" @ok="handleEdit" @cancel="editModalVisible = false"
+      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('positions.field.name')" name="name" required>
           <UiInput v-model="formModel.name" :placeholder="t('positions.placeholder.name')" />
@@ -251,17 +217,9 @@ const handleDelete = async (): Promise<void> => {
     </UiModal>
 
     <!-- Delete Modal -->
-    <UiModal
-      :title="t('positions.header_form.delete.title')"
-      :visible="deleteModalVisible"
-      :confirm-loading="loading"
-      @update:visible="deleteModalVisible = $event"
-      @ok="handleDelete"
-      @cancel="deleteModalVisible = false"
-      :okText="t('button.confirm')"
-      :cancelText="t('button.cancel')"
-      okType="primary"
-    >
+    <UiModal :title="t('positions.header_form.delete.title')" :visible="deleteModalVisible" :confirm-loading="loading"
+      @update:visible="deleteModalVisible = $event" @ok="handleDelete" @cancel="deleteModalVisible = false"
+      :okText="t('button.confirm')" :cancelText="t('button.cancel')" okType="primary">
       <p>{{ t("positions.header_form.delete.content") }} "{{ selectedPosition?.name }}"?</p>
       <p class="text-red-500">{{ t("positions.header_form.delete.description") }}</p>
     </UiModal>

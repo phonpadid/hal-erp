@@ -6,13 +6,7 @@
   "button": {
     "ok": "Ok",
     "cancel": "Cancel",
-<<<<<<< HEAD
-    "delete": "Delete",
-    "edit": "Edit",
-    "add": "Add",
-=======
     "edit": "Update",
->>>>>>> 4ecac6a119ac2b7fd3bbe4b6e8e3e2c99f9ca2d6
     "save": "Save",
     "update": "Update",
     "delete": "Delete",
@@ -57,13 +51,8 @@
       "remark": "This action cannot be undone once you have confirmed it."
     },
     "dpm": {
-<<<<<<< HEAD
-      "title": "Department information",
-      "add": "Add department",
-=======
       "title": "Departments information",
       "add": "Add departments",
->>>>>>> 4ecac6a119ac2b7fd3bbe4b6e8e3e2c99f9ca2d6
       "header_form": {
         "add": "Departments creation form",
         "edit": "Departments update form"
@@ -128,8 +117,6 @@
       "updatedAt": "Updated At",
       "actions": "Actions"
     },
-<<<<<<< HEAD
-=======
 
     "status": {
       "active": "Active",
@@ -285,7 +272,6 @@
         "description": "This action cannot be undone"
       }
     },
->>>>>>> 4ecac6a119ac2b7fd3bbe4b6e8e3e2c99f9ca2d6
     "placeholder": {
       "name": "Please enter category name"
     },
@@ -295,17 +281,16 @@
     "field": {
       "name": "Category name",
       "created": "Created At",
-      "updated": "Updated At",
-      "manage": "Manage"
-<<<<<<< HEAD
-=======
+      "updated": "Updated At"
     },
 
     "status": {
       "active": "Active",
       "inactive": "Deleted"
->>>>>>> 4ecac6a119ac2b7fd3bbe4b6e8e3e2c99f9ca2d6
     }
+  },
+  "manage": {
+    "manage": "Manage"
   },
   "units": {
     "title": "Unit information",
@@ -328,8 +313,7 @@
     "field": {
       "name": "Unit name",
       "created": "Created At",
-      "updated": "Updated At",
-      "manage": "Manage"
+      "updated": "Updated At"
     }
   },
   "positions": {
