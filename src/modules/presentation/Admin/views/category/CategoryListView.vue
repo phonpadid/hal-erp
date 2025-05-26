@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import type { UnitApiModel } from "@/modules/interfaces/unit.interface";
-import { useUnitStore } from "@/modules/presentation/Admin/stores/unit.store";
-import { Unit } from "@/modules/domain/entities/unit.entities";
+import type { CategoryApiModel } from "@/modules/interfaces/category.interface";
+import { useCategoryStore } from "@/modules/presentation/Admin/stores/category.store";
+import { Category } from "@/modules/domain/entities/categories.entities";
 import { getColumns } from "./column";
-import { rules } from "./validation/unit.validate";
+import { rules } from "./validation/category.vallidate";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -15,31 +15,32 @@ import UiForm from "@/common/shared/components/Form/UiForm.vue";
 
 const { t } = useI18n();
 const columns = computed(() => getColumns(t));
-const unitStore = useUnitStore();
-const units = ref<UnitApiModel[]>([]);
+const categoryStore = useCategoryStore();
+const categories = ref<CategoryApiModel[]>([]);
 
 const formRef = ref();
 const createModalVisible = ref(false);
 const editModalVisible = ref(false);
 const deleteModalVisible = ref(false);
 const loading = ref(false);
-const selectedUnit = ref<UnitApiModel | null>(null);
+const selectedCategory = ref<CategoryApiModel | null>(null);
+const errorMessage = ref(""); // For showing errors in modal
 
 const formModel = reactive({ name: "" });
 
 onMounted(async () => {
-  await loadUnits();
+  await loadCategories();
 });
 
-const loadUnits = async (): Promise<void> => {
+const loadCategories = async (): Promise<void> => {
   loading.value = true;
   try {
-    const result = await unitStore.fetchUnits();
-    units.value = result.data.map((unit: Unit) => ({
-      id: parseInt(unit.getId()),
-      name: unit.getName(),
-      created_at: unit.getCreatedAt(),
-      updated_at: unit.getUpdatedAt(),
+    const result = await categoryStore.fetchCategories();
+    categories.value = result.data.map((category: Category) => ({
+      id: parseInt(category.getId()),
+      name: category.getName(),
+      created_at: category.getCreatedAt(),
+      updated_at: category.getUpdatedAt(),
     }));
   } catch (error) {
     console.log("error", error);
@@ -49,34 +50,45 @@ const loadUnits = async (): Promise<void> => {
     loading.value = false;
   }
 };
-
 const showCreateModal = (): void => {
   formModel.name = "";
+  errorMessage.value = "";
   createModalVisible.value = true;
 };
 
-const showEditModal = (record: UnitApiModel): void => {
-  selectedUnit.value = record;
+const showEditModal = (record: CategoryApiModel): void => {
+  selectedCategory.value = record;
   formModel.name = record.name;
+  errorMessage.value = "";
   editModalVisible.value = true;
 };
 
-const showDeleteModal = (record: UnitApiModel): void => {
-  selectedUnit.value = record;
+const showDeleteModal = (record: CategoryApiModel): void => {
+  selectedCategory.value = record;
   deleteModalVisible.value = true;
 };
 
 const handleCreate = async (): Promise<void> => {
   loading.value = true;
+  errorMessage.value = "";
   try {
     await formRef.value.submitForm();
 
-    await unitStore.createUnit({ name: formModel.name });
-    await loadUnits();
+    await categoryStore.createCategory({ name: formModel.name });
+    await loadCategories();
 
     createModalVisible.value = false;
     formModel.name = "";
-  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error.message && error.message.includes("already exists")) {
+      errorMessage.value = t(
+        "categories.error.duplicateName",
+        "A category with this name already exists."
+      );
+    } else {
+      errorMessage.value = error.message || "Create failed. Please try again.";
+    }
     console.error("Create form validation failed:", error);
   } finally {
     loading.value = false;
@@ -85,31 +97,40 @@ const handleCreate = async (): Promise<void> => {
 
 const handleEdit = async (): Promise<void> => {
   loading.value = true;
+  errorMessage.value = "";
   try {
     await formRef.value.submitForm();
 
-    if (selectedUnit.value) {
-      const id = selectedUnit.value.id.toString();
-      await unitStore.updateUnit(id, { name: formModel.name });
-      await loadUnits();
+    if (selectedCategory.value) {
+      const id = selectedCategory.value.id.toString();
+      await categoryStore.updateCategory(id, { name: formModel.name });
+      await loadCategories();
+      editModalVisible.value = false;
     }
-
-    editModalVisible.value = false;
-  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error.message && error.message.includes("already exists")) {
+      errorMessage.value = t(
+        "categories.error.duplicateName",
+        "A category with this name already exists."
+      );
+    } else {
+      errorMessage.value = error.message || "Edit failed. Please try again.";
+    }
     console.error("Edit form validation failed:", error);
+    // Do NOT close the modal here
   } finally {
     loading.value = false;
   }
 };
 
 const handleDelete = async (): Promise<void> => {
-  if (!selectedUnit.value) return;
-  console.log("Deleting unit:", selectedUnit.value);
+  if (!selectedCategory.value) return;
   loading.value = true;
   try {
-    const id = selectedUnit.value.id.toString();
-    await unitStore.deleteUnit(id);
-    await loadUnits();
+    const id = selectedCategory.value.id.toString();
+    await categoryStore.deleteCategory(id);
+    await loadCategories();
     deleteModalVisible.value = false;
   } catch (error) {
     console.error("Delete failed:", error);
@@ -120,10 +141,10 @@ const handleDelete = async (): Promise<void> => {
 </script>
 
 <template>
-  <div class="unit-list-container p-6">
+  <div class="category-list-container p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">{{ t("units.title") }}</h1>
+        <h1 class="text-2xl font-semibold">{{ t("categories.title") }}</h1>
       </div>
       <UiButton
         type="primary"
@@ -131,13 +152,13 @@ const handleDelete = async (): Promise<void> => {
         @click="showCreateModal"
         colorClass="flex items-center"
       >
-        {{ t("units.add") }}
+        {{ t("categories.add") }}
       </UiButton>
     </div>
 
     <Table
       :columns="columns"
-      :dataSource="units"
+      :dataSource="categories"
       :loading="loading"
       :pagination="{ pageSize: 10 }"
       row-key="id"
@@ -169,7 +190,7 @@ const handleDelete = async (): Promise<void> => {
 
     <!-- Create Modal -->
     <UiModal
-      :title="t('units.header_form.add')"
+      :title="t('categories.header_form.add')"
       :visible="createModalVisible"
       :confirm-loading="loading"
       @update:visible="createModalVisible = $event"
@@ -178,16 +199,17 @@ const handleDelete = async (): Promise<void> => {
       :cancelText="t('button.cancel')"
       :okText="t('button.confirm')"
     >
+      <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
       <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem :label="t('units.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('units.placeholder.name')" />
+        <UiFormItem :label="t('categories.field.name')" name="name" required>
+          <UiInput v-model="formModel.name" :placeholder="t('categories.placeholder.name')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Edit Modal -->
     <UiModal
-      :title="t('units.header_form.edit')"
+      :title="t('categories.header_form.edit')"
       :visible="editModalVisible"
       :confirm-loading="loading"
       @update:visible="editModalVisible = $event"
@@ -196,16 +218,17 @@ const handleDelete = async (): Promise<void> => {
       :cancelText="t('button.cancel')"
       :okText="t('button.confirm')"
     >
+      <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
       <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem :label="t('units.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('units.placeholder.name')" />
+        <UiFormItem :label="t('categories.field.name')" name="name" required>
+          <UiInput v-model="formModel.name" :placeholder="t('categories.placeholder.name')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
     <UiModal
-      :title="t('units.header_form.delete.title')"
+      :title="t('categories.header_form.delete.title')"
       :visible="deleteModalVisible"
       :confirm-loading="loading"
       @update:visible="deleteModalVisible = $event"
@@ -215,14 +238,14 @@ const handleDelete = async (): Promise<void> => {
       :okText="t('button.confirm')"
       okType="primary"
     >
-      <p>{{ t("units.header_form.delete.content") }} "{{ selectedUnit?.name }}"?</p>
-      <p class="text-red-500">{{ t("units.header_form.delete.description") }}</p>
+      <p>{{ t("categories.header_form.delete.content") }} "{{ selectedCategory?.name }}"?</p>
+      <p class="text-red-500">{{ t("categories.header_form.delete.description") }}</p>
     </UiModal>
   </div>
 </template>
 
 <style scoped>
-.unit-list-container {
+.category-list-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);

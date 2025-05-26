@@ -1,42 +1,44 @@
-import type { ApiListResponse } from "./../shared/repondata";
-import type { UnitApiModel } from "./../interfaces/unit.interface";
-import type { ApiResponse } from "./../shared/messageApi";
-import { Unit } from "../domain/entities/unit.entities";
-import type { UnitRepository } from "../domain/repository/unit.repository";
+import type { ApiListResponse } from "../shared/repondata";
+import type { CategoryApiModel } from "../interfaces/category.interface";
+import type { ApiResponse } from "../shared/messageApi";
+import { Category } from "../domain/entities/categories.entities";
+import type { CategoryRepository } from "../domain/repository/category.repository";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 
-export class ApiUnitRepository implements UnitRepository {
-  async create(input: Unit): Promise<Unit> {
+export class ApiCategoryRepository implements CategoryRepository {
+  async create(input: Category): Promise<Category> {
     try {
-      const response = (await api.post("/units", this.toApiModel(input))) as {
-        data: ApiResponse<UnitApiModel>;
+      const response = (await api.post("/categories", this.toApiModel(input))) as {
+        data: ApiResponse<CategoryApiModel>;
       };
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      this.handleApiError(error, "Failed to create unit");
+      this.handleApiError(error, "Failed to create category");
     }
   }
 
-  async findById(id: string): Promise<Unit | null> {
+  async findById(id: string): Promise<Category | null> {
     try {
-      const response = (await api.get(`/units/${id}`)) as { data: ApiResponse<UnitApiModel> };
+      const response = (await api.get(`/categories/${id}`)) as {
+        data: ApiResponse<CategoryApiModel>;
+      };
       return this.toDomainModel(response.data.data);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.status === 404) {
         return null;
       }
-      this.handleApiError(error, `Failed to find unit with id ${id}`);
+      this.handleApiError(error, `Failed to find category with id ${id}`);
     }
   }
 
-  async findByName(name: string): Promise<Unit | null> {
+  async findByName(name: string): Promise<Category | null> {
     try {
-      const response = (await api.get("/units", {
+      const response = (await api.get("/categories", {
         params: { name },
-      })) as { data: ApiListResponse<UnitApiModel> };
+      })) as { data: ApiListResponse<CategoryApiModel> };
 
       if (response.data.data.length === 0) {
         return null;
@@ -44,8 +46,7 @@ export class ApiUnitRepository implements UnitRepository {
 
       return this.toDomainModel(response.data.data[0]);
     } catch (error) {
-
-      console.error(`Error finding unit by name '${name}':`, error);
+      console.error(`Error finding category by name '${name}':`, error);
       return null;
     }
   }
@@ -53,95 +54,89 @@ export class ApiUnitRepository implements UnitRepository {
   async findAll(
     params: PaginationParams,
     includeDeleted: boolean = false
-  ): Promise<PaginatedResult<Unit>> {
+  ): Promise<PaginatedResult<Category>> {
     try {
-      const response = (await api.get("/units", {
+      const response = (await api.get("/categories", {
         params: {
           page: params.page,
           limit: params.limit,
           includeDeleted,
           ...(params.search && { search: params.search }),
         },
-      })) as { data: ApiListResponse<UnitApiModel> };
+      })) as { data: ApiListResponse<CategoryApiModel> };
 
-      const data = response.data.data.map((item) => this.toDomainModel(item))
       return {
-        data: data,
+        data: response.data.data.map((item) => this.toDomainModel(item)),
         total: response.data.total,
         page: response.data.page,
         limit: response.data.limit,
         totalPages: Math.ceil(response.data.total / response.data.limit),
       };
     } catch (error) {
-      this.handleApiError(error, "Failed to fetch units list");
+      this.handleApiError(error, "Failed to fetch categories list");
     }
   }
 
-  async update(input: Unit): Promise<Unit> {
+  async update(input: Category): Promise<Category> {
     try {
-      const response = (await api.put(`/units/${input.getId()}`, this.toApiModel(input))) as {
-        data: ApiResponse<UnitApiModel>;
-      };
+      const response = (await api.put(
+        `/categories/${input.getId()}`,
+        this.toApiModel(input)
+      )) as { data: ApiResponse<CategoryApiModel> };
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      this.handleApiError(error, `Failed to update unit with id ${input.getId()}`);
+      this.handleApiError(error, `Failed to update category with id ${input.getId()}`);
     }
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await api.delete(`/units/${id}`);
+      await api.delete(`/categories/${id}`);
       return true;
     } catch (error) {
-      this.handleApiError(error, `Failed to delete unit with id ${id}`);
+      this.handleApiError(error, `Failed to delete category with id ${id}`);
     }
   }
 
   async restore(id: string): Promise<boolean> {
     try {
-      await api.post(`/units/${id}/restore`);
+      await api.post(`/categories/${id}/restore`);
       return true;
     } catch (error) {
-      this.handleApiError(error, `Failed to restore unit with id ${id}`);
+      this.handleApiError(error, `Failed to restore category with id ${id}`);
     }
   }
 
-  private toApiModel(input: Unit): UnitApiModel {
+  private toApiModel(input: Category): CategoryApiModel {
     return {
       id: parseInt(input.getId(), 10),
       name: input.getName(),
-      created_at: input.getCreatedAt().toString(),
-      updated_at: input.getUpdatedAt().toString(),
+      created_at: input.getCreatedAt(),
+      updated_at: input.getUpdatedAt()
     };
   }
 
-  private toDomainModel(data: UnitApiModel): Unit {
-    return new Unit(
+  private toDomainModel(data: CategoryApiModel): Category {
+    return new Category(
       data.id.toString(),
       data.name,
       data.created_at.toString(),
-      data.updated_at.toString(),
+      data.updated_at.toString()
     );
   }
 
-
   private handleApiError(error: unknown, defaultMessage: string): never {
-
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-
       const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
-
       throw new Error(`API Error (${statusCode}): ${serverMessage}`);
     } else if (axiosError.request) {
-
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`
       );
     } else {
-
       throw new Error(`${defaultMessage}: ${(error as Error).message || "Unknown error"}`);
     }
   }

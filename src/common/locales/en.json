@@ -8,7 +8,32 @@
     "cancel": "Cancel",
     "edit": "Update",
     "save": "Save",
-    "update": "Update"
+    "update": "Update",
+    "delete": "Delete",
+    "add": "Add",
+    "search": "Search",
+    "reset": "Reset",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Finish",
+    "select": "Select",
+    "select_all": "Select all",
+    "unselect_all": "Unselect all",
+    "select_file": "Select file",
+    "upload": "Upload",
+    "download": "Download",
+    "print": "Print",
+    "export": "Export",
+    "import": "Import",
+    "view": "View",
+    "approve": "Approve",
+    "reject": "Reject",
+    "send": "Send",
+    "apply": "Apply",
+    "apply_all": "Apply all"
   },
   "messages": {
     "loading": "Loading..."
@@ -235,57 +260,84 @@
     "saveSuccess": "Permissions saved successfully",
     "saveFailed": "Failed to save permissions"
   },
-  "documentType": {
-    "list": {
-      "title": "Document Types",
-      "add": "Add Document Type",
-      "search": "Search document types..."
+  "categories": {
+    "title": "Category information",
+    "add": "Add new category",
+    "header_form": {
+      "add": "Add new category",
+      "edit": "Update category",
+      "delete": {
+        "title": "Confirm delete",
+        "content": "Are you sure you want to delete",
+        "description": "This action cannot be undone"
+      }
     },
-    "form": {
-      "name": "Name",
-      "namePlaceholder": "Enter document type name",
-      "code": "Code",
-      "codePlaceholder": "Enter document type code"
-    },
-    "modal": {
-      "create": "Create Document Type",
-      "edit": "Edit Document Type",
-      "delete": "Delete Document Type",
-      "deleteConfirm": "Are you sure you want to delete document type {name}?",
-      "deleteWarning": "This action cannot be undone."
-    },
-    "validation": {
-      "nameRequired": "Name is required",
-      "nameMin": "Name must be at least 2 characters",
-      "nameMax": "Name cannot exceed 100 characters",
-      "codeRequired": "Code is required",
-      "codeMin": "Code must be at least 2 characters",
-      "codeMax": "Code cannot exceed 50 characters",
-      "codePattern": " Code can only contain letters, numbers, and underscores"
-    },
-    "status": {
-      "active": "Active",
-      "inactive": "Inactive"
-    },
-    "success": {
-      "title": "Success",
-      "created": "Document type created successfully",
-      "updated": "Document type updated successfully",
-      "deleted": "Document type deleted successfully"
+    "placeholder": {
+      "name": "Please enter category name"
     },
     "error": {
-      "loadFailed": "Failed to load document types",
-      "createFailed": "Failed to create document type",
-      "updateFailed": "Failed to update document type",
-      "deleteFailed": "Failed to delete document type"
+      "name": "Please enter category name"
     },
-    "table": {
-      "name": "name",
-      "code": "code",
-      "status": "status",
-      "createdAt": "createdAt",
-      "updatedAt": "updatedAt",
-      "actions": "actions"
+    "field": {
+      "name": "Category name",
+      "created": "Created At",
+      "updated": "Updated At",
+      "manage": "Manage"
+    },
+
+    "status": {
+      "active": "Active",
+      "inactive": "Deleted"
+    }
+  },
+  "units": {
+    "title": "Unit information",
+    "add": "Add new unit",
+    "header_form": {
+      "add": "Add new unit",
+      "edit": "Update unit",
+      "delete": {
+        "title": "Confirm delete",
+        "content": "Are you sure you want to delete",
+        "description": "This action cannot be undone"
+      }
+    },
+    "placeholder": {
+      "name": "Please enter unit name"
+    },
+    "error": {
+      "name": "Please enter unit name"
+    },
+    "field": {
+      "name": "Unit name",
+      "created": "Created At",
+      "updated": "Updated At",
+      "manage": "Manage"
+    }
+  },
+  "positions": {
+    "title": "Position information",
+    "add": "Add new position",
+    "header_form": {
+      "add": "Add new position",
+      "edit": "Update position",
+      "delete": {
+        "title": "Confirm delete",
+        "content": "Are you sure you want to delete",
+        "description": "This action cannot be undone"
+      }
+    },
+    "placeholder": {
+      "name": "Please enter position name"
+    },
+    "error": {
+      "name": "Please enter position name"
+    },
+    "field": {
+      "name": "Position name",
+      "created": "Created At",
+      "updated": "Updated At",
+      "manage": "Manage"
     }
   }
 }

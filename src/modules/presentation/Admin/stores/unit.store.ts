@@ -63,6 +63,7 @@ export const useUnitStore = defineStore("unit", () => {
 
     try {
       const result = await unitService.getAllUnits(params, includeDeleted);
+
       units.value = result.data;
       pagination.value = {
         page: result.page,
@@ -139,6 +140,7 @@ export const useUnitStore = defineStore("unit", () => {
   const deleteUnit = async (id: string) => {
     loading.value = true;
     error.value = null;
+    console.log("deleteUnit", id);
 
     try {
       const result = await unitService.deleteUnit(id);
@@ -154,7 +156,7 @@ export const useUnitStore = defineStore("unit", () => {
             deletedUnit.getId(),
             deletedUnit.getName(),
             deletedUnit.getCreatedAt(),
-            new Date(),
+            new Date().toString(),
             new Date()
           );
         }
@@ -187,7 +189,7 @@ export const useUnitStore = defineStore("unit", () => {
             restoredUnit.getId(),
             restoredUnit.getName(),
             restoredUnit.getCreatedAt(),
-            new Date(),
+            new Date().toString(),
             null // Set deletedAt to null
           );
         }

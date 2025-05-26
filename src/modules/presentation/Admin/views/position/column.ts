@@ -1,22 +1,22 @@
 export function getColumns(t: (key: string) => string) {
   return [
     {
-      title: t("units.field.name"),
+      title: t("positions.field.name"),
       dataIndex: "name",
       key: "name",
     },
     {
-      title: t("units.field.created"),
+      title: t("positions.field.created"),
       dataIndex: "created_at",
       key: "created_at",
     },
     {
-      title: t("units.field.updated"),
+      title: t("positions.field.updated"),
       dataIndex: "updated_at",
       key: "updated_at",
     },
     {
-      title: t("manage.manage"),
+      title: t("positions.field.manage"),
       dataIndex: "actions",
       key: "actions",
     },

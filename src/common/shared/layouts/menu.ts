@@ -39,12 +39,35 @@ export const menuItems: ItemType[] = reactive([
           ]),
       },
       {
+        key: "PositionList",
+        label: "ຕຳແໜ່ງ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-receipt",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
         key: "UnitList",
         label: "ຫົວໜ່ວຍ",
         icon: () =>
           h("div", {}, [
             h(Icon, {
               icon: "ic:outline-receipt",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "CategoryList",
+        label: "ປະເພດ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-lan",
+
               class: "text-base",
             }),
           ]),
@@ -78,17 +101,6 @@ export const menuItems: ItemType[] = reactive([
           h("div", {}, [
             h(Icon, {
               icon: "ic:outline-imagesearch-roller",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "document_typesList",
-        label: "ຈັດການປະເພດເອກະສານ",
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols-light:edit-document-sharp",
               class: "text-base",
             }),
           ]),

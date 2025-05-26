@@ -1,7 +1,7 @@
 import type { UnitRepository } from "@/modules/domain/repository/unit.repository";
 
 export class DeleteUnitUseCase {
-  constructor(private readonly unitRepository: UnitRepository) {}
+  constructor(private readonly unitRepository: UnitRepository) { }
 
   async execute(id: string): Promise<boolean> {
     const unit = await this.unitRepository.findById(id);
@@ -11,8 +11,6 @@ export class DeleteUnitUseCase {
     if (unit.isDeleted()) {
       throw new Error(`Unit with id ${id} is already deleted`);
     }
-
-    // ดำเนินการลบ (soft delete)
     return await this.unitRepository.delete(id);
   }
 }
