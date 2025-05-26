@@ -100,6 +100,27 @@ export const useUserStore = defineStore("user", () => {
       loading.value = false;
     }
   };
+  const resetPassword = async (id: string) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      console.log(`Resetting password for user with ID: ${id}`);
+
+      // const result = await userService.resetPassword(id);
+      // if (result) {
+      //   const index = users.value.findIndex((u) => u.getId() === id);
+      //   if (index !== -1) {
+      //     users.value[index].resetPassword();
+      //   }
+      // }
+      // return result;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
   // Update User
   const updateUser = async (
     id: string,
@@ -194,6 +215,7 @@ export const useUserStore = defineStore("user", () => {
     createUser,
     updateUser,
     deleteUser,
+    resetPassword,
 
     resetState,
   };
