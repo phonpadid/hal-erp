@@ -1,3 +1,4 @@
+<!-- filepath: e:\project_ERP\hal-erp\src\modules\presentation\Admin\views\user\UserList.vue -->
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive } from "vue";
@@ -8,6 +9,7 @@ import { columns } from "./column";
 import { formatDate } from "@/modules/shared/formatdate";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import ResetPasswordForm from "../../components/user/ResetPasswordForm.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -17,6 +19,7 @@ import UserForm from "../../components/user/UserForm.vue";
 const { t } = useI18n();
 const userStore = useUserStore();
 const { success, error } = useNotification();
+
 // State
 const users = ref<UserInterface[]>([]);
 const loading = ref<boolean>(false);
@@ -34,6 +37,8 @@ const deleteModalVisible = ref<boolean>(false);
 const submitLoading = ref<boolean>(false);
 const selectedUser = ref<UserInterface | null>(null);
 const isEditMode = ref<boolean>(false);
+const resetPasswordModalVisible = ref<boolean>(false);
+const resetPasswordFormRef = ref();
 const userFormRef = ref();
 
 // Table pagination
@@ -57,15 +62,12 @@ const loadUsers = async (
   loading.value = true;
 
   try {
-    const result = await userStore.fetchUsers(
-      {
-        page,
-        limit: pageSize,
-        search,
-        sortBy,
-      },
-      true
-    );
+    const result = await userStore.fetchUsers({
+      page,
+      limit: pageSize,
+      search,
+      sortBy,
+    });
     users.value = result.data;
     pagination.current = result.page;
     pagination.pageSize = result.limit;
@@ -79,7 +81,7 @@ const loadUsers = async (
   }
 };
 
-// (pagination, sorting)
+// Handle pagination and sorting
 const handleTableChange = (
   paginationInfo: TablePaginationType,
   _filters: Record<string, string[]>,
@@ -121,6 +123,11 @@ const showDeleteModal = (user: UserInterface) => {
   selectedUser.value = user;
   deleteModalVisible.value = true;
 };
+const showResetPasswordModal = (user: UserInterface) => {
+  selectedUser.value = user;
+  resetPasswordModalVisible.value = true;
+};
+
 const handleModalOk = () => {
   userFormRef.value?.submitForm();
 };
@@ -152,6 +159,24 @@ const handleFormSubmit = async (formData: any) => {
     submitLoading.value = false;
   }
 };
+
+const handleResetPassword = async (formData: { password: string }) => {
+  if (!selectedUser.value) return;
+
+  try {
+    submitLoading.value = true;
+    // Add this method to your user store
+    await userStore.resetPassword(selectedUser.value.id.toString(), formData.password);
+    success(t("user.success.title"), t("user.success.passwordReset"));
+    resetPasswordModalVisible.value = false;
+  } catch (err) {
+    console.error("Error resetting password:", err);
+    error(t("user.error.passwordResetFailed"));
+  } finally {
+    submitLoading.value = false;
+  }
+};
+
 const handleDeleteConfirm = async () => {
   if (!selectedUser.value) return;
 
@@ -186,7 +211,6 @@ const handleDeleteConfirm = async () => {
           @update:modelvalue="handleSearch"
           class="w-64"
         />
-
         <UiButton
           type="primary"
           icon="ant-design:plus-outlined"
@@ -225,7 +249,7 @@ const handleDeleteConfirm = async () => {
 
       <!-- Actions column -->
       <template #actions="{ record }">
-        <div class="flex items-center justify-center gap-2">
+        <div class="flex items-center justify-center">
           <UiButton
             type=""
             icon="ant-design:edit-outlined"
@@ -234,6 +258,15 @@ const handleDeleteConfirm = async () => {
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
           />
+          <UiButton
+            type=""
+            size="small"
+            icon="ic:baseline-lock-reset"
+            @click="showResetPasswordModal(record)"
+            colorClass="flex items-center justify-center text-blue-500"
+            :disabled="!!record.deleted_at"
+          >
+          </UiButton>
 
           <UiButton
             type=""
@@ -246,6 +279,7 @@ const handleDeleteConfirm = async () => {
         </div>
       </template>
     </Table>
+
     <!-- Create/Edit User Modal -->
     <UiModal
       :title="isEditMode ? t('user.modal.edit') : t('user.modal.create')"
@@ -261,6 +295,23 @@ const handleDeleteConfirm = async () => {
         :is-edit-mode="isEditMode"
         :loading="submitLoading"
         @submit="handleFormSubmit"
+      />
+    </UiModal>
+    <UiModal
+      :title="t('user.modal.resetPassword')"
+      :visible="resetPasswordModalVisible"
+      :confirm-loading="submitLoading"
+      @update:visible="resetPasswordModalVisible = $event"
+      @ok="resetPasswordFormRef?.submitForm()"
+      @cancel="resetPasswordModalVisible = false"
+    >
+      <p class="mb-4">
+        {{ t("user.modal.resetPasswordConfirm", { username: selectedUser?.username }) }}
+      </p>
+      <ResetPasswordForm
+        ref="resetPasswordFormRef"
+        :loading="submitLoading"
+        @submit="handleResetPassword"
       />
     </UiModal>
 

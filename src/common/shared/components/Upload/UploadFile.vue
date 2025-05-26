@@ -1,5 +1,6 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-import { ref, defineEmits } from "vue";
+import { ref, defineEmits, defineProps } from "vue";
 import { message } from "ant-design-vue";
 
 interface FileItem {
@@ -27,6 +28,26 @@ interface CustomRequestOptions {
   onError?: (error: Error | ProgressEvent<EventTarget>) => void;
 }
 
+// Define props for customization
+const props = defineProps({
+  uploadText: {
+    type: String,
+    default: "ອັບໂຫລດ",
+  },
+  uploadIcon: {
+    type: String,
+    default: "+", // You can change this to any icon class
+  },
+  iconSize: {
+    type: String,
+    default: "text-4xl",
+  },
+  textSize: {
+    type: String,
+    default: "text-[12px]",
+  },
+});
+
 const fileList = ref<FileItem[]>([]);
 const previewImage = ref<string>("");
 const previewVisible = ref<boolean>(false);
@@ -48,7 +69,6 @@ const customUpload = (options: CustomRequestOptions): void => {
 
   setTimeout(() => {
     if (file) {
-      // สร้าง FileItem จาก File object
       const fileWithUrl = {
         uid: Date.now().toString(),
         name: file.name,
@@ -85,9 +105,10 @@ const handlePreview = (file: FileItem): void => {
       @preview="handlePreview"
     >
       <div v-if="fileList.length < 1">
-        <div class="text-4xl flex flex-col">
-          +
-          <span class="text-[12px]">ອັບໂຫລດ</span>
+        <div class="flex flex-col items-center justify-center">
+          <!-- You can use icon components or custom icons here -->
+          <span :class="[iconSize]">{{ uploadIcon }}</span>
+          <span :class="[textSize]">{{ uploadText }}</span>
         </div>
       </div>
     </a-upload>

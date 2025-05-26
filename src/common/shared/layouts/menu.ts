@@ -66,18 +66,42 @@ export const menuItems: ItemType[] = reactive([
         icon: () =>
           h("div", {}, [
             h(Icon, {
+<<<<<<< HEAD
               icon: "ic:outline-receipt",
+=======
+              icon: "ic:outline-lan",
+>>>>>>> d0fd1f9a49f4086a3cb14469e700661be7545c03
               class: "text-base",
             }),
           ]),
       },
       {
+<<<<<<< HEAD
         key: "ProductList",
         label: "ສິນຄ້າ",
         icon: () =>
           h("div", {}, [
             h(Icon, {
               icon: "ic:outline-receipt",
+=======
+        key: "department_user.index",
+        label: "ຜູ້​ໃຊ້​ພະ​ແນກ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-lan",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "department_approver.index",
+        label: "ຜູ້​ອະ​ນຸ​ມັດ​ພະ​ແນກ​​",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-imagesearch-roller",
+>>>>>>> d0fd1f9a49f4086a3cb14469e700661be7545c03
               class: "text-base",
             }),
           ]),
