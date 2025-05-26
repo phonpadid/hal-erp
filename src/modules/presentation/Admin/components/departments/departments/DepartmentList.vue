@@ -104,7 +104,7 @@
     </div>
 
     <!-- Empty state -->
-    <div v-else-if="units.length === 0" class="bg-white p-8 text-center rounded-lg shadow">
+    <div v-else-if="department.length === 0" class="bg-white p-8 text-center rounded-lg shadow">
       <svg
         class="mx-auto h-12 w-12 text-gray-400"
         fill="none"
@@ -178,7 +178,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="unit in units" :key="unit.getId()" :class="{ 'bg-red-50': unit.isDeleted() }">
+          <tr v-for="unit in department" :key="unit.getId()" :class="{ 'bg-red-50': unit.isDeleted() }">
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
               {{ unit.getName() }}
             </td>
@@ -478,7 +478,8 @@ const displayedPages = computed(() => {
 });
 
 // ฟังก์ชันจัดรูปแบบวันที่
-const formatDate = (date: Date): string => {
+const formatDate = (dateStr: string): string => {
+  const date = new Date(dateStr);
   return new Intl.DateTimeFormat("th-TH", {
     year: "numeric",
     month: "2-digit",
