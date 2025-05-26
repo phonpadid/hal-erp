@@ -82,6 +82,17 @@ export const menuItems: ItemType[] = reactive([
             }),
           ]),
       },
+      {
+        key: "document_typesList",
+        label: "ຈັດການປະເພດເອກະສານ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols-light:edit-document-sharp",
+              class: "text-base",
+            }),
+          ]),
+      },
     ],
 
     type: "group",
