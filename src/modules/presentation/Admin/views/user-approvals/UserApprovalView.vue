@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { userApprovalRulue } from "./validation/user-approval.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import { dataUserApv } from "@/modules/shared/utils/data-user-approval";
+import { approval_workflowItem, dataUserApv, documentItem, statusItem } from "@/modules/shared/utils/data-user-approval";
 import { userApprovalStore } from "../../stores/user-approval.store";
 import type { UserApprovalEntity } from "@/modules/domain/entities/user-approvals/user-approval.entity";
 import type { UserApprovalApiModel } from "@/modules/interfaces/user-approvals/user-approval.interface";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 const { t } = useI18n();
 
 // Initialize the unit store
@@ -258,23 +258,36 @@ const handleTableChange = async (pagination: any) => {
     >
       <UiForm ref="formRef" :model="formModel" :rules="userApprovalRulue(t)">
         <UiFormItem
-          :label="t('user_approval.user_apv.field.code')"
-          name="code"
+          :label="t('user_approval.user_apv.field.document')"
+          name="document_id"
           required
         >
-          <UiInput
-            v-model="formModel.status_id"
-            :placeholder="t('user_approval.user_apv.placeholder.code')"
+          <InputSelect
+            v-model="formModel.document_id"
+            :options="documentItem"
+            :placeholder="t('departments.dpm_user.placeholder.ducument')"
           />
         </UiFormItem>
         <UiFormItem
-          :label="t('user_approval.user_apv.field.name')"
-          name="name"
+          :label="t('user_approval.user_apv.field.status')"
+          name="status_id"
           required
         >
-          <UiInput
+          <InputSelect
+            v-model="formModel.status_id"
+            :options="statusItem"
+            :placeholder="t('departments.dpm_user.placeholder.dpm')"
+          />
+        </UiFormItem>
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.apv_workflow')"
+          name="approval_workflow_id"
+          required
+        >
+          <InputSelect
             v-model="formModel.approval_workflow_id"
-            :placeholder="t('user_approval.user_apv.placeholder.name')"
+            :options="approval_workflowItem"
+            :placeholder="t('departments.dpm_user.placeholder.apv_workflow')"
           />
         </UiFormItem>
       </UiForm>
@@ -291,25 +304,38 @@ const handleTableChange = async (pagination: any) => {
       :okText="t('button.edit')"
       :cancelText="t('button.cancel')"
     >
-      <UiForm ref="formRef" :model="formModel" :rules="userApprovalRulue(t)">
+    <UiForm ref="formRef" :model="formModel" :rules="userApprovalRulue(t)">
         <UiFormItem
-          :label="t('user_approval.user_apv.field.code')"
-          name="code"
+          :label="t('user_approval.user_apv.field.document')"
+          name="document_id"
           required
         >
-          <UiInput
-            v-model="formModel.status_id"
-            :placeholder="t('user_approval.user_apv.placeholder.code')"
+          <InputSelect
+            v-model="formModel.document_id"
+            :options="documentItem"
+            :placeholder="t('departments.dpm_user.placeholder.ducument')"
           />
         </UiFormItem>
         <UiFormItem
-          :label="t('user_approval.user_apv.field.name')"
-          name="name"
+          :label="t('user_approval.user_apv.field.status')"
+          name="status_id"
           required
         >
-          <UiInput
-            v-model="formModel.document_id"
-            :placeholder="t('user_approval.user_apv.placeholder.name')"
+          <InputSelect
+            v-model="formModel.status_id"
+            :options="statusItem"
+            :placeholder="t('departments.dpm_user.placeholder.dpm')"
+          />
+        </UiFormItem>
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.apv_workflow')"
+          name="approval_workflow_id"
+          required
+        >
+          <InputSelect
+            v-model="formModel.approval_workflow_id"
+            :options="approval_workflowItem"
+            :placeholder="t('departments.dpm_user.placeholder.apv_workflow')"
           />
         </UiFormItem>
       </UiForm>
