@@ -18,7 +18,7 @@ export function getColumns(t: (key: string) => string) : Column[] {
       key: "updated_at",
     },
     {
-      title: t("manage.manage"),
+      title: t("units.field.manage"),
       dataIndex: "actions",
       key: "actions",
     },

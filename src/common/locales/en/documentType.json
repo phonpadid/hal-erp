@@ -1,0 +1,52 @@
+{
+  "list": {
+    "title": "Document Types",
+    "add": "Add Document Type",
+    "search": "Search document types..."
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Enter document type name",
+    "code": "Code",
+    "codePlaceholder": "Enter document type code"
+  },
+  "table": {
+    "name": "Name",
+    "code": "Code",
+    "status": "Status",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions"
+  },
+  "modal": {
+    "create": "Create Document Type",
+    "edit": "Edit Document Type",
+    "delete": "Delete Document Type",
+    "deleteConfirm": "Are you sure you want to delete document type {name}?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "nameMin": "Name must be at least 2 characters",
+    "nameMax": "Name cannot exceed 100 characters",
+    "codeRequired": "Code is required",
+    "codeMin": "Code must be at least 2 characters",
+    "codeMax": "Code cannot exceed 50 characters"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "success": {
+    "title": "Success",
+    "created": "Document type created successfully",
+    "updated": "Document type updated successfully",
+    "deleted": "Document type deleted successfully"
+  },
+  "error": {
+    "loadFailed": "Failed to load document types",
+    "createFailed": "Failed to create document type",
+    "updateFailed": "Failed to update document type",
+    "deleteFailed": "Failed to delete document type"
+  }
+}

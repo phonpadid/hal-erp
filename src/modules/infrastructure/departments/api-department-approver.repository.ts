@@ -3,8 +3,6 @@ import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 import type { ApiResponse } from "@/modules/shared/messageApi";
 import type { ApiListResponse } from "@/modules/shared/repondata";
-import type { DepartmentUserRepository } from "@/modules/domain/repository/departments/department-user.repository";
-import { DepartmentUserEntity } from "@/modules/domain/entities/departments/department-user.entity";
 import type { DepartmentUserApiModel } from "@/modules/interfaces/departments/department-user.interface";
 import type { DepartmentApproverRepository } from "@/modules/domain/repository/departments/department-approver.repository";
 import { DepartmentApproverEntity } from "@/modules/domain/entities/departments/department-approver.entity";
@@ -13,7 +11,7 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
   async create(input: DepartmentApproverEntity): Promise<DepartmentApproverEntity> {
     try {
       // Convert to API model first
-      const response = (await api.post("/department", this.toApiModel(input))) as {
+      const response = (await api.post("/department-approvers", this.toApiModel(input))) as {
         data: ApiResponse<DepartmentUserApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -24,7 +22,7 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
 
   async findOne(id: string): Promise<DepartmentApproverEntity | null> {
     try {
-      const response = (await api.get(`/department-user/${id}`)) as {
+      const response = (await api.get(`/department-approvers/${id}`)) as {
         data: ApiResponse<DepartmentUserApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -41,7 +39,7 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<DepartmentApproverEntity>> {
     try {
-      const response = (await api.get("/department-user", {
+      const response = (await api.get("/department-approvers", {
         params: {
           page: params.page,
           limit: params.limit,
@@ -64,7 +62,7 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
 
   async update(id: string, department: DepartmentApproverEntity): Promise<DepartmentApproverEntity> {
     try {
-      const response = (await api.put(`/department-user/${id}`, this.toApiModel(department))) as {
+      const response = (await api.put(`/department-approvers/${id}`, this.toApiModel(department))) as {
         data: ApiResponse<DepartmentUserApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -75,7 +73,7 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
 
   async delete(id: string): Promise<boolean> {
     try {
-      await api.delete(`/department-user/${id}`);
+      await api.delete(`/department-approvers/${id}`);
       return true;
     } catch (error) {
       return this.handleApiError(error, `Failed to delete unit with id ${id}`);
