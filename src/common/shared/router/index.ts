@@ -7,6 +7,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
 import { userRoutes } from "@/modules/presentation/Admin/router/userRoutes";
 import { departmentApproverRoutes } from "@/modules/presentation/Admin/router/departments/department-approver.routers";
 import { departmentUserRoutes } from "@/modules/presentation/Admin/router/departments/department-user.routers";
+import { userApprovalRoutes } from "@/modules/presentation/Admin/router/user-approval";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -21,6 +22,7 @@ const routes: RouteRecordRaw[] = [
       ...userRoutes,
       ...departmentApproverRoutes,
       ...departmentUserRoutes,
+      ... userApprovalRoutes
     ],
   },
 ];

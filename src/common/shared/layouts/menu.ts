@@ -82,6 +82,17 @@ export const menuItems: ItemType[] = reactive([
             }),
           ]),
       },
+      {
+        key: "user_approval.index",
+        label: "ຜູ້ອະນຸມັດເອກະສານ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-imagesearch-roller",
+              class: "text-base",
+            }),
+          ]),
+      },
     ],
 
     type: "group",
