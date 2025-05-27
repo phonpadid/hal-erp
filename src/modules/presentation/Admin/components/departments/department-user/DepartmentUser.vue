@@ -2,7 +2,7 @@
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import { positionItem, userItem } from "@/modules/shared/utils/data.department";
+import { positionItem } from "@/modules/shared/utils/data.department";
 import { onMounted, ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { dpmUserRules } from "../../../views/departments/deparment-user/validation/department-user.validate";
@@ -14,7 +14,8 @@ import { departmentStore } from "../../../stores/departments/department.store";
 import UploadFile from "@/common/shared/components/Upload/UploadFile.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { useRouter, useRoute } from "vue-router";
-
+import { useUserStore } from "../../../stores/user.store";
+const userStore = useUserStore();
 const { push } = useRouter();
 const route = useRoute();
 const { t } = useI18n();
@@ -39,6 +40,12 @@ const departmentItem = computed(() =>
   dpmStore.departments.map((item) => ({
     value: item.getId(),
     label: item.getName(),
+  }))
+);
+const userItem = computed(() =>
+  userStore.users.map((item) => ({
+    value: item.getId(),
+    label: item.getUsername(),
   }))
 );
 
@@ -68,8 +75,8 @@ watch(
 const demo = {
   user_id: "1",
   position_id: "1",
-  department_id: "2"
-}
+  department_id: "2",
+};
 // Load existing data for edit mode
 const loadDepartmentUser = async () => {
   if (isEditMode.value && departmentUserId.value) {
@@ -92,8 +99,8 @@ const loadDepartmentUser = async () => {
       //   // push({ name: 'department_user.index' });
       // }
       dpmUserFormModel.user_id = demo.user_id;
-        dpmUserFormModel.position_id = demo.position_id;
-        dpmUserFormModel.department_id = demo.department_id;
+      dpmUserFormModel.position_id = demo.position_id;
+      dpmUserFormModel.department_id = demo.department_id;
       console.log("Department user data loaded for edit:", demo);
     } catch (error) {
       console.error("Failed to load department user:", error);
@@ -144,11 +151,13 @@ const handleSubmit = async (): Promise<void> => {
     }
 
     // Navigate back to list
-    push({ name: 'department_user.index' });
+    push({ name: "department_user.index" });
     dpmUserStore.resetForm();
-
   } catch (error) {
-    console.error(`${isEditMode.value ? 'Update' : 'Create'} department user failed:`, error);
+    console.error(
+      `${isEditMode.value ? "Update" : "Create"} department user failed:`,
+      error
+    );
   } finally {
     loading.value = false;
   }
@@ -178,13 +187,13 @@ const handleFileChange = (fileOrEvent: any) => {
 };
 
 const handlerCancel = () => {
-  push({ name: 'department_user.index' });
+  push({ name: "department_user.index" });
   dpmUserStore.resetForm();
 };
 
 onMounted(async () => {
   await dpmStore.fetchDepartment();
-
+  await userStore.fetchUsers();
   // Load existing data if in edit mode
   await loadDepartmentUser();
 
@@ -201,8 +210,8 @@ onMounted(async () => {
       <h3>
         {{
           isEditMode
-            ? $t('departments.dpm_user.header_form.edit')
-            : $t('departments.dpm_user.header_form.add')
+            ? $t("departments.dpm_user.header_form.edit")
+            : $t("departments.dpm_user.header_form.add")
         }}
       </h3>
     </div>

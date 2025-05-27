@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
 import { columns } from "./column";
-import { departmentStore } from "../../../stores/departments/department.store";
 import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
 import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -15,6 +14,7 @@ import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { dpmRules } from "./validation/department.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { departmentStore } from "../../stores/departments/department.store";
 
 const { t } = useI18n();
 // Initialize the unit store
@@ -154,7 +154,6 @@ const handleDelete = async (): Promise<void> => {
   deleteModalVisible.value = false;
   loading.value = false;
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleTableChange = async (pagination: any) => {
   dpmStore.setPagination({
     page: pagination.current,
