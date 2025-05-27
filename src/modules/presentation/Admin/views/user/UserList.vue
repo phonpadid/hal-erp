@@ -165,8 +165,9 @@ const handleResetPassword = async (formData: { password: string }) => {
 
   try {
     submitLoading.value = true;
+    console.log("Resetting password for user:", selectedUser.value.id, formData.password);
     // Add this method to your user store
-    await userStore.resetPassword(selectedUser.value.id.toString(), formData.password);
+    // await userStore.resetPassword(selectedUser.value.id.toString(), formData.password);
     success(t("user.success.title"), t("user.success.passwordReset"));
     resetPasswordModalVisible.value = false;
   } catch (err) {

@@ -10,6 +10,7 @@ export const dataDpm = ref<DepartmentApiModel[]>([
   { id: 6, code: 'AA115', name: "department F", created_at: "20/02/2025", updated_at: "20-02-2025" },
   { id: 7, code: 'AA145', name: "department AA", created_at: "20/02/2025", updated_at: "20-02-2025" },
 ]);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const dataDpmUser = ref<any[]>([
   {
     id: 1,

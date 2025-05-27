@@ -1,18 +1,11 @@
 import type { UserRepository } from "@/modules/domain/repository/user.repository";
 import type { UserEntity } from "@/modules/domain/entities/user.entities";
+import type { UserUpdatePayload } from "@/modules/interfaces/user.interface";
 
 export class UpdateUserUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(
-    id: string,
-    userData: {
-      username?: string;
-      email?: string;
-      password?: string;
-      tel?: string;
-    }
-  ): Promise<UserEntity> {
+  async execute(id: string, userData: UserUpdatePayload): Promise<UserEntity> {
     // Check if user exists
     const user = await this.userRepository.findById(id);
     if (!user) {
