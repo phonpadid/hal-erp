@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { columns } from "./column";
+import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
+import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -9,18 +11,13 @@ import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import { userApprovalRulue } from "./validation/user-approval.validate";
+import { dpmRules } from "./validation/department.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import {
-  approval_workflowItem,
-  dataUserApv,
-  documentItem,
-  statusItem,
-} from "@/modules/shared/utils/data-user-approval";
+import { departmentStore } from "../../stores/departments/department.store";
+import { dataUserApv } from "@/modules/shared/utils/data-user-approval";
 import { userApprovalStore } from "../../stores/user-approval.store";
 import type { UserApprovalEntity } from "@/modules/domain/entities/user-approvals/user-approval.entity";
 import type { UserApprovalApiModel } from "@/modules/interfaces/user-approvals/user-approval.interface";
-import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 const { t } = useI18n();
 
 // Initialize the unit store
@@ -42,12 +39,12 @@ const selectedDpm = ref<UserApprovalApiModel | null>(null);
 const formModel = userApproval.userApprovalFormModel;
 function getStatusColor(status: string): string {
   switch (status.toLowerCase()) {
-    case "padding":
-      return "orange";
-    case "approved":
-      return "green";
+    case 'padding':
+      return 'orange';
+    case 'approved':
+      return 'green';
     default:
-      return "red"; // or any default/fallback color
+      return 'red'; // or any default/fallback color
   }
 }
 
@@ -225,8 +222,8 @@ const handleTableChange = async (pagination: any) => {
     >
       <template #status="{ record }">
         <a-tag :color="getStatusColor(record.status)">
-          {{ record.status }}
-        </a-tag>
+    {{ record.status }}
+  </a-tag>
       </template>
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
@@ -262,38 +259,25 @@ const handleTableChange = async (pagination: any) => {
       :okText="t('button.save')"
       :cancelText="t('button.cancel')"
     >
-      <UiForm ref="formRef" :model="formModel" :rules="userApprovalRulue(t)">
+      <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
         <UiFormItem
-          :label="t('user_approval.user_apv.field.document')"
-          name="document_id"
+          :label="t('user_approval.user_apv.field.code')"
+          name="code"
           required
         >
-          <InputSelect
-            v-model="formModel.document_id"
-            :options="documentItem"
-            :placeholder="t('user_approval.user_apv.placeholder.document')"
-          />
-        </UiFormItem>
-        <UiFormItem
-          :label="t('user_approval.user_apv.field.status')"
-          name="status_id"
-          required
-        >
-          <InputSelect
+          <UiInput
             v-model="formModel.status_id"
-            :options="statusItem"
-            :placeholder="t('user_approval.user_apv.placeholder.status')"
+            :placeholder="t('user_approval.user_apv.placeholder.code')"
           />
         </UiFormItem>
         <UiFormItem
-          :label="t('user_approval.user_apv.field.apv_workflow')"
-          name="approval_workflow_id"
+          :label="t('user_approval.user_apv.field.name')"
+          name="name"
           required
         >
-          <InputSelect
+          <UiInput
             v-model="formModel.approval_workflow_id"
-            :options="approval_workflowItem"
-            :placeholder="t('user_approval.user_apv.placeholder.apv_workflow')"
+            :placeholder="t('user_approval.user_apv.placeholder.name')"
           />
         </UiFormItem>
       </UiForm>
@@ -310,38 +294,25 @@ const handleTableChange = async (pagination: any) => {
       :okText="t('button.edit')"
       :cancelText="t('button.cancel')"
     >
-      <UiForm ref="formRef" :model="formModel" :rules="userApprovalRulue(t)">
+      <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
         <UiFormItem
-          :label="t('user_approval.user_apv.field.document')"
-          name="document_id"
+          :label="t('user_approval.user_apv.field.code')"
+          name="code"
           required
         >
-          <InputSelect
-            v-model="formModel.document_id"
-            :options="documentItem"
-            :placeholder="t('user_approval.user_apv.placeholder.document')"
-          />
-        </UiFormItem>
-        <UiFormItem
-          :label="t('user_approval.user_apv.field.status')"
-          name="status_id"
-          required
-        >
-          <InputSelect
+          <UiInput
             v-model="formModel.status_id"
-            :options="statusItem"
-            :placeholder="t('user_approval.user_apv.placeholder.status')"
+            :placeholder="t('user_approval.user_apv.placeholder.code')"
           />
         </UiFormItem>
         <UiFormItem
-          :label="t('user_approval.user_apv.field.apv_workflow')"
-          name="approval_workflow_id"
+          :label="t('user_approval.user_apv.field.name')"
+          name="name"
           required
         >
-          <InputSelect
-            v-model="formModel.approval_workflow_id"
-            :options="approval_workflowItem"
-            :placeholder="t('user_approval.user_apv.placeholder.apv_workflow')"
+          <UiInput
+            v-model="formModel.document_id"
+            :placeholder="t('user_approval.user_apv.placeholder.name')"
           />
         </UiFormItem>
       </UiForm>
