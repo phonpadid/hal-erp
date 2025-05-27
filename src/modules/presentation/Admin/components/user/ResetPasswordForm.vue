@@ -13,28 +13,30 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "submit", data: { password: string }): void;
-  (e: "cancel"): void;
+  (e: "submit", data: { old_password: string; new_password: string }): void;
 }>();
 
 const formRef = ref();
 const formState = reactive({
-  password: "",
-  confirmPassword: "",
+  old_password: "",
+  new_password: "",
+  confirm_password: "",
 });
 
-// Validation rules
 const rules = {
-  password: [
-    { required: true, message: t("user.validation.passwordRequired") },
+  old_password: [
+    { required: true, message: t("user.validation.currentPasswordRequired") },
+  ],
+  new_password: [
+    { required: true, message: t("user.validation.newPasswordRequired") },
     { min: 6, message: t("user.validation.passwordMin") },
   ],
-  confirmPassword: [
+  confirm_password: [
     { required: true, message: t("user.validation.confirmPasswordRequired") },
     {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       validator: async (_rule: any, value: string) => {
-        if (value !== formState.password) {
+        if (value !== formState.new_password) {
           throw new Error(t("user.validation.passwordMismatch"));
         }
       },
@@ -45,7 +47,10 @@ const rules = {
 const submitForm = async () => {
   try {
     await formRef.value.submitForm();
-    emit("submit", { password: formState.password });
+    emit("submit", {
+      old_password: formState.old_password,
+      new_password: formState.new_password,
+    });
   } catch (error) {
     console.error("Form validation failed:", error);
   }
@@ -59,17 +64,25 @@ defineExpose({
 
 <template>
   <UiForm ref="formRef" :model="formState" :rules="rules">
-    <UiFormItem :label="t('user.form.newPassword')" name="password" required>
+    <UiFormItem :label="t('user.form.currentPassword')" name="old_password" required>
       <UiInputPassword
-        v-model="formState.password"
+        v-model="formState.old_password"
+        :placeholder="t('user.form.currentPasswordPlaceholder')"
+        :disabled="loading"
+      />
+    </UiFormItem>
+
+    <UiFormItem :label="t('user.form.newPassword')" name="new_password" required>
+      <UiInputPassword
+        v-model="formState.new_password"
         :placeholder="t('user.form.newPasswordPlaceholder')"
         :disabled="loading"
       />
     </UiFormItem>
 
-    <UiFormItem :label="t('user.form.confirmPassword')" name="confirmPassword" required>
+    <UiFormItem :label="t('user.form.confirmPassword')" name="confirm_password" required>
       <UiInputPassword
-        v-model="formState.confirmPassword"
+        v-model="formState.confirm_password"
         :placeholder="t('user.form.confirmPasswordPlaceholder')"
         :disabled="loading"
       />

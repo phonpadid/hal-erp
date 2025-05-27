@@ -1,4 +1,8 @@
-import type { UserCreatePayload } from "./../../interfaces/user.interface";
+import type {
+  UserCreatePayload,
+  UserUpdatePayload,
+  UserChangePasswordPayload,
+} from "./../../interfaces/user.interface";
 import type { UserRepository } from "@/modules/domain/repository/user.repository";
 import type { UserEntity } from "@/modules/domain/entities/user.entities";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
@@ -9,16 +13,32 @@ export interface UserServices {
     includeDeleted?: boolean
   ): Promise<PaginatedResult<UserEntity>>;
   getUserById(id: string): Promise<UserEntity | null>;
+
   createUser(userData: UserCreatePayload): Promise<UserEntity>;
-  updateUser(
-    id: string,
-    userData: { username?: string; email?: string; password?: string; tel?: string }
-  ): Promise<UserEntity>;
+  updateUser(id: string, userData: UserUpdatePayload): Promise<UserEntity>;
+  changePasswordUser(id: string, userData: UserChangePasswordPayload): Promise<UserEntity>;
   deleteUser(id: string): Promise<boolean>;
 }
 
 export class UserServiceImpl implements UserServices {
   constructor(private readonly userRepository: UserRepository) {}
+  async changePasswordUser(
+    id: string,
+    userData: UserChangePasswordPayload
+  ): Promise<UserEntity> {
+    const user = await this.userRepository.findById(id);
+    if (!user) {
+      throw new Error(`User with id ${id} not found`);
+    }
+    if (user.isDeleted()) {
+      throw new Error(`Cannot change password for deleted user with id ${id}`);
+    }
+    const updatedUser = await this.userRepository.changePassword(id, userData);
+    if (!updatedUser) {
+      throw new Error(`Failed to change password for user with id ${id}`);
+    }
+    return updatedUser;
+  }
 
   async getAllUsers(
     params: PaginationParams,
@@ -38,10 +58,7 @@ export class UserServiceImpl implements UserServices {
     return await this.userRepository.create(userData);
   }
 
-  async updateUser(
-    id: string,
-    userData: { username?: string; email?: string; password?: string; tel?: string }
-  ): Promise<UserEntity> {
+  async updateUser(id: string, userData: UserUpdatePayload): Promise<UserEntity> {
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new Error(`User with id ${id} not found`);

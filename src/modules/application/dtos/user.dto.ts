@@ -12,6 +12,10 @@ export interface UpdateUserDTO {
   password: string;
   tel: string;
 }
+export interface ChangePasswordDTO {
+  oldPassword: string;
+  newPassword: string;
+}
 
 export interface UserDTO {
   id: string;

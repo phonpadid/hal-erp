@@ -160,14 +160,17 @@ const handleFormSubmit = async (formData: any) => {
   }
 };
 
-const handleResetPassword = async (formData: { password: string }) => {
+const handleResetPassword = async (data: { old_password: string; new_password: string }) => {
   if (!selectedUser.value) return;
 
   try {
     submitLoading.value = true;
-    console.log("Resetting password for user:", selectedUser.value.id, formData.password);
-    // Add this method to your user store
-    // await userStore.resetPassword(selectedUser.value.id.toString(), formData.password);
+
+    await userStore.resetPassword(
+      selectedUser.value.id.toString(),
+      data.old_password,
+      data.new_password
+    );
     success(t("user.success.title"), t("user.success.passwordReset"));
     resetPasswordModalVisible.value = false;
   } catch (err) {
@@ -214,7 +217,7 @@ const handleDeleteConfirm = async () => {
         />
         <UiButton
           type="primary"
-          icon="ant-design:plus-outlined"
+          icon="material-symbols:add"
           @click="showCreateModal"
           colorClass="flex items-center"
         >
@@ -289,6 +292,8 @@ const handleDeleteConfirm = async () => {
       @update:visible="modalVisible = $event"
       @ok="handleModalOk"
       @cancel="handleModalCancel"
+      :okText="isEditMode ? t('button.edit') : t('button.save')"
+      :cancelText="t('button.cancel')"
     >
       <UserForm
         ref="userFormRef"
@@ -305,6 +310,8 @@ const handleDeleteConfirm = async () => {
       @update:visible="resetPasswordModalVisible = $event"
       @ok="resetPasswordFormRef?.submitForm()"
       @cancel="resetPasswordModalVisible = false"
+      :okText="t('button.ok')"
+      :cancelText="t('button.cancel')"
     >
       <p class="mb-4">
         {{ t("user.modal.resetPasswordConfirm", { username: selectedUser?.username }) }}

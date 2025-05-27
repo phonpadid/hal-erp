@@ -137,7 +137,9 @@
       "tel": "ເບີໂທ",
       "telPlaceholder": "ປ້ອນເບີໂທ",
       "newPassword": "ລະຫັດຜ່ານໃໝ່",
-      "newPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານໃໝ່"
+      "newPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານໃໝ່",
+      "currentPassword": "ລະຫັດຜ່ານປັດຈຸບັນ",
+      "currentPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານປັດຈຸບັນ"
     },
     "validation": {
       "usernameRequired": "ກະລຸນາປ້ອນຊື່ຜູ້ໃຊ້ກ່ອນ",
@@ -150,7 +152,9 @@
       "confirmPasswordRequired": "ກະລຸນາຢືນຢັນລະຫັດຜ່ານກ່ອນ",
       "passwordMismatch": "ລະຫັດຜ່ານບໍ່ຕົງກັນ",
       "telPattern": "ເບີໂທຕ້ອງເປັນຕົວເລກເທົ່ານັ້ນ",
-      "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ"
+      "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ",
+      "currentPasswordRequired": "ກະລຸນາປ້ອນລະຫັດຜ່ານປັດຈຸບັນ",
+      "newPasswordRequired": "ກະລຸນາປ້ອນລະຫັດຜ່ານໃໝ່"
     },
     "modal": {
       "create": "ເພີ່ມຜູ້ໃຊ້ງານໃໝ່",
@@ -381,6 +385,58 @@
         "updated": "ແກ້ໄຂຫຼ່າສຸດ",
         "manege": "ຈັດການ"
       }
+    }
+  },
+  "documentType": {
+    "list": {
+      "title": "ປະເພດເອກະສານ",
+      "add": "ເພີ່ມປະເພດເອກະສານ",
+      "search": "ຄົ້ນຫາປະເພດເອກະສານ..."
+    },
+    "form": {
+      "name": "ຊື່",
+      "namePlaceholder": "ປ້ອນຊື່ປະເພດເອກະສານ",
+      "code": "ລະຫັດ",
+      "codePlaceholder": "ປ້ອນລະຫັດປະເພດເອກະສານ"
+    },
+    "table": {
+      "name": "ຊື່",
+      "code": "ລະຫັດ",
+      "status": "ສະຖານະ",
+      "createdAt": "ເວລາສ້າງ",
+      "updatedAt": "ເວລາອັບເດດ",
+      "actions": "ຈັດກາານ"
+    },
+    "modal": {
+      "create": "ສ້າງປະເພດເອກະສານ",
+      "edit": "ແກ້ໄຂປະເພດເອກະສານ",
+      "delete": "ລຶບປະເພດເອກະສານ",
+      "deleteConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບປະເພດເອກະສານ {name}?",
+      "deleteWarning": "ການກະທຳນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້."
+    },
+    "validation": {
+      "nameRequired": "ກະລຸນາປ້ອນຊື່",
+      "nameMin": "ຊື່ຕ້ອງມີຢ່າງໜ້ອຍ 2 ຕົວອັກສອນ",
+      "nameMax": "ຊື່ບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
+      "codeRequired": "ກະລຸນາປ້ອນລະຫັດ",
+      "codeMin": "ລະຫັດຕ້ອງມີຢ່າງໜ້ອຍ 2 ຕົວອັກສອນ",
+      "codeMax": "ລະຫັດບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ"
+    },
+    "status": {
+      "active": "ໃຊ້ງານ",
+      "inactive": "ບໍ່ໃຊ້ງານ"
+    },
+    "success": {
+      "title": "ສຳເລັດ",
+      "created": "ສ້າງປະເພດເອກະສານສຳເລັດ",
+      "updated": "ອັບເດດປະເພດເອກະສານສຳເລັດ",
+      "deleted": "ລຶບປະເພດເອກະສານສຳເລັດ"
+    },
+    "error": {
+      "loadFailed": "ບໍ່ສາມາດໂຫຼດປະເພດເອກະສານ",
+      "createFailed": "ບໍ່ສາມາດສ້າງປະເພດເອກະສານ",
+      "updateFailed": "ບໍ່ສາມາດອັບເດດປະເພດເອກະສານ",
+      "deleteFailed": "ບໍ່ສາມາດລຶບປະເພດເອກະສານ"
     }
   }
 }
