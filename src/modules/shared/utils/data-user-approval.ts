@@ -47,20 +47,30 @@ export const dataDpmUser = ref<any[]>([
   { id: 7, signature_file: "https://img.freepik.com/premium-vector/fake-autograph-samples-handdrawn-signature_721791-5877.jpg", department:'Department A' , user: 'Somsee', position: "position AA", createdAt: "20/02/2025", updatedAt: "20-02-2025" },
 ]);
 
-export const userItem = [
-  { id: "1", name: "Doe" },
-  { id: "2", name: "Manee 2" },
-  { id: "3", name: "Somsee 3" },
+export const statusItem = [
+  { id: "1", name: "Approved" },
+  { id: "2", name: "Padding" },
+  { id: "3", name: "Other" },
 ].map((item) => ({
   value: item.id,
   label: item.name,
 }));
-export const positionItem = [
-  { id: "1", name: "Position A" },
-  { id: "2", name: "Position B" },
-  { id: "3", name: "Position C" },
-  { id: "4", name: "Position D" },
-  { id: "5", name: "Position E" },
+export const documentItem = [
+  { id: "1", name: "Document A" },
+  { id: "2", name: "Document B" },
+  { id: "3", name: "Document C" },
+  { id: "4", name: "Document D" },
+  { id: "5", name: "Document E" },
+].map((item) => ({
+  value: item.id,
+  label: item.name,
+}));
+export const approval_workflowItem = [
+  { id: "1", name: "ອະນຸມັດ ເທັສ1" },
+  { id: "2", name: "Approval worklow demo1" },
+  { id: "3", name: "Approval worklow demo1 C" },
+  { id: "4", name: "Approval worklow demo1 D" },
+  { id: "5", name: "Approval worklow demo1 E" },
 ].map((item) => ({
   value: item.id,
   label: item.name,
