@@ -9,6 +9,7 @@ import { positionRoutes } from "@/modules/presentation/Admin/router/positionRoun
 import { userRoutes } from "@/modules/presentation/Admin/router/userRoutes";
 import { departmentApproverRoutes } from "@/modules/presentation/Admin/router/departments/department-approver.routers";
 import { departmentUserRoutes } from "@/modules/presentation/Admin/router/departments/department-user.routers";
+import { userApprovalRoutes } from "@/modules/presentation/Admin/router/user-approval";
 import { documentTypesRoutes } from "@/modules/presentation/Admin/router/documentTypeRoutes";
 
 const routes: RouteRecordRaw[] = [
@@ -27,6 +28,7 @@ const routes: RouteRecordRaw[] = [
       ...documentTypesRoutes,
       ...categoryRoutes,
       ...positionRoutes,
+      ... userApprovalRoutes
     ],
   },
 ];
