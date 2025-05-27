@@ -16,7 +16,7 @@ const dpmUserStore = departmenUsertStore()
 // Initialize the unit store
 // const dpmStore = departmentStore();
 // departments data that will be displayed (from API or mock)
-const department = ref<DepartmentApiModel[]>([]);
+const department = ref<DepartmentApiModel[]>([ ]);
 const useRealApi = ref<boolean>(true); // Toggle between mock and real API
 
 // Form related
