@@ -17,13 +17,10 @@ import { useNotification } from "@/modules/shared/utils/useNotification";
 import { departmentStore } from "../../stores/departments/department.store";
 
 const { t } = useI18n();
-// Initialize the unit store
 const dpmStore = departmentStore();
-// departments data that will be displayed (from API or mock)
 const department = ref<DepartmentApiModel[]>([]);
-const useRealApi = ref<boolean>(true); // Toggle between mock and real API
-const {success, error} = useNotification()
-// Form related
+const useRealApi = ref<boolean>(true);
+const { success, error } = useNotification();
 const formRef = ref();
 const createModalVisible = ref<boolean>(false);
 const editModalVisible = ref<boolean>(false);
@@ -101,7 +98,7 @@ const handleCreate = async (): Promise<void> => {
       name: formModel.name,
       code: formModel.code,
     });
-    success(t('departments.notify.created'))
+    success(t("departments.notify.created"));
     await loadDpm(); // Refresh the list
     createModalVisible.value = false;
     formModel.name = "";
@@ -125,7 +122,7 @@ const handleEdit = async (): Promise<void> => {
         name: formModel.name,
         code: formModel.code,
       });
-      success(t('departments.notify.update'))
+      success(t("departments.notify.update"));
       await loadDpm();
     }
 
@@ -145,7 +142,7 @@ const handleDelete = async (): Promise<void> => {
     // Use API to delete
     const id = selectedDpm.value.id.toString();
     await dpmStore.deleteDepartment(id);
-    success(t('departments.notify.delete'))
+    success(t("departments.notify.delete"));
     await loadDpm(); // Refresh the list
   } catch (error) {
     console.error("Delete failed:", error);
