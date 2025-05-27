@@ -7,7 +7,6 @@ import Table from "@/common/shared/components/table/Table.vue";
 import {
   dataDpm,
   dataDpmUser,
-  userItem,
 } from "@/modules/shared/utils/data.department";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
@@ -19,6 +18,7 @@ import { dpmApproverRules } from "./validation/department.validate";
 import { departmentApproverStore } from "../../../stores/departments/department-approver.store";
 import type { DepartmentApproverApiModel } from "@/modules/interfaces/departments/department-approver.interface";
 import { departmentStore } from "../../../stores/departments/department.store";
+import { useUserStore } from "../../../stores/user.store";
 const { t } = useI18n();
 // Initialize the unit store
 // departments data that will be displayed (from API or mock)
@@ -32,10 +32,17 @@ const editModalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedDpm = ref<DepartmentApproverApiModel | null>(null);
+const userStore = useUserStore()
 const departmentItem = computed(() =>
   dpmStore.departments.map((item) => ({
     value: item.getId(),
     label: item.getName(),
+  }))
+);
+const userItem = computed(() =>
+  userStore.users.map((item) => ({
+    value: item.getId(),
+    label: item.getUsername(),
   }))
 );
 // Form model
@@ -111,6 +118,7 @@ const formatDateForDisplay = (
 onMounted(async () => {
   await loadDpm();
   await dpmStore.fetchDepartment();
+  await userStore.fetchUsers()
 });
 
 const loadDpm = async (): Promise<void> => {
