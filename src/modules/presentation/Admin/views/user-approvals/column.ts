@@ -13,6 +13,11 @@ export function columns(t: (key: string) => string): Column[] {
       key: "code",
     },
     {
+      title: t("departments.dpm.field.code") || "Code",
+      dataIndex: "code",
+      key: "code",
+    },
+    {
       title: t("departments.dpm.field.name") || "Department Name",
       dataIndex: "name",
       key: "name",
