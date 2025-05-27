@@ -22,3 +22,7 @@ export interface UserUpdatePayload {
   password?: string;
   tel?: string;
 }
+export interface UserChangePasswordPayload {
+  old_password?: string;
+  new_password: string;
+}

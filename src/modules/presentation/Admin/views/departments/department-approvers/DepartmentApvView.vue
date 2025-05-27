@@ -19,6 +19,7 @@ import { departmentApproverStore } from "../../../stores/departments/department-
 import type { DepartmentApproverApiModel } from "@/modules/interfaces/departments/department-approver.interface";
 import { departmentStore } from "../../../stores/departments/department.store";
 import { useUserStore } from "../../../stores/user.store";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 const { t } = useI18n();
 // Initialize the unit store
 // departments data that will be displayed (from API or mock)
@@ -33,6 +34,7 @@ const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedDpm = ref<DepartmentApproverApiModel | null>(null);
 const userStore = useUserStore()
+const {success} = useNotification()
 const departmentItem = computed(() =>
   dpmStore.departments.map((item) => ({
     value: item.getId(),
@@ -176,9 +178,10 @@ const handleCreate = async (): Promise<void> => {
     if (useRealApi.value) {
       // Use API to create
       await store.createDepartmentApprover({
-        user_id: formModel.user_id,
-        department_id: formModel.department_id,
+        user_id: Number(formModel.user_id),
+        department_id: Number(formModel.department_id),
       });
+      success(t('departments.notify.created'))
       await loadDpm(); // Refresh the list
     } else {
       // Create new unit with current timestamp (mock)
@@ -215,6 +218,7 @@ const handleEdit = async (): Promise<void> => {
           user_id: formModel.user_id,
           department_id: formModel.department_id,
         });
+        success(t('departments.notify.update'))
         await loadDpm();
       } else {
         // Update the unit locally (mock)

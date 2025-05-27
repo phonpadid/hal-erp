@@ -1,0 +1,53 @@
+{
+  "list": {
+    "title": "Role Management",
+    "add": "Add Role",
+    "search": "Search roles...",
+    "rolename": "Role Name",
+    "displayName": "Display Name",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions",
+    "status": "Status"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Deleted"
+  },
+  "form": {
+    "name": "Role Name",
+    "namePlaceholder": "Enter role name",
+    "display_name": "Display Name",
+    "display_namePlaceholder": "Enter display name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)"
+  },
+  "validation": {
+    "nameRequired": "Please enter role name",
+    "nameLength": "Role name must be at least 3 characters",
+    "namePattern": "Role name can only contain letters, numbers and underscore",
+    "displayNameRequired": "Please enter display name"
+  },
+  "modal": {
+    "create": "Create New Role",
+    "edit": "Edit Role",
+    "delete": "Delete Role",
+    "restore": "Restore Role",
+    "deleteConfirm": "Are you sure you want to delete role \"{roleName}\"?",
+    "deleteWarning": "This action cannot be undone.",
+    "restoreConfirm": "Are you sure you want to restore role \"{roleName}\"?"
+  },
+  "success": {
+    "created": "Role created successfully",
+    "updated": "Role updated successfully",
+    "deleted": "Role deleted successfully",
+    "restored": "Role restored successfully"
+  },
+  "error": {
+    "loadFailed": "Failed to load roles",
+    "saveFailed": "Failed to save role",
+    "deleteFailed": "Failed to delete role",
+    "restoreFailed": "Failed to restore role",
+    "duplicateName": "This role name already exists"
+  }
+}

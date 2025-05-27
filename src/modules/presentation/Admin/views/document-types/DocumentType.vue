@@ -177,7 +177,7 @@ const handleDeleteConfirm = async () => {
         <h1 class="text-2xl font-semibold">{{ t("documentType.list.title") }}</h1>
       </div>
 
-      <div class="flex gap-2">
+      <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
         <UiInput
           v-model="searchKeyword"
           :placeholder="t('documentType.list.search')"
@@ -189,7 +189,7 @@ const handleDeleteConfirm = async () => {
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
-          colorClass="flex items-center"
+          colorClass="text-white flex items-center"
         >
           {{ t("documentType.list.add") }}
         </UiButton>
@@ -246,6 +246,8 @@ const handleDeleteConfirm = async () => {
       @update:visible="modalVisible = $event"
       @ok="handleModalOk"
       @cancel="handleModalCancel"
+      :okText="isEditMode ? t('button.edit') : t('button.save')"
+      :cancelText="t('button.cancel')"
     >
       <DocumentTypeForm
         ref="documentTypeFormRef"
