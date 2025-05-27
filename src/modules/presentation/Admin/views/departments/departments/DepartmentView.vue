@@ -22,7 +22,7 @@ const dpmStore = departmentStore();
 // departments data that will be displayed (from API or mock)
 const department = ref<DepartmentApiModel[]>([]);
 const useRealApi = ref<boolean>(true); // Toggle between mock and real API
-const {success, error} = useNotification()
+const {success} = useNotification()
 // Form related
 const formRef = ref();
 const createModalVisible = ref<boolean>(false);

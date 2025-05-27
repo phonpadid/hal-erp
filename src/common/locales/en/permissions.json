@@ -1,0 +1,22 @@
+{
+  "list": {
+    "title": "List Permissions",
+    "add": "Add Permission",
+    "search": "Search permission...",
+    "permissionname": "Permission Name",
+    "displayName": "Display Name",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions",
+    "status": "Status"
+  },
+  "title": "Permissions",
+  "assignPermissions": "Assign Permissions",
+  "module": "Module",
+  "action": "Action",
+  "description": "Description",
+  "selectAll": "Select All",
+  "selectNone": "Select None",
+  "saveSuccess": "Permissions saved successfully",
+  "saveFailed": "Failed to save permissions"
+}

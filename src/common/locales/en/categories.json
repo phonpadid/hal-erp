@@ -1,0 +1,30 @@
+{
+  "title": "Category information",
+  "add": "Add new category",
+  "header_form": {
+    "add": "Add new category",
+    "edit": "Update category",
+    "delete": {
+      "title": "Confirm delete",
+      "content": "Are you sure you want to delete",
+      "description": "This action cannot be undone"
+    }
+  },
+  "placeholder": {
+    "name": "Please enter category name"
+  },
+  "error": {
+    "name": "Please enter category name"
+  },
+  "field": {
+    "name": "Category name",
+    "created": "Created At",
+    "updated": "Updated At",
+    "manage": "Manage"
+  },
+
+  "status": {
+    "active": "Active",
+    "inactive": "Deleted"
+  }
+}
