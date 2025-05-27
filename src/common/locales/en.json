@@ -374,7 +374,7 @@
       "field": {
         "id": "Id",
         "document": "Document",
-        "approval workflow": "Approval workflow",
+        "apv_workflow": "Approval workflow",
         "status": "Status",
         "created": "Created At",
         "updated": "Updated At",

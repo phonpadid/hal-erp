@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import type { Ref } from "vue";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { ApiUserApprovaltRepository } from "@/modules/infrastructure/user-approvals/api-user-approval.repository";
@@ -7,6 +7,11 @@ import { UserApprovalServiceImpl } from "@/modules/application/services/user-app
 import { UserApprovalEntity } from "@/modules/domain/entities/user-approvals/user-approval.entity";
 import type { CreateUserApprovalDTO, UpdateUserApprovalDTO } from "@/modules/application/dtos/user-approvals/user-approval.dto";
 
+const userApprovalFormModel = reactive({
+  approval_workflow_id: "",
+  document_id: "",
+  status_id: "",
+})
 
 const createUserApprovalService = () => {
   const userApprovalRepo = new ApiUserApprovaltRepository();
@@ -182,6 +187,7 @@ export const userApprovalStore = defineStore("user-approval", () => {
 
   return {
     // State
+    userApprovalFormModel,
     userApproval,
     currentUserApproval,
     loading,

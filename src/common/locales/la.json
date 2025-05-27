@@ -375,7 +375,7 @@
       "field": {
         "id": "ລຳດັບ",
         "document": "ເອກະສານ",
-        "approval workflow": "ຂັ້ນຕອນການອະນຸມັດ",
+        "apv_workflow": "ຂັ້ນຕອນການອະນຸມັດ",
         "status": "ສະຖານະ",
         "created": "ສ້າງເມື່ອວັນທີ",
         "updated": "ແກ້ໄຂຫຼ່າສຸດ",

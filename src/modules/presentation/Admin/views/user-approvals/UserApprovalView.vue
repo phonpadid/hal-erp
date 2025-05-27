@@ -6,7 +6,6 @@ import type { DepartmentEntity } from "@/modules/domain/entities/departments/dep
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
-import { dataDpm } from "@/modules/shared/utils/data.department";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
@@ -15,27 +14,37 @@ import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { dpmRules } from "./validation/department.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { departmentStore } from "../../stores/departments/department.store";
-
+import { dataUserApv } from "@/modules/shared/utils/data-user-approval";
+import { userApprovalStore } from "../../stores/user-approval.store";
+import type { UserApprovalEntity } from "@/modules/domain/entities/user-approvals/user-approval.entity";
+import type { UserApprovalApiModel } from "@/modules/interfaces/user-approvals/user-approval.interface";
 const { t } = useI18n();
 // Initialize the unit store
-const dpmStore = departmentStore();
+const userApproval = userApprovalStore();
 // departments data that will be displayed (from API or mock)
-const department = ref<DepartmentApiModel[]>([]);
+const user_aproval = ref<UserApprovalApiModel[]>([]);
 const useRealApi = ref<boolean>(true); // Toggle between mock and real API
-const {success, error} = useNotification()
+const { success, error } = useNotification();
 // Form related
 const formRef = ref();
 const createModalVisible = ref<boolean>(false);
 const editModalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
-const selectedDpm = ref<DepartmentApiModel | null>(null);
+const selectedDpm = ref<UserApprovalApiModel | null>(null);
 
 // Form model
-const formModel = reactive({
-  name: "",
-  code: "",
-});
+const formModel = userApproval.userApprovalFormModel;
+function getStatusColor(status: string): string {
+  switch (status.toLowerCase()) {
+    case 'padding':
+      return 'orange';
+    case 'approved':
+      return 'green';
+    default:
+      return 'red'; // or any default/fallback color
+  }
+}
 
 // Load data on component mount
 onMounted(async () => {
@@ -46,48 +55,57 @@ const loadDpm = async (): Promise<void> => {
   if (useRealApi.value) {
     try {
       loading.value = true;
-      const result = await dpmStore.fetchDepartment({
-        page: dpmStore.pagination.page,
-        limit: dpmStore.pagination.limit,
+      const result = await userApproval.fetchUserApproval({
+        page: userApproval.pagination.page,
+        limit: userApproval.pagination.limit,
       });
 
-      department.value = result.data.map((dpm: DepartmentEntity) => {
-        return {
-          id: Number(dpm.getId()),
-          name: dpm.getName(),
-          code: dpm.getCode(),
-          createdAt: dpm.getCreatedAt(),
-          updatedAt: dpm.getUpdatedAt(),
-        };
-      });
+      user_aproval.value = result.data.map(
+        (dpm: UserApprovalEntity): UserApprovalApiModel => {
+          return {
+            id: Number(dpm.getId()) || 0,
+            approval_workflow_id: dpm.getApprovalId() ?? undefined,
+            status_id: dpm.getStatusId() ?? undefined,
+            document_id: dpm.getDocumentId() ?? undefined,
 
-      console.log("Department data loaded:", department.value);
+            approval_workflow_name: dpm.getApprovalName() ?? undefined,
+            status_name: dpm.getStatusName() ?? undefined,
+            doc_title: dpm.getDocumentName() ?? undefined,
+
+            created_at: dpm.getCreatedAt() ?? undefined,
+            updated_at: dpm.getUpdatedAt() ?? undefined,
+          };
+        }
+      );
+      console.log("user_aproval data loaded:", user_aproval.value);
     } catch (error) {
-      console.error("Failed to fetch department from API:", error);
-      department.value = [...dataDpm.value];
+      console.error("Failed to fetch user_aproval from API:", error);
+      user_aproval.value = [...dataUserApv.value];
     } finally {
       loading.value = false;
     }
   } else {
-    department.value = [...dataDpm.value];
+    user_aproval.value = [...dataUserApv.value];
   }
 };
 
 // CRUD operations
 const showCreateModal = (): void => {
-  formModel.name = "";
-  formModel.code = "";
+  formModel.status_id = "";
+  formModel.document_id = "";
+  formModel.approval_workflow_id = "";
   createModalVisible.value = true;
 };
 
-const showEditModal = (record: DepartmentApiModel): void => {
+const showEditModal = (record: UserApprovalApiModel): void => {
   selectedDpm.value = record;
-  formModel.name = record.name;
-  formModel.code = record.code || "";
+  formModel.status_id = "";
+  formModel.document_id = "";
+  formModel.approval_workflow_id = "";
   editModalVisible.value = true;
 };
 
-const showDeleteModal = (record: DepartmentApiModel): void => {
+const showDeleteModal = (record: UserApprovalApiModel): void => {
   selectedDpm.value = record;
   deleteModalVisible.value = true;
 };
@@ -97,15 +115,17 @@ const handleCreate = async (): Promise<void> => {
     loading.value = true;
     await formRef.value.submitForm();
 
-    await dpmStore.createDepartment({
-      name: formModel.name,
-      code: formModel.code,
+    await userApproval.createUserApproval({
+      document_id: formModel.document_id,
+      approval_workflow_id: formModel.approval_workflow_id,
+      status_id: formModel.status_id,
     });
-    success(t('departments.notify.created'))
+    success(t("user_approval.notify.created"));
     await loadDpm(); // Refresh the list
     createModalVisible.value = false;
-    formModel.name = "";
-    formModel.code = "";
+    formModel.status_id = "";
+    formModel.document_id = "";
+    formModel.approval_workflow_id = "";
   } catch (error) {
     console.error("Create form validation failed:", error);
   } finally {
@@ -120,12 +140,13 @@ const handleEdit = async (): Promise<void> => {
 
     if (selectedDpm.value) {
       const id = selectedDpm.value.id.toString();
-      await dpmStore.updateDepartment(id, {
+      await userApproval.updateUserApproval(id, {
         id,
-        name: formModel.name,
-        code: formModel.code,
+        document_id: formModel.document_id,
+        approval_workflow_id: formModel.approval_workflow_id,
+        status_id: formModel.status_id,
       });
-      success(t('departments.notify.update'))
+      success(t("user_approval.notify.update"));
       await loadDpm();
     }
 
@@ -144,8 +165,8 @@ const handleDelete = async (): Promise<void> => {
   try {
     // Use API to delete
     const id = selectedDpm.value.id.toString();
-    await dpmStore.deleteDepartment(id);
-    success(t('departments.notify.delete'))
+    await userApproval.deleteUserApproval(id);
+    success(t("user_approval.notify.delete"));
     await loadDpm(); // Refresh the list
   } catch (error) {
     console.error("Delete failed:", error);
@@ -155,7 +176,7 @@ const handleDelete = async (): Promise<void> => {
   loading.value = false;
 };
 const handleTableChange = async (pagination: any) => {
-  dpmStore.setPagination({
+  userApproval.setPagination({
     page: pagination.current,
     limit: pagination.pageSize,
   });
@@ -167,11 +188,13 @@ const handleTableChange = async (pagination: any) => {
   <div class="unit-list-container p-6">
     <div class="mb-6 gap-4">
       <h1 class="text-2xl font-semibold">
-        {{ $t("departments.dpm.title") }}
+        {{ $t("user_approval.user_apv.title") }}
       </h1>
       <div class="flex justify-between gap-20">
         <div class="w-[20rem]">
-          <InputSearch :placeholder="t('departments.dpm.placeholder.search')" />
+          <InputSearch
+            :placeholder="t('user_approval.user_apv.placeholder.search')"
+          />
         </div>
         <UiButton
           type="primary"
@@ -179,7 +202,7 @@ const handleTableChange = async (pagination: any) => {
           @click="showCreateModal"
           colorClass="flex items-center"
         >
-          {{ $t("departments.dpm.add") }}
+          {{ $t("user_approval.user_apv.add") }}
         </UiButton>
       </div>
     </div>
@@ -187,16 +210,21 @@ const handleTableChange = async (pagination: any) => {
     <!--  Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="department"
+      :dataSource="user_aproval"
       :pagination="{
-        current: dpmStore.pagination.page,
-        pageSize: dpmStore.pagination.limit,
-        total: dpmStore.pagination.total,
+        current: userApproval.pagination.page,
+        pageSize: userApproval.pagination.limit,
+        total: userApproval.pagination.total,
       }"
       row-key="id"
-      :loading="dpmStore.loading"
+      :loading="userApproval.loading"
       @change="handleTableChange"
     >
+      <template #status="{ record }">
+        <a-tag :color="getStatusColor(record.status)">
+    {{ record.status }}
+  </a-tag>
+      </template>
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
@@ -222,7 +250,7 @@ const handleTableChange = async (pagination: any) => {
 
     <!-- Create Modal -->
     <UiModal
-      :title="t('departments.dpm.header_form.add')"
+      :title="t('user_approval.user_apv.header_form.add')"
       :visible="createModalVisible"
       :confirm-loading="loading"
       @update:visible="createModalVisible = $event"
@@ -232,18 +260,32 @@ const handleTableChange = async (pagination: any) => {
       :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
-        <UiFormItem :label="t('departments.dpm.field.code')" name="code" required>
-          <UiInput v-model="formModel.code" :placeholder="t('departments.dpm.placeholder.code')" />
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.code')"
+          name="code"
+          required
+        >
+          <UiInput
+            v-model="formModel.status_id"
+            :placeholder="t('user_approval.user_apv.placeholder.code')"
+          />
         </UiFormItem>
-        <UiFormItem :label="t('departments.dpm.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('departments.dpm.placeholder.name')" />
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.name')"
+          name="name"
+          required
+        >
+          <UiInput
+            v-model="formModel.approval_workflow_id"
+            :placeholder="t('user_approval.user_apv.placeholder.name')"
+          />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Edit Modal -->
     <UiModal
-      :title="t('departments.dpm.header_form.edit')"
+      :title="t('user_approval.user_apv.header_form.edit')"
       :visible="editModalVisible"
       :confirm-loading="loading"
       @update:visible="editModalVisible = $event"
@@ -253,18 +295,32 @@ const handleTableChange = async (pagination: any) => {
       :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
-        <UiFormItem :label="t('departments.dpm.field.code')" name="code" required>
-          <UiInput v-model="formModel.code" :placeholder="t('departments.dpm.placeholder.code')" />
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.code')"
+          name="code"
+          required
+        >
+          <UiInput
+            v-model="formModel.status_id"
+            :placeholder="t('user_approval.user_apv.placeholder.code')"
+          />
         </UiFormItem>
-        <UiFormItem :label="t('departments.dpm.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('departments.dpm.placeholder.name')" />
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.name')"
+          name="name"
+          required
+        >
+          <UiInput
+            v-model="formModel.document_id"
+            :placeholder="t('user_approval.user_apv.placeholder.name')"
+          />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
     <UiModal
-      :title="t('departments.alert.confirm')"
+      :title="t('user_approval.alert.confirm')"
       :visible="deleteModalVisible"
       :confirm-loading="loading"
       @update:visible="deleteModalVisible = $event"
@@ -274,9 +330,9 @@ const handleTableChange = async (pagination: any) => {
       :cancelText="t('button.cancel')"
       okType="primary"
     >
-      <p>{{ $t("departments.alert.message") }}: "{{ selectedDpm?.name }}"?</p>
+      <p>{{ $t("user_approval.alert.message") }}?</p>
       <p class="text-red-500">
-        {{ t("departments.alert.remark") }}
+        {{ t("user_approval.alert.remark") }}
       </p>
     </UiModal>
   </div>
