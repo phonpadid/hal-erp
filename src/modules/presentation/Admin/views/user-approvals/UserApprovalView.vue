@@ -1,31 +1,27 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { columns } from "./column";
-import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
-import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import { dpmRules } from "./validation/department.validate";
+import { userApprovalRulue } from "./validation/user-approval.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import { departmentStore } from "../../stores/departments/department.store";
-import { dataUserApv } from "@/modules/shared/utils/data-user-approval";
+import { approval_workflowItem, dataUserApv, documentItem, statusItem } from "@/modules/shared/utils/data-user-approval";
 import { userApprovalStore } from "../../stores/user-approval.store";
 import type { UserApprovalEntity } from "@/modules/domain/entities/user-approvals/user-approval.entity";
 import type { UserApprovalApiModel } from "@/modules/interfaces/user-approvals/user-approval.interface";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 const { t } = useI18n();
 
 // Initialize the unit store
 const userApproval = userApprovalStore();
-// departments data that will be displayed (from API or mock)
 const user_aproval = ref<UserApprovalApiModel[]>([]);
-const useRealApi = ref<boolean>(true); // Toggle between mock and real API
-const { success, error } = useNotification();
+const useRealApi = ref<boolean>(true); // Toggle between mock and real APIfgfgfgf
+const { success } = useNotification();
 // Form related
 
 const formRef = ref();
@@ -222,8 +218,8 @@ const handleTableChange = async (pagination: any) => {
     >
       <template #status="{ record }">
         <a-tag :color="getStatusColor(record.status)">
-          {{ record.status }}
-        </a-tag>
+    {{ record.status }}
+  </a-tag>
       </template>
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
@@ -259,17 +255,38 @@ const handleTableChange = async (pagination: any) => {
       :okText="t('button.save')"
       :cancelText="t('button.cancel')"
     >
-      <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
-        <UiFormItem :label="t('user_approval.user_apv.field.code')" name="code" required>
-          <UiInput
-            v-model="formModel.status_id"
-            :placeholder="t('user_approval.user_apv.placeholder.code')"
+      <UiForm ref="formRef" :model="formModel" :rules="userApprovalRulue(t)">
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.document')"
+          name="document_id"
+          required
+        >
+          <InputSelect
+            v-model="formModel.document_id"
+            :options="documentItem"
+            :placeholder="t('departments.dpm_user.placeholder.ducument')"
           />
         </UiFormItem>
-        <UiFormItem :label="t('user_approval.user_apv.field.name')" name="name" required>
-          <UiInput
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.status')"
+          name="status_id"
+          required
+        >
+          <InputSelect
+            v-model="formModel.status_id"
+            :options="statusItem"
+            :placeholder="t('departments.dpm_user.placeholder.dpm')"
+          />
+        </UiFormItem>
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.apv_workflow')"
+          name="approval_workflow_id"
+          required
+        >
+          <InputSelect
             v-model="formModel.approval_workflow_id"
-            :placeholder="t('user_approval.user_apv.placeholder.name')"
+            :options="approval_workflowItem"
+            :placeholder="t('departments.dpm_user.placeholder.apv_workflow')"
           />
         </UiFormItem>
       </UiForm>
@@ -286,17 +303,38 @@ const handleTableChange = async (pagination: any) => {
       :okText="t('button.edit')"
       :cancelText="t('button.cancel')"
     >
-      <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
-        <UiFormItem :label="t('user_approval.user_apv.field.code')" name="code" required>
-          <UiInput
-            v-model="formModel.status_id"
-            :placeholder="t('user_approval.user_apv.placeholder.code')"
+    <UiForm ref="formRef" :model="formModel" :rules="userApprovalRulue(t)">
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.document')"
+          name="document_id"
+          required
+        >
+          <InputSelect
+            v-model="formModel.document_id"
+            :options="documentItem"
+            :placeholder="t('departments.dpm_user.placeholder.ducument')"
           />
         </UiFormItem>
-        <UiFormItem :label="t('user_approval.user_apv.field.name')" name="name" required>
-          <UiInput
-            v-model="formModel.document_id"
-            :placeholder="t('user_approval.user_apv.placeholder.name')"
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.status')"
+          name="status_id"
+          required
+        >
+          <InputSelect
+            v-model="formModel.status_id"
+            :options="statusItem"
+            :placeholder="t('departments.dpm_user.placeholder.dpm')"
+          />
+        </UiFormItem>
+        <UiFormItem
+          :label="t('user_approval.user_apv.field.apv_workflow')"
+          name="approval_workflow_id"
+          required
+        >
+          <InputSelect
+            v-model="formModel.approval_workflow_id"
+            :options="approval_workflowItem"
+            :placeholder="t('departments.dpm_user.placeholder.apv_workflow')"
           />
         </UiFormItem>
       </UiForm>
