@@ -44,7 +44,7 @@ export const menuItems: ItemType[] = reactive([
         icon: () =>
           h("div", {}, [
             h(Icon, {
-              icon: "ic:outline-receipt",
+              icon: "ic:baseline-person",
               class: "text-base",
             }),
           ]),
@@ -55,7 +55,7 @@ export const menuItems: ItemType[] = reactive([
         icon: () =>
           h("div", {}, [
             h(Icon, {
-              icon: "ic:outline-receipt",
+              icon: "ic:round-filter-list",
               class: "text-base",
             }),
           ]),
