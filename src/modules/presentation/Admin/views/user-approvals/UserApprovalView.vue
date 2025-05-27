@@ -19,10 +19,9 @@ const { t } = useI18n();
 
 // Initialize the unit store
 const userApproval = userApprovalStore();
-// departments data that will be displayed (from API or mock)
 const user_aproval = ref<UserApprovalApiModel[]>([]);
 const useRealApi = ref<boolean>(true); // Toggle between mock and real API
-const { success, error } = useNotification();
+const { success } = useNotification();
 // Form related
 
 const formRef = ref();
