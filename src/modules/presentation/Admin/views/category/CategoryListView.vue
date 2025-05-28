@@ -166,23 +166,21 @@ const handleDelete = async (): Promise<void> => {
       <template #actions="{ record }">
         <div class="flex gap-2">
           <UiButton
-            type="primary"
+            type=""
             icon="ant-design:edit-outlined"
             size="small"
             @click="showEditModal(record)"
-            colorClass="flex items-center"
+            colorClass="flex items-center justify-center text-orange-400"
           >
-            {{ t("button.edit") }}
           </UiButton>
           <UiButton
-            type="primary"
+            type=""
             danger
             icon="ant-design:delete-outlined"
-            colorClass="flex items-center"
+            colorClass="flex items-center justify-center text-red-700"
             size="small"
             @click="showDeleteModal(record)"
           >
-            {{ t("button.delete") }}
           </UiButton>
         </div>
       </template>

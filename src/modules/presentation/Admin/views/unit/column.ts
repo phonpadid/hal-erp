@@ -1,4 +1,6 @@
-export function getColumns(t: (key: string) => string) {
+import type{ Column } from "@/modules/shared/column/column";
+
+export function getColumns(t: (key: string) => string) : Column[] {
   return [
     {
       title: t("units.field.name"),
