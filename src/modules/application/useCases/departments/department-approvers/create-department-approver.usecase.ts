@@ -6,7 +6,7 @@ export class CreateDepartmentApproverUseCase {
   constructor(private readonly dpmApproverRepository: DepartmentApproverRepository) { }
 
   async execute(input: CreateDepartmentApproverDTO): Promise<DepartmentApproverEntity> {
-    const dpmApprover = DepartmentApproverEntity.create(uuidv4(), input.department_id ?? '', input.user_id ?? '', );
+    const dpmApprover = DepartmentApproverEntity.create(uuidv4(), String(input.department_id ?? ''), String(input.user_id ?? ''));
     return await this.dpmApproverRepository.create(dpmApprover);
   }
 }
