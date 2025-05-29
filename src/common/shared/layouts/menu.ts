@@ -128,6 +128,17 @@ export const menuItems: ItemType[] = reactive([
             }),
           ]),
       },
+      {
+        key: "currencies.index",
+        label: "ສະກຸນເງິນ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-currency-rupee",
+              class: "text-base",
+            }),
+          ]),
+      },
     ],
 
     type: "group",

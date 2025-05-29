@@ -14,6 +14,8 @@ import { documentTypesRoutes } from "@/modules/presentation/Admin/router/documen
 import { vendorsRoutes } from "@/modules/presentation/Admin/router/vendors/vendorRoutes";
 import { vendorsBanksRoutes } from "@/modules/presentation/Admin/router/vendors/vendorBankAccountRoutes";
 
+import { currencyRoutes } from "@/modules/presentation/Admin/router/currencies.routers";
+
 const routes: RouteRecordRaw[] = [
   {
     path: "/admin",
@@ -33,6 +35,9 @@ const routes: RouteRecordRaw[] = [
       ...userApprovalRoutes,
       ...vendorsRoutes,
       ...vendorsBanksRoutes,
+      ... userApprovalRoutes,
+      ...currencyRoutes
+
     ],
   },
 ];
