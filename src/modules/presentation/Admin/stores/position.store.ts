@@ -126,7 +126,7 @@ export const usePositionStore = defineStore("position", () => {
           deletedPosition.getId(),
           deletedPosition.getName(),
           deletedPosition.getCreatedAt(),
-          new Date(),
+          new Date().toString(),
           new Date()
         );
       }
@@ -151,7 +151,7 @@ export const usePositionStore = defineStore("position", () => {
           restoredPosition.getId(),
           restoredPosition.getName(),
           restoredPosition.getCreatedAt(),
-          new Date(),
+          new Date().toString(),
           null
         );
       }

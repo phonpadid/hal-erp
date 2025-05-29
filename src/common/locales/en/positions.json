@@ -21,5 +21,10 @@
     "created": "Created At",
     "updated": "Updated At",
     "manage": "Manage"
+  },
+  "notify": {
+    "created": "Info created successfully",
+    "updated": "Info updated successfully",
+    "deleted": "Info deleted successfully"
   }
 }
