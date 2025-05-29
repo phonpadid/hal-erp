@@ -128,6 +128,17 @@ export const menuItems: ItemType[] = reactive([
             }),
           ]),
       },
+      {
+        key: "currencies.index",
+        label: "ສະກຸນເງິນ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-currency-rupee",
+              class: "text-base",
+            }),
+          ]),
+      },
     ],
 
     type: "group",
@@ -136,7 +147,34 @@ export const menuItems: ItemType[] = reactive([
     label: "",
     children: [
       { type: "divider" },
-
+      {
+        key: "121",
+        label: "ຈັດການຂໍ້ມູນ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:manage-accounts-outline-rounded",
+              class: "text-base",
+            }),
+          ]),
+        children: [
+          {
+            key: "vendorsList",
+            label: "ຈັດການຂໍ້ມູນຜູ້ຈັດຊື້",
+          },
+          {
+            key: "vendorsBankList",
+            label: "ຈັດການບັນຊີທະນາຄານຜູ້ຈັດຊື້",
+          },
+        ],
+      },
+    ],
+    type: "group",
+  },
+  {
+    label: "",
+    children: [
+      { type: "divider" },
       {
         key: "12",
         label: "ຈັດການຜູ້ໃຊ້",
