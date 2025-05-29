@@ -1,0 +1,52 @@
+{
+  "list": {
+    "title": "Vendors",
+    "search": "Search",
+    "add": "Add Vendor"
+  },
+  "table": {
+    "name": "Name",
+    "contact_info": "Contact Information",
+    "created_at": "Created At",
+    "updated_at": "Updated At",
+    "actions": "Actions"
+  },
+  "form": {
+    "name": "Name",
+    "namePlaceholder": "Enter vendor name",
+    "contactInfo": "Contact Information",
+    "contactInfoPlaceholder": "Enter contact information"
+  },
+  "modal": {
+    "create": "Add Vendor",
+    "edit": "Edit Vendor",
+    "delete": "Delete Vendor",
+    "deleteConfirm": "Are you sure you want to delete {name}?",
+    "deleteWarning": "This action cannot be undone"
+  },
+  "validation": {
+    "nameRequired": "Please enter a name",
+    "nameMin": "Name must be at least 2 characters",
+    "nameMax": "Name cannot exceed 100 characters",
+    "contactInfoRequired": "Please enter contact information",
+    "contactInfoMax": "Contact information cannot exceed 500 characters"
+  },
+  "success": {
+    "title": "Success",
+    "created": "Vendor created successfully",
+    "updated": "Vendor updated successfully",
+    "deleted": "Vendor deleted successfully"
+  },
+  "error": {
+    "saveFailed": "Failed to save vendor",
+    "deleteFailed": "Failed to delete vendor",
+    "loadFailed": "Failed to load vendors"
+  },
+  "button": {
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete"
+  }
+}

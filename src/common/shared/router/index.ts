@@ -11,6 +11,8 @@ import { departmentApproverRoutes } from "@/modules/presentation/Admin/router/de
 import { departmentUserRoutes } from "@/modules/presentation/Admin/router/departments/department-user.routers";
 import { userApprovalRoutes } from "@/modules/presentation/Admin/router/user-approval";
 import { documentTypesRoutes } from "@/modules/presentation/Admin/router/documentTypeRoutes";
+import { vendorsRoutes } from "@/modules/presentation/Admin/router/vendors/vendorRoutes";
+import { vendorsBanksRoutes } from "@/modules/presentation/Admin/router/vendors/vendorBankAccountRoutes";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -28,7 +30,9 @@ const routes: RouteRecordRaw[] = [
       ...documentTypesRoutes,
       ...categoryRoutes,
       ...positionRoutes,
-      ... userApprovalRoutes
+      ...userApprovalRoutes,
+      ...vendorsRoutes,
+      ...vendorsBanksRoutes,
     ],
   },
 ];
