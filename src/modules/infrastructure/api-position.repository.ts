@@ -8,9 +8,9 @@ import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 
 export class ApiPositionRepository implements PositionRepository {
-  async create(position: Position): Promise<Position> {
+  async create(input: Position): Promise<Position> {
     try {
-      const response = (await api.post("/position", this.toApiModel(position))) as {
+      const response = (await api.post("/positions", this.toApiModel(input))) as {
         data: ApiResponse<PositionApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -21,7 +21,7 @@ export class ApiPositionRepository implements PositionRepository {
 
   async findById(id: string): Promise<Position | null> {
     try {
-      const response = (await api.get(`/position/${id}`)) as {
+      const response = (await api.get(`/positions/${id}`)) as {
         data: ApiResponse<PositionApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -36,7 +36,7 @@ export class ApiPositionRepository implements PositionRepository {
 
   async findByName(name: string): Promise<Position | null> {
     try {
-      const response = (await api.get("/position", {
+      const response = (await api.get("/positions", {
         params: { name },
       })) as { data: ApiListResponse<PositionApiModel> };
 
@@ -56,7 +56,7 @@ export class ApiPositionRepository implements PositionRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<Position>> {
     try {
-      const response = (await api.get("/position", {
+      const response = (await api.get("/positions", {
         params: {
           page: params.page,
           limit: params.limit,
@@ -77,21 +77,21 @@ export class ApiPositionRepository implements PositionRepository {
     }
   }
 
-  async update(position: Position): Promise<Position> {
+  async update(input: Position): Promise<Position> {
     try {
       const response = (await api.put(
-        `/position/${position.getId()}`,
-        this.toApiModel(position)
+        `/positions/${input.getId()}`,
+        this.toApiModel(input)
       )) as { data: ApiResponse<PositionApiModel> };
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      this.handleApiError(error, `Failed to update position with id ${position.getId()}`);
+      this.handleApiError(error, `Failed to update position with id ${input.getId()}`);
     }
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await api.delete(`/position/${id}`);
+      await api.delete(`/positions/${id}`);
       return true;
     } catch (error) {
       this.handleApiError(error, `Failed to delete position with id ${id}`);
@@ -100,19 +100,19 @@ export class ApiPositionRepository implements PositionRepository {
 
   async restore(id: string): Promise<boolean> {
     try {
-      await api.post(`/position/${id}/restore`);
+      await api.post(`/positions/${id}/restore`);
       return true;
     } catch (error) {
       this.handleApiError(error, `Failed to restore position with id ${id}`);
     }
   }
 
-  private toApiModel(position: Position): PositionApiModel {
+  private toApiModel(input: Position): PositionApiModel {
     return {
-      id: parseInt(position.getId(), 10),
-      name: position.getName(),
-      created_at: position.getCreatedAt().toISOString(),
-      updated_at: position.getUpdatedAt().toISOString(),
+      id: parseInt(input.getId(), 10),
+      name: input.getName(),
+      created_at: input.getCreatedAt(),
+      updated_at: input.getUpdatedAt()
     };
   }
 
@@ -120,8 +120,8 @@ export class ApiPositionRepository implements PositionRepository {
     return new Position(
       data.id.toString(),
       data.name,
-      new Date(data.created_at),
-      new Date(data.updated_at)
+      data.created_at.toString(),
+      data.updated_at.toString()
     );
   }
 
