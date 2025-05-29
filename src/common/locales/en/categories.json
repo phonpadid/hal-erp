@@ -26,5 +26,10 @@
   "status": {
     "active": "Active",
     "inactive": "Deleted"
+  },
+  "notify": {
+    "created": "Info created successfully",
+    "updated": "Info updated successfully",
+    "deleted": "Info deleted successfully"
   }
 }

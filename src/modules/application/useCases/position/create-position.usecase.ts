@@ -7,10 +7,10 @@ export class CreatePositionUseCase {
   constructor(private readonly positionRepository: PositionRepository) {}
 
   async execute(createPositionDTO: CreatePositionDTO): Promise<Position> {
-    const existingPosition = await this.positionRepository.findByName(createPositionDTO.name);
-    if (existingPosition) {
-      throw new Error(`Position with name ${createPositionDTO.name} already exists`);
-    }
+    // const existingPosition = await this.positionRepository.findByName(createPositionDTO.name);
+    // if (existingPosition) {
+    //   throw new Error(`Position with name ${createPositionDTO.name} already exists`);
+    // }
     const position = Position.create(uuidv4(), createPositionDTO.name);
     return await this.positionRepository.create(position);
   }
