@@ -15,7 +15,19 @@
     "name": "ຊື່",
     "namePlaceholder": "ປ້ອນຊື່ຜູ້ຈັດຊື້",
     "contactInfo": "ຂໍ້ມູນຕິດຕໍ່",
-    "contactInfoPlaceholder": "ປ້ອນຂໍ້ມູນຕິດຕໍ່"
+    "contactInfoPlaceholder": "ປ້ອນຂໍ້ມູນຕິດຕໍ່",
+    "bankAccounts": "ເພີ່ມບັນຊີເງິນ",
+    "addBankAccount": "ເພີ່ມບັນຊີ",
+    "currency": "ສະກຸນເງິນ",
+    "currencyPlaceholder": "ເລືອກສະກຸນເງິນ",
+    "bankName": "ຊື່ທະນາຄານ",
+    "bankNamePlaceholder": "ປ້ອນຊື່ທະນາຄານ",
+    "accountName": "ຊືບັນຊີທະນາຄານ",
+    "accountNamePlaceholder": "ປ້ອນຊື່ບັນຊີທະນາຄານ",
+    "accountNumber": "ເລກບັນຊີ",
+    "accountNumberPlaceholder": "ປ້ອນເລກບັນຊີ",
+    "vendor_bank_account": "ກະລຸນາປ້ອນບັນຊີເງິນຜູ້ຈັດຊື້",
+    "completeBankAccount": " ບັນທຶກສຳເລັດແລ້ວ"
   },
   "modal": {
     "create": "ເພີ່ມຜູ້ຈັດຊື້",

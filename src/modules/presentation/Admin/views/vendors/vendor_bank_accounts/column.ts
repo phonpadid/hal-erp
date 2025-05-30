@@ -5,7 +5,7 @@ export function columns(t: (key: string) => string): Column[] {
     {
       title: t("vendors_bank.table.vendor"),
       dataIndex: "vendor_id",
-      key: "vendor_id",
+      key: "vendor",
     },
     {
       title: t("vendors_bank.table.currency"),

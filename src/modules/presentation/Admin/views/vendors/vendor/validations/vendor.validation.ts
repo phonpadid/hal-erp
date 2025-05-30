@@ -1,15 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/**
+ * Vendor Validation Rules
+ * @created 2025-05-29 08:45:20
+ * @author phonpadid
+ */
 import type { Rule } from "ant-design-vue/es/form";
 import type { ValidateState } from "@/modules/shared/validations/types";
 
-/**
- * Create validation rules for vendor form
- * @param t - Translation function
- * @param state - Validation state (optional)
- * @returns Validation rules object
- * @created 2025-05-29 03:15:58
- * @author phonpadid
- */
 export const createVendorValidation = (
   t: (key: string) => string,
   state?: ValidateState
@@ -30,7 +28,6 @@ export const createVendorValidation = (
       },
       {
         validator: async (_rule: Rule, value: string) => {
-          // Custom validation example
           if (value && /[<>]/.test(value)) {
             throw new Error(t("vendors.validation.nameInvalidChars"));
           }
@@ -54,54 +51,72 @@ export const createVendorValidation = (
         },
       },
     ],
+    vendor_bank_account: [
+      {
+        type: "array",
+        defaultField: {
+          type: "object",
+          required: true,
+          validator: (_rule: Rule, value: any) => {
+            if (!value.currency_id) {
+              return Promise.reject(t("vendors.validation.currencyRequired"));
+            }
+            if (!value.bank_name) {
+              return Promise.reject(t("vendors.validation.bankNameRequired"));
+            }
+            return Promise.resolve();
+          },
+        },
+      },
+    ],
   };
 };
 
-/**
- * Validate vendor name
- * @param name - Vendor name to validate
- * @returns boolean
- */
-export const isValidVendorName = (name: string): boolean => {
-  return name.length >= 2 && name.length <= 100 && !/[<>]/.test(name);
+// Helper validation functions
+export const isValidBankName = (name: string): boolean => {
+  return name.length > 0 && name.length <= 100 && !/[<>]/.test(name);
 };
 
-/**
- * Validate vendor contact info
- * @param contactInfo - Contact information to validate
- * @returns boolean
- */
-export const isValidContactInfo = (contactInfo: string): boolean => {
-  return contactInfo.length > 0 && contactInfo.length <= 500 && !/[<>]/.test(contactInfo);
+export const isValidAccountName = (name: string): boolean => {
+  return name.length > 0 && name.length <= 100 && !/[<>]/.test(name);
 };
 
-/**
- * Custom validation messages
- */
+export const isValidAccountNumber = (number: string): boolean => {
+  return number.length > 0 && number.length <= 50 && /^[0-9-]+$/.test(number);
+};
+
+// เพิ่ม translations สำหรับ bank account validations
 export const vendorValidationMessages = {
   en: {
     vendors: {
       validation: {
-        nameRequired: "Please enter a name",
-        nameMin: "Name must be at least 2 characters",
-        nameMax: "Name cannot exceed 100 characters",
-        nameInvalidChars: "Name contains invalid characters",
-        contactInfoRequired: "Please enter contact information",
-        contactInfoMax: "Contact information cannot exceed 500 characters",
-        contactInfoInvalidChars: "Contact information contains invalid characters",
+        // ... existing messages
+        currencyRequired: "Please select a currency",
+        bankNameRequired: "Please enter bank name",
+        bankNameMax: "Bank name cannot exceed 100 characters",
+        bankNameInvalidChars: "Bank name contains invalid characters",
+        accountNameRequired: "Please enter account name",
+        accountNameMax: "Account name cannot exceed 100 characters",
+        accountNameInvalidChars: "Account name contains invalid characters",
+        accountNumberRequired: "Please enter account number",
+        accountNumberMax: "Account number cannot exceed 50 characters",
+        accountNumberInvalidChars: "Account number can only contain numbers and hyphens",
       },
     },
   },
   la: {
     vendors: {
       validation: {
-        nameRequired: "ກະລຸນາປ້ອນຊື່",
-        nameMin: "ຊື່ຕ້ອງມີຢ່າງໜ້ອຍ 2 ຕົວອັກສອນ",
-        nameMax: "ຊື່ບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
-        nameInvalidChars: "ຊື່ມີຕົວອັກສອນທີ່ບໍ່ຖືກຕ້ອງ",
-        contactInfoRequired: "ກະລຸນາປ້ອນຂໍ້ມູນຕິດຕໍ່",
-        contactInfoMax: "ຂໍ້ມູນຕິດຕໍ່ບໍ່ສາມາດເກີນ 500 ຕົວອັກສອນ",
-        contactInfoInvalidChars: "ຂໍ້ມູນຕິດຕໍ່ມີຕົວອັກສອນທີ່ບໍ່ຖືກຕ້ອງ",
+        currencyRequired: "ກະລຸນາເລືອກສະກຸນເງິນ",
+        bankNameRequired: "ກະລຸນາປ້ອນຊື່ທະນາຄານ",
+        bankNameMax: "ຊື່ທະນາຄານບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
+        bankNameInvalidChars: "ຊື່ທະນາຄານມີຕົວອັກສອນທີ່ບໍ່ຖືກຕ້ອງ",
+        accountNameRequired: "ກະລຸນາປ້ອນຊື່ບັນຊີ",
+        accountNameMax: "ຊື່ບັນຊີບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
+        accountNameInvalidChars: "ຊື່ບັນຊີມີຕົວອັກສອນທີ່ບໍ່ຖືກຕ້ອງ",
+        accountNumberRequired: "ກະລຸນາປ້ອນເລກບັນຊີ",
+        accountNumberMax: "ເລກບັນຊີບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ",
+        accountNumberInvalidChars: "ເລກບັນຊີສາມາດມີແຕ່ຕົວເລກແລະເຄື່ອງໝາຍຂີດເທົ່ານັ້ນ",
       },
     },
   },

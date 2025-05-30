@@ -22,7 +22,6 @@ export interface VendorServices {
 export class VendorServiceImpl implements VendorServices {
   constructor(private readonly vendorRepository: VendorsRepository) {}
 
-
   async getAllVendors(
     params: PaginationParams,
     includeDeleted: boolean = false

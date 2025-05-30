@@ -1,0 +1,16 @@
+{
+  "vendors": {
+    "validation": {
+      "currencyRequired": "Please select a currency",
+      "bankNameRequired": "Please enter bank name",
+      "bankNameMax": "Bank name cannot exceed 100 characters",
+      "bankNameInvalidChars": "Bank name contains invalid characters",
+      "accountNameRequired": "Please enter account name",
+      "accountNameMax": "Account name cannot exceed 100 characters",
+      "accountNameInvalidChars": "Account name contains invalid characters",
+      "accountNumberRequired": "Please enter account number",
+      "accountNumberMax": "Account number cannot exceed 50 characters",
+      "accountNumberInvalidChars": "Account number can only contain numbers and hyphens"
+    }
+  }
+}

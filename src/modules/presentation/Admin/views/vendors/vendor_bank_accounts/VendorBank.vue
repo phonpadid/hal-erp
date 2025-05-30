@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive } from "vue";
 import { useI18n } from "vue-i18n";
-import type { VendorVankAccountInterface } from "@/modules/interfaces/vendors/vendor_bank_accounts/vendor-bank-accounts.interface";
+import type { VendorBankAccountInterface } from "@/modules/interfaces/vendors/vendor_bank_accounts/vendor-bank-accounts.interface";
 import { columns } from "./column";
 import { formatDate } from "@/modules/shared/formatdate";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
@@ -19,7 +19,7 @@ const vendorBankAccountStore = useVendorBankAccountStore();
 const { success, error } = useNotification();
 
 // State
-const bankAccounts = ref<VendorVankAccountInterface[]>([]);
+const bankAccounts = ref<VendorBankAccountInterface[]>([]);
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
 const pagination = reactive({
@@ -33,7 +33,7 @@ const pagination = reactive({
 const modalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const submitLoading = ref<boolean>(false);
-const selectedBankAccount = ref<VendorVankAccountInterface | null>(null);
+const selectedBankAccount = ref<VendorBankAccountInterface | null>(null);
 const isEditMode = ref<boolean>(false);
 const bankAccountFormRef = ref();
 
@@ -108,13 +108,13 @@ const showCreateModal = () => {
   modalVisible.value = true;
 };
 
-const showEditModal = (bankAccount: VendorVankAccountInterface) => {
+const showEditModal = (bankAccount: VendorBankAccountInterface) => {
   selectedBankAccount.value = { ...bankAccount };
   isEditMode.value = true;
   modalVisible.value = true;
 };
 
-const showDeleteModal = (bankAccount: VendorVankAccountInterface) => {
+const showDeleteModal = (bankAccount: VendorBankAccountInterface) => {
   selectedBankAccount.value = bankAccount;
   deleteModalVisible.value = true;
 };
@@ -128,7 +128,7 @@ const handleModalCancel = () => {
 };
 
 const handleFormSubmit = async (formData: {
-  vendor_id: string;
+  vendor_id: string | number;
   currency_id: string;
   bank_name: string;
   account_name: string;
@@ -137,12 +137,17 @@ const handleFormSubmit = async (formData: {
 }) => {
   try {
     submitLoading.value = true;
+    const processedData = {
+      ...formData,
+      vendor_id: Number(formData.vendor_id),
+      currency_id: Number(formData.currency_id),
+    };
 
     if (isEditMode.value && selectedBankAccount.value) {
-      await vendorBankAccountStore.updateBankAccount(selectedBankAccount.value.id, formData);
+      await vendorBankAccountStore.updateBankAccount(selectedBankAccount.value.id, processedData);
       success(t("vendors_bank.success.title"), t("vendors_bank.success.updated"));
     } else {
-      await vendorBankAccountStore.createBankAccount(formData);
+      await vendorBankAccountStore.createBankAccount(processedData);
       success(t("vendors_bank.success.title"), t("vendors_bank.success.created"));
     }
 
@@ -155,7 +160,6 @@ const handleFormSubmit = async (formData: {
     submitLoading.value = false;
   }
 };
-
 const handleDeleteConfirm = async () => {
   if (!selectedBankAccount.value) return;
 
@@ -209,15 +213,13 @@ const handleDeleteConfirm = async () => {
       row-key="id"
       @change="handleTableChange"
     >
-      <!-- Vendor Name Column -->
-      <template #vendor_id="{ record }">
-        {{ record.vendor?.name || record.vendor_id }}
+      <!-- <template #vendor="{ record }">
+        {{ record.vendor }}
       </template>
 
-      <!-- Currency Column -->
       <template #currency_id="{ record }">
         {{ record.currency_id }}
-      </template>
+      </template> -->
 
       <!-- Is Selected Column -->
       <template #is_selected="{ record }">

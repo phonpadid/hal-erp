@@ -9,7 +9,7 @@ import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 
 export class ApiVendorsBankAccountsRepository implements VendorsBankAccountsRepository {
-  private readonly baseUrl = "/vendors-bank-accounts";
+  private readonly baseUrl = "/vendor_bank_accounts";
 
   async findAll(
     params: PaginationParams,
@@ -68,7 +68,9 @@ export class ApiVendorsBankAccountsRepository implements VendorsBankAccountsRepo
     }
   }
 
-  async create(vendorsBankData: CreateVendorBankAccountInterface): Promise<VendorsBankAccountEntity> {
+  async create(
+    vendorsBankData: CreateVendorBankAccountInterface
+  ): Promise<VendorsBankAccountEntity> {
     try {
       const response = await api.post(this.baseUrl, vendorsBankData);
       return this.toDomainModel(response.data.data);
@@ -106,11 +108,30 @@ export class ApiVendorsBankAccountsRepository implements VendorsBankAccountsRepo
       vendors.currency_id.toString(),
       vendors.bank_name,
       vendors.account_name,
-      vendors.bank_account_number,
+      vendors.account_number,
       vendors.is_selected || false,
       vendors.created_at || "",
       vendors.updated_at || "",
-      vendors.deleted_at || null
+      vendors.deleted_at || null,
+      vendors.vendor
+        ? {
+            id: vendors.vendor.id,
+            name: vendors.vendor.name,
+            contact_info: vendors.vendor.contact_info,
+            created_at: vendors.vendor.created_at,
+            updated_at: vendors.vendor.updated_at,
+          }
+        : undefined,
+      // เพิ่ม currency object
+      vendors.currency
+        ? {
+            id: vendors.currency.id,
+            code: vendors.currency.code,
+            name: vendors.currency.name,
+            created_at: vendors.currency.created_at,
+            updated_at: vendors.currency.updated_at,
+          }
+        : null
     );
   }
 

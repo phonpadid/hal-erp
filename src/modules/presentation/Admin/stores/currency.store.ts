@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 import type { Ref } from "vue";

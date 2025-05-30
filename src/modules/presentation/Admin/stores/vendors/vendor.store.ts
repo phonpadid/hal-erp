@@ -10,11 +10,27 @@ import type { VendorsEntity } from "@/modules/domain/entities/vendors/vendor/ven
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { VendorServiceImpl } from "@/modules/application/services/vendors/vendor/vendor.service";
 import { ApiVendorsRepository } from "@/modules/infrastructure/vendors/api-vendor.repository";
+import type { VendorsBankAccountEntity } from "@/modules/domain/entities/vendors/vendor_bank_accounts/vendors-bank-accounts.entities";
 
 // Create vendor service instance
 const createVendorService = () => {
   const vendorRepository = new ApiVendorsRepository();
   return new VendorServiceImpl(vendorRepository);
+};
+const bankAccountToSimpleObject = (
+  bankAccount: VendorsBankAccountEntity
+): {
+  currency_id: number;
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+} => {
+  return {
+    currency_id: Number(bankAccount.getcurrency_id()),
+    bank_name: bankAccount.getBankName(),
+    account_name: bankAccount.getAccountName(),
+    account_number: bankAccount.getAccountNumber(),
+  };
 };
 
 export const useVendorStore = defineStore("vendor", () => {
@@ -144,8 +160,9 @@ export const useVendorStore = defineStore("vendor", () => {
     }
   };
 
-  // Helper function to convert Entity to Interface
   const vendorEntityToInterface = (vendor: VendorsEntity): VendorInterface => {
+    const bankAccounts = vendor.getVendorBankAccount() || [];
+
     return {
       id: vendor.getId(),
       name: vendor.getname(),
@@ -153,9 +170,12 @@ export const useVendorStore = defineStore("vendor", () => {
       created_at: vendor.getcreated_at(),
       updated_at: vendor.getupdated_at(),
       deleted_at: vendor.getdeleted_at(),
+
+      vendor_bank_account: Array.isArray(bankAccounts)
+        ? bankAccounts.map(bankAccountToSimpleObject)
+        : [],
     };
   };
-
   // Reset state
   const resetState = () => {
     vendors.value = [];
