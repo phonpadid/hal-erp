@@ -129,6 +129,17 @@ export const menuItems: ItemType[] = reactive([
           ]),
       },
       {
+        key: "budget_apv_rule.index",
+        label: "ຜູ້ຮັບຜິດຊອບ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "mdi:account-check",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
         key: "currencies.index",
         label: "ສະກຸນເງິນ",
         icon: () =>

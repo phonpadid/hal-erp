@@ -15,6 +15,7 @@ import { vendorsRoutes } from "@/modules/presentation/Admin/router/vendors/vendo
 import { vendorsBanksRoutes } from "@/modules/presentation/Admin/router/vendors/vendorBankAccountRoutes";
 
 import { currencyRoutes } from "@/modules/presentation/Admin/router/currencies.routers";
+import { budgetApvRuleRoutes } from "@/modules/presentation/Admin/router/budget-apv-rule.routers";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -36,7 +37,8 @@ const routes: RouteRecordRaw[] = [
       ...vendorsRoutes,
       ...vendorsBanksRoutes,
       ... userApprovalRoutes,
-      ...currencyRoutes
+      ...currencyRoutes,
+      ...budgetApvRuleRoutes
 
     ],
   },
