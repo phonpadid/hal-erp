@@ -15,14 +15,14 @@ import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { dpmRules } from "./validation/department.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-
+const search = ref<string>("");
 const { t } = useI18n();
 // Initialize the unit store
 const dpmStore = departmentStore();
 // departments data that will be displayed (from API or mock)
 const department = ref<DepartmentApiModel[]>([]);
 const useRealApi = ref<boolean>(true); // Toggle between mock and real API
-const {success} = useNotification()
+const { success } = useNotification();
 // Form related
 const formRef = ref();
 const createModalVisible = ref<boolean>(false);
@@ -73,6 +73,36 @@ const loadDpm = async (): Promise<void> => {
   }
 };
 
+//search
+const handleSearch = async () => {
+  try {
+    loading.value = true;
+    const result = await dpmStore.fetchDepartment({
+      page: 1,
+      limit: dpmStore.pagination.limit,
+      search: search.value,
+    });
+
+    department.value = result.data.map((department: DepartmentEntity) => ({
+      id: Number(department.getId()),
+      name: department.getName(),
+      code: department.getCode(),
+      createdAt: department.getCreatedAt(),
+      updatedAt: department.getUpdatedAt(),
+    }));
+
+    // Optional: Update pagination
+    dpmStore.setPagination({
+      page: 1,
+      limit: dpmStore.pagination.limit,
+      total: dpmStore.pagination.total,
+    });
+  } catch (error) {
+    console.error("Search failed:", error);
+  } finally {
+    loading.value = false;
+  }
+};
 // CRUD operations
 const showCreateModal = (): void => {
   formModel.name = "";
@@ -101,7 +131,7 @@ const handleCreate = async (): Promise<void> => {
       name: formModel.name,
       code: formModel.code,
     });
-    success(t('departments.notify.created'))
+    success(t("departments.notify.created"));
     await loadDpm(); // Refresh the list
     createModalVisible.value = false;
     formModel.name = "";
@@ -125,7 +155,7 @@ const handleEdit = async (): Promise<void> => {
         name: formModel.name,
         code: formModel.code,
       });
-      success(t('departments.notify.update'))
+      success(t("departments.notify.update"));
       await loadDpm();
     }
 
@@ -145,7 +175,7 @@ const handleDelete = async (): Promise<void> => {
     // Use API to delete
     const id = selectedDpm.value.id.toString();
     await dpmStore.deleteDepartment(id);
-    success(t('departments.notify.delete'))
+    success(t("departments.notify.delete"));
     await loadDpm(); // Refresh the list
   } catch (error) {
     console.error("Delete failed:", error);
@@ -157,8 +187,9 @@ const handleDelete = async (): Promise<void> => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleTableChange = async (pagination: any) => {
   dpmStore.setPagination({
-    page: pagination.current,
+    page: pagination.current | 1,
     limit: pagination.pageSize,
+    total: pagination.total,
   });
   await loadDpm();
 };
@@ -172,7 +203,11 @@ const handleTableChange = async (pagination: any) => {
       </h1>
       <div class="flex justify-between gap-20">
         <div class="w-[20rem]">
-          <InputSearch :placeholder="t('departments.dpm.placeholder.search')" />
+          <InputSearch
+            v-model:value="search"
+            @change="handleSearch"
+            :placeholder="t('departments.dpm.placeholder.search')"
+          />
         </div>
         <UiButton
           type="primary"
@@ -233,11 +268,25 @@ const handleTableChange = async (pagination: any) => {
       :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
-        <UiFormItem :label="t('departments.dpm.field.code')" name="code" required>
-          <UiInput v-model="formModel.code" :placeholder="t('departments.dpm.placeholder.code')" />
+        <UiFormItem
+          :label="t('departments.dpm.field.code')"
+          name="code"
+          required
+        >
+          <UiInput
+            v-model="formModel.code"
+            :placeholder="t('departments.dpm.placeholder.code')"
+          />
         </UiFormItem>
-        <UiFormItem :label="t('departments.dpm.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('departments.dpm.placeholder.name')" />
+        <UiFormItem
+          :label="t('departments.dpm.field.name')"
+          name="name"
+          required
+        >
+          <UiInput
+            v-model="formModel.name"
+            :placeholder="t('departments.dpm.placeholder.name')"
+          />
         </UiFormItem>
       </UiForm>
     </UiModal>
@@ -254,11 +303,25 @@ const handleTableChange = async (pagination: any) => {
       :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
-        <UiFormItem :label="t('departments.dpm.field.code')" name="code" required>
-          <UiInput v-model="formModel.code" :placeholder="t('departments.dpm.placeholder.code')" />
+        <UiFormItem
+          :label="t('departments.dpm.field.code')"
+          name="code"
+          required
+        >
+          <UiInput
+            v-model="formModel.code"
+            :placeholder="t('departments.dpm.placeholder.code')"
+          />
         </UiFormItem>
-        <UiFormItem :label="t('departments.dpm.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('departments.dpm.placeholder.name')" />
+        <UiFormItem
+          :label="t('departments.dpm.field.name')"
+          name="name"
+          required
+        >
+          <UiInput
+            v-model="formModel.name"
+            :placeholder="t('departments.dpm.placeholder.name')"
+          />
         </UiFormItem>
       </UiForm>
     </UiModal>

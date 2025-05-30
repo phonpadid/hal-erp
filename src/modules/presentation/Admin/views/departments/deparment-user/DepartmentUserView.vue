@@ -11,6 +11,7 @@ import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { useRouter } from "vue-router";
 import { departmenUsertStore } from "../../../stores/departments/department-user.store";
+// import type { DepartmentUserEntity } from "@/modules/domain/entities/departments/department-user.entity";
 const { t } = useI18n();
 const dpmUserStore = departmenUsertStore()
 // Initialize the unit store
@@ -30,27 +31,27 @@ onMounted(async () => {
 
 const loadDpm = async (): Promise<void> => {
   // if (useRealApi.value) {
-  //   try {
-  //     loading.value = true;
-  //     const result = await dpmStore.fetchDepartment();
+    // try {
+    //   loading.value = true;
+    //   const result = await dpmUserStore.fetchDepartmentUser();
 
-  //     department.value = result.data.map((dpm: any) => {
-  //       return {
-  //         id: dpm.id ? parseInt(dpm.id) : 0,
-  //         name: dpm.name || "",
-  //         code: dpm.code || "",
-  //         createdAt: dpm.createdAt || "",
-  //         updatedAt: dpm.updatedAt || "",
-  //       };
-  //     });
+    //   department.value = result.data.map((dpm: DepartmentUserEntity) => {
+    //     return {
+    //       id: dpm.id ? parseInt(dpm.id) : 0,
+    //       name: dpm.name || "",
+    //       code: dpm.code || "",
+    //       createdAt: dpm.createdAt || "",
+    //       updatedAt: dpm.updatedAt || "",
+    //     };
+    //   });
 
-  //     console.log("Department data loaded:", department.value);
-  //   } catch (error) {
-  //     console.error("Failed to fetch department from API:", error);
-  //     department.value = [...dataDpm.value];
-  //   } finally {
-  //     loading.value = false;
-  //   }
+    //   console.log("Department data loaded:", department.value);
+    // } catch (error) {
+    //   console.error("Failed to fetch department from API:", error);
+    //   // department.value = [...dataDpm.value];
+    // } finally {
+    //   loading.value = false;
+    // }
   // } else {
   department.value = [...dataDpmUser.value];
   // }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -55,6 +55,8 @@ const currenciesList = async (): Promise<void> => {
       };
     });
   } catch (error: any) {
+    console.log(error);
+
     // currencies.value = [...dat.value];
   } finally {
     loading.value = false;
@@ -141,11 +143,9 @@ const handleCreate = async (): Promise<void> => {
     notify.success(t("currency.notify.created")); // ✅ This line should now run
     await currenciesList(); // ✅ Refresh list
     createModalVisible.value = false; // ✅ Close modal
-    formModel.name = "";
-    formModel.code = "";
+
   } catch (error) {
     console.log(error);
-
   } finally {
     loading.value = false;
   }
@@ -195,12 +195,25 @@ const handleDelete = async (): Promise<void> => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleTableChange = async (pagination: any) => {
   store.setPagination({
-    page: pagination.current,
-    limit: pagination.pageSize,
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
     total: pagination.total,
   });
   await currenciesList();
 };
+watch(createModalVisible, (visible) => {
+  if (!visible) {
+    formState.value = {
+      addMore: [
+        {
+          code: "",
+          name: "",
+        },
+      ],
+    };
+    formRef.value?.resetFields(); // Optional: reset form validation state
+  }
+});
 </script>
 
 <template>
@@ -226,9 +239,10 @@ const handleTableChange = async (pagination: any) => {
           {{ $t("currency.add") }}
         </UiButton>
       </div>
-      <div class="total-item mt-2 text-slate-700">
+      <div class="total-item mt-4 text-slate-700">
         <a-tag color="red"
-          >{{ t('currency.total') }}: {{ store.pagination.total }} {{ t('currency.currency') }}</a-tag
+          >{{ t("currency.total") }}: {{ store.pagination.total }}
+          {{ t("currency.currency") }}</a-tag
         >
       </div>
     </div>
@@ -240,7 +254,7 @@ const handleTableChange = async (pagination: any) => {
       :pagination="{
         current: store.pagination.page,
         pageSize: store.pagination.limit,
-        total: store.pagination.total,
+        total: store.pagination.total
       }"
       row-key="id"
       :loading="store.loading"
@@ -323,7 +337,7 @@ const handleTableChange = async (pagination: any) => {
               type="primary"
               size="small"
               icon="ant-design:minus-outlined"
-              v-if="index !== 0"
+              :disabled="index === 0"
               @click="removeMore(index)"
               colorClass="flex items-center"
             />
@@ -344,21 +358,13 @@ const handleTableChange = async (pagination: any) => {
       :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="currencyRules(t)">
-        <UiFormItem
-          :label="t('currency.field.code')"
-          name="code"
-          required
-        >
+        <UiFormItem :label="t('currency.field.code')" name="code" required>
           <UiInput
             v-model="formModel.code"
             :placeholder="t('currency.placeholder.code')"
           />
         </UiFormItem>
-        <UiFormItem
-          :label="t('currency.field.name')"
-          name="name"
-          required
-        >
+        <UiFormItem :label="t('currency.field.name')" name="name" required>
           <UiInput
             v-model="formModel.name"
             :placeholder="t('currency.placeholder.name')"
@@ -379,9 +385,7 @@ const handleTableChange = async (pagination: any) => {
       :cancelText="t('button.cancel')"
       okType="primary"
     >
-      <p>
-        {{ $t("currency.alert.message") }}: "{{ selectedCurrency?.name }}"?
-      </p>
+      <p>{{ $t("currency.alert.message") }}: "{{ selectedCurrency?.name }}"?</p>
       <p class="text-red-500">
         {{ t("currency.alert.remark") }}
       </p>

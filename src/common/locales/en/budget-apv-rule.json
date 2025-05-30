@@ -1,0 +1,41 @@
+{
+    "notify": {
+        "created": "Info created successfully",
+        "update": "Info updated successfully",
+        "delete": "Info deleted successfully"
+    },
+    "alert": {
+        "confirm": "Confirm deletion",
+        "message": "Are you sure you want to delete this data",
+        "remark": "This action cannot be undone once you have confirmed it."
+    },
+    "title": "Budget approval rules informations",
+    "total": "Total",
+    "item": "items",
+    "add": "Add Budget approval rule",
+    "header_form": {
+        "add": "Budget approval rule creation form",
+        "edit": "Budget approval rule update form"
+    },
+    "placeholder": {
+        "search": "Search information",
+        "user": "Select for a user",
+        "department": "Select for a department"
+    },
+    "error": {
+        "department": "Please select a department",
+        "user": "Please select a user",
+        "max": "Please enter max amount",
+        "min": "Please enter min amount",
+        "max_cannot_min": "cannot be less than"
+    },
+    "field": {
+        "department": "Departments",
+        "user": "Users",
+        "min": "Min amount",
+        "max": "Max amount",
+        "created": "Created At",
+        "updated": "Updated At",
+        "manege": "Manage"
+    }
+}
