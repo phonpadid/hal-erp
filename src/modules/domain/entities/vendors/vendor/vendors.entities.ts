@@ -1,7 +1,10 @@
+import type { VendorsBankAccountEntity } from "../vendor_bank_accounts/vendors-bank-accounts.entities";
+
 export class VendorsEntity {
   private id: string;
   private name: string;
   private contact_info: string;
+  private vendor_bank_account: VendorsBankAccountEntity[];
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
@@ -10,6 +13,7 @@ export class VendorsEntity {
     id: string,
     name: string,
     contact_info: string,
+    vendor_bank_account: VendorsBankAccountEntity[],
     created_at: string,
     updated_at: string,
     deleted_at: string | null = null
@@ -17,6 +21,7 @@ export class VendorsEntity {
     this.id = id;
     this.name = name;
     this.contact_info = contact_info;
+    this.vendor_bank_account = vendor_bank_account;
     this.created_at = created_at;
     this.updated_at = updated_at;
     this.deleted_at = deleted_at;
@@ -24,6 +29,10 @@ export class VendorsEntity {
 
   public getId(): string {
     return this.id;
+  }
+
+  public getVendorBankAccount(): VendorsBankAccountEntity[] {
+    return this.vendor_bank_account;
   }
 
   public getname(): string {
@@ -54,6 +63,10 @@ export class VendorsEntity {
     this.name = name;
     this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
+  public updateVendorBankAccount(bankAccounts: VendorsBankAccountEntity[]): void {
+    this.vendor_bank_account = bankAccounts;
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
+  }
 
   public updatecontact_info(contact_info: string): void {
     this.contact_info = contact_info;
@@ -70,8 +83,13 @@ export class VendorsEntity {
     this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
-  public static create(id: string, name: string, contact_info: string): VendorsEntity {
+  public static create(
+    id: string,
+    name: string,
+    contact_info: string,
+    vendor_bank_account: VendorsBankAccountEntity[] = []
+  ): VendorsEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-    return new VendorsEntity(id, name, contact_info, now, now, null);
+    return new VendorsEntity(id, name, contact_info, vendor_bank_account, now, now, null);
   }
 }

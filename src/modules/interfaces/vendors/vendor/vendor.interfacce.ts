@@ -2,6 +2,12 @@ export interface VendorInterface {
   id: string;
   name: string;
   contact_info: string;
+  vendor_bank_account: {
+    currency_id: number;
+    bank_name: string;
+    account_name: string;
+    account_number: string;
+  }[];
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;

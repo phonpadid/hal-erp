@@ -1,9 +1,18 @@
+// import type { Position } from "../position.entities"
+// import type { UserEntity } from "../user.entities"
+// import type { DepartmentEntity } from "./department.entity"
+
 export class DepartmentUserEntity {
   private id: string
   private department_id: string
   private position_id: string
   private user_id: string
   private signature_file: string | File
+  // private department: DepartmentEntity | null
+  // private position: Position | null
+  // private user: UserEntity | null
+
+
   private createdAt: Date
   private updatedAt: Date
   private deletedAt: Date | null

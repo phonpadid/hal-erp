@@ -15,7 +15,18 @@
     "name": "Name",
     "namePlaceholder": "Enter vendor name",
     "contactInfo": "Contact Information",
-    "contactInfoPlaceholder": "Enter contact information"
+    "contactInfoPlaceholder": "Enter contact information",
+    "bankAccounts": "Add Bank Accounts",
+    "addBankAccount": "Add Bank Account",
+    "currency": "Currency",
+    "currencyPlaceholder": "Select Currency",
+    "bankName": "Bank Name",
+    "bankNamePlaceholder": "Enter Bank Name",
+    "accountName": "Account Name",
+    "accountNamePlaceholder": "Enter Account Name",
+    "accountNumber": "Account Number",
+    "accountNumberPlaceholder": "Enter Account Number",
+    "completeBankAccount": " Bank account added successfully"
   },
   "modal": {
     "create": "Add Vendor",

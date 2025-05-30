@@ -202,6 +202,18 @@ onMounted(async () => {
     signatureFile.value = dpmUserFormModel.signature_file;
   }
 });
+const props = defineProps<{
+  visible: boolean;
+}>();
+watch(
+  () => props.visible,
+  (newVal, oldVal) => {
+    if (!newVal && oldVal) {
+      dpmUserStore.resetForm();
+      formRef.value?.resetFields?.(); // Also reset UIForm if it supports it
+    }
+  }
+);
 </script>
 
 <template>

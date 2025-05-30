@@ -1,7 +1,7 @@
-export interface VendorVankAccountInterface {
+export interface VendorBankAccountInterface {
   id: string;
   vendor_id: string;
-  currency_id: string;
+  currency_id: string | number;
   bank_name: string;
   account_name: string;
   account_number: string;
@@ -11,16 +11,16 @@ export interface VendorVankAccountInterface {
   deleted_at: string | null;
 }
 export interface CreateVendorBankAccountInterface {
-  vendor_id: string;
-  currency_id: string;
+  vendor_id: string | number;
+  currency_id: string | number;
   bank_name: string;
   account_name: string;
   account_number: string;
   is_selected?: boolean;
 }
 export interface UpdateVendorBankAccountInterface {
-  vendor_id?: string;
-  currency_id?: string;
+  vendor_id?: number | string;
+  currency_id?: string | number;
   bank_name?: string;
   account_name?: string;
   account_number?: string;

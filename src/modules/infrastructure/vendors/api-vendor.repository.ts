@@ -26,15 +26,21 @@ export class ApiVendorsRepository implements VendorsRepository {
           include_deleted: includeDeleted,
         },
       });
+
+      // ตรวจสอบว่ามีข้อมูลและ pagination
+      if (!response.data || !response.data.data || !response.data.pagination) {
+        throw new Error("Invalid response format from API");
+      }
+
       return {
-        data: response.data.data.map((vendors: unknown) => this.toDomainModel(vendors)),
-        total: response.data.total,
-        page: response.data.page,
-        limit: response.data.limit,
-        totalPages: Math.ceil(response.data.total / response.data.limit),
+        data: response.data.data.map((vendor: unknown) => this.toDomainModel(vendor)),
+        total: response.data.pagination.total,
+        page: response.data.pagination.page,
+        limit: response.data.pagination.limit,
+        totalPages: response.data.pagination.total_pages,
       };
     } catch (error) {
-      this.handleApiError(error, "Failed to fetch vendorss list");
+      this.handleApiError(error, "Failed to fetch vendors list");
     }
   }
 
@@ -101,6 +107,7 @@ export class ApiVendorsRepository implements VendorsRepository {
       vendors.id.toString(),
       vendors.name,
       vendors.contact_info,
+      vendors.vendor_bank_account || [],
       vendors.created_at || "",
       vendors.updated_at || "",
       vendors.deleted_at || null
@@ -108,18 +115,33 @@ export class ApiVendorsRepository implements VendorsRepository {
   }
 
   private handleApiError(error: unknown, defaultMessage: string): never {
-    const axiosError = error as AxiosError<{ message?: string }>;
+    console.error("API Error Details:", error); 
+
+    const axiosError = error as AxiosError<{
+      message?: string;
+      status_code?: number;
+    }>;
 
     if (axiosError.response) {
       const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
+      const errorCode = axiosError.response.data?.status_code;
+
+      console.error("Response Error:", {
+        statusCode,
+        serverMessage,
+        errorCode,
+        data: axiosError.response.data,
+      });
 
       throw new Error(`API Error (${statusCode}): ${serverMessage}`);
     } else if (axiosError.request) {
+      console.error("Request Error:", axiosError.request);
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`
       );
     } else {
+      console.error("Unknown Error:", error);
       throw new Error(`${defaultMessage}: ${(error as Error).message || "Unknown error"}`);
     }
   }

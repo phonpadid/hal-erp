@@ -31,9 +31,10 @@ export const departmentStore = defineStore("department", () => {
     totalPages: 0,
   });
 
-  const setPagination = (newPagination: { page: number; limit: number }) => {
+  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
     pagination.value.page = newPagination.page;
     pagination.value.limit = newPagination.limit;
+    pagination.value.total = newPagination.total;
   };
 
   // Getters

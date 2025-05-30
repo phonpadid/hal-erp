@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 import type { Ref } from "vue";
@@ -41,8 +42,8 @@ export const currencyStore = defineStore("currency-store", () => {
   });
 
   const setPagination = (newPagination: { page: number; limit: number , total: number }) => {
-    pagination.value.page = newPagination.page;
-    pagination.value.limit = newPagination.limit;
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
     pagination.value.total = newPagination.total;
   };
 
