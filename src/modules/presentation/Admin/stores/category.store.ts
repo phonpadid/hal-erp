@@ -31,6 +31,12 @@ export const useCategoryStore = defineStore("category", () => {
   const totalActiveCategories = computed(() => activeCategories.value.length);
   const totalDeletedCategories = computed(() => deletedCategories.value.length);
 
+  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
+    pagination.value.page = newPagination.page;
+    pagination.value.limit = newPagination.limit;
+    pagination.value.total = newPagination.total;
+  };
+
   const createCategory = async (data: CreateCategoryDTO) => {
     loading.value = true;
     error.value = null;
@@ -224,5 +230,6 @@ export const useCategoryStore = defineStore("category", () => {
     searchCategoriesByName,
     getCategoryByName,
     resetState,
+    setPagination,
   };
 });
