@@ -1,4 +1,4 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig, type AxiosRequestHeaders } from "axios";
 import { Modal } from "ant-design-vue";
 
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
@@ -11,26 +11,31 @@ const authAxios = axios.create({
   },
 });
 
-function addHeaders(config?: AxiosRequestConfig, data?: unknown): AxiosRequestConfig {
-  const token = localStorage.getItem("access_token") || null;
+authAxios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken") || null;
 
-  if (!config) config = {};
-  if (!config.headers) config.headers = {};
+    if (!config.headers) config.headers = {} as AxiosRequestHeaders;
 
-  if (token) {
-    config.headers["Authorization"] = `Bearer ${token}`;
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    // ตรวจสอบประเภทข้อมูลจาก data ของ request
+    if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
+      config.headers["Content-Type"] = "application/json";
+    } else if (config.data instanceof FormData) {
+      config.headers["Content-Type"] = "multipart/form-data";
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  if (data && typeof data === "object" && !(data instanceof FormData)) {
-    config.headers["Content-Type"] = "application/json";
-  } else {
-    config.headers["Content-Type"] = "multipart/form-data";
-  }
-
-  return config;
-}
-
-// ✅ Interceptor จัดการ Response Error
+// ✅ Interceptor จัดการ Response Error (คงเดิม)
 authAxios.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -86,39 +91,28 @@ authAxios.interceptors.response.use(
   }
 );
 
+// ✅ ปรับปรุง API wrapper โดยไม่ต้องใช้ addHeaders อีกต่อไป
 export const authApi = {
   async post(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return await authAxios.post(
-      url.startsWith("/") ? url : `/${url}`,
-      data,
-      addHeaders(config, data)
-    );
+    return await authAxios.post(url.startsWith("/") ? url : `/${url}`, data, config);
   },
 };
 
 export const api = {
   async get(url: string, config?: AxiosRequestConfig) {
-    return await authAxios.get(url.startsWith("/") ? url : `/${url}`, addHeaders(config));
+    return await authAxios.get(url.startsWith("/") ? url : `/${url}`, config);
   },
 
   async post(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return await authAxios.post(
-      url.startsWith("/") ? url : `/${url}`,
-      data,
-      addHeaders(config, data)
-    );
+    return await authAxios.post(url.startsWith("/") ? url : `/${url}`, data, config);
   },
 
   async put(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return await authAxios.put(
-      url.startsWith("/") ? url : `/${url}`,
-      data,
-      addHeaders(config, data)
-    );
+    return await authAxios.put(url.startsWith("/") ? url : `/${url}`, data, config);
   },
 
   async delete(url: string, config?: AxiosRequestConfig) {
-    return await authAxios.delete(url.startsWith("/") ? url : `/${url}`, addHeaders(config));
+    return await authAxios.delete(url.startsWith("/") ? url : `/${url}`, config);
   },
 };
 

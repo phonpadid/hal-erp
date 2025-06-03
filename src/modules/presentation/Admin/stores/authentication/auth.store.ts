@@ -35,8 +35,8 @@ export const useAuthStore = defineStore("auth", () => {
       const result = await authService.login(credentials);
       user.value = result;
 
-      // Store token
       localStorage.setItem("accessToken", result.getAccessToken());
+
       // Store user data
       localStorage.setItem(
         "userData",
