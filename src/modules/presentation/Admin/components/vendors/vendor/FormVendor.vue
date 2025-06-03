@@ -5,7 +5,6 @@ import type { VendorInterface } from "@/modules/interfaces/vendors/vendor/vendor
 import { createVendorValidation } from "../../../views/vendors/vendor/validations/vendor.validation";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import { currencyStore } from "@/modules/presentation/Admin/stores/currency.store";
-import { useNotification } from "@/modules/shared/utils/useNotification";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
@@ -15,7 +14,6 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 const { t } = useI18n();
 const rules = createVendorValidation(t);
 const store = currencyStore();
-const { success } = useNotification();
 
 const props = defineProps<{
   vendor?: VendorInterface | null;
@@ -40,28 +38,8 @@ const emit = defineEmits<{
   (e: "cancel"): void;
 }>();
 
-const validateBankAccount = () => {
-  if (formState.vendor_bank_account.length > 0) {
-    const lastBankAccount = formState.vendor_bank_account[formState.vendor_bank_account.length - 1];
-    if (
-      !lastBankAccount.currency_id ||
-      !lastBankAccount.bank_name ||
-      !lastBankAccount.account_name ||
-      !lastBankAccount.account_number
-    ) {
-      success(
-        (t("vendors.form.completeBankAccount"), t("vendors.form.completeBankAccountMessage"))
-      );
-      return false;
-    }
-  }
-  return true;
-};
+// Modified: Removed validation to allow adding multiple accounts freely
 const addBankAccount = () => {
-  if (!validateBankAccount()) {
-    return;
-  }
-
   formState.vendor_bank_account.push({
     currency_id: undefined as unknown as number,
     bank_name: "",

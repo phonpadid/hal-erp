@@ -41,6 +41,8 @@ export class ApiPermissionRepository implements PermissionRepository {
       data.id.toString(),
       data.name,
       data.display_name,
+      data.type || "all",
+      data.permissions || [],
       data.created_at,
       data.updated_at
     );

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import type { CategoryApiModel } from "@/modules/interfaces/category.interface";
 import { useCategoryStore } from "@/modules/presentation/Admin/stores/category.store";
 import { Category } from "@/modules/domain/entities/categories.entities";
@@ -15,6 +16,7 @@ import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 
 const { success } = useNotification();
+const search = ref<string>("");
 const { t } = useI18n();
 const columns = computed(() => getColumns(t));
 const categoryStore = useCategoryStore();
@@ -35,7 +37,10 @@ onMounted(async () => {
 const loadCategories = async (): Promise<void> => {
   loading.value = true;
   try {
-    const result = await categoryStore.fetchCategories();
+    const result = await categoryStore.fetchCategories({
+      page: categoryStore.pagination.page,
+      limit: categoryStore.pagination.limit,
+    });
     categories.value = result.data.map((category: Category) => ({
       id: parseInt(category.getId()),
       name: category.getName(),
@@ -44,6 +49,41 @@ const loadCategories = async (): Promise<void> => {
     }));
   } catch (error) {
     console.log("error", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleTableChange = async (pagination: any) => {
+  categoryStore.setPagination({
+    page: pagination.current | 1,
+    limit: pagination.pageSize,
+    total: pagination.total,
+  });
+  await loadCategories();
+};
+
+const handleSearch = async () => {
+  loading.value = true;
+  try {
+    const result = await categoryStore.fetchCategories({
+      page: 1,
+      limit: categoryStore.pagination.limit,
+      search: search.value,
+    });
+    categories.value = result.data.map((category: Category) => ({
+      id: parseInt(category.getId()),
+      name: category.getName(),
+      created_at: category.getCreatedAt(),
+      updated_at: category.getUpdatedAt(),
+    }));
+    categoryStore.setPagination({
+      page: 1,
+      limit: categoryStore.pagination.limit,
+      total: categoryStore.pagination.total,
+    });
+  } catch (error) {
+    console.error("Search failed:", error);
   } finally {
     loading.value = false;
   }
@@ -133,22 +173,34 @@ const handleDelete = async (): Promise<void> => {
     console.error("Delete failed:", error);
   } finally {
     loading.value = false;
-  }
+  };
+
 };
 </script>
 
 <template>
   <div class="category-list-container p-6">
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-2xl font-semibold">{{ t("categories.title") }}</h1>
+    <div class="mb-6 gap-4">
+      <h1 class="text-2xl font-semibold">
+        {{ t("categories.title") }}
+      </h1>
+      <div class="flex justify-between gap-20">
+        <div class="w-[20rem]">
+          <InputSearch v-model:value="search" @change="handleSearch"
+            :placeholder="t('categories.placeholder.search')" />
+        </div>
+        <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal"
+          colorClass="flex items-center">
+          {{ t("categories.add") }}
+        </UiButton>
       </div>
-      <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal" colorClass="flex items-center">
-        {{ t("categories.add") }}
-      </UiButton>
     </div>
 
-    <Table :columns="columns" :dataSource="categories" :loading="loading" :pagination="{ pageSize: 10 }" row-key="id">
+    <Table :columns="columns" :dataSource="categories" :pagination="{
+      current: categoryStore.pagination.page,
+      pageSize: categoryStore.pagination.limit,
+      total: categoryStore.pagination.total,
+    }" row-key="id" :loading="categoryStore.loading" @change="handleTableChange">
       <template #actions="{ record }">
         <div class="flex gap-2">
           <UiButton type="" icon="ant-design:edit-outlined" size="small" @click="showEditModal(record)"

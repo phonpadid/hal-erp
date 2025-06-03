@@ -2,16 +2,16 @@ import type { Column } from "@/modules/shared/column/column";
 
 export function columns(t: (key: string) => string): Column[] {
   return [
-    {
-      title: t("vendors_bank.table.vendor"),
-      dataIndex: "vendor.name",
-      key: "vendor",
-    },
-    {
-      title: t("vendors_bank.table.currency"),
-      dataIndex: "currency_id",
-      key: "currency_id",
-    },
+    // {
+    //   title: t("vendors_bank.table.vendor"),
+    //   dataIndex: "vendor",
+    //   key: "vendor",
+    // },
+    // {
+    //   title: t("vendors_bank.table.currency"),
+    //   dataIndex: "currency_id",
+    //   key: "currency_id",
+    // },
     {
       title: t("vendors_bank.table.bankName"),
       dataIndex: "bank_name",

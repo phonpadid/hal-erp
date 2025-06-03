@@ -124,8 +124,32 @@ export const useVendorBankAccountStore = defineStore("vendor-bank-account", () =
       loading.value = false;
     }
   };
+  const toggleBankAccountSelection = async (id: string, isSelected: boolean) => {
+    loading.value = true;
+    error.value = null;
 
-  // ลบบัญชีธนาคาร (soft delete)
+    try {
+      const updatedAccount = await bankAccountService.toggleVendorsBankAccountSelection(
+        id,
+        isSelected
+      );
+      const index = bankAccounts.value.findIndex((a) => a.getId() === id);
+      if (index !== -1) {
+        bankAccounts.value[index] = updatedAccount;
+      }
+      if (currentBankAccount.value && currentBankAccount.value.getId() === id) {
+        currentBankAccount.value = updatedAccount;
+      }
+
+      return bankAccountEntityToInterface(updatedAccount);
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const deleteBankAccount = async (id: string) => {
     loading.value = true;
     error.value = null;
@@ -165,7 +189,6 @@ export const useVendorBankAccountStore = defineStore("vendor-bank-account", () =
     };
   };
 
-  // รีเซ็ต state ทั้งหมด
   const resetState = () => {
     bankAccounts.value = [];
     currentBankAccount.value = null;
@@ -178,7 +201,6 @@ export const useVendorBankAccountStore = defineStore("vendor-bank-account", () =
     };
   };
 
-  // ส่งออก functions และ state ที่ต้องการใช้งาน
   return {
     // State
     bankAccounts,
@@ -200,5 +222,6 @@ export const useVendorBankAccountStore = defineStore("vendor-bank-account", () =
     updateBankAccount,
     deleteBankAccount,
     resetState,
+    toggleBankAccountSelection,
   };
 });
