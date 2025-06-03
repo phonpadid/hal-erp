@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import type { UnitApiModel } from "@/modules/interfaces/unit.interface";
 import { useUnitStore } from "@/modules/presentation/Admin/stores/unit.store";
 import { Unit } from "@/modules/domain/entities/unit.entities";
@@ -15,6 +16,7 @@ import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 
 const { success } = useNotification();
+const search = ref<string>("");
 const { t } = useI18n();
 const columns = computed(() => getColumns(t));
 const unitStore = useUnitStore();
@@ -33,7 +35,10 @@ onMounted(async () => {
 const loadUnits = async (): Promise<void> => {
   loading.value = true;
   try {
-    const result = await unitStore.fetchUnits();
+    const result = await unitStore.fetchUnits({
+      page: unitStore.pagination.page,
+      limit: unitStore.pagination.limit,
+    });
     units.value = result.data.map((unit: Unit) => ({
       id: parseInt(unit.getId()),
       name: unit.getName(),
@@ -46,6 +51,15 @@ const loadUnits = async (): Promise<void> => {
     loading.value = false;
   }
 };
+
+const handleTableChange = async (pagination: any) => {
+  unitStore.setPagination({
+    page: pagination.current | 1,
+    limit: pagination.pageSize,
+    total: pagination.total,
+  })
+  await loadUnits();
+}
 
 const showCreateModal = (): void => {
   formModel.name = "";
@@ -61,6 +75,32 @@ const showEditModal = (record: UnitApiModel): void => {
 const showDeleteModal = (record: UnitApiModel): void => {
   selectedUnit.value = record;
   deleteModalVisible.value = true;
+};
+
+const handleSearch = async () => {
+  loading.value = true;
+  try {
+    const result = await unitStore.fetchUnits({
+      page: 1,
+      limit: unitStore.pagination.limit,
+      search: search.value,
+    });
+    units.value = result.data.map((unit: Unit) => ({
+      id: parseInt(unit.getId()),
+      name: unit.getName(),
+      created_at: unit.getCreatedAt(),
+      updated_at: unit.getUpdatedAt(),
+    }));
+    unitStore.setPagination({
+      page: 1,
+      limit: unitStore.pagination.limit,
+      total: result.total,
+    });
+  } catch (error) {
+    console.error("Search failed:", error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const handleCreate = async (): Promise<void> => {
@@ -118,16 +158,27 @@ const handleDelete = async (): Promise<void> => {
 
 <template>
   <div class="unit-list-container p-6">
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-2xl font-semibold">{{ t("units.title") }}</h1>
+    <div class="mb-6 gap-4">
+      <h1 class="text-2xl font-semibold">
+        {{ t("categories.title") }}
+      </h1>
+      <div class="flex justify-between gap-20">
+        <div class="w-[20rem]">
+          <InputSearch v-model:value="search" @change="handleSearch"
+            :placeholder="t('categories.placeholder.search')" />
+        </div>
+        <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal"
+          colorClass="flex items-center">
+          {{ t("categories.add") }}
+        </UiButton>
       </div>
-      <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal" colorClass="flex items-center">
-        {{ t("units.add") }}
-      </UiButton>
     </div>
 
-    <Table :columns="columns" :dataSource="units" :loading="loading" :pagination="{ pageSize: 10 }" row-key="id">
+    <Table :columns="columns" :dataSource="units" :pagination="{
+      current: unitStore.pagination.page,
+      pageSize: unitStore.pagination.limit,
+      total: unitStore.pagination.total,
+    }" row-key="id" :loading="unitStore.loading" @change="handleTableChange">
       <template #actions="{ record }">
         <div class="flex gap-2">
           <UiButton type="" icon="ant-design:edit-outlined" size="small" @click="showEditModal(record)"

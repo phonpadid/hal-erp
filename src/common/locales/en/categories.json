@@ -11,7 +11,8 @@
     }
   },
   "placeholder": {
-    "name": "Please enter category name"
+    "name": "Please enter category name",
+    "search": "Search by category name"
   },
   "error": {
     "name": "Please enter category name"

@@ -11,7 +11,8 @@
     }
   },
   "placeholder": {
-    "name": "Please enter unit name"
+    "name": "Please enter unit name",
+    "search": "Search by unit name"
   },
   "error": {
     "name": "Please enter unit name"
