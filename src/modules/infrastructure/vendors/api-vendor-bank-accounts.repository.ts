@@ -91,6 +91,17 @@ export class ApiVendorsBankAccountsRepository implements VendorsBankAccountsRepo
     }
   }
 
+  async toggleIsSelected(id: string, isSelected: boolean): Promise<VendorsBankAccountEntity> {
+    try {
+      const response = await api.put(`${this.baseUrl}/use/${id}`, {
+        is_selected: isSelected,
+      });
+      return this.toDomainModel(response.data.data);
+    } catch (error) {
+      this.handleApiError(error, `Failed to toggle selection for bank account with id ${id}`);
+    }
+  }
+
   async delete(id: string): Promise<boolean> {
     try {
       await api.delete(`${this.baseUrl}/${id}`);
@@ -122,7 +133,6 @@ export class ApiVendorsBankAccountsRepository implements VendorsBankAccountsRepo
             updated_at: vendors.vendor.updated_at,
           }
         : undefined,
-      // เพิ่ม currency object
       vendors.currency
         ? {
             id: vendors.currency.id,

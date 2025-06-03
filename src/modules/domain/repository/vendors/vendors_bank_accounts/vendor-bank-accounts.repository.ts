@@ -18,5 +18,6 @@ export interface VendorsBankAccountsRepository {
     id: string,
     vendorsBankAccountsData: UpdateVendorBankAccountInterface
   ): Promise<VendorsBankAccountEntity>;
+  toggleIsSelected(id: string, isSelected: boolean): Promise<VendorsBankAccountEntity>;
   delete(id: string): Promise<boolean>;
 }
