@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed,watch } from "vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import type { CategoryApiModel } from "@/modules/interfaces/category.interface";
@@ -33,6 +33,12 @@ const formModel = reactive({ name: "" });
 onMounted(async () => {
   await loadCategories();
 });
+
+watch(search, async (newValue) => {
+  if (!newValue) {
+    await loadCategories();
+  }
+})
 
 const loadCategories = async (): Promise<void> => {
   loading.value = true;
@@ -186,7 +192,7 @@ const handleDelete = async (): Promise<void> => {
       </h1>
       <div class="flex justify-between gap-20">
         <div class="w-[20rem]">
-          <InputSearch v-model:value="search" @change="handleSearch"
+          <InputSearch v-model:value="search" @keyup.enter="handleSearch"
             :placeholder="t('categories.placeholder.search')" />
         </div>
         <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal"
