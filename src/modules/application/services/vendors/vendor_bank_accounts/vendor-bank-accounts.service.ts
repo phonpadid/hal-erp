@@ -13,7 +13,9 @@ export interface VendorBankAccountServices {
   ): Promise<PaginatedResult<VendorsBankAccountEntity>>;
   getVendorsBankAccount(id: string): Promise<VendorsBankAccountEntity | null>;
 
-  createVendorsBankAccount(vendorData: CreateVendorBankAccountInterface): Promise<VendorsBankAccountEntity>;
+  createVendorsBankAccount(
+    vendorData: CreateVendorBankAccountInterface
+  ): Promise<VendorsBankAccountEntity>;
   updateVendorsBankAccount(
     id: string,
     vendorData: UpdateVendorBankAccountInterface
@@ -51,6 +53,13 @@ export class VendorBankAccountsServiceImpl implements VendorBankAccountServices 
       throw new Error(`Vendors with id ${id} not found`);
     }
     return await this.vendorsBankAccountRepository.update(id, vendorData);
+  }
+
+  async toggleVendorsBankAccountSelection(
+    id: string,
+    isSelected: boolean
+  ): Promise<VendorsBankAccountEntity> {
+    return this.vendorsBankAccountRepository.toggleIsSelected(id, isSelected);
   }
 
   async deleteVendorsBankAccount(id: string): Promise<boolean> {

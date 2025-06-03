@@ -8,6 +8,7 @@ import { formatDate } from "@/modules/shared/formatdate";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useVendorBankAccountStore } from "@/modules/presentation/Admin/stores/vendors/vendor-bank-accounts.store";
+import Switch from "@/common/shared/components/Switch/Switch.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -160,6 +161,7 @@ const handleFormSubmit = async (formData: {
     submitLoading.value = false;
   }
 };
+
 const handleDeleteConfirm = async () => {
   if (!selectedBankAccount.value) return;
 
@@ -174,6 +176,18 @@ const handleDeleteConfirm = async () => {
     error(t("vendors_bank.error.deleteFailed"));
   } finally {
     submitLoading.value = false;
+  }
+};
+
+const handleToggleIsSelected = async (record: VendorBankAccountInterface) => {
+  try {
+    const newSelectedState = !record.is_selected;
+    await vendorBankAccountStore.toggleBankAccountSelection(record.id, newSelectedState);
+    success(t("vendors_bank.success.title"), t("vendors_bank.success.updated"));
+    await loadBankAccounts();
+  } catch (err) {
+    console.error("Error updating bank account status:", err);
+    error(t("vendors_bank.error.updateFailed"));
   }
 };
 </script>
@@ -213,25 +227,12 @@ const handleDeleteConfirm = async () => {
       row-key="id"
       @change="handleTableChange"
     >
-      <!-- <template #vendor="{ record }">
-        {{ record.vendor }}
-      </template>
-
-      <template #currency_id="{ record }">
-        {{ record.currency_id }}
-      </template> -->
-
       <!-- Is Selected Column -->
       <template #is_selected="{ record }">
-        <a-tag :color="record.is_selected ? 'green' : 'default'">
-          <span>
-            {{
-              record.is_selected
-                ? t("vendors_bank.status.active")
-                : t("vendors_bank.status.inactive")
-            }}</span
-          >
-        </a-tag>
+        <Switch
+          :modelValue="record.is_selected"
+          @update:modelValue="handleToggleIsSelected(record)"
+        />
       </template>
 
       <!-- Date columns -->

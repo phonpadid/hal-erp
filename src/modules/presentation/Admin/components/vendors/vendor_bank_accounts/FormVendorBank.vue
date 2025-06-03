@@ -5,11 +5,11 @@ import type { VendorBankAccountInterface } from "@/modules/interfaces/vendors/ve
 import { createVendorBankAccountValidation } from "@/modules/presentation/Admin/views/vendors/vendor_bank_accounts/validations/vendor-bank-account.validatetion";
 import { useVendorStore } from "@/modules/presentation/Admin/stores/vendors/vendor.store";
 import { currencyStore } from "@/modules/presentation/Admin/stores/currency.store";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import { useNotification } from "@/modules/shared/utils/useNotification";
 
 const { t } = useI18n();
 const vendorStore = useVendorStore();
@@ -88,11 +88,15 @@ const loadCurrencies = async () => {
   try {
     const result = await currencyStoreInstance.fetchCurrencies({
       page: 1,
-      limit: 100, // Load all currencies
+      limit: 100,
     });
+
+    // Fixed: Map directly from the currency object properties
     currencyOptions.value = result.data.map((currency) => ({
-      label: `${currency.getCode()} (${getCurrencySymbol(currency.getCode())})`,
-      value: currency.getId() ?? '',
+      label: `${currency.getCode()} (${currency.getName()}) ${getCurrencySymbol(
+        currency.getCode()
+      )}`,
+      value: currency.getId()?.toString() || "",
     }));
   } catch (err) {
     console.error("Failed to load currencies:", err);
@@ -106,9 +110,15 @@ const getCurrencySymbol = (code: string): string => {
     LAK: "₭",
     USD: "$",
     THB: "฿",
+    EUR: "€",
+    GBP: "£",
+    JPY: "¥",
+    CNY: "¥",
+    KRW: "₩",
+    AUD: "A$",
     // Add more currency symbols as needed
   };
-  return symbols[code] || code;
+  return symbols[code] || "";
 };
 
 // Watch for bank account changes
@@ -209,7 +219,7 @@ defineExpose({
       />
     </UiFormItem>
 
-    <UiFormItem :label="$t('vendors_bank.form.isSelected')" name="is_selected">
+    <!-- <UiFormItem :label="$t('vendors_bank.form.isSelected')" name="is_selected">
       <a-switch v-model:checked="formState.is_selected" :disabled="loading" />
       <span class="ml-2 text-sm text-gray-500">
         {{
@@ -218,6 +228,6 @@ defineExpose({
             : t("vendors_bank.form.isSelectedInactive")
         }}
       </span>
-    </UiFormItem>
+    </UiFormItem> -->
   </UiForm>
 </template>
