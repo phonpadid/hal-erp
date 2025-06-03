@@ -1,0 +1,39 @@
+{
+    "notify": {
+      "created": "Information created successfully.",
+      "update": "Information updated successfully.",
+      "delete": "Information deleted successfully."
+    },
+    "alert": {
+      "confirm": "Confirm Deletion",
+      "message": "Are you sure you want to delete this information?",
+      "remark": "This action cannot be undone once confirmed."
+    },
+    "title": "Approval Workflow Information",
+    "total": "Total",
+    "item": "items",
+    "add": "Add Approval Workflow",
+    "header_form": {
+      "add": "Approval Workflow Creation Form",
+      "edit": "Approval Workflow Update Form"
+    },
+    "placeholder": {
+      "search": "Search information",
+      "doc_type": "Select a document type",
+      "name": "Enter name"
+    },
+    "error": {
+      "name": "Please enter a name.",
+      "doc_type": "Please select a document type.",
+      "max_name": "Name cannot exceed 255 characters."
+    },
+    "field": {
+      "form_name": "Form Name",
+      "code": "Code",
+      "doc_type": "Document Type",
+      "created": "Created At",
+      "updated": "Updated At",
+      "manege": "Manage"
+    }
+  }
+  

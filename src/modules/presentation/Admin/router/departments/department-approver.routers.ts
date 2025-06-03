@@ -3,7 +3,7 @@ import DepartmentApvView from "../../views/departments/department-approvers/Depa
 
 export const departmentApproverRoutes: RouteRecordRaw[] = [
   {
-    path: "/department_approver",
+    path: "/department-approver",
     name: "department_approver.index",
     component: DepartmentApvView,
     meta: {

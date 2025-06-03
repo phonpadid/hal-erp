@@ -6,10 +6,23 @@ import { ApiDepartmentUserRepository } from "@/modules/infrastructure/department
 import { DepartmentUserEntity } from "@/modules/domain/entities/departments/department-user.entity";
 import { DepartmentUserServiceImpl } from "@/modules/application/services/departments/department-user.service";
 import type { CreateDepartmentUserDTO, UpdateDepartmentUserDTO } from "@/modules/application/dtos/departments/department-user.dto";
+// const userForm = reactive({
+//   id: "",
+//   username: "",
+//   email: "",
+//   password: "",
+//   tel: "",
+//   confirm_password: ""
+// })
 export const dpmUserFormModel = reactive({
-  user_id: "",
+  id: "",
+  username: "",
+  email: "",
+  password: "",
+  tel: "",
+  confirm_password: "",
   position_id: "",
-  department_id: "",
+  permissions: [] as number[],
   signature_file: null as File | string | null,
 })
 // สร้าง unit service
@@ -144,13 +157,17 @@ export const departmenUsertStore = defineStore("department-user", () => {
         if (index !== -1) {
           // Mark as deleted in the local array
           const deletedDpmUser = departmentUser.value[index];
+          const user = deletedDpmUser.getUser();
+          if (!user) return;
           // Here we're simulating a soft delete by manually updating the unit status
           departmentUser.value[index] = new DepartmentUserEntity(
             deletedDpmUser.getId(),
-            deletedDpmUser.getUser_id(),
             deletedDpmUser.getPosition_id(),
-            deletedDpmUser.getdepartment_id(),
             deletedDpmUser.getSignature_file(),
+            deletedDpmUser.getDepartment(),
+            deletedDpmUser.getPostion(),
+            user,
+
             deletedDpmUser.getCreatedAt(),
             new Date(),
             new Date()
@@ -179,12 +196,15 @@ export const departmenUsertStore = defineStore("department-user", () => {
       totalPages: 0,
     };
   };
-const resetForm = () => {
-  dpmUserFormModel.user_id = "",
-  dpmUserFormModel.position_id = "",
-  dpmUserFormModel.department_id = "",
-  dpmUserFormModel.signature_file = null
-}
+  const resetForm = () => {
+    dpmUserFormModel.username = ""
+    dpmUserFormModel.tel = ""
+    dpmUserFormModel.email = ""
+    dpmUserFormModel.password = ""
+    dpmUserFormModel.confirm_password = ""
+    dpmUserFormModel.position_id = ""
+    dpmUserFormModel.signature_file = null
+  }
   return {
     // State
     departmentUser,

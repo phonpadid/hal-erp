@@ -1,5 +1,5 @@
 export const dpmUserRules = (t: (key: string) => string) => ({
-  user_id: [
+  username: [
     {
       required: true,
       message: t("departments.dpm_user.error.user"),
@@ -13,7 +13,28 @@ export const dpmUserRules = (t: (key: string) => string) => ({
       trigger: "blur",
     },
   ],
-  department_id: [
+  email: [
+    {
+      required: true,
+      message: t("departments.dpm_user.error.dpm"),
+      trigger: "blur",
+    },
+  ],
+  tel: [
+    {
+      required: true,
+      message: t("departments.dpm_user.error.dpm"),
+      trigger: "blur",
+    },
+  ],
+  password: [
+    {
+      required: true,
+      message: t("departments.dpm_user.error.dpm"),
+      trigger: "blur",
+    },
+  ],
+  confirm_password: [
     {
       required: true,
       message: t("departments.dpm_user.error.dpm"),
@@ -25,7 +46,8 @@ export const dpmUserRules = (t: (key: string) => string) => ({
       required: true,
       message: t("departments.dpm_user.error.signature"),
       trigger: ["blur", "change"], // Add change trigger for file uploads
-      validator: (rule: any, value: any, callback: Function) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type, @typescript-eslint/no-explicit-any
+      validator: (_rule: any, value: any, callback: Function) => {
         if (!value || value === null || value === undefined) {
           callback(new Error(t("departments.dpm.error.signature_required")));
         } else {

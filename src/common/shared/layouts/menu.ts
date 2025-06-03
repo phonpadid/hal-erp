@@ -9,7 +9,7 @@ function logout() {
     .push({
       name: "login",
     })
-    .catch(() => {});
+    .catch(() => { });
 }
 
 export const menuItems: ItemType[] = reactive([
@@ -85,39 +85,6 @@ export const menuItems: ItemType[] = reactive([
           ]),
       },
       {
-        key: "department.index",
-        label: "ພະແນກ",
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:outline-lan",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "department_user.index",
-        label: "ຜູ້​ໃຊ້​ພະ​ແນກ",
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:outline-lan",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "department_approver.index",
-        label: "ຜູ້​ອະ​ນຸ​ມັດ​ພະ​ແນກ​​",
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:outline-imagesearch-roller",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
         key: "user_approval.index",
         label: "ຜູ້ອະນຸມັດເອກະສານ",
         icon: () =>
@@ -140,6 +107,17 @@ export const menuItems: ItemType[] = reactive([
           ]),
       },
       {
+        key: "approval_workflows.index",
+        label: "ຟອມອະນຸມັດປະເພດເອກະສານ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:docs-outline",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
         key: "currencies.index",
         label: "ສະກຸນເງິນ",
         icon: () =>
@@ -152,6 +130,39 @@ export const menuItems: ItemType[] = reactive([
       },
     ],
 
+    type: "group",
+  },
+  //department group
+  {
+    label: "",
+    children: [
+      { type: "divider" },
+      {
+        key: "120",
+        label: "ຈັດການຂໍ້ມູນພະແນກ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:auto-transmission-outline",
+              class: "text-base",
+            }),
+          ]),
+        children: [
+          {
+            key: "department.index",
+            label: "ຜູ້​ໃຊ້​ພະ​ແນກ",
+          },
+          {
+            key: "department_approver.index",
+            label: "ຜູ້​ອະ​ນຸ​ມັດ​ພະ​ແນກ​​",
+          },
+          {
+            key: "department_user.index",
+            label: "ຜູ້​ໃຊ້​ພະ​ແນກ",
+          },
+        ],
+      },
+    ],
     type: "group",
   },
   {

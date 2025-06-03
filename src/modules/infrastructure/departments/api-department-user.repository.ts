@@ -6,6 +6,12 @@ import type { ApiListResponse } from "@/modules/shared/repondata";
 import type { DepartmentUserRepository } from "@/modules/domain/repository/departments/department-user.repository";
 import { DepartmentUserEntity } from "@/modules/domain/entities/departments/department-user.entity";
 import type { DepartmentUserApiModel } from "@/modules/interfaces/departments/department-user.interface";
+import type { UserInterface } from "@/modules/interfaces/user.interface";
+import { UserEntity } from "@/modules/domain/entities/user.entities";
+import { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
+import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
+import type { PositionApiModel } from "@/modules/interfaces/position.interface";
+import { Position } from "@/modules/domain/entities/position.entities";
 
 export class ApiDepartmentUserRepository implements DepartmentUserRepository {
   async create(input: DepartmentUserEntity): Promise<DepartmentUserEntity> {
@@ -13,26 +19,25 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       // Convert to API model first
       const apiModel = this.toApiModel(input);
       const formData = new FormData();
-      // Add all fields to FormData
-      formData.append('user_id', apiModel.user_id?.toString() || '');
-      formData.append('position_id', apiModel.position_id?.toString() || '');
-      formData.append('department_id', apiModel.department_id?.toString() || '');
-      // Handle file upload
-      if (apiModel.signature_file) {
-        if (apiModel.signature_file instanceof File) {
-          formData.append('signature_file', apiModel.signature_file);
-        } else if (typeof apiModel.signature_file === 'string') {
-          formData.append('signature_file', apiModel.signature_file);
-        }
+      if (apiModel.user) {
+        formData.append('username', apiModel.user.username || '');
+        formData.append('email', apiModel.user.email || '');
+        formData.append('password', apiModel.user.password ?? ''); // fallback to empty string if undefined
+        formData.append('tel', apiModel.user.tel ?? ''); // fallback to empty string if undefined
       }
-      const response = (await api.post("/department-user", formData, {
+      formData.append('position_id', apiModel.position_id ?? '');
+      if (apiModel.signature_file instanceof File) {
+        formData.append('signature_file', apiModel.signature_file);
+      } else if (typeof apiModel.signature_file === 'string') {
+        formData.append('signature_file', apiModel.signature_file);
+      }
+      const response = await api.post("/department-users", formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-        }
-      })) as {
+        },
+      }) as {
         data: ApiResponse<DepartmentUserApiModel>;
       };
-
       return this.toDomainModel(response.data.data);
     } catch (error) {
       return this.handleApiError(error, "Failed to create");
@@ -97,16 +102,40 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     }
   }
 
-  async update(id: string, department: DepartmentUserEntity): Promise<DepartmentUserEntity> {
-    try {
-      const response = (await api.put(`/department-user/${id}`, this.toApiModel(department))) as {
-        data: ApiResponse<DepartmentUserApiModel>;
-      };
-      return this.toDomainModel(response.data.data);
-    } catch (error) {
-      return this.handleApiError(error, `Failed to update unit with id ${department.getId()}`);
+  async update(id: string, input: DepartmentUserEntity): Promise<DepartmentUserEntity> {
+  try {
+    const apiModel = this.toApiModel(input);
+    const formData = new FormData();
+
+    if (apiModel.user) {
+      formData.append('username', apiModel.user.username || '');
+      formData.append('email', apiModel.user.email || '');
+      formData.append('password', apiModel.user.password ?? '');
+      formData.append('tel', apiModel.user.tel ?? '');
     }
+
+    formData.append('position_id', apiModel.position_id ?? '');
+
+    if (apiModel.signature_file instanceof File) {
+      formData.append('signature_file', apiModel.signature_file);
+    } else if (typeof apiModel.signature_file === 'string') {
+      formData.append('signature_file', apiModel.signature_file);
+    }
+
+    const response = await api.put(`/department-user/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }) as {
+      data: ApiResponse<DepartmentUserApiModel>;
+    };
+
+    return this.toDomainModel(response.data.data);
+  } catch (error) {
+    return this.handleApiError(error, `Failed to update department user with id ${id}`);
   }
+}
+
 
   async delete(id: string): Promise<boolean> {
     try {
@@ -118,29 +147,69 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
   }
 
   private toApiModel(dpmUser: DepartmentUserEntity): DepartmentUserApiModel {
+    const user = dpmUser.getUser();
     return {
-      id: parseInt(dpmUser.getId(), 10),
-      user_id: dpmUser.getUser_id(),
+      user: user
+        ? {
+            id: Number(user.getId()), // use a getter if `id` is private
+            username: user.getUsername(),
+            email: user.getEmail(),
+            password: user.getPassword(),
+            tel: user.getTel()
+          }
+        : undefined,
       position_id: dpmUser.getPosition_id(),
       signature_file: dpmUser.getSignature_file(),
-      department_id: dpmUser.getdepartment_id(),
-      created_at: dpmUser.getCreatedAt().toString(),
-      updated_at: dpmUser.getUpdatedAt().toDateString(),
     };
   }
 
+
   private toDomainModel(data: DepartmentUserApiModel): DepartmentUserEntity {
+    if (!data.user) {
+      throw new Error('User is required to construct DepartmentUserEntity');
+    }
     return new DepartmentUserEntity(
-      data.id.toString(),
-      data.department_id || "",
-      data.position_id || "",
-      data.user_id,
-      data.signature_file || "",
-      new Date(data.created_at || new Date()),
-      new Date(data.updated_at || new Date()),
-      null // or: data.deleted_at ? new Date(data.deleted_at) : null
+      data.id ?? '', // ID as string
+      data.position_id ?? '',
+      data.signature_file || '',    // string | File
+      data.department ? this.toDepartmentEntity(data.department) : undefined,
+      data.position ? this.toPositionEntity(data.position) : undefined,   // Position | undefined
+      this.toUserEntity(data.user),       // UserEntity | undefined (should match constructor type)
+      null,
+      null,
+      null
     );
   }
+
+   private toUserEntity(user: UserInterface): UserEntity {
+      return new UserEntity(
+        user.id.toString(),
+        user.username,
+        user.email,
+        user.created_at || "",
+        user.updated_at || "",
+        user.deleted_at || null,
+        user.password,
+        user.tel
+      );
+    }
+    private toDepartmentEntity(departmentData: DepartmentApiModel): DepartmentEntity {
+      return new DepartmentEntity(
+        departmentData.id.toString(),
+        departmentData.name,
+        departmentData.code ?? '',
+        departmentData.created_at ?? '',
+        departmentData.updated_at ?? ''
+      );
+    }
+    private toPositionEntity(position: PositionApiModel): Position {
+      return new Position(
+        position.id.toString(),
+        position.name,
+        position.created_at ?? '',
+        position.updated_at ?? ''
+      );
+    }
 
 
   private handleApiError<T>(error: unknown, defaultMessage: string): T {
