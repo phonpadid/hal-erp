@@ -13,13 +13,11 @@ const emit = defineEmits<{
   (event: "update:modelValue", value: (string | number)[]): void;
 }>();
 
-// ใช้ computed สำหรับ two-way binding
 const selectedValues = computed({
   get: () => props.modelValue || [],
   set: (value) => emit("update:modelValue", value),
 });
 
-// Log ค่าเมื่อมีการเปลี่ยนแปลง modelValue
 watch(
   () => props.modelValue,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -28,11 +26,6 @@ watch(
   },
   { immediate: true, deep: true }
 );
-
-// Log ค่าเมื่อ component mount
-// onMounted(() => {
-//   console.log("CheckboxGroup mounted with values:", props.modelValue);
-// });
 
 const groupedOptions = computed(() => {
   if (!props.groupBy) return { "": props.options };
@@ -48,10 +41,33 @@ const groupedOptions = computed(() => {
   return groups;
 });
 
-// ฟังก์ชันที่ปรับปรุงเพื่อให้การเปรียบเทียบค่าถูกต้องมากขึ้น
+const checkAllState = computed(() => {
+  const result: Record<string, { indeterminate: boolean; checked: boolean }> = {};
+
+  Object.keys(groupedOptions.value).forEach((groupName) => {
+    const options = groupedOptions.value[groupName];
+    const optionValues = options.map((option) => option.value);
+    const selectedCount = optionValues.filter((value) => isSelected(value)).length;
+
+    result[groupName] = {
+      indeterminate: selectedCount > 0 && selectedCount < optionValues.length,
+      checked: selectedCount === optionValues.length && optionValues.length > 0,
+    };
+  });
+
+  const allValues = props.options.map((option) => option.value);
+  const allSelectedCount = allValues.filter((value) => isSelected(value)).length;
+
+  result["all"] = {
+    indeterminate: allSelectedCount > 0 && allSelectedCount < allValues.length,
+    checked: allSelectedCount === allValues.length && allValues.length > 0,
+  };
+
+  return result;
+});
+
 const isSelected = (value: string | number): boolean => {
   return (props.modelValue || []).some((v) => {
-    // แปลงค่าเป็น string เพื่อเปรียบเทียบ
     return String(v) === String(value);
   });
 };
@@ -59,41 +75,86 @@ const isSelected = (value: string | number): boolean => {
 const toggleOption = (value: string | number) => {
   const currentValues = [...(props.modelValue || [])];
 
-  // ใช้ String เพื่อเปรียบเทียบค่า
   const index = currentValues.findIndex((v) => String(v) === String(value));
 
   if (index === -1) {
-    // เพิ่มค่า
     currentValues.push(value);
   } else {
-    // ลบค่า
     currentValues.splice(index, 1);
   }
 
   console.log("After toggle, values:", currentValues);
   emit("update:modelValue", currentValues);
 };
+
+const toggleCheckAll = (groupName: string, checked: boolean) => {
+  let valuesToToggle: (string | number)[] = [];
+
+  if (groupName === "all") {
+    valuesToToggle = props.options.map((option) => option.value);
+  } else {
+    valuesToToggle = groupedOptions.value[groupName].map((option) => option.value);
+  }
+
+  let newValues: (string | number)[];
+
+  if (checked) {
+    const currentValues = new Set(props.modelValue || []);
+    valuesToToggle.forEach((value) => currentValues.add(value));
+    newValues = Array.from(currentValues);
+  } else {
+    const valuesToRemove = new Set(valuesToToggle.map(String));
+    newValues = (props.modelValue || []).filter((value) => !valuesToRemove.has(String(value)));
+  }
+
+  emit("update:modelValue", newValues);
+};
 </script>
 
 <template>
   <!-- For non-grouped options -->
   <div v-if="!props.groupBy">
+    <div class="mb-2">
+      <a-checkbox
+        :checked="checkAllState['all'].checked"
+        :indeterminate="checkAllState['all'].indeterminate"
+        @change="(e:any) => toggleCheckAll('all', e.target.checked)"
+      >
+        ເລືອກທັງໝົດ
+      </a-checkbox>
+    </div>
+    <a-divider />
     <a-checkbox-group :options="props.options" v-model="selectedValues" />
   </div>
 
   <!-- For grouped options -->
   <div v-else class="flex flex-wrap gap-3">
-    <div
-      v-for="(options, groupName) in groupedOptions"
-      :key="groupName"
-      class="w-44"
-    >
-      <h3
-        v-if="groupName"
-        class="block mb-2 text-sm font-medium dark:text-white"
+    <!-- "Check All" for all groups -->
+    <div class="w-full mb-2">
+      <a-checkbox
+        :checked="checkAllState['all'].checked"
+        :indeterminate="checkAllState['all'].indeterminate"
+        @change="(e:any) => toggleCheckAll('all', e.target.checked)"
       >
-        {{ groupName }}
-      </h3>
+        ເລືອກທັງໝົດ
+      </a-checkbox>
+      <a-divider />
+    </div>
+
+    <div v-for="(options, groupName) in groupedOptions" :key="groupName" class="w-44">
+      <div class="mb-2">
+        <h3 v-if="groupName" class="inline-block mr-2 text-sm font-medium dark:text-white">
+          {{ groupName }}
+        </h3>
+        <a-checkbox
+          :checked="checkAllState[groupName].checked"
+          :indeterminate="checkAllState[groupName].indeterminate"
+          @change="(e:any) => toggleCheckAll(groupName, e.target.checked)"
+        >
+          ເລືອກທັງໝົດ
+        </a-checkbox>
+      </div>
+
       <ul
         class="w-44 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
       >
