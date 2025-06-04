@@ -1,16 +1,14 @@
 <template>
   <div class="permission-card">
     <h4 class="text-lg font-semibold mb-4">{{ $t('departments.dpm_user.field.permissions') }}</h4>
-pp:{{ props }}
     <div class="space-y-4">
       <div
-        v-for="group in props.permissionGroups"
+        v-for="group in processedGroups"
         :key="group.id"
         class="permission-group border border-gray-200 rounded-lg p-4"
       >
         <!-- Group Header with Select All -->
         <div class="flex items-center justify-between mb-3">
-          <h5 class="font-medium text-gray-800">{{ group.display_name }}</h5>
           <label class="flex items-center cursor-pointer">
             <input
               type="checkbox"
@@ -19,7 +17,7 @@ pp:{{ props }}
               @change="onGroupCheckboxChange($event, group)"
               class="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <span class="text-sm text-gray-600">Select All</span>
+            <h5 class="font-medium text-gray-800">{{ group.display_name }}</h5>
           </label>
         </div>
 
@@ -33,7 +31,8 @@ pp:{{ props }}
             <input
               type="checkbox"
               :value="permission.id"
-              v-model="selectedPermissions"
+              :checked="selectedPermissions.includes(permission.id)"
+              @change="togglePermission(permission.id)"
               class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
             <span class="text-sm text-gray-700">{{ formatPermissionName(permission.name) }}</span>
@@ -50,6 +49,7 @@ import { computed } from 'vue';
 interface Permission {
   id: number;
   name: string;
+  group?: string; // Optional group field
 }
 
 interface PermissionGroup {
@@ -61,10 +61,10 @@ interface PermissionGroup {
 }
 
 const props = defineProps<{
-  permissionGroups: PermissionGroup[];
+  permissionGroups?: PermissionGroup[];
+  permissions?: Permission[]; // Alternative prop for flat permission list
   modelValue: number[];
 }>();
-console.log('per:', props.permissionGroups);
 
 const emit = defineEmits<{
   'update:modelValue': [value: number[]];
@@ -74,6 +74,52 @@ const selectedPermissions = computed({
   get: () => props.modelValue || [],
   set: (value: number[]) => emit('update:modelValue', value),
 });
+
+// Process the data - handle both grouped and flat permission structures
+const processedGroups = computed(() => {
+  // If we have permissionGroups, use them directly
+  if (props.permissionGroups && props.permissionGroups.length > 0) {
+    return props.permissionGroups;
+  }
+
+  // If we have flat permissions, group them
+  if (props.permissions && props.permissions.length > 0) {
+    const groups: Record<string, Permission[]> = {};
+
+    props.permissions.forEach(permission => {
+      const groupName = permission.group || 'Default';
+      if (!groups[groupName]) {
+        groups[groupName] = [];
+      }
+      groups[groupName].push(permission);
+    });
+
+    // Convert to PermissionGroup format
+    return Object.entries(groups).map(([groupName, permissions], index) => ({
+      id: index + 1,
+      name: groupName.toLowerCase().replace(/\s+/g, '_'),
+      display_name: groupName,
+      type: 'group',
+      permissions: permissions
+    }));
+  }
+
+  return [];
+});
+
+// Toggle individual permission
+const togglePermission = (permissionId: number) => {
+  const currentValues = [...selectedPermissions.value];
+  const index = currentValues.indexOf(permissionId);
+
+  if (index === -1) {
+    currentValues.push(permissionId);
+  } else {
+    currentValues.splice(index, 1);
+  }
+
+  selectedPermissions.value = currentValues;
+};
 
 // Handle change event safely to avoid TypeScript template casting
 const onGroupCheckboxChange = (event: Event, group: PermissionGroup) => {
@@ -100,27 +146,30 @@ const isGroupPartiallySelected = (group: PermissionGroup): boolean => {
 // Toggle all permissions in a group
 const toggleGroupSelection = (group: PermissionGroup, isSelected: boolean) => {
   const groupPermissionIds = group.permissions.map(p => p.id);
+  let currentValues = [...selectedPermissions.value];
 
   if (isSelected) {
-    const newPermissions = [
-      ...selectedPermissions.value,
-      ...groupPermissionIds.filter(id => !selectedPermissions.value.includes(id)),
-    ];
-    selectedPermissions.value = newPermissions;
+    // Add all group permissions that aren't already selected
+    groupPermissionIds.forEach(id => {
+      if (!currentValues.includes(id)) {
+        currentValues.push(id);
+      }
+    });
   } else {
-    selectedPermissions.value = selectedPermissions.value.filter(
-      id => !groupPermissionIds.includes(id)
-    );
+    // Remove all group permissions
+    currentValues = currentValues.filter(id => !groupPermissionIds.includes(id));
   }
+
+  selectedPermissions.value = currentValues;
 };
 
 // Format permission name for display
 const formatPermissionName = (name: string): string => {
   return name
-    .replace(/^(read-|write-|update-|delete-)/, '')
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .replace(/^(-|-|-|-)/, '') // Remove action prefixes
+    .split('-') // Split by hyphens
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
+    .join(' '); // Join with spaces
 };
 </script>
 

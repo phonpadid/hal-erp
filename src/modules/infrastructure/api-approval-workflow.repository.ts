@@ -86,9 +86,9 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
 
   private toApiModel(input: ApprovalWorkflowEntity): ApprovalWorkflowApiModel {
     return {
-      id: Number(input.getId()) ?? '',
+      id: Number(input.getId()),
       name: input.getName(),
-      document_type_id: input.getDocument_type_id(),
+      document_type_id: Number(input.getDocument_type_id()),
     };
   }
 
@@ -96,7 +96,7 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
     return new ApprovalWorkflowEntity(
       data.id.toString(),
       data.name,
-      data.document_type_id || "",
+      data.document_type_id.toString(),
       data.document_types ? this.toDocumentTypeEntity(data.document_types) : undefined,
       data.created_at || "",
       data.updated_at || "",

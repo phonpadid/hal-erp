@@ -110,7 +110,7 @@ approval_workflow.value = result.data.map(
     return {
       id: Number(data.getId()), // convert to number
       name: data.getName(),
-      document_type_id: String(data.getDocument_type_id()), // make sure it's a string if needed
+      document_type_id: Number(data.getDocument_type_id()), // make sure it's a string if needed
       document_types: doc
         ? {
             id: Number(doc.getId()),
@@ -150,7 +150,7 @@ const showCreateModal = (): void => {
 const showEditModal = (record: ApprovalWorkflowApiModel): void => {
   selectedData.value = record;
   formModel.name = record.name;
-  formModel.document_type_id = record.document_type_id || "";
+  formModel.document_type_id = record.document_type_id.toString();
   editModalVisible.value = true;
 };
 

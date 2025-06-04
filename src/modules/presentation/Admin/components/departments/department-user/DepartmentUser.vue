@@ -185,6 +185,7 @@ const handleSubmit = async (): Promise<void> => {
 };
 
 // Handle file upload change explicitly
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleFileChange = (fileOrEvent: any) => {
   let actualFile = null;
 
@@ -372,15 +373,13 @@ watch(
               />
             </UiFormItem>
           </div>
-        </div>
-
-        <!-- Right Column: Permissions -->
-         pp:{{ permissionGroups }}
+          <!-- Right Column: Permissions -->
         <div class="flex-1 mt-6 lg:mt-0">
           <PermissionCard
             :permission-groups="permissionGroups"
             v-model="selectedPermissions"
           />
+        </div>
         </div>
       </div>
 

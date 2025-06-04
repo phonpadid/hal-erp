@@ -150,7 +150,7 @@ export const menuItems: ItemType[] = reactive([
         children: [
           {
             key: "department.index",
-            label: "ຜູ້​ໃຊ້​ພະ​ແນກ",
+            label: "​ພະ​ແນກ",
           },
           {
             key: "department_approver.index",
