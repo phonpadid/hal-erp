@@ -20,6 +20,8 @@ import { authRoutes } from "@/modules/presentation/Admin/router/loginRoutes";
 import { budgetAccountsRoutes } from "@/modules/presentation/Admin/router/budget/bud-get-account-routes";
 import { budgetItemRoutes } from "@/modules/presentation/Admin/router/budget/bud-get-item-routes";
 
+import { approvalWorkflowRoutes } from "@/modules/presentation/Admin/router/approval-workflow.routers";
+
 const routes: RouteRecordRaw[] = [
   {
     path: "/admin",
@@ -42,8 +44,11 @@ const routes: RouteRecordRaw[] = [
       ...userApprovalRoutes,
       ...currencyRoutes,
       ...budgetApvRuleRoutes,
+
       ...budgetAccountsRoutes,
       ...budgetItemRoutes,
+
+      ...approvalWorkflowRoutes,
     ],
   },
   ...authRoutes,

@@ -1,16 +1,17 @@
 import axios, { type AxiosRequestConfig, type AxiosRequestHeaders } from "axios";
 import { Modal } from "ant-design-vue";
-
+import { t } from "../i18n/i18n.config";
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
-
 const authAxios = axios.create({
   baseURL: BASE_API_URL,
   headers: {
     "Content-Type": "application/json",
-    "Accept-Language": "lo",
   },
 });
-
+const getCurrentLocale = () => {
+  const lang = localStorage.getItem("locale") || "en";
+  return lang === "la" ? "lo" : lang;
+};
 authAxios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken") || null;
@@ -20,7 +21,7 @@ authAxios.interceptors.request.use(
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
-
+    config.headers["Accept-Language"] = getCurrentLocale();
     // ตรวจสอบประเภทข้อมูลจาก data ของ request
     if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
       config.headers["Content-Type"] = "application/json";
@@ -41,17 +42,16 @@ authAxios.interceptors.response.use(
   async (error) => {
     try {
       if (!error.response) {
-        console.error("Network Error:", error);
         return Promise.reject(error);
       }
 
-      const { status } = error.response;
+      const { status, data } = error.response;
 
       switch (status) {
         case 400:
           Modal.warning({
-            title: "ມີບາງຢ່າງຜິດພາດ!",
-            content: "ຂໍ້ມູນບໍ່ຖືກຕ້ອງ!",
+            title: t("messages.err"),
+            content: data.message,
             closable: true,
             footer: null,
           });

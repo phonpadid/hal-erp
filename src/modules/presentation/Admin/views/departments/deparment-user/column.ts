@@ -9,17 +9,22 @@ export function columns(t: (key: string) => string): Column[] {
   return [
     {
       title: t("departments.dpm_user.field.user"),
-      dataIndex: "user",
-      key: "user",
+      dataIndex: "user.username",
+      key: "username",
+    },
+    {
+      title: t("departments.dpm_user.field.tel"),
+      dataIndex: "user.tel",
+      key: "tel",
     },
     {
       title: t("departments.dpm.field.name"),
-      dataIndex: "department",
+      dataIndex: "department.name",
       key: "department",
     },
     {
       title: t("departments.dpm_user.field.position"),
-      dataIndex: "position",
+      dataIndex: "position.name",
       key: "position",
     },
 
@@ -30,13 +35,13 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("departments.dpm.field.created"),
-      dataIndex: "createdAt",
+      dataIndex: "created_at",
       key: "createdAt",
     },
     {
       title: t("departments.dpm.field.updated"),
-      dataIndex: "updatedAt",
-      key: "updatedAt",
+      dataIndex: "updated_at",
+      key: "updated_at",
     },
     {
       title: t("departments.dpm.field.manege"),

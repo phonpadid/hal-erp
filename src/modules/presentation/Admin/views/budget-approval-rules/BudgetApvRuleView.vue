@@ -15,13 +15,13 @@ import { departmentStore } from "../../stores/departments/department.store";
 import { budgetApprovalRuleStore } from "../../stores/budget-apv-rule.store";
 import type { BudgetApprovalRuleEntity } from "@/modules/domain/entities/budget-approval-rules/budget-approver-rules.entity";
 import type { BudgetApprovalRuleApiModel } from "@/modules/interfaces/budget-approval-rules/budget-approval-rule.interface";
-import { useUserStore } from "../../stores/user.store";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import {
   formatPrice,
   NumberOnly,
   parsePrice,
 } from "@/modules/shared/utils/format-price";
+import { departmenUsertStore } from "../../stores/departments/department-user.store";
 const search = ref<string>("");
 const { t } = useI18n();
 // Initialize the unit store
@@ -38,11 +38,11 @@ const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectData = ref<BudgetApprovalRuleApiModel | null>(null);
 const budgetApvRuleStore = budgetApprovalRuleStore();
-const userStore = useUserStore();
+const userStore = departmenUsertStore();
 const userItem = computed(() =>
-  userStore.users.map((item) => ({
-    value: item.getId(),
-    label: item.getUsername(),
+  userStore.departmentUser.map((item) => ({
+    value: item.getUser()?.getId() ?? "",
+    label: item.getUser()?.getUsername() ?? "",
   }))
 );
 const departmentItem = computed(() =>
@@ -58,7 +58,7 @@ const formModel = budgetApvRuleStore.formState;
 onMounted(async () => {
   await loadDpm();
   await dpmStore.fetchDepartment();
-  await userStore.fetchUsers();
+  await userStore.fetchDepartmentUser();
 });
 
 const loadDpm = async (): Promise<void> => {
@@ -276,9 +276,10 @@ const handleDelete = async (): Promise<void> => {
   deleteModalVisible.value = false;
   loading.value = false;
 };
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleTableChange = async (pagination: any) => {
-  dpmStore.setPagination({
+  budgetApvRuleStore.setPagination({
     page: pagination.current | 1,
     limit: pagination.pageSize,
     total: pagination.total,
@@ -309,7 +310,7 @@ const formattedMaxAmount = computed({
 </script>
 
 <template>
-  <div class="unit-list-container p-6">
+  <div class="ist-container p-6">
     <div class="mb-6 gap-4">
       <h1 class="text-2xl font-semibold">
         {{ $t("budget-apv-rule.title") }}
@@ -333,9 +334,12 @@ const formattedMaxAmount = computed({
       </div>
       <div class="total-item mt-4 text-slate-700">
         <a-tag color="red"
-          >{{ t("currency.total") }}: {{ budgetApvRuleStore.pagination.total }}
-          {{ t("currency.currency") }}</a-tag
-        >
+          >{{
+            t("budget-apv-rule.totalPeople", {
+              count: budgetApvRuleStore.pagination.total,
+            })
+          }}
+        </a-tag>
       </div>
     </div>
 
@@ -517,7 +521,7 @@ const formattedMaxAmount = computed({
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Lao&display=swap");
-.unit-list-container {
+.ist-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);

@@ -54,6 +54,7 @@ const currenciesList = async (): Promise<void> => {
         updatedAt: currency.getUpdatedAt(),
       };
     });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.log(error);
 
@@ -214,6 +215,11 @@ watch(createModalVisible, (visible) => {
     formRef.value?.resetFields(); // Optional: reset form validation state
   }
 });
+watch(search, async(newVal) => {
+  if(newVal === '') {
+    await currenciesList()
+  }
+})
 </script>
 
 <template>
@@ -226,7 +232,7 @@ watch(createModalVisible, (visible) => {
         <div class="w-[20rem]">
           <InputSearch
             v-model:value="search"
-            @change="handleSearch"
+            @keyup.enter="handleSearch"
             :placeholder="t('currency.placeholder.search')"
           />
         </div>
