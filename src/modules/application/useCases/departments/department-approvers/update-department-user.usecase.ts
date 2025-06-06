@@ -3,12 +3,12 @@ import type { DepartmentApproverEntity } from "@/modules/domain/entities/departm
 import type { DepartmentApproverRepository } from "@/modules/domain/repository/departments/department-approver.repository";
 export class UpdateDepartmentApproverUseCase {
   constructor(private readonly dpmAproverRepository: DepartmentApproverRepository) {}
-  async execute(id: string, updateUnitDTO: UpdateDepartmentApproverDTO): Promise<DepartmentApproverEntity> {
+  async execute(id: string, input: UpdateDepartmentApproverDTO): Promise<DepartmentApproverEntity> {
     const dpmUser = await this.dpmAproverRepository.findOne(id);
     if (!dpmUser) {
-      throw new Error(`Unit with id ${id} not found`);
+      throw new Error(` with id ${id} not found`);
     }
-    dpmUser.updated(updateUnitDTO.user_id, updateUnitDTO.department_id);
+    dpmUser.updated(input.user_id);
     return await this.dpmAproverRepository.update(id, dpmUser);
   }
 }

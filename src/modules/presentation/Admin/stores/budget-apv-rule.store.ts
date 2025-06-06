@@ -50,7 +50,7 @@ export const budgetApprovalRuleStore = defineStore("budget-apv-rule-store", () =
         return res;
       } catch (err) {
         error.value = err as Error;
-        throw err;
+        throw error;
       } finally {
         loading.value = false;
       }

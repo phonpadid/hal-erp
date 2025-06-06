@@ -12,6 +12,7 @@
     "title": "Budget approval rules informations",
     "total": "Total",
     "item": "items",
+    "totalPeople": "There are {count} responsible persons",
     "add": "Add Budget approval rule",
     "header_form": {
         "add": "Budget approval rule creation form",

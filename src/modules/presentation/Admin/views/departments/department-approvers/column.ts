@@ -9,23 +9,23 @@ export function columns(t: (key: string) => string): Column[] {
   return [
     {
       title: t("departments.dpm_user.field.user"),
-      dataIndex: "user",
+      dataIndex: "user.username",
       key: "user",
     },
     {
       title: t("departments.dpm.field.name"),
-      dataIndex: "department",
+      dataIndex: "department.name",
       key: "department",
     },
 
     {
       title: t("departments.dpm.field.created"),
-      dataIndex: "createdAt",
+      dataIndex: "created_at",
       key: "createdAt",
     },
     {
       title: t("departments.dpm.field.updated"),
-      dataIndex: "updatedAt",
+      dataIndex: "updated_at",
       key: "updatedAt",
     },
     {

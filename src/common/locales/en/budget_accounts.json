@@ -1,0 +1,110 @@
+{
+  "notify": {
+    "created": "Budget account created successfully",
+    "update": "Budget account updated successfully",
+    "delete": "Budget account deleted successfully"
+  },
+  "alert": {
+    "confirm": "Confirm deletion",
+    "message": "Are you sure you want to delete this budget account",
+    "remark": "This action cannot be undone once you have confirmed it."
+  },
+  "title": "Budget Accounts Information",
+  "total": "Total",
+  "item": "items",
+  "add": "Add Budget Account",
+  "header_form": {
+    "add": "Budget Account Creation Form",
+    "edit": "Budget Account Update Form"
+  },
+  "placeholder": {
+    "search": "Search budget accounts",
+    "department": "Select a department",
+    "code": "Enter budget code",
+    "name": "Enter budget name",
+    "fiscal_year": "Select fiscal year",
+    "allocated_amount": "Enter allocated amount"
+  },
+  "error": {
+    "department": "Please select a department",
+    "code": "Please enter budget code",
+    "code_format": "Budget code must contain only letters, numbers, hyphens or underscores",
+    "code_max": "Budget code must not exceed 50 characters",
+    "name": "Please enter budget name",
+    "name_max": "Budget name must not exceed 100 characters",
+    "fiscal_year": "Please select fiscal year",
+    "allocated_amount": "Please enter allocated amount",
+    "allocated_amount_format": "Allocated amount must be a number with maximum 2 decimal places",
+    "loadFailed": "Failed to load budget accounts",
+    "loadDataFailed": "Failed to load data",
+    "loadDepartmentsFailed": "Failed to load departments",
+    "saveFailed": "Failed to save budget account",
+    "updateFailed": "Failed to update budget account",
+    "deleteFailed": "Failed to delete budget account"
+  },
+  "field": {
+    "department": "Department",
+    "code": "Code",
+    "name": "Name",
+    "fiscal_year": "Fiscal Year",
+    "allocated_amount": "Allocated Amount",
+    "created": "Created At",
+    "updated": "Updated At",
+    "manage": "Manage"
+  },
+  "list": {
+    "title": "Budget Accounts",
+    "search": "Search budget accounts",
+    "add": "Add Budget Account",
+    "code": "Code",
+    "name": "Name",
+    "fiscalYear": "Fiscal Year",
+    "allocatedAmount": "Allocated Amount",
+    "department": "Department",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions"
+  },
+  "form": {
+    "department": "Department",
+    "departmentPlaceholder": "Select a department",
+    "code": "Budget Code",
+    "codePlaceholder": "Enter budget code",
+    "name": "Budget Name",
+    "namePlaceholder": "Enter budget name",
+    "fiscalYear": "Fiscal Year",
+    "fiscalYearPlaceholder": "Select fiscal year",
+    "allocatedAmount": "Allocated Amount",
+    "allocatedAmountPlaceholder": "Enter allocated amount"
+  },
+  "modal": {
+    "title": "Add New Budget Account",
+    "editTitle": "Edit Budget Account",
+    "deleteTitle": "Delete Budget Account",
+    "deleteMessage": "Are you sure you want to delete the budget account {name}?",
+    "deleteWarning": "This action cannot be undone once you have confirmed it."
+  },
+  "success": {
+    "title": "Success",
+    "created": "Budget account created successfully",
+    "updated": "Budget account updated successfully",
+    "deleted": "Budget account deleted successfully"
+  },
+  "validation": {
+    "departmentRequired": "Please select a department",
+    "codeRequired": "Please enter budget code",
+    "codeMax": "Budget code must not exceed 50 characters",
+    "codeFormat": "Budget code must contain only letters, numbers, hyphens or underscores",
+    "nameRequired": "Please enter budget name",
+    "nameMax": "Budget name must not exceed 100 characters",
+    "fiscalYearRequired": "Please select fiscal year",
+    "allocatedAmountRequired": "Please enter allocated amount",
+    "allocatedAmountFormat": "Allocated amount must be a number with maximum 2 decimal places"
+  },
+
+  "button": {
+    "save": "Save",
+    "edit": "Edit",
+    "cancel": "Cancel"
+  }
+}

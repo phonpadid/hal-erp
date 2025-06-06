@@ -3,7 +3,7 @@ import BudgetApvRuleView from "../views/budget-approval-rules/BudgetApvRuleView.
 
 export const budgetApvRuleRoutes: RouteRecordRaw[] = [
   {
-    path: "/budget_apv_rule",
+    path: "/budget-approval-rule",
     name: "budget_apv_rule.index",
     component: BudgetApvRuleView,
     meta: {

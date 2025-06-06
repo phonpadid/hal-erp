@@ -1,109 +1,128 @@
+import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
+
 export class BudGetAccountsEntity {
   private id: string;
   private code: string;
   private name: string;
-  private fiscal_year?: string;
-  private allocated_amount?: string;
-  private department_id?: string;
+  private fiscal_year?: number | string;
+  private allocated_amount?: string | number;
+  private department_id?: string | number;
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
+  private department?: DepartmentApiModel;
 
   constructor(
     id: string,
     code: string,
     name: string,
-    fiscal_year: string | undefined,
-    
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null = null,
-
+    fiscal_year: string | undefined | number,
+    allocated_amount: string | undefined | number,
+    department_id: string | undefined | number,
+    created_at: string,
+    updated_at: string,
+    deleted_at: string | null = null,
+    department?: DepartmentApiModel
   ) {
     this.id = id;
-    this.username = username;
-    this.email = email;
-    this.password = password;
-    this.tel = tel;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-    this.deletedAt = deletedAt;
+    this.code = code;
+    this.name = name;
+    this.fiscal_year = fiscal_year;
+    this.allocated_amount = allocated_amount;
+    this.department_id = department_id;
+    this.created_at = created_at;
+    this.updated_at = updated_at;
+    this.deleted_at = deleted_at;
+    this.department = department;
   }
 
   public getId(): string {
     return this.id;
   }
 
-  public getUsername(): string {
-    return this.username;
+  public getName(): string {
+    return this.name;
   }
 
-  public getEmail(): string {
-    return this.email;
+  public getCode(): string {
+    return this.code;
   }
 
-  public getPassword(): string | undefined {
-    return this.password;
+  public getFiscalYear(): string | number | undefined {
+    return this.fiscal_year;
   }
-
-  public getTel(): string | undefined {
-    return this.tel;
+  public getAllocatedAmount(): string | number | undefined {
+    return this.allocated_amount;
   }
-
+  public getDepartmentId(): string | number | undefined {
+    return this.department_id;
+  }
   public getCreatedAt(): string {
-    return this.createdAt;
+    return this.created_at;
   }
 
   public getUpdatedAt(): string {
-    return this.updatedAt;
+    return this.updated_at;
   }
 
   public getDeletedAt(): string | null {
-    return this.deletedAt;
+    return this.deleted_at;
   }
 
   public isDeleted(): boolean {
-    return this.deletedAt !== null;
+    return this.deleted_at !== null;
+  }
+  public getDepartment(): DepartmentApiModel | undefined {
+    return this.department;
   }
 
-  public updateUsername(username: string): void {
-    this.username = username;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+  public updateName(name: string): void {
+    this.name = name;
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
-  public updateEmail(email: string): void {
-    this.email = email;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+  public updateCode(code: string): void {
+    this.code = code;
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
-  public updatePassword(password: string): void {
-    this.password = password;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+  public updateFiscalYear(fiscal_year: string): void {
+    this.fiscal_year = fiscal_year;
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
-  public updateTel(tel: string | undefined): void {
-    this.tel = tel;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+  public updateAllocateAmount(allocated_amount: string | undefined): void {
+    this.allocated_amount = allocated_amount;
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
   public delete(): void {
-    this.deletedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
-    this.updatedAt = this.deletedAt;
+    this.deleted_at = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updated_at = this.deleted_at;
   }
-
-  public restore(): void {
-    this.deletedAt = null;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+  public setDepartment(department: DepartmentApiModel): void {
+    this.department = department;
   }
 
   public static create(
     id: string,
-    username: string,
-    email: string,
-    password: string,
-    tel?: string
-  ): UserEntity {
+    name: string,
+    code: string,
+    fiscal_year: string | undefined,
+    allocated_amount: string | undefined,
+    department_id: string | undefined
+  ): BudGetAccountsEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-    return new UserEntity(id, username, email, now, now, null, password, tel);
+    return new BudGetAccountsEntity(
+      id,
+      name,
+      code,
+      fiscal_year,
+      allocated_amount,
+      department_id,
+      now,
+      now,
+      null
+    );
   }
 }

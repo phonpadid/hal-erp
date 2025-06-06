@@ -4,10 +4,6 @@ import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
-import {
-  dataDpm,
-  dataDpmUser,
-} from "@/modules/shared/utils/data.department";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 
@@ -20,11 +16,11 @@ import type { DepartmentApproverApiModel } from "@/modules/interfaces/department
 import { departmentStore } from "../../../stores/departments/department.store";
 import { useUserStore } from "../../../stores/user.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import type { DepartmentApproverEntity } from "@/modules/domain/entities/departments/department-approver.entity";
 const { t } = useI18n();
 // Initialize the unit store
 // departments data that will be displayed (from API or mock)
-const department = ref<DepartmentApproverApiModel[]>([]);
-const useRealApi = ref<boolean>(true); // Toggle between mock and real API
+const departmentApv = ref<DepartmentApproverApiModel[]>([]);
 const dpmStore = departmentStore();
 // Form related
 const formRef = ref();
@@ -33,14 +29,8 @@ const editModalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedDpm = ref<DepartmentApproverApiModel | null>(null);
-const userStore = useUserStore()
-const {success} = useNotification()
-const departmentItem = computed(() =>
-  dpmStore.departments.map((item) => ({
-    value: item.getId(),
-    label: item.getName(),
-  }))
-);
+const userStore = useUserStore();
+const { success } = useNotification();
 const userItem = computed(() =>
   userStore.users.map((item) => ({
     value: item.getId(),
@@ -50,118 +40,71 @@ const userItem = computed(() =>
 // Form model
 const store = departmentApproverStore();
 const formModel = store.dpmApproverFormModel;
-// Function to parse date string in DD-MM-YYYY HH:MM:SS format
-const parseLaoDateFormat = (dateStr: string): Date | null => {
-  try {
-    // Expected format: "20-05-2025 00:28:51"
-    const [datePart, timePart] = dateStr.split(" ");
-    if (!datePart || !timePart) return null;
-
-    const [day, month, year] = datePart.split("-").map(Number);
-    const [hours, minutes, seconds] = timePart.split(":").map(Number);
-
-    // Create date using UTC to prevent timezone issues
-    // Month is 0-indexed in JavaScript Date
-    return new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
-  } catch (error) {
-    console.error("Error parsing date string:", dateStr, error);
-    return null;
-  }
-};
-
-// Function to safely format dates for display
-const formatDateForDisplay = (
-  dateValue: string | Date | null | undefined
-): string => {
-  if (!dateValue) return "";
-
-  try {
-    let date: Date | null = null;
-
-    // If it's already a Date object
-    if (dateValue instanceof Date) {
-      date = dateValue;
-    }
-    // If it's a string in Lao format (DD-MM-YYYY HH:MM:SS)
-    else if (
-      typeof dateValue === "string" &&
-      dateValue.includes("-") &&
-      dateValue.includes(":")
-    ) {
-      date = parseLaoDateFormat(dateValue);
-    }
-    // If it's any other string format
-    else if (typeof dateValue === "string") {
-      date = new Date(dateValue);
-    }
-
-    // Check if we have a valid date
-    if (date && !isNaN(date.getTime())) {
-      // Format as DD-MM-YYYY HH:MM:SS for consistency with API
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      const seconds = String(date.getSeconds()).padStart(2, "0");
-
-      return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
-    }
-
-    // If all else fails, return the original string if it's a string
-    return typeof dateValue === "string" ? dateValue : "";
-  } catch (error) {
-    console.warn("Error formatting date:", error, "Value was:", dateValue);
-    return typeof dateValue === "string" ? dateValue : "";
-  }
-};
 
 // Load data on component mount
 onMounted(async () => {
   await loadDpm();
   await dpmStore.fetchDepartment();
-  await userStore.fetchUsers()
+  await userStore.fetchUsers();
 });
 
 const loadDpm = async (): Promise<void> => {
   // if (useRealApi.value) {
-  //   try {
-  //     loading.value = true;
-  //     const result = await dpmStore.fetchDepartment();
+  try {
+    loading.value = true;
+    const result = await store.fetchDepartmentApprover({
+      page: store.pagination.page,
+      limit: store.pagination.limit,
+    });
 
-  //     department.value = result.data.map((dpm: any) => {
-  //       return {
-  //         id: dpm.id ? parseInt(dpm.id) : 0,
-  //         name: dpm.name || "",
-  //         code: dpm.code || "",
-  //         createdAt: dpm.createdAt || "",
-  //         updatedAt: dpm.updatedAt || "",
-  //       };
-  //     });
+    departmentApv.value = result.data.map(
+      (dpmApv: DepartmentApproverEntity) => {
+        const dpm = dpmApv.getDepartment();
+        const user = dpmApv.getUser();
 
-  //     console.log("Department data loaded:", department.value);
-  //   } catch (error) {
-  //     console.error("Failed to fetch department from API:", error);
-  //     department.value = [...dataDpm.value];
-  //   } finally {
-  //     loading.value = false;
-  //   }
+        return {
+          id: Number(dpmApv.getId()), // ensure number
+          user_id: Number(dpmApv.getUser_id()), // ensure number
+          department: dpm
+            ? {
+                id: Number(dpm.getId()),
+                code: dpm.getCode(),
+                name: dpm.getName(),
+              }
+            : undefined,
+          user: user
+            ? {
+                id: Number(user.getId()),
+                username: user.getUsername(),
+                tel: user.getTel(),
+                email: user.getEmail(),
+              }
+            : undefined,
+          created_at: dpmApv.getCreatedAt()?.toString() || "",
+          updated_at: dpmApv.getUpdatedAt()?.toString() || "",
+        };
+      }
+    );
+  } catch (error) {
+    console.error("Failed to fetch department from API:", error);
+  } finally {
+    loading.value = false;
+  }
   // } else {
-  department.value = [...dataDpmUser.value];
+  // department.value = [...dataDpmUser.value];
   // }
 };
 
 // CRUD operations
 const showCreateModal = (): void => {
   formModel.user_id = "";
-  formModel.department_id = "";
   createModalVisible.value = true;
 };
 
 const showEditModal = (record: DepartmentApproverApiModel): void => {
+  const userId = record.user?.id;
   selectedDpm.value = record;
-  formModel.user_id = record.user_id;
-  formModel.department_id = record.department_id || "";
+  formModel.user_id = String(userId);
   editModalVisible.value = true;
 };
 
@@ -174,27 +117,11 @@ const handleCreate = async (): Promise<void> => {
   try {
     loading.value = true;
     await formRef.value.submitForm();
-
-    if (useRealApi.value) {
-      // Use API to create
-      await store.createDepartmentApprover({
-        user_id: Number(formModel.user_id),
-        department_id: Number(formModel.department_id),
-      });
-      success(t('departments.notify.created'))
-      await loadDpm(); // Refresh the list
-    } else {
-      // Create new unit with current timestamp (mock)
-      const now = formatDateForDisplay(new Date());
-      const newDpm: DepartmentApproverApiModel = {
-        id: department.value.length + 1,
-        user_id: formModel.user_id,
-        department_id: formModel.department_id,
-        created_at: now,
-        updated_at: now,
-      };
-      department.value.push(newDpm);
-    }
+    await store.createDepartmentApprover({
+      user_id: Number(formModel.user_id),
+    });
+    success(t("departments.notify.created"));
+    await loadDpm(); // Refresh the list
 
     createModalVisible.value = false;
   } catch (error) {
@@ -210,29 +137,13 @@ const handleEdit = async (): Promise<void> => {
     await formRef.value.submitForm();
 
     if (selectedDpm.value) {
-      if (useRealApi.value) {
-        // Use API to update
-        const id = selectedDpm.value.id.toString();
-        await store.updateDepartmentApprover({
-          id,
-          user_id: formModel.user_id,
-          department_id: formModel.department_id,
-        });
-        success(t('departments.notify.update'))
-        await loadDpm();
-      } else {
-        // Update the unit locally (mock)
-        const index = department.value.findIndex(
-          (u) => u.id === selectedDpm.value!.id
-        );
-        if (index !== -1) {
-          department.value[index] = {
-            ...department.value[index],
-            user_id: formModel.user_id,
-            department_id: formModel.department_id,
-          };
-        }
-      }
+      const id = selectedDpm.value.id.toString();
+      await store.updateDepartmentApprover({
+        id,
+        user_id: formModel.user_id,
+      });
+      success(t("departments.notify.update"));
+      await loadDpm();
     }
 
     editModalVisible.value = false;
@@ -246,10 +157,7 @@ const handleEdit = async (): Promise<void> => {
 const handleDelete = async (): Promise<void> => {
   if (!selectedDpm.value) return;
 
-  loading.value = true;
-
-  if (useRealApi.value) {
-    try {
+  try {
       // Use API to delete
       const id = selectedDpm.value.id.toString();
       await store.deleteDepartmentApprover(id);
@@ -257,14 +165,6 @@ const handleDelete = async (): Promise<void> => {
     } catch (error) {
       console.error("Delete failed:", error);
     }
-  } else {
-    // Filter out the deleted unit locally
-    department.value = department.value.filter(
-      (u) => u.id !== selectedDpm.value!.id
-    );
-    // Update mock data too
-    dataDpm.value = dataDpm.value.filter((u) => u.id !== selectedDpm.value!.id);
-  }
 
   deleteModalVisible.value = false;
   loading.value = false;
@@ -290,7 +190,7 @@ const handleDelete = async (): Promise<void> => {
     </div>
     <Table
       :columns="columns(t)"
-      :dataSource="department"
+      :dataSource="departmentApv"
       :pagination="{ pageSize: 10 }"
       row-key="id"
       :loading="store.loading"
@@ -341,17 +241,6 @@ const handleDelete = async (): Promise<void> => {
             :placeholder="t('departments.dpm_user.placeholder.user')"
           />
         </UiFormItem>
-        <UiFormItem
-          :label="t('departments.dpm_user.field.department')"
-          name="department_id"
-          required
-        >
-          <InputSelect
-            v-model="formModel.department_id"
-            :options="departmentItem"
-            :placeholder="t('departments.dpm_user.placeholder.dpm')"
-          />
-        </UiFormItem>
       </UiForm>
     </UiModal>
 
@@ -374,18 +263,6 @@ const handleDelete = async (): Promise<void> => {
             v-model="formModel.user_id"
             :options="userItem"
             :placeholder="t('departments.dpm_user.placeholder.user')"
-          />
-        </UiFormItem>
-
-        <UiFormItem
-          :label="t('departments.dpm_user.field.department')"
-          name="department_id"
-          required
-        >
-          <InputSelect
-            v-model="formModel.department_id"
-            :options="departmentItem"
-            :placeholder="t('departments.dpm_user.placeholder.dpm')"
           />
         </UiFormItem>
       </UiForm>

@@ -7,7 +7,7 @@ export class UpdateCurrencyUseCase {
   async execute(id: string, input: UpdateCurrencyDTO): Promise<CurrencyEntity> {
     const currency = await this.currencyRepo.findById(id);
     if (!currency) {
-      throw new Error(`Unit with id ${id} not found`);
+      throw new Error(`with id ${id} not found`);
     }
     currency.updateDpm(input.name, input.code);
     return await this.currencyRepo.update(id, currency);

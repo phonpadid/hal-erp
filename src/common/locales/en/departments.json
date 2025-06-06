@@ -36,6 +36,7 @@
     "dpm_user": {
       "title": "Departments user information",
       "add": "Add departments user",
+      "total": "There are {count} department users",
       "header_form": {
         "add": "Departments user creation form",
         "edit": "Departments user update form"
@@ -43,8 +44,11 @@
       "field": {
         "department": "Departments",
         "user": "Department user",
+        "tel": "Tel",
         "position": "Position",
-        "signature": "Signature file"
+        "signature": "Signature file",
+        "role": "Select roles",
+        "permission": "Permissions"
       },
       "placeholder": {
         "search": "Search for department user information",
@@ -56,7 +60,15 @@
         "signature": "Please choose a signature file",
         "user": "Please select a user",
         "position": "Please select a position",
-        "dpm": "Please select a department"
+        "dpm": "Please select a department",
+        "role": "Please select roles",
+        "permission": "Please select permissions",
+        "user_max": "Username must not exceed 255 characters.",
+        "email_format": "Please enter a valid email address.",
+        "email_max": "Email must not exceed 100 characters.",
+        "tel_max": "Phone number must not exceed 50 characters.",
+        "password_min": "Password must be at least 6 characters.",
+        "password_max": "Password must not exceed 100 characters."
       }
     },
     "dpm_approver": {

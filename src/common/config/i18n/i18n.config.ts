@@ -1,10 +1,9 @@
-
-
 import { createI18n } from 'vue-i18n'
 
 // Load all JSON files inside the `locales/**` folders
 function loadLocaleMessages() {
   const locales = import.meta.glob('../../locales/**/**/*.json', { eager: true })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const messages: Record<string, any> = {}
 
   for (const path in locales) {
@@ -14,6 +13,7 @@ function loadLocaleMessages() {
       if (!messages[locale]) {
         messages[locale] = {}
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages[locale][filename] = (locales[path] as any).default
     }
   }
@@ -31,3 +31,4 @@ const i18nConfig = createI18n({
 })
 
 export default i18nConfig
+export const t = i18nConfig.global.t

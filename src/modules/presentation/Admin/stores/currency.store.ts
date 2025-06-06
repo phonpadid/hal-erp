@@ -7,8 +7,6 @@ import { ApiCurrencyRepository } from "@/modules/infrastructure/api-currency.rep
 import { CurrencyServiceImpl } from "@/modules/application/services/currency.service";
 import { CurrencyEntity } from "@/modules/domain/entities/currency.entity";
 import type { CreateCurrencyDTO, UpdateCurrencyDTO } from "@/modules/application/dtos/currency.dto";
-import { useNotification } from "@/modules/shared/utils/useNotification";
-const noti = useNotification()
 const currencyFormModel = reactive({
   name: "",
   code: "",
@@ -59,7 +57,6 @@ export const currencyStore = defineStore("currency-store", () => {
       return resArray;
     } catch (error: any) {
       error.value = error.response.data.message as Error;
-      noti.error(error.value?.message || "An unexpected error occurred");
       throw error;
     } finally {
       loading.value = false;

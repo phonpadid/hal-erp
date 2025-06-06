@@ -1,5 +1,4 @@
 // import type { DepartmentApproverEntity } from "@/modules/domain/entities/departments/department-approver.entity";
-import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
 import { ref } from "vue";
 enum doc {
   aa = "Document A",
@@ -13,13 +12,14 @@ enum status {
 }
 enum approval {
   a = "Approval worklow demo1",
-  b = "Approval worklow demo1",
-  c = "Approval worklow demo1",
+  b = "Approval worklow demo2",
+  c = "Approval worklow demo10",
   d= "ອະນຸມັດ ເທັສ1",
-  e = "Approval worklow demo1",
-  f = "Approval worklow demo1",
-  g = "Approval worklow demo1",
+  e = "Approval worklow demo11",
+  f = "Approval worklow demo1111",
+  g = "Approval worklow demo133",
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const dataUserApv = ref<any[]>([
   { id: 1, document: doc.aa, status: status.other,  apv_workflow: approval.a, name: "department A", created_at: "20/02/2025", updated_at: "20-02-2025" },
   { id: 2, document: doc.bb, status: status.approl,  apv_workflow: approval.b, name: "department B", created_at: "20/02/2025", updated_at: "20-02-2025" },

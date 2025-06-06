@@ -7,7 +7,7 @@ export const currencyRoutes: RouteRecordRaw[] = [
     name: "currencies.index",
     component: CurrencyView,
     meta: {
-      title: "Department",
+      title: "Currencies",
       requiredAuth: true,
     },
   },

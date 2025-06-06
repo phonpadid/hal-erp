@@ -8,7 +8,6 @@ import { DepartmentApproverEntity } from "@/modules/domain/entities/departments/
 import type { CreateDepartmentApproverDTO, UpdateDepartmentApproverDTO } from "@/modules/application/dtos/departments/department-approver.dto";
 export const dpmApproverFormModel = reactive({
   user_id: "",
-  department_id: "",
 })
 // สร้าง unit service
 const createDepartmentApproverService = () => {
@@ -143,10 +142,11 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
           departmentApprover.value[index] = new DepartmentApproverEntity(
             deletedDpmApprover.getId(),
             deletedDpmApprover.getUser_id(),
-            deletedDpmApprover.getDeparture_id(),
+            deletedDpmApprover.getUser(),
+            deletedDpmApprover.getDepartment(),
             deletedDpmApprover.getCreatedAt(),
-            new Date(),
-            new Date()
+            new Date().toString(),
+            new Date().toString()
           );
         }
       }
@@ -161,20 +161,8 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
   };
 
   // Reset state
-  const resetState = () => {
-    departmentApprover.value = [];
-    currentDpmApprover.value = null;
-    error.value = null;
-    pagination.value = {
-      page: 1,
-      limit: 10,
-      total: 0,
-      totalPages: 0,
-    };
-  };
   const resetForm = () => {
     dpmApproverFormModel.user_id = ""
-    dpmApproverFormModel.department_id = ""
   }
   return {
     // State
@@ -197,7 +185,6 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
     fetchDepartmentApproverById,
     updateDepartmentApprover,
     deleteDepartmentApprover,
-    resetState,
     resetForm
   };
 });
