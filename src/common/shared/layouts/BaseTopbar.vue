@@ -3,9 +3,10 @@ import { Icon } from "@iconify/vue";
 import { useI18n } from "vue-i18n";
 import { computed, onMounted, ref, watch } from "vue";
 import { DownOutlined } from "@ant-design/icons-vue";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 
 const emit = defineEmits<{ toggle: [] }>();
-
+const {success} = useNotification()
 const { t, locale } = useI18n();
 const currentLang = ref<string>("");
 
@@ -25,6 +26,9 @@ const changeLang = (langValue: string) => {
   updateCurrentLang(); // make sure currentLang is updated
 };
 
+const noti = () => {
+success(t('messages.notification'))
+}
 onMounted(() => {
   updateCurrentLang();
 });
@@ -85,6 +89,7 @@ watch(locale, updateCurrentLang);
           width="24"
           height="24"
           class="cursor-pointer"
+          @click="noti"
         />
       </div>
       <div class="profile flex gap-0 items-center">
