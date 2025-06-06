@@ -1,0 +1,85 @@
+{
+  "notify": {
+    "created": "Budget item created successfully",
+    "update": "Budget item updated successfully",
+    "delete": "Budget item deleted successfully"
+  },
+  "alert": {
+    "confirm": "Confirm deletion",
+    "message": "Are you sure you want to delete this budget item",
+    "remark": "This action cannot be undone once you have confirmed it."
+  },
+  "title": "Budget Items Information",
+  "total": "Total",
+  "item": "items",
+  "add": "Add Budget Item",
+  "header_form": {
+    "add": "Budget Item Creation Form",
+    "edit": "Budget Item Update Form"
+  },
+  "placeholder": {
+    "search": "Search budget items",
+    "budget_account": "Select a budget account"
+  },
+  "error": {
+    "budget_account": "Please select a budget account",
+    "name": "Please enter item name",
+    "name_max": "Item name must not exceed 100 characters",
+    "allocated_amount": "Please enter allocated amount",
+    "allocated_amount_format": "Allocated amount must be a number with maximum 2 decimal places",
+    "loadFailed": "Failed to load budget items",
+    "loadDataFailed": "Failed to load data",
+    "loadBudgetAccountsFailed": "Failed to load budget accounts",
+    "saveFailed": "Failed to save budget item",
+    "updateFailed": "Failed to update budget item",
+    "deleteFailed": "Failed to delete budget item"
+  },
+  "field": {
+    "budget_account": "Budget Account",
+    "name": "Name",
+    "allocated_amount": "Allocated Amount",
+    "created": "Created At",
+    "updated": "Updated At",
+    "manage": "Manage"
+  },
+  "list": {
+    "title": "Budget Items",
+    "titleForAccount": "Budget Items for Account",
+    "search": "Search budget items",
+    "add": "Add Budget Item",
+    "name": "Name",
+    "allocatedAmount": "Allocated Amount",
+    "budgetAccount": "Budget Account",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "actions": "Actions"
+  },
+  "form": {
+    "budgetAccount": "Budget Account",
+    "budgetAccountPlaceholder": "Select a budget account",
+    "name": "Item Name",
+    "namePlaceholder": "Enter item name",
+    "allocatedAmount": "Allocated Amount",
+    "allocatedAmountPlaceholder": "Enter allocated amount"
+  },
+  "modal": {
+    "title": "Add New Budget Item",
+    "editTitle": "Edit Budget Item",
+    "deleteTitle": "Delete Budget Item",
+    "deleteMessage": "Are you sure you want to delete the budget item {name}?",
+    "deleteWarning": "This action cannot be undone once you have confirmed it."
+  },
+  "success": {
+    "title": "Success",
+    "created": "Budget item created successfully",
+    "updated": "Budget item updated successfully",
+    "deleted": "Budget item deleted successfully"
+  },
+  "validation": {
+    "budgetAccountRequired": "Please select a budget account",
+    "nameRequired": "Please enter item name",
+    "nameMax": "Item name must not exceed 100 characters",
+    "allocatedAmountRequired": "Please enter allocated amount",
+    "allocatedAmountFormat": "Allocated amount must be a number with maximum 2 decimal places"
+  }
+}

@@ -122,6 +122,7 @@ export class ApiBudgetApprovalRuleRepository implements BudgetApprovalRuleReposi
       user.tel
     );
   }
+  
   private toDepartmentEntity(departmentData: DepartmentApiModel): DepartmentEntity {
     return new DepartmentEntity(
       departmentData.id.toString(),

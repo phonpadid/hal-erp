@@ -159,6 +159,38 @@ export const menuItems: ItemType[] = reactive([
     children: [
       { type: "divider" },
       {
+        key: "122",
+        label: "ຈັດການງົບປະມານ",
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:folder-managed-outline",
+              class: "text-base",
+            }),
+          ]),
+        children: [
+          {
+            key: "budget-accounts",
+            label: "ຈັດການບັນຊີງົບປະມານ",
+          },
+          {
+            key: "budget-items",
+            label: "ລາຍການງົບປະມານ",
+          },
+          {
+            key: "budget-item-details",
+            label: "ລາຍລະອຽດງົບປະມານ",
+          },
+        ],
+      },
+    ],
+    type: "group",
+  },
+  {
+    label: "",
+    children: [
+      { type: "divider" },
+      {
         key: "121",
         label: "ຈັດການຂໍ້ມູນ",
         icon: () =>

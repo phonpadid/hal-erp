@@ -17,6 +17,8 @@ import { authGuard } from "@/modules/presentation/Admin/router/guards/auth.guard
 import { currencyRoutes } from "@/modules/presentation/Admin/router/currencies.routers";
 import { budgetApvRuleRoutes } from "@/modules/presentation/Admin/router/budget-apv-rule.routers";
 import { authRoutes } from "@/modules/presentation/Admin/router/loginRoutes";
+import { budgetAccountsRoutes } from "@/modules/presentation/Admin/router/budget/bud-get-account-routes";
+import { budgetItemRoutes } from "@/modules/presentation/Admin/router/budget/bud-get-item-routes";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -40,6 +42,8 @@ const routes: RouteRecordRaw[] = [
       ...userApprovalRoutes,
       ...currencyRoutes,
       ...budgetApvRuleRoutes,
+      ...budgetAccountsRoutes,
+      ...budgetItemRoutes,
     ],
   },
   ...authRoutes,
