@@ -28,7 +28,10 @@ export class CreateDepartmentUserUseCase {
     const dpmUser = DepartmentUserEntity.create(
       dpmUserDTO.position_id ?? '',
       userEntity,
-      dpmUserDTO.signature_file ?? ''
+      dpmUserDTO.signature_file ?? '',
+      dpmUserDTO.departmentId,
+      dpmUserDTO.permissionIds,
+      dpmUserDTO.roleIds
     );
     return await this.dpmUserRepository.create(dpmUser);
   }

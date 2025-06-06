@@ -4,13 +4,14 @@ export class DeleteDepartmentUserUseCase {
   constructor(private readonly dpmUserRepository: DepartmentUserRepository) {}
 
   async execute(id: string): Promise<boolean> {
-    const unit = await this.dpmUserRepository.findById(id);
-    if (!unit) {
-      throw new Error(`Unit with id ${id} not found`);
+    const res = await this.dpmUserRepository.findById(id);
+    if (!res) {
+      throw new Error(`res with id ${id} not found`);
     }
-    if (unit.isDeleted()) {
-      throw new Error(`Unit with id ${id} is already deleted`);
+    if (res.isDeleted()) {
+      throw new Error(`res with id ${id} is already deleted`);
     }
-    return await this.dpmUserRepository.delete(id);
+    const userId = res.getUser()?.getId() ?? ''
+    return await this.dpmUserRepository.delete(userId);
   }
 }

@@ -6,6 +6,9 @@ export interface CreateDepartmentUserDTO {
   user: CreateUserDTO | null;
   position_id: string | null;
   signature_file: string | File | null;
+  departmentId: string,
+  permissionIds: number[],
+  roleIds: number[]
 }
 
 export interface UpdateDepartmentUserDTO {
@@ -13,6 +16,9 @@ export interface UpdateDepartmentUserDTO {
   user: UpdateUserDTO;
   position_id: string;
   signature_file: string | File;
+  departmentId: string,
+  permissionIds: number[],
+  roleIds: number[]
 }
 
 export interface DepartmentUserDTO {
@@ -21,6 +27,9 @@ export interface DepartmentUserDTO {
   department_id: string;
   position_id: string;
   signature_file: string | File;
+  departmentId: string,
+  permissionIds: number[],
+  roleIds: number[]
   department: DepartmentDTO | null,
   position: PositionDTO | null,
   user: UserDTO | null

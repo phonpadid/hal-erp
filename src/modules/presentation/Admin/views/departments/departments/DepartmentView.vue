@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { columns } from "./column";
 import { departmentStore } from "../../../stores/departments/department.store";
 import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
@@ -193,6 +193,11 @@ const handleTableChange = async (pagination: any) => {
   });
   await loadDpm();
 };
+watch(search, async (newValue) => {
+  if (newValue === '') {
+    await loadDpm();
+  }
+});
 </script>
 
 <template>
@@ -205,7 +210,7 @@ const handleTableChange = async (pagination: any) => {
         <div class="w-[20rem]">
           <InputSearch
             v-model:value="search"
-            @change="handleSearch"
+            @keyup.enter="handleSearch"
             :placeholder="t('departments.dpm.placeholder.search')"
           />
         </div>

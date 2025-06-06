@@ -22,7 +22,10 @@ import { usePermissionStore } from "../../../stores/permission.store";
 
 // Import the Permission Card component
 import PermissionCard from "./PermissionCard.vue";
-
+import { useRoleStore } from "../../../stores/role.store";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import { updateDpmUserRules } from "../../../views/departments/deparment-user/validation/update-department-user.validate";
+const roleStore = useRoleStore();
 const userStore = useUserStore();
 const positionStore = usePositionStore();
 const { push } = useRouter();
@@ -31,15 +34,15 @@ const { t } = useI18n();
 const formRef = ref();
 const dpmStore = departmentStore();
 const dpmUserStore = departmenUsertStore();
-const permissionStore = usePermissionStore()
+const permissionStore = usePermissionStore();
 const loading = ref(false);
-
+const { success } = useNotification();
 // Use permissions directly from form model
 const selectedPermissions = computed({
-  get: () => dpmUserFormModel.permissions,
+  get: () => dpmUserFormModel.permissionIds,
   set: (value: number[]) => {
-    dpmUserFormModel.permissions = value;
-  }
+    dpmUserFormModel.permissionIds = value;
+  },
 });
 
 // Determine if we're in edit mode based on route params
@@ -57,14 +60,24 @@ const departmentItem = computed(() =>
     label: item.getName(),
   }))
 );
+const roleItem = computed(() =>
+  roleStore.roles.map((item) => ({
+    value: item.getId(),
+    label: item.getName(),
+  }))
+);
+const dpmUserRoleIds = computed({
+  get: () => dpmUserFormModel.roleIds.map((id) => String(id)),
+  set: (val: string[]) => {
+    dpmUserFormModel.roleIds = val.map((id) => Number(id));
+  },
+});
 
 // Get permission groups from store
 const permissionGroups = computed(() => permissionStore.permission || []);
 
 // Add reactive reference for signature file to ensure proper binding
 const signatureFile = ref(dpmUserFormModel.signature_file || null);
-
-// Watch for changes in signature file and update the form model
 watch(
   signatureFile,
   (newValue) => {
@@ -92,36 +105,35 @@ watch(
   },
   { deep: true }
 );
-
-const demo = {
-  user_id: "1",
-  position_id: "1",
-  department_id: "2",
-};
-
 // Load existing data for edit mode
 const loadDepartmentUser = async () => {
   if (isEditMode.value && departmentUserId.value) {
     try {
       loading.value = true;
-      // await dpmUserStore.fetchDepartmentUserById(departmentUserId.value);
-      // const departmentUser = dpmUserStore.currentDpmUser;
+      await dpmUserStore.fetchDepartmentUserById(departmentUserId.value);
+      const departmentUser = dpmUserStore.currentDpmUser;
+      const userData = departmentUser?.getUser();
+      console.log('role:', departmentUser);
 
-      // // Check if departmentUser exists before accessing its properties
-      // if (departmentUser) {
-      //   // Populate form with existing data
-      //   dpmUserFormModel.user_id = departmentUser.getUser_id();
-      //   dpmUserFormModel.position_id = departmentUser.getPosition_id();
-      //   dpmUserFormModel.department_id = departmentUser.getdepartment_id();
-      //   dpmUserFormModel.signature_file = departmentUser.getSignature_file();
-      //   signatureFile.value = departmentUser.getSignature_file();
-      //   // Load existing permissions
-      //   selectedPermissions.value = departmentUser.getPermissions() || [];
-      // } else {
-      //   console.error("Department user not found");
-      // }
+      const positionData = departmentUser?.getPostion();
+      if (departmentUser) {
+        dpmUserFormModel.userId = userData?.getId() || "";
+        dpmUserFormModel.username = userData?.getUsername() || "";
+        dpmUserFormModel.email = userData?.getEmail?.() || ""; // Add email if available
+        dpmUserFormModel.tel = userData?.getTel?.() || ""; // Add tel if available
+        dpmUserFormModel.position_id = positionData?.getId() || "";
+        dpmUserFormModel.departmentId = departmentUser.getDepartmentId();
+        dpmUserFormModel.signature_file = departmentUser.getSignature_file();
+        signatureFile.value = departmentUser.getSignature_file();
 
-      console.log("Department user data loaded for edit:", demo);
+        // Load existing permissions
+        selectedPermissions.value = departmentUser.getPermissionIds() || [];
+        const existingRoleIds =
+          departmentUser.getRoleIds?.() || departmentUser.getRoleIds?.() || [];
+        dpmUserFormModel.roleIds = existingRoleIds;
+      } else {
+        console.error("Department user not found");
+      }
     } catch (error) {
       console.error("Failed to load department user:", error);
     } finally {
@@ -142,14 +154,12 @@ const handleSubmit = async (): Promise<void> => {
 
     // Double check signature_file is properly set
     if (!dpmUserFormModel.signature_file) {
-      console.error("Signature file is required but not set");
-      // Manually trigger validation for signature_file
       await formRef.value.validateField("signature_file");
       return;
     }
     const payload = {
       user: {
-        id: dpmUserFormModel.id,
+        id: dpmUserFormModel.userId,
         username: dpmUserFormModel.username,
         email: dpmUserFormModel.email,
         password: dpmUserFormModel.password,
@@ -158,7 +168,9 @@ const handleSubmit = async (): Promise<void> => {
       position_id: dpmUserFormModel.position_id,
       // department_id: dpmUserFormModel.department_id,
       signature_file: dpmUserFormModel.signature_file,
-      permissions: dpmUserFormModel.permissions,
+      departmentId: dpmUserFormModel.departmentId,
+      permissionIds: dpmUserFormModel.permissionIds,
+      roleIds: dpmUserFormModel.roleIds,
     };
 
     if (isEditMode.value) {
@@ -166,14 +178,17 @@ const handleSubmit = async (): Promise<void> => {
         id: departmentUserId.value,
         ...payload,
       });
+      push({ name: "department_user.index" });
+      dpmUserStore.resetForm();
+      success(t("departments.notify.update"));
+      console.log('update');
+
     } else {
       await dpmUserStore.createDepartmentUser(payload);
+      push({ name: "department_user.index" });
+      dpmUserStore.resetForm();
+      success(t("departments.notify.created"));
     }
-
-    // Navigate back to list
-    push({ name: "department_user.index" });
-    dpmUserStore.resetForm();
-    // selectedPermissions will be reset when form model is reset
   } catch (error) {
     console.error(
       `${isEditMode.value ? "Update" : "Create"} department user failed:`,
@@ -219,6 +234,7 @@ onMounted(async () => {
   await userStore.fetchUsers();
   await positionStore.fetchPositions();
   await permissionStore.fetchPermission();
+  await roleStore.fetchRoles();
   // Load existing data if in edit mode
   await loadDepartmentUser();
 
@@ -226,9 +242,6 @@ onMounted(async () => {
   if (dpmUserFormModel.signature_file) {
     signatureFile.value = dpmUserFormModel.signature_file;
   }
-
-  // Initialize permissions if they exist in the loaded data
-  // selectedPermissions will automatically reflect dpmUserFormModel.permissions
 });
 
 const props = defineProps<{
@@ -259,7 +272,7 @@ watch(
       </h3>
     </div>
 
-    <UiForm ref="formRef" :model="dpmUserFormModel" :rules="dpmUserRules(t)">
+    <UiForm ref="formRef" :model="dpmUserFormModel" :rules="isEditMode ? updateDpmUserRules(t) : dpmUserRules(t)">
       <div class="flex flex-col lg:flex-row lg:gap-8">
         <!-- Left Column: User Info -->
         <div class="flex-1 space-y-4">
@@ -306,28 +319,45 @@ watch(
           </div>
 
           <!-- Telephone -->
-          <UiFormItem
-            :label="t('user.form.tel')"
-            name="tel"
-            required
-          >
-            <UiInput
-              @keypress="NumberOnly"
-              v-model="dpmUserFormModel.tel"
-              placeholder="20xx xxx xxx"
-            />
-          </UiFormItem>
+          <div class="flex flex-col md:flex-row md:gap-4">
+            <UiFormItem
+              class="flex-1"
+              :label="t('user.form.tel')"
+              name="tel"
+              required
+            >
+              <UiInput
+                @keypress="NumberOnly"
+                v-model="dpmUserFormModel.tel"
+                placeholder="20xx xxx xxx"
+              />
+            </UiFormItem>
+
+            <UiFormItem
+              class="flex-1"
+              :label="t('departments.dpm_user.field.role')"
+              name="roleIds"
+              required
+            >
+              <InputSelect
+                mode="multiple"
+                v-model="dpmUserRoleIds"
+                :options="roleItem"
+                :placeholder="t('departments.dpm_user.placeholder.role')"
+              />
+            </UiFormItem>
+          </div>
 
           <!-- Department + Position -->
           <div class="flex flex-col md:flex-row md:gap-4">
             <UiFormItem
               class="flex-1"
               :label="t('departments.dpm_user.field.department')"
-              name="department_id"
+              name="departmentId"
               required
             >
               <InputSelect
-                v-model="dpmUserFormModel.position_id"
+                v-model="dpmUserFormModel.departmentId"
                 :options="departmentItem"
                 :placeholder="t('departments.dpm_user.placeholder.dpm')"
               />
@@ -350,6 +380,7 @@ watch(
           <!-- Password + Confirm -->
           <div class="flex flex-col md:flex-row md:gap-4">
             <UiFormItem
+            v-if="!isEditMode"
               class="flex-1"
               :label="t('user.form.password')"
               name="password"
@@ -362,6 +393,7 @@ watch(
             </UiFormItem>
 
             <UiFormItem
+            v-if="!isEditMode"
               class="flex-1"
               :label="t('user.form.confirmPassword')"
               name="confirm_password"
@@ -374,12 +406,12 @@ watch(
             </UiFormItem>
           </div>
           <!-- Right Column: Permissions -->
-        <div class="flex-1 mt-6 lg:mt-0">
-          <PermissionCard
-            :permission-groups="permissionGroups"
-            v-model="selectedPermissions"
-          />
-        </div>
+          <div class="flex-1 mt-6 lg:mt-0">
+            <PermissionCard
+              :permission-groups="permissionGroups"
+              v-model="selectedPermissions"
+            />
+          </div>
         </div>
       </div>
 

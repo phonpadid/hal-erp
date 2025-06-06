@@ -6,22 +6,26 @@ import type { DepartmentUserRepository } from "@/modules/domain/repository/depar
 export class UpdateDepartmentUserUseCase {
   constructor(private readonly dpmUserRepository: DepartmentUserRepository) {}
 
-  async execute(id: string, updateDTO: UpdateDepartmentUserDTO): Promise<DepartmentUserEntity> {
+  async execute(id: string, input: UpdateDepartmentUserDTO): Promise<DepartmentUserEntity> {
     const userEntity = new UserEntity(
-      updateDTO.user.id,
-      updateDTO.user.username,
-      updateDTO.user.email,
-      updateDTO.user.password,
+      input.user.id,
+      input.user.username,
+      input.user.email,
+      input.user.password,
       new Date().toISOString(), // updatedAt
       new Date().toISOString(), // Fallback createdAt
       "",
-      updateDTO.user.tel,
+      input.user.tel,
     );
 
     const dpmUser = DepartmentUserEntity.create(
-      updateDTO.position_id,
+      input.position_id,
       userEntity,
-      updateDTO.signature_file
+      input.signature_file,
+      input.departmentId,
+      input.permissionIds,
+      input.roleIds,
+
     );
 
     return await this.dpmUserRepository.update(id, dpmUser);

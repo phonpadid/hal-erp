@@ -13,7 +13,8 @@ export class ApprovalWorkflowEntity {
 
   constructor(
     id: string | null = null,
-    name: string, document_type_id: string,
+    name: string,
+    document_type_id: string,
     document_types: DocumentTypeEntity | null = null,
     createdAt: string | null = null,
     updatedAt: string | null = null,

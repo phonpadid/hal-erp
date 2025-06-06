@@ -1,10 +1,12 @@
+import type { UserInterface } from "../user.interface";
+import type { DepartmentApiModel } from "./department.interface";
+
 export interface DepartmentApproverApiModel {
   id: number;
-  user_id: string;
-  department_id?: string;
+  user_id: number;
 
-  username?: string;
-  departmentName?: string;
+  user?: UserInterface;
+  department?: DepartmentApiModel;
   created_at?: string;
   updated_at?: string;
 }

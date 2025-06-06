@@ -12,7 +12,7 @@ import { DocumentTypeEntity } from "../domain/entities/document-type.entities";
 export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository {
   async create(input: ApprovalWorkflowEntity): Promise<ApprovalWorkflowEntity> {
     try {
-      const response = (await api.post("/approval-flows", this.toApiModel(input))) as {
+      const response = (await api.post("/approval-workflows", this.toApiModel(input))) as {
         data: ApiResponse<ApprovalWorkflowApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -23,7 +23,7 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
 
   async findById(id: string): Promise<ApprovalWorkflowEntity | null> {
     try {
-      const response = (await api.get(`/approval-flows/${id}`)) as {
+      const response = (await api.get(`/approval-workflows/${id}`)) as {
         data: ApiResponse<ApprovalWorkflowApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -41,7 +41,7 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<ApprovalWorkflowEntity>> {
     try {
-      const response = await api.get("/approval-flows", {
+      const response = await api.get("/approval-workflows", {
         params: {
           page: params.page,
           limit: params.limit,
@@ -65,7 +65,7 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
 
   async update(id: string, input: ApprovalWorkflowEntity): Promise<ApprovalWorkflowEntity> {
     try {
-      const response = (await api.put(`/approval-flows/${id}`, this.toApiModel(input))) as {
+      const response = (await api.put(`/approval-workflows/${id}`, this.toApiModel(input))) as {
         data: ApiResponse<ApprovalWorkflowApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -76,7 +76,7 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
 
   async delete(id: string): Promise<boolean> {
     try {
-      await api.delete(`/approval-flows/${id}`);
+      await api.delete(`/approval-workflows/${id}`);
       return true;
     } catch (error) {
       return this.handleApiError(error, `Failed to delete with id ${id}`);
@@ -88,20 +88,23 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
     return {
       id: Number(input.getId()),
       name: input.getName(),
-      document_type_id: Number(input.getDocument_type_id()),
+      documentTypeId: Number(input.getDocument_type_id()),
     };
   }
 
   private toDomainModel(data: ApprovalWorkflowApiModel): ApprovalWorkflowEntity {
-    return new ApprovalWorkflowEntity(
+
+    const res = new ApprovalWorkflowEntity(
       data.id.toString(),
       data.name,
-      data.document_type_id.toString(),
-      data.document_types ? this.toDocumentTypeEntity(data.document_types) : undefined,
+      String(data.documentTypeId),
+      data.document_type ? this.toDocumentTypeEntity(data.document_type) : undefined,
       data.created_at || "",
       data.updated_at || "",
     );
+    return res
   }
+
   //docType
   private toDocumentTypeEntity(model: DoucmentTypeInterface): DocumentTypeEntity {
     return new DocumentTypeEntity(

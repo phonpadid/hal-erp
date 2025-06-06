@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed, watch } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -12,7 +12,7 @@ import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { dpmRules } from "./validation/approval-workflow.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import { dataApprovalFlow } from "@/modules/shared/utils/approval-flow";
+// import { dataApprovalFlow } from "@/modules/shared/utils/approval-flow";
 import { useDocumentTypeStore } from "../../stores/document-type.store";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import type { ApprovalWorkflowApiModel } from "@/modules/interfaces/approval-workflow.interface";
@@ -52,45 +52,45 @@ onMounted(async () => {
 
 const loadDpm = async (): Promise<void> => {
   // if (useRealApi.value) {
-  //   try {
-  //     loading.value = true;
-  //     const result = await store.fetchDepartment({
-  //       page: store.pagination.page,
-  //       limit: store.pagination.limit,
-  //     });
+  try {
+    loading.value = true;
+    const result = await store.fetchApprovalWorkflows({
+      page: store.pagination.page,
+      limit: store.pagination.limit,
+    });
 
-//   approval_workflow.value = result.data.map(
-//   (data: ApprovalWorkflowEntity): ApprovalWorkflowApiModel => {
-//     const doc = data.getDocument_type();
-//     return {
-//       id: Number(data.getId()), // convert to number
-//       name: data.getName(),
-//       document_type_id: String(data.getDocument_type_id()), // make sure it's a string if needed
-//       document_types: doc
-//         ? {
-//             id: Number(doc.getId()),
-//             name: doc.getname(),
-//             code: doc.getcode(),
-//             created_at: doc.getCreatedAt() ?? undefined,
-//             updated_at: doc.getUpdatedAt() ?? undefined,
-//             deleted_at: doc.getDeletedAt?.() ?? undefined, // optional if your type expects it
-//           }
-//         : undefined,
-//       created_at: data.getCreatedAt() ?? undefined,
-//       updated_at: data.getUpdatedAt() ?? undefined,
-//     };
-//   }
-// );
+    approval_workflow.value = result.data.map(
+      (data: ApprovalWorkflowEntity): ApprovalWorkflowApiModel => {
+        const doc = data.getDocument_type();
+        return {
+          id: Number(data.getId()), // convert to number
+          name: data.getName(),
+          documentTypeId: Number(data.getDocument_type_id()), // make sure it's a string if needed
+          document_type: doc
+            ? {
+                id: Number(doc.getId()),
+                name: doc.getname(),
+                code: doc.getcode(),
+                created_at: doc.getCreatedAt() ?? undefined,
+                updated_at: doc.getUpdatedAt() ?? undefined,
+                deleted_at: doc.getDeletedAt?.() ?? undefined, // optional if your type expects it
+              }
+            : undefined,
+          created_at: data.getCreatedAt() ?? undefined,
+          updated_at: data.getUpdatedAt() ?? undefined,
+        };
+      }
+    );
 
-  //     console.log("Department data loaded:", department.value);
-  //   } catch (error) {
-  //     console.error("Failed to fetch department from API:", error);
-  //     department.value = [...dataApprovalFlow.value];
-  //   } finally {
-  //     loading.value = false;
-  //   }
+    // console.log("Department data loaded:", department.value);
+  } catch (error) {
+    console.error("Failed to fetch department from API:", error);
+    // department.value = [...dataApprovalFlow.value];
+  } finally {
+    loading.value = false;
+  }
   // } else {
-  approval_workflow.value = [...dataApprovalFlow.value];
+  // approval_workflow.value = [...dataApprovalFlow.value];
   // }
 };
 
@@ -99,34 +99,33 @@ const handleSearch = async () => {
   try {
     loading.value = true;
     const result = await store.fetchApprovalWorkflows({
-  page: 1,
-  limit: store.pagination.limit,
-  search: search.value,
-});
+      page: 1,
+      limit: store.pagination.limit,
+      search: search.value,
+    });
 
-approval_workflow.value = result.data.map(
-  (data: ApprovalWorkflowEntity): ApprovalWorkflowApiModel => {
-    const doc = data.getDocument_type();
-    return {
-      id: Number(data.getId()), // convert to number
-      name: data.getName(),
-      document_type_id: Number(data.getDocument_type_id()), // make sure it's a string if needed
-      document_types: doc
-        ? {
-            id: Number(doc.getId()),
-            name: doc.getname(),
-            code: doc.getcode(),
-            created_at: doc.getCreatedAt() ?? undefined,
-            updated_at: doc.getUpdatedAt() ?? undefined,
-            deleted_at: doc.getDeletedAt?.() ?? undefined, // optional if your type expects it
-          }
-        : undefined,
-      created_at: data.getCreatedAt() ?? undefined,
-      updated_at: data.getUpdatedAt() ?? undefined,
-    };
-  }
-);
-
+    approval_workflow.value = result.data.map(
+      (data: ApprovalWorkflowEntity): ApprovalWorkflowApiModel => {
+        const doc = data.getDocument_type();
+        return {
+          id: Number(data.getId()), // convert to number
+          name: data.getName(),
+          documentTypeId: Number(data.getDocument_type_id()), // make sure it's a string if needed
+          document_type: doc
+            ? {
+                id: Number(doc.getId()),
+                name: doc.getname(),
+                code: doc.getcode(),
+                created_at: doc.getCreatedAt() ?? undefined,
+                updated_at: doc.getUpdatedAt() ?? undefined,
+                deleted_at: doc.getDeletedAt?.() ?? undefined, // optional if your type expects it
+              }
+            : undefined,
+          created_at: data.getCreatedAt() ?? undefined,
+          updated_at: data.getUpdatedAt() ?? undefined,
+        };
+      }
+    );
 
     // Optional: Update pagination
     store.setPagination({
@@ -148,9 +147,10 @@ const showCreateModal = (): void => {
 };
 
 const showEditModal = (record: ApprovalWorkflowApiModel): void => {
+  const id = record.document_type?.id ?? ''
   selectedData.value = record;
   formModel.name = record.name;
-  formModel.document_type_id = record.document_type_id.toString();
+  formModel.document_type_id = id?.toString();
   editModalVisible.value = true;
 };
 
@@ -230,6 +230,11 @@ const handleTableChange = async (pagination: any) => {
   });
   await loadDpm();
 };
+watch(search , async(newValue) => {
+  if(newValue === '') {
+    await loadDpm()
+  }
+})
 </script>
 
 <template>
@@ -242,7 +247,7 @@ const handleTableChange = async (pagination: any) => {
         <div class="w-[20rem]">
           <InputSearch
             v-model:value="search"
-            @change="handleSearch"
+            @keyup.enter="handleSearch"
             :placeholder="t('approval-workflow.placeholder.search')"
           />
         </div>
@@ -254,6 +259,12 @@ const handleTableChange = async (pagination: any) => {
         >
           {{ $t("approval-workflow.add") }}
         </UiButton>
+      </div>
+      <div class="total-item mt-4 text-slate-700">
+        <a-tag color="red"
+          >{{ t("approval-workflow.total") }}: {{ store.pagination.total }}
+          {{ t("approval-workflow.item") }}</a-tag
+        >
       </div>
     </div>
 
@@ -386,9 +397,14 @@ const handleTableChange = async (pagination: any) => {
 </template>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Lao&display=swap");
 .unit-list-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.total-item .ant-tag {
+  font-family: "Noto Sans Lao", sans-serif;
+  font-size: 14px;
 }
 </style>

@@ -1,5 +1,5 @@
 
-export const dpmUserRules = (t: (key: string) => string) => ({
+export const updateDpmUserRules = (t: (key: string) => string) => ({
   username: [
     {
       required: true,
@@ -68,40 +68,6 @@ export const dpmUserRules = (t: (key: string) => string) => ({
       message: t("departments.dpm_user.error.permission"),
       trigger: "blur"
     }
-  ],
-  password: [
-    {
-      required: true,
-      message: t("departments.dpm_user.error.dpm"),
-      trigger: "blur",
-    },
-    {
-      min: 6,
-      message: t("departments.dpm_user.error.password_min"),
-      trigger: "blur",
-    },
-    {
-      max: 100,
-      message: t("departments.dpm_user.error.password_max"),
-      trigger: "blur",
-    },
-  ],
-  confirm_password: [
-    {
-      required: true,
-      message: t("departments.dpm_user.error.dpm"),
-      trigger: "blur",
-    },
-    {
-      min: 6,
-      message: t("departments.dpm_user.error.password_min"),
-      trigger: "blur",
-    },
-    {
-      max: 100,
-      message: t("departments.dpm_user.error.password_max"),
-      trigger: "blur",
-    },
   ],
   signature_file: [
     {
