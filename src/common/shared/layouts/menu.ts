@@ -1,7 +1,8 @@
-import { h, reactive } from "vue";
+import { computed, h } from "vue";
 import type { ItemType } from "./interfaces/menu.interface";
 import { Icon } from "@iconify/vue";
 import router from "../router/index";
+import { t } from "@/common/config/i18n/i18n.config";
 
 function logout() {
   localStorage.clear();
@@ -12,13 +13,13 @@ function logout() {
     .catch(() => { });
 }
 
-export const menuItems: ItemType[] = reactive([
+export const menuItems= computed<ItemType[]>(() => [
   {
-    label: "ເມນູ",
+    label: t('menu-sidebar.menu'),
     children: [
       {
         key: "dashboard",
-        label: "ແດຊບອດ",
+        label: t('menu-sidebar.dashboard'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -29,7 +30,7 @@ export const menuItems: ItemType[] = reactive([
       },
       {
         key: "",
-        label: "ສ້າງໃບສະເໜີ",
+        label: t('menu-sidebar.purchase_orde'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -40,7 +41,7 @@ export const menuItems: ItemType[] = reactive([
       },
       {
         key: "PositionList",
-        label: "ຕຳແໜ່ງ",
+        label: t('menu-sidebar.position'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -51,7 +52,7 @@ export const menuItems: ItemType[] = reactive([
       },
       {
         key: "UnitList",
-        label: "ຫົວໜ່ວຍ",
+        label: t('menu-sidebar.unit'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -62,7 +63,7 @@ export const menuItems: ItemType[] = reactive([
       },
       {
         key: "CategoryList",
-        label: "ປະເພດ",
+        label: t('menu-sidebar.category'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -74,7 +75,7 @@ export const menuItems: ItemType[] = reactive([
       },
       {
         key: "document_typesList",
-        label: "ຈັດການປະເພດເອກະສານ",
+        label: t('menu-sidebar.document_type'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -86,7 +87,7 @@ export const menuItems: ItemType[] = reactive([
       },
       {
         key: "user_approval.index",
-        label: "ຜູ້ອະນຸມັດເອກະສານ",
+        label: t('menu-sidebar.user_approval'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -97,7 +98,7 @@ export const menuItems: ItemType[] = reactive([
       },
       {
         key: "budget_apv_rule.index",
-        label: "ຜູ້ຮັບຜິດຊອບ",
+        label: t('menu-sidebar.budget_apv_rule'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -108,7 +109,7 @@ export const menuItems: ItemType[] = reactive([
       },
       {
         key: "approval_workflows.index",
-        label: "ຟອມອະນຸມັດປະເພດເອກະສານ",
+        label: t('menu-sidebar.approval_workflow'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -119,7 +120,7 @@ export const menuItems: ItemType[] = reactive([
       },
       {
         key: "currencies.index",
-        label: "ສະກຸນເງິນ",
+        label: t('menu-sidebar.currency'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -139,7 +140,7 @@ export const menuItems: ItemType[] = reactive([
       { type: "divider" },
       {
         key: "120",
-        label: "ຈັດການຂໍ້ມູນພະແນກ",
+        label: t('menu-sidebar.department_manage'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -150,15 +151,15 @@ export const menuItems: ItemType[] = reactive([
         children: [
           {
             key: "department.index",
-            label: "​ພະ​ແນກ",
+            label: t('menu-sidebar.department'),
           },
           {
             key: "department_approver.index",
-            label: "ຜູ້​ອະ​ນຸ​ມັດ​ພະ​ແນກ​​",
+            label: t('menu-sidebar.department_approver'),
           },
           {
             key: "department_user.index",
-            label: "ຜູ້​ໃຊ້​ພະ​ແນກ",
+            label: t('menu-sidebar.department_user'),
           },
         ],
       },
@@ -171,7 +172,7 @@ export const menuItems: ItemType[] = reactive([
       { type: "divider" },
       {
         key: "122",
-        label: "ຈັດການງົບປະມານ",
+        label: t('menu-sidebar.budget_manage'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -182,15 +183,15 @@ export const menuItems: ItemType[] = reactive([
         children: [
           {
             key: "budget-accounts",
-            label: "ຈັດການບັນຊີງົບປະມານ",
+            label: t('menu-sidebar.budget_account'),
           },
           {
             key: "budget-items",
-            label: "ລາຍການງົບປະມານ",
+            label: t('menu-sidebar.budget_item'),
           },
           {
             key: "budget-item-details",
-            label: "ລາຍລະອຽດງົບປະມານ",
+            label: t('menu-sidebar.budget_item_detail'),
           },
         ],
       },
@@ -203,7 +204,7 @@ export const menuItems: ItemType[] = reactive([
       { type: "divider" },
       {
         key: "121",
-        label: "ຈັດການຂໍ້ມູນ",
+        label: t('menu-sidebar.vendor_manage'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -214,11 +215,11 @@ export const menuItems: ItemType[] = reactive([
         children: [
           {
             key: "vendorsList",
-            label: "ຈັດການຂໍ້ມູນຜູ້ຈັດຊື້",
+            label: t('menu-sidebar.vendor'),
           },
           {
             key: "vendorsBankList",
-            label: "ຈັດການບັນຊີທະນາຄານຜູ້ຈັດຊື້",
+            label: t('menu-sidebar.vendor_bank'),
           },
         ],
       },
@@ -231,7 +232,7 @@ export const menuItems: ItemType[] = reactive([
       { type: "divider" },
       {
         key: "12",
-        label: "ຈັດການຜູ້ໃຊ້",
+        label: t('menu-sidebar.user_manage'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -242,15 +243,15 @@ export const menuItems: ItemType[] = reactive([
         children: [
           {
             key: "userList",
-            label: "ຜູ້ໃຊ້",
+            label: t('menu-sidebar.user'),
           },
           {
             key: "roleList",
-            label: "ບົດບາດ",
+            label: t('menu-sidebar.role'),
           },
           {
             key: "permissionsList",
-            label: "ການອານຸຍາດ",
+            label: t('menu-sidebar.permission'),
           },
         ],
       },
@@ -258,11 +259,11 @@ export const menuItems: ItemType[] = reactive([
     type: "group",
   },
   {
-    label: "ລາຍງານ",
+    label: t('menu-sidebar.report'),
     children: [
       {
         key: "payments",
-        label: "ລາຍງານ",
+        label: t('menu-sidebar.report'),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -273,7 +274,7 @@ export const menuItems: ItemType[] = reactive([
       },
       {
         key: "logout",
-        label: "ອອກຈາກລະບົບ",
+        label: t('menu-sidebar.logout'),
         icon: () =>
           h("div", {}, [
             h(Icon, {

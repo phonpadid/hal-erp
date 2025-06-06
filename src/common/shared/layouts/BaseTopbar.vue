@@ -35,7 +35,7 @@ watch(locale, updateCurrentLang);
 
 <template>
   <header
-    class="fixed top-0 z-50 flex items-center justify-between w-full h-16 px-4 bg-white transition-all"
+    class="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 bg-white transition-all pr-10"
   >
     <Icon
       icon="lucide-align-justify"
@@ -46,7 +46,7 @@ watch(locale, updateCurrentLang);
     />
 
     <!-- change langue  -->
-    <div class="header-action-container">
+    <div class="header-action-container flex items-center gap-4">
       <a-dropdown>
         <a
           class="ant-dropdown-link flex items-center ring-1 ring-slate-200 shadow-sm px-2 h-8 rounded-full bg-slate-50 gap-2"
@@ -77,6 +77,26 @@ watch(locale, updateCurrentLang);
           </a-menu>
         </template>
       </a-dropdown>
+      <div
+        class="notifycation bg-slate-100 p-1 rounded-full w-9 h-9 flex items-center justify-center"
+      >
+        <Icon
+          icon="material-symbols:notifications-unread-outline"
+          width="24"
+          height="24"
+          class="cursor-pointer"
+        />
+      </div>
+      <div class="profile flex gap-0 items-center">
+        <img
+          src="/public/Profile-PNG-File.png"
+          width="35"
+          height="35"
+          alt=""
+          srcset=""
+        />
+        <span class="text-[12px]">DEV ERP</span>
+      </div>
     </div>
   </header>
 </template>

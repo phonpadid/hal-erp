@@ -1,0 +1,34 @@
+{
+    "menu": "Menu",
+    "dashboard": "Dashboard",
+    "purchase_orde": "Purchase orders",
+    "position": "Positions",
+    "unit": "Units",
+    "category": "Categories",
+    "document_type": "Document types",
+    "user_approval": "User approvals",
+    "budget_apv_rule": "Budget approval rules",
+    "approval_workflow": "Approval workflows",
+    "currency": "Currencies",
+    
+    "department_manage": "Manage departments",
+    "department": "Departments",
+    "department_approver": "Department approvers",
+    "department_user": "Department users",
+
+    "budget_manage": "Budget Manage",
+    "budget_account": "Budget accounts",
+    "budget_item": "Budget items",
+    "budget_item_detail": "Budget item details",
+
+    "vendor_manage": "Vendor manage",
+    "vendor": "Vendors",
+    "vendor_bank": "Vendor bank",
+
+    "user_manage": "User manage",
+    "user": "Users",
+    "role": "Roles",
+    "permission": "Permissions",
+    "report": "Reports",
+    "logout": "Logout"
+}
