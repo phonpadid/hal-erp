@@ -1,0 +1,34 @@
+{
+    "menu": "ເມນູ",
+    "dashboard": "ແດຊບອດ",
+    "purchase_orde": "ໃບສັ່ງຊື້",
+    "position": "ຕຳແໜ່ງ",
+    "unit": "ຫົວໜ່ວຍ",
+    "category": "ປະເພດ",
+    "document_type": "ປະເພດເອກະສານ",
+    "user_approval": "ຜູ້ອະນຸມັດເອກະສານ",
+    "budget_apv_rule": "ຜູ້ຮັບຜິດຊອບ",
+    "approval_workflow": "ຟອມອະນຸມັດປະເພດເອກະສານ",
+    "currency": "ສະກຸນເງິນ",
+    
+    "department_manage": "ຈັດການພະແນກ",
+    "department": "ພະແນກ",
+    "department_approver": "ຜູ້ອະນຸມັດພະແນກ",
+    "department_user": "ຜູ້ໃຊ້ພະແນກ",
+
+    "budget_manage": "ຈັດການງົບປະມານ",
+    "budget_account": "ບັນຊີງົບປະມານ",
+    "budget_item": "ລາຍການງົບປະມານ",
+    "budget_item_detail": "ລາຍລະອຽດງົບປະມານ",
+
+    "vendor_manage": "ຈັດການຂໍ້ມູນຜູ້ຈັດຊື້",
+    "vendor": "ຜູ້ຈັດຊື້",
+    "vendor_bank": "ບັນຊີທະນາຄານຜູ້ຈັດຊື້",
+
+    "user_manage": "ຈັດການຂໍ້ມູນຜູ້ໃຊ້",
+    "user": "ຂໍ້ມູນຜູ້ໃຊ້",
+    "role": "ບົດບາດ",
+    "permission": "ສິດທີ",
+    "report": "ລາຍງານ",
+    "logout": "ອອກຈາກລະບົບ"
+}

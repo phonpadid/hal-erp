@@ -1,4 +1,5 @@
 {
     "loading": "Loading...",
-    "err": "Something went wrong!"
+    "err": "Something went wrong!",
+    "notification": "Notification"
 }
