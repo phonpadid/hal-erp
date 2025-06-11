@@ -12,11 +12,11 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "approver.tel",
       key: "tel",
     },
-    {
-      title: t("departments.dpm.field.name"),
-      dataIndex: "department.name",
-      key: "name",
-    },
+    // {
+    //   title: t("departments.dpm.field.name"),
+    //   dataIndex: "department.name",
+    //   key: "name",
+    // },
     {
       title: t("budget-apv-rule.field.min"),
       dataIndex: "min_amount",

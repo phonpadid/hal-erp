@@ -117,12 +117,13 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
           limit: params.limit,
           includeDeleted,
           ...(params.search && { search: params.search }),
+          ...(params.type && { type: params.type }),
         },
       }) as { data: ApiListResponse<DepartmentUserApiModel> };
 
       const validItems = response.data.data.filter((item) => item.user);
       const domainModels = validItems.map((item) => this.toDomainModel(item));
-
+console.log('data:', domainModels)
       return {
         data: domainModels,
         total: response.data.pagination.total,
@@ -163,6 +164,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
         formData.append('signatureFile', apiModel.signature_file);
       } else if (typeof apiModel.signature_file === 'string' && apiModel.signature_file.trim()) {
         formData.append('signatureFile', apiModel.signature_file);
+      }else {
+        formData.append('signatureFile', '');
       }
 
       // Append departmentId with proper validation

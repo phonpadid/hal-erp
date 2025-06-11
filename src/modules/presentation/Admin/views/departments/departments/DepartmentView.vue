@@ -201,7 +201,7 @@ watch(search, async (newValue) => {
 </script>
 
 <template>
-  <div class="unit-list-container p-6">
+  <div class="list-container p-6">
     <div class="mb-6 gap-4">
       <h1 class="text-2xl font-semibold">
         {{ $t("departments.dpm.title") }}
@@ -222,6 +222,15 @@ watch(search, async (newValue) => {
         >
           {{ $t("departments.dpm.add") }}
         </UiButton>
+      </div>
+      <div class="total-item mt-4 text-slate-700">
+        <a-tag color="red"
+          >{{
+            t("departments.dpm.total", {
+              count: dpmStore.pagination.total,
+            })
+          }}
+        </a-tag>
       </div>
     </div>
 
@@ -352,9 +361,14 @@ watch(search, async (newValue) => {
 </template>
 
 <style scoped>
-.unit-list-container {
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Lao&display=swap");
+.list-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.total-item .ant-tag {
+  font-family: "Noto Sans Lao", sans-serif;
+  font-size: 14px;
 }
 </style>

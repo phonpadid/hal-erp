@@ -108,6 +108,8 @@ export const menuItems = computed<ItemType[]>(() => [
           ]),
       },
       {
+
+
         key: "approval_workflows.index",
         label: t("menu-sidebar.approval_workflow"),
         icon: () =>
@@ -160,6 +162,10 @@ export const menuItems = computed<ItemType[]>(() => [
           {
             key: "department_user.index",
             label: t("menu-sidebar.department_user"),
+          },
+          {
+            key: "budget_apv_rule.index",
+            label: t('menu-sidebar.budget_apv_rule'),
           },
         ],
       },

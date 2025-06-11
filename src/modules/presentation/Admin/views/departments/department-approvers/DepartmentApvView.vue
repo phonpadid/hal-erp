@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -8,16 +8,17 @@ import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 
 import { useI18n } from "vue-i18n";
-import { dpmRules } from "../departments/validation/department.validate";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { dpmApproverRules } from "./validation/department.validate";
 import { departmentApproverStore } from "../../../stores/departments/department-approver.store";
 import type { DepartmentApproverApiModel } from "@/modules/interfaces/departments/department-approver.interface";
 import { departmentStore } from "../../../stores/departments/department.store";
-import { useUserStore } from "../../../stores/user.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import type { DepartmentApproverEntity } from "@/modules/domain/entities/departments/department-approver.entity";
+import { departmenUsertStore } from "../../../stores/departments/department-user.store";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 const { t } = useI18n();
+const search = ref<string>("");
 // Initialize the unit store
 // departments data that will be displayed (from API or mock)
 const departmentApv = ref<DepartmentApproverApiModel[]>([]);
@@ -29,26 +30,33 @@ const editModalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedDpm = ref<DepartmentApproverApiModel | null>(null);
-const userStore = useUserStore();
+const userStore = departmenUsertStore();
 const { success } = useNotification();
 const userItem = computed(() =>
-  userStore.users.map((item) => ({
-    value: item.getId(),
-    label: item.getUsername(),
+  userStore.departmentUser.map((item) => ({
+    value: item.getUser()?.getId() ?? "",
+    label: item.getUser()?.getUsername() ?? "",
   }))
 );
 // Form model
 const store = departmentApproverStore();
 const formModel = store.dpmApproverFormModel;
-
+const refreshUsers = async () => {
+  await userStore.fetchDepartmentUser({
+    page: 1,
+    limit: 1000,
+    type: "approvers",
+  });
+};
 // Load data on component mount
 onMounted(async () => {
-  await loadDpm();
+  await dpmApproverList();
   await dpmStore.fetchDepartment();
-  await userStore.fetchUsers();
+  await store.fetchDepartmentApprover();
+  await refreshUsers();
 });
 
-const loadDpm = async (): Promise<void> => {
+const dpmApproverList = async (): Promise<void> => {
   // if (useRealApi.value) {
   try {
     loading.value = true;
@@ -94,7 +102,50 @@ const loadDpm = async (): Promise<void> => {
   // department.value = [...dataDpmUser.value];
   // }
 };
+//search
+const handleSearch = async () => {
+  try {
+    loading.value = true;
+    const result = await store.fetchDepartmentApprover({
+      page: store.pagination.page,
+      limit: store.pagination.limit,
+      search: search.value,
+    });
 
+    departmentApv.value = result.data.map(
+      (dpmApv: DepartmentApproverEntity) => {
+        const dpm = dpmApv.getDepartment();
+        const user = dpmApv.getUser();
+
+        return {
+          id: Number(dpmApv.getId()), // ensure number
+          user_id: Number(dpmApv.getUser_id()), // ensure number
+          department: dpm
+            ? {
+                id: Number(dpm.getId()),
+                code: dpm.getCode(),
+                name: dpm.getName(),
+              }
+            : undefined,
+          user: user
+            ? {
+                id: Number(user.getId()),
+                username: user.getUsername(),
+                tel: user.getTel(),
+                email: user.getEmail(),
+              }
+            : undefined,
+          created_at: dpmApv.getCreatedAt()?.toString() || "",
+          updated_at: dpmApv.getUpdatedAt()?.toString() || "",
+        };
+      }
+    );
+  } catch (error) {
+    console.error("Failed to fetch department from API:", error);
+  } finally {
+    loading.value = false;
+  }
+};
 // CRUD operations
 const showCreateModal = (): void => {
   formModel.user_id = "";
@@ -121,8 +172,8 @@ const handleCreate = async (): Promise<void> => {
       user_id: Number(formModel.user_id),
     });
     success(t("departments.notify.created"));
-    await loadDpm(); // Refresh the list
-
+    await dpmApproverList(); // Refresh the list
+    await refreshUsers();
     createModalVisible.value = false;
   } catch (error) {
     console.error("Create form validation failed:", error);
@@ -143,7 +194,8 @@ const handleEdit = async (): Promise<void> => {
         user_id: formModel.user_id,
       });
       success(t("departments.notify.update"));
-      await loadDpm();
+      await dpmApproverList();
+      await refreshUsers();
     }
 
     editModalVisible.value = false;
@@ -156,44 +208,90 @@ const handleEdit = async (): Promise<void> => {
 
 const handleDelete = async (): Promise<void> => {
   if (!selectedDpm.value) return;
-
+  loading.value = true;
   try {
-      // Use API to delete
-      const id = selectedDpm.value.id.toString();
-      await store.deleteDepartmentApprover(id);
-      await loadDpm(); // Refresh the list
-    } catch (error) {
-      console.error("Delete failed:", error);
-    }
+    // Use API to delete
+    const id = selectedDpm.value.id.toString();
+    await store.deleteDepartmentApprover(id);
+    await dpmApproverList(); // Refresh the list
+    await refreshUsers();
+  } catch (error) {
+    console.error("Delete failed:", error);
+  }
 
   deleteModalVisible.value = false;
   loading.value = false;
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleTableChange = async (pagination: any) => {
+  dpmStore.setPagination({
+    page: pagination.current | 1,
+    limit: pagination.pageSize,
+    total: pagination.total,
+  });
+  await dpmApproverList();
+};
+watch(search, async (newValue) => {
+  if (newValue === "") {
+    await dpmApproverList();
+  }
+});
+// const total = computed(() => store.pagination.total)
 </script>
 
 <template>
-  <div class="unit-list-container p-6">
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-2xl font-semibold">
-          {{ $t("departments.dpm_approver.title") }}
-        </h1>
+  <div class="list-container p-6">
+    <div class="mb-6 gap-4">
+      <h1 class="text-2xl font-semibold">
+        {{ $t("departments.dpm_approver.title") }}
+      </h1>
+
+      <div class="flex justify-between gap-20">
+        <div class="w-[20rem]">
+          <InputSearch
+            v-model:value="search"
+            @keyup.enter="handleSearch"
+            :placeholder="t('departments.dpm_user.placeholder.search')"
+          />
+        </div>
+        <UiButton
+          type="primary"
+          icon="ant-design:plus-outlined"
+          @click="showCreateModal"
+          colorClass="flex items-center"
+        >
+          {{ $t("departments.dpm_user.add") }}
+        </UiButton>
       </div>
-      <UiButton
-        type="primary"
-        icon="ant-design:plus-outlined"
-        @click="showCreateModal"
-        colorClass="flex items-center"
-      >
-        {{ $t("departments.dpm.add") }}
-      </UiButton>
+      <div class="mt-4 text-slate-700 space-y-2">
+        <span
+          :loading="store.loading"
+          class="block text-lg font-semibold"
+          v-if="departmentApv.length > 0 && departmentApv[0].department"
+        >
+          {{ departmentApv[0].department?.name }}
+        </span>
+
+        <!-- <a-tag :loading="store.loading" color="red" class="inline-block">
+          {{
+            t("departments.dpm_approver.total", {
+              count: total,
+            })
+          }}
+        </a-tag> -->
+      </div>
     </div>
     <Table
       :columns="columns(t)"
       :dataSource="departmentApv"
-      :pagination="{ pageSize: 10 }"
+      :pagination="{
+        current: store.pagination.page,
+        pageSize: store.pagination.limit,
+        total: store.pagination.total,
+      }"
       row-key="id"
       :loading="store.loading"
+      @change="handleTableChange"
     >
       <!-- Named slot: signature_file -->
       <template #signature_file="{ record }">
@@ -228,6 +326,8 @@ const handleDelete = async (): Promise<void> => {
       @update:visible="createModalVisible = $event"
       @ok="handleCreate"
       @cancel="createModalVisible = false"
+      :ok-text="t('button.save')"
+      :cancel-text="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="dpmApproverRules(t)">
         <UiFormItem
@@ -252,8 +352,10 @@ const handleDelete = async (): Promise<void> => {
       @update:visible="editModalVisible = $event"
       @ok="handleEdit"
       @cancel="editModalVisible = false"
+      :ok-text="t('button.edit')"
+      :cancel-text="t('button.cancel')"
     >
-      <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
+      <UiForm ref="formRef" :model="formModel" :rules="dpmApproverRules(t)">
         <UiFormItem
           :label="t('departments.dpm_user.field.user')"
           name="user_id"
@@ -270,27 +372,39 @@ const handleDelete = async (): Promise<void> => {
 
     <!-- Delete Confirmation Modal -->
     <UiModal
-      title="ຢືນຢັນການລຶບ"
+      :title="t('departments.alert.confirm')"
       :visible="deleteModalVisible"
       :confirm-loading="loading"
       @update:visible="deleteModalVisible = $event"
       @ok="handleDelete"
       @cancel="deleteModalVisible = false"
-      okText="ຢືນຢັນ"
+      :okText="t('button.ok')"
+      :cancel-text="t('button.cancel')"
       okType="primary"
     >
-      <p>ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບພະແພກ: "{{ selectedDpm?.user_id }}"?</p>
+      <p>
+        {{ t("departments.alert.message") }}: "{{
+          selectedDpm?.user?.username
+        }}"?
+      </p>
       <p class="text-red-500">
-        ການດຳເນີນການນີ້ບໍ່ສາມາດຍົກເລີກໄດ້ ຫຼັງຈາກທ່ານຢືນຢັນສຳເລັດ.
+        {{ t("departments.alert.remark") }}
       </p>
     </UiModal>
   </div>
 </template>
 
 <style scoped>
-.unit-list-container {
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Lao&display=swap");
+
+.list-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.ant-tag {
+  font-family: "Noto Sans Lao", sans-serif;
+  font-size: 14px;
 }
 </style>
