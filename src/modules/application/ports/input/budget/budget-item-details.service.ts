@@ -5,7 +5,7 @@ import type {
 } from "@/modules/application/dtos/budget/budget-item-details.dto";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
-export interface BudgetItemDeatilsService {
+export interface BudgetItemDetailsService {
   createBudgetItemDetails(
     createBudgetItemDetailsDTO: CreateBudgetItemDetailsDTO
   ): Promise<BudGetItemDetailsEntity>;
@@ -14,6 +14,13 @@ export interface BudgetItemDeatilsService {
     params: PaginationParams,
     includeDeleted?: boolean
   ): Promise<PaginatedResult<BudGetItemDetailsEntity>>;
+
+  getBudgetItemDetailsByItemId(
+    itemId: string,
+    params: PaginationParams,
+    includeDeleted?: boolean
+  ): Promise<PaginatedResult<BudGetItemDetailsEntity>>;
+
   updateBudgetItemDetails(
     id: string,
     updateUnitDTO: UpdateBudgetItemDetailsDTO

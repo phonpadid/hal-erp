@@ -1,8 +1,8 @@
 export interface BudgetItemDetailsDTO {
   id: string;
-  budget_item_id: string;
+  // budget_item_id: string;
   name: string;
-  province_id: string;
+  provinceId?: string | number;
   description: string;
   allocated_amount: string;
   created_at: string;
@@ -10,17 +10,17 @@ export interface BudgetItemDetailsDTO {
   deleted_at: string | null;
 }
 export interface CreateBudgetItemDetailsDTO {
-  budget_item_id: string;
+  // budget_item_id: string | number;
   name: string;
-  province_id: string;
+  provinceId?: string | number;
   description: string;
   allocated_amount: string;
 }
 export interface UpdateBudgetItemDetailsDTO {
   id: string;
-  budget_item_id: string;
+  // budget_item_id: string | number;
   name: string;
-  province_id: string;
+  provinceId?: string | number;
   description: string;
   allocated_amount: string;
 }

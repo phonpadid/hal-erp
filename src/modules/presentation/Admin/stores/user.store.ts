@@ -1,6 +1,7 @@
 import type {
   UserChangePasswordPayload,
   UserCreatePayload,
+  UserUpdatePayload,
 } from "./../../../interfaces/user.interface";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
@@ -137,7 +138,7 @@ export const useUserStore = defineStore("user", () => {
   // Update User
   const updateUser = async (
     id: string,
-    userData: { username?: string; email?: string; password?: string; tel?: string }
+    userData: UserUpdatePayload
   ) => {
     loading.value = true;
     error.value = null;
@@ -188,6 +189,8 @@ export const useUserStore = defineStore("user", () => {
       id: parseInt(user.getId()),
       username: user.getUsername(),
       email: user.getEmail(),
+      roleIds: user.getRoleIds(),
+      permissionIds: user.getPermissionIds(),
       tel: user.getTel(),
       created_at: user.getCreatedAt(),
       updated_at: user.getUpdatedAt(),

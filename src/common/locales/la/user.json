@@ -30,7 +30,12 @@
     "newPassword": "ລະຫັດຜ່ານໃໝ່",
     "newPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານໃໝ່",
     "currentPassword": "ລະຫັດຜ່ານປັດຈຸບັນ",
-    "currentPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານປັດຈຸບັນ"
+    "currentPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານປັດຈຸບັນ",
+    "selectRoles": "ເລືອກບົດບາດ",
+    "roles": "ບົດບາດ",
+    "permissions": "ສິດທິ",
+    "basicInfo": "ຂໍ້ມູນພື້ນຖານຂອງຜູ້ໃຊ້",
+    "selected": "Selected"
   },
   "validation": {
     "usernameRequired": "ກະລຸນາປ້ອນຊື່ຜູ້ໃຊ້ກ່ອນ",

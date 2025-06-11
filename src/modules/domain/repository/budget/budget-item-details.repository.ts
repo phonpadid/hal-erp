@@ -11,10 +11,13 @@ export interface BudgetItemDetailsRepository {
     includeDeleted?: boolean
   ): Promise<PaginatedResult<BudGetItemDetailsEntity>>;
   findById(id: string): Promise<BudGetItemDetailsEntity | null>;
+  findByBudgetItemId(
+    budgetItemId: string,
+    params: PaginationParams,
+    includeDeleted?: boolean
+  ): Promise<PaginatedResult<BudGetItemDetailsEntity>>;
+
   create(budgetData: CreateBudgetItemDetailsInterface): Promise<BudGetItemDetailsEntity>;
-  update(
-    id: string,
-    budget: UpdateBudgetItemDetailsInterface
-  ): Promise<BudGetItemDetailsEntity>;
+  update(id: string, budget: UpdateBudgetItemDetailsInterface): Promise<BudGetItemDetailsEntity>;
   delete(id: string): Promise<boolean>;
 }

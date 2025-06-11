@@ -10,7 +10,7 @@ import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 
 export class ApiBudgetItemRepository implements BudgetItemRepository {
-  private readonly baseUrl = "/budget-item";
+  private readonly baseUrl = "/budget-items";
 
   async findAll(
     params: PaginationParams,
@@ -40,7 +40,7 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
       this.handleApiError(error, "Failed to fetch budGetAccountss list");
     }
   }
-  
+
   async findByBudgetAccountId(
     budgetAccountId: string,
     params: PaginationParams,
@@ -111,12 +111,13 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
   private toDomainModel(budGet: BudgetItemInterface): BudGetItemEntity {
     return new BudGetItemEntity(
       budGet.id.toString(),
-      budGet.name,
       budGet.budget_account_id.toString(),
+      budGet.name,
       budGet.allocated_amount,
       budGet.created_at || "",
       budGet.updated_at || "",
-      budGet.deleted_at || null
+      budGet.deleted_at || null,
+      budGet.budget_item_details
     );
   }
 

@@ -12,11 +12,17 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "allocated_amount",
       key: "allocated_amount",
     },
+    // {
+    //   title: t("budget_items.field.budget_account"),
+    //   dataIndex: "budget_account_id",
+    //   key: "budget_account",
+    //   scopedSlots: { customRender: "budget_account" },
+    // },
     {
-      title: t("budget_items.field.budget_account"),
-      dataIndex: "budget_account_id",
-      key: "budget_account",
-      scopedSlots: { customRender: "budget_account" },
+      title: t("budget_items.field.itemDetails"),
+      dataIndex: "budget_item_details",
+      key: "budget_item_details",
+      scopedSlots: { customRender: "budget_item_details" },
     },
     {
       title: t("budget_items.field.created"),

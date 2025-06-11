@@ -30,7 +30,12 @@
     "newPassword": "New Password",
     "newPasswordPlaceholder": "Enter new password",
     "currentPassword": "Current Password",
-    "currentPasswordPlaceholder": "Enter current password"
+    "currentPasswordPlaceholder": "Enter current password",
+    "selectRoles": "Select Role",
+    "roles": "Roles",
+    "permissions": "Permissions",
+    "basicInfo": "Basic Information",
+    "selected": "Selected"
   },
   "validation": {
     "usernameRequired": "Please enter username",
