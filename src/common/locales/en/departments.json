@@ -10,6 +10,7 @@
       "remark": "This action cannot be undone once you have confirmed it."
     },
     "dpm": {
+      "total": "There are a total of {count} departments",
       "title": "Departments information",
       "add": "Add departments",
       "header_form": {
@@ -23,7 +24,9 @@
       },
       "error": {
         "code": "Please enter code",
-        "name": "Please enter departments name"
+        "name": "Please enter departments name",
+        "code_max": "Code must not exceed 150 characters.",
+        "name_max": "Name must not exceed 255 characters."
       },
       "field": {
         "code": "Code",
@@ -35,7 +38,7 @@
     },
     "dpm_user": {
       "title": "Departments user information",
-      "add": "Add departments user",
+      "add": "Add info",
       "total": "There are {count} department users",
       "header_form": {
         "add": "Departments user creation form",
@@ -43,15 +46,16 @@
       },
       "field": {
         "department": "Departments",
-        "user": "Department user",
+        "user": "Department approver",
         "tel": "Tel",
+        "email": "Email",
         "position": "Position",
         "signature": "Signature file",
         "role": "Select roles",
         "permission": "Permissions"
       },
       "placeholder": {
-        "search": "Search for department user information",
+        "search": "Search information",
         "user": "Select a user",
         "position": "Select a position",
         "dpm": "Select a department"
@@ -72,6 +76,8 @@
       }
     },
     "dpm_approver": {
-      "title": "Departments approvers information"
+      "title": "Departments approvers information",
+      "total": "There are {count} department approvers"
+
     }
 }

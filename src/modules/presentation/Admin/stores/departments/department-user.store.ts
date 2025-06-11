@@ -201,15 +201,20 @@ export const departmenUsertStore = defineStore("department-user", () => {
       totalPages: 0,
     };
   };
-  const resetForm = () => {
-    dpmUserFormModel.username = ""
-    dpmUserFormModel.tel = ""
-    dpmUserFormModel.email = ""
-    dpmUserFormModel.password = ""
-    dpmUserFormModel.confirm_password = ""
-    dpmUserFormModel.position_id = ""
-    dpmUserFormModel.signature_file = null
-  }
+ // In your department-user.store.ts
+const resetForm = () => {
+  dpmUserFormModel.userId = "";
+  dpmUserFormModel.username = "";
+  dpmUserFormModel.email = "";
+  dpmUserFormModel.tel = "";
+  dpmUserFormModel.password = "";
+  dpmUserFormModel.confirm_password = "";
+  dpmUserFormModel.position_id = "";
+  dpmUserFormModel.departmentId = "";
+  dpmUserFormModel.signature_file = null;
+  dpmUserFormModel.permissionIds = [];
+  dpmUserFormModel.roleIds = [];
+};
   return {
     // State
     departmentUser,

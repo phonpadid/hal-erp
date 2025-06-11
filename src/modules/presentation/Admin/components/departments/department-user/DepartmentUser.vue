@@ -2,7 +2,7 @@
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import { onMounted, ref, computed, watch } from "vue";
+import { onMounted, ref, computed, watch, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { dpmUserRules } from "../../../views/departments/deparment-user/validation/department-user.validate";
 import {
@@ -19,8 +19,6 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputPassword from "@/common/shared/components/Input/UiInputPassword.vue";
 import { NumberOnly } from "@/modules/shared/utils/format-price";
 import { usePermissionStore } from "../../../stores/permission.store";
-
-// Import the Permission Card component
 import PermissionCard from "./PermissionCard.vue";
 import { useRoleStore } from "../../../stores/role.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -37,35 +35,36 @@ const dpmUserStore = departmenUsertStore();
 const permissionStore = usePermissionStore();
 const loading = ref(false);
 const { success } = useNotification();
-// Use permissions directly from form model
 const selectedPermissions = computed({
   get: () => dpmUserFormModel.permissionIds,
   set: (value: number[]) => {
     dpmUserFormModel.permissionIds = value;
   },
 });
-
-// Determine if we're in edit mode based on route params
 const isEditMode = computed(() => !!route.params.id);
 const departmentUserId = computed(() => route.params.id as string);
+
 const positionItem = computed(() =>
   positionStore.positions.map((item) => ({
     value: item.getId(),
     label: item.getName(),
   }))
 );
+
 const departmentItem = computed(() =>
   dpmStore.departments.map((item) => ({
     value: item.getId(),
     label: item.getName(),
   }))
 );
+
 const roleItem = computed(() =>
   roleStore.roles.map((item) => ({
     value: item.getId(),
     label: item.getName(),
   }))
 );
+
 const dpmUserRoleIds = computed({
   get: () => dpmUserFormModel.roleIds.map((id) => String(id)),
   set: (val: string[]) => {
@@ -78,16 +77,14 @@ const permissionGroups = computed(() => permissionStore.permission || []);
 
 // Add reactive reference for signature file to ensure proper binding
 const signatureFile = ref(dpmUserFormModel.signature_file || null);
+const existingSignatureUrl = ref<string | File | null>(null);
 watch(
   signatureFile,
   (newValue) => {
-    console.log("Signature file changed:", newValue);
     dpmUserFormModel.signature_file = newValue;
   },
   { deep: true }
 );
-
-// Also watch the form model to keep them in sync
 watch(
   () => dpmUserFormModel.signature_file,
   (newValue) => {
@@ -105,6 +102,7 @@ watch(
   },
   { deep: true }
 );
+
 // Load existing data for edit mode
 const loadDepartmentUser = async () => {
   if (isEditMode.value && departmentUserId.value) {
@@ -113,18 +111,25 @@ const loadDepartmentUser = async () => {
       await dpmUserStore.fetchDepartmentUserById(departmentUserId.value);
       const departmentUser = dpmUserStore.currentDpmUser;
       const userData = departmentUser?.getUser();
-      console.log('role:', departmentUser);
-
       const positionData = departmentUser?.getPostion();
+
       if (departmentUser) {
         dpmUserFormModel.userId = userData?.getId() || "";
         dpmUserFormModel.username = userData?.getUsername() || "";
-        dpmUserFormModel.email = userData?.getEmail?.() || ""; // Add email if available
-        dpmUserFormModel.tel = userData?.getTel?.() || ""; // Add tel if available
+        dpmUserFormModel.email = userData?.getEmail?.() || "";
+        dpmUserFormModel.tel = userData?.getTel?.() || "";
         dpmUserFormModel.position_id = positionData?.getId() || "";
         dpmUserFormModel.departmentId = departmentUser.getDepartmentId();
-        dpmUserFormModel.signature_file = departmentUser.getSignature_file();
-        signatureFile.value = departmentUser.getSignature_file();
+
+        // Debug: Let's see what we're getting for signature file
+        const signatureFileUrl = departmentUser.getSignature_file();
+        if (signatureFileUrl) {
+          existingSignatureUrl.value = signatureFileUrl;
+          dpmUserFormModel.signature_file = signatureFileUrl;
+          signatureFile.value = signatureFileUrl;
+        } else {
+          console.log("No signature file found");
+        }
 
         // Load existing permissions
         selectedPermissions.value = departmentUser.getPermissionIds() || [];
@@ -157,6 +162,7 @@ const handleSubmit = async (): Promise<void> => {
       await formRef.value.validateField("signature_file");
       return;
     }
+
     const payload = {
       user: {
         id: dpmUserFormModel.userId,
@@ -166,8 +172,7 @@ const handleSubmit = async (): Promise<void> => {
         tel: dpmUserFormModel.tel,
       },
       position_id: dpmUserFormModel.position_id,
-      // department_id: dpmUserFormModel.department_id,
-      signature_file: dpmUserFormModel.signature_file,
+      signature_file: existingSignatureUrl.value ? '' : dpmUserFormModel.signature_file,
       departmentId: dpmUserFormModel.departmentId,
       permissionIds: dpmUserFormModel.permissionIds,
       roleIds: dpmUserFormModel.roleIds,
@@ -181,8 +186,7 @@ const handleSubmit = async (): Promise<void> => {
       push({ name: "department_user.index" });
       dpmUserStore.resetForm();
       success(t("departments.notify.update"));
-      console.log('update');
-
+      console.log("update");
     } else {
       await dpmUserStore.createDepartmentUser(payload);
       push({ name: "department_user.index" });
@@ -200,33 +204,18 @@ const handleSubmit = async (): Promise<void> => {
 };
 
 // Handle file upload change explicitly
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const handleFileChange = (fileOrEvent: any) => {
-  let actualFile = null;
-
-  // Check if it's an Event object (DOM event)
-  if (fileOrEvent && fileOrEvent.target && fileOrEvent.target.files) {
-    actualFile = fileOrEvent.target.files[0] || null;
-  } else if (
-    fileOrEvent &&
-    fileOrEvent.constructor &&
-    fileOrEvent.constructor.name === "File"
-  ) {
-    actualFile = fileOrEvent;
-  } else if (fileOrEvent && typeof fileOrEvent === "string") {
-    actualFile = fileOrEvent;
-  } else {
-    actualFile = fileOrEvent;
+const handleFileChange = (file: File) => {
+  if (file) {
+    existingSignatureUrl.value = null;
+    signatureFile.value = file;
+    dpmUserFormModel.signature_file = file;
   }
-
-  signatureFile.value = actualFile;
-  dpmUserFormModel.signature_file = actualFile;
 };
 
 const handlerCancel = () => {
   push({ name: "department_user.index" });
   dpmUserStore.resetForm();
-  // selectedPermissions will be reset when form model is reset
+  existingSignatureUrl.value = null;
 };
 
 onMounted(async () => {
@@ -244,20 +233,35 @@ onMounted(async () => {
   }
 });
 
-const props = defineProps<{
-  visible: boolean;
-}>();
+// const props = withDefaults(
+//   defineProps<{
+//     visible?: boolean;
+//   }>(),
+//   {
+//     visible: false,
+//   }
+// );
 
-watch(
-  () => props.visible,
-  (newVal, oldVal) => {
-    if (!newVal && oldVal) {
+// watch(
+//   () => props.visible,
+//   (newVal, oldVal) => {
+//     if (newVal && !oldVal) {
+//       console.log("formRef", formRef.value);
+//       // When the component becomes visible (opened)
+//       dpmUserStore.resetForm();
+//       existingSignatureUrl.value = null;
+//       formRef.value?.resetFields?.();
+//     }
+//     console.log("formRef1111", formRef.value);
+//   }
+// );
+
+onUnmounted(() => {
       dpmUserStore.resetForm();
-      // selectedPermissions will be reset when form model is reset
-      formRef.value?.resetFields?.(); // Also reset UIForm if it supports it
-    }
-  }
-);
+      existingSignatureUrl.value = null;
+      formRef.value?.resetFields?.();
+})
+
 </script>
 
 <template>
@@ -272,7 +276,11 @@ watch(
       </h3>
     </div>
 
-    <UiForm ref="formRef" :model="dpmUserFormModel" :rules="isEditMode ? updateDpmUserRules(t) : dpmUserRules(t)">
+    <UiForm
+      ref="formRef"
+      :model="dpmUserFormModel"
+      :rules="isEditMode ? updateDpmUserRules(t) : dpmUserRules(t)"
+    >
       <div class="flex flex-col lg:flex-row lg:gap-8">
         <!-- Left Column: User Info -->
         <div class="flex-1 space-y-4">
@@ -285,9 +293,8 @@ watch(
               v-model="signatureFile"
               :width="'100%'"
               :height="'200px'"
-              upload-text="ອັບໂຫລດລາຍເຊັນ"
-              @update:modelValue="handleFileChange"
-              @change="handleFileChange"
+              :upload-text="isEditMode ? 'ອັບເດດລາຍເຊັນ' : 'ອັບໂຫລດລາຍເຊັນ'"
+              @onFileSelect="handleFileChange"
             />
           </UiFormItem>
 
@@ -347,8 +354,6 @@ watch(
               />
             </UiFormItem>
           </div>
-
-          <!-- Department + Position -->
           <div class="flex flex-col md:flex-row md:gap-4">
             <UiFormItem
               class="flex-1"
@@ -376,11 +381,9 @@ watch(
               />
             </UiFormItem>
           </div>
-
-          <!-- Password + Confirm -->
           <div class="flex flex-col md:flex-row md:gap-4">
             <UiFormItem
-            v-if="!isEditMode"
+              v-if="!isEditMode"
               class="flex-1"
               :label="t('user.form.password')"
               name="password"
@@ -393,7 +396,7 @@ watch(
             </UiFormItem>
 
             <UiFormItem
-            v-if="!isEditMode"
+              v-if="!isEditMode"
               class="flex-1"
               :label="t('user.form.confirmPassword')"
               name="confirm_password"
@@ -405,7 +408,6 @@ watch(
               />
             </UiFormItem>
           </div>
-          <!-- Right Column: Permissions -->
           <div class="flex-1 mt-6 lg:mt-0">
             <PermissionCard
               :permission-groups="permissionGroups"
@@ -414,8 +416,6 @@ watch(
           </div>
         </div>
       </div>
-
-      <!-- Buttons -->
       <div class="flex gap-2 pt-6">
         <UiButton
           @click="handlerCancel"
@@ -435,7 +435,6 @@ watch(
     </UiForm>
   </div>
 </template>
-
 <style scoped>
 .dpm-user-list-container {
   background-color: #fff;
