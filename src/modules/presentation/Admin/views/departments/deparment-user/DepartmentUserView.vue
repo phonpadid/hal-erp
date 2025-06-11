@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { columns } from "./column";
-// import { departmentStore } from "../../../stores/departments/department.store";
-import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -21,7 +19,7 @@ const search = ref<string>("");
 // Form related
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
-const selectedDpm = ref<DepartmentApiModel | null>(null);
+const selectedDpm = ref<DepartmentUserApiModel | null>(null);
 // Load data on component mount
 onMounted(async () => {
   await departmentUser();
@@ -92,55 +90,54 @@ const departmentUser = async (): Promise<void> => {
 //search
 const handleSearch = async () => {
   try {
-
     loading.value = true;
-      const result = await dpmUserStore.fetchDepartmentUser({
-        page: dpmUserStore.pagination.page,
-        limit: dpmUserStore.pagination.limit,
-        search: search.value,
-      });
+    const result = await dpmUserStore.fetchDepartmentUser({
+      page: dpmUserStore.pagination.page,
+      limit: dpmUserStore.pagination.limit,
+      search: search.value,
+    });
 
-      department.value = result.data.map((dpmUser: DepartmentUserEntity) => {
-        const user = dpmUser.getUser();
-        const position = dpmUser.getPostion();
-        const dept = dpmUser.getDepartment();
+    department.value = result.data.map((dpmUser: DepartmentUserEntity) => {
+      const user = dpmUser.getUser();
+      const position = dpmUser.getPostion();
+      const dept = dpmUser.getDepartment();
 
-        return {
-          id: dpmUser?.getId() || undefined,
-          position_id: dpmUser.getPosition_id() || undefined,
-          signature_file: dpmUser.getSignature_file() || undefined,
-          department_id: dpmUser.getDepartmentId() || undefined,
-          user: user
-            ? {
-                id: user.getId() || undefined,
-                username: user.getUsername() || undefined,
-                email: user.getEmail() || undefined,
-                tel: user.getTel() || undefined,
-                created_at: user.getCreatedAt() ?? "",
-                updated_at: user.getUpdatedAt() ?? "",
-              }
-            : undefined,
-          department: dept
-            ? {
-                id: dept.getId() || undefined,
-                name: dept.getName() || undefined,
-                code: dept.getCode() || undefined,
-                created_at: dept.getCreatedAt() ?? "",
-                updated_at: dept.getUpdatedAt() ?? "",
-              }
-            : undefined,
-          position: position
-            ? {
-                id: position.getId() || undefined,
-                name: position.getName() || undefined,
-                created_at: position.getCreatedAt() ?? "",
-                updated_at: position.getUpdatedAt() ?? "",
-              }
-            : undefined,
-          created_at: user?.getCreatedAt() ?? "",
-          updated_at: user?.getUpdatedAt() ?? "",
-        };
-      }) as unknown as DepartmentUserApiModel[];
+      return {
+        id: dpmUser?.getId() || undefined,
+        position_id: dpmUser.getPosition_id() || undefined,
+        signature_file: dpmUser.getSignature_file() || undefined,
+        department_id: dpmUser.getDepartmentId() || undefined,
+        user: user
+          ? {
+              id: user.getId() || undefined,
+              username: user.getUsername() || undefined,
+              email: user.getEmail() || undefined,
+              tel: user.getTel() || undefined,
+              created_at: user.getCreatedAt() ?? "",
+              updated_at: user.getUpdatedAt() ?? "",
+            }
+          : undefined,
+        department: dept
+          ? {
+              id: dept.getId() || undefined,
+              name: dept.getName() || undefined,
+              code: dept.getCode() || undefined,
+              created_at: dept.getCreatedAt() ?? "",
+              updated_at: dept.getUpdatedAt() ?? "",
+            }
+          : undefined,
+        position: position
+          ? {
+              id: position.getId() || undefined,
+              name: position.getName() || undefined,
+              created_at: position.getCreatedAt() ?? "",
+              updated_at: position.getUpdatedAt() ?? "",
+            }
+          : undefined,
+        created_at: user?.getCreatedAt() ?? "",
+        updated_at: user?.getUpdatedAt() ?? "",
+      };
+    }) as unknown as DepartmentUserApiModel[];
   } catch (error) {
     console.error("Search failed:", error);
   } finally {
@@ -169,7 +166,7 @@ const update = (record: DepartmentUserApiModel): void => {
   });
 };
 
-const showDeleteModal = (record: DepartmentApiModel): void => {
+const showDeleteModal = (record: DepartmentUserApiModel): void => {
   selectedDpm.value = record;
   deleteModalVisible.value = true;
 };
@@ -182,7 +179,7 @@ const handleDelete = async (): Promise<void> => {
   if (useRealApi.value) {
     try {
       // Use API to delete
-      const id = selectedDpm.value.id.toString();
+      const id = selectedDpm.value.id ?? "";
       await dpmUserStore.deleteDepartmentUser(id);
 
       await departmentUser(); // Refresh the list
@@ -194,6 +191,11 @@ const handleDelete = async (): Promise<void> => {
   deleteModalVisible.value = false;
   loading.value = false;
 };
+watch(search, async(load) => {
+  if(load === '') {
+    await departmentUser()
+  }
+})
 </script>
 
 <template>
@@ -205,8 +207,8 @@ const handleDelete = async (): Promise<void> => {
       <div class="flex items-center justify-between">
         <div class="w-[20rem]">
           <InputSearch
-          v-model="search"
-          @keyup.enter="handleSearch"
+            v-model="search"
+            @keyup.enter="handleSearch"
             :placeholder="t('departments.dpm_user.placeholder.search')"
           />
         </div>
@@ -219,15 +221,23 @@ const handleDelete = async (): Promise<void> => {
           {{ $t("departments.dpm.add") }}
         </UiButton>
       </div>
-      <div class="total-item mt-4 text-slate-700">
+      <div class="mt-4 text-slate-700 space-y-2">
+        <span
+          :loading="dpmUserStore.loading"
+          class="block text-lg font-semibold"
+          v-if="department.length > 0 && department[0].department"
+        >
+          {{ department[0].department?.name }}
+        </span></div>
+      <!-- <div class="total-item mt-4 text-slate-700">
         <a-tag color="red"
           >{{
-            t("budget-apv-rule.totalPeople", {
+            t("departments.dpm_user.total", {
               count: dpmUserStore.pagination.total,
             })
           }}
         </a-tag>
-      </div>
+      </div> -->
     </div>
 
     <!-- Table -->
@@ -270,18 +280,23 @@ const handleDelete = async (): Promise<void> => {
 
     <!-- Delete Confirmation Modal -->
     <UiModal
-      title="ຢືນຢັນການລຶບ"
+      :title="t('departments.alert.confirm')"
       :visible="deleteModalVisible"
       :confirm-loading="loading"
       @update:visible="deleteModalVisible = $event"
       @ok="handleDelete"
       @cancel="deleteModalVisible = false"
-      okText="ຢືນຢັນ"
       okType="primary"
+      :okText="t('button.ok')"
+      :cancel-text="t('button.cancel')"
     >
-      <p>ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບພະແພກ: "{{ selectedDpm?.name }}"?</p>
+      <p>
+        {{ t("departments.alert.message") }}: "{{
+          selectedDpm?.user?.username
+        }}"?
+      </p>
       <p class="text-red-500">
-        ການດຳເນີນການນີ້ບໍ່ສາມາດຍົກເລີກໄດ້ ຫຼັງຈາກທ່ານຢືນຢັນສຳເລັດ.
+        {{ t("departments.alert.remark") }}
       </p>
     </UiModal>
   </div>

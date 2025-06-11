@@ -173,6 +173,7 @@ const handleDelete = async (): Promise<void> => {
   deleteModalVisible.value = false;
   loading.value = false;
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleTableChange = async (pagination: any) => {
   userApproval.setPagination({
     page: pagination.current,

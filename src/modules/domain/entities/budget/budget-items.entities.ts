@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export class BudGetItemEntity {
   private id: string;
   private budget_account_id: string;
@@ -6,6 +7,7 @@ export class BudGetItemEntity {
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
+  private budget_item_details?: any[];
 
   constructor(
     id: string,
@@ -14,7 +16,8 @@ export class BudGetItemEntity {
     allocated_amount: string | undefined,
     created_at: string,
     updated_at: string,
-    deleted_at: string | null = null
+    deleted_at: string | null = null,
+    budget_item_details?: any[]
   ) {
     this.id = id;
     this.budget_account_id = budget_account_id;
@@ -23,6 +26,7 @@ export class BudGetItemEntity {
     this.created_at = created_at;
     this.updated_at = updated_at;
     this.deleted_at = deleted_at;
+    this.budget_item_details = budget_item_details;
   }
 
   public getId(): string {
@@ -51,6 +55,9 @@ export class BudGetItemEntity {
 
   public getDeletedAt(): string | null {
     return this.deleted_at;
+  }
+  public getBudgetItemDetails(): any[] | undefined {
+    return this.budget_item_details;
   }
 
   public isDeleted(): boolean {
@@ -83,14 +90,6 @@ export class BudGetItemEntity {
     allocated_amount: string | undefined
   ): BudGetItemEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-    return new BudGetItemEntity(
-      id,
-      name,
-      budget_account_id,
-      allocated_amount,
-      now,
-      now,
-      null
-    );
+    return new BudGetItemEntity(id, name, budget_account_id, allocated_amount, now, now, null);
   }
 }

@@ -4,12 +4,16 @@ import { useI18n } from "vue-i18n";
 import { computed, onMounted, ref, watch } from "vue";
 import { DownOutlined } from "@ant-design/icons-vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { Tooltip } from "ant-design-vue";
 
 const emit = defineEmits<{ toggle: [] }>();
-const {success} = useNotification()
+const { success } = useNotification();
 const { t, locale } = useI18n();
 const currentLang = ref<string>("");
-
+const data = localStorage.getItem("userData");
+const parsed = data ? JSON.parse(data) : null;
+const username = parsed?.username || "";
+const email = parsed?.email || "";
 const lang = computed(() => [
   { name: t("lang.en"), value: "en", icon: "/en.png" },
   { name: t("lang.la"), value: "la", icon: "/lo.png" },
@@ -25,10 +29,9 @@ const changeLang = (langValue: string) => {
   localStorage.setItem("locale", langValue);
   updateCurrentLang(); // make sure currentLang is updated
 };
-
 const noti = () => {
-success(t('messages.notification'))
-}
+  success(t("messages.notification"));
+};
 onMounted(() => {
   updateCurrentLang();
 });
@@ -92,16 +95,18 @@ watch(locale, updateCurrentLang);
           @click="noti"
         />
       </div>
-      <div class="profile flex gap-0 items-center">
-        <img
-          src="/public/Profile-PNG-File.png"
-          width="35"
-          height="35"
-          alt=""
-          srcset=""
-        />
-        <span class="text-[12px]">DEV ERP</span>
-      </div>
+      <Tooltip :title="email" color="red" key="color">
+        <div class="profile flex gap-0 items-center">
+          <img
+            src="/public/Profile-PNG-File.png"
+            width="35"
+            height="35"
+            alt=""
+            srcset=""
+          />
+          <span class="text-[14px]">{{ username }}</span>
+        </div>
+      </Tooltip>
     </div>
   </header>
 </template>

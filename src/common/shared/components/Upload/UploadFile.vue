@@ -1,6 +1,5 @@
-<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-import { ref, defineEmits, defineProps } from "vue";
+import { ref, defineEmits, defineProps, watch } from "vue";
 import { message } from "ant-design-vue";
 
 interface FileItem {
@@ -18,25 +17,23 @@ interface FileItem {
 
 interface CustomRequestOptions {
   file: File;
-  filename?: string;
-  data?: Record<string, unknown>;
-  headers?: Record<string, string>;
-  withCredentials?: boolean;
-  action?: string;
-  onProgress?: (event: { percent: number }) => void;
   onSuccess?: (response: unknown, xhr?: XMLHttpRequest) => void;
   onError?: (error: Error | ProgressEvent<EventTarget>) => void;
 }
 
-// Define props for customization
+// Props
 const props = defineProps({
+  modelValue: {
+    type: [File, String, null],
+    default: null,
+  },
   uploadText: {
     type: String,
     default: "ອັບໂຫລດ",
   },
   uploadIcon: {
     type: String,
-    default: "+", // You can change this to any icon class
+    default: "+",
   },
   iconSize: {
     type: String,
@@ -48,12 +45,34 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits<{
+  (e: "update:modelValue", value: File | null): void;
+  (e: "onFileSelect", file: File): void;
+}>();
+
 const fileList = ref<FileItem[]>([]);
 const previewImage = ref<string>("");
 const previewVisible = ref<boolean>(false);
-const emit = defineEmits<{
-  (e: "onFileSelect", file: File): void;
-}>();
+
+// --- Handle external v-model change (string URL from getOne)
+watch(
+  () => props.modelValue,
+  (val) => {
+    if (typeof val === "string" && val !== "") {
+      fileList.value = [
+        {
+          uid: Date.now().toString(),
+          name: "uploaded-image",
+          status: "done",
+          url: val,
+        },
+      ];
+    } else if (val === null) {
+      fileList.value = [];
+    }
+  },
+  { immediate: true }
+);
 
 const beforeUpload = (file: File): boolean => {
   const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
@@ -69,21 +88,27 @@ const customUpload = (options: CustomRequestOptions): void => {
 
   setTimeout(() => {
     if (file) {
-      const fileWithUrl = {
+      const objectUrl = URL.createObjectURL(file);
+
+      const fileWithUrl: FileItem = {
         uid: Date.now().toString(),
         name: file.name,
         status: "done",
         size: file.size,
         type: file.type,
-        url: URL.createObjectURL(file),
+        url: objectUrl,
         originFileObj: file,
       };
 
       fileList.value = [fileWithUrl];
+      previewImage.value = objectUrl;
+
       emit("onFileSelect", file);
-      if (onSuccess) onSuccess("ok");
+      emit("update:modelValue", file);
+
+      onSuccess?.("ok");
     } else {
-      if (onError) onError(new Error("Upload failed"));
+      onError?.(new Error("Upload failed"));
     }
   }, 500);
 };
@@ -106,7 +131,6 @@ const handlePreview = (file: FileItem): void => {
     >
       <div v-if="fileList.length < 1">
         <div class="flex flex-col items-center justify-center">
-          <!-- You can use icon components or custom icons here -->
           <span :class="[iconSize]">{{ uploadIcon }}</span>
           <span :class="[textSize]">{{ uploadText }}</span>
         </div>

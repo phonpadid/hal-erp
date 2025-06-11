@@ -7,6 +7,7 @@ import type { UserInterface } from "@/modules/interfaces/user.interface";
 import { useUserStore } from "../../stores/user.store";
 import { columns } from "./column";
 import { formatDate } from "@/modules/shared/formatdate";
+import { useRouter } from "vue-router";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import ResetPasswordForm from "../../components/user/ResetPasswordForm.vue";
@@ -18,6 +19,7 @@ import UserForm from "../../components/user/UserForm.vue";
 
 const { t } = useI18n();
 const userStore = useUserStore();
+const router = useRouter();
 const { success, error } = useNotification();
 
 // State
@@ -106,17 +108,14 @@ const handleSearch = () => {
   loadUsers(1, pagination.pageSize, searchKeyword.value);
 };
 
-// Modal handlers
-const showCreateModal = () => {
-  selectedUser.value = null;
-  isEditMode.value = false;
-  modalVisible.value = true;
+const addUser = () => {
+  router.push({ name: "UserAdd" });
 };
-
-const showEditModal = (user: UserInterface) => {
-  selectedUser.value = { ...user };
-  isEditMode.value = true;
-  modalVisible.value = true;
+const editUser = (user: UserInterface) => {
+  router.push({
+    name: "UserEdit",
+    params: { id: user.id.toString() }
+  });
 };
 
 const showDeleteModal = (user: UserInterface) => {
@@ -218,7 +217,7 @@ const handleDeleteConfirm = async () => {
         <UiButton
           type="primary"
           icon="material-symbols:add"
-          @click="showCreateModal"
+          @click="addUser"
           colorClass="flex items-center"
         >
           {{ t("user.list.add") }}
@@ -258,7 +257,7 @@ const handleDeleteConfirm = async () => {
             type=""
             icon="ant-design:edit-outlined"
             size="small"
-            @click="showEditModal(record)"
+            @click="editUser(record)"
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
           />

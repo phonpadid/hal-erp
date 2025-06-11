@@ -10,16 +10,16 @@ function logout() {
     .push({
       name: "login",
     })
-    .catch(() => { });
+    .catch(() => {});
 }
 
-export const menuItems= computed<ItemType[]>(() => [
+export const menuItems = computed<ItemType[]>(() => [
   {
-    label: t('menu-sidebar.menu'),
+    label: t("menu-sidebar.menu"),
     children: [
       {
         key: "dashboard",
-        label: t('menu-sidebar.dashboard'),
+        label: t("menu-sidebar.dashboard"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -30,7 +30,7 @@ export const menuItems= computed<ItemType[]>(() => [
       },
       {
         key: "",
-        label: t('menu-sidebar.purchase_orde'),
+        label: t("menu-sidebar.purchase_orde"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -41,7 +41,7 @@ export const menuItems= computed<ItemType[]>(() => [
       },
       {
         key: "PositionList",
-        label: t('menu-sidebar.position'),
+        label: t("menu-sidebar.position"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -52,7 +52,7 @@ export const menuItems= computed<ItemType[]>(() => [
       },
       {
         key: "UnitList",
-        label: t('menu-sidebar.unit'),
+        label: t("menu-sidebar.unit"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -63,7 +63,7 @@ export const menuItems= computed<ItemType[]>(() => [
       },
       {
         key: "CategoryList",
-        label: t('menu-sidebar.category'),
+        label: t("menu-sidebar.category"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -75,7 +75,7 @@ export const menuItems= computed<ItemType[]>(() => [
       },
       {
         key: "document_typesList",
-        label: t('menu-sidebar.document_type'),
+        label: t("menu-sidebar.document_type"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -87,7 +87,7 @@ export const menuItems= computed<ItemType[]>(() => [
       },
       {
         key: "user_approval.index",
-        label: t('menu-sidebar.user_approval'),
+        label: t("menu-sidebar.user_approval"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -98,7 +98,7 @@ export const menuItems= computed<ItemType[]>(() => [
       },
       {
         key: "budget_apv_rule.index",
-        label: t('menu-sidebar.budget_apv_rule'),
+        label: t("menu-sidebar.budget_apv_rule"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -108,8 +108,10 @@ export const menuItems= computed<ItemType[]>(() => [
           ]),
       },
       {
+
+
         key: "approval_workflows.index",
-        label: t('menu-sidebar.approval_workflow'),
+        label: t("menu-sidebar.approval_workflow"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -120,7 +122,7 @@ export const menuItems= computed<ItemType[]>(() => [
       },
       {
         key: "currencies.index",
-        label: t('menu-sidebar.currency'),
+        label: t("menu-sidebar.currency"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -140,7 +142,7 @@ export const menuItems= computed<ItemType[]>(() => [
       { type: "divider" },
       {
         key: "120",
-        label: t('menu-sidebar.department_manage'),
+        label: t("menu-sidebar.department_manage"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -151,15 +153,19 @@ export const menuItems= computed<ItemType[]>(() => [
         children: [
           {
             key: "department.index",
-            label: t('menu-sidebar.department'),
+            label: t("menu-sidebar.department"),
           },
           {
             key: "department_approver.index",
-            label: t('menu-sidebar.department_approver'),
+            label: t("menu-sidebar.department_approver"),
           },
           {
             key: "department_user.index",
-            label: t('menu-sidebar.department_user'),
+            label: t("menu-sidebar.department_user"),
+          },
+          {
+            key: "budget_apv_rule.index",
+            label: t('menu-sidebar.budget_apv_rule'),
           },
         ],
       },
@@ -172,7 +178,7 @@ export const menuItems= computed<ItemType[]>(() => [
       { type: "divider" },
       {
         key: "122",
-        label: t('menu-sidebar.budget_manage'),
+        label: t("menu-sidebar.budget_manage"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -183,16 +189,16 @@ export const menuItems= computed<ItemType[]>(() => [
         children: [
           {
             key: "budget-accounts",
-            label: t('menu-sidebar.budget_account'),
+            label: t("menu-sidebar.budget_account"),
           },
           {
             key: "budget-items",
-            label: t('menu-sidebar.budget_item'),
+            label: t("menu-sidebar.budget_item"),
           },
-          {
-            key: "budget-item-details",
-            label: t('menu-sidebar.budget_item_detail'),
-          },
+          // {
+          //   key: "budget-items-details",
+          //   label: t("menu-sidebar.budget_item_detail"),
+          // },
         ],
       },
     ],
@@ -204,7 +210,7 @@ export const menuItems= computed<ItemType[]>(() => [
       { type: "divider" },
       {
         key: "121",
-        label: t('menu-sidebar.vendor_manage'),
+        label: t("menu-sidebar.vendor_manage"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -215,11 +221,11 @@ export const menuItems= computed<ItemType[]>(() => [
         children: [
           {
             key: "vendorsList",
-            label: t('menu-sidebar.vendor'),
+            label: t("menu-sidebar.vendor"),
           },
           {
             key: "vendorsBankList",
-            label: t('menu-sidebar.vendor_bank'),
+            label: t("menu-sidebar.vendor_bank"),
           },
         ],
       },
@@ -232,7 +238,7 @@ export const menuItems= computed<ItemType[]>(() => [
       { type: "divider" },
       {
         key: "12",
-        label: t('menu-sidebar.user_manage'),
+        label: t("menu-sidebar.user_manage"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -243,15 +249,15 @@ export const menuItems= computed<ItemType[]>(() => [
         children: [
           {
             key: "userList",
-            label: t('menu-sidebar.user'),
+            label: t("menu-sidebar.user"),
           },
           {
             key: "roleList",
-            label: t('menu-sidebar.role'),
+            label: t("menu-sidebar.role"),
           },
           {
             key: "permissionsList",
-            label: t('menu-sidebar.permission'),
+            label: t("menu-sidebar.permission"),
           },
         ],
       },
@@ -259,11 +265,11 @@ export const menuItems= computed<ItemType[]>(() => [
     type: "group",
   },
   {
-    label: t('menu-sidebar.report'),
+    label: t("menu-sidebar.report"),
     children: [
       {
         key: "payments",
-        label: t('menu-sidebar.report'),
+        label: t("menu-sidebar.report"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
@@ -274,7 +280,7 @@ export const menuItems= computed<ItemType[]>(() => [
       },
       {
         key: "logout",
-        label: t('menu-sidebar.logout'),
+        label: t("menu-sidebar.logout"),
         icon: () =>
           h("div", {}, [
             h(Icon, {

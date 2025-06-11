@@ -14,3 +14,24 @@ export interface PermissionRequest {
   name: string;
   display_name: string;
 }
+
+export interface Permission {
+  id: number;
+  name: string;
+}
+
+export interface PermissionGroup {
+  id: number;
+  name: string;
+  display_name: string;
+  type: string;
+  permissions: Permission[];
+}
+
+export interface PermissionResponse {
+  data: PermissionGroup[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

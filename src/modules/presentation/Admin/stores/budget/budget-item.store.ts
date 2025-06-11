@@ -181,12 +181,13 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
   const budgetItemEntityToInterface = (budgetItem: BudGetItemEntity): BudgetItemInterface => {
     return {
       id: budgetItem.getId() || "",
-      budget_account_id: budgetItem.getBudgetAccountsId() || "",
       name: budgetItem.getName() || "",
+      budget_account_id: budgetItem.getBudgetAccountsId() || "",
       allocated_amount: budgetItem.getAllocatedAmount() || "",
       created_at: budgetItem.getCreatedAt() || "",
       updated_at: budgetItem.getUpdatedAt() || "",
       deleted_at: budgetItem.getDeletedAt(),
+      budget_item_details: budgetItem.getBudgetItemDetails(),
     };
   };
 

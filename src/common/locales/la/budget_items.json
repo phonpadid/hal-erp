@@ -40,7 +40,9 @@
     "allocated_amount": "ຈຳນວນເງິນທີ່ຈັດສັນ",
     "created": "ວັນທີ່ສ້າງ",
     "updated": "ວັນທີ່ແກ້ໄຂຫຼ່າສຸດ",
-    "manage": "ຈັດການ"
+    "manage": "ຈັດການ",
+    "itemDetails": "ລາຍລະອຽດລາຍການ",
+    "noDetails": "ບໍ່ມີລາຍລະອຽດ"
   },
   "list": {
     "title": "ຂໍ້ມູນລາຍການງົບປະມານ",
@@ -60,7 +62,14 @@
     "name": "ຊື່ລາຍການ",
     "namePlaceholder": "ກະລຸນາປ້ອນຊື່ລາຍການ",
     "allocatedAmount": "ຈໍານວນເງິນທີ່ຈັດສັນ",
-    "allocatedAmountPlaceholder": "ກະລຸນາປ້ອນຈໍານວນເງິນທີ່ຈັດສັນ"
+    "allocatedAmountPlaceholder": "ກະລຸນາປ້ອນຈໍານວນເງິນທີ່ຈັດສັນ",
+    "detailsTitle": "ລາຍລະອຽດລາຍການງົບປະມານ",
+    "detailItem": "ລາຍລະອຽດລາຍການ",
+    "province": "ແຂວງ",
+    "provincePlaceholder": "ເລືອກແຂວງ",
+    "description": "ຄໍາອະທິບາຍ",
+    "descriptionPlaceholder": "ປ້ອນຄໍາອະທິບາຍ",
+    "addDetail": "ເພີ່ມລາຍລະອຽດ"
   },
   "modal": {
     "title": "ເພີ່ມລາຍການງົບປະມານໃໝ່",
@@ -80,6 +89,11 @@
     "nameRequired": "ກະລຸນາປ້ອນຊື່ລາຍການ",
     "nameMax": "ຊື່ລາຍການຕ້ອງບໍ່ເກີນ 100 ຕົວອັກສອນ",
     "allocatedAmountRequired": "ກະລຸນາປ້ອນຈໍານວນເງິນທີ່ຈັດສັນ",
-    "allocatedAmountFormat": "ຈໍານວນເງິນຕ້ອງເປັນຕົວເລກ ແລະ ມີທົດນິຍົມບໍ່ເກີນ 2 ຕໍາແໜ່ງ"
+    "allocatedAmountFormat": "ຈໍານວນເງິນຕ້ອງເປັນຕົວເລກ ແລະ ມີທົດນິຍົມບໍ່ເກີນ 2 ຕໍາແໜ່ງ",
+    "detailsRequired": "ຕ້ອງມີລາຍລະອຽດຢ່າງໜ້ອຍໜຶ່ງລາຍການ",
+    "provinceRequired": "ແຂວງແມ່ນຈໍາເປັນສໍາລັບລາຍການ {index}",
+    "detailAllocatedAmountRequired": "ຈໍານວນເງິນທີ່ຈັດສັນແມ່ນຈໍາເປັນສໍາລັບລາຍການ {index}",
+    "detailAllocatedAmountFormat": "ຈໍານວນເງິນທີ່ຈັດສັນຕ້ອງເປັນຕົວເລກທີ່ມີທົດນິຍົມບໍ່ເກີນ 2 ຕໍາແໜ່ງສໍາລັບລາຍການ {index}",
+    "error": "ຂໍ້ຜິດພາດຂອງການກວດສອບຂໍ້ມູນ"
   }
 }

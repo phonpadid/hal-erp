@@ -21,6 +21,7 @@ import { budgetAccountsRoutes } from "@/modules/presentation/Admin/router/budget
 import { budgetItemRoutes } from "@/modules/presentation/Admin/router/budget/bud-get-item-routes";
 
 import { approvalWorkflowRoutes } from "@/modules/presentation/Admin/router/approval-workflow.routers";
+import { budgetItemDetailsRoutes } from "@/modules/presentation/Admin/router/budget/bud-get-item-details-routes";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -47,8 +48,8 @@ const routes: RouteRecordRaw[] = [
 
       ...budgetAccountsRoutes,
       ...budgetItemRoutes,
-
       ...approvalWorkflowRoutes,
+      ...budgetItemDetailsRoutes
     ],
   },
   ...authRoutes,

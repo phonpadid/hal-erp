@@ -40,7 +40,9 @@
     "allocated_amount": "Allocated Amount",
     "created": "Created At",
     "updated": "Updated At",
-    "manage": "Manage"
+    "manage": "Manage",
+    "itemDetails": "Item Details",
+    "noDetails": "No details available"
   },
   "list": {
     "title": "Budget Items",
@@ -60,7 +62,14 @@
     "name": "Item Name",
     "namePlaceholder": "Enter item name",
     "allocatedAmount": "Allocated Amount",
-    "allocatedAmountPlaceholder": "Enter allocated amount"
+    "allocatedAmountPlaceholder": "Enter allocated amount",
+    "detailsTitle": "Budget Item Details",
+    "detailItem": "Detail Item",
+    "province": "Province",
+    "provincePlaceholder": "Select a province",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description",
+    "addDetail": "Add Detail"
   },
   "modal": {
     "title": "Add New Budget Item",
@@ -80,6 +89,11 @@
     "nameRequired": "Please enter item name",
     "nameMax": "Item name must not exceed 100 characters",
     "allocatedAmountRequired": "Please enter allocated amount",
-    "allocatedAmountFormat": "Allocated amount must be a number with maximum 2 decimal places"
+    "allocatedAmountFormat": "Allocated amount must be a number with maximum 2 decimal places",
+    "detailsRequired": "At least one budget item detail is required",
+    "provinceRequired": "Province is required for item {index}",
+    "detailAllocatedAmountRequired": "Allocated amount is required for item {index}",
+    "detailAllocatedAmountFormat": "Allocated amount must be a number with maximum 2 decimal places for item {index}",
+    "error": "Validation Error"
   }
 }

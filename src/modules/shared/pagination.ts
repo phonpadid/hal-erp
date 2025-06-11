@@ -4,6 +4,7 @@ export interface PaginationParams {
   search?: string;
   sortBy?: string;
   sortDirection?: "asc" | "desc";
+  type?: string;
 }
 
 export interface APIResponse<T> {

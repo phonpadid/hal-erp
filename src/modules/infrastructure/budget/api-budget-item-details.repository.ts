@@ -31,13 +31,50 @@ export class ApiBudgetItemDetailsRepository implements BudgetItemDetailsReposito
         data: response.data.data.map((budGetItemDetails: BudgetItemDetailsInterface) =>
           this.toDomainModel(budGetItemDetails)
         ),
-        total: response.data.total,
-        page: response.data.page,
-        limit: response.data.limit,
-        totalPages: Math.ceil(response.data.total / response.data.limit),
+        total: response.data.pagination.total,
+        page: response.data.pagination.page,
+        limit: response.data.pagination.limit,
+        totalPages: response.data.pagination.total_pages,
       };
     } catch (error) {
-      this.handleApiError(error, "Failed to fetch budGetItemDetailss list");
+      this.handleApiError(error, "Failed to fetch budget item details list");
+    }
+  }
+
+  async findByBudgetItemId(
+    budgetItemId: string,
+    params: PaginationParams
+  ): Promise<PaginatedResult<BudGetItemDetailsEntity>> {
+    try {
+      console.log(`Fetching budget item details for budgetItemId: ${budgetItemId}`);
+
+      // สร้าง URL ตามที่ต้องการ
+      const url = `${this.baseUrl}/budget-item-id/${budgetItemId}`;
+      console.log(`URL being requested: ${url}`);
+
+      const response = await api.get(url, {
+        params: {
+          limit: params.limit || 10,
+          column: "id", // ตามที่ต้องการ
+          sort_order: "DESC", // ตามที่ต้องการ
+          search: params.search || "",
+        },
+      });
+
+      console.log("findByBudgetItemId response:", response.data);
+
+      return {
+        data: response.data.data.map((item: BudgetItemDetailsInterface) =>
+          this.toDomainModel(item)
+        ),
+        total: response.data.pagination?.total || 0,
+        page: response.data.pagination?.page || 1,
+        limit: response.data.pagination?.limit || 10,
+        totalPages: response.data.pagination?.total_pages || 1,
+      };
+    } catch (error) {
+      console.error(`Error in findByBudgetItemId for item ${budgetItemId}:`, error);
+      this.handleApiError(error, `Failed to fetch budget item details for item ${budgetItemId}`);
     }
   }
 
@@ -50,17 +87,25 @@ export class ApiBudgetItemDetailsRepository implements BudgetItemDetailsReposito
       if (axiosError.response?.status === 404) {
         return null;
       }
-      this.handleApiError(error, `Failed to find budGetItemDetails with id ${id}`);
+      this.handleApiError(error, `Failed to find budget item details with id ${id}`);
     }
   }
+
   async create(
     budGetItemDetails: CreateBudgetItemDetailsInterface
   ): Promise<BudGetItemDetailsEntity> {
     try {
-      const response = await api.post(this.baseUrl, budGetItemDetails);
+      // ทำให้แน่ใจว่า description ถูกส่งไป แม้จะเป็น empty string
+      const dataToSend = {
+        ...budGetItemDetails,
+        description: budGetItemDetails.description || "",
+      };
+
+      console.log("Sending create request with data:", dataToSend);
+      const response = await api.post(this.baseUrl, dataToSend);
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      this.handleApiError(error, "Failed to create budGetItemDetails");
+      this.handleApiError(error, "Failed to create budget item details");
     }
   }
 
@@ -69,33 +114,52 @@ export class ApiBudgetItemDetailsRepository implements BudgetItemDetailsReposito
     budGetItemDetails: UpdateBudgetItemDetailsInterface
   ): Promise<BudGetItemDetailsEntity> {
     try {
-      const response = await api.put(`${this.baseUrl}/${id}`, budGetItemDetails);
+      // ทำให้แน่ใจว่า description ถูกส่งไป แม้จะเป็น empty string
+      const dataToSend = {
+        ...budGetItemDetails,
+        description: budGetItemDetails.description || "",
+      };
+
+      console.log(`Sending update request for ID ${id} with data:`, dataToSend);
+      const response = await api.put(`${this.baseUrl}/${id}`, dataToSend);
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      this.handleApiError(error, `Failed to update budGetItemDetails with id ${id}`);
+      this.handleApiError(error, `Failed to update budget item details with id ${id}`);
     }
   }
+
   async delete(id: string): Promise<boolean> {
     try {
       await api.delete(`${this.baseUrl}/${id}`);
       return true;
     } catch (error) {
-      this.handleApiError(error, `Failed to delete budGetItemDetails with id ${id}`);
+      this.handleApiError(error, `Failed to delete budget item details with id ${id}`);
     }
   }
+
   private toDomainModel(budGet: BudgetItemDetailsInterface): BudGetItemDetailsEntity {
     return new BudGetItemDetailsEntity(
       budGet.id.toString(),
       budGet.name,
       budGet.budget_item_id.toString(),
       budGet.description || "",
-      budGet.province_id ? budGet.province_id.toString() : undefined,
-      budGet.allocated_amount,
-      budGet.created_at || "",
-      budGet.updated_at || "",
+      budGet.province_id.toString(),
+      budGet.province
+        ? {
+            id: budGet.province.id,
+            name: budGet.province.name,
+            created_at: budGet.province.created_at,
+            updated_at: budGet.province.updated_at,
+          }
+        : null,
+      budGet.allocated_amount.toString(),
+      budGet.created_at,
+      budGet.updated_at,
       budGet.deleted_at || null
     );
   }
+
+  // ... rest of the repository code remains the same
 
   private handleApiError(error: unknown, defaultMessage: string): never {
     const axiosError = error as AxiosError<{ message?: string }>;

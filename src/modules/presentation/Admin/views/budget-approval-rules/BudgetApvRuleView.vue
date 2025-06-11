@@ -58,7 +58,11 @@ const formModel = budgetApvRuleStore.formState;
 onMounted(async () => {
   await loadDpm();
   await dpmStore.fetchDepartment();
-  await userStore.fetchDepartmentUser();
+  await userStore.fetchDepartmentUser({
+    page: 1,
+    limit: 1000,
+    type: "approval_rules",
+  });
 });
 
 const loadDpm = async (): Promise<void> => {
@@ -187,9 +191,10 @@ const showCreateModal = (): void => {
 };
 
 const showEditModal = (record: BudgetApprovalRuleApiModel): void => {
+  const dpmId = record.department?.id ?? "";
   selectData.value = record;
-  formModel.department_id = record.department_id.toString();
-  formModel.approver_id = record.approver_id.toString();
+  formModel.approver_id = record.approver?.id.toString() ?? "";
+  formModel.department_id = dpmId.toString();
   formModel.min_amount = record.min_amount;
   formModel.max_amount = record.max_amount;
   editModalVisible.value = true;
@@ -217,6 +222,11 @@ const handleCreate = async (): Promise<void> => {
       });
       success(t("departments.notify.created"));
       await loadDpm(); // Refresh the list
+      await userStore.fetchDepartmentUser({
+        page: 1,
+        limit: 1000,
+        type: "approval_rules",
+      });
       createModalVisible.value = false;
       formModel.department_id = "";
       formModel.approver_id = "";
@@ -249,6 +259,11 @@ const handleEdit = async (): Promise<void> => {
         });
         success(t("departments.notify.update"));
         await loadDpm();
+        await userStore.fetchDepartmentUser({
+          page: 1,
+          limit: 1000,
+          type: "approval_rules",
+        });
         editModalVisible.value = false;
       }
     }
@@ -269,6 +284,11 @@ const handleDelete = async (): Promise<void> => {
     await budgetApvRuleStore.deleteBudgetApvRule(id);
     success(t("departments.notify.delete"));
     await loadDpm(); // Refresh the list
+    await userStore.fetchDepartmentUser({
+      page: 1,
+      limit: 1000,
+      type: "approval_rules",
+    });
   } catch (error) {
     console.error("Delete failed:", error);
   }
@@ -332,7 +352,15 @@ const formattedMaxAmount = computed({
           {{ $t("budget-apv-rule.add") }}
         </UiButton>
       </div>
-      <div class="total-item mt-4 text-slate-700">
+      <div class="mt-4 text-slate-700 space-y-2">
+        <span
+          :loading="budgetApvRuleStore.loading"
+          class="block text-lg font-semibold"
+          v-if="budget_apv_rules.length > 0 && budget_apv_rules[0].department"
+        >
+          {{ budget_apv_rules[0].department?.name }}
+        </span></div>
+      <!-- <div class="total-item mt-4 text-slate-700">
         <a-tag color="red"
           >{{
             t("budget-apv-rule.totalPeople", {
@@ -340,7 +368,7 @@ const formattedMaxAmount = computed({
             })
           }}
         </a-tag>
-      </div>
+      </div> -->
     </div>
 
     <!--  Table -->
@@ -456,11 +484,11 @@ const formattedMaxAmount = computed({
       <UiForm ref="formRef" :model="formModel" :rules="budgetApvRuleRules(t)">
         <UiFormItem
           :label="t('budget-apv-rule.field.department')"
-          name="approver_id"
+          name="department_id"
           required
         >
           <InputSelect
-            v-model="formModel.approver_id"
+            v-model="formModel.department_id"
             :options="departmentItem"
             :placeholder="t('budget-apv-rule.placeholder.department')"
           />
@@ -471,7 +499,7 @@ const formattedMaxAmount = computed({
           required
         >
           <InputSelect
-            v-model="formModel.department_id"
+            v-model="formModel.approver_id"
             :options="userItem"
             :placeholder="t('departments.dpm_user.placeholder.user')"
           />
