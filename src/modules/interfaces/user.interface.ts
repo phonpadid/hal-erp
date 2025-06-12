@@ -13,6 +13,7 @@ export interface UserInterface {
   updated_at?: string;
   deleted_at?: string | null;
   getRoles(): Role[];
+  permissions?: Permission[]
 }
 
 export interface UserCreatePayload {

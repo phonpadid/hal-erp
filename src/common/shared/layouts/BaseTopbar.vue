@@ -5,6 +5,8 @@ import { computed, onMounted, ref, watch } from "vue";
 import { DownOutlined } from "@ant-design/icons-vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Tooltip } from "ant-design-vue";
+import UiModal from "../components/Modal/UiModal.vue";
+import router from "../router/index";
 
 const emit = defineEmits<{ toggle: [] }>();
 const { success } = useNotification();
@@ -18,6 +20,32 @@ const lang = computed(() => [
   { name: t("lang.en"), value: "en", icon: "/en.png" },
   { name: t("lang.la"), value: "la", icon: "/lo.png" },
 ]);
+
+const showLogoutModal = ref(false);
+const confirmLoading = ref(false);
+
+function handleLogout() {
+  showLogoutModal.value = true;
+}
+
+function handleConfirmLogout() {
+  confirmLoading.value = true;
+  // Perform logout
+  localStorage.clear();
+  router
+    .push({
+      name: "login",
+    })
+    .catch(() => {})
+    .finally(() => {
+      confirmLoading.value = false;
+      showLogoutModal.value = false;
+    });
+}
+
+function handleCancelLogout() {
+  showLogoutModal.value = false;
+}
 
 const updateCurrentLang = () => {
   const selected = lang.value.find((l) => l.value === locale.value);
@@ -59,12 +87,7 @@ watch(locale, updateCurrentLang);
           class="ant-dropdown-link flex items-center ring-1 ring-slate-200 shadow-sm px-2 h-8 rounded-full bg-slate-50 gap-2"
           @click.prevent
         >
-          <img
-            :src="locale === 'la' ? '/lo.png' : '/en.png'"
-            alt="flag"
-            width="20"
-            height="20"
-          />
+          <img :src="locale === 'la' ? '/lo.png' : '/en.png'" alt="flag" width="20" height="20" />
           <span class="text-[14px] leading-none">{{ currentLang }}</span>
           <DownOutlined :style="{ fontSize: '12px' }" />
         </a>
@@ -97,19 +120,28 @@ watch(locale, updateCurrentLang);
       </div>
       <Tooltip :title="email" color="red" key="color">
         <div class="profile flex gap-0 items-center">
-          <img
-            src="/public/Profile-PNG-File.png"
-            width="35"
-            height="35"
-            alt=""
-            srcset=""
-          />
+          <img src="/public/Profile-PNG-File.png" width="35" height="35" alt="" srcset="" />
           <span class="text-[14px]">{{ username }}</span>
         </div>
       </Tooltip>
+
+      <div class="profile flex gap-0 items-center cursor-pointer" @click="handleLogout">
+        <Icon icon="ic:outline-logout" />
+      </div>
+      <UiModal
+        :visible="showLogoutModal"
+        :title="t('menu-sidebar.logout.title')"
+        :confirm-loading="confirmLoading"
+        @update:visible="showLogoutModal = false"
+        @ok="handleConfirmLogout"
+        @cancel="handleCancelLogout"
+        :ok-text="t('button.confirm')"
+        :cancel-text="t('button.cancel')"
+      >
+        {{ t("menu-sidebar.logout.description") }}
+      </UiModal>
     </div>
   </header>
 </template>
-
 
 <style scoped></style>

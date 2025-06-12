@@ -114,7 +114,7 @@ export class ApiBudgetItemDetailsRepository implements BudgetItemDetailsReposito
     budGetItemDetails: UpdateBudgetItemDetailsInterface
   ): Promise<BudGetItemDetailsEntity> {
     try {
-      // ทำให้แน่ใจว่า description ถูกส่งไป แม้จะเป็น empty string
+   
       const dataToSend = {
         ...budGetItemDetails,
         description: budGetItemDetails.description || "",

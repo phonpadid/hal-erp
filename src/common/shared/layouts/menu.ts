@@ -1,17 +1,7 @@
 import { computed, h } from "vue";
 import type { ItemType } from "./interfaces/menu.interface";
 import { Icon } from "@iconify/vue";
-import router from "../router/index";
 import { t } from "@/common/config/i18n/i18n.config";
-
-function logout() {
-  localStorage.clear();
-  router
-    .push({
-      name: "login",
-    })
-    .catch(() => {});
-}
 
 export const menuItems = computed<ItemType[]>(() => [
   {
@@ -278,18 +268,7 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
-      {
-        key: "logout",
-        label: t("menu-sidebar.logout"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "streamline:interface-logout-circle-arrow-enter-right-logout-point-circle",
-              class: "text-base",
-            }),
-          ]),
-        onClick: logout,
-      },
+
     ],
     type: "group",
   },

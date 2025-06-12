@@ -4,13 +4,16 @@ import { UserEntity } from "@/modules/domain/entities/user.entities";
 import type { DepartmentUserRepository } from "@/modules/domain/repository/departments/department-user.repository";
 
 export class UpdateDepartmentUserUseCase {
-  constructor(private readonly dpmUserRepository: DepartmentUserRepository) {}
+  constructor(private readonly dpmUserRepository: DepartmentUserRepository) { }
 
   async execute(id: string, input: UpdateDepartmentUserDTO): Promise<DepartmentUserEntity> {
     const userEntity = new UserEntity(
       input.user.id,
       input.user.username,
       input.user.email,
+      input.roleIds,
+      [],
+      input.permissionIds,
       input.user.password,
       new Date().toISOString(), // updatedAt
       new Date().toISOString(), // Fallback createdAt
