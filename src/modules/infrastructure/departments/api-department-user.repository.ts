@@ -213,8 +213,11 @@ console.log('data:', domainModels)
           username: user.getUsername(),
           email: user.getEmail(),
           password: user.getPassword(),
-          tel: user.getTel()
-        }
+          tel: user.getTel(),
+          roleIds: user.getRoleIds(),
+          roles: user.getRoles(),
+          permissionIds: user.getPermissionIds()
+        } as UserInterface
         : undefined,
       position_id: dpmUser.getPosition_id(),
       signature_file: dpmUser.getSignature_file(),
@@ -229,8 +232,8 @@ console.log('data:', domainModels)
     const position_id = data.position_id ?? '';
     const signature_file = data.signature_file_url || '';
     const departmentId = data.department_id ? String(data.department_id) : '';
-    const permissionIds = Array.isArray(data.permissionIds) ? data.permissionIds : [];
-    const roleIds = Array.isArray(data.roleIds) ? data.roleIds : [];
+    const permissionIds = data.user?.roles.map(role => role.id) ?? [];
+    const roleIds = data.user?.permissions?.map(per => per.id) ?? [];
 
     const department = data.department ? this.toDepartmentEntity(data.department) : undefined;
     const position = data.position ? this.toPositionEntity(data.position) : undefined;
@@ -250,8 +253,8 @@ console.log('data:', domainModels)
       signature_file,
       '', // Empty string for the 4th parameter - you may need to adjust this
       departmentId,
-      permissionIds,
       roleIds,
+      permissionIds,
       department,
       position,
       user, // This is now always UserEntity (never undefined)
@@ -264,10 +267,16 @@ console.log('data:', domainModels)
   }
 
   private toUserEntity(user: UserInterface): UserEntity {
+    const roleIds = user.roles?.map(role => role.id) || [];
+    const permissionIds = user.permissions?.map(perm => perm.id) || [];
+    const roles = user.roles || []
     return new UserEntity(
       user.id.toString(),
       user.username,
       user.email,
+      roleIds,
+      roles,
+      permissionIds,
       user.created_at || "",
       user.updated_at || "",
       user.deleted_at || null,
@@ -281,7 +290,10 @@ console.log('data:', domainModels)
     return new UserEntity(
       '',           // id
       '',           // username
-      '',           // email
+      '',
+      [],          // email
+      [],          // email
+      [],          // email
       '',           // created_at
       '',           // updated_at
       null,         // deleted_at
