@@ -60,20 +60,16 @@ const departmentItem = computed(() =>
 
 const roleItem = computed(() =>
   roleStore.roles.map((item) => ({
-    value: item.getId(),
+    value: Number(item.getId()),
     label: item.getName(),
   }))
 );
 
-const dpmUserRoleIds = computed({
-  get: () => dpmUserFormModel.roleIds.map((id) => String(id)),
-  set: (val: string[]) => {
-    dpmUserFormModel.roleIds = val.map((id) => Number(id));
-  },
-});
 
 // Get permission groups from store
-const permissionGroups = computed(() => permissionStore.permission || []);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const permissionGroups = computed(() => permissionStore.permission as any || []);
+
 
 // Add reactive reference for signature file to ensure proper binding
 const signatureFile = ref(dpmUserFormModel.signature_file || null);
@@ -110,6 +106,7 @@ const loadDepartmentUser = async () => {
       loading.value = true;
       await dpmUserStore.fetchDepartmentUserById(departmentUserId.value);
       const departmentUser = dpmUserStore.currentDpmUser;
+
       const userData = departmentUser?.getUser();
       const positionData = departmentUser?.getPostion();
 
@@ -132,9 +129,9 @@ const loadDepartmentUser = async () => {
         }
 
         // Load existing permissions
-        selectedPermissions.value = departmentUser.getPermissionIds() || [];
+        selectedPermissions.value = departmentUser.getUser()?.getPermissionIds() || [];
         const existingRoleIds =
-          departmentUser.getRoleIds?.() || departmentUser.getRoleIds?.() || [];
+        departmentUser.getRoleIds?.() || departmentUser.getRoleIds() || [];
         dpmUserFormModel.roleIds = existingRoleIds;
       } else {
         console.error("Department user not found");
@@ -170,6 +167,8 @@ const handleSubmit = async (): Promise<void> => {
         email: dpmUserFormModel.email,
         password: dpmUserFormModel.password,
         tel: dpmUserFormModel.tel,
+        roleIds: [],
+        permissionIds: []
       },
       position_id: dpmUserFormModel.position_id,
       signature_file: existingSignatureUrl.value ? '' : dpmUserFormModel.signature_file,
@@ -232,29 +231,6 @@ onMounted(async () => {
     signatureFile.value = dpmUserFormModel.signature_file;
   }
 });
-
-// const props = withDefaults(
-//   defineProps<{
-//     visible?: boolean;
-//   }>(),
-//   {
-//     visible: false,
-//   }
-// );
-
-// watch(
-//   () => props.visible,
-//   (newVal, oldVal) => {
-//     if (newVal && !oldVal) {
-//       console.log("formRef", formRef.value);
-//       // When the component becomes visible (opened)
-//       dpmUserStore.resetForm();
-//       existingSignatureUrl.value = null;
-//       formRef.value?.resetFields?.();
-//     }
-//     console.log("formRef1111", formRef.value);
-//   }
-// );
 
 onUnmounted(() => {
       dpmUserStore.resetForm();
@@ -348,9 +324,9 @@ onUnmounted(() => {
             >
               <InputSelect
                 mode="multiple"
-                v-model="dpmUserRoleIds"
+                v-model:value="dpmUserFormModel.roleIds"
                 :options="roleItem"
-                :placeholder="t('departments.dpm_user.placeholder.role')"
+                :placeholder="t('departments.dpm_user.field.role')"
               />
             </UiFormItem>
           </div>
