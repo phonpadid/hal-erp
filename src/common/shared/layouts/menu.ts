@@ -98,19 +98,6 @@ export const menuItems = computed<ItemType[]>(() => [
           ]),
       },
       {
-
-
-        key: "approval_workflows.index",
-        label: t("menu-sidebar.approval_workflow"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:docs-outline",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
         key: "currencies.index",
         label: t("menu-sidebar.currency"),
         icon: () =>
@@ -156,6 +143,35 @@ export const menuItems = computed<ItemType[]>(() => [
           {
             key: "budget_apv_rule.index",
             label: t('menu-sidebar.budget_apv_rule'),
+          },
+        ],
+      },
+    ],
+    type: "group",
+  },
+  //approval workflow group
+  {
+    label: "",
+    children: [
+      { type: "divider" },
+      {
+        key: "119",
+        label: t("menu-sidebar.approval_workflow_manage"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:docs-outline",
+              class: "text-base",
+            }),
+          ]),
+        children: [
+          {
+            key: "approval_workflows.index",
+            label: t("menu-sidebar.approval_workflow"),
+          },
+          {
+            key: "approval_workflow_step.index",
+            label: t("menu-sidebar.approval_workflow_step"),
           },
         ],
       },

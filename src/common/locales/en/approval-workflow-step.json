@@ -1,0 +1,45 @@
+{
+    "notify": {
+      "created": "Information created successfully.",
+      "update": "Information updated successfully.",
+      "delete": "Information deleted successfully."
+    },
+    "alert": {
+      "confirm": "Confirm Deletion",
+      "message": "Are you sure you want to delete this information?",
+      "remark": "This action cannot be undone once confirmed."
+    },
+    "title": "Approval workflow step information",
+    "total": "Total",
+    "item": "items",
+    "add": "Add Info",
+    "header_form": {
+      "add": "Approval workflow step creation Form",
+      "edit": "Approval workflow step update Form"
+    },
+    "placeholder": {
+      "search": "Search information",
+      "approval_workflow": "Select a approval workflow",
+      "department": "Select a department",
+      "step_name": "Enter step name",
+      "step_number": "Enter step number"
+    },
+    "error": {
+      "approval_workflow": "Please select a approval workflow.",
+      "department": "Please select a department type.",
+      "step_name": "Please enter step name.",
+      "step_number": "Please enter step number.",
+      "max_name": "Step name cannot exceed 255 characters.",
+      "max_number": "Step number cannot exceed 12 numbers."
+    },
+    "field": {
+    "approval_workflow": "Approval workflow",
+    "department": "Department",
+    "step_name": "Step name",
+    "step_number": "Step number",
+    "created": "Created at",
+    "updated": "Updated at",
+    "manege": "Manage"
+  }
+  }
+  
