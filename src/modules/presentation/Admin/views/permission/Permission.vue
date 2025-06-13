@@ -5,14 +5,14 @@ import { usePermissionStore } from "../../stores/permission.store";
 import { useI18n } from "vue-i18n";
 import { columns } from "./column";
 import Table from "@/common/shared/components/table/Table.vue";
-import PermissionSelector from "@/modules/presentation/Admin/components/permission/PermissionSelector.vue";
+// import PermissionSelector from "@/modules/presentation/Admin/components/permission/PermissionSelector.vue";
 
 const { t } = useI18n();
 const permissionStore = usePermissionStore();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const permissionData = ref<any[]>([]);
 const loading = ref(false);
-const selectedPermissionIds = ref<(string | number)[]>([]);
+// const selectedPermissionIds = ref<(string | number)[]>([]);
 
 const loadPermissions = async () => {
   try {
@@ -28,10 +28,10 @@ const loadPermissions = async () => {
   }
 };
 
-const handlePermissionSelect = (values: (string | number)[]) => {
-  selectedPermissionIds.value = values;
-  console.log("Selected permissions:", selectedPermissionIds.value);
-};
+// const handlePermissionSelect = (values: (string | number)[]) => {
+//   selectedPermissionIds.value = values;
+//   console.log("Selected permissions:", selectedPermissionIds.value);
+// };
 
 onMounted(async () => {
   await loadPermissions();
@@ -55,7 +55,7 @@ onMounted(async () => {
     />
 
     <!-- Permission Selection Section -->
-    <div class="mb-6 p-4 border rounded-lg bg-white">
+    <!-- <div class="mb-6 p-4 border rounded-lg bg-white">
       <h2 class="text-xl font-medium mb-4">ເລືອກສິດທີທີຕ້ອງການ</h2>
 
       <a-spin :spinning="loading">
@@ -72,6 +72,6 @@ onMounted(async () => {
           ບັນທຶກສິດທິ
         </a-button>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>

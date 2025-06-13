@@ -143,7 +143,7 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
 
     <div v-for="(options, groupName) in groupedOptions" :key="groupName" class="w-44">
       <div class="mb-2">
-        <h3 v-if="groupName" class="inline-block mr-2 text-sm font-medium dark:text-white">
+        <h3 v-if="groupName" class="inline-block mr-2 text-sm font-medium">
           {{ groupName }}
         </h3>
         <a-checkbox
@@ -155,13 +155,11 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
         </a-checkbox>
       </div>
 
-      <ul
-        class="w-44 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-      >
+      <ul class="w-44 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg">
         <li
           v-for="option in options"
           :key="option.value"
-          class="w-full px-2 py-1 border-b border-gray-200 dark:border-gray-600"
+          class="w-full px-2 py-1 border-b border-gray-200"
         >
           <a-checkbox
             :value="option.value"
