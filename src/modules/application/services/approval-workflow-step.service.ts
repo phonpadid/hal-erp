@@ -33,10 +33,11 @@ export class ApprovalWorkflowStepServiceImpl implements ApprovalWorkflowStepServ
   }
 
   async getAll(
+    id: string,
     params: PaginationParams,
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<ApprovalWorkflowStepEntity>> {
-    return await this.getAllApprovalWorkflowStepUseCase.execute(params, includeDeleted);
+    return await this.getAllApprovalWorkflowStepUseCase.execute(id,params, includeDeleted);
   }
 
   async update(id: string, input: UpdateApprovalWorkflowStepDTO): Promise<ApprovalWorkflowStepEntity> {

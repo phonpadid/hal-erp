@@ -37,6 +37,7 @@
     "department": "Department",
     "step_name": "Step name",
     "step_number": "Step number",
+    "step": "Step",
     "created": "Created at",
     "updated": "Updated at",
     "manege": "Manage"

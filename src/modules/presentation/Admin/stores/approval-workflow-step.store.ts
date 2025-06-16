@@ -51,7 +51,7 @@ export const approvalWorkflowStepStore = defineStore("approval-workflow-step", (
     }
   };
 
-  const fetchApprovalWorkflowSteps = async (
+  const fetchApprovalWorkflowSteps = async (id: string,
     params: PaginationParams = { page: 1, limit: 10 },
     includeDeleted = false
   ) => {
@@ -59,7 +59,7 @@ export const approvalWorkflowStepStore = defineStore("approval-workflow-step", (
     error.value = null;
 
     try {
-      const result = await apvWorkflowStepService.getAll(
+      const result = await apvWorkflowStepService.getAll(id,
         params,
         includeDeleted
       );

@@ -13,16 +13,17 @@ import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { approvalWorkflowStepRules } from "./validation/approval-workflow-step.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import type { ApprovalWorkflowApiModel } from "@/modules/interfaces/approval-workflow.interface";
 import { approvalWorkflowStore } from "../../stores/approval-workflow.store";
-import type { ApprovalWorkflowEntity } from "@/modules/domain/entities/approval-workflows.entity";
 import { departmentStore } from "../../stores/departments/department.store";
 import { NumberOnly } from "@/modules/shared/utils/format-price";
 import { approvalWorkflowStepStore } from "../../stores/approval-workflow-step.store";
 import type { ApprovalWorkflowStepApiModel } from "@/modules/interfaces/approval-workflow-step.interface";
+import type { ApprovalWorkflowStepEntity } from "@/modules/domain/entities/approval-workflows-step.entity";
+import { useRoute } from "vue-router";
 const search = ref<string>("");
 const { t } = useI18n();
-const approval_workflow = ref<ApprovalWorkflowApiModel[]>([]);
+const {params} = useRoute()
+const approval_workflow_step = ref<ApprovalWorkflowStepApiModel[]>([]);
 // const useRealApi = ref<boolean>(true); // Toggle between mock and real API
 const { success } = useNotification();
 // Form related
@@ -48,10 +49,6 @@ const departmentItems = computed(() =>
   }))
 );
 // Form model
-const formModel = reactive({
-  name: "",
-  document_type_id: "",
-});
 const formState = reactive({
   approval_workflow_id: "",
   department_id: "",
@@ -61,35 +58,38 @@ const formState = reactive({
 
 // Load data on component mount
 onMounted(async () => {
-  await loadDpm();
+  await recordLists();
   await dpmStore.fetchDepartment({ page: 1, limit: 1000 });
   await store.fetchApprovalWorkflows({ page: 1, limit: 1000 });
 });
 
-const loadDpm = async (): Promise<void> => {
+const recordLists = async (): Promise<void> => {
   // if (useRealApi.value) {
   try {
     loading.value = true;
-    const result = await store.fetchApprovalWorkflows({
-      page: store.pagination.page,
-      limit: store.pagination.limit,
+    const id = params.id as string
+    if(id) {
+      const result = await apvWorkflowStepStore.fetchApprovalWorkflowSteps(id,{
+      page: apvWorkflowStepStore.pagination.page,
+      limit: apvWorkflowStepStore.pagination.limit,
     });
 
-    approval_workflow.value = result.data.map(
-      (data: ApprovalWorkflowEntity): ApprovalWorkflowApiModel => {
-        const doc = data.getDocument_type();
+    approval_workflow_step.value = result.data.map(
+      (data: ApprovalWorkflowStepEntity) => {
+        const dpm = data.getDepartment();
         return {
           id: Number(data.getId()), // convert to number
-          name: data.getName(),
-          documentTypeId: Number(data.getDocument_type_id()), // make sure it's a string if needed
-          document_type: doc
+          step_name: data.getStepName(),
+          step_number: data.getStepNumber(),
+          departmentId: Number(data.getDepartemntId()), // make sure it's a string if needed
+          approval_workflow_id: Number(data.getApprovalWorkflowId()), // make sure it's a string if needed
+          department: dpm
             ? {
-                id: Number(doc.getId()),
-                name: doc.getname(),
-                code: doc.getcode(),
-                created_at: doc.getCreatedAt() ?? undefined,
-                updated_at: doc.getUpdatedAt() ?? undefined,
-                deleted_at: doc.getDeletedAt?.() ?? undefined, // optional if your type expects it
+                id: Number(dpm.getId()),
+                name: dpm.getName(),
+                code: dpm.getCode(),
+                created_at: dpm.getCreatedAt() ?? undefined,
+                updated_at: dpm.getUpdatedAt() ?? undefined,
               }
             : undefined,
           created_at: data.getCreatedAt() ?? undefined,
@@ -97,7 +97,7 @@ const loadDpm = async (): Promise<void> => {
         };
       }
     );
-
+    }
     // console.log("Department data loaded:", department.value);
   } catch (error) {
     console.error("Failed to fetch department from API:", error);
@@ -114,27 +114,30 @@ const loadDpm = async (): Promise<void> => {
 const handleSearch = async () => {
   try {
     loading.value = true;
-    const result = await store.fetchApprovalWorkflows({
-      page: 1,
-      limit: store.pagination.limit,
-      search: search.value,
+    loading.value = true;
+    const id = params.id as string;
+    const result = await apvWorkflowStepStore.fetchApprovalWorkflowSteps(id, {
+      page: apvWorkflowStepStore.pagination.page,
+      limit: apvWorkflowStepStore.pagination.limit,
+      search: search.value
     });
 
-    approval_workflow.value = result.data.map(
-      (data: ApprovalWorkflowEntity): ApprovalWorkflowApiModel => {
-        const doc = data.getDocument_type();
+    approval_workflow_step.value = result.data.map(
+      (data: ApprovalWorkflowStepEntity) => {
+        const dpm = data.getDepartment();
         return {
           id: Number(data.getId()), // convert to number
-          name: data.getName(),
-          documentTypeId: Number(data.getDocument_type_id()), // make sure it's a string if needed
-          document_type: doc
+          step_name: data.getStepName(),
+          step_number: data.getStepNumber(),
+          departmentId: Number(data.getDepartemntId()), // make sure it's a string if needed
+          approval_workflow_id: Number(data.getApprovalWorkflowId()), // make sure it's a string if needed
+          department: dpm
             ? {
-                id: Number(doc.getId()),
-                name: doc.getname(),
-                code: doc.getcode(),
-                created_at: doc.getCreatedAt() ?? undefined,
-                updated_at: doc.getUpdatedAt() ?? undefined,
-                deleted_at: doc.getDeletedAt?.() ?? undefined, // optional if your type expects it
+                id: Number(dpm.getId()),
+                name: dpm.getName(),
+                code: dpm.getCode(),
+                created_at: dpm.getCreatedAt() ?? undefined,
+                updated_at: dpm.getUpdatedAt() ?? undefined,
               }
             : undefined,
           created_at: data.getCreatedAt() ?? undefined,
@@ -142,12 +145,11 @@ const handleSearch = async () => {
         };
       }
     );
-
     // Optional: Update pagination
-    store.setPagination({
+    apvWorkflowStepStore.setPagination({
       page: 1,
-      limit: store.pagination.limit,
-      total: store.pagination.total,
+      limit: apvWorkflowStepStore.pagination.limit,
+      total: apvWorkflowStepStore.pagination.total,
     });
   } catch (error) {
     console.error("Search failed:", error);
@@ -160,14 +162,15 @@ const showCreateModal = (): void => {
   formState.approval_workflow_id = "";
   formState.department_id = "";
   formState.step_name = "";
-  formState.step_name = "";
+  formState.step_number = "";
   createModalVisible.value = true;
 };
 
 const showEditModal = (record: ApprovalWorkflowStepApiModel): void => {
   selectedData.value = record;
+  const department_id = record.department?.id.toString() ?? ""
   formState.approval_workflow_id = record.approval_workflow_id?.toString();
-  formState.department_id = record.departemnt_id?.toString();
+  formState.department_id = department_id;
   formState.step_name = record.step_name;
   formState.step_number = record.step_number?.toString();
   editModalVisible.value = true;
@@ -189,10 +192,8 @@ const handleCreate = async (): Promise<void> => {
       step_number: Number(formState.step_number),
     });
     success(t("approval-workflow-step.notify.created"));
-    await loadDpm(); // Refresh the list
+    await recordLists(); // Refresh the list
     createModalVisible.value = false;
-    formModel.name = "";
-    formModel.document_type_id = "";
   } catch (error) {
     console.error("Create form validation failed:", error);
   } finally {
@@ -215,7 +216,7 @@ const handleEdit = async (): Promise<void> => {
         step_number: Number(formState.step_number),
       });
       success(t("approval-workflow-step.notify.update"));
-      await loadDpm();
+      await recordLists();
     }
 
     editModalVisible.value = false;
@@ -235,7 +236,7 @@ const handleDelete = async (): Promise<void> => {
     const id = selectedData.value.id.toString();
     await apvWorkflowStepStore.remove(id);
     success(t("approval-workflow-step.notify.delete"));
-    await loadDpm(); // Refresh the list
+    await recordLists(); // Refresh the list
   } catch (error) {
     console.error("Delete failed:", error);
   }
@@ -250,11 +251,11 @@ const handleTableChange = async (pagination: any) => {
     limit: pagination.pageSize,
     total: pagination.total,
   });
-  await loadDpm();
+  await recordLists();
 };
 watch(search, async (newValue) => {
   if (newValue === "") {
-    await loadDpm();
+    await recordLists();
   }
 });
 </script>
@@ -285,7 +286,7 @@ watch(search, async (newValue) => {
       <div class="total-item mt-4 text-slate-700">
         <a-tag color="red"
           >{{ t("approval-workflow-step.total") }}:
-          {{ store.pagination.total }}
+          {{ apvWorkflowStepStore.pagination.total }}
           {{ t("approval-workflow-step.item") }}</a-tag
         >
       </div>
@@ -294,7 +295,7 @@ watch(search, async (newValue) => {
     <!--  Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="approval_workflow"
+      :dataSource="approval_workflow_step"
       :pagination="{
         current: store.pagination.page,
         pageSize: store.pagination.limit,
@@ -304,6 +305,11 @@ watch(search, async (newValue) => {
       :loading="store.loading"
       @change="handleTableChange"
     >
+      <template #step_number="{ record }">
+        <div class="flex items-center justify-start gap-2">
+          {{ t('approval-workflow-step.field.step') }} ({{ record.step_number }})
+        </div>
+      </template>
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
@@ -470,9 +476,9 @@ watch(search, async (newValue) => {
       okType="primary"
     >
       <p>
-        {{ $t("approval-workflow-step.alert.message") }}: "{{
-          selectedData?.step_name
-        }}"?
+        {{ $t("approval-workflow-step.alert.message") }}: "{{ t('approval-workflow-step.field.step') }} ({{
+          selectedData?.step_number
+        }})"?
       </p>
       <p class="text-red-500">
         {{ t("approval-workflow-step.alert.remark") }}

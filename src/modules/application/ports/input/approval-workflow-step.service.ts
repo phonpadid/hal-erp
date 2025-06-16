@@ -5,7 +5,7 @@ import type { ApprovalWorkflowStepEntity } from "@/modules/domain/entities/appro
 export interface ApprovalWorkflowStepService {
   create(input: CreateApprovalWorkflowStepDTO): Promise<ApprovalWorkflowStepEntity>;
   getOne(id: string): Promise<ApprovalWorkflowStepEntity | null>;
-  getAll(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<ApprovalWorkflowStepEntity>>;
+  getAll(id: string,params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<ApprovalWorkflowStepEntity>>;
   update(id: string, input: UpdateApprovalWorkflowStepDTO): Promise<ApprovalWorkflowStepEntity>;
   delete(id: string): Promise<boolean>;
 }

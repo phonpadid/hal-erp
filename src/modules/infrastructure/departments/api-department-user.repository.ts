@@ -123,7 +123,6 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
 
       const validItems = response.data.data.filter((item) => item.user);
       const domainModels = validItems.map((item) => this.toDomainModel(item));
-console.log('data:', domainModels)
       return {
         data: domainModels,
         total: response.data.pagination.total,

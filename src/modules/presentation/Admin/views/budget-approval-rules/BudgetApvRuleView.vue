@@ -62,7 +62,7 @@ onMounted(async () => {
   await userStore.fetchDepartmentUser({
     page: 1,
     limit: 1000,
-    type: "approval_rules",
+    // type: "approval_rules",
   });
 });
 

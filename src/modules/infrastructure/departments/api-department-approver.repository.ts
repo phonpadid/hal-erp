@@ -111,31 +111,40 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
 
 //
 private toUserEntity(user: UserInterface): UserEntity {
-    return new UserEntity(
-      user.id.toString(),
-      user.username,
-      user.email,
-      user.created_at || "",
-      user.updated_at || "",
-      user.deleted_at || null,
-      user.password,
-      user.tel
-    );
-  }
+  const roleIds = user.roles?.map(role => role.id) || [];
+  const permissionIds = user.permissions?.map(perm => perm.id) || [];
+  const roles = user.roles || []
+  return new UserEntity(
+    user.id.toString(),
+    user.username,
+    user.email,
+    roleIds,
+    roles,
+    permissionIds,
+    user.created_at || "",
+    user.updated_at || "",
+    user.deleted_at || null,
+    user.password,
+    user.tel
+  );
+}
 
-  private createPlaceholderUser(): UserEntity {
-    // Create a placeholder user entity when user data is not available
-    return new UserEntity(
-      '',           // id
-      '',           // username
-      '',           // email
-      '',           // created_at
-      '',           // updated_at
-      null,         // deleted_at
-      undefined,    // password
-      undefined     // tel
-    );
-  }
+private createPlaceholderUser(): UserEntity {
+  // Create a placeholder user entity when user data is not available
+  return new UserEntity(
+    '',           // id
+    '',           // username
+    '',
+    [],          // email
+    [],          // email
+    [],          // email
+    '',           // created_at
+    '',           // updated_at
+    null,         // deleted_at
+    undefined,    // password
+    undefined     // tel
+  );
+}
 
   private toDepartmentEntity(departmentData: DepartmentApiModel): DepartmentEntity {
     return new DepartmentEntity(

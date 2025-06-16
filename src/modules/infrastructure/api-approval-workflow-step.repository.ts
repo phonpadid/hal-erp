@@ -14,7 +14,7 @@ import { DepartmentEntity } from "../domain/entities/departments/department.enti
 export class ApiApprovalWorkflowStepRepository implements ApprovalWorkflowStepRepository {
   async create(input: ApprovalWorkflowStepEntity): Promise<ApprovalWorkflowStepEntity> {
     try {
-      const response = (await api.post("/approval-workflow-steps", this.toApiModel(input))) as {
+      const response = (await api.post("/approval-workflow-steps/"+input.getApprovalWorkflowId(), this.toApiModel(input))) as {
         data: ApiResponse<ApprovalWorkflowStepApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -25,7 +25,7 @@ export class ApiApprovalWorkflowStepRepository implements ApprovalWorkflowStepRe
 
   async findById(id: string): Promise<ApprovalWorkflowStepEntity | null> {
     try {
-      const response = (await api.get(`/approval-workflow-steps/${id}`)) as {
+      const response = (await api.get(`/approval-workflow-steps/work-flow-step-id/${id}`)) as {
         data: ApiResponse<ApprovalWorkflowStepApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -39,11 +39,12 @@ export class ApiApprovalWorkflowStepRepository implements ApprovalWorkflowStepRe
   }
 
   async findAll(
+    id: string,
     params: PaginationParams,
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<ApprovalWorkflowStepEntity>> {
     try {
-      const response = await api.get("/approval-workflow-steps", {
+      const response = await api.get("/approval-workflow-steps/approval-workflow-id/"+id, {
         params: {
           page: params.page,
           limit: params.limit,
@@ -90,7 +91,7 @@ export class ApiApprovalWorkflowStepRepository implements ApprovalWorkflowStepRe
     return {
       id: Number(input.getId()),
       approval_workflow_id: Number(input.getApprovalWorkflowId()),
-      departemnt_id: Number(input.getDepartemntId()) ?? 0,
+      departmentId: Number(input.getDepartemntId()) ?? 0,
       step_name: input.getStepName(),
       step_number: input.getStepNumber(),
     };
@@ -101,7 +102,7 @@ export class ApiApprovalWorkflowStepRepository implements ApprovalWorkflowStepRe
     const res = new ApprovalWorkflowStepEntity(
       data.id.toString(),
       data.approval_workflow_id.toString(),
-      String(data.departemnt_id),
+      String(data.departmentId),
       data.step_name,
       data.step_number,
       data.approval_workflow ? this.toApprovalWorkflowEntity(data.approval_workflow): undefined,

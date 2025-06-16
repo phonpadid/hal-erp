@@ -3,7 +3,7 @@ import ApprovalWorkflowStepView from "../views/approval-workflow-steps/ApprovalW
 
 export const approvalWorkflowStepRoutes: RouteRecordRaw[] = [
   {
-    path: "/approval-workflows-step",
+    path: "/approval-workflows-step/:id",
     name: "approval_workflow_step.index",
     component: ApprovalWorkflowStepView,
     meta: {

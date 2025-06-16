@@ -7,9 +7,10 @@ export class GetAllApprovalWorkflowStepUseCase {
   constructor(private readonly approvalWorkflowStepRepo: ApprovalWorkflowStepRepository) {}
 
   async execute(
+    id: string,
     params: PaginationParams = { page: 1, limit: 10 },
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<ApprovalWorkflowStepEntity>> {
-    return await this.approvalWorkflowStepRepo.findAll(params, includeDeleted);
+    return await this.approvalWorkflowStepRepo.findAll(id,params, includeDeleted);
   }
 }

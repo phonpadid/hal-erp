@@ -5,7 +5,7 @@ import type { ApprovalWorkflowStepEntity } from "../entities/approval-workflows-
 export interface ApprovalWorkflowStepRepository {
   create(input: ApprovalWorkflowStepEntity): Promise<ApprovalWorkflowStepEntity>;
   findById(id: string): Promise<ApprovalWorkflowStepEntity | null>;
-  findAll(query: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<ApprovalWorkflowStepEntity>>;
+  findAll(id: string, query: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<ApprovalWorkflowStepEntity>>;
   update(id: string, input: ApprovalWorkflowStepEntity): Promise<ApprovalWorkflowStepEntity>;
   delete(id: string): Promise<boolean>;
 }
