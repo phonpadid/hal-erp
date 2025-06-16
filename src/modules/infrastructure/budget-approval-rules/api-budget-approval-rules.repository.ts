@@ -111,10 +111,16 @@ export class ApiBudgetApprovalRuleRepository implements BudgetApprovalRuleReposi
   }
 
   private toUserEntity(user: UserInterface): UserEntity {
+    const roleIds = user.roles?.map(role => role.id) || [];
+    const permissionIds = user.permissions?.map(perm => perm.id) || [];
+    const roles = user.roles || []
     return new UserEntity(
       user.id.toString(),
       user.username,
       user.email,
+      roleIds,
+      roles,
+      permissionIds,
       user.created_at || "",
       user.updated_at || "",
       user.deleted_at || null,
@@ -122,7 +128,7 @@ export class ApiBudgetApprovalRuleRepository implements BudgetApprovalRuleReposi
       user.tel
     );
   }
-  
+
   private toDepartmentEntity(departmentData: DepartmentApiModel): DepartmentEntity {
     return new DepartmentEntity(
       departmentData.id.toString(),
