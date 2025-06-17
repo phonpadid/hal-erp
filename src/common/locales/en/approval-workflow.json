@@ -6,7 +6,7 @@
     },
     "alert": {
       "confirm": "Confirm Deletion",
-      "message": "Are you sure you want to delete this information?",
+      "message": "Are you sure you want to delete this information",
       "remark": "This action cannot be undone once confirmed."
     },
     "title": "Approval Workflow Information",
@@ -28,7 +28,7 @@
       "max_name": "Name cannot exceed 255 characters."
     },
     "field": {
-      "form_name": "Form Name",
+      "form_name": "Form",
       "code": "Code",
       "doc_type": "Document Type",
       "created": "Created At",

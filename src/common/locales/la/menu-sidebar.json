@@ -8,23 +8,19 @@
   "document_type": "ປະເພດເອກະສານ",
   "user_approval": "ຜູ້ອະນຸມັດເອກະສານ",
   "budget_apv_rule": "ຜູ້ຮັບຜິດຊອບ",
-  "approval_workflow": "ຟອມອະນຸມັດປະເພດເອກະສານ",
+  "approval_workflow": "ອະນຸມັດປະເພດເອກະສານ",
   "currency": "ສະກຸນເງິນ",
-
   "department_manage": "ຈັດການພະແນກ",
   "department": "ພະແນກ",
   "department_approver": "ຜູ້ອະນຸມັດພະແນກ",
   "department_user": "ຜູ້ໃຊ້ພະແນກ",
-
   "budget_manage": "ຈັດການງົບປະມານ",
   "budget_account": "ບັນຊີງົບປະມານ",
   "budget_item": "ລາຍການງົບປະມານ",
   "budget_item_detail": "ລາຍລະອຽດງົບປະມານ",
-
   "vendor_manage": "ຈັດການຂໍ້ມູນຜູ້ຈັດຊື້",
   "vendor": "ຜູ້ຈັດຊື້",
   "vendor_bank": "ບັນຊີທະນາຄານຜູ້ຈັດຊື້",
-
   "user_manage": "ຈັດການຂໍ້ມູນຜູ້ໃຊ້",
   "user": "ຂໍ້ມູນຜູ້ໃຊ້",
   "role": "ບົດບາດ",
@@ -34,6 +30,11 @@
     "title": "ຢືນຢັນການອອກຈາກລະບົບ",
     "description": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການອອກຈາກລະບົບ?"
   },
+
   "purchaseRequests": "ຄຳຂໍຈັດຊື້ (PR)",
-  "purchaseOrders": "ອະນຸມັດຈັດຊື້ (PO)"
+  "purchaseOrders": "ອະນຸມັດຈັດຊື້ (PO)",
+  "approval_workflow_manage": "ຈັດການ ການອະນຸມັດເອກະສານ",
+  "approval_workflow_step": "ຂັ້ນຕອນການອະນຸມັດ",
+  "purchase_rq": "ໃບສະເໜີ"
 }
+

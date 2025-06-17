@@ -22,6 +22,7 @@ import {
   parsePrice,
 } from "@/modules/shared/utils/format-price";
 import { departmenUsertStore } from "../../stores/departments/department-user.store";
+import type { UserInterface } from "@/modules/interfaces/user.interface";
 const search = ref<string>("");
 const { t } = useI18n();
 // Initialize the unit store
@@ -61,7 +62,7 @@ onMounted(async () => {
   await userStore.fetchDepartmentUser({
     page: 1,
     limit: 1000,
-    type: "approval_rules",
+    // type: "approval_rules",
   });
 });
 
@@ -103,7 +104,7 @@ const loadDpm = async (): Promise<void> => {
                   tel: approver.getTel?.(),
                   created_at: approver.getCreatedAt?.(),
                   updated_at: approver.getUpdatedAt?.(),
-                }
+                } as UserInterface
               : undefined,
 
             created_at: budgetApvRule.getCreatedAt() ?? "",
@@ -156,11 +157,11 @@ const handleSearch = async () => {
             ? {
                 id: Number(approver.getId()),
                 username: approver.getUsername(),
-                email: approver.getEmail?.(),
-                tel: approver.getTel?.(),
+                email: approver.getEmail(),
+                tel: approver.getTel() ?? "",
                 created_at: approver.getCreatedAt?.(),
                 updated_at: approver.getUpdatedAt?.(),
-              }
+              } as UserInterface
             : undefined,
 
           created_at: budgetApvRule.getCreatedAt() ?? "",

@@ -11,7 +11,7 @@
   "approval_workflow": "Approval workflows",
   "currency": "Currencies",
 
-  "department_manage": "Manage departments",
+  "department_manage": "Department Manage",
   "department": "Departments",
   "department_approver": "Department approvers",
   "department_user": "Department users",
@@ -34,6 +34,11 @@
     "title": "Logout Confirmation",
     "description": "Are you sure you want to logout?"
   },
+
   "purchaseRequests": "Purchase requests",
-  "purchaseOrders": "Purchase orders"
+  "purchaseOrders": "Purchase orders",
+
+  "approval_workflow_manage": "Approval workflow manage",
+  "approval_workflow_step": "Appoval workflow steps",
+  "purchase_rq": "Proposals"
 }

@@ -33,11 +33,16 @@ const selectedDpm = ref<DepartmentApproverApiModel | null>(null);
 const userStore = departmenUsertStore();
 const { success } = useNotification();
 const userItem = computed(() =>
-  userStore.departmentUser.map((item) => ({
-    value: item.getUser()?.getId() ?? "",
-    label: item.getUser()?.getUsername() ?? "",
-  }))
+  userStore.departmentUser.map((item) => {
+    const user = item.getUser?.();
+    return {
+      value: user?.getId?.() ?? "", // convert to string
+      label: user?.getUsername?.() ?? "",
+    };
+  })
 );
+
+
 // Form model
 const store = departmentApproverStore();
 const formModel = store.dpmApproverFormModel;
@@ -45,7 +50,6 @@ const refreshUsers = async () => {
   await userStore.fetchDepartmentUser({
     page: 1,
     limit: 1000,
-    type: "approvers",
   });
 };
 // Load data on component mount
@@ -82,17 +86,18 @@ const dpmApproverList = async (): Promise<void> => {
             : undefined,
           user: user
             ? {
-                id: Number(user.getId()),
-                username: user.getUsername(),
-                tel: user.getTel(),
-                email: user.getEmail(),
+                id: user.getId() || undefined,
+                username: user.getUsername() || undefined,
+                email: user.getEmail() || undefined,
+                tel: user.getTel() || undefined,
+                created_at: user.getCreatedAt() ?? "",
+                updated_at: user.getUpdatedAt() ?? "",
               }
             : undefined,
           created_at: dpmApv.getCreatedAt()?.toString() || "",
           updated_at: dpmApv.getUpdatedAt()?.toString() || "",
         };
-      }
-    );
+      }) as unknown as DepartmentApproverApiModel[];
   } catch (error) {
     console.error("Failed to fetch department from API:", error);
   } finally {
@@ -139,7 +144,7 @@ const handleSearch = async () => {
           updated_at: dpmApv.getUpdatedAt()?.toString() || "",
         };
       }
-    );
+    )as unknown as DepartmentApproverApiModel[];
   } catch (error) {
     console.error("Failed to fetch department from API:", error);
   } finally {
