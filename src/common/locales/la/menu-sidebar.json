@@ -33,5 +33,7 @@
   "logout": {
     "title": "ຢືນຢັນການອອກຈາກລະບົບ",
     "description": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການອອກຈາກລະບົບ?"
-  }
+  },
+  "purchaseRequests": "ຄຳຂໍຈັດຊື້ (PR)",
+  "purchaseOrders": "ອະນຸມັດຈັດຊື້ (PO)"
 }

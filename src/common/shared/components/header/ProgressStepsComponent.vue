@@ -1,51 +1,21 @@
-<template>
-  <div class="w-full">
-    <!-- Progress Steps -->
-    <a-steps :current="currentStep" :status="currentStatus" size="small" class="custom-steps">
-      <a-step
-        v-for="(step, index) in defaultSteps[stepType]"
-        :key="index"
-        :title="step.title"
-        :description="step.description"
-        :disabled="step.disabled"
-        class="cursor-pointer"
-        @click="handleStepClick(index)"
-      />
-    </a-steps>
-
-    <!-- Action Buttons -->
-    <div class="flex justify-between items-center">
-      <div class="flex items-center gap-2">
-        <span class="text-blue-600">{{ documentPrefix }}</span>
-      </div>
-      <div class="flex gap-2">
-        <a-button v-if="currentStep > 0" type="default" @click="onPrevious">
-          {{ previousButtonText }}
-        </a-button>
-        <a-button v-if="showCancelButton" type="default" @click="onCancel">
-          {{ cancelButtonText }}
-        </a-button>
-        <a-button v-if="showNextButton" :type="isLastStep ? 'primary' : 'default'" @click="onNext">
-          {{ isLastStep ? confirmButtonText : nextButtonText }}
-        </a-button>
-      </div>
-    </div>
-  </div>
-</template>
-
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { defineProps, defineEmits, computed } from "vue";
+import { Icon } from "@iconify/vue";
+import dayjs from "dayjs";
 
+// Step interface
 interface Step {
   title: string;
   description?: string;
   disabled?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
 }
 
+// Define the step types
 type StepType = "TWO_STEPS" | "THREE_STEPS" | "FOUR_STEPS";
 
+// Default steps configuration
 const defaultSteps: Record<StepType, Step[]> = {
   TWO_STEPS: [
     {
@@ -106,37 +76,60 @@ const defaultSteps: Record<StepType, Step[]> = {
   ],
 };
 
+// Button type definition
+type ButtonType = "default" | "primary" | "dashed" | "text" | "link" | "danger";
+
+// Custom button interface
+export interface ActionButton {
+  label: string;
+  type: ButtonType;
+  onClick: () => void;
+  show?: boolean;
+  icon?: string;
+  class?: string;
+  disabled?: boolean;
+  tooltip?: string;
+  permission?: string;
+}
+
+// Props interface
 interface Props {
   stepType: StepType;
   currentStep: number;
   currentStatus?: "wait" | "process" | "finish" | "error";
   documentPrefix?: string;
+  customButtons?: ActionButton[];
   showCancelButton?: boolean;
   showNextButton?: boolean;
   cancelButtonText?: string;
   previousButtonText?: string;
   nextButtonText?: string;
   confirmButtonText?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   stepsData?: Record<number, any>;
+  currentDateTime?: string;
+  currentUser?: string;
+  showDateTime?: boolean;
+  showUser?: boolean;
+  customSteps?: Step[];
 }
 
+// Emits
 const emit = defineEmits<{
   (e: "cancel"): void;
   (e: "previous"): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (e: "next", currentStepData: any): void;
   (e: "stepChange", step: number): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (e: "confirm", allData: Record<number, any>): void;
   (e: "update:currentStep", step: number): void;
+  (e: "buttonClick", buttonData: ActionButton): void;
 }>();
 
+// Props with defaults
 const props = withDefaults(defineProps<Props>(), {
   stepType: "FOUR_STEPS",
   currentStep: 0,
   currentStatus: "process",
-  documentPrefix: "ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ",
+  documentPrefix: "",
   showCancelButton: true,
   showNextButton: true,
   cancelButtonText: "ຍົກເລີກ",
@@ -144,17 +137,44 @@ const props = withDefaults(defineProps<Props>(), {
   nextButtonText: "ຕໍ່ໄປ",
   confirmButtonText: "ຢືນຢັນ",
   stepsData: () => ({}),
+  currentDateTime: () => dayjs().format("YYYY-MM-DD HH:mm:ss"),
+  currentUser: "",
+  showDateTime: false,
+  showUser: false,
+  customSteps: undefined,
+  customButtons: undefined,
+});
+
+// Computed properties
+const steps = computed(() => {
+  return props.customSteps || defaultSteps[props.stepType];
+});
+
+const visibleButtons = computed(() => {
+  return props.customButtons?.filter((button) => button.show !== false) || [];
 });
 
 const isLastStep = computed(() => {
-  return props.currentStep === defaultSteps[props.stepType].length - 1;
+  return props.currentStep === steps.value.length - 1;
 });
 
+// Methods
+const formatDateTime = (datetime: string) => {
+  return dayjs(datetime).format("YYYY-MM-DD HH:mm:ss");
+};
+
 const handleStepClick = (stepIndex: number) => {
-  const steps = defaultSteps[props.stepType];
-  if (!steps[stepIndex].disabled && stepIndex <= props.currentStep) {
+  const currentSteps = steps.value;
+  if (!currentSteps[stepIndex].disabled && stepIndex <= props.currentStep) {
     emit("stepChange", stepIndex);
     emit("update:currentStep", stepIndex);
+  }
+};
+
+const handleButtonClick = (button: ActionButton) => {
+  if (!button.disabled) {
+    button.onClick();
+    emit("buttonClick", button);
   }
 };
 
@@ -166,13 +186,14 @@ const onPrevious = () => {
 };
 
 const onNext = () => {
-  const steps = defaultSteps[props.stepType];
+  const currentSteps = steps.value;
   if (isLastStep.value) {
     emit("confirm", props.stepsData);
-  } else if (props.currentStep < steps.length - 1) {
+  } else if (props.currentStep < currentSteps.length - 1) {
     emit("next", props.stepsData[props.currentStep]);
-
-    steps[props.currentStep + 1].disabled = false;
+    if (currentSteps[props.currentStep + 1]) {
+      currentSteps[props.currentStep + 1].disabled = false;
+    }
     emit("update:currentStep", props.currentStep + 1);
   }
 };
@@ -182,12 +203,109 @@ const onCancel = () => {
 };
 </script>
 
+<template>
+  <div class="w-full">
+    <!-- Progress Steps -->
+    <a-steps :current="currentStep" :status="currentStatus" size="small" class="custom-steps">
+      <a-step
+        v-for="(step, index) in steps"
+        :key="index"
+        :title="step.title"
+        :description="step.description"
+        :disabled="step.disabled"
+        class="cursor-pointer"
+        @click="handleStepClick(index)"
+      />
+    </a-steps>
+
+    <!-- Action Buttons Section -->
+    <div class="flex justify-between items-center mt-4">
+      <!-- Left side content -->
+      <div class="flex items-center gap-2">
+        <span v-if="showDateTime" class="text-gray-600 text-sm">
+          {{ formatDateTime(currentDateTime) }}
+        </span>
+        <span v-if="showUser" class="text-gray-600 text-sm">
+          {{ currentUser }}
+        </span>
+        <span v-if="documentPrefix" class="text-blue-600">
+          {{ documentPrefix }}
+        </span>
+      </div>
+
+      <!-- Right side buttons -->
+      <div class="flex gap-2">
+        <template v-if="customButtons?.length">
+          <template v-for="(button, index) in visibleButtons" :key="index">
+            <a-tooltip v-if="button.tooltip">
+              <template #title>{{ button.tooltip }}</template>
+              <a-button
+                :type="button.type"
+                :class="[button.class, { 'opacity-50 cursor-not-allowed': button.disabled }]"
+                @click="handleButtonClick(button)"
+                :disabled="button.disabled"
+              >
+                <template v-if="button.icon" #icon>
+                  <Icon :icon="button.icon" />
+                </template>
+                {{ button.label }}
+              </a-button>
+            </a-tooltip>
+            <a-button
+              v-else
+              :type="button.type"
+              :class="[button.class, { 'opacity-50 cursor-not-allowed': button.disabled }]"
+              @click="handleButtonClick(button)"
+              :disabled="button.disabled"
+            >
+              <template v-if="button.icon" #icon>
+                <Icon :icon="button.icon" />
+              </template>
+              {{ button.label }}
+            </a-button>
+          </template>
+        </template>
+
+        <!-- Default buttons if no custom buttons provided -->
+        <template v-else>
+          <a-button v-if="currentStep > 0" type="default" @click="onPrevious">
+            {{ previousButtonText }}
+          </a-button>
+          <a-button v-if="showCancelButton" type="default" @click="onCancel">
+            {{ cancelButtonText }}
+          </a-button>
+          <a-button
+            v-if="showNextButton"
+            :type="isLastStep ? 'primary' : 'default'"
+            @click="onNext"
+          >
+            {{ isLastStep ? confirmButtonText : nextButtonText }}
+          </a-button>
+        </template>
+      </div>
+    </div>
+  </div>
+</template>
+
 <style scoped>
+.custom-steps {
+  margin-bottom: 1rem;
+}
+
 :deep(.ant-steps-item) {
   cursor: pointer;
 }
 
 :deep(.ant-steps-item-disabled) {
   cursor: not-allowed;
+}
+
+.button-hover {
+  transition: all 0.3s ease;
+}
+
+.button-hover:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>

@@ -33,5 +33,7 @@
   "logout": {
     "title": "Logout Confirmation",
     "description": "Are you sure you want to logout?"
-  }
+  },
+  "purchaseRequests": "Purchase requests",
+  "purchaseOrders": "Purchase orders"
 }
