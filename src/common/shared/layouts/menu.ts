@@ -97,6 +97,18 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
+      //purchase-rq
+      {
+        key: "purchase_request.index",
+            label: t("menu-sidebar.purchase_rq"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:app-registration-outline",
+              class: "text-base",
+            }),
+          ]),
+      },
       {
         key: "currencies.index",
         label: t("menu-sidebar.currency"),

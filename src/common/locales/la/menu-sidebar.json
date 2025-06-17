@@ -31,5 +31,6 @@
     "description": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການອອກຈາກລະບົບ?"
   },
   "approval_workflow_manage": "ຈັດການ ການອະນຸມັດເອກະສານ",
-  "approval_workflow_step": "ຂັ້ນຕອນການອະນຸມັດ"
+  "approval_workflow_step": "ຂັ້ນຕອນການອະນຸມັດ",
+  "purchase_rq": "ໃບສະເໜີ"
 }
