@@ -23,6 +23,12 @@ import { budgetItemRoutes } from "@/modules/presentation/Admin/router/budget/bud
 import { approvalWorkflowRoutes } from "@/modules/presentation/Admin/router/approval-workflow.routers";
 import { budgetItemDetailsRoutes } from "@/modules/presentation/Admin/router/budget/bud-get-item-details-routes";
 
+import { purchaseRequestsRoutes } from "@/modules/presentation/Admin/router/purchase/purchase_request/purchase-requests.router";
+import { purchaseOrdersRoutes } from "@/modules/presentation/Admin/router/purchase/purchse_order/purchase-orders.router";
+
+import { approvalWorkflowStepRoutes } from "@/modules/presentation/Admin/router/approval-workflow-step.routers";
+import { purchaseRequestRoutes } from "@/modules/presentation/Admin/router/purchase-requests/purchase-reques.router";
+
 const routes: RouteRecordRaw[] = [
   {
     path: "/admin",
@@ -49,7 +55,13 @@ const routes: RouteRecordRaw[] = [
       ...budgetAccountsRoutes,
       ...budgetItemRoutes,
       ...approvalWorkflowRoutes,
-      ...budgetItemDetailsRoutes
+
+      ...budgetItemDetailsRoutes,
+      ...purchaseRequestsRoutes,
+      ...purchaseOrdersRoutes,
+      ...approvalWorkflowStepRoutes,
+      ...budgetItemDetailsRoutes,
+      ...purchaseRequestRoutes,
     ],
   },
   ...authRoutes,

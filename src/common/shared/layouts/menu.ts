@@ -30,6 +30,28 @@ export const menuItems = computed<ItemType[]>(() => [
           ]),
       },
       {
+        key: "purchaseRequestsList",
+        label: t("menu-sidebar.purchaseRequests"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "mdi:file-document-box-outline",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "purchaseOrdersList",
+        label: t("menu-sidebar.purchaseOrders"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "solar:archive-check-broken",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
         key: "PositionList",
         label: t("menu-sidebar.position"),
         icon: () =>
@@ -98,14 +120,24 @@ export const menuItems = computed<ItemType[]>(() => [
           ]),
       },
       {
-
-
         key: "approval_workflows.index",
         label: t("menu-sidebar.approval_workflow"),
         icon: () =>
           h("div", {}, [
             h(Icon, {
               icon: "material-symbols:docs-outline",
+              class: "text-base",
+            }),
+          ]),
+      },
+      //purchase-rq
+      {
+        key: "purchase_request.index",
+        label: t("menu-sidebar.purchase_rq"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:app-registration-outline",
               class: "text-base",
             }),
           ]),
@@ -155,7 +187,7 @@ export const menuItems = computed<ItemType[]>(() => [
           },
           {
             key: "budget_apv_rule.index",
-            label: t('menu-sidebar.budget_apv_rule'),
+            label: t("menu-sidebar.budget_apv_rule"),
           },
         ],
       },
@@ -268,7 +300,6 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
-
     ],
     type: "group",
   },

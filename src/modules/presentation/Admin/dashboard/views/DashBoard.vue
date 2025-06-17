@@ -1,10 +1,10 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { reactive, ref } from "vue";
+import type { ButtonType } from "@/modules/shared/buttonType";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import ProgressStepsComponent from "@/common/shared/components/header/ProgressStepsComponent.vue";
 
-type ButtonType = "default" | "primary" | "dashed" | "text" | "link" | "danger";
 
 const customButtons = [
   {

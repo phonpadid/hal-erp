@@ -18,6 +18,7 @@ import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import type { ApprovalWorkflowApiModel } from "@/modules/interfaces/approval-workflow.interface";
 import { approvalWorkflowStore } from "../../stores/approval-workflow.store";
 import type { ApprovalWorkflowEntity } from "@/modules/domain/entities/approval-workflows.entity";
+import { useRouter } from "vue-router";
 const search = ref<string>("");
 const { t } = useI18n();
 const approval_workflow = ref<ApprovalWorkflowApiModel[]>([]);
@@ -153,6 +154,10 @@ const showEditModal = (record: ApprovalWorkflowApiModel): void => {
   formModel.document_type_id = id?.toString();
   editModalVisible.value = true;
 };
+const {push} = useRouter()
+const info = (id: string)  => {
+  push({name: 'approval_workflow_step.index', params: {id: id}})
+};
 
 const showDeleteModal = (record: ApprovalWorkflowApiModel): void => {
   selectedData.value = record;
@@ -285,14 +290,22 @@ watch(search , async(newValue) => {
         <div class="flex items-center justify-center gap-2">
           <UiButton
             type=""
+            icon="ant-design:info-circle-outlined"
+            size="small"
+            @click="info(record.id)"
+            colorClass="flex items-center justify-center text-sky-500"
+          >
+          </UiButton>
+
+          <UiButton
             icon="ant-design:edit-outlined"
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
           >
           </UiButton>
+
           <UiButton
-            type=""
             danger
             icon="ant-design:delete-outlined"
             colorClass="flex items-center justify-center text-red-700"
