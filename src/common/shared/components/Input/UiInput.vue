@@ -11,19 +11,27 @@ interface UiInputProps {
   prefixIcon?: string;
   suffixIcon?: string;
   className?: string;
+  maxlength?: number; // เพิ่ม maxlength prop
 }
 
 const props = defineProps<UiInputProps>();
 const emit = defineEmits<{
   "update:modelValue": [value: string | number];
+  keydown: [event: KeyboardEvent]; // เพิ่ม keydown event
 }>();
 
 const computedClass = computed(() => `w-full ${props.className || ""}`);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const handleChange = (e: any) => {
-  const value = typeof e === "object" && e.target ? e.target.value : e;
+// แก้ไข handleChange function
+const handleChange = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  const value = target.value;
   emit("update:modelValue", value);
+};
+
+// เพิ่ม handleKeydown function
+const handleKeydown = (e: KeyboardEvent) => {
+  emit("keydown", e);
 };
 </script>
 
@@ -35,8 +43,10 @@ const handleChange = (e: any) => {
     :size="size"
     :disabled="disabled"
     :allow-clear="allowClear"
+    :maxlength="maxlength"
     @input="handleChange"
     @change="handleChange"
+    @keydown="handleKeydown"
     :class="computedClass"
   >
     <template v-if="prefixIcon" #prefix>

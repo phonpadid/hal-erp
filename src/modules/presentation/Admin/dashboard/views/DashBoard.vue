@@ -5,7 +5,6 @@ import type { ButtonType } from "@/modules/shared/buttonType";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import ProgressStepsComponent from "@/common/shared/components/header/ProgressStepsComponent.vue";
 
-
 const customButtons = [
   {
     label: "ປະຕິເສດ",
