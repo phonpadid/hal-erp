@@ -40,9 +40,21 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
+
       {
         key: "purchaseOrdersList",
         label: t("menu-sidebar.purchaseOrders"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "solar:archive-check-broken",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "purchaseOrdersPanak",
+        label: t("menu-sidebar.purchasePanak"),
         icon: () =>
           h("div", {}, [
             h(Icon, {

@@ -87,6 +87,7 @@ export interface ActionButton {
   show?: boolean;
   icon?: string;
   class?: string;
+  loading?: boolean;
   disabled?: boolean;
   tooltip?: string;
   permission?: string;

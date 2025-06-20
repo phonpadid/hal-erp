@@ -193,166 +193,80 @@ const handleTableChange = async (pagination: any) => {
         <div class="w-[20rem]">
           <InputSearch :placeholder="t('user_approval.user_apv.placeholder.search')" />
         </div>
-        <UiButton
-          type="primary"
-          icon="ant-design:plus-outlined"
-          @click="showCreateModal"
-          colorClass="flex items-center"
-        >
+        <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal"
+          colorClass="flex items-center">
           {{ $t("user_approval.user_apv.add") }}
         </UiButton>
       </div>
     </div>
 
     <!--  Table -->
-    <Table
-      :columns="columns(t)"
-      :dataSource="user_aproval"
-      :pagination="{
+    <Table :columns="columns(t)" :dataSource="user_aproval" :pagination="{
         current: userApproval.pagination.page,
         pageSize: userApproval.pagination.limit,
         total: userApproval.pagination.total,
-      }"
-      row-key="id"
-      :loading="userApproval.loading"
-      @change="handleTableChange"
-    >
+      }" row-key="id" :loading="userApproval.loading" @change="handleTableChange">
       <template #status="{ record }">
         <a-tag :color="getStatusColor(record.status)">
-    {{ record.status }}
-  </a-tag>
+          {{ record.status }}
+        </a-tag>
       </template>
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
-          <UiButton
-            type=""
-            icon="ant-design:edit-outlined"
-            size="small"
-            @click="showEditModal(record)"
-            colorClass="flex items-center justify-center text-orange-400"
-          >
+          <UiButton type="" icon="ant-design:edit-outlined" size="small" @click="showEditModal(record)"
+            colorClass="flex items-center justify-center text-orange-400">
           </UiButton>
-          <UiButton
-            type=""
-            danger
-            icon="ant-design:delete-outlined"
-            colorClass="flex items-center justify-center text-red-700"
-            size="small"
-            @click="showDeleteModal(record)"
-          >
+          <UiButton type="" danger icon="ant-design:delete-outlined"
+            colorClass="flex items-center justify-center text-red-700" size="small" @click="showDeleteModal(record)">
           </UiButton>
         </div>
       </template>
     </Table>
 
     <!-- Create Modal -->
-    <UiModal
-      :title="t('user_approval.user_apv.header_form.add')"
-      :visible="createModalVisible"
-      :confirm-loading="loading"
-      @update:visible="createModalVisible = $event"
-      @ok="handleCreate"
-      @cancel="createModalVisible = false"
-      :okText="t('button.save')"
-      :cancelText="t('button.cancel')"
-    >
+    <UiModal :title="t('user_approval.user_apv.header_form.add')" :visible="createModalVisible"
+      :confirm-loading="loading" @update:visible="createModalVisible = $event" @ok="handleCreate"
+      @cancel="createModalVisible = false" :okText="t('button.save')" :cancelText="t('button.cancel')">
       <UiForm ref="formRef" :model="formModel" :rules="userApprovalRulue(t)">
-        <UiFormItem
-          :label="t('user_approval.user_apv.field.document')"
-          name="document_id"
-          required
-        >
-          <InputSelect
-            v-model="formModel.document_id"
-            :options="documentItem"
-            :placeholder="t('departments.dpm_user.placeholder.ducument')"
-          />
+        <UiFormItem :label="t('user_approval.user_apv.field.document')" name="document_id" required>
+          <InputSelect v-model="formModel.document_id" :options="documentItem"
+            :placeholder="t('departments.dpm_user.placeholder.ducument')" />
         </UiFormItem>
-        <UiFormItem
-          :label="t('user_approval.user_apv.field.status')"
-          name="status_id"
-          required
-        >
-          <InputSelect
-            v-model="formModel.status_id"
-            :options="statusItem"
-            :placeholder="t('departments.dpm_user.placeholder.dpm')"
-          />
+        <UiFormItem :label="t('user_approval.user_apv.field.status')" name="status_id" required>
+          <InputSelect v-model="formModel.status_id" :options="statusItem"
+            :placeholder="t('departments.dpm_user.placeholder.dpm')" />
         </UiFormItem>
-        <UiFormItem
-          :label="t('user_approval.user_apv.field.apv_workflow')"
-          name="approval_workflow_id"
-          required
-        >
-          <InputSelect
-            v-model="formModel.approval_workflow_id"
-            :options="approval_workflowItem"
-            :placeholder="t('departments.dpm_user.placeholder.apv_workflow')"
-          />
+        <UiFormItem :label="t('user_approval.user_apv.field.apv_workflow')" name="approval_workflow_id" required>
+          <InputSelect v-model="formModel.approval_workflow_id" :options="approval_workflowItem"
+            :placeholder="t('departments.dpm_user.placeholder.apv_workflow')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Edit Modal -->
-    <UiModal
-      :title="t('user_approval.user_apv.header_form.edit')"
-      :visible="editModalVisible"
-      :confirm-loading="loading"
-      @update:visible="editModalVisible = $event"
-      @ok="handleEdit"
-      @cancel="editModalVisible = false"
-      :okText="t('button.edit')"
-      :cancelText="t('button.cancel')"
-    >
-    <UiForm ref="formRef" :model="formModel" :rules="userApprovalRulue(t)">
-        <UiFormItem
-          :label="t('user_approval.user_apv.field.document')"
-          name="document_id"
-          required
-        >
-          <InputSelect
-            v-model="formModel.document_id"
-            :options="documentItem"
-            :placeholder="t('departments.dpm_user.placeholder.ducument')"
-          />
+    <UiModal :title="t('user_approval.user_apv.header_form.edit')" :visible="editModalVisible"
+      :confirm-loading="loading" @update:visible="editModalVisible = $event" @ok="handleEdit"
+      @cancel="editModalVisible = false" :okText="t('button.edit')" :cancelText="t('button.cancel')">
+      <UiForm ref="formRef" :model="formModel" :rules="userApprovalRulue(t)">
+        <UiFormItem :label="t('user_approval.user_apv.field.document')" name="document_id" required>
+          <InputSelect v-model="formModel.document_id" :options="documentItem"
+            :placeholder="t('departments.dpm_user.placeholder.ducument')" />
         </UiFormItem>
-        <UiFormItem
-          :label="t('user_approval.user_apv.field.status')"
-          name="status_id"
-          required
-        >
-          <InputSelect
-            v-model="formModel.status_id"
-            :options="statusItem"
-            :placeholder="t('departments.dpm_user.placeholder.dpm')"
-          />
+        <UiFormItem :label="t('user_approval.user_apv.field.status')" name="status_id" required>
+          <InputSelect v-model="formModel.status_id" :options="statusItem"
+            :placeholder="t('departments.dpm_user.placeholder.dpm')" />
         </UiFormItem>
-        <UiFormItem
-          :label="t('user_approval.user_apv.field.apv_workflow')"
-          name="approval_workflow_id"
-          required
-        >
-          <InputSelect
-            v-model="formModel.approval_workflow_id"
-            :options="approval_workflowItem"
-            :placeholder="t('departments.dpm_user.placeholder.apv_workflow')"
-          />
+        <UiFormItem :label="t('user_approval.user_apv.field.apv_workflow')" name="approval_workflow_id" required>
+          <InputSelect v-model="formModel.approval_workflow_id" :options="approval_workflowItem"
+            :placeholder="t('departments.dpm_user.placeholder.apv_workflow')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
-    <UiModal
-      :title="t('user_approval.alert.confirm')"
-      :visible="deleteModalVisible"
-      :confirm-loading="loading"
-      @update:visible="deleteModalVisible = $event"
-      @ok="handleDelete"
-      @cancel="deleteModalVisible = false"
-      :okText="t('button.ok')"
-      :cancelText="t('button.cancel')"
-      okType="primary"
-    >
+    <UiModal :title="t('user_approval.alert.confirm')" :visible="deleteModalVisible" :confirm-loading="loading"
+      @update:visible="deleteModalVisible = $event" @ok="handleDelete" @cancel="deleteModalVisible = false"
+      :okText="t('button.ok')" :cancelText="t('button.cancel')" okType="primary">
       <p>{{ $t("user_approval.alert.message") }}?</p>
       <p class="text-red-500">
         {{ t("user_approval.alert.remark") }}

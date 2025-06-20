@@ -1,8 +1,45 @@
 <template>
   <div class="w-full">
     <!-- Header Title -->
-    <h5 v-if="showTitle">{{ headerTitle }}</h5>
+    <!-- <h5 v-if="showTitle">{{ headerTitle }}</h5> -->
+    <div v-if="showTitle" class="flex items-center gap-2 mb-4">
+      <!-- Prefix Icon -->
+      <Icon
+        v-if="prefixIcon"
+        :icon="prefixIcon"
+        :class="[
+          'text-xl',
+          prefixIconClickable ? 'cursor-pointer hover:text-blue-500' : '',
+          prefixIconClass,
+        ]"
+        @click="prefixIconClickable && emit('prefixIconClick')"
+      />
 
+      <!-- Title -->
+      <h5
+        class="m-0"
+        :class="[headerTitleClass, { [`text-${headerTitleColor}`]: headerTitleColor }]"
+        :style="
+          headerTitleColor && !headerTitleColor.startsWith('text-')
+            ? { color: headerTitleColor }
+            : {}
+        "
+      >
+        {{ headerTitle }}
+      </h5>
+
+      <!-- Suffix Icon -->
+      <Icon
+        v-if="suffixIcon"
+        :icon="suffixIcon"
+        :class="[
+          'text-xl',
+          suffixIconClickable ? 'cursor-pointer hover:text-blue-500' : '',
+          suffixIconClass,
+        ]"
+        @click="suffixIconClickable && emit('suffixIconClick')"
+      />
+    </div>
     <!-- Breadcrumb navigation -->
     <a-breadcrumb v-if="showBreadcrumb" class="mb-4">
       <a-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="index">
@@ -59,12 +96,20 @@ interface Props {
   documentDate?: Date;
   actionButtons?: ActionButton[];
   // Control visibility of components
+  headerTitleColor?: string;
+  headerTitleClass?: string;
   showTitle?: boolean;
   showBreadcrumb?: boolean;
   showDocumentPrefix?: boolean;
   showDocumentNumber?: boolean;
   showDocumentDate?: boolean;
   showActionButtons?: boolean;
+  prefixIcon?: string;
+  suffixIcon?: string;
+  prefixIconClass?: string;
+  suffixIconClass?: string;
+  prefixIconClickable?: boolean;
+  suffixIconClickable?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -75,18 +120,31 @@ const props = withDefaults(defineProps<Props>(), {
   documentDate: () => new Date(),
   actionButtons: () => [],
   // Default visibility settings
+  headerTitleColor: "",
+  headerTitleClass: "",
   showTitle: true,
   showBreadcrumb: true,
   showDocumentPrefix: true,
   showDocumentNumber: true,
   showDocumentDate: true,
   showActionButtons: true,
+  prefixIcon: "",
+  suffixIcon: "",
+  prefixIconClass: "",
+  suffixIconClass: "",
+  prefixIconClickable: false,
+  suffixIconClickable: false,
 });
 
 // Computed property to filter visible buttons
 const visibleButtons = computed(() => {
   return props.actionButtons.filter((button) => button.show !== false);
 });
+
+const emit = defineEmits<{
+  (e: "prefixIconClick"): void;
+  (e: "suffixIconClick"): void;
+}>();
 
 // Format date helper function
 const formatDate = (date: Date): string => {
