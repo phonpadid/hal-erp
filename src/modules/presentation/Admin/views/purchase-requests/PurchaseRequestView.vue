@@ -1,78 +1,144 @@
 <script setup lang="ts">
 import Table from "@/common/shared/components/table/Table.vue";
-import { column } from "../role/column";
 import { useI18n } from "vue-i18n";
-import { dataDpm } from "@/modules/shared/utils/data.department";
+import {
+  dataDpm,
+  getStatusColor,
+} from "@/modules/shared/utils/data.department";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
+import { columns } from "./column";
+import UiTag from "@/common/shared/components/tag/UiTag.vue";
+import { useDocumentTypeStore } from "../../stores/document-type.store";
+import { computed, onMounted } from "vue";
+import { statusItem } from "@/modules/shared/utils/data-user-approval";
+import { useRouter } from "vue-router";
 const { t } = useI18n();
+const { push } = useRouter();
+const docTypeStore = useDocumentTypeStore();
+const docItem = computed(() => [
+  { value: "all", label: "ທັງໝົດ" }, // This is the "All" option
+  ...docTypeStore.documentType.map((item) => ({
+    value: item.getId(),
+    label: item.getname(),
+  })),
+]);
 const statusCards = [
   {
-    label: "ກຳລັງດຳເນີນ",
+    label: "ກຳລັງດຳເນີນການ",
     count: 12,
-    color: "text-yellow-600",
-    icon: "📄",
+    icon: "solar:document-text-bold",
+    textColor: "text-yellow-600",
   },
   {
     label: "ສຳເລັດ",
     count: 12,
-    color: "text-green-600",
-    icon: "✅",
+    icon: "solar:clipboard-check-bold",
+    textColor: "text-green-600",
   },
   {
     label: "ປະຕິເສດ",
     count: 12,
-    color: "text-red-600",
-    icon: "❌",
+    icon: "solar:clipboard-remove-bold",
+    textColor: "text-red-600",
   },
 ];
+const details = (id: string) => {
+  push({ name: "purchase_request_detail", params: { id: id } });
+};
+onMounted(async () => {
+  await docTypeStore.fetchdocumentType({ page: 1, limit: 1000 });
+});
 </script>
+
 <template>
-  <div class="container mx-auto py-6">
+  <div class="container mx-auto py-4">
     <!-- Header Cards -->
-    <div class="bg-white rounded-md shadow-sm p-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div
-          v-for="(card, index) in statusCards"
-          :key="index"
-          class="flex items-center space-x-4"
-        >
-          <div class="text-3xl" :class="card.color">
-            {{ card.icon }}
-          </div>
+    <div class="bg-white rounded-md shadow-sm p-2 py-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div v-for="(card, index) in statusCards" :key="index">
+          <UiAvatar
+            size="large"
+            :icon="card.icon"
+            color="#333446"
+            class="flex justify-center items-center text-3xl"
+          />
           <div>
-            <p class="text-gray-600">{{ card.label }}</p>
-            <p class="text-xl font-semibold" :class="card.color">
+            <p class="text-gray-600 mt-2">{{ card.label }}</p>
+            <p class="text-xl font-semibold" :class="card.textColor">
               {{ card.count }} ໃບສະເໜີ
             </p>
           </div>
         </div>
       </div>
-<div class="search flex justify-between gap-[15rem]">
-  <div class="input w-full flex gap-4">
-    <InputSelect placeholder="ທັງໝົດ"></InputSelect>
-    <InputSelect placeholder="ທັງໝົດ"></InputSelect>
-    <UiButton>ຄົ້ນຫາ</UiButton>
-  </div>
-  <div class="add">
-    <UiButton>ສ້າງໃບສັ່ງຊື້</UiButton>
-  </div>
-</div>
+
+      <div class="search flex flex-col md:flex-row justify-between gap-[14rem]">
+        <div class="input flex flex-col md:flex-row gap-4 flex-1">
+          <div class="search-by-doc-type w-full">
+            <label for="" class="block text-sm font-medium text-gray-700 mb-1"
+              >Document type</label
+            >
+            <InputSelect
+              :options="docItem"
+              placeholder="ທັງໝົດ"
+              class="w-full"
+            />
+          </div>
+          <div class="search-by-status w-full">
+            <label for="" class="block text-sm font-medium text-gray-700 mb-1"
+              >Status</label
+            >
+            <InputSelect
+              :options="statusItem"
+              placeholder="ທັງໝົດ"
+              class="w-full"
+            />
+          </div>
+          <div class="search-button flex items-end">
+            <UiButton
+              icon="ant-design:search-outlined"
+              color-class="flex items-center justify-center gap-2"
+              class="w-full md:w-auto px-6"
+            >
+              <span>ຄົ້ນຫາ</span>
+            </UiButton>
+          </div>
+        </div>
+        <div class="add flex items-end">
+          <UiButton type="primary" @click="push({name: 'create_purchase_request', params: {}})" class="w-full md:w-auto"
+            >ສ້າງໃບສັ່ງຊື້</UiButton
+          >
+        </div>
+      </div>
     </div>
 
-    <!-- Table Placeholder -->
-    <div class="mt-8 bg-white rounded-md shadow-sm p-6">
-      <!-- Replace this with your real table -->
-      <p class="text-gray-500">
-        <Table
-        :columns="column(t)"
-      :dataSource="dataDpm"
-      :pagination="{ pageSize: 10 }"
-      row-key="id"
-        >
-
-        </Table>
-      </p>
+    <!-- Table -->
+    <div class="mt-4 bg-white rounded-md shadow-sm p-1">
+      <Table
+        :columns="columns(t)"
+        :dataSource="dataDpm"
+        :pagination="{ pageSize: 5 }"
+        row-key="id"
+      >
+        <template #status="{ record }">
+          <UiTag :color="getStatusColor(record.status)" class="rounded-full">
+            {{ record.status }}
+          </UiTag>
+        </template>
+        <template #actions="{ record }">
+          <div class="flex items-center justify-center gap-2">
+            <UiButton
+              type="link"
+              icon="ant-design:eye-outlined"
+              color-class="flex items-center text-red-500 hover:!text-red-800"
+              @click="details(record.id)"
+            >
+              ລາຍລະອຽດ
+            </UiButton>
+          </div>
+        </template>
+      </Table>
     </div>
   </div>
 </template>

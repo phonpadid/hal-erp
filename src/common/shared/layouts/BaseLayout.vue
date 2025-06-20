@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { RouterView } from "vue-router";
 import BaseSidebar from "./BaseSidebar.vue";
 import BaseTopbar from "./BaseTopbar.vue";
-
+import { useToggleStore } from "@/modules/presentation/Admin/stores/storage.store";
+const setToggle = useToggleStore();
 const toggle = ref<boolean>(true);
 // Compute dynamic classes
 const topbarStyle = computed(() => {
@@ -11,6 +12,11 @@ const topbarStyle = computed(() => {
     ? "left-64 w-[calc(100%-16rem)]" // 16rem = 256px = sidebar width
     : "left-0 w-full";
 });
+watch(toggle, (d) => {
+  if(d === false || d) {
+    setToggle.toggle = !setToggle.toggle;
+  }
+})
 </script>
 <template>
   <div class="flex scroll-smooth">
@@ -27,7 +33,7 @@ const topbarStyle = computed(() => {
       :class="{ 'md:ml-64': toggle }"
     >
       <div
-        class="fixed top-0 z-50 h-16 bg-white shadow-sm transition-all duration-100"
+        class="fixed top-0 z-50 h-16 bg-white shadow-sm transition-all duration-150"
         :class="topbarStyle"
       >
         <BaseTopbar @toggle="() => (toggle = !toggle)" />

@@ -1,3 +1,18 @@
 {
-    
+    "field": {
+        "pr_number": "Purchase number",
+        "user": "Staff name",
+        "position": "Position",
+        "department": "Department",
+        "rq_date": "Requested date",
+        "doc_type": "Proposal type",
+        "status": "Status",
+        "manage": "Manage",
+
+        "id": "Id",
+        "content": "Content",
+        "qty": "Quantity",
+        "price": "Prices",
+        "remark": "Remark"
+    }
 }
