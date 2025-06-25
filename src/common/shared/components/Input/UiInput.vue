@@ -11,27 +11,43 @@ interface UiInputProps {
   prefixIcon?: string;
   suffixIcon?: string;
   className?: string;
-  maxlength?: number; // เพิ่ม maxlength prop
+  maxlength?: number;
+  pattern?: string;
+  inputmode?: "numeric" | "text" | "tel" | "email" | "url" | "search";
 }
 
 const props = defineProps<UiInputProps>();
 const emit = defineEmits<{
   "update:modelValue": [value: string | number];
-  keydown: [event: KeyboardEvent]; // เพิ่ม keydown event
+  input: [value: string];
+  change: [event: Event];
+  keydown: [event: KeyboardEvent];
+  paste: [event: ClipboardEvent];
 }>();
 
 const computedClass = computed(() => `w-full ${props.className || ""}`);
 
-// แก้ไข handleChange function
-const handleChange = (e: Event) => {
+// ปรับปรุงฟังก์ชัน handleInput
+const handleInput = (e: Event) => {
   const target = e.target as HTMLInputElement;
   const value = target.value;
   emit("update:modelValue", value);
+  emit("input", value);
 };
 
-// เพิ่ม handleKeydown function
+// ปรับปรุงฟังก์ชัน handleChange
+const handleChange = (e: Event) => {
+  emit("change", e);
+};
+
+// ปรับปรุงฟังก์ชัน handleKeydown
 const handleKeydown = (e: KeyboardEvent) => {
   emit("keydown", e);
+};
+
+// เพิ่มฟังก์ชัน handlePaste
+const handlePaste = (e: ClipboardEvent) => {
+  emit("paste", e);
 };
 </script>
 
@@ -44,9 +60,12 @@ const handleKeydown = (e: KeyboardEvent) => {
     :disabled="disabled"
     :allow-clear="allowClear"
     :maxlength="maxlength"
-    @input="handleChange"
+    :pattern="pattern"
+    :inputmode="inputmode"
+    @input="handleInput"
     @change="handleChange"
     @keydown="handleKeydown"
+    @paste="handlePaste"
     :class="computedClass"
   >
     <template v-if="prefixIcon" #prefix>
@@ -57,3 +76,29 @@ const handleKeydown = (e: KeyboardEvent) => {
     </template>
   </a-input>
 </template>
+
+<style scoped>
+/* สำหรับ OTP input styling */
+:deep(.ant-input) {
+  text-align: center;
+  font-size: 1.25rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+:deep(.ant-input:focus) {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* ซ่อน spin buttons สำหรับ input type number */
+:deep(.ant-input::-webkit-outer-spin-button),
+:deep(.ant-input::-webkit-inner-spin-button) {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* :deep(.ant-input[type="number"]) {
+  -moz-appearance: textfield;
+} */
+</style>
