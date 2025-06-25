@@ -56,7 +56,7 @@ onMounted(async () => {
   <div class="container mx-auto py-4">
     <!-- Header Cards -->
     <div class="bg-white rounded-md shadow-sm p-2 py-4">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div v-for="(card, index) in statusCards" :key="index">
           <UiAvatar
             size="large"
