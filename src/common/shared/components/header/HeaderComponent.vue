@@ -54,6 +54,9 @@
         <span v-if="showDocumentPrefix" class="text-blue-600">{{ documentPrefix }}</span>
         <span v-if="showDocumentNumber">- {{ documentNumber }}</span>
         <span v-if="showDocumentDate">- {{ formatDate(documentDate) }}</span>
+        <span v-if="showDocumentStatus && documentStatus" :class="['ml-2', documentStatusClass]">
+          {{ documentStatus }}
+        </span>
       </div>
 
       <!-- Action buttons -->
@@ -110,6 +113,9 @@ interface Props {
   suffixIconClass?: string;
   prefixIconClickable?: boolean;
   suffixIconClickable?: boolean;
+  documentStatus?: string;
+  documentStatusClass?: string;
+  showDocumentStatus?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -134,6 +140,9 @@ const props = withDefaults(defineProps<Props>(), {
   suffixIconClass: "",
   prefixIconClickable: false,
   suffixIconClickable: false,
+  documentStatus: "",
+  documentStatusClass: "",
+  showDocumentStatus: true,
 });
 
 // Computed property to filter visible buttons

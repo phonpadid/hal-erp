@@ -54,40 +54,69 @@ const handleConfirm = async (allData: Record<number, any>) => {
   }
 };
 /******************************************************************** */
-const handleOtpInput = async (value: string, index: number) => {
-  if (!/^\d*$/.test(value)) {
-    return;
-  }
-  otpValue.value[index] = value;
-
-  if (value && index < 5) {
-    await nextTick();
-    const nextInput = otpInputRefs.value[index + 1];
-    if (nextInput) {
-      const antInput = nextInput.$el?.querySelector("input") || nextInput.$el;
-      if (antInput && typeof antInput.focus === "function") {
-        antInput.focus();
-      }
+const handleOtpInput = (value: string, index: number) => {
+  const numericValue = value.replace(/[^0-9]/g, "");
+  if (numericValue) {
+    otpValue.value[index] = numericValue[0];
+    if (index < 5) {
+      nextTick(() => {
+        const nextInput = otpInputRefs.value[index + 1];
+        if (nextInput) {
+          const inputElement = nextInput.$el.querySelector("input") || nextInput.$el;
+          inputElement?.focus();
+        }
+      });
     }
+  } else {
+    otpValue.value[index] = "";
   }
 };
 /************************************************************ */
-const handleOtpKeydown = async (event: KeyboardEvent, index: number) => {
-  if (event.key === "Backspace" && !otpValue.value[index] && index > 0) {
+const handleOtpKeydown = (event: KeyboardEvent, index: number) => {
+  if (event.key === "Backspace" && !otpValue.value[index]) {
     event.preventDefault();
-    await nextTick();
-    const prevInput = otpInputRefs.value[index - 1];
-    if (prevInput) {
-      const antInput = prevInput.$el?.querySelector("input") || prevInput.$el;
-      if (antInput && typeof antInput.focus === "function") {
-        antInput.focus();
-
-        otpValue.value[index - 1] = "";
-      }
+    // ย้ายไป input ก่อนหน้า
+    if (index > 0) {
+      nextTick(() => {
+        const prevInput = otpInputRefs.value[index - 1];
+        if (prevInput) {
+          const inputElement = prevInput.$el.querySelector("input") || prevInput.$el;
+          inputElement?.focus();
+          // เคลียร์ค่าของ input ก่อนหน้า
+          otpValue.value[index - 1] = "";
+        }
+      });
     }
   }
-  if (!/\d|Backspace|Delete|Tab|Enter|ArrowLeft|ArrowRight/.test(event.key)) {
+  // อนุญาตเฉพาะปุ่มที่ต้องการ
+  if (
+    !/^\d$/.test(event.key) &&
+    !["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight"].includes(event.key)
+  ) {
     event.preventDefault();
+  }
+};
+
+/********************************************************** */
+const handlePaste = (event: ClipboardEvent) => {
+  event.preventDefault();
+  const pastedData = event.clipboardData?.getData("text").replace(/[^0-9]/g, "");
+  if (pastedData) {
+    const digits = pastedData.split("").slice(0, 6);
+    digits.forEach((digit, index) => {
+      if (index < 6) {
+        otpValue.value[index] = digit;
+      }
+    });
+    // โฟกัสที่ช่องถัดจากตัวเลขสุดท้ายที่วาง
+    const nextIndex = Math.min(digits.length, 5);
+    nextTick(() => {
+      const nextInput = otpInputRefs.value[nextIndex];
+      if (nextInput) {
+        const inputElement = nextInput.$el.querySelector("input") || nextInput.$el;
+        inputElement?.focus();
+      }
+    });
   }
 };
 /********************************************************** */
@@ -339,37 +368,36 @@ const handleListOrder = () => {
     <!-- OTP Modal -->
     <UiModal
       title="ລາຍເຊັນ"
+      title-icon="material-symbols-light:signature"
       :visible="isOtpModalVisible"
       :confirm-loading="confirmLoading"
-      ok-text="ຢືນຢັນ"
-      cancel-text="ຍົກເລີກ"
       @update:visible="isOtpModalVisible = $event"
       @ok="handleOtpConfirm"
       @cancel="handleModalCancel"
     >
       <div class="p-4">
-        <div class="text-center mb-6">
-          <p class="text-lg mb-2">{{ userInfo.name }}</p>
-          <p class="text-gray-500">{{ userInfo.department }}</p>
+        <div>
+          <p>{{ userInfo.name }} {{ userInfo.department }}</p>
         </div>
-
-        <div class="mb-6">
-          <p class="text-center text-gray-600 mb-2">ກວດສອບ OTP</p>
-          <p class="text-center text-sm text-gray-500 mb-4">
-            ສົ່ງລະຫັດ OTP ໄປທີ່ເບີໂທ +856 20 XXXX XXXX
+        <div>
+          <p class="text-gray-950 text-xl">ກວດສອບຂໍ້ຄວາມ</p>
+          <p class="text-sm text-gray-500 mb-4">
+            ລະຫັດຢືນຢັນ 6 ຕົວ ໄດ້ສົ່ງໄປທີ່ເບີໂທລະສັບ +856 20 5555 5555
           </p>
-
-          <!-- แก้ไข: OTP Input -->
+          <!-- OTP Input -->
           <div class="flex justify-center gap-2">
             <template v-for="i in 6" :key="i">
               <UiInput
-                :ref="(el: any) => setOtpInputRef(el, i - 1)"
+                :ref="(el) => setOtpInputRef(el, i - 1)"
                 v-model="otpValue[i - 1]"
                 class="w-12 h-12 text-center text-xl"
                 :maxlength="1"
                 type="text"
-                @input="(value: string) => handleOtpInput(value, i - 1)"
-                @keydown="(event: KeyboardEvent) => handleOtpKeydown(event, i - 1)"
+                pattern="[0-9]*"
+                inputmode="numeric"
+                @input="(value) => handleOtpInput(value, i - 1)"
+                @keydown="(event) => handleOtpKeydown(event, i - 1)"
+                @paste="handlePaste"
               />
             </template>
           </div>
@@ -382,26 +410,36 @@ const handleListOrder = () => {
           </p>
         </div>
       </div>
+      <template #footer>
+        <div class="flex">
+          <UiButton
+            @click="handleOtpConfirm"
+            type="primary"
+            :loading="confirmLoading"
+            color-class="w-full"
+            >ຢືນຢັນ</UiButton
+          >
+        </div>
+      </template>
     </UiModal>
     <!-- Signature Modal -->
     <UiModal
       title="ລາຍເຊັນ"
+      title-icon="material-symbols-light:signature"
       :visible="isSignatureModalVisible"
       :confirm-loading="confirmLoading"
-      ok-text="ຢືນຢັນ"
-      cancel-text="ຍົກເລີກ"
       @update:visible="isSignatureModalVisible = $event"
       @ok="handleSignatureConfirm"
       @cancel="handleModalCancel"
     >
-      <div class="p-4">
-        <div class="text-center mb-6">
-          <p class="text-lg mb-2">{{ userInfo.name }}</p>
-          <p class="text-gray-500">{{ userInfo.department }}</p>
+      <div>
+        <div>
+          <p>{{ userInfo.name }} {{ userInfo.department }}</p>
         </div>
 
-        <div class="mb-6">
-          <p class="text-center mb-4">ລາຍເຊັນເພື່ອຢືນຢັນການຊຳລະ</p>
+        <div>
+          <p class="text-xl font-bold">ລາຍເຊັນ</p>
+          <p>ລາຍເຊັນຂອງທ່ານຈະຖືກນຳໃຊ້ໃນການຢືນຢັນເອກະສານ</p>
 
           <!-- Signature Pad -->
           <div class="flex justify-center w-full">
@@ -409,6 +447,17 @@ const handleListOrder = () => {
           </div>
         </div>
       </div>
+      <template #footer>
+        <div class="flex">
+          <UiButton
+            @click="handleSignatureConfirm"
+            type="primary"
+            :loading="confirmLoading"
+            color-class="w-full"
+            >ຢືນຢັນ</UiButton
+          >
+        </div>
+      </template>
     </UiModal>
 
     <!-- Main Form Content -->
@@ -618,4 +667,27 @@ const handleListOrder = () => {
 .invoice-preview:hover {
   transform: translateY(-2px);
 }
+
+.ui-input {
+  border-radius: 8px;
+  font-size: 24px;
+  font-weight: bold;
+  caret-color: #1890ff;
+}
+
+.ui-input:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* ซ่อน spinner ของ input type number */
+.ui-input::-webkit-outer-spin-button,
+.ui-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* .ui-input[type="number"] {
+  -moz-appearance: textfield;
+} */
 </style>

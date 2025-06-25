@@ -53,8 +53,19 @@ export const menuItems = computed<ItemType[]>(() => [
           ]),
       },
       {
-        key: "purchaseOrdersPanak",
+        key: "approval_department_panak",
         label: t("menu-sidebar.purchasePanak"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "solar:archive-check-broken",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "budget-approval",
+        label: t("menu-sidebar.budgetApproval"),
         icon: () =>
           h("div", {}, [
             h(Icon, {

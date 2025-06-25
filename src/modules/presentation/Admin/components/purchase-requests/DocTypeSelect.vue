@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive } from "vue";
+import { computed, onMounted, reactive, watch } from "vue";
 import { useDocumentTypeStore } from "../../stores/document-type.store";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+const formState = reactive({
+  document_type_id: "",
+});
+export type FormState = typeof formState;
+interface Props {
+  initialData?: FormState | null;
+}
+
+const props = defineProps<Props>();
 
 // Define emit for parent communication
 const emit = defineEmits<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  'next-step': [data: any];
+  'next-step': [data?: FormState];
 }>();
 
 const store = useDocumentTypeStore();
@@ -18,9 +26,18 @@ const docItem = computed(() =>
   }))
 );
 
-const formState = reactive({
-  document_type_id: "",
-});
+
+
+// Watch for initialData changes and populate form
+watch(
+  () => props.initialData,
+  (newData) => {
+    if (newData && newData.document_type_id) {
+      formState.document_type_id = newData.document_type_id;
+    }
+  },
+  { immediate: true }
+);
 
 const nextStep = () => {
   if (formState.document_type_id) {
@@ -34,6 +51,11 @@ const nextStep = () => {
 
 onMounted(async () => {
   await store.fetchdocumentType({ page: 1, limit: 1000 });
+
+  // Populate form with initial data after mounting (if available)
+  if (props.initialData && props.initialData.document_type_id) {
+    formState.document_type_id = props.initialData.document_type_id;
+  }
 });
 </script>
 
