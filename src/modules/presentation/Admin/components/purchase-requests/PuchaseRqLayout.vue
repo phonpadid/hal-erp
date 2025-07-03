@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
-import ProgressStepsComponent, { type ActionButton } from "@/common/shared/components/header/ProgressStepsComponent.vue";
+import ProgressStepsComponent, {
+  type ActionButton,
+} from "@/common/shared/components/header/ProgressStepsComponent.vue";
 import { useToggleStore } from "../../stores/storage.store";
 import { storeToRefs } from "pinia";
 import { computed, ref } from "vue";
@@ -24,9 +26,9 @@ const isFormValid = computed(() => {
 
 // Define emits for v-model and confirm action
 const emit = defineEmits<{
-  'update:currentStep': [value: number];
+  "update:currentStep": [value: number];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  'confirm-step': [stepsData: Record<number, any>];
+  "confirm-step": [stepsData: Record<number, any>];
 }>();
 
 const props = defineProps<Props>();
@@ -49,28 +51,29 @@ const handleToggle = () => {
 
 // Handle step changes
 const handleStepChange = (step: number) => {
-  emit('update:currentStep', step);
+  emit("update:currentStep", step);
 };
 
 // Go back to previous step
 const goBack = () => {
   if (props.currentStep > 0) {
-    emit('update:currentStep', props.currentStep - 1);
+    emit("update:currentStep", props.currentStep - 1);
   }
 };
 
 // Go back to first step
 const goToFirstStep = () => {
-  emit('update:currentStep', 0);
+  emit("update:currentStep", 0);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleConfirm = async (allData: Record<number, any>) => {
   console.log("All steps data:", allData);
-  if (props.currentStep === 1) { // Changed from 0 to 1 since you want confirmation after step 1
+  if (props.currentStep === 1) {
+    // Changed from 0 to 1 since you want confirmation after step 1
     try {
       // Emit event to parent to show modal instead of handling internally
-      emit('confirm-step', allData);
+      emit("confirm-step", allData);
     } catch (err) {
       console.error(err);
       error("ເກີດຂໍ້ຜິດພາດ");
@@ -80,10 +83,11 @@ const handleConfirm = async (allData: Record<number, any>) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleDone = async (allData: Record<number, any>) => {
   console.log("All steps data:", allData);
-  if (props.currentStep === 2) { // Changed from 0 to 1 since you want confirmation after step 1
+  if (props.currentStep === 2) {
+    // Changed from 0 to 1 since you want confirmation after step 1
     try {
       // Emit event to parent to show modal instead of handling internally
-      emit('update:currentStep', 3);
+      emit("update:currentStep", 3);
     } catch (err) {
       console.error(err);
       error("ເກີດຂໍ້ຜິດພາດ");
@@ -111,7 +115,7 @@ const actionButtons = computed<ActionButton[]>(() => {
           show: true,
           disabled: false,
           class: "button-hover",
-          type: undefined
+          type: undefined,
         },
         {
           label: "ຢືນຢັນ",

@@ -1,0 +1,13 @@
+{
+  "table": {
+    "number": "Number",
+    "code": "Code",
+    "amount": "Amount",
+    "quantity": "Quantity",
+    "name": "Name",
+    "id_name": "Id Name",
+    "unit": "Unit",
+    "price": "Price",
+    "total": "Total"
+  }
+}

@@ -1,20 +1,24 @@
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { columns } from "../../../views/purchase_requests/column";
 import { useI18n } from "vue-i18n";
 import { purchaseRequestData } from "@/modules/shared/utils/purchaseRequestDetails";
+import { useToggleStore } from "../../../stores/storage.store";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
+import { storeToRefs } from "pinia";
 /********************************************************* */
 const { t } = useI18n();
 const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
 const confirmLoading = ref(false);
+const toggleStore = useToggleStore();
+const { toggle } = storeToRefs(toggleStore);
 
 // Custom buttons for header
 const customButtons = [
@@ -33,6 +37,12 @@ const customButtons = [
     },
   },
 ];
+
+const topbarStyle = computed(() => {
+  return toggle.value
+    ? "left-64 w-[calc(100%-16rem)]" // 16rem = 256px = sidebar width
+    : "left-0 w-full";
+});
 // Handle approve
 const handleApprove = async () => {
   try {
@@ -92,14 +102,20 @@ const signatures = [
 <template>
   <div class="mt-10">
     <!-- Header Component -->
-    <header-component
-      header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
-      :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
-      document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
-      document-number="0036/ພລ - ວັນທີ"
-      :document-date="new Date('2025-03-26')"
-      :action-buttons="customButtons"
-    />
+    <div
+      class="fixed px-6 py-4 top-0 z-40 h-auto bg-white shadow-sm transition-all duration-150 mt-[4rem]"
+      :class="topbarStyle"
+    >
+      <header-component
+        header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
+        :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
+        document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
+        document-number="0036/ພລ - ວັນທີ"
+        :document-date="new Date('2025-03-26')"
+        :action-buttons="customButtons"
+      />
+    </div>
+
     <UiModal
       title="ປະຕິເສດ"
       :visible="isApproveModalVisible"
@@ -151,7 +167,7 @@ const signatures = [
     </UiModal>
 
     <!-- Main Content -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+    <div class="bg-white rounded-lg shadow-sm p-6 mt-40">
       <!-- Requester Information -->
       <div class="flex items-start gap-4 mb-2">
         <img
@@ -184,7 +200,8 @@ const signatures = [
         </Table>
         <div>
           <p class="text-gray-500 mt-2 flex justify-end">
-            {{ t("purchase_qequest.table.total") }}: <span class="font-semibold">25,936,000 ₭</span>
+            {{ t("purchase_qequest.table.total") }}:
+            <span class="font-semibold">25,936,000 ₭</span>
           </p>
         </div>
       </div>

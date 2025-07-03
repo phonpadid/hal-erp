@@ -23,7 +23,7 @@ const dates = reactive({
 
 const handleDetailsDocument = (record: any) => {
   console.log("Viewing details for document:", record);
-  router.push({ name: "approval_department_panak_detail", params: { id: record.id } });
+  router.push({ name: "budget-approval-detail", params: { id: record.id } });
 };
 
 const documentTypes = [
@@ -160,7 +160,11 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
 
   <!-- Table section -->
   <div class="bg-white rounded-lg shadow-sm">
-    <Table :columns="columnsApproval(t)" :data-source="purchaseOrderData" @change="handleTableChange">
+    <Table
+      :columns="columnsApproval(t)"
+      :data-source="purchaseOrderData"
+      @change="handleTableChange"
+    >
       <!-- Custom cell rendering for actions column -->
       <template #status="{ record }">
         <UiTag
