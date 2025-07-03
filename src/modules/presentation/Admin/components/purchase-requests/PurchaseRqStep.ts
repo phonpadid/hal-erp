@@ -1,21 +1,25 @@
-export const customSteps = [
-  {
-        title: "ປະເພດໃບສະເໜີ",
-        data: null,
-      },
-      {
-        title: "ລາຍລະອຽດ",
-        data: null,
-        disabled: true,
-      },
-      {
-        title: "ກວດສອບ",
-        data: null,
-        disabled: true,
-      },
-      {
-        title: "ສຳເລັດ",
-        data: null,
-        disabled: true,
-      },
+// utils/customSteps.ts
+
+export function getCustomSteps(t: (key: string) => string) {
+  return [
+    {
+      title: t("purchase-rq.field.doc_type"),
+      data: null,
+    },
+    {
+      title: t("purchase-rq.description"),
+      data: null,
+      disabled: true,
+    },
+    {
+      title: t("purchase-rq.check"),
+      data: null,
+      disabled: true,
+    },
+    {
+      title: t("purchase-rq.done"),
+      data: null,
+      disabled: true,
+    },
   ];
+}

@@ -2,17 +2,45 @@
     "field": {
         "pr_number": "ເລກທີ",
         "user": "ຊື່ພະນັກງານ",
+        "proposer": "ຂໍ້ມູນຜູ້ສະເໜີ",
         "position": "ຕຳແໜ່ງ",
         "department": "ພະແນກ",
         "rq_date": "ວັນທີສະເໜີ",
+        "date_rq": "ວັນທີຕ້ອງການ",
         "doc_type": "ປະເພດໃບສະເໜີ",
         "status": "ສະຖານະ",
         "manage": "ຈັດການ",
-
+        "proposal": "ໃບສະເໜີ",
         "id": "ລຳດັບ",
         "content": "ເນື້ອໃນລາຍການ",
         "qty": "ຈຳນວນ",
-        "price": "ລາຄາລວມ",
-        "remark": "ໝາຍເຫດ"
+        "price": "ລາຄາ",
+        "title": "ຫົວຂໍ້",
+        "remark": "ໝາຍເຫດ",
+        "img_example": "ຮູບຕົວຢ່າງ",
+        "amount": "ຍອດລວມ",
+        "purposes": "ຈຸດປະສົງ"
+    },
+    "created": "ສ້າງໃບສະເໜີ",
+    "search": "ຄົ້ນຫານ",
+    "description": "ລາຍລະອຽດ",
+    "check": "ກວດສອບ",
+    "done": "ສຳເລັດ",
+    "no": "ເລກທີ",
+    "date": "ວັນທີ",
+    "card_title": {
+        "title": "ຫົວຂໍ້ສະເໜີຈັດຊື້",
+        "padding": "ການລັງດຳເນີນການ",
+        "success": "ສຳເລັດ",
+        "refused": "ປະຕິເສດ"
+    },
+    "phd": {
+        "doc_type": "ເລືອກປະເພດໃບສະເໜີ"
+    },
+    "btn": {
+        "add_title": "ເພີ່ມ",
+        "dl_title": "ລົບ",
+        "cancel": "ຍົກເລີກ",
+        "confirm": "ຢືນຢັນ"
     }
 }

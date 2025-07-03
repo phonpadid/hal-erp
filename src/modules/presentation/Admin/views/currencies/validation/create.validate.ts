@@ -1,6 +1,7 @@
 import { formState } from "../../../stores/currency.store";
 
 export const CurrencyValidate = ((t:(key: string) => string) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rules: any = {
     addMore: [],
   };
