@@ -1,18 +1,45 @@
 {
     "field": {
-        "pr_number": "Purchase number",
+        "pr_number": "No",
         "user": "Staff name",
+        "proposer": "Proposer Information",
         "position": "Position",
         "department": "Department",
         "rq_date": "Requested date",
+        "date_rq": "Date required",
         "doc_type": "Proposal type",
         "status": "Status",
         "manage": "Manage",
-
+        "proposal": "Proposal",
         "id": "Id",
         "content": "Content",
         "qty": "Quantity",
+        "title": "Title",
         "price": "Prices",
-        "remark": "Remark"
+        "remark": "Remark",
+        "img_example": "Image example",
+        "amount": "Total balance",
+        "purposes": "Purposes"
+    },
+    "created": "Create proposal",
+    "search": "Search",
+    "check": "Check",
+    "done": "Done",
+    "description": "Detail",
+    "date": "Date",
+    "card_title": {
+        "title": "Procurement proposal title",
+        "padding": "In progress",
+        "success": "Success",
+        "refused": "Refused"
+    },
+    "phd": {
+        "doc_type": "Select a proposal type"
+    },
+    "btn": {
+        "add_title": "add",
+        "dl_title": "remove",
+        "cancel": "Cancel",
+        "confirm": "Comfirm"
     }
 }

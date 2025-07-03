@@ -4,10 +4,11 @@ import ProgressStepsComponent, { type ActionButton } from "@/common/shared/compo
 import { useToggleStore } from "../../stores/storage.store";
 import { storeToRefs } from "pinia";
 import { computed, ref } from "vue";
-import { customSteps } from "./PurchaseRqStep";
+import { getCustomSteps } from "./PurchaseRqStep";
 import type { ButtonType } from "@/modules/shared/buttonType";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-
+import { useI18n } from "vue-i18n";
+const {t} = useI18n()
 const currentStatus = ref<"wait" | "process" | "finish" | "error">("process");
 const { error } = useNotification();
 
@@ -34,9 +35,9 @@ const props = defineProps<Props>();
 // Use reactive ref instead of localStorage directly
 const toggleStore = useToggleStore();
 const { toggle } = storeToRefs(toggleStore);
-
 const topbarStyle = computed(() => {
-  return toggle.value
+const defaultL = toggle.value ? true : false;
+  return defaultL
     ? "left-64 w-[calc(100%-16rem)]" // 16rem = 256px = sidebar width
     : "left-0 w-full";
 });
@@ -106,7 +107,7 @@ const actionButtons = computed<ActionButton[]>(() => {
     case 1:
       return [
         {
-          label: "ຍົກເລີກ",
+          label: t('purchase-rq.btn.cancel'),
           onClick: async () => canCel(),
           show: true,
           disabled: false,
@@ -114,7 +115,7 @@ const actionButtons = computed<ActionButton[]>(() => {
           type: undefined
         },
         {
-          label: "ຢືນຢັນ",
+          label: t('purchase-rq.btn.confirm'),
           type: "primary" as ButtonType,
           onClick: async () => await handleConfirm(props.stepsData),
           show: true,
@@ -125,7 +126,7 @@ const actionButtons = computed<ActionButton[]>(() => {
     case 2:
       return [
         {
-          label: "ຍົກເລີກ",
+          label: t('purchase-rq.btn.cancel'),
           onClick: () => goBack(),
           show: true,
           disabled: false,
@@ -133,7 +134,7 @@ const actionButtons = computed<ActionButton[]>(() => {
           type: undefined,
         },
         {
-          label: "ຢືນຢັນ",
+          label: t('purchase-rq.btn.confirm'),
           onClick: async () => await handleDone(props.stepsData),
           show: true,
           disabled: false,
@@ -154,12 +155,13 @@ const actionButtons = computed<ActionButton[]>(() => {
   >
     <header-component
       @toggle="handleToggle"
-      header-title="ໃບສະເໜີ"
-      :breadcrumb-items="['ໃບສະເໜີ', 'ລາຍລະອຽດ']"
-      document-prefix="ໃບສະເໜີ"
-      document-number="ເລກທີ 0036/ພລ - ວັນທີ"
+      :header-title="t('purchase-rq.field.proposal')"
+      :breadcrumb-items="[t('purchase-rq.field.proposal'), t('purchase-rq.description')]"
+      :document-prefix="t('purchase-rq.field.proposal')"
+      :document-number="`${t('purchase-rq.field.pr_number')} 0036/ພລ - ${t('purchase-rq.date')}`"
       :document-date="new Date('2025-03-26')"
-    />
+      />
+      <!-- :document-number="ເລກທີ 0036/ພລ - ວັນທີ" -->
 
     <progress-steps-component
       class="mt-4"
@@ -167,7 +169,7 @@ const actionButtons = computed<ActionButton[]>(() => {
       :current-step="props.currentStep"
       @update:current-step="handleStepChange"
       step-type="FOUR_STEPS"
-      :custom-steps="customSteps"
+      :custom-steps="getCustomSteps(t)"
       :custom-buttons="actionButtons"
       :show-user="true"
       :steps-data="props.stepsData"

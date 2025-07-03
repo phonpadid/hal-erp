@@ -166,6 +166,17 @@ export const menuItems = computed<ItemType[]>(() => [
           ]),
       },
       {
+        key: "apv_purchase_request.index",
+        label: t("menu-sidebar.apv_purchase_rq"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:app-registration-outline",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
         key: "currencies.index",
         label: t("menu-sidebar.currency"),
         icon: () =>
