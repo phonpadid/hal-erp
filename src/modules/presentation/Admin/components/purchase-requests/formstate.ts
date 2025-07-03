@@ -1,6 +1,6 @@
-import { reactive } from "vue";
+import { ref } from "vue";
 
-export const formState = reactive({
+export const formState = ref({
   document_type_id: "",
   requested_date: "",
   expired_date: "",
@@ -17,7 +17,7 @@ export const formState = reactive({
 });
 
 export const moreFunction = () => {
-  formState.addMore.push({
+  formState.value.addMore.push({
     title: "",
     count: 0 as number,
     price: undefined as number | undefined,
@@ -31,8 +31,9 @@ export type Step1Data = {
 };
 
 export type Step2Data = {
-  expiredDate: string;
-  purposes: string;
+  requested_date: string;
+  expired_date: string;
+  purpose: string;
   purchaseItem: Array<{
     title:string;
     fileName?: string[] | null;

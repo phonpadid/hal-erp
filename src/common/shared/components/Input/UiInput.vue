@@ -80,7 +80,6 @@ const handlePaste = (e: ClipboardEvent) => {
 <style scoped>
 /* สำหรับ OTP input styling */
 :deep(.ant-input) {
-  text-align: center;
   font-size: 1.25rem;
   padding: 0.5rem;
   border-radius: 0.5rem;

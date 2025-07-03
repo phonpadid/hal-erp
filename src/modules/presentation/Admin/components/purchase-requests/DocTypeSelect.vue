@@ -3,6 +3,7 @@ import { computed, onMounted, reactive, watch } from "vue";
 import { useDocumentTypeStore } from "../../stores/document-type.store";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import { t } from "@/common/config/i18n/i18n.config";
 const formState = reactive({
   document_type_id: "",
 });
@@ -61,16 +62,16 @@ onMounted(async () => {
 
 <template>
   <div class="px-2">
-    <h2 class="text-md font-semibold px-0 mb-4">ປະເພດໃບສະເໜິ</h2>
+    <h2 class="text-md font-semibold px-0 mb-4">{{ t('purchase-rq.field.doc_type') }}</h2>
     <div class="input flex flex-col md:flex-row items-start gap-4">
       <div class="search-by-doc-type">
         <label class="block text-sm font-medium text-gray-700 mb-2">
-          ປະເພດໃບສະເໜິ
+          {{ t('purchase-rq.field.doc_type') }}
         </label>
         <InputSelect
           v-model="formState.document_type_id"
           :options="docItem"
-          placeholder="ເລືອກປະເພດໃບສະເໜີ"
+          :placeholder="t('purchase-rq.phd.doc_type')"
           class="min-w-[370px] w-auto"
         />
       </div>
@@ -81,7 +82,7 @@ onMounted(async () => {
           color-class="flex items-center justify-center gap-2"
           class="px-6"
         >
-          <span>ຢືນຢັນ</span>
+          <span>{{ t('purchase-rq.btn.confirm') }}</span>
         </UiButton>
       </div>
     </div>

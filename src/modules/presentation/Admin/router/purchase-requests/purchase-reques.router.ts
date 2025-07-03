@@ -2,6 +2,8 @@ import type { RouteRecordRaw } from "vue-router";
 import PurchaseRequestView from "../../views/purchase-requests/PurchaseRequestView.vue";
 import PurchaseRequestDetail from "../../components/purchase-requests/PurchaseRequestDetail.vue";
 import CreatePurchaseRq from "../../components/purchase-requests/CreatePurchaseRq.vue";
+import ApprovalPuchaseRq from "../../components/purchase-requests/approval-purchase-requests/ApprovalPuchaseRq.vue";
+import ApprovalPuchaseRqDetail from "../../components/purchase-requests/approval-purchase-requests/ApprovalPuchaseRqDetail.vue";
 
 export const purchaseRequestRoutes: RouteRecordRaw[] = [
   {
@@ -28,6 +30,26 @@ export const purchaseRequestRoutes: RouteRecordRaw[] = [
     component: CreatePurchaseRq,
     meta: {
       title: "Creation purchase requests",
+      requiredAuth: true,
+    },
+  },
+
+  //approval purchase requests
+  {
+    path: "/approval-purchase-requests",
+    name: "apv_purchase_request.index",
+    component: ApprovalPuchaseRq,
+    meta: {
+      title: "Creation purchase requests",
+      requiredAuth: true,
+    },
+  },
+  {
+    path: "/apv-purchase-requests/:id",
+    name: "apv_purchase_request_detail",
+    component: ApprovalPuchaseRqDetail,
+    meta: {
+      title: "Purchase requests",
       requiredAuth: true,
     },
   },
