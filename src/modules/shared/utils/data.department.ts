@@ -83,6 +83,65 @@ export const dataDpm = ref<any[]>([
   // { id: 7, code: 'AA145', name: "department AA", created_at: "20/02/2025", updated_at: "20-02-2025" },
 ]);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const dataAccounting = ref<any[]>([
+  {
+    id: 1,
+    no: "0012/ພລ",
+    created_by: "ທ່ານ ສຸກີ້",
+    status: "ສຳເລັດແລ້ວ",
+    created_at: "20/02/2025",
+    updated_at: "20-02-2025",
+  },
+  {
+    id: 2,
+    no: "0029/ພລ",
+    created_by: "ທ່ານ ສຸກີ້",
+    status: "ສຳເລັດແລ້ວ",
+    created_at: "20/02/2025",
+    updated_at: "20-02-2025",
+  },
+  {
+    id: 3,
+    no: "0042/ພລ",
+    created_by: "ທ່ານ ສຸກີ້",
+    position: "ພະນັກງານ",
+    status: "ກຳລັງດຳເນີນການ",
+    created_at: "20/02/2025",
+    updated_at: "20-02-2025",
+  },
+  {
+    id: 4,
+    no: "0042/ພລ",
+    created_by: "ທ່ານ ສຸກີ້",
+    status: "ປະຕິເສດ",
+    created_at: "20/02/2025",
+    updated_at: "20-02-2025",
+  },
+  {
+    id: 5,
+    no: "0042/ພລ",
+    created_by: "ທ່ານ ສຸກີ້",
+    status: "ປະຕິເສດ",
+    created_at: "20/02/2025",
+    updated_at: "20-02-2025",
+  },
+  {
+    id: 6,
+    no: "0042/ພລ",
+    created_by: "ທ່ານ ສຸກີ້",
+    status: "ກຳລັງດຳເນີນການ",
+    created_at: "20/02/2025",
+    updated_at: "20-02-2025",
+  },
+
+  // { id: 2, code: 'AA12', name: "department B", created_at: "20/02/2025", updated_at: "20-02-2025" },
+  // { id: 3, code: 'AA13', name: "department C", created_at: "20/02/2025", updated_at: "20-02-2025" },
+  // { id: 4, code: 'AA14', name: "department D", created_at: "20/02/2025", updated_at: "20-02-2025" },
+  // { id: 5, code: 'AA115', name: "department E", created_at: "20/02/2025", updated_at: "20-02-2025" },
+  // { id: 6, code: 'AA115', name: "department F", created_at: "20/02/2025", updated_at: "20-02-2025" },
+  // { id: 7, code: 'AA145', name: "department AA", created_at: "20/02/2025", updated_at: "20-02-2025" },
+]);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const dataMenu = ref<any[]>([
   {
     id: 1,

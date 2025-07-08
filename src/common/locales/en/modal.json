@@ -1,0 +1,14 @@
+{
+    "success": {
+        "title": "Approval Completed",
+        "description": "Your purchase request has been approved. The information will be forwarded to the Finance Department for further approval processing."
+    },
+    "refused": {
+        "title": "Rejection Completed",
+        "description": "Your purchase request has been rejected. The information will be returned to the requester."
+    },
+    "reason": "Reason",
+    "enter_reason": "Enter reason",
+    "err_reason": "Please enter a reason",
+    "description": "Provide a reason for the rejection"
+}

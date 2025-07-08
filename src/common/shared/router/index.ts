@@ -33,6 +33,8 @@ import { budgetApprovalRoutes } from "@/modules/presentation/Admin/router/budget
 import { directorRoutes } from "@/modules/presentation/Admin/router/director.router";
 import { reviewMoneyRoutes } from "@/modules/presentation/Admin/router/review-money.router";
 
+import { disbursementRoutes } from "@/modules/presentation/Admin/router/disbursement.router";
+
 const routes: RouteRecordRaw[] = [
   {
     path: "/admin",
@@ -67,9 +69,13 @@ const routes: RouteRecordRaw[] = [
       ...budgetItemDetailsRoutes,
       ...purchaseRequestRoutes,
       ...approvalDepartmentsRoutes,
-      ...budgetApprovalRoutes ,
+
+      ...budgetApprovalRoutes,
       ...directorRoutes,
-      ...reviewMoneyRoutes
+      ...reviewMoneyRoutes,
+
+      ...budgetApprovalRoutes,
+      ...disbursementRoutes,
     ],
   },
   ...authRoutes,

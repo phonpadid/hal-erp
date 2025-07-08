@@ -198,6 +198,53 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
+
+      //disbursement
+      {
+        key: "accounting-department.index",
+        label: t("menu-sidebar.accounting_dpm"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:app-registration-outline",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "accounting-department-check.index",
+        label: t("menu-sidebar.accounting_dpm_check"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:app-registration-outline",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "financial-department-transfer.index",
+        label: t("menu-sidebar.financial_dpm_transfer"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:app-registration-outline",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "approval-by-finance-department.index",
+        label: t("menu-sidebar.approval_finance_dpm"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:app-registration-outline",
+              class: "text-base",
+            }),
+          ]),
+      },
+
       {
         key: "currencies.index",
         label: t("menu-sidebar.currency"),
