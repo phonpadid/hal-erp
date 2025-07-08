@@ -43,5 +43,7 @@
   "purchase_rq": "Proposals",
   "apv_purchase_rq": "Proposal approvals",
   "purchasePanak": "Purchase panels",
-  "budgetApproval": "Budget approvals"
+  "budgetApproval": "Budget approvals",
+  "director": "Director approvals",
+  "reviewMoney": "Review money approvals"
 }

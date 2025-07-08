@@ -75,6 +75,28 @@ export const menuItems = computed<ItemType[]>(() => [
           ]),
       },
       {
+        key: "director-list",
+        label: t("menu-sidebar.director"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "solar:archive-check-broken",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "review-money-list",
+        label: t("menu-sidebar.reviewMoney"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "solar:archive-check-broken",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
         key: "PositionList",
         label: t("menu-sidebar.position"),
         icon: () =>

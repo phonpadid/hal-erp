@@ -9,11 +9,11 @@ import type { ButtonType } from "@/modules/shared/buttonType";
 import { useRouter } from "vue-router";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Icon } from "@iconify/vue";
+import type { UploadFile } from "ant-design-vue";
 import PurchaseOrderShowDrawer from "./PurchaseOrderShowDrawer.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderPending from "./PurchaseOrderPending.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import UploadFiles from "@/common/shared/components/Upload/UploadFiles.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
@@ -21,13 +21,13 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import dayjs from "dayjs";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import MultipleImageUpload from "@/common/shared/components/Upload/MultipleImageUpload.vue";
 
 /************************************* */
 const { success, error } = useNotification();
 const router = useRouter();
 const currentStep = ref(0);
 const currentStatus = ref<"wait" | "process" | "finish" | "error">("process");
-const uploadedFile = ref(null);
 const confirmLoading = ref(false);
 const visible = ref(false);
 const otpValue = ref<string[]>(Array(6).fill(""));
@@ -35,6 +35,7 @@ const otpInputRefs = ref<any[]>([]);
 const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const signatureData = ref("");
+const tallFiles = ref<UploadFile[]>([]);
 
 /*****************Show Ui Drawer********************* */
 const showDrawer = () => {
@@ -164,9 +165,6 @@ const handleModalCancel = () => {
   signatureData.value = "";
 };
 
-const handleFileChange = (file: File) => {
-  console.log("File changed:", file);
-};
 const customSteps = ref([
   {
     title: "ອານຸມັດຈັດຊື້",
@@ -519,7 +517,6 @@ const handleListOrder = () => {
               <a-radio value="LTH">ຮ້ານ LTH</a-radio>
               <a-radio value="CLOUD">ຮ້ານ Cloud Store</a-radio>
             </a-radio-group>
-
             <!-- Invoice Preview -->
             <div class="grid grid-cols-3 gap-4 mt-4">
               <div
@@ -531,14 +528,21 @@ const handleListOrder = () => {
               >
                 <img :src="preview.image" :alt="preview.type" class="w-full h-auto" />
               </div>
-              <UploadFiles
-                v-model:file-list="uploadedFile"
-                accept="image/jpeg,image/png"
-                :max-size="5"
-                placeholder="ຄລິກເພື່ອອັບໂຫຼດໃບບິນ"
-                @change="handleFileChange"
-              />
             </div>
+            <MultipleImageUpload
+              v-model="tallFiles"
+              :max-count="6"
+              upload-text="ອັບໂຫລດເອກະສານ"
+              upload-hint="ລາກວາງຟາຍຫຼືຄິກເພື່ອເລືອກ"
+              upload-width="100%"
+              upload-height="auto"
+              upload-button-width="300px"
+              upload-button-height="400px"
+              icon-size="64px"
+              text-size="18px"
+              hint-size="14px"
+              thumbnailFit="fill"
+            />
             <div>
               <br />
               <span>ເຫດຜົນທີເລືອກ</span>

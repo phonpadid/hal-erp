@@ -38,6 +38,7 @@
   "purchase_rq": "ໃບສະເໜີ",
   "apv_purchase_rq": "ຜູ້ອະນຸມັດໃບສະເໜີ",
   "purchasePanak": "ອະນຸມັດຈັດຊື້ຫົວໜ້າພະແນກ",
-  "budgetApproval": "ອະນຸມັດງົບປະມານ"
+  "budgetApproval": "ອະນຸມັດງົບປະມານ",
+  "director": "ຜູ້ອຳນວຍການອານຸມັດຈັດຊື້",
+  "reviewMoney": "ການອະນຸມັດເງິນ"
 }
-
