@@ -9,10 +9,20 @@ import CheckPurchaseRq from "./CheckPurchaseRqDetail.vue";
 import { useRouter } from "vue-router";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { Icon } from "@iconify/vue";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 const { push } = useRouter();
 const currentStep = ref(0);
 const showModal = ref(false);
 const pendingStepData = ref<Step2Data | null>(null);
+
+// Add ref for PurchaseForm component
+interface PurchaseFormRef {
+  validateForm: () => Promise<boolean>;
+  getFormData: () => Step2Data;
+}
+
+const purchaseFormRef = ref<PurchaseFormRef | null>(null);
 
 type StepsData = {
   0: Step1Data | null;
@@ -45,24 +55,48 @@ const goToNextStep = (stepData?: Step1Data | Step2Data) => {
 
 // Handle confirm from layout component (when clicking confirm button in step 1)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const handleLayoutConfirm = (allStepsData: Record<number, any>) => {
-  console.log(allStepsData);
+const handleLayoutConfirm = async (allStepsData: Record<number, any>) => {
+  console.log("Layout confirm triggered", allStepsData);
 
-  showModal.value = true;
+  // If we're on step 1 (PurchaseForm), validate the form
+  if (currentStep.value === 1 && purchaseFormRef.value) {
+    try {
+      const isValid = await purchaseFormRef.value.validateForm();
+
+      if (isValid) {
+        // Get form data and save it
+        const formData = purchaseFormRef.value.getFormData();
+        stepsData[1] = formData;
+
+        // Show confirmation modal
+        showModal.value = true;
+      }
+      // If validation fails, the form component will show error messages
+    } catch (error) {
+      console.error("Form validation failed:", error);
+    }
+  }
 };
 
 const confirmNextStep = () => {
   if (currentStep.value === 1) {
-    // If we have pending data from the form, use it
-    if (pendingStepData.value) {
-      stepsData[1] = pendingStepData.value;
-    }
+    // Move to next step
     currentStep.value++; // go to step 2
     pendingStepData.value = null;
     showModal.value = false;
   }
 };
+
 const getStep0Data = () => stepsData[0] as FormState;
+
+// Function to get all collected steps data
+const getAllStepsData = () => {
+  return {
+    step1Data: stepsData[0],
+    step2Data: stepsData[1],
+  };
+};
+
 const handleDone = () => {
   push({ name: "purchase_request.index", params: {} });
 };
@@ -86,36 +120,37 @@ const handleDone = () => {
 
       <!-- Step 1 -->
       <div v-else-if="currentStep === 1" class="step-2-content">
-        <PurchaseForm @next-step="goToNextStep" />
+        <PurchaseForm ref="purchaseFormRef" @next-step="goToNextStep" />
       </div>
 
       <!-- Step 2 -->
       <div v-else-if="currentStep === 2" class="step-3-content">
-        <CheckPurchaseRq @next-step="goToNextStep" />
+        <CheckPurchaseRq
+          :steps-data="getAllStepsData()"
+          @next-step="goToNextStep"
+        />
       </div>
 
       <!-- Step 3 -->
-      <div v-else-if="currentStep === 3" class="step-4-content -space-y-4">
+      <div v-else-if="currentStep === 3" class="step-4-content">
         <Icon
           icon="mdi:check-decagram"
           class="text-green-500 text-5xl mx-auto"
         />
-        <div class="bg-white ">
-          <div class="bg-white rounded-lg p-8 max-w-md mx-auto">
-            <div class=" flex-col flex justify-center items-center text-center -space-y-1">
-              <h3 class="text-gray-500 text-md">ໃບອານຸມັດຈັດຊື້</h3>
-              <h3 class="text-gray-500 text-md">
-                ສ້າງໃບສະເໜີຂອງທ່ານໄດ້ສົ່ງໄປຫາຫົວໜ້າພະແນກພັດທະນາທຸລະກິດ
-              </h3>
-              <div class=" text-center md:w-[8rem] w-full">
-                <UiButton
-                  color-class="bg-red-500 text-white hover:bg-red-600 hover:!text-white w-full mt-4"
-                  @click="handleDone"
-                >
-                  ຕົກລົງ
-                </UiButton>
-              </div>
-            </div>
+        <div
+          class="w-full flex-col flex justify-center items-center text-center -space-y-1"
+        >
+          <h3 class="text-gray-500 text-md">{{ t("purchase-rq.proposal") }}</h3>
+          <h3 class="text-gray-500 text-md">
+            {{ t("purchase-rq.sended") }}
+          </h3>
+          <div class="text-center md:w-[8rem] w-full">
+            <UiButton
+              color-class="bg-red-500 text-white hover:bg-red-600 hover:!text-white w-full mt-4"
+              @click="handleDone"
+            >
+              {{ t("button.ok") }}
+            </UiButton>
           </div>
         </div>
       </div>
@@ -124,7 +159,7 @@ const handleDone = () => {
     <!-- Confirm Modal -->
     <ConfirmModal
       :visible="showModal"
-      title="ລາຍເຊັນ"
+      :title="t('purchase-rq.signature')"
       @confirm="confirmNextStep"
       @close="showModal = false"
     />

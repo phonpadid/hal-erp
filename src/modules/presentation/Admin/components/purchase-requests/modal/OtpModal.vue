@@ -2,7 +2,8 @@
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import { nextTick, ref, computed, watch } from "vue";
-
+import { useI18n } from "vue-i18n";
+const {t} = useI18n()
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const otpInputRefs = ref<any[]>([]);
 const otpValue = ref<string[]>(Array(6).fill(""));
@@ -139,7 +140,7 @@ const setOtpInputElement = (el: unknown, index: number) => {
 
 <template>
   <UiModal
-    :title="title"
+    :title="confirmOTP ? t('purchase-rq.confirm_signature') : title"
     :visible="visible"
     :footer="null"
     @cancel="closeModal"
@@ -156,9 +157,9 @@ const setOtpInputElement = (el: unknown, index: number) => {
 
       <!-- OTP Input Step -->
       <div v-if="!confirmOTP" class="mb-6">
-        <p class="text-start mb-2 font-medium">ກວດສອບ OTP ໃນຂໍ້ຄວາມ</p>
+        <p class="text-start mb-2 font-medium">{{ t('purchase-rq.check_message') }}</p>
         <p class="text-start text-sm text-gray-600 mb-4">
-          ສົ່ງລະຫັດຢືນຢັນ 6 ຕົວໄປທີ່ເບີໂທລະສັບ +856 20 502 221 02
+          {{ t('purchase-rq.content') }} +856 20 502 221 02
         </p>
 
         <!-- OTP Input Fields -->
@@ -180,13 +181,13 @@ const setOtpInputElement = (el: unknown, index: number) => {
         <!-- Resend Link -->
         <div class="text-center mb-4">
           <p class="text-sm text-gray-500">
-            ບໍ່ໄດ້ຮັບລະຫັດ?
+            {{ t('purchase-rq.no_code') }}
             <button
               type="button"
               @click="resendOtp"
               class="text-red-600 hover:text-red-700 underline ml-1"
             >
-              ສົ່ງອີກຄັ້ງ
+            {{ t('purchase-rq.send_again') }}
             </button>
           </p>
         </div>
@@ -194,9 +195,9 @@ const setOtpInputElement = (el: unknown, index: number) => {
 
       <!-- Signature Confirmation Step -->
       <div v-else class="mb-6">
-        <p class="text-start mb-2 font-bold">ລາຍເຊັນ</p>
+        <p class="text-start mb-2 font-bold">{{ t('purchase-rq.signature') }}</p>
         <p class="text-start text-sm text-gray-600 mb-4">
-          ລາຍເຊັນຂອງທ່ານຈະຖືກນຳໃຊ້ໃນການຢືນຢັນເອກະສານ
+          {{t('purchase-rq.message')}}
         </p>
 
         <!-- Signature Display - Clickable -->
@@ -227,7 +228,7 @@ const setOtpInputElement = (el: unknown, index: number) => {
               : 'bg-gray-300 text-gray-500 cursor-not-allowed',
           ]"
         >
-          ຢືນຢັນ OTP
+        {{ t('purchase-rq.btn.confirm') }}
         </button>
 
         <!-- Final Confirm Button for Signature Step -->
@@ -236,7 +237,7 @@ const setOtpInputElement = (el: unknown, index: number) => {
           @click="finalConfirm"
           class="px-4 py-2 w-full bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
         >
-          ຢືນຢັນລາຍເຊັນ
+        {{ t('purchase-rq.btn.confirm') }}
         </button>
       </div>
     </div>

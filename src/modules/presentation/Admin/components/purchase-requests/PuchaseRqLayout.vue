@@ -44,12 +44,6 @@ const defaultL = toggle.value ? true : false;
     : "left-0 w-full";
 });
 
-// Function to handle toggle and persist to localStorage
-const handleToggle = () => {
-  toggle.value = !toggle.value;
-  localStorage.setItem("toggle", toggle.value.toString());
-};
-
 // Handle step changes
 const handleStepChange = (step: number) => {
   emit("update:currentStep", step);
@@ -69,11 +63,9 @@ const goToFirstStep = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleConfirm = async (allData: Record<number, any>) => {
-  console.log("All steps data:", allData);
+  console.log("All steps data:", allData[0]);
   if (props.currentStep === 1) {
-    // Changed from 0 to 1 since you want confirmation after step 1
     try {
-      // Emit event to parent to show modal instead of handling internally
       emit("confirm-step", allData);
     } catch (err) {
       console.error(err);
@@ -158,7 +150,6 @@ const actionButtons = computed<ActionButton[]>(() => {
     :class="topbarStyle"
   >
     <header-component
-      @toggle="handleToggle"
       :header-title="t('purchase-rq.field.proposal')"
       :breadcrumb-items="[t('purchase-rq.field.proposal'), t('purchase-rq.description')]"
       :document-prefix="t('purchase-rq.field.proposal')"
@@ -169,7 +160,6 @@ const actionButtons = computed<ActionButton[]>(() => {
 
     <progress-steps-component
       class="mt-4"
-      @toggle="handleToggle"
       :current-step="props.currentStep"
       @update:current-step="handleStepChange"
       step-type="FOUR_STEPS"

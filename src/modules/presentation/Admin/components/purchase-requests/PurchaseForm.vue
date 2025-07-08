@@ -17,19 +17,26 @@ import { formState, moreFunction } from "./formstate";
 import { useI18n } from "vue-i18n";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import { CreatePRValidate } from "../../views/purchase-requests/validation/create-purchase-request";
+import { departmenUsertStore } from "../../stores/departments/department-user.store";
 
 const createModalVisible = ref(false);
 const loading = ref<boolean>(false);
-const currentUploadIndex = ref<number>(0); // Track which item is being uploaded to
+const currentUploadIndex = ref<number>(0);
 const { t } = useI18n();
 const profileImage = ref("/public/Profile-PNG-File.png");
-const userName = ref("ທ້າວສຸກີ້");
 const userPosition = ref("ພະແນກການເງິນ, ພະນັກງານ");
 const store = useDocumentTypeStore();
-const formRef = ref()
+const formRef = ref();
+const data = localStorage.getItem("userData");
+const parsed = data ? JSON.parse(data) : null;
+const userLocal = departmenUsertStore()
+
+const departmentUser = userLocal.currentDpmUser;
+console.log('user:', parsed);
+console.log('user:', departmentUser?.getUser()?.getUsername());
+
 const removeMore = (index: number) => {
   if (formState.value.addMore.length > 1) {
-    // Clean up image URLs before removing
     formState.value.addMore[index].images.forEach((imageUrl) => {
       if (imageUrl.startsWith("blob:")) {
         URL.revokeObjectURL(imageUrl);
@@ -39,45 +46,34 @@ const removeMore = (index: number) => {
   }
 };
 
-// total price
 const totalPrice = computed(() => {
   return formState.value.addMore.reduce((total, item) => {
     const itemPrice = item.price || 0;
     const itemCount = item.count || 0;
-    return total + itemPrice * itemCount;
+     const all = total + itemPrice * itemCount;
+     formState.value.addMore[0].totalPrice = all
+     return all
   }, 0);
 });
+
 const modalUpload = (index: number) => {
   currentUploadIndex.value = index;
   createModalVisible.value = true;
 };
 
-// Handle image upload from modal
 const handleImageUpload = (files: File[]) => {
-  console.log("Uploaded files:", files);
-
-  // Convert files to URLs and add to the specific item's images
   files.forEach((file) => {
     const url = URL.createObjectURL(file);
     formState.value.addMore[currentUploadIndex.value].images.push(url);
-    console.log("Added image URL:", url);
   });
-
-  // Log current images for the item
-  console.log(
-    "Current images for item:",
-    formState.value.addMore[currentUploadIndex.value].images
-  );
-
-  // Close modal
   createModalVisible.value = false;
 };
 
 onMounted(async () => {
   await store.fetchdocumentType({ page: 1, limit: 1000 });
+  await userLocal.fetchDepartmentUserById(parsed.id)
 });
 
-// Create computed properties for each item's price formatting
 const formattedPrice = (index: number) =>
   computed({
     get() {
@@ -95,13 +91,35 @@ const deleteImage = (itemIndex: number, imageIndex: number) => {
     URL.revokeObjectURL(imageUrl);
   }
   formState.value.addMore[itemIndex].images.splice(imageIndex, 1);
-  console.log("Updated images for item:", formState.value.addMore[itemIndex].images);
 };
+
+function validateForm(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (!formRef.value) return resolve(false);
+    formRef.value
+      .validate()
+      .then(() => resolve(true))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .catch((err: any) => {
+        console.error("Validation errors:", err);
+        resolve(false);
+      });
+  });
+}
+
+function getFormData() {
+  return formState.value;
+}
+
+defineExpose({
+  validateForm,
+  getFormData,
+});
 </script>
 
 <template>
   <div class="px-0 mb-[20rem]">
-    <div class="">
+    <div>
       <h2 class="text-md font-semibold px-0 mb-4">
         {{ t("purchase-rq.field.proposer") }}
       </h2>
@@ -115,39 +133,36 @@ const deleteImage = (itemIndex: number, imageIndex: number) => {
           :preview="false"
         />
         <div class="detail -space-y-2">
-          <p class="font-medium">{{ userName }}</p>
+          <p class="font-medium">{{ departmentUser?.getUser()?.getUsername() }}</p>
           <p class="text-gray-600">{{ userPosition }}</p>
         </div>
       </div>
 
-      <!-- form  -->
-
-      <UiForm ref="formRef" :model="CreatePRValidate(t)">
-        <!-- date  -->
+      <UiForm ref="formRef" :model="formState" :rules="CreatePRValidate(t)">
         <div class="date md:flex flex-row w-full gap-8">
-          <div class="requested-date -space-y-4">
-            <p class="font-medium">{{ t("purchase-rq.field.rq_date") }}</p>
-            <DatePicker
-              v-model:value="formState.requested_date"
-              class="md:w-[370px] w-full"
-            />
-          </div>
-          <div class="expired-date -space-y-4">
-            <p class="font-medium">{{ t("purchase-rq.field.date_rq") }}</p>
+          <UiFormItem
+            :label="t('purchase-rq.field.date_rq')"
+            name="expired_date"
+            required
+          >
             <DatePicker
               v-model:value="formState.expired_date"
-              class="md:w-[370px] w-full"
+              class="md:w-[557px] w-full"
+              :placeholder="t('purchase-rq.phd.rq_date')"
             />
-          </div>
+          </UiFormItem>
         </div>
 
-        <!-- purposes  -->
-        <div class="purposes mt-4">
+        <div class="purposes">
           <p>{{ t("purchase-rq.field.proposal") }}</p>
-          <Textarea v-model="formState.purpose" class="md:w-[770px] w-full" />
+          <Textarea
+            name="purpose"
+            v-model="formState.purpose"
+            :placeholder="t('purchase-rq.phd.purpose')"
+            class="md:w-[557px] w-full"
+          />
         </div>
 
-        <!-- title request items -->
         <div
           class="item"
           v-for="(item, index) in formState.addMore"
@@ -164,7 +179,7 @@ const deleteImage = (itemIndex: number, imageIndex: number) => {
               >
                 <UiInput
                   v-model="item.title"
-                  placeholder="ປ້ອນຫົວຂໍ້ທີ່ຕ້ອງການສະເໜີ"
+                  :placeholder="t('purchase-rq.phd.title')"
                 />
               </UiFormItem>
 
@@ -176,8 +191,7 @@ const deleteImage = (itemIndex: number, imageIndex: number) => {
               >
                 <UiInput
                   v-model="item.count"
-                  type="number"
-                  placeholder="ປ້ອນຈຳນວນ"
+                  :placeholder="t('purchase-rq.phd.qty')"
                   @keypress="NumberOnly"
                 />
               </UiFormItem>
@@ -190,7 +204,7 @@ const deleteImage = (itemIndex: number, imageIndex: number) => {
               >
                 <UiInput
                   v-model="formattedPrice(index).value"
-                  placeholder="ປ້ອນລາຄາທີ່ຕ້ອງການສະເໜີ"
+                  :placeholder="t('purchase-rq.phd.price')"
                   @keypress="NumberOnly"
                 />
               </UiFormItem>
@@ -200,20 +214,20 @@ const deleteImage = (itemIndex: number, imageIndex: number) => {
                 :label="t('purchase-rq.field.remark')"
                 name="remark"
               >
-                <UiInput v-model="item.remark" placeholder="ປ້ອນໝາຍເຫດ" />
+                <UiInput
+                  v-model="item.remark"
+                  :placeholder="t('purchase-rq.phd.remark')"
+                />
               </UiFormItem>
             </div>
           </div>
 
-          <!-- example image  -->
           <div class="image-view">
             <p>{{ t("purchase-rq.field.img_example") }}</p>
             <div class="flex flex-wrap gap-2">
-              <!-- Image Preview -->
               <div
                 v-for="(image, imageIndex) in item.images"
                 :key="imageIndex"
-                :name="['addMore', index.toString(), 'images']"
                 class="w-[250px] h-[150px] rounded-md shadow-sm ring-1 ring-slate-300 overflow-hidden relative group"
               >
                 <a-image
@@ -222,7 +236,6 @@ const deleteImage = (itemIndex: number, imageIndex: number) => {
                   :height="150"
                   class="w-full h-full object-cover rounded-md"
                 />
-                <!-- Delete Button -->
                 <button
                   class="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-400 text-white rounded-full text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center shadow-lg"
                   @click="deleteImage(index, imageIndex)"
@@ -232,7 +245,6 @@ const deleteImage = (itemIndex: number, imageIndex: number) => {
                 </button>
               </div>
 
-              <!-- Upload Button Box -->
               <div
                 class="w-[250px] h-[150px] flex flex-col justify-center items-center text-center rounded-md shadow-sm ring-1 ring-slate-300 bg-slate-50 text-slate-500 cursor-pointer hover:bg-slate-100 transition"
                 @click="modalUpload(index)"
@@ -246,7 +258,6 @@ const deleteImage = (itemIndex: number, imageIndex: number) => {
             </div>
           </div>
 
-          <!-- add more / remove buttons -->
           <div class="add-more mt-6 flex gap-1">
             <UiButton
               type="primary"
@@ -269,7 +280,7 @@ const deleteImage = (itemIndex: number, imageIndex: number) => {
           </div>
         </div>
       </UiForm>
-      <!-- // total -->
+
       <div class="total flex mt-4 text-xl gap-4">
         <p>{{ t("purchase-rq.field.amount") }}:</p>
         <p class="text-red-600">{{ formatPrice(totalPrice) }} LAK</p>

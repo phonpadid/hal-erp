@@ -25,11 +25,11 @@ const emit = defineEmits<{
 
 // Default values
 const defaultTitle = props.title || "";
-const defaultMessage = props.message || "ອະນຸມັດສຳເລັດ";
+const defaultMessage = props.message || "ອະນຸມັດສຳເລັດ1";
 const defaultDescription = props.description || "ອະນຸມັດຄຳຂໍຈັດຊື້ຂອງທ່ານສຳເລັດ ຂໍ້ມູນຈະຖືກສົ່ງໄປຫາພະແນກການເງິນເພື່ອອະນຸມັດຂໍ້ມູນ";
 const defaultIconName = props.iconName || "mdi:check-decagram";
 const defaultIconColor = props.iconColor || "text-green-500";
-const defaultButtonText = props.buttonText || "ຢືນຢັນ";
+const defaultButtonText = props.buttonText || "ຢືນຢັນ111";
 
 const handleSuccessConfirm = async () => {
   confirmLoading.value = true;

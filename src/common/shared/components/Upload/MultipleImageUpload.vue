@@ -37,7 +37,7 @@
         >
           <div class="upload-button" v-if="fileList.length < maxCount">
             <div class="upload-icon">
-              <plus-outlined />
+              <Icon icon="material-symbols:cloud-upload" />
             </div>
             <div class="upload-text">{{ uploadText }}</div>
             <div class="upload-hint">{{ uploadHint }}</div>
@@ -116,7 +116,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { PlusOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import { EyeOutlined, DeleteOutlined } from "@ant-design/icons-vue";
+import { Icon } from "@iconify/vue";
 import { message } from "ant-design-vue";
 import type { UploadFile } from "ant-design-vue";
 
