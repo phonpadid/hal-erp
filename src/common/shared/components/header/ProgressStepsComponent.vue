@@ -100,7 +100,9 @@ interface Props {
   currentStatus?: "wait" | "process" | "finish" | "error";
   documentPrefix?: string;
   customButtons?: ActionButton[];
+  showDefaultButtons?: boolean; // New prop to control default buttons display
   showCancelButton?: boolean;
+  showPreviousButton?: boolean; // New prop for previous button
   showNextButton?: boolean;
   cancelButtonText?: string;
   previousButtonText?: string;
@@ -131,7 +133,9 @@ const props = withDefaults(defineProps<Props>(), {
   currentStep: 0,
   currentStatus: "process",
   documentPrefix: "",
+  showDefaultButtons: false, // Default to not showing default buttons
   showCancelButton: true,
+  showPreviousButton: true, // Default to showing previous button
   showNextButton: true,
   cancelButtonText: "ຍົກເລີກ",
   previousButtonText: "ກັບຄືນ",
@@ -157,6 +161,10 @@ const visibleButtons = computed(() => {
 
 const isLastStep = computed(() => {
   return props.currentStep === steps.value.length - 1;
+});
+
+const showButtons = computed(() => {
+  return (props.customButtons?.length ?? 0) > 0 || props.showDefaultButtons;
 });
 
 // Methods
@@ -235,7 +243,8 @@ const onCancel = () => {
       </div>
 
       <!-- Right side buttons -->
-      <div class="flex gap-2">
+      <div v-if="showButtons" class="flex gap-2">
+        <!-- Custom buttons take precedence -->
         <template v-if="customButtons?.length">
           <template v-for="(button, index) in visibleButtons" :key="index">
             <a-tooltip v-if="button.tooltip">
@@ -267,9 +276,9 @@ const onCancel = () => {
           </template>
         </template>
 
-        <!-- Default buttons if no custom buttons provided -->
-        <template v-else>
-          <a-button v-if="currentStep > 0" type="default" @click="onPrevious">
+        <!-- Default buttons only if showDefaultButtons is true -->
+        <template v-else-if="showDefaultButtons">
+          <a-button v-if="currentStep > 0 && showPreviousButton" type="default" @click="onPrevious">
             {{ previousButtonText }}
           </a-button>
           <a-button v-if="showCancelButton" type="default" @click="onCancel">
