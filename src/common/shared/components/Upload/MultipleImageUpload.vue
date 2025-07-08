@@ -1,75 +1,49 @@
 <template>
-  <!-- Template ส่วนนี้เหมือนเดิม -->
   <div class="image-upload-container">
-    <div class="clearfix">
-      <a-upload
-        v-model:file-list="fileList"
-        :action="uploadAction"
-        :list-type="listType"
-        :multiple="multiple"
-        :accept="accept"
-        :max-count="maxCount"
-        :before-upload="beforeUpload"
-        :on-preview="handlePreview"
-        :on-remove="handleRemove"
-        :on-change="handleChange"
-        :custom-request="customRequest"
-        :show-upload-list="showUploadList"
-        :disabled="disabled"
-        class="custom-upload-size"
-      >
-        <div v-if="fileList.length < maxCount" class="upload-button">
-          <div class="upload-icon">
-            <plus-outlined />
-          </div>
-          <div class="upload-text">{{ uploadText }}</div>
-          <div class="upload-hint">{{ uploadHint }}</div>
-        </div>
-      </a-upload>
-
-      <!-- Preview Modal -->
-      <a-modal
-        :open="previewVisible"
-        :title="previewTitle"
-        :footer="null"
-        @cancel="handleCancel"
-        :width="800"
-      >
-        <img
-          alt="preview"
-          style="width: 100%; max-height: 600px; object-fit: contain"
-          :src="previewImage"
-        />
-      </a-modal>
-
-      <!-- Progress Modal for Multiple Upload -->
-      <a-modal
-        :open="uploadProgressVisible"
-        title="ກຳລັງອັບໂຫລດ..."
-        :footer="null"
-        :closable="false"
-        :mask-closable="false"
-      >
-        <div class="upload-progress-container">
-          <div v-for="(progress, index) in uploadProgress" :key="index" class="progress-item">
-            <div class="progress-info">
-              <span>{{ progress.name }}</span>
-              <span>{{ progress.percent }}%</span>
-            </div>
-            <a-progress
-              :percent="progress.percent"
-              :status="progress.status"
-              :stroke-color="progress.status === 'exception' ? '#ff4d4f' : '#1890ff'"
-            />
-          </div>
-          <div class="progress-summary">
-            <p>{{ uploadedCount }}/{{ totalUploadCount }} ໄຟລ໌ສຳເລັດ</p>
-            <a-button v-if="allUploadsComplete" type="primary" @click="closeProgressModal">
-              ປິດ
+    <div class="upload-area">
+      <!-- ส่วนแสดงรูปภาพที่อัปโหลดแล้ว -->
+      <div class="uploaded-images" v-if="fileList.length > 0">
+        <div v-for="file in fileList" :key="file.uid" class="uploaded-image-item">
+          <img :src="file.url || file.thumbUrl" :alt="file.name" class="uploaded-image" />
+          <div class="image-actions">
+            <a-button type="text" class="action-btn" @click="handlePreview(file)">
+              <eye-outlined />
+            </a-button>
+            <a-button type="text" class="action-btn" @click="handleRemove(file)">
+              <delete-outlined />
             </a-button>
           </div>
+          <div class="image-status" v-if="file.status === 'uploading'">
+            <a-progress :percent="file.percent || 0" size="small" />
+          </div>
         </div>
-      </a-modal>
+      </div>
+
+      <!-- ปุ่มอัปโหลด -->
+      <div class="upload-button-container">
+        <a-upload
+          v-model:file-list="fileList"
+          :action="uploadAction"
+          :multiple="multiple"
+          :accept="accept"
+          :max-count="maxCount"
+          :before-upload="beforeUpload"
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :on-change="handleChange"
+          :custom-request="customRequest"
+          :show-upload-list="false"
+          :disabled="disabled || fileList.length >= maxCount"
+        >
+          <div class="upload-button" v-if="fileList.length < maxCount">
+            <div class="upload-icon">
+              <plus-outlined />
+            </div>
+            <div class="upload-text">{{ uploadText }}</div>
+            <div class="upload-hint">{{ uploadHint }}</div>
+          </div>
+        </a-upload>
+      </div>
     </div>
 
     <!-- Upload Summary -->
@@ -93,17 +67,60 @@
         <a-button size="small" @click="retryFailed">ລອງໃຫມ່ (ທີຜິດພາດ)</a-button>
       </a-space>
     </div>
+
+    <!-- Preview Modal -->
+    <a-modal
+      :open="previewVisible"
+      :title="previewTitle"
+      :footer="null"
+      @cancel="handleCancel"
+      :width="800"
+    >
+      <img
+        alt="preview"
+        style="width: 100%; max-height: 600px; object-fit: contain"
+        :src="previewImage"
+      />
+    </a-modal>
+
+    <!-- Progress Modal for Multiple Upload -->
+    <a-modal
+      :open="uploadProgressVisible"
+      title="ກຳລັງອັບໂຫລດ..."
+      :footer="null"
+      :closable="false"
+      :mask-closable="false"
+    >
+      <div class="upload-progress-container">
+        <div v-for="(progress, index) in uploadProgress" :key="index" class="progress-item">
+          <div class="progress-info">
+            <span>{{ progress.name }}</span>
+            <span>{{ progress.percent }}%</span>
+          </div>
+          <a-progress
+            :percent="progress.percent"
+            :status="progress.status"
+            :stroke-color="progress.status === 'exception' ? '#ff4d4f' : '#1890ff'"
+          />
+        </div>
+        <div class="progress-summary">
+          <p>{{ uploadedCount }}/{{ totalUploadCount }} ໄຟລ໌ສຳເລັດ</p>
+          <a-button v-if="allUploadsComplete" type="primary" @click="closeProgressModal">
+            ປິດ
+          </a-button>
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-// Script ส่วนนี้เหมือนเดิม - ไม่ต้องเปลี่ยน
 import { ref, computed, watch } from "vue";
-import { PlusOutlined } from "@ant-design/icons-vue";
+import { PlusOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import { message } from "ant-design-vue";
 import type { UploadFile } from "ant-design-vue";
 
-// Props interface - เพิ่ม props สำหรับกำหนดระยะห่าง
+// Props interface
 interface Props {
   modelValue?: UploadFile[];
   uploadAction?: string;
@@ -117,7 +134,7 @@ interface Props {
   showSummary?: boolean;
   disabled?: boolean;
   customUpload?: (file: File) => Promise<string>; // Custom upload function that returns URL
-  // เพิ่ม props สำหรับกำหนดขนาด
+  // ขนาด
   uploadWidth?: string;
   uploadHeight?: string;
   uploadButtonWidth?: string;
@@ -125,9 +142,10 @@ interface Props {
   iconSize?: string;
   textSize?: string;
   hintSize?: string;
-  // เพิ่ม props สำหรับกำหนดระยะห่าง
+  // ระยะห่าง
   itemSpacing?: string;
   rowSpacing?: string;
+  thumbnailFit?: "cover" | "contain" | "fill";
 }
 
 // Emits interface
@@ -139,11 +157,11 @@ interface Emits {
   (e: "upload-complete", fileList: UploadFile[]): void;
 }
 
-// Define props with defaults - เพิ่ม default values สำหรับระยะห่าง
+// Define props with defaults
 const props = withDefaults(defineProps<Props>(), {
   uploadAction: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
   listType: "picture-card",
-  multiple: true,
+  multiple: false,
   accept: "image/*",
   maxCount: 10,
   maxSize: 5,
@@ -151,17 +169,17 @@ const props = withDefaults(defineProps<Props>(), {
   uploadHint: "ຫຼືລາກວາງຮູບພາບ (JPG, PNG) ຂະໜາດເທົ່າ 5MB",
   showSummary: true,
   disabled: false,
-  // Default values สำหรับขนาด
   uploadWidth: "100%",
   uploadHeight: "auto",
-  uploadButtonWidth: "200px",
+  uploadButtonWidth: "150px",
   uploadButtonHeight: "150px",
-  iconSize: "48px",
+  iconSize: "40px",
   textSize: "16px",
   hintSize: "14px",
-  // Default values สำหรับระยะห่าง
-  itemSpacing: "16px",
-  rowSpacing: "16px",
+  // ระยะห่าง
+  itemSpacing: "20px",
+  rowSpacing: "20px",
+  thumbnailFit: "contain",
 });
 
 // Define emits
@@ -204,12 +222,6 @@ const allUploadsComplete = computed(
   () => uploadedCount.value === totalUploadCount.value && totalUploadCount.value > 0
 );
 
-const showUploadList = computed(() => ({
-  showPreviewIcon: true,
-  showRemoveIcon: !props.disabled,
-  showDownloadIcon: false,
-}));
-
 // Watch for modelValue changes
 watch(
   () => props.modelValue,
@@ -245,7 +257,7 @@ function generateUid(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// Event handlers (เหมือนเดิม)
+// Event handlers
 const beforeUpload = (file: File, fileList: File[]) => {
   const isImage = file.type.startsWith("image/");
   if (!isImage) {
@@ -351,6 +363,7 @@ const handlePreview = async (file: UploadFile) => {
 };
 
 const handleRemove = (file: UploadFile) => {
+  fileList.value = fileList.value.filter((item) => item.uid !== file.uid);
   emit("remove", file);
   return true;
 };
@@ -411,141 +424,95 @@ defineExpose({
 .image-upload-container {
   width: v-bind("props.uploadWidth");
   height: v-bind("props.uploadHeight");
+  padding: 16px;
 }
 
-/* ปรับแต่ง upload container */
-.custom-upload-size :deep(.ant-upload) {
-  width: 100% !important;
-  height: 100% !important;
+/* พื้นที่อัปโหลดหลัก */
+.upload-area {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: v-bind("props.rowSpacing");
 }
 
-.custom-upload-size :deep(.ant-upload-select) {
-  width: 100% !important;
-  height: 100% !important;
+/* พื้นที่สำหรับรูปที่อัปโหลดแล้ว */
+.uploaded-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v-bind("props.itemSpacing");
 }
 
-.custom-upload-size :deep(.ant-upload-select-picture-card) {
-  width: v-bind("props.uploadButtonWidth") !important;
-  height: v-bind("props.uploadButtonHeight") !important;
-  margin: 0 !important;
+.uploaded-image-item {
+  width: v-bind("props.uploadButtonWidth");
+  height: v-bind("props.uploadButtonHeight");
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  animation: slideInRight 0.4s ease-out;
 }
 
-/* 🎯 สำคัญ! - จัดเรียงแบบ Grid พร้อมระยะห่าง */
-.custom-upload-size :deep(.ant-upload-list-picture-card) {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, v-bind("props.uploadButtonWidth")) !important;
-  gap: v-bind("props.itemSpacing") v-bind("props.itemSpacing") !important;
-  margin: 0 !important;
-  padding: 0 !important;
+.uploaded-image-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* บังคับขนาดของไฟล์ที่อัปโหลดแล้วให้เท่ากับปุ่ม upload */
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-list-item) {
-  width: v-bind("props.uploadButtonWidth") !important;
-  height: v-bind("props.uploadButtonHeight") !important;
-  margin: 0 !important;
-  border-radius: 8px !important;
-  overflow: hidden !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-  transition: all 0.3s ease !important;
+.uploaded-image {
+  width: 100%;
+  height: 100%;
+  object-fit: v-bind("props.thumbnailFit");
+  object-position: center;
+  transition: transform 0.3s ease;
 }
 
-/* Hover effect สำหรับไฟล์ที่อัปโหลดแล้ว */
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-list-item:hover) {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+.uploaded-image-item:hover .uploaded-image {
+  transform: scale(1.05);
 }
 
-/* บังคับขนาดของ thumbnail ในรายการไฟล์ */
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-list-item-thumbnail) {
-  width: 100% !important;
-  height: 100% !important;
-  border-radius: 8px !important;
-  overflow: hidden !important;
+/* ปุ่มควบคุมต่างๆ (ดู, ลบ) */
+.image-actions {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 8px 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  gap: 8px;
 }
 
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-list-item-thumbnail img) {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  transition: transform 0.3s ease !important;
+.uploaded-image-item:hover .image-actions {
+  opacity: 1;
 }
 
-/* Zoom effect เมื่อ hover บนรูป */
-.custom-upload-size
-  :deep(
-    .ant-upload-list-picture-card .ant-upload-list-item:hover .ant-upload-list-item-thumbnail img
-  ) {
-  transform: scale(1.05) !important;
-}
-
-/* ปรับแต่ง actions (preview, delete buttons) */
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-list-item-actions) {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  background-color: rgba(0, 0, 0, 0.7) !important;
-  border-radius: 8px !important;
-  padding: 10px 16px !important;
-  opacity: 0 !important;
-  transition: opacity 0.3s ease !important;
-}
-
-.custom-upload-size
-  :deep(.ant-upload-list-picture-card .ant-upload-list-item:hover .ant-upload-list-item-actions) {
-  opacity: 1 !important;
-}
-
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-list-item-actions .anticon) {
+.action-btn {
   color: white !important;
   font-size: 18px !important;
-  margin: 0 6px !important;
-  cursor: pointer !important;
-  transition: color 0.2s ease !important;
 }
 
-.custom-upload-size
-  :deep(.ant-upload-list-picture-card .ant-upload-list-item-actions .anticon:hover) {
+.action-btn:hover {
   color: #1890ff !important;
 }
 
-/* ปรับแต่ง progress bar สำหรับไฟล์ที่กำลังอัปโหลด */
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-list-item-uploading) {
-  width: v-bind("props.uploadButtonWidth") !important;
-  height: v-bind("props.uploadButtonHeight") !important;
-  border: 2px solid #1890ff !important;
+/* แสดงสถานะการอัปโหลด */
+.image-status {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px;
+  border-radius: 4px;
 }
 
-.custom-upload-size
-  :deep(
-    .ant-upload-list-picture-card .ant-upload-list-item-uploading .ant-upload-list-item-progress
-  ) {
-  position: absolute !important;
-  bottom: 12px !important;
-  left: 12px !important;
-  right: 12px !important;
-}
-
-/* ปรับแต่ง error state */
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-list-item-error) {
-  width: v-bind("props.uploadButtonWidth") !important;
-  height: v-bind("props.uploadButtonHeight") !important;
-  border: 2px solid #ff4d4f !important;
-}
-
-/* ปรับแต่ง success state */
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-list-item-done) {
-  width: v-bind("props.uploadButtonWidth") !important;
-  height: v-bind("props.uploadButtonHeight") !important;
-  border: 1px solid #f0f0f0 !important;
-}
-
-/* จัดการ upload button ให้อยู่ในตำแหน่งที่ถูกต้อง */
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-select) {
-  width: v-bind("props.uploadButtonWidth") !important;
-  height: v-bind("props.uploadButtonHeight") !important;
-  margin: 0 !important;
+/* ปุ่มอัปโหลด */
+.upload-button-container {
+  flex-shrink: 0;
 }
 
 .upload-button {
@@ -606,6 +573,7 @@ defineExpose({
   color: #666;
 }
 
+/* สรุปการอัปโหลด */
 .upload-summary {
   margin-top: 24px;
   padding: 16px;
@@ -614,6 +582,7 @@ defineExpose({
   border: 1px solid #e9ecef;
 }
 
+/* โมดัลแสดงความคืบหน้า */
 .upload-progress-container {
   max-height: 400px;
   overflow-y: auto;
@@ -637,16 +606,37 @@ defineExpose({
   border-top: 1px solid #f0f0f0;
 }
 
+/* แอนิเมชัน */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
-  .custom-upload-size :deep(.ant-upload-list-picture-card) {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
-    gap: 12px !important;
+  .upload-area {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .uploaded-images {
+    justify-content: center;
+  }
+
+  .uploaded-image-item {
+    width: 150px;
+    height: 150px;
   }
 
   .upload-button {
-    min-width: 150px;
-    min-height: 120px;
+    width: 150px;
+    height: 150px;
   }
 
   .upload-icon {
@@ -659,22 +649,6 @@ defineExpose({
 
   .upload-hint {
     font-size: calc(v-bind("props.hintSize") * 0.9);
-  }
-}
-
-/* Animation สำหรับไฟล์ใหม่ที่เพิ่มเข้ามา */
-.custom-upload-size :deep(.ant-upload-list-picture-card .ant-upload-list-item) {
-  animation: slideInUp 0.3s ease-out !important;
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 </style>

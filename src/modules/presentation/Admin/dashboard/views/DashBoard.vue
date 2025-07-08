@@ -69,7 +69,7 @@ const handleCancel = () => {
 };
 </script>
 <template>
-  <div class="mt-12">{{ $t("deshboard") }}</div>
+  <div class="mt-12">{{ $t("deshboard.dashboard") }}</div>
 
   <header-component
     header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
@@ -92,14 +92,14 @@ const handleCancel = () => {
     @cancel="handleCancel"
   />
   <div class="upload-examples">
-    <h2> Upload Area</h2>
+    <h2>Upload Area</h2>
 
     <!-- ขนาดมาตรฐาน -->
     <div class="example-section">
       <h3>ຂະໜາດມາດຕະຖານ</h3>
       <MultipleImageUpload
         v-model="standardFiles"
-        :max-count="5"
+        :max-count="4"
         upload-text="อัปโหลดเอกสาร"
         upload-hint="ลากวางไฟล์มาวางที่นี่"
       />
@@ -149,13 +149,14 @@ const handleCancel = () => {
         :max-count="6"
         upload-text="อัปโหลดเอกสาร"
         upload-hint="ลากวางไฟล์หรือคลิกเพื่อเลือก"
-        upload-width="350px"
+        upload-width="100%"
         upload-height="auto"
         upload-button-width="300px"
         upload-button-height="400px"
         icon-size="64px"
         text-size="18px"
         hint-size="14px"
+        thumbnailFit="fill"
       />
     </div>
 

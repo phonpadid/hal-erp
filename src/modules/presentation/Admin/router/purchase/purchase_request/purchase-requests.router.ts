@@ -4,7 +4,7 @@ import PurchaseRequestDetails from "../../../components/purchase/purchase_reques
 
 export const purchaseRequestsRoutes: RouteRecordRaw[] = [
   {
-    path: "/purchase-requests",
+    path: "/purchase-requests-list",
     name: "purchaseRequestsList",
     component: PurchaseRequestsList,
     meta: {
@@ -13,7 +13,7 @@ export const purchaseRequestsRoutes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/purchase-requests/detail/:id",
+    path: "/purchase-requests-list/detail/:id",
     name: "purchaseRequestsDetail",
     component: PurchaseRequestDetails,
     props: { isEditMode: false },
