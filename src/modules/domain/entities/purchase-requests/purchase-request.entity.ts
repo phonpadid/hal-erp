@@ -5,7 +5,7 @@ export class PurchaseRequestEntity {
   private id: string | null;
   private document_type_id: string;
   private pr_number: string | null;
-  private requested_date: string;
+  private requested_date: string | null;
   private expired_date: string;
   private purposes: string | null;
   private document_type: DocumentTypeEntity | null;
@@ -18,7 +18,7 @@ export class PurchaseRequestEntity {
     id: string | null = null,
     document_type_id: string,
     pr_number: string | null = null,
-    requested_date: string,
+    requested_date: string | null = null,
     expired_date: string,
     purposes: string | null = null,
     document_type: DocumentTypeEntity | null = null,
@@ -48,7 +48,7 @@ export class PurchaseRequestEntity {
   public getPrNumber(): string | null {
     return this.pr_number;
   }
-  public getRequestedDate(): string {
+  public getRequestedDate(): string | null {
     return this.requested_date;
   }
   public getExpiredDate(): string {
@@ -90,14 +90,13 @@ export class PurchaseRequestEntity {
   }
   public static create(
     document_type_id: string,
-    requested_date: string,
     expired_date: string,
     purposes: string
   ): PurchaseRequestEntity {
     return new PurchaseRequestEntity(
       null,
       document_type_id,
-      requested_date,
+      null,
       expired_date,
       purposes,
       null, null, null, null)
@@ -105,7 +104,6 @@ export class PurchaseRequestEntity {
 
   public static createPurchaseRequestWithItems(
     documentTypeId: string,
-    requestedDate: string,
     expiredDate: string,
     purposes: string,
     purchaseItem: Array<{
@@ -121,7 +119,6 @@ export class PurchaseRequestEntity {
     // Create the main purchase request
     const purchaseRequest = PurchaseRequestEntity.create(
       documentTypeId,
-      requestedDate,
       expiredDate,
       purposes
     );

@@ -38,6 +38,10 @@
   "purchase_rq": "ໃບສະເໜີ",
   "apv_purchase_rq": "ຜູ້ອະນຸມັດໃບສະເໜີ",
   "purchasePanak": "ອະນຸມັດຈັດຊື້ຫົວໜ້າພະແນກ",
-  "budgetApproval": "ອະນຸມັດງົບປະມານ"
+  "budgetApproval": "ອະນຸມັດງົບປະມານ",
+  "accounting_dpm": "ພະແນກບັນຊີລົງລະຫັດບັນຊີ",
+  "accounting_dpm_check": "ພະແນກບັນຊີກວດສອບ",
+  "approval_finance_dpm": "ພະແນກການເງິນອະນຸມັດ",
+  "financial_dpm_transfer": "ພະແນກການເງິນໂອນເງິນ"
 }
 

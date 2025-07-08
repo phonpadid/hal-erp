@@ -30,6 +30,7 @@ import { approvalWorkflowStepRoutes } from "@/modules/presentation/Admin/router/
 import { purchaseRequestRoutes } from "@/modules/presentation/Admin/router/purchase-requests/purchase-reques.router";
 import { approvalDepartmentsRoutes } from "@/modules/presentation/Admin/router/approval-department.routers";
 import { budgetApprovalRoutes } from "@/modules/presentation/Admin/router/budget/bud-get-approval.router";
+import { disbursementRoutes } from "@/modules/presentation/Admin/router/disbursement.router";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -65,7 +66,8 @@ const routes: RouteRecordRaw[] = [
       ...budgetItemDetailsRoutes,
       ...purchaseRequestRoutes,
       ...approvalDepartmentsRoutes,
-      ...budgetApprovalRoutes
+      ...budgetApprovalRoutes,
+      ...disbursementRoutes
     ],
   },
   ...authRoutes,

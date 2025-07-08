@@ -43,16 +43,16 @@ const handlePrint = async () => {
     console.error('Print error:', error);
   }
 };
-
-const customButtons = [
+const getCustomButtons = () => [
   {
-    label: "print",
+    label: t('button.print'),
     icon: "ant-design:printer-outlined",
     class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
     type: "default" as ButtonType,
-    onClick: handlePrint, // Using the helper function
+    onClick: handlePrint,
   },
 ];
+
 
 const toggleStore = useToggleStore();
 const { toggle } = storeToRefs(toggleStore);
@@ -76,19 +76,19 @@ const handleToggle = () => {
   >
     <header-component
       @toggle="handleToggle"
-      header-title="ໃບສະເໜີ"
-      :breadcrumb-items="['ໃບສະເໜີ', 'ລາຍລະອຽດ']"
-      document-prefix="ໃບສະເໜີຈັດຊື້"
-      document-number="ເລກທີ 0036/ພລ - ວັນທີ"
+      :header-title="t('purchase-rq.field.proposal')"
+      :breadcrumb-items="[t('purchase-rq.field.proposal'), t('purchase-rq.description')]"
+      :document-prefix="t('purchase-rq.field.proposal')"
+      :document-number="`${t('purchase-rq.field.pr_number')} 0036/ພລ - ${t('purchase-rq.date')}`"
       :document-date="new Date('2025-03-26')"
-      :action-buttons="customButtons"
+      :action-buttons="getCustomButtons()"
       document-status="ລໍຖ້າຫົວໜ້າພະແນກພັດທະນາທຸລະກິດກວດສອບ"
       document-status-class="text-orange-400 text-sm font-medium ml-2 ring-2 ring-orange-300 px-3 py-1 rounded-full"
     />
   </div>
     <div class="body mt-[10rem]">
       <div class="user-info shadow-sm py-2">
-        <h2 class="text-md font-semibold px-6 mb-4">ຂໍ້ມູນຜູ້ສະເໜີ</h2>
+        <h2 class="text-md font-semibold px-6 mb-4">{{ t("purchase-rq.field.proposer") }}</h2>
         <div class="info flex items-center px-6 gap-4 mb-4">
           <a-image
             :src="profileImage"
@@ -104,18 +104,18 @@ const handleToggle = () => {
           </div>
         </div>
         <div class="want-date -space-y-0 px-6 mb-4">
-          <h2 class="text-md font-semibold">ວັນທີ່ຕ້ອງການ</h2>
+          <h2 class="text-md font-semibold">{{ t("purchase-rq.field.date_rq") }}</h2>
           <p class="text-gray-600 text-sm">18 ກໍລະກົດ 2025</p>
         </div>
 
         <div class="purposes -space-y-0 px-6 mb-4">
-          <h2 class="text-md font-semibold">ຈຸດປະສົງ</h2>
+          <h2 class="text-md font-semibold">{{ t("purchase-rq.field.purposes") }}</h2>
           <p class="text-gray-600 text-sm">
             ມີການຈັດຊື້ ເນື່ອງຈາກວ່າປະຈຸບັນນີ້ມີພະນັກງານເຂົ້າມາເພີ່ມໃໝ່ 5 ຄົນ
           </p>
         </div>
         <div class="table -space-y-0 mb-2 w-full px-6 shadow-sm rounded-md">
-          <h2 class="text-md font-semibold">ລາຍການ</h2>
+          <h2 class="text-md font-semibold">{{ t("purchase-rq.field.title") }}</h2>
           <a-table
             :columns="columns(t)"
             :dataSource="dataMenu"
@@ -129,7 +129,7 @@ const handleToggle = () => {
             </template>
           </a-table>
           <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4">
-            <p class="font-medium text-slate-600">ຍອດລວມ:</p>
+            <p class="font-medium text-slate-600">{{ t("purchase-rq.field.amount") }}:</p>
             <p class="font-semibold md:text-lg text-sm text-slate-700">
               {{ formatPrice(49000000) }} ₭
             </p>
@@ -137,7 +137,7 @@ const handleToggle = () => {
         </div>
         <!-- image and signature  -->
         <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
-          <h2 class="text-md font-semibold">ຮູບຕົວຢ່າງ</h2>
+          <h2 class="text-md font-semibold">{{ t("purchase-rq.field.img_example") }}</h2>
           <div class="flex flex-wrap gap-6">
             <a-image
               v-for="(img, index) in imageList"
@@ -153,8 +153,8 @@ const handleToggle = () => {
         </div>
 
         <div class="signature shadow-sm py-4 px-6 rounded-md mb-[10rem]">
-          <h2 class="text-md font-semibold">ລາຍເຊັນ</h2>
-          <p class="text-slate-500 text-sm">ຜູ້ສະເໜີ</p>
+          <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
+          <p class="text-slate-500 text-sm">{{t("purchase-rq.proposer")}}</p>
 
           <a-image
             src="/public/2.png"
