@@ -48,7 +48,7 @@ return [
 ]
 })
 const details = (id: string) => {
-  push({ name: "purchase_request_detail", params: { id: id } });
+  push({ name: "approval-by-finance-department-detail.index", params: { id: id } });
 };
 onMounted(async () => {
   await docTypeStore.fetchdocumentType({ page: 1, limit: 1000 });
