@@ -26,17 +26,20 @@ export const usePositionStore = defineStore("position", () => {
     totalPages: 0,
   });
 
-  const activePositions = computed(() => positions.value.filter((position) => !position.isDeleted()));
-  const deletedPositions = computed(() => positions.value.filter((position) => position.isDeleted()));
+  const activePositions = computed(() =>
+    positions.value.filter((position) => !position.isDeleted())
+  );
+  const deletedPositions = computed(() =>
+    positions.value.filter((position) => position.isDeleted())
+  );
   const totalActivePositions = computed(() => activePositions.value.length);
   const totalDeletedPositions = computed(() => deletedPositions.value.length);
 
-  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page;
     pagination.value.limit = newPagination.limit;
     pagination.value.total = newPagination.total;
   };
-
 
   const createPosition = async (data: CreatePositionDTO) => {
     loading.value = true;

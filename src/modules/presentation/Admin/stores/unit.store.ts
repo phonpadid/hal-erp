@@ -31,12 +31,11 @@ export const useUnitStore = defineStore("unit", () => {
   const totalActiveUnits = computed(() => activeUnits.value.length);
   const totalDeletedUnits = computed(() => deletedUnits.value.length);
 
-  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page;
     pagination.value.limit = newPagination.limit;
     pagination.value.total = newPagination.total;
   };
-
 
   const createUnit = async (data: CreateUnitDTO) => {
     loading.value = true;
