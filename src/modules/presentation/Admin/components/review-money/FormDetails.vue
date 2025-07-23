@@ -7,6 +7,7 @@ import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { directorData } from "@/modules/shared/utils/dataDirector";
 import { Icon } from "@iconify/vue";
+import { useRouter } from "vue-router";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
@@ -15,11 +16,12 @@ import HeaderComponent from "@/common/shared/components/header/HeaderComponent.v
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderShowDrawer from "../purchase/purchase_orders/PurchaseOrderShowDrawer.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import FormSucess from "./FormSucess.vue";
+// import FormSucess from "./FormSucess.vue";
 
 /********************************************************* */
 const { t } = useI18n();
 const { success, error } = useNotification();
+const router = useRouter();
 const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
@@ -48,18 +50,12 @@ const customButtons = [
       isRejectModalVisible.value = true;
     },
   },
+
   {
-    label: "ປະຕິເສດ",
-    type: "default" as ButtonType,
-    onClick: () => {
-      isOtpModalVisible.value = true;
-    },
-  },
-  {
-    label: "ອະນຸມັດ",
+    label: "ສ້າງໃບເບີກຈ່າຍ",
     type: "primary" as ButtonType,
     onClick: () => {
-      isOtpModalVisible.value = true;
+      router.push({ name: "review-money-create" });
     },
   },
 ];
@@ -269,7 +265,7 @@ const handleModalCancel = () => {
         document-number="0036/ພລ - ວັນທີ"
         :document-date="new Date('2025-03-26')"
         :action-buttons="customButtons"
-        document-status="ລໍຖ້າອຳນວຍການກວດສອບ"
+        document-status="ລໍຖ້າໃບເບີກຈ່າຍ"
         document-status-class="text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"
       />
       <!-- Main Content -->

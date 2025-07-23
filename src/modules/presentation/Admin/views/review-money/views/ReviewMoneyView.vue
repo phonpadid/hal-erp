@@ -2,7 +2,7 @@
 import FormListTable from "../../../components/review-money/FormListTable.vue";
 </script>
 <template>
-  <div>
+  <div class="mt-8">
     <FormListTable />
   </div>
 </template>

@@ -1,0 +1,13 @@
+{
+  "table": {
+    "number": "Number",
+    "name": "Name",
+    "code": "Code",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "price": "Price",
+    "total": "Total",
+    "sum": "Total Sum",
+    "kip": "Total Kip"
+  }
+}

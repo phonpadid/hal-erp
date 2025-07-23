@@ -3,6 +3,8 @@ import AccountingDepartment from "../views/disbursement-slip/AccountingDepartmen
 import AccountingDepartmentCheck from "../views/disbursement-slip/AccountingDepartmentCheck.vue";
 import ApprovalByFinanceDepartment from "../views/disbursement-slip/ApprovalByFinanceDepartment.vue";
 import FinancialDepartmentTransfer from "../views/disbursement-slip/FinancialDepartmentTransfer.vue";
+import AccountingDepartmentDetail from "../components/disbursement-slip/accounting-dpm/AccountingDepartmentDetail.vue";
+import ApprovalByFinanceDpmDetail from "../components/disbursement-slip/approval-finance-dpm/ApprovalByFinanceDpmDetail.vue";
 
 export const disbursementRoutes: RouteRecordRaw[] = [
   {
@@ -15,6 +17,17 @@ export const disbursementRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/accounting-department-detail/:id",
+    name: "accounting-department-detail.index",
+    component: AccountingDepartmentDetail,
+    meta: {
+      title: "Accounting department detail",
+      requiredAuth: true,
+    },
+  },
+
+
+  {
     path: "/accounting-department-check",
     name: "accounting-department-check.index",
     component: AccountingDepartmentCheck,
@@ -23,6 +36,8 @@ export const disbursementRoutes: RouteRecordRaw[] = [
       requiredAuth: true,
     },
   },
+
+  //apv by finance dpm
   {
     path: "/approval-by-finance-department",
     name: "approval-by-finance-department.index",
@@ -33,8 +48,26 @@ export const disbursementRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/approval-by-finance-department/:id",
+    name: "approval-by-finance-department-detail.index",
+    component: ApprovalByFinanceDpmDetail,
+    meta: {
+      title: "approval by department ",
+      requiredAuth: true,
+    },
+  },
+  {
     path: "/financial-department-transfer",
     name: "financial-department-transfer.index",
+    component: FinancialDepartmentTransfer,
+    meta: {
+      title: "financial department transfer",
+      requiredAuth: true,
+    },
+  },
+  {
+    path: "/financial-department-transfer/:id",
+    name: "financial-department-transfer-detail.index",
     component: FinancialDepartmentTransfer,
     meta: {
       title: "financial department transfer",
