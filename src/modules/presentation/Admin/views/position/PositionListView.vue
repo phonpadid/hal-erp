@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed,watch } from "vue";
+import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import type { PositionApiModel } from "@/modules/interfaces/position.interface";
@@ -8,7 +8,7 @@ import { Position } from "@/modules/domain/entities/position.entities";
 import { getColumns } from "./column";
 import { rules } from "./validation/position.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import Table from "@/common/shared/components/table/Table.vue";
+import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
@@ -28,7 +28,10 @@ const deleteModalVisible = ref(false);
 const loading = ref(false);
 const selectedPosition = ref<PositionApiModel | null>(null);
 const errorMessage = ref("");
-const formModel = reactive({ name: "" }); // code removed
+const formModel = reactive({ name: "" });
+
+
+const pageSizeOptions = ["10", "20", "50", "100"];
 
 onMounted(async () => {
   await loadPositions();
@@ -60,31 +63,13 @@ const loadPositions = async (): Promise<void> => {
   }
 };
 
-const handleTableChange = async (pagination: any) => {
+const handleTableChange = async (pagination: TablePaginationType) => {
   positionStore.setPagination({
-    page: pagination.current || 1,
-    limit: pagination.pageSize || 10,
-    total: pagination.total,
+    page: pagination.current ?? 1,
+    limit: pagination.pageSize ?? 10,
+    total: pagination.total ?? 0,
   });
   await loadPositions();
-};
-
-const showCreateModal = (): void => {
-  formModel.name = "";
-  errorMessage.value = "";
-  createModalVisible.value = true;
-};
-
-const showEditModal = (record: PositionApiModel): void => {
-  selectedPosition.value = record;
-  formModel.name = record.name;
-  errorMessage.value = "";
-  editModalVisible.value = true;
-};
-
-const showDeleteModal = (record: PositionApiModel): void => {
-  selectedPosition.value = record;
-  deleteModalVisible.value = true;
 };
 
 const handleSearch = async () => {
@@ -104,7 +89,7 @@ const handleSearch = async () => {
     positionStore.setPagination({
       page: 1,
       limit: positionStore.pagination.limit,
-      total: positionStore.pagination.total,
+      total: positionStore.pagination.total ?? 0,
     });
   } catch (error) {
     console.error("Search failed:", error);
@@ -112,6 +97,24 @@ const handleSearch = async () => {
     loading.value = false;
   }
 }
+
+const showCreateModal = (): void => {
+  formModel.name = "";
+  errorMessage.value = "";
+  createModalVisible.value = true;
+};
+
+const showEditModal = (record: PositionApiModel): void => {
+  selectedPosition.value = record;
+  formModel.name = record.name;
+  errorMessage.value = "";
+  editModalVisible.value = true;
+};
+
+const showDeleteModal = (record: PositionApiModel): void => {
+  selectedPosition.value = record;
+  deleteModalVisible.value = true;
+};
 
 const handleCreate = async (): Promise<void> => {
   loading.value = true;
@@ -200,10 +203,13 @@ const handleDelete = async (): Promise<void> => {
       </div>
     </div>
 
+    <!-- Table -->
     <Table :columns="columns" :dataSource="positions" :pagination="{
       current: positionStore.pagination.page,
       pageSize: positionStore.pagination.limit,
       total: positionStore.pagination.total,
+      showSizeChanger: true,
+      pageSizeOptions
     }" row-key="id" :loading="positionStore.loading" @change="handleTableChange">
       <template #actions="{ record }">
         <div class="flex gap-2">

@@ -8,7 +8,7 @@ import { Unit } from "@/modules/domain/entities/unit.entities";
 import { getColumns } from "./column";
 import { rules } from "./validation/unit.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import Table from "@/common/shared/components/table/Table.vue";
+import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
@@ -28,6 +28,10 @@ const deleteModalVisible = ref(false);
 const loading = ref(false);
 const selectedUnit = ref<UnitApiModel | null>(null);
 const formModel = reactive({ name: "" });
+
+
+const pageSizeOptions = ["10", "20", "50", "100"];
+
 onMounted(async () => {
   await loadUnits();
 });
@@ -58,11 +62,11 @@ const loadUnits = async (): Promise<void> => {
   }
 };
 
-const handleTableChange = async (pagination: any) => {
+const handleTableChange = async (pagination: TablePaginationType) => {
   unitStore.setPagination({
-     page: pagination.current || 1,
-    limit: pagination.pageSize || 10,
-    total: pagination.total,
+    page: pagination.current ?? 1,
+    limit: pagination.pageSize ?? 10,
+    total: pagination.total ?? 0,
   })
   await loadUnits();
 }
@@ -100,7 +104,7 @@ const handleSearch = async () => {
     unitStore.setPagination({
       page: 1,
       limit: unitStore.pagination.limit,
-      total: result.total,
+      total: result.total ?? 0,
     });
   } catch (error) {
     console.error("Search failed:", error);
@@ -146,7 +150,6 @@ const handleEdit = async (): Promise<void> => {
 
 const handleDelete = async (): Promise<void> => {
   if (!selectedUnit.value) return;
-  console.log("Deleting unit:", selectedUnit.value);
   loading.value = true;
   try {
     const id = selectedUnit.value.id.toString();
@@ -171,19 +174,22 @@ const handleDelete = async (): Promise<void> => {
       <div class="flex justify-between gap-20">
         <div class="w-[20rem]">
           <InputSearch v-model:value="search" @keyup.enter="handleSearch"
-            :placeholder="t('categories.placeholder.search')" />
+            :placeholder="t('units.placeholder.search')" />
         </div>
         <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal"
           colorClass="flex items-center">
-          {{ t("categories.add") }}
+          {{ t("units.add") }}
         </UiButton>
       </div>
     </div>
 
+    <!-- Table -->
     <Table :columns="columns" :dataSource="units" :pagination="{
       current: unitStore.pagination.page,
       pageSize: unitStore.pagination.limit,
       total: unitStore.pagination.total,
+      showSizeChanger: true,
+      pageSizeOptions
     }" row-key="id" :loading="unitStore.loading" @change="handleTableChange">
       <template #actions="{ record }">
         <div class="flex gap-2">

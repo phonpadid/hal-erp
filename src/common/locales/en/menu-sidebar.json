@@ -5,6 +5,7 @@
   "position": "Positions",
   "unit": "Units",
   "category": "Categories",
+  "bank":"Banks",
   "document_type": "Document types",
   "user_approval": "User approvals",
   "budget_apv_rule": "Budget approval rules",

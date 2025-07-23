@@ -131,6 +131,18 @@ export const menuItems = computed<ItemType[]>(() => [
           ]),
       },
       {
+        key: "BankList",
+        label: t("menu-sidebar.bank"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:round-filter-list",
+
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
         key: "document_typesList",
         label: t("menu-sidebar.document_type"),
         icon: () =>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed,watch } from "vue";
+import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import type { CategoryApiModel } from "@/modules/interfaces/category.interface";
@@ -8,7 +8,7 @@ import { Category } from "@/modules/domain/entities/categories.entities";
 import { getColumns } from "./column";
 import { rules } from "./validation/category.vallidate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import Table from "@/common/shared/components/table/Table.vue";
+import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
@@ -29,6 +29,9 @@ const loading = ref(false);
 const selectedCategory = ref<CategoryApiModel | null>(null);
 const errorMessage = ref("");
 const formModel = reactive({ name: "" });
+
+
+const pageSizeOptions = ["10", "20", "50", "100"];
 
 onMounted(async () => {
   await loadCategories();
@@ -60,11 +63,11 @@ const loadCategories = async (): Promise<void> => {
   }
 };
 
-const handleTableChange = async (pagination: any) => {
+const handleTableChange = async (pagination: TablePaginationType) => {
   categoryStore.setPagination({
-    page: pagination.current || 1,
-    limit: pagination.pageSize || 10,
-    total: pagination.total,
+    page: pagination.current ?? 1,
+    limit: pagination.pageSize ?? 10,
+    total: pagination.total ?? 0,
   });
   await loadCategories();
 };
@@ -202,11 +205,20 @@ const handleDelete = async (): Promise<void> => {
       </div>
     </div>
 
-    <Table :columns="columns" :dataSource="categories" :pagination="{
-      current: categoryStore.pagination.page,
-      pageSize: categoryStore.pagination.limit,
-      total: categoryStore.pagination.total,
-    }" row-key="id" :loading="categoryStore.loading" @change="handleTableChange">
+    <Table
+      :columns="columns"
+      :dataSource="categories"
+      :pagination="{
+        current: categoryStore.pagination.page,
+        pageSize: categoryStore.pagination.limit,
+        total: categoryStore.pagination.total,
+        showSizeChanger: true,
+        pageSizeOptions
+      }"
+      row-key="id"
+      :loading="categoryStore.loading"
+      @change="handleTableChange"
+    >
       <template #actions="{ record }">
         <div class="flex gap-2">
           <UiButton type="" icon="ant-design:edit-outlined" size="small" @click="showEditModal(record)"
