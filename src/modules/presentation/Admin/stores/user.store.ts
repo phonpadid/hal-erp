@@ -1,4 +1,8 @@
-import type { UserCreatePayload } from "./../../../interfaces/user.interface";
+import type {
+  UserChangePasswordPayload,
+  UserCreatePayload,
+  UserUpdatePayload,
+} from "./../../../interfaces/user.interface";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { Ref } from "vue";
@@ -100,20 +104,29 @@ export const useUserStore = defineStore("user", () => {
       loading.value = false;
     }
   };
-  const resetPassword = async (id: string) => {
+  const resetPassword = async (id: string, old_password: string, new_password: string) => {
     loading.value = true;
     error.value = null;
-    try {
-      console.log(`Resetting password for user with ID: ${id}`);
 
-      // const result = await userService.resetPassword(id);
-      // if (result) {
-      //   const index = users.value.findIndex((u) => u.getId() === id);
-      //   if (index !== -1) {
-      //     users.value[index].resetPassword();
-      //   }
-      // }
-      // return result;
+    try {
+      const changePasswordDTO: UserChangePasswordPayload = {
+        old_password: old_password,
+        new_password: new_password,
+      };
+
+      const updatedUser = await userService.changePasswordUser(id, changePasswordDTO);
+
+      // อัพเดต state
+      const index = users.value.findIndex((u) => u.getId() === id);
+      if (index !== -1) {
+        users.value[index] = updatedUser;
+      }
+
+      if (currentUser.value && currentUser.value.getId() === id) {
+        currentUser.value = updatedUser;
+      }
+
+      return userEntityToInterface(updatedUser);
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -121,10 +134,11 @@ export const useUserStore = defineStore("user", () => {
       loading.value = false;
     }
   };
+
   // Update User
   const updateUser = async (
     id: string,
-    userData: { username?: string; email?: string; password?: string; tel?: string }
+    userData: UserUpdatePayload
   ) => {
     loading.value = true;
     error.value = null;
@@ -175,6 +189,8 @@ export const useUserStore = defineStore("user", () => {
       id: parseInt(user.getId()),
       username: user.getUsername(),
       email: user.getEmail(),
+      roleIds: user.getRoleIds(),
+      permissionIds: user.getPermissionIds(),
       tel: user.getTel(),
       created_at: user.getCreatedAt(),
       updated_at: user.getUpdatedAt(),

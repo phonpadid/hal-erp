@@ -1,0 +1,31 @@
+{
+  "title": "Position information",
+  "add": "Add new position",
+  "header_form": {
+    "add": "Add new position",
+    "edit": "Update position",
+    "delete": {
+      "title": "Confirm delete",
+      "content": "Are you sure you want to delete",
+      "description": "This action cannot be undone"
+    }
+  },
+  "placeholder": {
+    "name": "Please enter position name",
+    "search": "Search by position name"
+  },
+  "error": {
+    "name": "Please enter position name"
+  },
+  "field": {
+    "name": "Position name",
+    "created": "Created At",
+    "updated": "Updated At",
+    "manage": "Manage"
+  },
+  "notify": {
+    "created": "Info created successfully",
+    "updated": "Info updated successfully",
+    "deleted": "Info deleted successfully"
+  }
+}

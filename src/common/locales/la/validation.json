@@ -1,0 +1,16 @@
+{
+  "vendors": {
+    "validation": {
+      "currencyRequired": "ກະລຸນາເລືອກສະກຸນເງິນ",
+      "bankNameRequired": "ກະລຸນາປ້ອນຊື່ທະນາຄານ",
+      "bankNameMax": "ຊື່ທະນາຄານບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
+      "bankNameInvalidChars": "ຊື່ທະນາຄານມີຕົວອັກສອນທີ່ບໍ່ຖືກຕ້ອງ",
+      "accountNameRequired": "ກະລຸນາປ້ອນຊື່ບັນຊີ",
+      "accountNameMax": "ຊື່ບັນຊີບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
+      "accountNameInvalidChars": "ຊື່ບັນຊີມີຕົວອັກສອນທີ່ບໍ່ຖືກຕ້ອງ",
+      "accountNumberRequired": "ກະລຸນາປ້ອນເລກບັນຊີ",
+      "accountNumberMax": "ເລກບັນຊີບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ",
+      "accountNumberInvalidChars": "ເລກບັນຊີສາມາດມີແຕ່ຕົວເລກແລະເຄື່ອງໝາຍຂີດເທົ່ານັ້ນ"
+    }
+  }
+}

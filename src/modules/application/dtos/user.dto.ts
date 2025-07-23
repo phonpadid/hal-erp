@@ -3,6 +3,8 @@ export interface CreateUserDTO {
   email: string;
   password: string;
   tel: string;
+  roleIds: number[];
+  permissionIds: number[];
 }
 
 export interface UpdateUserDTO {
@@ -11,6 +13,12 @@ export interface UpdateUserDTO {
   email: string;
   password: string;
   tel: string;
+  roleIds: number[];
+  permissionIds: number[];
+}
+export interface ChangePasswordDTO {
+  oldPassword: string;
+  newPassword: string;
 }
 
 export interface UserDTO {
@@ -19,6 +27,8 @@ export interface UserDTO {
   email: string;
   password: string;
   tel: string;
+  roleIds: number[];
+  permissionIds: number[];
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;

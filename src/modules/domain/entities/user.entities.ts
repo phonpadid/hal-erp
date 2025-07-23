@@ -1,9 +1,14 @@
+import type { UserAPIResponse, Role } from "@/modules/interfaces/user.interface";
+
 export class UserEntity {
   private id: string;
   private username: string;
   private email: string;
   private password?: string;
   private tel?: string;
+  private roleIds: number[];
+  private permissionIds: number[];
+  private roles: Role[];
   private createdAt: string;
   private updatedAt: string;
   private deletedAt: string | null;
@@ -12,6 +17,9 @@ export class UserEntity {
     id: string,
     username: string,
     email: string,
+    roleIds: number[],
+    roles: Role[],
+    permissionIds: number[],
     createdAt: string,
     updatedAt: string,
     deletedAt: string | null = null,
@@ -21,6 +29,9 @@ export class UserEntity {
     this.id = id;
     this.username = username;
     this.email = email;
+    this.roleIds = roleIds;
+    this.roles = roles;
+    this.permissionIds = permissionIds;
     this.password = password;
     this.tel = tel;
     this.createdAt = createdAt;
@@ -39,7 +50,17 @@ export class UserEntity {
   public getEmail(): string {
     return this.email;
   }
+  public getRoleIds(): number[] {
+    return this.roleIds;
+  }
 
+  public getPermissionIds(): number[] {
+    return this.permissionIds;
+  }
+
+  public getRoles(): Role[] {
+    return this.roles;
+  }
   public getPassword(): string | undefined {
     return this.password;
   }
@@ -73,6 +94,15 @@ export class UserEntity {
     this.email = email;
     this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
+  public updateRoleIds(roleIds: number[]): void {
+    this.roleIds = roleIds;
+    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+  }
+
+  public updatePermissionIds(permissionIds: number[]): void {
+    this.permissionIds = permissionIds;
+    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+  }
 
   public updatePassword(password: string): void {
     this.password = password;
@@ -99,9 +129,38 @@ export class UserEntity {
     username: string,
     email: string,
     password: string,
+    roleIds: number[],
+    permissionIds: number[],
     tel?: string
   ): UserEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-    return new UserEntity(id, username, email, now, now, null, password, tel);
+    return new UserEntity(
+      id,
+      username,
+      email,
+      roleIds,
+      [],
+      permissionIds,
+      now,
+      now,
+      null,
+      password,
+      tel
+    );
+  }
+  public static fromAPI(data: UserAPIResponse): UserEntity {
+    return new UserEntity(
+      data.id.toString(),
+      data.username,
+      data.email,
+      data.roles.map((role) => role.id),
+      data.roles,
+      data.permissions.map((perm) => perm.id),
+      data.created_at,
+      data.updated_at,
+      null,
+      undefined,
+      data.tel
+    );
   }
 }

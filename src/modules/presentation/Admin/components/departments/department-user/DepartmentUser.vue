@@ -2,8 +2,7 @@
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import { positionItem, userItem } from "@/modules/shared/utils/data.department";
-import { onMounted, ref, computed, watch } from "vue";
+import { onMounted, ref, computed, watch, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { dpmUserRules } from "../../../views/departments/deparment-user/validation/department-user.validate";
 import {
@@ -14,27 +13,44 @@ import { departmentStore } from "../../../stores/departments/department.store";
 import UploadFile from "@/common/shared/components/Upload/UploadFile.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { useRouter, useRoute } from "vue-router";
-
+import { useUserStore } from "../../../stores/user.store";
+import { usePositionStore } from "../../../stores/position.store";
+import UiInput from "@/common/shared/components/Input/UiInput.vue";
+import UiInputPassword from "@/common/shared/components/Input/UiInputPassword.vue";
+import { NumberOnly } from "@/modules/shared/utils/format-price";
+import { usePermissionStore } from "../../../stores/permission.store";
+import PermissionCard from "./PermissionCard.vue";
+import { useRoleStore } from "../../../stores/role.store";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import { updateDpmUserRules } from "../../../views/departments/deparment-user/validation/update-department-user.validate";
+const roleStore = useRoleStore();
+const userStore = useUserStore();
+const positionStore = usePositionStore();
 const { push } = useRouter();
 const route = useRoute();
 const { t } = useI18n();
 const formRef = ref();
 const dpmStore = departmentStore();
 const dpmUserStore = departmenUsertStore();
+const permissionStore = usePermissionStore();
 const loading = ref(false);
-export interface UpdateDepartmentUserDTO {
-  id: string;
-  user_id: string | null;
-  position_id: string | null;
-  department_id: string | null;
-  signature_file?: string | File | null;
-}
-
-// Determine if we're in edit mode based on route params
+const { success } = useNotification();
+const selectedPermissions = computed({
+  get: () => dpmUserFormModel.permissionIds,
+  set: (value: number[]) => {
+    dpmUserFormModel.permissionIds = value;
+  },
+});
 const isEditMode = computed(() => !!route.params.id);
 const departmentUserId = computed(() => route.params.id as string);
 
-// ✅ computed dropdown list based on store data
+const positionItem = computed(() =>
+  positionStore.positions.map((item) => ({
+    value: item.getId(),
+    label: item.getName(),
+  }))
+);
+
 const departmentItem = computed(() =>
   dpmStore.departments.map((item) => ({
     value: item.getId(),
@@ -42,20 +58,29 @@ const departmentItem = computed(() =>
   }))
 );
 
+const roleItem = computed(() =>
+  roleStore.roles.map((item) => ({
+    value: Number(item.getId()),
+    label: item.getName(),
+  }))
+);
+
+
+// Get permission groups from store
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const permissionGroups = computed(() => permissionStore.permission as any || []);
+
+
 // Add reactive reference for signature file to ensure proper binding
 const signatureFile = ref(dpmUserFormModel.signature_file || null);
-
-// Watch for changes in signature file and update the form model
+const existingSignatureUrl = ref<string | File | null>(null);
 watch(
   signatureFile,
   (newValue) => {
-    console.log("Signature file changed:", newValue);
     dpmUserFormModel.signature_file = newValue;
   },
   { deep: true }
 );
-
-// Also watch the form model to keep them in sync
 watch(
   () => dpmUserFormModel.signature_file,
   (newValue) => {
@@ -65,36 +90,52 @@ watch(
   }
 );
 
-const demo = {
-  user_id: "1",
-  position_id: "1",
-  department_id: "2"
-}
+// Watch selected permissions
+watch(
+  selectedPermissions,
+  (newValue) => {
+    console.log("Selected permissions:", newValue);
+  },
+  { deep: true }
+);
+
 // Load existing data for edit mode
 const loadDepartmentUser = async () => {
   if (isEditMode.value && departmentUserId.value) {
     try {
       loading.value = true;
-      // await dpmUserStore.fetchDepartmentUserById(departmentUserId.value);
-      // const departmentUser = dpmUserStore.currentDpmUser;
+      await dpmUserStore.fetchDepartmentUserById(departmentUserId.value);
+      const departmentUser = dpmUserStore.currentDpmUser;
 
-      // // Check if departmentUser exists before accessing its properties
-      // if (departmentUser) {
-      //   // Populate form with existing data
-      //   dpmUserFormModel.user_id = departmentUser.getUser_id();
-      //   dpmUserFormModel.position_id = departmentUser.getPosition_id();
-      //   dpmUserFormModel.department_id = departmentUser.getdepartment_id();
-      //   dpmUserFormModel.signature_file = departmentUser.getSignature_file();
-      //   signatureFile.value = departmentUser.getSignature_file();
-      // } else {
-      //   console.error("Department user not found");
-      //   // Optionally redirect back to list or show error message
-      //   // push({ name: 'department_user.index' });
-      // }
-      dpmUserFormModel.user_id = demo.user_id;
-        dpmUserFormModel.position_id = demo.position_id;
-        dpmUserFormModel.department_id = demo.department_id;
-      console.log("Department user data loaded for edit:", demo);
+      const userData = departmentUser?.getUser();
+      const positionData = departmentUser?.getPostion();
+
+      if (departmentUser) {
+        dpmUserFormModel.userId = userData?.getId() || "";
+        dpmUserFormModel.username = userData?.getUsername() || "";
+        dpmUserFormModel.email = userData?.getEmail?.() || "";
+        dpmUserFormModel.tel = userData?.getTel?.() || "";
+        dpmUserFormModel.position_id = positionData?.getId() || "";
+        dpmUserFormModel.departmentId = departmentUser.getDepartmentId();
+
+        // Debug: Let's see what we're getting for signature file
+        const signatureFileUrl = departmentUser.getSignature_file();
+        if (signatureFileUrl) {
+          existingSignatureUrl.value = signatureFileUrl;
+          dpmUserFormModel.signature_file = signatureFileUrl;
+          signatureFile.value = signatureFileUrl;
+        } else {
+          console.log("No signature file found");
+        }
+
+        // Load existing permissions
+        selectedPermissions.value = departmentUser.getUser()?.getPermissionIds() || [];
+        const existingRoleIds =
+        departmentUser.getRoleIds?.() || departmentUser.getRoleIds() || [];
+        dpmUserFormModel.roleIds = existingRoleIds;
+      } else {
+        console.error("Department user not found");
+      }
     } catch (error) {
       console.error("Failed to load department user:", error);
     } finally {
@@ -115,76 +156,73 @@ const handleSubmit = async (): Promise<void> => {
 
     // Double check signature_file is properly set
     if (!dpmUserFormModel.signature_file) {
-      console.error("Signature file is required but not set");
-      // Manually trigger validation for signature_file
       await formRef.value.validateField("signature_file");
       return;
     }
 
+    const payload = {
+      user: {
+        id: dpmUserFormModel.userId,
+        username: dpmUserFormModel.username,
+        email: dpmUserFormModel.email,
+        password: dpmUserFormModel.password,
+        tel: dpmUserFormModel.tel,
+        roleIds: [],
+        permissionIds: []
+      },
+      position_id: dpmUserFormModel.position_id,
+      signature_file: existingSignatureUrl.value ? '' : dpmUserFormModel.signature_file,
+      departmentId: dpmUserFormModel.departmentId,
+      permissionIds: dpmUserFormModel.permissionIds,
+      roleIds: dpmUserFormModel.roleIds,
+    };
+
     if (isEditMode.value) {
-      // Update existing department user - include ID in formData
-      const updateData = {
+      await dpmUserStore.updateDepartmentUser({
         id: departmentUserId.value,
-        user_id: dpmUserFormModel.user_id,
-        position_id: dpmUserFormModel.position_id,
-        department_id: dpmUserFormModel.department_id,
-        signature_file: dpmUserFormModel.signature_file,
-      };
-      await dpmUserStore.updateDepartmentUser(updateData);
+        ...payload,
+      });
+      push({ name: "department_user.index" });
+      dpmUserStore.resetForm();
+      success(t("departments.notify.update"));
+      console.log("update");
     } else {
-      // Create new department user - no ID needed
-      const createData = {
-        user_id: dpmUserFormModel.user_id,
-        position_id: dpmUserFormModel.position_id,
-        department_id: dpmUserFormModel.department_id,
-        signature_file: dpmUserFormModel.signature_file,
-      };
-      await dpmUserStore.createDepartmentUser(createData);
-      console.log("Department user created successfully");
+      await dpmUserStore.createDepartmentUser(payload);
+      push({ name: "department_user.index" });
+      dpmUserStore.resetForm();
+      success(t("departments.notify.created"));
     }
-
-    // Navigate back to list
-    push({ name: 'department_user.index' });
-    dpmUserStore.resetForm();
-
   } catch (error) {
-    console.error(`${isEditMode.value ? 'Update' : 'Create'} department user failed:`, error);
+    console.error(
+      `${isEditMode.value ? "Update" : "Create"} department user failed:`,
+      error
+    );
   } finally {
     loading.value = false;
   }
 };
 
 // Handle file upload change explicitly
-const handleFileChange = (fileOrEvent: any) => {
-  let actualFile = null;
-
-  // Check if it's an Event object (DOM event)
-  if (fileOrEvent && fileOrEvent.target && fileOrEvent.target.files) {
-    actualFile = fileOrEvent.target.files[0] || null;
-  } else if (
-    fileOrEvent &&
-    fileOrEvent.constructor &&
-    fileOrEvent.constructor.name === "File"
-  ) {
-    actualFile = fileOrEvent;
-  } else if (fileOrEvent && typeof fileOrEvent === "string") {
-    actualFile = fileOrEvent;
-  } else {
-    actualFile = fileOrEvent;
+const handleFileChange = (file: File) => {
+  if (file) {
+    existingSignatureUrl.value = null;
+    signatureFile.value = file;
+    dpmUserFormModel.signature_file = file;
   }
-
-  signatureFile.value = actualFile;
-  dpmUserFormModel.signature_file = actualFile;
 };
 
 const handlerCancel = () => {
-  push({ name: 'department_user.index' });
+  push({ name: "department_user.index" });
   dpmUserStore.resetForm();
+  existingSignatureUrl.value = null;
 };
 
 onMounted(async () => {
   await dpmStore.fetchDepartment();
-
+  await userStore.fetchUsers();
+  await positionStore.fetchPositions();
+  await permissionStore.fetchPermission();
+  await roleStore.fetchRoles();
   // Load existing data if in edit mode
   await loadDepartmentUser();
 
@@ -193,6 +231,13 @@ onMounted(async () => {
     signatureFile.value = dpmUserFormModel.signature_file;
   }
 });
+
+onUnmounted(() => {
+      dpmUserStore.resetForm();
+      existingSignatureUrl.value = null;
+      formRef.value?.resetFields?.();
+})
+
 </script>
 
 <template>
@@ -201,15 +246,19 @@ onMounted(async () => {
       <h3>
         {{
           isEditMode
-            ? $t('departments.dpm_user.header_form.edit')
-            : $t('departments.dpm_user.header_form.add')
+            ? $t("departments.dpm_user.header_form.edit")
+            : $t("departments.dpm_user.header_form.add")
         }}
       </h3>
     </div>
 
-    <UiForm ref="formRef" :model="dpmUserFormModel" :rules="dpmUserRules(t)">
-      <div class="flex flex-col md:flex-row md:gap-8">
-        <!-- Input Section -->
+    <UiForm
+      ref="formRef"
+      :model="dpmUserFormModel"
+      :rules="isEditMode ? updateDpmUserRules(t) : dpmUserRules(t)"
+    >
+      <div class="flex flex-col lg:flex-row lg:gap-8">
+        <!-- Left Column: User Info -->
         <div class="flex-1 space-y-4">
           <UiFormItem
             :label="t('departments.dpm_user.field.signature')"
@@ -220,73 +269,148 @@ onMounted(async () => {
               v-model="signatureFile"
               :width="'100%'"
               :height="'200px'"
-              placeholder="upload"
-              @update:modelValue="handleFileChange"
-              @change="handleFileChange"
+              :upload-text="isEditMode ? 'ອັບເດດລາຍເຊັນ' : 'ອັບໂຫລດລາຍເຊັນ'"
+              @onFileSelect="handleFileChange"
             />
           </UiFormItem>
 
-          <UiFormItem
-            :label="t('departments.dpm_user.field.user')"
-            name="user_id"
-            required
-          >
-            <InputSelect
-              v-model="dpmUserFormModel.user_id"
-              :options="userItem"
-              :width="'50%'"
-              :placeholder="t('departments.dpm_user.placeholder.user')"
-            />
-          </UiFormItem>
-
-          <UiFormItem
-            :label="t('departments.dpm_user.field.position')"
-            name="position_id"
-            required
-          >
-            <InputSelect
-              v-model="dpmUserFormModel.position_id"
-              :options="positionItem"
-              :width="'50%'"
-              :placeholder="t('departments.dpm_user.placeholder.position')"
-            />
-          </UiFormItem>
-
-          <UiFormItem
-            :label="t('departments.dpm_user.field.department')"
-            name="department_id"
-            required
-          >
-            <InputSelect
-              v-model="dpmUserFormModel.department_id"
-              :options="departmentItem"
-              :width="'50%'"
-              :placeholder="t('departments.dpm_user.placeholder.dpm')"
-            />
-          </UiFormItem>
-
-          <div class="flex gap-2">
-            <UiButton
-              @click="handlerCancel"
-              colorClass="flex items-center justify-center text-orange-400"
+          <!-- Username + Email -->
+          <div class="flex flex-col md:flex-row md:gap-4">
+            <UiFormItem
+              class="flex-1"
+              :label="t('user.form.username')"
+              name="username"
+              required
             >
-              {{ t("button.cancel") }}
-            </UiButton>
-            <UiButton
-              type="primary"
-              @click="handleSubmit"
-              :loading="loading"
-              colorClass="flex items-center justify-center"
+              <UiInput
+                v-model="dpmUserFormModel.username"
+                placeholder="Enter Username"
+              />
+            </UiFormItem>
+
+            <UiFormItem
+              class="flex-1"
+              :label="t('user.form.email')"
+              name="email"
+              required
             >
-              {{ isEditMode ? t("button.update") : t("button.save") }}
-            </UiButton>
+              <UiInput
+                v-model="dpmUserFormModel.email"
+                placeholder="example@gmail.com"
+              />
+            </UiFormItem>
+          </div>
+
+          <!-- Telephone -->
+          <div class="flex flex-col md:flex-row md:gap-4">
+            <UiFormItem
+              class="flex-1"
+              :label="t('user.form.tel')"
+              name="tel"
+              required
+            >
+              <UiInput
+                @keypress="NumberOnly"
+                v-model="dpmUserFormModel.tel"
+                placeholder="20xx xxx xxx"
+              />
+            </UiFormItem>
+
+            <UiFormItem
+              class="flex-1"
+              :label="t('departments.dpm_user.field.role')"
+              name="roleIds"
+              required
+            >
+              <InputSelect
+                mode="multiple"
+                v-model:value="dpmUserFormModel.roleIds"
+                :options="roleItem"
+                :placeholder="t('departments.dpm_user.field.role')"
+              />
+            </UiFormItem>
+          </div>
+          <div class="flex flex-col md:flex-row md:gap-4">
+            <UiFormItem
+              class="flex-1"
+              :label="t('departments.dpm_user.field.department')"
+              name="departmentId"
+              required
+            >
+              <InputSelect
+                v-model="dpmUserFormModel.departmentId"
+                :options="departmentItem"
+                :placeholder="t('departments.dpm_user.placeholder.dpm')"
+              />
+            </UiFormItem>
+
+            <UiFormItem
+              class="flex-1"
+              :label="t('departments.dpm_user.field.position')"
+              name="position_id"
+              required
+            >
+              <InputSelect
+                v-model="dpmUserFormModel.position_id"
+                :options="positionItem"
+                :placeholder="t('departments.dpm_user.placeholder.position')"
+              />
+            </UiFormItem>
+          </div>
+          <div class="flex flex-col md:flex-row md:gap-4">
+            <UiFormItem
+              v-if="!isEditMode"
+              class="flex-1"
+              :label="t('user.form.password')"
+              name="password"
+              required
+            >
+              <UiInputPassword
+                v-model="dpmUserFormModel.password"
+                placeholder="*************"
+              />
+            </UiFormItem>
+
+            <UiFormItem
+              v-if="!isEditMode"
+              class="flex-1"
+              :label="t('user.form.confirmPassword')"
+              name="confirm_password"
+              required
+            >
+              <UiInputPassword
+                v-model="dpmUserFormModel.confirm_password"
+                placeholder="*************"
+              />
+            </UiFormItem>
+          </div>
+          <div class="flex-1 mt-6 lg:mt-0">
+            <PermissionCard
+              :permission-groups="permissionGroups"
+              v-model="selectedPermissions"
+            />
           </div>
         </div>
+      </div>
+      <div class="flex gap-2 pt-6">
+        <UiButton
+          @click="handlerCancel"
+          colorClass="flex items-center justify-center text-orange-400"
+        >
+          {{ t("button.cancel") }}
+        </UiButton>
+        <UiButton
+          type="primary"
+          @click="handleSubmit"
+          :loading="loading"
+          colorClass="flex items-center justify-center"
+        >
+          {{ isEditMode ? t("button.update") : t("button.save") }}
+        </UiButton>
       </div>
     </UiForm>
   </div>
 </template>
-
 <style scoped>
 .dpm-user-list-container {
   background-color: #fff;

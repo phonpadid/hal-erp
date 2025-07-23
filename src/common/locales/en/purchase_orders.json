@@ -1,0 +1,9 @@
+{
+  "table": {
+    "order_number": "Order Number",
+    "name": "Name",
+    "created_at": "Created At",
+    "status": "Status",
+    "action": "Action"
+  }
+}

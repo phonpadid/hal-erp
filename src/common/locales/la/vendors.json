@@ -1,0 +1,56 @@
+{
+  "list": {
+    "title": "ຂໍ້ມູນຜູ້ຈັດຊື້",
+    "search": "ຄົ້ນຫາ",
+    "add": "ເພີ່ມຜູ້ຈັດຊື້"
+  },
+  "table": {
+    "name": "ຊື່",
+    "contact_info": "ຂໍ້ມູນຕິດຕໍ່",
+    "created_at": "ວັນທີສ້າງ",
+    "updated_at": "ວັນທີອັບເດດ",
+    "actions": "ຈັດການ"
+  },
+  "form": {
+    "name": "ຊື່",
+    "namePlaceholder": "ປ້ອນຊື່ຜູ້ຈັດຊື້",
+    "contactInfo": "ຂໍ້ມູນຕິດຕໍ່",
+    "contactInfoPlaceholder": "ປ້ອນຂໍ້ມູນຕິດຕໍ່",
+    "bankAccounts": "ເພີ່ມບັນຊີເງິນ",
+    "addBankAccount": "ເພີ່ມບັນຊີ",
+    "currency": "ສະກຸນເງິນ",
+    "currencyPlaceholder": "ເລືອກສະກຸນເງິນ",
+    "bankName": "ຊື່ທະນາຄານ",
+    "bankNamePlaceholder": "ປ້ອນຊື່ທະນາຄານ",
+    "accountName": "ຊືບັນຊີທະນາຄານ",
+    "accountNamePlaceholder": "ປ້ອນຊື່ບັນຊີທະນາຄານ",
+    "accountNumber": "ເລກບັນຊີ",
+    "accountNumberPlaceholder": "ປ້ອນເລກບັນຊີ",
+    "vendor_bank_account": "ກະລຸນາປ້ອນບັນຊີເງິນຜູ້ຈັດຊື້",
+    "completeBankAccount": " ບັນທຶກສຳເລັດແລ້ວ"
+  },
+  "modal": {
+    "create": "ເພີ່ມຜູ້ຈັດຊື້",
+    "edit": "ແກ້ໄຂຜູ້ຈັດຊື້",
+    "delete": "ລຶບຜູ້ຈັດຊື້",
+    "deleteConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {name}?",
+    "deleteWarning": "ການດຳເນີນການນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້"
+  },
+  "validation": {
+    "nameRequired": "ກະລຸນາປ້ອນຊື່",
+    "nameMin": "ຊື່ຕ້ອງມີຢ່າງໜ້ອຍ 2 ຕົວອັກສອນ",
+    "nameMax": "ຊື່ບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
+    "contactInfoRequired": "ກະລຸນາປ້ອນຂໍ້ມູນຕິດຕໍ່",
+    "contactInfoMax": "ຂໍ້ມູນຕິດຕໍ່ບໍ່ສາມາດເກີນ 500 ຕົວອັກສອນ"
+  },
+  "success": {
+    "title": "ສຳເລັດ",
+    "created": "ເພີ່ມຜູ້ຈັດຊື້ສຳເລັດ",
+    "updated": "ແກ້ໄຂຜູ້ຈັດຊື້ສຳເລັດ",
+    "deleted": "ລຶບຜູ້ຈັດຊື້ສຳເລັດ"
+  },
+  "error": {
+    "saveFailed": "ບໍ່ສາມາດບັນທຶກຂໍ້ມູນໄດ້",
+    "deleteFailed": "ບໍ່ສາມາດລຶບຂໍ້ມູນໄດ້"
+  }
+}

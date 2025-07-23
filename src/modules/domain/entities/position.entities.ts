@@ -1,15 +1,15 @@
 export class Position {
   private id: string
   private name: string
-  private createdAt: Date
-  private updatedAt: Date
+  private createdAt: string
+  private updatedAt: string
   private deletedAt: Date | null
 
   constructor(
     id: string,
     name: string,
-    createdAt: Date,
-    updatedAt: Date,
+    createdAt: string,
+    updatedAt: string,
     deletedAt: Date | null = null
   ) {
     this.id = id
@@ -27,11 +27,11 @@ export class Position {
     return this.name
   }
 
-  public getCreatedAt(): Date {
+  public getCreatedAt(): string {
     return this.createdAt
   }
 
-  public getUpdatedAt(): Date {
+  public getUpdatedAt(): string {
     return this.updatedAt
   }
 
@@ -45,21 +45,21 @@ export class Position {
 
   public updateName(name: string): void {
     this.name = name
-    this.updatedAt = new Date()
+    this.updatedAt = new Date().toString()
   }
 
   public delete(): void {
     this.deletedAt = new Date()
-    this.updatedAt = new Date()
+    this.updatedAt = new Date().toString()
   }
 
   public restore(): void {
     this.deletedAt = null
-    this.updatedAt = new Date()
+    this.updatedAt = new Date().toString()
   }
 
   public static create(id: string, name: string): Position {
     const now = new Date()
-    return new Position(id, name, now, now)
+    return new Position(id, name, now.toString(), now.toString())
   }
 }

@@ -7,17 +7,13 @@ import { Unit } from "@/modules/domain/entities/unit.entities";
 import type { CreateUnitDTO, UpdateUnitDTO } from "@/modules/application/dtos/unit.dto";
 import type { PaginationParams } from "@/modules/shared/pagination";
 
-// สร้าง unit service
 const createUnitService = () => {
   const unitRepository = new ApiUnitRepository();
   return new UnitServiceImpl(unitRepository);
 };
 
 export const useUnitStore = defineStore("unit", () => {
-  // สร้าง service
   const unitService = createUnitService();
-
-  // State
   const units: Ref<Unit[]> = ref([]);
   const currentUnit: Ref<Unit | null> = ref(null);
   const loading = ref(false);
@@ -35,8 +31,13 @@ export const useUnitStore = defineStore("unit", () => {
   const totalActiveUnits = computed(() => activeUnits.value.length);
   const totalDeletedUnits = computed(() => deletedUnits.value.length);
 
-  // Actions
-  // Create Unit
+  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
+    pagination.value.page = newPagination.page;
+    pagination.value.limit = newPagination.limit;
+    pagination.value.total = newPagination.total;
+  };
+
+
   const createUnit = async (data: CreateUnitDTO) => {
     loading.value = true;
     error.value = null;
@@ -272,5 +273,6 @@ export const useUnitStore = defineStore("unit", () => {
     searchUnitsByName,
     getUnitByName,
     resetState,
+    setPagination,
   };
 });

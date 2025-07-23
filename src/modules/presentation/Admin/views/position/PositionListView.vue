@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed,watch } from "vue";
 import { useI18n } from "vue-i18n";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import type { PositionApiModel } from "@/modules/interfaces/position.interface";
 import { usePositionStore } from "@/modules/presentation/Admin/stores/position.store";
 import { Position } from "@/modules/domain/entities/position.entities";
 import { getColumns } from "./column";
-import { dataPositions } from "@/modules/shared/utils/data.position";
 import { rules } from "./validation/position.validate";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -14,62 +15,70 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 
-// change the language in the system
+const { success } = useNotification();
+const search = ref<string>("");
 const { t } = useI18n();
-// Make columns reactive to language changes
 const columns = computed(() => getColumns(t));
-
 const positionStore = usePositionStore();
 const positions = ref<PositionApiModel[]>([]);
-const useRealApi = ref<boolean>(false);
-
-// Form related
 const formRef = ref();
-const createModalVisible = ref<boolean>(false);
-const editModalVisible = ref<boolean>(false);
-const deleteModalVisible = ref<boolean>(false);
-const loading = ref<boolean>(false);
+const createModalVisible = ref(false);
+const editModalVisible = ref(false);
+const deleteModalVisible = ref(false);
+const loading = ref(false);
 const selectedPosition = ref<PositionApiModel | null>(null);
-
-// Form model
-const formModel = reactive({
-  name: "",
-});
+const errorMessage = ref("");
+const formModel = reactive({ name: "" }); // code removed
 
 onMounted(async () => {
   await loadPositions();
 });
 
-const loadPositions = async (): Promise<void> => {
-  if (useRealApi.value) {
-    try {
-      loading.value = true;
-      const result = await positionStore.fetchPositions();
+watch(search, async (newValue) => {
+  if (!newValue) {
+    await loadPositions();
+  }
+})
 
-      positions.value = result.data.map((position: Position) => ({
-        id: parseInt(position.getId()),
-        name: position.getName(),
-        created_at: position.getCreatedAt().toISOString().replace("T", " ").substring(0, 19),
-        updated_at: position.getUpdatedAt().toISOString().replace("T", " ").substring(0, 19),
-      }));
-    } catch (error) {
-      console.error("Failed to fetch positions from API:", error);
-      positions.value = [...dataPositions.value];
-    } finally {
-      loading.value = false;
-    }
-  } else {
-    positions.value = [...dataPositions.value];
+const loadPositions = async (): Promise<void> => {
+  loading.value = true;
+  try {
+    const result = await positionStore.fetchPositions({
+      page: positionStore.pagination.page,
+      limit: positionStore.pagination.limit,
+    });
+    positions.value = result.data.map((position: Position) => ({
+      id: parseInt(position.getId()),
+      name: position.getName(),
+      created_at: position.getCreatedAt(),
+      updated_at: position.getUpdatedAt(),
+    }));
+  } catch (error) {
+    console.log("error", error);
+  } finally {
+    loading.value = false;
   }
 };
+
+const handleTableChange = async (pagination: any) => {
+  positionStore.setPagination({
+    page: pagination.current | 1,
+    limit: pagination.pageSize,
+    total: pagination.total,
+  });
+  await loadPositions();
+};
+
 const showCreateModal = (): void => {
   formModel.name = "";
+  errorMessage.value = "";
   createModalVisible.value = true;
 };
 
 const showEditModal = (record: PositionApiModel): void => {
   selectedPosition.value = record;
   formModel.name = record.name;
+  errorMessage.value = "";
   editModalVisible.value = true;
 };
 
@@ -78,29 +87,51 @@ const showDeleteModal = (record: PositionApiModel): void => {
   deleteModalVisible.value = true;
 };
 
-const handleCreate = async (): Promise<void> => {
+const handleSearch = async () => {
+  loading.value = true;
   try {
-    loading.value = true;
+    const result = await positionStore.fetchPositions({
+      page: 1,
+      limit: positionStore.pagination.limit,
+      search: search.value,
+    });
+    positions.value = result.data.map((position: Position) => ({
+      id: parseInt(position.getId()),
+      name: position.getName(),
+      created_at: position.getCreatedAt(),
+      updated_at: position.getUpdatedAt(),
+    }));
+    positionStore.setPagination({
+      page: 1,
+      limit: positionStore.pagination.limit,
+      total: positionStore.pagination.total,
+    });
+  } catch (error) {
+    console.error("Search failed:", error);
+  } finally {
+    loading.value = false;
+  }
+}
+
+const handleCreate = async (): Promise<void> => {
+  loading.value = true;
+  errorMessage.value = "";
+  try {
     await formRef.value.submitForm();
-
-    if (useRealApi.value) {
-      await positionStore.createPosition({ name: formModel.name });
-      await loadPositions();
-    } else {
-      const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-      const newPosition: PositionApiModel = {
-        id: positions.value.length + 1,
-        name: formModel.name,
-        created_at: now,
-        updated_at: now,
-      };
-      positions.value.push(newPosition);
-      dataPositions.value.push(newPosition);
-    }
-
+    await positionStore.createPosition({ name: formModel.name });
+    success(t('positions.notify.created'));
+    await loadPositions();
     createModalVisible.value = false;
     formModel.name = "";
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message && error.message.includes("already exists")) {
+      errorMessage.value = t(
+        "positions.error.duplicateName",
+        "A position with this name already exists."
+      );
+    } else {
+      errorMessage.value = error.message || "Create failed. Please try again.";
+    }
     console.error("Create form validation failed:", error);
   } finally {
     loading.value = false;
@@ -108,36 +139,26 @@ const handleCreate = async (): Promise<void> => {
 };
 
 const handleEdit = async (): Promise<void> => {
+  loading.value = true;
+  errorMessage.value = "";
   try {
-    loading.value = true;
     await formRef.value.submitForm();
-
     if (selectedPosition.value) {
-      if (useRealApi.value) {
-        const id = selectedPosition.value.id.toString();
-        await positionStore.updatePosition(id, { name: formModel.name });
-        await loadPositions();
-      } else {
-        const index = positions.value.findIndex((p) => p.id === selectedPosition.value!.id);
-        if (index !== -1) {
-          const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-          positions.value[index] = {
-            ...positions.value[index],
-            name: formModel.name,
-            updated_at: now,
-          };
-          const mockIndex = dataPositions.value.findIndex(
-            (p) => p.id === selectedPosition.value!.id
-          );
-          if (mockIndex !== -1) {
-            dataPositions.value[mockIndex] = { ...positions.value[index] };
-          }
-        }
-      }
+      const id = selectedPosition.value.id.toString();
+      await positionStore.updatePosition(id, { name: formModel.name });
+      success(t('positions.notify.updated'));
+      await loadPositions();
+      editModalVisible.value = false;
     }
-
-    editModalVisible.value = false;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message && error.message.includes("already exists")) {
+      errorMessage.value = t(
+        "positions.error.duplicateName",
+        "A position with this name already exists."
+      );
+    } else {
+      errorMessage.value = error.message || "Edit failed. Please try again.";
+    }
     console.error("Edit form validation failed:", error);
   } finally {
     loading.value = false;
@@ -146,85 +167,59 @@ const handleEdit = async (): Promise<void> => {
 
 const handleDelete = async (): Promise<void> => {
   if (!selectedPosition.value) return;
-
   loading.value = true;
-
-  if (useRealApi.value) {
-    try {
-      const id = selectedPosition.value.id.toString();
-      await positionStore.deletePosition(id);
-      await loadPositions();
-    } catch (error) {
-      console.error("Delete failed:", error);
-    }
-  } else {
-    positions.value = positions.value.filter((p) => p.id !== selectedPosition.value!.id);
-    dataPositions.value = dataPositions.value.filter((p) => p.id !== selectedPosition.value!.id);
+  try {
+    const id = selectedPosition.value.id.toString();
+    await positionStore.deletePosition(id);
+    success(t('positions.notify.deleted'));
+    await loadPositions();
+    deleteModalVisible.value = false;
+  } catch (error) {
+    console.error("Delete failed:", error);
+  } finally {
+    loading.value = false;
   }
-
-  deleteModalVisible.value = false;
-  loading.value = false;
 };
 </script>
 
 <template>
   <div class="position-list-container p-6">
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-2xl font-semibold">{{ t("positions.title") }}</h1>
+    <div class="mb-6 gap-4">
+      <h1 class="text-2xl font-semibold">
+        {{ t("positions.title") }}
+      </h1>
+      <div class="flex justify-between gap-20">
+        <div class="w-[20rem]">
+          <InputSearch v-model:value="search" @keyup.enter="handleSearch"
+            :placeholder="t('positions.placeholder.search')" />
+        </div>
+        <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal"
+          colorClass="flex items-center">
+          {{ t("positions.add") }}
+        </UiButton>
       </div>
-
-      <UiButton
-        type="primary"
-        icon="ant-design:plus-outlined"
-        @click="showCreateModal"
-        colorClass="flex items-center"
-      >
-        {{ t("positions.add") }}
-      </UiButton>
     </div>
 
-    <div v-if="positionStore.loading || loading" class="text-center py-4">
-      <p>{{ t("messages.loading") }}</p>
-    </div>
-
-    <Table :columns="columns" :dataSource="positions" :pagination="{ pageSize: 10 }" row-key="id">
+    <Table :columns="columns" :dataSource="positions" :pagination="{
+      current: positionStore.pagination.page,
+      pageSize: positionStore.pagination.limit,
+      total: positionStore.pagination.total,
+    }" row-key="id" :loading="positionStore.loading" @change="handleTableChange">
       <template #actions="{ record }">
         <div class="flex gap-2">
-          <UiButton
-            type="primary"
-            icon="ant-design:edit-outlined"
-            size="small"
-            @click="showEditModal(record)"
-            colorClass="flex items-center"
-          >
-            {{ t("button.edit") }}
-          </UiButton>
-          <UiButton
-            type="primary"
-            danger
-            icon="ant-design:delete-outlined"
-            size="small"
-            colorClass="flex items-center"
-            @click="showDeleteModal(record)"
-          >
-            {{ t("button.delete") }}
-          </UiButton>
+          <UiButton type="" icon="ant-design:edit-outlined" size="small" @click="showEditModal(record)"
+            colorClass="flex items-center justify-center text-orange-400" />
+          <UiButton type="" danger icon="ant-design:delete-outlined"
+            colorClass="flex items-center justify-center text-red-700" size="small" @click="showDeleteModal(record)" />
         </div>
       </template>
     </Table>
 
     <!-- Create Modal -->
-    <UiModal
-      :title="t('positions.header_form.add')"
-      :visible="createModalVisible"
-      :confirm-loading="loading"
-      @update:visible="createModalVisible = $event"
-      @ok="handleCreate"
-      @cancel="createModalVisible = false"
-      :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
-    >
+    <UiModal :title="t('positions.header_form.add')" :visible="createModalVisible" :confirm-loading="loading"
+      @update:visible="createModalVisible = $event" @ok="handleCreate" @cancel="createModalVisible = false"
+      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
+      <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('positions.field.name')" name="name" required>
           <UiInput v-model="formModel.name" :placeholder="t('positions.placeholder.name')" />
@@ -233,16 +228,10 @@ const handleDelete = async (): Promise<void> => {
     </UiModal>
 
     <!-- Edit Modal -->
-    <UiModal
-      :title="t('positions.header_form.edit')"
-      :visible="editModalVisible"
-      :confirm-loading="loading"
-      @update:visible="editModalVisible = $event"
-      @ok="handleEdit"
-      @cancel="editModalVisible = false"
-      :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
-    >
+    <UiModal :title="t('positions.header_form.edit')" :visible="editModalVisible" :confirm-loading="loading"
+      @update:visible="editModalVisible = $event" @ok="handleEdit" @cancel="editModalVisible = false"
+      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
+      <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('positions.field.name')" name="name" required>
           <UiInput v-model="formModel.name" :placeholder="t('positions.placeholder.name')" />
@@ -250,18 +239,10 @@ const handleDelete = async (): Promise<void> => {
       </UiForm>
     </UiModal>
 
-    <!-- Delete Modal -->
-    <UiModal
-      :title="t('positions.header_form.delete.title')"
-      :visible="deleteModalVisible"
-      :confirm-loading="loading"
-      @update:visible="deleteModalVisible = $event"
-      @ok="handleDelete"
-      @cancel="deleteModalVisible = false"
-      :okText="t('button.confirm')"
-      :cancelText="t('button.cancel')"
-      okType="primary"
-    >
+    <!-- Delete Confirmation Modal -->
+    <UiModal :title="t('positions.header_form.delete.title')" :visible="deleteModalVisible" :confirm-loading="loading"
+      @update:visible="deleteModalVisible = $event" @ok="handleDelete" :cancelText="t('button.cancel')"
+      @cancel="deleteModalVisible = false" :okText="t('button.confirm')" okType="primary">
       <p>{{ t("positions.header_form.delete.content") }} "{{ selectedPosition?.name }}"?</p>
       <p class="text-red-500">{{ t("positions.header_form.delete.description") }}</p>
     </UiModal>

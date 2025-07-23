@@ -7,6 +7,7 @@
     :pagination="pagination"
     :rowClassName="rowClassName"
     :loading="loading"
+    :customRow="customRowHandler"
     @change="
       (pagination: TablePaginationType, filters: Record<string, string[]>, sorter: SorterResult) =>
         $emit('change', pagination, filters, sorter)
@@ -23,15 +24,18 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from "vue";
 
-interface Column {
-  title: string;
+// กำหนด interface ให้มีความยืดหยุ่น
+export interface Column {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  title: string | any;
   key: string;
   dataIndex?: string;
-  width?: number;
+  width?: number | string;
 }
 
-interface TableRecord {
-  [key: string]: unknown;
+export interface TableRecord {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any; // เปลี่ยนเป็น any เพื่อความยืดหยุ่น
 }
 
 export interface TablePaginationType {
@@ -41,31 +45,42 @@ export interface TablePaginationType {
   showSizeChanger?: boolean;
 }
 
-interface SorterResult {
+export interface SorterResult {
   column?: unknown;
   order?: "ascend" | "descend" | null;
   field?: string;
   columnKey?: string;
 }
 
-defineProps<{
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = defineProps<{
   columns: Column[];
   dataSource: TableRecord[];
   pagination?: TablePaginationType;
   loading?: boolean;
   scrollX?: number;
   scrollY?: number;
-  rowClassName?: string | ((record: TableRecord, index: number) => string);
+  rowClassName?: string | ((record: TableRecord, index?: number) => string);
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (
     e: "change",
     pagination: TablePaginationType,
     filters: Record<string, string[]>,
     sorter: SorterResult
   ): void;
+  (e: "row-click", record: TableRecord): void;
 }>();
+
+// ฟังก์ชันที่จะเพิ่ม event handler ให้กับแถว
+const customRowHandler = (record: TableRecord) => {
+  return {
+    onClick: () => {
+      emit("row-click", record);
+    },
+  };
+};
 
 function getNestedValue(record: TableRecord, path?: string | string[]): unknown {
   if (!path) return null;

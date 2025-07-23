@@ -1,153 +1,79 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, reactive, defineProps, defineEmits, watch } from "vue";
-import UiForm from "@/common/shared/components/Form/UiForm.vue";
-import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import UiInputPassword from "@/common/shared/components/Input/UiInputPassword.vue";
-import type { UserInterface } from "@/modules/interfaces/user.interface";
+import { ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { createUserValidation } from "../../views/user/validation/user.validate";
+import { useUserStore } from "../../stores/user.store";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import type { UserInterface } from "@/modules/interfaces/user.interface";
+import ManageUserForm from "./ManageUserForm.vue";
 
+const route = useRoute();
+const router = useRouter();
+const userStore = useUserStore();
+const { success, error: showError } = useNotification();
 const { t } = useI18n();
+const loading = ref(false);
+const user = ref<UserInterface | null>(null);
 
-const props = defineProps<{
-  user?: UserInterface | null;
-  isEditMode: boolean;
-  loading?: boolean;
-}>();
-
-const emit = defineEmits<{
-  (e: "submit", data: { username: string; email: string; password?: string; tel?: string }): void;
-  (e: "cancel"): void;
-}>();
-
-const formRef = ref();
-const formState = reactive({
-  username: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-  tel: "",
-});
-
-// Create validation rules
-const validationState = reactive({
-  password: formState.password,
-  isEditMode: props.isEditMode,
-});
-
-// Watch for password changes to update validation state
-watch(
-  () => formState.password,
-  (newPassword) => {
-    validationState.password = newPassword;
-  }
-);
-
-// Watch for isEditMode changes
-watch(
-  () => props.isEditMode,
-  (newIsEditMode) => {
-    validationState.isEditMode = newIsEditMode;
-  }
-);
-
-// Get validation rules
-const userRules = createUserValidation(t, validationState);
-
-// Watch for user changes
-watch(
-  () => props.user,
-  (newUser) => {
-    if (newUser) {
-      formState.username = newUser.username || "";
-      formState.email = newUser.email || "";
-      formState.password = "";
-      formState.confirmPassword = "";
-      formState.tel = newUser.tel || "";
-    } else {
-      formState.username = "";
-      formState.email = "";
-      formState.password = "";
-      formState.confirmPassword = "";
-      formState.tel = "";
+onMounted(async () => {
+  if (route.params.id) {
+    try {
+      loading.value = true;
+      const userId = route.params.id as string;
+      const userData = await userStore.fetchUserById(userId);
+      user.value = userData;
+      console.log("Loaded user data:", userData);
+    } catch (err) {
+      console.error("Error loading user:", err);
+      showError(t("user.error.loadFailed"));
+      router.push("/users");
+    } finally {
+      loading.value = false;
     }
-  },
-  { immediate: true }
-);
+  }
+});
 
-const submitForm = async () => {
+const handleSubmit = async (formData: any) => {
   try {
-    await formRef.value.submitForm();
-    const formData: { username: string; email: string; password?: string; tel?: string } = {
-      username: formState.username,
-      email: formState.email,
-      tel: formState.tel || undefined,
-    };
-    if (formState.password) {
-      formData.password = formState.password;
+    loading.value = true;
+    if (route.params.id) {
+      await userStore.updateUser(route.params.id as string, formData);
+      success(t("user.success.updated"));
+    } else {
+      await userStore.createUser(formData);
+      success(t("user.success.created"));
     }
-
-    emit("submit", formData);
-  } catch (error) {
-    console.error("Form validation failed:", error);
+    router.push("/users");
+  } catch (err: any) {
+    console.error("Failed to save user:", err);
+    showError(err.message || t("user.error.saveFailed"));
+  } finally {
+    loading.value = false;
   }
 };
 
-defineExpose({
-  submitForm,
-  resetForm: () => formRef.value?.resetFields(),
-});
+const handleCancel = () => {
+  router.push("/users");
+};
 </script>
 
 <template>
-  <UiForm ref="formRef" :model="formState" :rules="userRules">
-    <!-- Form items remain the same -->
-    <UiFormItem :label="$t('user.form.username')" name="username" required>
-      <UiInput
-        v-model="formState.username"
-        :placeholder="$t('user.form.usernamePlaceholder')"
-        :disabled="loading"
-      />
-    </UiFormItem>
+  <div class="p-6">
+    <div class="mb-6 flex justify-between items-center">
+      <h1 class="text-2xl font-semibold">
+        {{ route.params.id ? t("user.modal.edit") : t("user.modal.create") }}
+      </h1>
+    </div>
 
-    <UiFormItem :label="$t('user.form.email')" name="email" required>
-      <UiInput
-        v-model="formState.email"
-        :placeholder="$t('user.form.emailPlaceholder')"
-        type="email"
-        :disabled="loading"
+    <div class="bg-white rounded-lg shadow">
+      <ManageUserForm
+        :user="user"
+        :is-edit-mode="!!route.params.id"
+        :loading="loading"
+        @submit="handleSubmit"
+        @cancel="handleCancel"
       />
-    </UiFormItem>
-
-    <UiFormItem :label="$t('user.form.password')" name="password" :required="!isEditMode">
-      <UiInputPassword
-        v-model="formState.password"
-        :placeholder="
-          isEditMode ? $t('user.form.passwordEditPlaceholder') : $t('user.form.passwordPlaceholder')
-        "
-        :disabled="loading"
-      />
-    </UiFormItem>
-
-    <UiFormItem
-      :label="$t('user.form.confirmPassword')"
-      name="confirmPassword"
-      :required="!isEditMode || formState.password"
-    >
-      <UiInputPassword
-        v-model="formState.confirmPassword"
-        :placeholder="$t('user.form.confirmPasswordPlaceholder')"
-        :disabled="loading"
-      />
-    </UiFormItem>
-
-    <UiFormItem :label="$t('user.form.tel')" name="tel">
-      <UiInput
-        v-model="formState.tel"
-        :placeholder="$t('user.form.telPlaceholder')"
-        :disabled="loading"
-      />
-    </UiFormItem>
-  </UiForm>
+    </div>
+  </div>
 </template>
