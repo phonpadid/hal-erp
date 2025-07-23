@@ -62,8 +62,8 @@ const loadCategories = async (): Promise<void> => {
 
 const handleTableChange = async (pagination: any) => {
   categoryStore.setPagination({
-    page: pagination.current | 1,
-    limit: pagination.pageSize,
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
     total: pagination.total,
   });
   await loadCategories();
