@@ -1,52 +1,57 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig, type AxiosRequestHeaders } from "axios";
 import { Modal } from "ant-design-vue";
-
+import { t } from "../i18n/i18n.config";
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
-
 const authAxios = axios.create({
   baseURL: BASE_API_URL,
   headers: {
     "Content-Type": "application/json",
-    "Accept-Language": "lo",
   },
 });
+const getCurrentLocale = () => {
+  const lang = localStorage.getItem("locale") || "en";
+  return lang === "la" ? "lo" : lang;
+};
+authAxios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken") || null;
 
-function addHeaders(config?: AxiosRequestConfig, data?: unknown): AxiosRequestConfig {
-  const token = localStorage.getItem("access_token") || null;
+    if (!config.headers) config.headers = {} as AxiosRequestHeaders;
 
-  if (!config) config = {};
-  if (!config.headers) config.headers = {};
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    config.headers["Accept-Language"] = getCurrentLocale();
+    // ตรวจสอบประเภทข้อมูลจาก data ของ request
+    if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
+      config.headers["Content-Type"] = "application/json";
+    } else if (config.data instanceof FormData) {
+      config.headers["Content-Type"] = "multipart/form-data";
+    }
 
-  if (token) {
-    config.headers["Authorization"] = `Bearer ${token}`;
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  if (data && typeof data === "object" && !(data instanceof FormData)) {
-    config.headers["Content-Type"] = "application/json";
-  } else {
-    config.headers["Content-Type"] = "multipart/form-data";
-  }
-
-  return config;
-}
-
-// ✅ Interceptor จัดการ Response Error
+// ✅ Interceptor จัดการ Response Error (คงเดิม)
 authAxios.interceptors.response.use(
   (response) => response,
   async (error) => {
     try {
       if (!error.response) {
-        console.error("Network Error:", error);
         return Promise.reject(error);
       }
 
-      const { status } = error.response;
+      const { status, data } = error.response;
 
       switch (status) {
         case 400:
           Modal.warning({
-            title: "ມີບາງຢ່າງຜິດພາດ!",
-            content: "ຂໍ້ມູນບໍ່ຖືກຕ້ອງ!",
+            title: t("messages.err"),
+            content: data.message,
             closable: true,
             footer: null,
           });
@@ -86,39 +91,28 @@ authAxios.interceptors.response.use(
   }
 );
 
+// ✅ ปรับปรุง API wrapper โดยไม่ต้องใช้ addHeaders อีกต่อไป
 export const authApi = {
   async post(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return await authAxios.post(
-      url.startsWith("/") ? url : `/${url}`,
-      data,
-      addHeaders(config, data)
-    );
+    return await authAxios.post(url.startsWith("/") ? url : `/${url}`, data, config);
   },
 };
 
 export const api = {
   async get(url: string, config?: AxiosRequestConfig) {
-    return await authAxios.get(url.startsWith("/") ? url : `/${url}`, addHeaders(config));
+    return await authAxios.get(url.startsWith("/") ? url : `/${url}`, config);
   },
 
   async post(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return await authAxios.post(
-      url.startsWith("/") ? url : `/${url}`,
-      data,
-      addHeaders(config, data)
-    );
+    return await authAxios.post(url.startsWith("/") ? url : `/${url}`, data, config);
   },
 
   async put(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return await authAxios.put(
-      url.startsWith("/") ? url : `/${url}`,
-      data,
-      addHeaders(config, data)
-    );
+    return await authAxios.put(url.startsWith("/") ? url : `/${url}`, data, config);
   },
 
   async delete(url: string, config?: AxiosRequestConfig) {
-    return await authAxios.delete(url.startsWith("/") ? url : `/${url}`, addHeaders(config));
+    return await authAxios.delete(url.startsWith("/") ? url : `/${url}`, config);
   },
 };
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Modal } from "ant-design-vue";
+import { Icon } from "@iconify/vue";
 import { defineProps, defineEmits } from "vue";
 
 interface Props {
@@ -15,6 +16,10 @@ interface Props {
   okButtonProps?: Record<string, unknown>;
   cancelButtonProps?: Record<string, unknown>;
   destroyOnClose?: boolean;
+  // Iconify props
+  titleIcon?: string; // Iconify icon name (e.g., "mdi:information")
+  iconColor?: string;
+  iconSize?: number;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -28,6 +33,8 @@ withDefaults(defineProps<Props>(), {
   cancelText: "ຍົກເລີກ",
   okType: "primary",
   destroyOnClose: true,
+  iconColor: "",
+  iconSize: 24,
 });
 
 const emit = defineEmits<{
@@ -48,7 +55,6 @@ const handleCancel = () => {
 
 <template>
   <Modal
-    :title="title"
     :open="visible"
     :centered="centered"
     :closable="closable"
@@ -63,9 +69,36 @@ const handleCancel = () => {
     @ok="handleOk"
     @cancel="handleCancel"
   >
+    <!-- Custom Title with Iconify Icon -->
+    <template #title>
+      <div class="modal-title-with-icon">
+        <Icon
+          v-if="titleIcon"
+          :icon="titleIcon"
+          :color="iconColor"
+          :width="iconSize"
+          :height="iconSize"
+        />
+        <span>{{ title }}</span>
+      </div>
+    </template>
+
+    <!-- Content Slot -->
     <slot></slot>
+
+    <!-- Footer Slot -->
     <template #footer v-if="$slots.footer">
       <slot name="footer"></slot>
     </template>
   </Modal>
 </template>
+
+<style scoped>
+.modal-title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+}
+</style>

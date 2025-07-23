@@ -1,0 +1,31 @@
+{
+  "title": "Unit information",
+  "add": "Add new unit",
+  "header_form": {
+    "add": "Add new unit",
+    "edit": "Update unit",
+    "delete": {
+      "title": "Confirm delete",
+      "content": "Are you sure you want to delete",
+      "description": "This action cannot be undone"
+    }
+  },
+  "placeholder": {
+    "name": "Please enter unit name",
+    "search": "Search by unit name"
+  },
+  "error": {
+    "name": "Please enter unit name"
+  },
+  "field": {
+    "name": "Unit name",
+    "created": "Created At",
+    "updated": "Updated At",
+    "manage": "Manage"
+  },
+  "notify": {
+    "created": "Info created successfully",
+    "updated": "Info updated successfully",
+    "deleted": "Info deleted successfully"
+  }
+}

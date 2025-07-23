@@ -1,0 +1,81 @@
+{
+  "list": {
+    "title": "ຂໍ້ມູນຜູ້ໃຊ້ງານ",
+    "add": "ເພີ່ມຜູ້ໃຊ້ງານ",
+    "search": "ຄົ້ນຫາຜູ້ໃຊ້ງານ...",
+    "username": "ຊື່ຜູ້ໃຊ້",
+    "email": "ອີເມວ",
+    "tel": "ເບີໂທ",
+    "status": "ສະຖານະ",
+    "createdAt": "ວັນທີສ້າງ",
+    "updatedAt": "ວັນທີແກ້ໄຂ",
+    "actions": "ຈັດການ"
+  },
+  "status": {
+    "active": "ໃຊ້ງານຢູ່",
+    "inactive": "ຖືກລຶບແລ້ວ"
+  },
+  "form": {
+    "username": "ຊື່ຜູ້ໃຊ້",
+    "usernamePlaceholder": "ປ້ອນຊື່ຜູ້ໃຊ້",
+    "email": "ອີເມວ",
+    "emailPlaceholder": "ປ້ອນອີເມວ",
+    "password": "ລະຫັດຜ່ານ",
+    "passwordPlaceholder": "ປ້ອນລະຫັດຜ່ານ",
+    "passwordEditPlaceholder": "ປ້ອນລະຫັດຜ່ານໃໝ່ (ປະວ່າງໄວ້ຖ້າບໍ່ຕ້ອງການປ່ຽນ)",
+    "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
+    "confirmPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານອີກຄັ້ງ",
+    "tel": "ເບີໂທ",
+    "telPlaceholder": "ປ້ອນເບີໂທ",
+    "newPassword": "ລະຫັດຜ່ານໃໝ່",
+    "newPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານໃໝ່",
+    "currentPassword": "ລະຫັດຜ່ານປັດຈຸບັນ",
+    "currentPasswordPlaceholder": "ປ້ອນລະຫັດຜ່ານປັດຈຸບັນ",
+    "selectRoles": "ເລືອກບົດບາດ",
+    "roles": "ບົດບາດ",
+    "permissions": "ສິດທິ",
+    "basicInfo": "ຂໍ້ມູນພື້ນຖານຂອງຜູ້ໃຊ້",
+    "selected": "Selected"
+  },
+  "validation": {
+    "usernameRequired": "ກະລຸນາປ້ອນຊື່ຜູ້ໃຊ້ກ່ອນ",
+    "usernameLength": "ຊື່ຜູ້ໃຊ້ຕ້ອງມີຢ່າງນ້ອຍ 3 ຕົວອັກສອນ",
+    "usernamePattern": "ຊື່ຜູ້ໃຊ້ສາມາດມີຕົວອັກສອນ, ຕົວເລກ ແລະ _ ເທົ່ານັ້ນ",
+    "emailRequired": "ກະລຸນາປ້ອນອີເມວກ່ອນ",
+    "emailValid": "ກະລຸນາປ້ອນອີເມວທີ່ຖືກຕ້ອງ",
+    "passwordRequired": "ກະລຸນາປ້ອນລະຫັດຜ່ານກ່ອນ",
+    "passwordLength": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງນ້ອຍ 6 ຕົວອັກສອນ",
+    "confirmPasswordRequired": "ກະລຸນາຢືນຢັນລະຫັດຜ່ານກ່ອນ",
+    "passwordMismatch": "ລະຫັດຜ່ານບໍ່ຕົງກັນ",
+    "telPattern": "ເບີໂທຕ້ອງເປັນຕົວເລກເທົ່ານັ້ນ",
+    "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ",
+    "currentPasswordRequired": "ກະລຸນາປ້ອນລະຫັດຜ່ານປັດຈຸບັນ",
+    "newPasswordRequired": "ກະລຸນາປ້ອນລະຫັດຜ່ານໃໝ່"
+  },
+  "modal": {
+    "create": "ເພີ່ມຜູ້ໃຊ້ງານໃໝ່",
+    "edit": "ແກ້ໄຂຂໍ້ມູນຜູ້ໃຊ້ງານ",
+    "delete": "ລຶບຜູ້ໃຊ້ງານ",
+    "restore": "ກູ້ຄືນຜູ້ໃຊ້ງານ",
+    "deleteConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບຜູ້ໃຊ້ງານ \"{username}\"?",
+    "deleteWarning": "ການດຳເນີນການນີ້ບໍ່ສາມາດຍົກເລີກໄດ້.",
+    "restoreConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການກູ້ຄືນຜູ້ໃຊ້ງານ \"{username}\"?",
+    "resetPassword": "ຣີເຊັດລະຫັດຜ່ານ",
+    "resetPasswordConfirm": "ຣີເຊັດລະຫັດຜ່ານສຳລັບຜູ້ໃຊ້ {username}?"
+  },
+  "success": {
+    "title": "ສຳເລັດ",
+    "created": "ເພີ່ມຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
+    "updated": "ແກ້ໄຂຂໍ້ມູນຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
+    "deleted": "ລຶບຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
+    "restored": "ກູ້ຄືນຜູ້ໃຊ້ງານສຳເລັດແລ້ວ",
+    "passwordReset": "ຣີເຊັດລະຫັດຜ່ານສຳເລັດແລ້ວ"
+  },
+  "error": {
+    "loadFailed": "ບໍ່ສາມາດໂຫລດຂໍ້ມູນຜູ້ໃຊ້ງານໄດ້",
+    "saveFailed": "ບໍ່ສາມາດບັນທຶກຂໍ້ມູນຜູ້ໃຊ້ງານໄດ້",
+    "deleteFailed": "ບໍ່ສາມາດລຶບຜູ້ໃຊ້ງານໄດ້",
+    "restoreFailed": "ບໍ່ສາມາດກູ້ຄືນຜູ້ໃຊ້ງານໄດ້",
+    "passwordResetFailed": "ບໍ່ສາມາດຣີເຊັດລະຫັດຜ່ານໄດ້"
+  }
+}

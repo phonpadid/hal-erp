@@ -1,0 +1,60 @@
+{
+  "list": {
+    "title": "ຈັດການບັນຊີທະນາຄານຂອງຜູ້ຈັດຊື້",
+    "search": "ຄົ້ນຫາ...",
+    "add": "ເພີ່ມບັນຊີທະນາຄານ"
+  },
+  "modal": {
+    "title": "ເພີ່ມບັນຊີທະນາຄານ",
+    "editTitle": "ແກ້ໄຂບັນຊີທະນາຄານ",
+    "deleteTitle": "ລຶບບັນຊີ",
+    "deleteMessage": "ແນ່ໃຈແລ້ວແທ້ ທ່ານຕ້ອງການລຶບ ບັນຊີ ນີ້ ຫາ?",
+    "deleteSuccess": "Successfully deleted bank account"
+  },
+  "success": {
+    "title": "ສຳເລັດ",
+    "updated": "ອັບເດດບັນຊີທະນາຄານ ສຳເລັດ",
+    "created": "ເພີ່ມບັນຊີທະນາຄານ ສຳເລັດ",
+    "deleted": "ລຶບບັນຊີທະນາຄານ ສຳເລັດ"
+  },
+
+  "status": {
+    "active": "ເປີດໃຊ້ງານ",
+    "inactive": "ປິດໃຊ້ງານ"
+  },
+  "form": {
+    "vendor": "ຜູ້ສະໜອງ",
+    "vendorPlaceholder": "ເລືອກຜູ້ສະໜອງ",
+    "currency": "ສະກຸນເງິນ",
+    "currencyPlaceholder": "ເລືອກສະກຸນເງິນ",
+    "bankName": "ຊື່ທະນາຄານ",
+    "bankNamePlaceholder": "ປ້ອນຊື່ທະນາຄານ",
+    "accountName": "ຊື່ບັນຊີ",
+    "accountNamePlaceholder": "ປ້ອນຊື່ບັນຊີ",
+    "accountNumber": "ເລກບັນຊີ",
+    "accountNumberPlaceholder": "ປ້ອນເລກບັນຊີ",
+    "isSelected": "ເລືອກໃຊ້"
+  },
+  "validation": {
+    "vendorRequired": "ກະລຸນາເລືອກຜູ້ສະໜອງ",
+    "currencyRequired": "ກະລຸນາເລືອກສະກຸນເງິນ",
+    "bankNameRequired": "ກະລຸນາປ້ອນຊື່ທະນາຄານ",
+    "bankNameMax": "ຊື່ທະນາຄານບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
+    "accountNameRequired": "ກະລຸນາປ້ອນຊື່ບັນຊີ",
+    "accountNameMax": "ຊື່ບັນຊີບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
+    "accountNumberRequired": "ກະລຸນາປ້ອນເລກບັນຊີ",
+    "accountNumberFormat": "ເລກບັນຊີຕ້ອງເປັນຕົວເລກເທົ່ານັ້ນ",
+    "accountNumberMax": "ເລກບັນຊີບໍ່ສາມາດເກີນ 20 ຕົວເລກ"
+  },
+  "table": {
+    "vendor": "ຜູ້ສະໜອງ",
+    "currency": "ສະກຸນເງິນ",
+    "bankName": "ຊື່ທະນາຄານ",
+    "accountName": "ຊື່ບັນຊີ",
+    "accountNumber": "ເລກບັນຊີ",
+    "isSelected": "ເລືອກໃຊ້",
+    "createdAt": "ເວລາສ້າງ",
+    "updatedAt": "ເວລາອັບເດດ",
+    "actions": "ຈັດການ"
+  }
+}

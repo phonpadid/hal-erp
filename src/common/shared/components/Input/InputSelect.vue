@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from "vue";
+import { defineProps, defineEmits, computed } from "vue";
 import type { PropType } from "vue";
 
-defineProps({
+const props = defineProps({
   modelValue: {
     type: [String, Number, null] as PropType<string | number | null>,
-    default: null, // Default value set to null
+    default: null,
   },
   options: {
     type: Array as PropType<{ label: string; value: string | number }[]>,
@@ -13,7 +13,7 @@ defineProps({
   },
   placeholder: {
     type: String,
-    default: "Please select",
+    default: "ກະລູນາເລືອກຂໍ້ມູນ",
   },
   width: {
     type: String,
@@ -23,26 +23,44 @@ defineProps({
     type: String as PropType<"large" | "middle" | "small">,
     default: "middle",
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["update:modelValue", "change"]);
 
-function onChange(value: string | number) {
-  emit("update:modelValue", value);
-  emit("change", value);
+// Compute a safe value - ensure empty string is represented as null
+const safeValue = computed(() => {
+  return props.modelValue === "" ? null : props.modelValue;
+});
+
+function onChange(value: string | number | null) {
+  // Ensure empty string is converted to null
+  const newValue = value === "" ? null : value;
+  emit("update:modelValue", newValue);
+  emit("change", newValue);
 }
 </script>
 
 <template>
   <a-select
-    :value="modelValue"
+    :value="safeValue"
     @change="onChange"
     :placeholder="placeholder"
     :style="{ width }"
     :size="size"
+    :loading="loading"
+    :disabled="disabled"
     allow-clear
     :dropdown-match-select-width="false"
     class="custom-select"
+    show-search
   >
     <a-select-option
       v-for="option in options"
@@ -56,13 +74,11 @@ function onChange(value: string | number) {
 </template>
 
 <style scoped>
-/* ปรับแต่ง dropdown ให้กว้างขึ้น และรองรับข้อความยาว */
 :deep(.ant-select-dropdown) {
   min-width: 200px !important;
   max-width: 400px !important;
 }
 
-/* ปรับแต่งตัวเลือกให้แสดงข้อความยาวได้ */
 :deep(.ant-select-item) {
   white-space: normal !important;
   height: auto !important;
@@ -75,19 +91,16 @@ function onChange(value: string | number) {
   line-height: 1.4 !important;
 }
 
-/* สำหรับตัว select เมื่อเลือกแล้ว */
 :deep(.ant-select-selection-item) {
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
 
-/* เพิ่ม hover effect */
 :deep(.ant-select-item:hover) {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
-/* ปรับความสูงของแต่ละ option ให้พอดีกับเนื้อหา */
 :deep(.ant-select-item-option) {
   min-height: 32px;
   height: auto !important;

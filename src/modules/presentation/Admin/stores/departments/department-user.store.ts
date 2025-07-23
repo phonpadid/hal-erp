@@ -6,10 +6,19 @@ import { ApiDepartmentUserRepository } from "@/modules/infrastructure/department
 import { DepartmentUserEntity } from "@/modules/domain/entities/departments/department-user.entity";
 import { DepartmentUserServiceImpl } from "@/modules/application/services/departments/department-user.service";
 import type { CreateDepartmentUserDTO, UpdateDepartmentUserDTO } from "@/modules/application/dtos/departments/department-user.dto";
+
 export const dpmUserFormModel = reactive({
-  user_id: "",
+  id: "",
+  userId: "",
+  username: "",
+  email: "",
+  password: "",
+  tel: "",
+  confirm_password: "",
   position_id: "",
-  department_id: "",
+  departmentId: "",
+  roleIds: [] as number[],
+  permissionIds: [] as number[],
   signature_file: null as File | string | null,
 })
 // สร้าง unit service
@@ -33,7 +42,11 @@ export const departmenUsertStore = defineStore("department-user", () => {
     total: 0,
     totalPages: 0,
   });
-
+  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
+    pagination.value.page = newPagination.page;
+    pagination.value.limit = newPagination.limit;
+    pagination.value.total = newPagination.total;
+  };
   // Getters
   const activeDepartmentUser = computed(() => departmentUser.value.filter((dpm) => !dpm.isDeleted()));
   const deletedDepartmentUser = computed(() => departmentUser.value.filter((dpm) => dpm.isDeleted()));
@@ -69,6 +82,7 @@ export const departmenUsertStore = defineStore("department-user", () => {
     try {
       const result = await departmentUserService.getAllDepartmentUser(params, includeDeleted);
       departmentUser.value = result.data;
+
       pagination.value = {
         page: result.page,
         limit: result.limit,
@@ -107,7 +121,6 @@ export const departmenUsertStore = defineStore("department-user", () => {
 
     try {
       const updatedDpm = await departmentUserService.updateDepartmentUser(input.id, input);
-
       // Update units list if it's loaded
       if (departmentUser.value.length > 0) {
         const index = departmentUser.value.findIndex((u) => u.getId() === input.id);
@@ -120,8 +133,7 @@ export const departmenUsertStore = defineStore("department-user", () => {
       if (currentDpmUser.value && currentDpmUser.value.getId() === input.id) {
         currentDpmUser.value = updatedDpm;
       }
-
-      return currentDpmUser;
+      return currentDpmUser.value;
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -144,13 +156,23 @@ export const departmenUsertStore = defineStore("department-user", () => {
         if (index !== -1) {
           // Mark as deleted in the local array
           const deletedDpmUser = departmentUser.value[index];
+          const user = deletedDpmUser.getUser();
+          if (!user) return;
           // Here we're simulating a soft delete by manually updating the unit status
           departmentUser.value[index] = new DepartmentUserEntity(
             deletedDpmUser.getId(),
-            deletedDpmUser.getUser_id(),
             deletedDpmUser.getPosition_id(),
-            deletedDpmUser.getdepartment_id(),
             deletedDpmUser.getSignature_file(),
+            '',
+            deletedDpmUser.getDepartmentId(),
+            deletedDpmUser.getPermissionIds(),
+            deletedDpmUser.getRoleIds(),
+
+            deletedDpmUser.getDepartment(),
+            deletedDpmUser.getPostion(),
+            user,
+            deletedDpmUser.getRoles(),
+            deletedDpmUser.getPermissions(),
             deletedDpmUser.getCreatedAt(),
             new Date(),
             new Date()
@@ -179,12 +201,20 @@ export const departmenUsertStore = defineStore("department-user", () => {
       totalPages: 0,
     };
   };
+ // In your department-user.store.ts
 const resetForm = () => {
-  dpmUserFormModel.user_id = "",
-  dpmUserFormModel.position_id = "",
-  dpmUserFormModel.department_id = "",
-  dpmUserFormModel.signature_file = null
-}
+  dpmUserFormModel.userId = "";
+  dpmUserFormModel.username = "";
+  dpmUserFormModel.email = "";
+  dpmUserFormModel.tel = "";
+  dpmUserFormModel.password = "";
+  dpmUserFormModel.confirm_password = "";
+  dpmUserFormModel.position_id = "";
+  dpmUserFormModel.departmentId = "";
+  dpmUserFormModel.signature_file = null;
+  dpmUserFormModel.permissionIds = [];
+  dpmUserFormModel.roleIds = [];
+};
   return {
     // State
     departmentUser,
@@ -192,7 +222,7 @@ const resetForm = () => {
     loading,
     error,
     pagination,
-
+    setPagination,
     // Getters
     activeDepartmentUser,
     deletedDepartmentUser,

@@ -4,7 +4,7 @@ import DepartmentUser from "../../components/departments/department-user/Departm
 
 export const departmentUserRoutes: RouteRecordRaw[] = [
   {
-    path: "/department_user",
+    path: "/department-user",
     name: "department_user.index",
     component: DepartmentUserView,
     meta: {

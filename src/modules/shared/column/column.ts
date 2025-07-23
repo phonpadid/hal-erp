@@ -3,4 +3,7 @@ export interface Column {
   dataIndex: string;
   key: string;
   align?: string;
+  scopedSlots?: {
+    customRender: string;
+  };
 }

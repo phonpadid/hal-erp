@@ -1,0 +1,22 @@
+{
+  "list": {
+    "title": "ລາຍການ Permissions",
+    "add": "ເພີມ Permission",
+    "search": "ຄົ້ນຫາ permission...",
+    "permissionname": "ຊື່ການອານຸຍາດ",
+    "displayName": "ຊື່ສະແດງ",
+    "createdAt": "ວັນທີສ້າງ",
+    "updatedAt": "ວັນທີອັບເດດ",
+    "actions": "Actions",
+    "status": "Status"
+  },
+  "title": "ການອະນຸຍາດ",
+  "assignPermissions": "ກຳນົດສິດການເຂົ້າເຖິງ",
+  "module": "ໂມດູລ",
+  "action": "ການກະທຳ",
+  "description": "ຄຳອະທິບາຍ",
+  "selectAll": "ເລືອກທັງໝົດ",
+  "selectNone": "ຍົກເລີກທັງໝົດ",
+  "saveSuccess": "ບັນທຶກສິດການເຂົ້າເຖິງສຳເລັດແລ້ວ",
+  "saveFailed": "ບໍ່ສາມາດບັນທຶກສິດການເຂົ້າເຖິງໄດ້"
+}
