@@ -1,9 +1,9 @@
 {
-  "title": "Unit Information",
-  "add": "Add new unit",
+  "title": "Bank Information",
+  "add": "Add new bank",
   "header_form": {
-    "add": "Add new unit",
-    "edit": "Update unit",
+    "add": "Add new bank",
+    "edit": "Update bank",
     "delete": {
       "title": "Confirm delete",
       "content": "Are you sure you want to delete",
@@ -11,14 +11,14 @@
     }
   },
   "placeholder": {
-    "name": "Please enter unit name",
-    "search": "Search by unit name"
+    "name": "Please enter bank name",
+    "search": "Search by bank name"
   },
   "error": {
-    "name": "Please enter unit name"
+    "name": "Please enter bank name"
   },
   "field": {
-    "name": "Unit name",
+    "name": "Bank name",
     "created": "Created At",
     "updated": "Updated At",
     "manage": "Manage"
