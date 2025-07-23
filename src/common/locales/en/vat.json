@@ -1,9 +1,9 @@
 {
-  "title": "Unit Information",
-  "add": "Add new unit",
+  "title": "VAT Information",
+  "add": "Add new VAT",
   "header_form": {
-    "add": "Add new unit",
-    "edit": "Update unit",
+    "add": "Add new VAT",
+    "edit": "Update VAT",
     "delete": {
       "title": "Confirm delete",
       "content": "Are you sure you want to delete",
@@ -11,14 +11,14 @@
     }
   },
   "placeholder": {
-    "name": "Please enter unit name",
-    "search": "Search by unit name"
+    "name": "Please enter VAT name",
+    "search": "Search by VAT name"
   },
   "error": {
-    "name": "Please enter unit name"
+    "name": "Please enter VAT name"
   },
   "field": {
-    "name": "Unit name",
+    "name": "VAT name",
     "created": "Created At",
     "updated": "Updated At",
     "manage": "Manage"
