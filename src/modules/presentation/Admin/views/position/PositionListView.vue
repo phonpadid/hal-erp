@@ -62,8 +62,8 @@ const loadPositions = async (): Promise<void> => {
 
 const handleTableChange = async (pagination: any) => {
   positionStore.setPagination({
-    page: pagination.current | 1,
-    limit: pagination.pageSize,
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
     total: pagination.total,
   });
   await loadPositions();

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-// import { useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import type { ButtonType } from "@/modules/shared/buttonType";
 // import { useI18n } from "vue-i18n";
 
@@ -13,7 +13,7 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 
 /********************************************************* */
 // const { t } = useI18n();
-// const router = useRouter();
+const router = useRouter();
 
 // State for Drawer
 const visible = ref(false);
@@ -37,7 +37,8 @@ const customButtons = [
       // Logic to create and sign
       console.log("Purpose:", purpose.value);
       console.log("Remark:", remark.value);
-      // router.push({ name: "some-route" });
+
+      router.push({ name: "review-money-success" });
     },
   },
   {

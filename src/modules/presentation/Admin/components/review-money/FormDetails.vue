@@ -1,44 +1,25 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
-import { nextTick, ref } from "vue";
+import {  ref } from "vue";
 import { columnsDetailsDirector } from "../../views/director/column/columnDetails";
 import { useI18n } from "vue-i18n";
-import { useNotification } from "@/modules/shared/utils/useNotification";
 import { directorData } from "@/modules/shared/utils/dataDirector";
-import { Icon } from "@iconify/vue";
 import { useRouter } from "vue-router";
-import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
-import Textarea from "@/common/shared/components/Input/Textarea.vue";
-import UiModal from "@/common/shared/components/Modal/UiModal.vue";
+
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderShowDrawer from "../purchase/purchase_orders/PurchaseOrderShowDrawer.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
-// import FormSucess from "./FormSucess.vue";
 
 /********************************************************* */
 const { t } = useI18n();
-const { success, error } = useNotification();
 const router = useRouter();
-const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
-const rejectReason = ref("");
-const confirmLoading = ref(false);
 const visible = ref(false);
 const showDrawer = () => {
   visible.value = true;
 };
-const showApprovalSuccess = ref(false);
-const otpValue = ref<string[]>(Array(6).fill(""));
-const otpInputRefs = ref<any[]>([]);
-const currentStep = ref(0);
-const isOtpModalVisible = ref(false);
-const isSignatureModalVisible = ref(false);
-const isSuccessModalVisible = ref(false);
-const signatureData = ref("");
-
 // Custom buttons for header
 const customButtons = [
   {
@@ -59,39 +40,6 @@ const customButtons = [
     },
   },
 ];
-
-const userInfo = {
-  name: "ນາງ ປາກາລີ ລາຊະບູລີ",
-  department: "ພະແນກໄອທີ, ພະບໍລິມາດ",
-};
-// Handle approve
-const handleApprove = async () => {
-  try {
-    confirmLoading.value = true;
-    // Your approve logic here
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    isApproveModalVisible.value = false;
-  } finally {
-    confirmLoading.value = false;
-  }
-};
-
-// Handle reject
-const handleReject = async () => {
-  try {
-    if (!rejectReason.value.trim()) {
-      return;
-    }
-    confirmLoading.value = true;
-    // Your reject logic here
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-    isRejectModalVisible.value = false;
-    rejectReason.value = "";
-  } finally {
-    confirmLoading.value = false;
-  }
-};
-
 // Document details
 const documentDetails = {
   requester: {
@@ -125,138 +73,12 @@ const signatures = [
     signature: "/public/2.png",
   },
 ];
-// OTP
-const handleOtpInput = (value: string, index: number) => {
-  const numericValue = value.replace(/[^0-9]/g, "");
-  if (numericValue) {
-    otpValue.value[index] = numericValue[0];
-    if (index < 5) {
-      nextTick(() => {
-        const nextInput = otpInputRefs.value[index + 1];
-        if (nextInput) {
-          const inputElement = nextInput.$el.querySelector("input") || nextInput.$el;
-          inputElement?.focus();
-        }
-      });
-    }
-  } else {
-    otpValue.value[index] = "";
-  }
-};
-//************************************* */
-const handleOtpKeydown = (event: KeyboardEvent, index: number) => {
-  if (event.key === "Backspace" && !otpValue.value[index]) {
-    event.preventDefault();
-    if (index > 0) {
-      nextTick(() => {
-        const prevInput = otpInputRefs.value[index - 1];
-        if (prevInput) {
-          const inputElement = prevInput.$el.querySelector("input") || prevInput.$el;
-          inputElement?.focus();
-          otpValue.value[index - 1] = "";
-        }
-      });
-    }
-  }
-  if (
-    !/^\d$/.test(event.key) &&
-    !["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight"].includes(event.key)
-  ) {
-    event.preventDefault();
-  }
-};
-/********************************************************** */
-const handlePaste = (event: ClipboardEvent) => {
-  event.preventDefault();
-  const pastedData = event.clipboardData?.getData("text").replace(/[^0-9]/g, "");
-  if (pastedData) {
-    const digits = pastedData.split("").slice(0, 6);
-    digits.forEach((digit, index) => {
-      if (index < 6) {
-        otpValue.value[index] = digit;
-      }
-    });
-    const nextIndex = Math.min(digits.length, 5);
-    nextTick(() => {
-      const nextInput = otpInputRefs.value[nextIndex];
-      if (nextInput) {
-        const inputElement = nextInput.$el.querySelector("input") || nextInput.$el;
-        inputElement?.focus();
-      }
-    });
-  }
-};
-/********************************************************** */
-const handleOtpConfirm = async () => {
-  try {
-    confirmLoading.value = true;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    isOtpModalVisible.value = false;
-    isSignatureModalVisible.value = true;
-  } catch (err) {
-    console.error(err);
-    error("ການຢືນຢັນ OTP ລົ້ມເຫລວ");
-  } finally {
-    confirmLoading.value = false;
-    otpValue.value = Array(6).fill("");
-  }
-};
-
-// Handle signature confirmation
-const handleSignatureConfirm = async () => {
-  try {
-    confirmLoading.value = true;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    isSignatureModalVisible.value = false;
-    isSuccessModalVisible.value = true;
-    // currentStep.value = 1;
-    success("ການຢືນຢັນສຳເລັດ");
-  } catch (err) {
-    console.error(err);
-    error("ການຢືນຢັນລາຍເຊັນລົ້ມເຫລວ");
-  } finally {
-    confirmLoading.value = false;
-  }
-};
-const handleSuccessConfirm = async () => {
-  try {
-    confirmLoading.value = true;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    isSuccessModalVisible.value = false;
-    success("ການຢືນຢັນສຳເລັດ");
-    currentStep.value = 1;
-    showApprovalSuccess.value = true;
-  } catch (err) {
-    console.error(err);
-    error("ການຢືນຢັນລາຍເຊັນລົ້ມເຫລວ");
-  } finally {
-    confirmLoading.value = false;
-  }
-};
-/******************************************************* */
-const setOtpInputRef = (el: any, index: number) => {
-  if (el) {
-    otpInputRefs.value[index] = el;
-  }
-};
-/********************************** */
-const handleModalCancel = () => {
-  isOtpModalVisible.value = false;
-  isSignatureModalVisible.value = false;
-  isSuccessModalVisible.value = false;
-  otpValue.value = Array(6).fill("");
-  signatureData.value = "";
-};
 </script>
 
 <template>
   <div class="mt-10">
-    <!-- Document Details -->
-    <div v-if="showApprovalSuccess">
-      <FormSucess />
-    </div>
     <!-- Header Component -->
-    <div v-else>
+    <div>
       <!-- Header component -->
       <header-component
         header-title="ອະນຸມັດຈັດຊື້"
@@ -430,177 +252,7 @@ const handleModalCancel = () => {
       </div>
     </div>
   </div>
-  <!-- Approve Modal -->
-  <UiModal
-    title="ປະຕິເສດ"
-    :visible="isApproveModalVisible"
-    :confirm-loading="confirmLoading"
-    @update:visible="isApproveModalVisible = false"
-    @ok="handleApprove"
-  >
-    <p>ທ່ານຕ້ອງການຢືນຢັນຄຳຂໍຈັດຊື້ ແທ້ ຫຼື ບໍ່?</p>
-    <template #footer>
-      <div class="flex">
-        <UiButton @click="isApproveModalVisible = false" type="default" color-class="w-full"
-          >ຍົກເລີກ</UiButton
-        >
-        <UiButton
-          @click="handleReject"
-          type="primary"
-          :loading="confirmLoading"
-          color-class="w-full"
-          >ຢືນຢັນ</UiButton
-        >
-      </div>
-    </template>
-  </UiModal>
-  <!-- OTP -->
-  <UiModal
-    title="ລາຍເຊັນ"
-    title-icon="material-symbols-light:signature"
-    :visible="isOtpModalVisible"
-    :confirm-loading="confirmLoading"
-    @update:visible="isOtpModalVisible = $event"
-    @ok="handleOtpConfirm"
-    @cancel="handleModalCancel"
-  >
-    <div class="p-4">
-      <div>
-        <p>{{ userInfo.name }} {{ userInfo.department }}</p>
-      </div>
-      <div>
-        <p class="text-gray-950 text-xl">ກວດສອບຂໍ້ຄວາມ</p>
-        <p class="text-sm text-gray-500 mb-4">
-          ລະຫັດຢືນຢັນ 6 ຕົວ ໄດ້ສົ່ງໄປທີ່ເບີໂທລະສັບ +856 20 5555 5555
-        </p>
-        <!-- OTP Input -->
-        <div class="flex justify-center gap-2">
-          <template v-for="i in 6" :key="i">
-            <UiInput
-              :ref="(el) => setOtpInputRef(el, i - 1)"
-              v-model="otpValue[i - 1]"
-              class="w-12 h-12 text-center text-xl"
-              :maxlength="1"
-              type="text"
-              pattern="[0-9]*"
-              inputmode="numeric"
-              @input="(value) => handleOtpInput(value, i - 1)"
-              @keydown="(event) => handleOtpKeydown(event, i - 1)"
-              @paste="handlePaste"
-            />
-          </template>
-        </div>
-      </div>
 
-      <div class="text-center">
-        <p class="text-sm text-gray-500">
-          ບໍ່ໄດ້ຮັບລະຫັດ?
-          <a-button type="link" class="p-0">ສົ່ງອີກຄັ້ງ</a-button>
-        </p>
-      </div>
-    </div>
-    <template #footer>
-      <div class="flex">
-        <UiButton
-          @click="handleOtpConfirm"
-          type="primary"
-          :loading="confirmLoading"
-          color-class="w-full"
-          >ຢືນຢັນ</UiButton
-        >
-      </div>
-    </template>
-  </UiModal>
-  <!-- OTP -->
-  <!-- Signature Modal -->
-  <UiModal
-    title="ລາຍເຊັນ"
-    title-icon="material-symbols-light:signature"
-    :visible="isSignatureModalVisible"
-    :confirm-loading="confirmLoading"
-    @update:visible="isSignatureModalVisible = $event"
-    @ok="handleSignatureConfirm"
-    @cancel="handleModalCancel"
-  >
-    <div>
-      <div>
-        <p>{{ userInfo.name }} {{ userInfo.department }}</p>
-      </div>
-
-      <div>
-        <p class="text-xl font-bold">ລາຍເຊັນ</p>
-        <p>ລາຍເຊັນຂອງທ່ານຈະຖືກນຳໃຊ້ໃນການຢືນຢັນເອກະສານ</p>
-
-        <!-- Signature Pad -->
-        <div class="flex justify-center w-full">
-          <img src="/public/2.png" class="w-52" />
-        </div>
-      </div>
-    </div>
-    <template #footer>
-      <div class="flex">
-        <UiButton
-          @click="handleSignatureConfirm"
-          type="primary"
-          :loading="confirmLoading"
-          color-class="w-full"
-          >ຢືນຢັນ</UiButton
-        >
-      </div>
-    </template>
-  </UiModal>
-  <!-- Success Modal -->
-  <UiModal
-    title=""
-    :visible="isSuccessModalVisible"
-    :confirm-loading="confirmLoading"
-    @update:visible="isSuccessModalVisible = $event"
-    @ok="handleSuccessConfirm"
-    @cancel="handleModalCancel"
-  >
-    <div>
-      <div>
-        <Icon icon="mdi:check-decagram" class="text-green-500 text-6xl mx-auto mt-4" />
-        <p>ອະນຸມັດສຳເລັດ</p>
-        <span
-          >ອະນຸມັດຄຳຂໍຈັດຊື້ຂອງທ່ານສຳເລັດ ຂໍ້ມູນຈະຖືກສົ່ງໄປຫາພະແນກການເງິນເພື່ອອະນຸມັດຂໍ້ມູນ</span
-        >
-      </div>
-    </div>
-    <template #footer>
-      <div class="flex">
-        <UiButton
-          @click="handleSuccessConfirm"
-          type="primary"
-          :loading="confirmLoading"
-          color-class="w-full"
-          >ຢືນຢັນ</UiButton
-        >
-      </div>
-    </template>
-  </UiModal>
-
-  <!-- Reject Modal -->
-  <UiModal
-    title="ປະຕິເສດ"
-    :visible="isRejectModalVisible"
-    :confirm-loading="confirmLoading"
-    @update:visible="isRejectModalVisible = false"
-    @ok="handleReject"
-  >
-    <div class="space-y-4">
-      <p>ໃສ່ເຫດຜົນໃນການປະຕິເສດ</p>
-      <div>
-        <p class="mb-2 font-semibold">ເຫດຜົນ</p>
-        <Textarea :modelValue="rejectReason" placeholder="ປ້ອນເຫດຜົນ" :rows="4" />
-      </div>
-    </div>
-    <template #footer>
-      <UiButton @click="handleReject" type="primary" :loading="confirmLoading" color-class="w-full"
-        >ຢືນຢັນ</UiButton
-      >
-    </template>
-  </UiModal>
   <UiDrawer
     v-model:open="visible"
     title="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ - ເລກທີ 0044/ຈຊນ.ນວ/ບຫ - ວັນທີ 26 ມີນາ 2025"

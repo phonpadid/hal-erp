@@ -112,7 +112,7 @@ const columns = [
       :action-buttons="customButtons"
     />
 
-    <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+    <div id="printable-content" class="bg-white rounded-lg shadow-sm p-6 mt-6">
       <div class="mb-6">
         <h3 class="text-base font-semibold mb-2">ຈາກຝ່າຍງານ</h3>
         <div class="flex items-center gap-3">
@@ -196,24 +196,38 @@ const columns = [
       </div>
 
       <div>
-        <h3 class="text-base font-semibold mb-2">ເອກະສານທີ່ຕິດຄັດ</h3>
-        <div class="space-y-2">
-          <div
+        <span>ເອກະສານທີຕິດຂັດ</span>
+        <div class="flex items-center gap-2 mt-2">
+          <HeaderComponent
+            header-title="ໃບສະເໜີຂໍ້ຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ"
+            header-title-color="blue-600"
+            prefix-icon="mdi:file-document-outline"
+            suffix-icon="mdi:arrow-top-right"
+            prefix-icon-class="text-blue-500"
+            suffix-icon-class="text-blue-500"
+            :suffix-icon-clickable="true"
+            :show-document-date="false"
+            :show-document-number="false"
+            :show-document-prefix="false"
+            :show-breadcrumb="false"
+            class="cursor-pointer"
             @click="showDrawer"
-            class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
-          >
-            <span class="icon-[mdi--file-document-outline] text-blue-600 text-xl mr-3"></span>
-            <span class="text-blue-600 font-medium">ໃບສະເໜີຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ</span>
-            <span class="icon-[mdi--arrow-top-right] text-blue-600 ml-auto"></span>
-          </div>
-          <div
+          />
+          <HeaderComponent
+            header-title="ໃບອະນຸມັດຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ"
+            header-title-color="blue-600"
+            prefix-icon="mdi:file-document-outline"
+            suffix-icon="mdi:arrow-top-right"
+            prefix-icon-class="text-blue-500"
+            suffix-icon-class="text-blue-500"
+            :suffix-icon-clickable="true"
+            :show-document-date="false"
+            :show-document-number="false"
+            :show-document-prefix="false"
+            :show-breadcrumb="false"
+            class="cursor-pointer"
             @click="showDrawer"
-            class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
-          >
-            <span class="icon-[mdi--file-document-outline] text-blue-600 text-xl mr-3"></span>
-            <span class="text-blue-600 font-medium">ໃບສະເໜີຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ</span>
-            <span class="icon-[mdi--arrow-top-right] text-blue-600 ml-auto"></span>
-          </div>
+          />
         </div>
       </div>
     </div>
@@ -224,6 +238,35 @@ const columns = [
   </UiDrawer>
 </template>
 
-<style scoped>
-/* Scoped styles can be added here if necessary */
+<style>
+@media print {
+  /* ซ่อนทุกอย่างใน body ก่อน */
+  body * {
+    visibility: hidden;
+  }
+
+  /* ยกเว้นส่วนที่ต้องการพิมพ์ ให้แสดงผล */
+  #printable-content,
+  #printable-content * {
+    visibility: visible;
+  }
+
+  /* จัดตำแหน่งเนื้อหาที่พิมพ์ให้อยู่มุมซ้ายบนและเต็มหน้า */
+  #printable-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 15px;
+    box-shadow: none;
+    border: none;
+  }
+
+  /* อาจจะต้องซ่อน Drawer เพิ่มเติม เพื่อความแน่นอน */
+  .ant-drawer-mask,
+  .ant-drawer-content-wrapper {
+    display: none !important;
+  }
+}
 </style>
