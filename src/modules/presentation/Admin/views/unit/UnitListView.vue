@@ -60,8 +60,8 @@ const loadUnits = async (): Promise<void> => {
 
 const handleTableChange = async (pagination: any) => {
   unitStore.setPagination({
-    page: pagination.current | 1,
-    limit: pagination.pageSize,
+     page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
     total: pagination.total,
   })
   await loadUnits();
@@ -166,7 +166,7 @@ const handleDelete = async (): Promise<void> => {
   <div class="unit-list-container p-6">
     <div class="mb-6 gap-4">
       <h1 class="text-2xl font-semibold">
-        {{ t("categories.title") }}
+        {{ t("units.title") }}
       </h1>
       <div class="flex justify-between gap-20">
         <div class="w-[20rem]">

@@ -1,5 +1,6 @@
 // budget-item-details.entities.ts
 export class BudGetItemDetailsEntity {
+  [x: string]: any;
   private id: string;
   private name: string;
   private budget_item_id: string;

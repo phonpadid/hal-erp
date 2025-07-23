@@ -32,8 +32,8 @@ export const useUnitStore = defineStore("unit", () => {
   const totalDeletedUnits = computed(() => deletedUnits.value.length);
 
   const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
-    pagination.value.page = newPagination.page;
-    pagination.value.limit = newPagination.limit;
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
     pagination.value.total = newPagination.total;
   };
 
