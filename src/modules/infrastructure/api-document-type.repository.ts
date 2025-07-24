@@ -26,12 +26,13 @@ export class ApiDocumentTypeRepository implements DocumentTypeRepository {
           include_deleted: includeDeleted,
         },
       });
+
       return {
         data: response.data.data.map((documentType: unknown) => this.toDomainModel(documentType)),
-        total: response.data.total,
-        page: response.data.page,
-        limit: response.data.limit,
-        totalPages: Math.ceil(response.data.total / response.data.limit),
+        total: response.data.pagination.total,
+        page: response.data.pagination.page,
+        limit: response.data.pagination.limit,
+        totalPages: response.data.pagination.total_pages,
       };
     } catch (error) {
       this.handleApiError(error, "Failed to fetch document types list");
@@ -82,6 +83,15 @@ export class ApiDocumentTypeRepository implements DocumentTypeRepository {
       const response = await api.put(`${this.baseUrl}/${id}`, documentTypeData);
       return this.toDomainModel(response.data.data);
     } catch (error) {
+      // const axiosError = error as AxiosError;
+      // console.log(
+      //   `Error updating document type with id '${id}':`,
+      //   axiosError.response?.data &&
+      //     typeof axiosError.response.data === "object" &&
+      //     "message" in axiosError.response.data
+      //     ? (axiosError.response.data as { message?: string }).message
+      //     : undefined
+      // );
       this.handleApiError(error, `Failed to update document type with id ${id}`);
     }
   }
@@ -111,10 +121,9 @@ export class ApiDocumentTypeRepository implements DocumentTypeRepository {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
 
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`

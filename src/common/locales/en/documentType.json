@@ -44,6 +44,7 @@
     "deleted": "Document type deleted successfully"
   },
   "error": {
+    "title": "Error",
     "loadFailed": "Failed to load document types",
     "createFailed": "Failed to create document type",
     "updateFailed": "Failed to update document type",

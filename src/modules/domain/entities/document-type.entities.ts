@@ -1,3 +1,5 @@
+import { formatDate } from "@/modules/shared/formatdate";
+
 export class DocumentTypeEntity {
   private id: string;
   private name: string;
@@ -17,9 +19,9 @@ export class DocumentTypeEntity {
     this.id = id;
     this.name = name;
     this.code = code;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-    this.deletedAt = deletedAt;
+    this.createdAt = formatDate(createdAt);
+    this.updatedAt = formatDate(updatedAt);
+    this.deletedAt = deletedAt !== null ? formatDate(deletedAt) : null;
   }
 
   public getId(): string {
