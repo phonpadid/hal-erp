@@ -49,6 +49,7 @@ const loadDpm = async (): Promise<void> => {
       const result = await dpmStore.fetchDepartment({
         page: dpmStore.pagination.page,
         limit: dpmStore.pagination.limit,
+        search: search.value,
       });
 
       department.value = result.data.map((dpm: DepartmentEntity) => {
@@ -94,7 +95,7 @@ const handleSearch = async () => {
     // Optional: Update pagination
     dpmStore.setPagination({
       page: 1,
-      limit: dpmStore.pagination.limit,
+      limit: dpmStore.pagination.limit || 10,
       total: dpmStore.pagination.total,
     });
   } catch (error) {
@@ -187,8 +188,8 @@ const handleDelete = async (): Promise<void> => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleTableChange = async (pagination: any) => {
   dpmStore.setPagination({
-    page: pagination.current | 1,
-    limit: pagination.pageSize,
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
     total: pagination.total,
   });
   await loadDpm();

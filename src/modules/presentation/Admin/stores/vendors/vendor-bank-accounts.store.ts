@@ -57,13 +57,6 @@ export const useVendorBankAccountStore = defineStore("vendor-bank-account", () =
         total: result.total,
         totalPages: result.totalPages,
       };
-      return {
-        data: result.data.map(bankAccountEntityToInterface),
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -195,10 +188,16 @@ export const useVendorBankAccountStore = defineStore("vendor-bank-account", () =
     error.value = null;
     pagination.value = {
       page: 1,
-      limit: 10,
+      limit: 1,
       total: 0,
       totalPages: 0,
     };
+  };
+
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
+    pagination.value.total = newPagination.total;
   };
 
   return {
@@ -208,6 +207,7 @@ export const useVendorBankAccountStore = defineStore("vendor-bank-account", () =
     loading,
     error,
     pagination,
+    setPagination,
 
     // Getters
     activeBankAccounts,

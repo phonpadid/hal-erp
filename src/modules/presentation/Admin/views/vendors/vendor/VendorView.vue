@@ -1,37 +1,26 @@
-<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-/**
- * Vendor List Component
- * @created 2025-05-29 07:19:46
- * @author phonpadid
- */
-import { ref, computed, onMounted, reactive } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import type { VendorInterface } from "@/modules/interfaces/vendors/vendor/vendor.interfacce";
 import { columns } from "./column";
-import { formatDate } from "@/modules/shared/formatdate";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useVendorStore } from "@/modules/presentation/Admin/stores/vendors/vendor.store";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import VendorForm from "@/modules/presentation/Admin/components/vendors/vendor/FormVendor.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import { watch } from "vue";
+import { useRouter } from "vue-router";
 
 const { t } = useI18n();
 const vendorStore = useVendorStore();
 const { success, error } = useNotification();
+const router = useRouter();
 
 // State
 const searchKeyword = ref<string>("");
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  totalPages: 0,
-});
-
 // Modal state
 const modalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
@@ -42,9 +31,9 @@ const vendorFormRef = ref();
 // Computed properties
 const loading = computed(() => vendorStore.loading);
 const tablePagination = computed(() => ({
-  current: pagination.current,
-  pageSize: pagination.pageSize,
-  total: pagination.total,
+  current: vendorStore.pagination.page,
+  pageSize: vendorStore.pagination.limit,
+  total: vendorStore.pagination.total,
   showSizeChanger: true,
 }));
 
@@ -52,27 +41,16 @@ onMounted(async () => {
   await loadVendors();
 });
 
-const loadVendors = async (
-  page: number = pagination.current,
-  pageSize: number = pagination.pageSize,
-  search: string = searchKeyword.value,
-  sortBy?: string
-) => {
+const loadVendors = async () => {
   try {
-    const result = await vendorStore.fetchVendors({
-      page,
-      limit: pageSize,
-      search,
-      sortBy,
+    await vendorStore.fetchVendors({
+      page: vendorStore.pagination.page,
+      limit: vendorStore.pagination.limit,
+      search: searchKeyword.value,
     });
-
-    pagination.current = result.page;
-    pagination.pageSize = result.limit;
-    pagination.total = result.total;
-    pagination.totalPages = result.totalPages;
-  } catch (err) {
-    console.error("Error loading vendors:", err);
-    error(t("vendors.error.loadFailed"));
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("vendors.error.loadFailed"), errorMessage);
   }
 };
 
@@ -115,8 +93,8 @@ const handleFormSubmit = async (formData: { name: string; contact_info: string }
     modalVisible.value = false;
     await loadVendors();
   } catch (err) {
-    console.error("Error saving vendor:", err);
-    error(t("vendors.error.saveFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("vendors.error.saveFailed"), errorMessage);
   }
 };
 
@@ -129,30 +107,43 @@ const handleDeleteConfirm = async () => {
     deleteModalVisible.value = false;
     await loadVendors();
   } catch (err) {
-    console.error("Error deleting vendor:", err);
-    error(t("vendors.error.deleteFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("vendors.error.deleteFailed"), errorMessage);
   }
 };
 
-const handleSearch = () => {
-  pagination.current = 1;
-  loadVendors(1, pagination.pageSize, searchKeyword.value);
+const handleSearch = async () => {
+  await vendorStore.fetchVendors({
+    page: 1,
+    limit: vendorStore.pagination.limit,
+    search: searchKeyword.value,
+  });
 };
+
+watch(searchKeyword, async(newVal: string) => {
+  if(newVal === '') {
+    vendorStore.setPagination({
+      page: 1,
+      limit: vendorStore.pagination.limit,
+      total: vendorStore.pagination.total,
+    })
+    await loadVendors()
+  }
+})
 
 const handleTableChange = (
-  paginationInfo: TablePaginationType,
-  _filters: Record<string, string[]>,
-  sorter: any
-) => {
-  const page = paginationInfo.current || 1;
-  const pageSize = paginationInfo.pageSize || 10;
+  pagination: TablePaginationType) => {
+  vendorStore.setPagination({
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total || 0,
+  })
 
-  let sortBy;
-  if (sorter && sorter.field) {
-    sortBy = `${sorter.field}:${sorter.order === "ascend" ? "asc" : "desc"}`;
-  }
+  loadVendors();
+}
 
-  loadVendors(page, pageSize, searchKeyword.value, sortBy);
+const viewDetail = (id: number) => {
+ router.push({ name: "vendors.bank.index", params: { id } });
 };
 </script>
 
@@ -164,12 +155,10 @@ const handleTableChange = (
       </div>
 
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
-        <UiInput
-          v-model="searchKeyword"
-          :placeholder="t('vendors.list.search')"
-          allowClear
-          @update:modelvalue="handleSearch"
-          class="w-64"
+        <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
           type="primary"
@@ -191,18 +180,17 @@ const handleTableChange = (
       row-key="id"
       @change="handleTableChange"
     >
-      <!-- Date columns -->
-      <template #created_at="{ record }">
-        {{ formatDate(record.created_at) }}
-      </template>
-
-      <template #updated_at="{ record }">
-        {{ formatDate(record.updated_at) }}
-      </template>
-
       <!-- Actions column -->
       <template #actions="{ record }">
-        <div class="flex items-center justify-center gap-2">
+        <div class="flex items-center justify-center">
+          <UiButton
+            type=""
+            icon="ant-design:eye-outlined"
+            colorClass="flex items-center justify-center text-green-700"
+            size="small"
+            @click="viewDetail(record.id)"
+          />
+
           <UiButton
             type=""
             icon="ant-design:edit-outlined"

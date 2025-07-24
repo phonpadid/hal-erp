@@ -3,8 +3,8 @@ import VendorBankView from "../../views/vendors/vendor_bank_accounts/VendorBank.
 
 export const vendorsBanksRoutes: RouteRecordRaw[] = [
   {
-    path: "/vendors-bank",
-    name: "vendorsBankList",
+    path: "/vendors-bank/:id",
+    name: "vendors.bank.index",
     component: VendorBankView,
     meta: {
       Title: "vendorsBank",

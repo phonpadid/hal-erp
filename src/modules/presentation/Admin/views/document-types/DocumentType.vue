@@ -11,7 +11,6 @@ import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import DocumentTypeForm from "@/modules/presentation/Admin/components/document-type/FormDocumentType.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import { warn } from "console";
 
 const { t } = useI18n();
 const documentTypeStore = useDocumentTypeStore();
@@ -51,8 +50,8 @@ const loadDocumentTypes = async () => {
       search: searchKeyword.value,
     });
   } catch (err: unknown) {
-    console.error("Error loading document types:", err);
-    error(t("documentType.error.loadFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("documentType.error.loadFailed"), String(errorMessage));
   } finally {
     loading.value = false;
   }
@@ -63,7 +62,7 @@ const handleTableChange = (
   pagination: TablePaginationType
 ) => {
   documentTypeStore.setPagination({
-     page: pagination.current || 1,
+    page: pagination.current || 1,
     limit: pagination.pageSize || 10,
     total: pagination.total || 0,
   })
@@ -78,7 +77,7 @@ const handleSearch = async () => {
   });
 };
 
-watch(searchKeyword, async(newVal) => {
+watch(searchKeyword, async(newVal: string) => {
   if(newVal === '') {
     documentTypeStore.setPagination({
       page: 1,
@@ -151,8 +150,8 @@ const handleDeleteConfirm = async () => {
     deleteModalVisible.value = false;
     await loadDocumentTypes();
   } catch (err) {
-    console.error("Error deleting document type:", err);
-    error(t("documentType.error.deleteFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("documentType.error.deleteFailed"), String(errorMessage));
   } finally {
     submitLoading.value = false;
   }
@@ -168,10 +167,10 @@ const handleDeleteConfirm = async () => {
 
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
         <InputSearch
-            v-model:value="searchKeyword"
-            @keyup.enter="handleSearch"
-            :placeholder="t('currency.placeholder.search')"
-          />
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('currency.placeholder.search')"
+        />
         <UiButton
           type="primary"
           icon="ant-design:plus-outlined"
