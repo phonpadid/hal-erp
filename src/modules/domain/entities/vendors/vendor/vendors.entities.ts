@@ -1,4 +1,5 @@
 import type { VendorsBankAccountEntity } from "../vendor_bank_accounts/vendors-bank-accounts.entities";
+import { formatDate } from "../../../../shared/formatdate";
 
 export class VendorsEntity {
   private id: string;
@@ -22,9 +23,9 @@ export class VendorsEntity {
     this.name = name;
     this.contact_info = contact_info;
     this.vendor_bank_account = vendor_bank_account;
-    this.created_at = created_at;
-    this.updated_at = updated_at;
-    this.deleted_at = deleted_at;
+    this.created_at = formatDate(created_at);
+    this.updated_at = formatDate(updated_at);
+    this.deleted_at = deleted_at !== null ? formatDate(deleted_at) : null;
   }
 
   public getId(): string {

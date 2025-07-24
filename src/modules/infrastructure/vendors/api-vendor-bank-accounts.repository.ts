@@ -28,10 +28,10 @@ export class ApiVendorsBankAccountsRepository implements VendorsBankAccountsRepo
       });
       return {
         data: response.data.data.map((vendors: unknown) => this.toDomainModel(vendors)),
-        total: response.data.total,
-        page: response.data.page,
-        limit: response.data.limit,
-        totalPages: Math.ceil(response.data.total / response.data.limit),
+        total: response.data.pagination.total,
+        page: response.data.pagination.page,
+        limit: response.data.pagination.limit,
+        totalPages: response.data.pagination.total_pages,
       };
     } catch (error) {
       this.handleApiError(error, "Failed to fetch vendorss list");

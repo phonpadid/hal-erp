@@ -1,10 +1,8 @@
-<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { VendorBankAccountInterface } from "@/modules/interfaces/vendors/vendor_bank_accounts/vendor-bank-accounts.interface";
 import { columns } from "./column";
-import { formatDate } from "@/modules/shared/formatdate";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useVendorBankAccountStore } from "@/modules/presentation/Admin/stores/vendors/vendor-bank-accounts.store";
@@ -12,23 +10,16 @@ import Switch from "@/common/shared/components/Switch/Switch.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import VendorBankAccountForm from "@/modules/presentation/Admin/components/vendors/vendor_bank_accounts/FormVendorBank.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
 const { t } = useI18n();
 const vendorBankAccountStore = useVendorBankAccountStore();
 const { success, error } = useNotification();
 
 // State
-const bankAccounts = ref<VendorBankAccountInterface[]>([]);
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  totalPages: 0,
-});
 
 // Modal state
 const modalVisible = ref<boolean>(false);
@@ -40,9 +31,9 @@ const bankAccountFormRef = ref();
 
 // Table pagination
 const tablePagination = computed(() => ({
-  current: pagination.current,
-  pageSize: pagination.pageSize,
-  total: pagination.total,
+  current: vendorBankAccountStore.pagination.page,
+  pageSize: vendorBankAccountStore.pagination.limit,
+  total: vendorBankAccountStore.pagination.total,
   showSizeChanger: true,
 }));
 
@@ -50,29 +41,18 @@ onMounted(async () => {
   await loadBankAccounts();
 });
 
-const loadBankAccounts = async (
-  page: number = pagination.current,
-  pageSize: number = pagination.pageSize,
-  search: string = searchKeyword.value,
-  sortBy?: string
-) => {
+const loadBankAccounts = async () => {
   loading.value = true;
 
   try {
-    const result = await vendorBankAccountStore.fetchBankAccounts({
-      page,
-      limit: pageSize,
-      search,
-      sortBy,
+    await vendorBankAccountStore.fetchBankAccounts({
+      page: vendorBankAccountStore.pagination.page,
+      limit: vendorBankAccountStore.pagination.limit,
+      search: searchKeyword.value,
     });
-    bankAccounts.value = result.data;
-    pagination.current = result.page;
-    pagination.pageSize = result.limit;
-    pagination.total = result.total;
-    pagination.totalPages = result.totalPages;
-  } catch (err) {
-    console.error("Error loading bank accounts:", err);
-    error(t("vendors_bank.error.loadFailed"));
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("vendors_bank.error.loadFailed"), errorMessage);
   } finally {
     loading.value = false;
   }
@@ -80,27 +60,38 @@ const loadBankAccounts = async (
 
 // Handle pagination and sorting
 const handleTableChange = (
-  paginationInfo: TablePaginationType,
-  _filters: Record<string, string[]>,
-  sorter: any
+  paginationInfo: TablePaginationType
 ) => {
   const page = paginationInfo.current || 1;
   const pageSize = paginationInfo.pageSize || 10;
 
-  pagination.current = page;
-  pagination.pageSize = pageSize;
+  vendorBankAccountStore.setPagination({
+    page,
+    limit: pageSize,
+    total: vendorBankAccountStore.pagination.total,
+  });
 
-  let sortBy;
-  if (sorter && sorter.field) {
-    sortBy = sorter.field;
+  loadBankAccounts();
+};
+
+const handleSearch = async () => {
+  await vendorBankAccountStore.fetchBankAccounts({
+    page: 1,
+    limit: vendorBankAccountStore.pagination.limit,
+    search: searchKeyword.value,
+  });
+};
+
+watch(searchKeyword, async(newVal: string) => {
+  if(newVal === '') {
+    vendorBankAccountStore.setPagination({
+      page: 1,
+      limit: vendorBankAccountStore.pagination.limit,
+      total: vendorBankAccountStore.pagination.total,
+    })
+    await loadBankAccounts()
   }
-  loadBankAccounts(page, pageSize, searchKeyword.value, sortBy);
-};
-
-const handleSearch = () => {
-  pagination.current = 1;
-  loadBankAccounts(1, pagination.pageSize, searchKeyword.value);
-};
+})
 
 // Modal handlers
 const showCreateModal = () => {
@@ -155,8 +146,8 @@ const handleFormSubmit = async (formData: {
     modalVisible.value = false;
     await loadBankAccounts();
   } catch (err) {
-    console.error("Error saving bank account:", err);
-    error(t("vendors_bank.error.saveFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("vendors_bank.error.saveFailed"), errorMessage);
   } finally {
     submitLoading.value = false;
   }
@@ -172,8 +163,8 @@ const handleDeleteConfirm = async () => {
     deleteModalVisible.value = false;
     await loadBankAccounts();
   } catch (err) {
-    console.error("Error deleting bank account:", err);
-    error(t("vendors_bank.error.deleteFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("vendors_bank.error.deleteFailed"), errorMessage);
   } finally {
     submitLoading.value = false;
   }
@@ -186,8 +177,8 @@ const handleToggleIsSelected = async (record: VendorBankAccountInterface) => {
     success(t("vendors_bank.success.title"), t("vendors_bank.success.updated"));
     await loadBankAccounts();
   } catch (err) {
-    console.error("Error updating bank account status:", err);
-    error(t("vendors_bank.error.updateFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("vendors_bank.error.updateFailed"), errorMessage);
   }
 };
 </script>
@@ -200,12 +191,10 @@ const handleToggleIsSelected = async (record: VendorBankAccountInterface) => {
       </div>
 
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
-        <UiInput
-          v-model="searchKeyword"
-          :placeholder="t('vendors_bank.list.search')"
-          allowClear
-          @update:modelvalue="handleSearch"
-          class="w-64"
+         <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
           type="primary"
@@ -221,7 +210,7 @@ const handleToggleIsSelected = async (record: VendorBankAccountInterface) => {
     <!-- Bank Accounts Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="bankAccounts"
+      :dataSource="vendorBankAccountStore.bankAccounts"
       :pagination="tablePagination"
       :loading="loading"
       row-key="id"
@@ -233,15 +222,6 @@ const handleToggleIsSelected = async (record: VendorBankAccountInterface) => {
           :modelValue="record.is_selected"
           @update:modelValue="handleToggleIsSelected(record)"
         />
-      </template>
-
-      <!-- Date columns -->
-      <template #created_at="{ record }">
-        {{ formatDate(record.created_at) }}
-      </template>
-
-      <template #updated_at="{ record }">
-        {{ formatDate(record.updated_at) }}
       </template>
 
       <!-- Actions column -->

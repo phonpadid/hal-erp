@@ -26,14 +26,14 @@ export const departmentStore = defineStore("department", () => {
   const error: Ref<Error | null> = ref(null);
   const pagination = ref({
     page: 1,
-    limit: 10,
+    limit: 1,
     total: 0,
     totalPages: 0,
   });
 
   const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
-    pagination.value.page = newPagination.page;
-    pagination.value.limit = newPagination.limit;
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
     pagination.value.total = newPagination.total;
   };
 

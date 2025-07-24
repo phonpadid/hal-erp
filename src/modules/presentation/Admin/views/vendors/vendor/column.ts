@@ -18,7 +18,7 @@ export function columns(t: (key: string) => string): Column[] {
       key: "created_at",
     },
     {
-      title: t("vendors.table.created_at"),
+      title: t("vendors.table.updated_at"),
       dataIndex: "updated_at",
       key: "updated_at",
     },

@@ -39,8 +39,16 @@
     "accountNumberFormat": "Account number must contain only numbers",
     "accountNumberMax": "Account number cannot exceed 20 digits"
   },
+  "success": {
+    "title": "Success",
+    "created": "Vendor Bank Account created successfully",
+    "updated": "Vendor Bank Account updated successfully",
+    "deleted": "Vendor Bank Account deleted successfully"
+  },
   "error": {
-    "deleteFailed": "Failed to delete bank account"
+    "saveFailed": "Failed to save vendor bank account",
+    "deleteFailed": "Failed to delete vendor bank account",
+    "loadFailed": "Failed to load vendor bank accounts"
   },
  
 

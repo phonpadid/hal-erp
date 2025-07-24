@@ -64,13 +64,13 @@ export class ApiCategoryRepository implements CategoryRepository {
           ...(params.search && { search: params.search }),
         },
       })) as { data: ApiListResponse<CategoryApiModel> };
-      console.log("fff", response.data)
+      console.log("fff", response.data);
       return {
         data: response.data.data.map((item) => this.toDomainModel(item)),
         total: response.data.pagination.total,
         page: response.data.pagination.page,
         limit: response.data.pagination.limit,
-        totalPages: response.data.pagination.total_pages
+        totalPages: response.data.pagination.total_pages,
       };
     } catch (error) {
       this.handleApiError(error, "Failed to fetch categories list");
@@ -79,10 +79,9 @@ export class ApiCategoryRepository implements CategoryRepository {
 
   async update(input: Category): Promise<Category> {
     try {
-      const response = (await api.put(
-        `/categories/${input.getId()}`,
-        this.toApiModel(input)
-      )) as { data: ApiResponse<CategoryApiModel> };
+      const response = (await api.put(`/categories/${input.getId()}`, this.toApiModel(input))) as {
+        data: ApiResponse<CategoryApiModel>;
+      };
       return this.toDomainModel(response.data.data);
     } catch (error) {
       this.handleApiError(error, `Failed to update category with id ${input.getId()}`);
@@ -112,7 +111,7 @@ export class ApiCategoryRepository implements CategoryRepository {
       id: parseInt(input.getId(), 10),
       name: input.getName(),
       created_at: input.getCreatedAt(),
-      updated_at: input.getUpdatedAt()
+      updated_at: input.getUpdatedAt(),
     };
   }
 
