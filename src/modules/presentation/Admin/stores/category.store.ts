@@ -26,12 +26,16 @@ export const useCategoryStore = defineStore("category", () => {
     totalPages: 0,
   });
 
-  const activeCategories = computed(() => categories.value.filter((category) => !category.isDeleted()));
-  const deletedCategories = computed(() => categories.value.filter((category) => category.isDeleted()));
+  const activeCategories = computed(() =>
+    categories.value.filter((category) => !category.isDeleted())
+  );
+  const deletedCategories = computed(() =>
+    categories.value.filter((category) => category.isDeleted())
+  );
   const totalActiveCategories = computed(() => activeCategories.value.length);
   const totalDeletedCategories = computed(() => deletedCategories.value.length);
 
-  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page || 1;
     pagination.value.limit = newPagination.limit || 10;
     pagination.value.total = newPagination.total;

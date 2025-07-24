@@ -4,7 +4,7 @@ import DocumentType from "../views/document-types/DocumentType.vue";
 export const documentTypesRoutes: RouteRecordRaw[] = [
   {
     path: "/document-types",
-    name: "document_typesList",
+    name: "document.type.index",
     component: DocumentType,
     meta: {
       title: "Document Types",

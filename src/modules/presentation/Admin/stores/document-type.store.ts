@@ -21,7 +21,7 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
   const documentTypeService = createDocumentsTypeService();
 
   // State
-  const documentType: Ref<DocumentTypeEntity[]> = ref([]);
+  const documentTypes: Ref<DocumentTypeEntity[]> = ref([]);
   const currentDocumentType: Ref<DocumentTypeEntity | null> = ref(null);
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
@@ -33,9 +33,11 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
   });
 
   // Getters
-  const activedocumentType = computed(() => documentType.value.filter((user) => !user.isDeleted()));
+  const activedocumentType = computed(() =>
+    documentTypes.value.filter((user) => !user.isDeleted())
+  );
   const inactivedocumentType = computed(() =>
-    documentType.value.filter((user) => user.isDeleted())
+    documentTypes.value.filter((user) => user.isDeleted())
   );
   const totalActivedocumentType = computed(() => activedocumentType.value.length);
   const totalInactivedocumentType = computed(() => inactivedocumentType.value.length);
@@ -50,15 +52,8 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
 
     try {
       const result = await documentTypeService.getAllDocumentTypes(params);
-      documentType.value = result.data;
+      documentTypes.value = result.data;
       pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
-      return {
-        data: result.data.map(DocumentTypeEntityToInterface),
         page: result.page,
         limit: result.limit,
         total: result.total,
@@ -95,7 +90,7 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
 
     try {
       const document = await documentTypeService.createDocumentType(documentTypeData);
-      documentType.value = [document, ...documentType.value];
+      documentTypes.value = [document, ...documentTypes.value];
       return DocumentTypeEntityToInterface(document);
     } catch (err) {
       error.value = err as Error;
@@ -111,9 +106,9 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
 
     try {
       const updatedDocument = await documentTypeService.updateDocumentType(id, documentTypeData);
-      const index = documentType.value.findIndex((u) => u.getId() === id);
+      const index = documentTypes.value.findIndex((u) => u.getId() === id);
       if (index !== -1) {
-        documentType.value[index] = updatedDocument;
+        documentTypes.value[index] = updatedDocument;
       }
       // Update current user if it's loaded
       if (currentDocumentType.value && currentDocumentType.value.getId() === id) {
@@ -121,7 +116,7 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
       }
 
       return DocumentTypeEntityToInterface(updatedDocument);
-    } catch (err) {
+    } catch (err: unknown) {
       error.value = err as Error;
       throw err;
     } finally {
@@ -137,9 +132,9 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
     try {
       const result = await documentTypeService.deleteDocumentType(id);
       if (result) {
-        const index = documentType.value.findIndex((u) => u.getId() === id);
+        const index = documentTypes.value.findIndex((u) => u.getId() === id);
         if (index !== -1) {
-          documentType.value[index].delete();
+          documentTypes.value[index].delete();
         }
       }
       return result;
@@ -163,9 +158,15 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
     };
   };
 
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
+    pagination.value.total = newPagination.total;
+  };
+
   // Reset state
   const resetState = () => {
-    documentType.value = [];
+    documentTypes.value = [];
     currentDocumentType.value = null;
     error.value = null;
     pagination.value = {
@@ -178,7 +179,7 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
 
   return {
     // State
-    documentType,
+    documentTypes,
     currentDocumentType,
     loading,
     error,
@@ -197,5 +198,6 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
     updateDocumentType,
     deleteDocument,
     resetState,
+    setPagination,
   };
 });

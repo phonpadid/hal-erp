@@ -31,7 +31,7 @@ export const departmentStore = defineStore("department", () => {
     totalPages: 0,
   });
 
-  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page;
     pagination.value.limit = newPagination.limit;
     pagination.value.total = newPagination.total;
@@ -63,10 +63,7 @@ export const departmentStore = defineStore("department", () => {
     error.value = null;
 
     try {
-      const result = await departmentService.getAllDepartments(
-        params,
-        includeDeleted
-      );
+      const result = await departmentService.getAllDepartments(params, includeDeleted);
       departments.value = result.data;
       pagination.value = {
         page: result.page,

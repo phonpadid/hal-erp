@@ -10,7 +10,7 @@ import type { CreateCurrencyDTO, UpdateCurrencyDTO } from "@/modules/application
 const currencyFormModel = reactive({
   name: "",
   code: "",
-})
+});
 export const formState = ref({
   addMore: [
     {
@@ -39,7 +39,7 @@ export const currencyStore = defineStore("currency-store", () => {
     totalPages: 0,
   });
 
-  const setPagination = (newPagination: { page: number; limit: number , total: number }) => {
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page || 1;
     pagination.value.limit = newPagination.limit || 10;
     pagination.value.total = newPagination.total;
@@ -71,10 +71,7 @@ export const currencyStore = defineStore("currency-store", () => {
     error.value = null;
 
     try {
-      const result = await currenciesService.getAll(
-        params,
-        includeDeleted
-      );
+      const result = await currenciesService.getAll(params, includeDeleted);
       currencies.value = result.data;
       pagination.value = {
         page: result.page,
@@ -161,9 +158,7 @@ export const currencyStore = defineStore("currency-store", () => {
     }
   };
 
-  const searchByName = async (
-    params: PaginationParams = { page: 1, limit: 10 }
-  ) => {
+  const searchByName = async (params: PaginationParams = { page: 1, limit: 10 }) => {
     loading.value = true;
     error.value = null;
 

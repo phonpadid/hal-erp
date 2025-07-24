@@ -31,12 +31,11 @@ export const useUnitStore = defineStore("unit", () => {
   const totalActiveUnits = computed(() => activeUnits.value.length);
   const totalDeletedUnits = computed(() => deletedUnits.value.length);
 
-  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page || 1;
     pagination.value.limit = newPagination.limit || 10;
     pagination.value.total = newPagination.total;
   };
-
 
   const createUnit = async (data: CreateUnitDTO) => {
     loading.value = true;
@@ -56,8 +55,8 @@ export const useUnitStore = defineStore("unit", () => {
 
   // Get All Units
   const fetchUnits = async (
-    params: PaginationParams = { page: 1, limit: 10 },
-    includeDeleted: boolean = false
+    params: PaginationParams = { page: 1, limit: 10 }
+    // includeDeleted: boolean = false
   ) => {
     loading.value = true;
     error.value = null;

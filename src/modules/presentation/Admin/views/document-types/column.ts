@@ -14,13 +14,15 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("documentType.table.createdAt"),
-      dataIndex: "created_at",
+      dataIndex: "createdAt",
       key: "created_at",
+      scopedSlots: { customRender: "createdAt" },
     },
     {
       title: t("documentType.table.updatedAt"),
-      dataIndex: "updated_at",
+      dataIndex: "updatedAt",
       key: "updated_at",
+      scopedSlots: { customRender: "updatedAt" },
     },
     {
       title: t("documentType.table.actions"),

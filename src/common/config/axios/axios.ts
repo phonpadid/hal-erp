@@ -1,5 +1,5 @@
 import axios, { type AxiosRequestConfig, type AxiosRequestHeaders } from "axios";
-import { Modal } from "ant-design-vue";
+import { Modal, message } from "ant-design-vue";
 import { t } from "../i18n/i18n.config";
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
 const authAxios = axios.create({
@@ -49,12 +49,13 @@ authAxios.interceptors.response.use(
 
       switch (status) {
         case 400:
-          Modal.warning({
-            title: t("messages.err"),
-            content: data.message,
-            closable: true,
-            footer: null,
-          });
+          console.error("Bad Request:", data.message);
+          // Modal.warning({
+          //   title: t("messages.err"),
+          //   content: data.message,
+          //   closable: true,
+          //   footer: null,
+          // });
           break;
         case 401:
           console.warn("Unauthorized! Logging out...");

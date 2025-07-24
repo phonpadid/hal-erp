@@ -5,7 +5,6 @@
   "position": "ຕຳແໜ່ງ",
   "unit": "ຫົວໜ່ວຍ",
   "category": "ໝວດໝູ່",
-  "bank":"ທະນາຄານ",
   "document_type": "ປະເພດເອກະສານ",
   "user_approval": "ຜູ້ອະນຸມັດເອກະສານ",
   "budget_apv_rule": "ຜູ້ຮັບຜິດຊອບ",
@@ -47,5 +46,7 @@
   "accounting_dpm": "ພະແນກບັນຊີລົງລະຫັດບັນຊີ",
   "accounting_dpm_check": "ພະແນກບັນຊີກວດສອບ",
   "approval_finance_dpm": "ພະແນກການເງິນອະນຸມັດ",
-  "financial_dpm_transfer": "ພະແນກການເງິນໂອນເງິນ"
+  "financial_dpm_transfer": "ພະແນກການເງິນໂອນເງິນ",
+
+  "manage": "ຈັດການຂໍ້ມູນຫຼັກ"
 }

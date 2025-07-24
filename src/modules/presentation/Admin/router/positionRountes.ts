@@ -4,7 +4,7 @@ import PositionListView from "../views/position/PositionListView.vue";
 export const positionRoutes: RouteRecordRaw[] = [
   {
     path: "/positions",
-    name: "PositionList",
+    name: "position.index",
     component: PositionListView,
     meta: {
       Title: "positions",
