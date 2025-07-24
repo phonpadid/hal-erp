@@ -1,10 +1,10 @@
 import type { UpdateCategoryDTO } from "../../dtos/category.dto";
 import type { CategoryRepository } from "@/modules/domain/repository/category.repository";
-import type { Category } from "../../../domain/entities/categories.entity";
+import type { CategoryEntity } from "../../../domain/entities/categories.entity";
 
 export class UpdateCategoryUseCase {
   constructor(private readonly categoryRepository: CategoryRepository) { }
-  async execute(id: string, updateCategoryDTO: UpdateCategoryDTO): Promise<Category> {
+  async execute(id: string, updateCategoryDTO: UpdateCategoryDTO): Promise<CategoryEntity> {
     const category = await this.categoryRepository.findById(id);
     if (!category) {
       throw new Error(`Category with id ${id} not found`);

@@ -1,14 +1,14 @@
 import type { ApiListResponse } from "../shared/repondata";
 import type { CategoryApiModel } from "../interfaces/category.interface";
 import type { ApiResponse } from "../shared/messageApi";
-import { Category } from "../domain/entities/categories.entity";
+import { CategoryEntity } from "../domain/entities/categories.entity";
 import type { CategoryRepository } from "../domain/repository/category.repository";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 
 export class ApiCategoryRepository implements CategoryRepository {
-  async create(input: Category): Promise<Category> {
+  async create(input: CategoryEntity): Promise<CategoryEntity> {
     try {
       const response = (await api.post("/categories", this.toApiModel(input))) as {
         data: ApiResponse<CategoryApiModel>;
@@ -19,7 +19,7 @@ export class ApiCategoryRepository implements CategoryRepository {
     }
   }
 
-  async findById(id: string): Promise<Category | null> {
+  async findById(id: string): Promise<CategoryEntity | null> {
     try {
       const response = (await api.get(`/categories/${id}`)) as {
         data: ApiResponse<CategoryApiModel>;
@@ -34,7 +34,7 @@ export class ApiCategoryRepository implements CategoryRepository {
     }
   }
 
-  async findByName(name: string): Promise<Category | null> {
+  async findByName(name: string): Promise<CategoryEntity | null> {
     try {
       const response = (await api.get("/categories", {
         params: { name },
@@ -54,7 +54,7 @@ export class ApiCategoryRepository implements CategoryRepository {
   async findAll(
     params: PaginationParams,
     includeDeleted: boolean = false
-  ): Promise<PaginatedResult<Category>> {
+  ): Promise<PaginatedResult<CategoryEntity>> {
     try {
       const response = (await api.get("/categories", {
         params: {
@@ -77,7 +77,7 @@ export class ApiCategoryRepository implements CategoryRepository {
     }
   }
 
-  async update(input: Category): Promise<Category> {
+  async update(input: CategoryEntity): Promise<CategoryEntity> {
     try {
       const response = (await api.put(
         `/categories/${input.getId()}`,
@@ -107,7 +107,7 @@ export class ApiCategoryRepository implements CategoryRepository {
     }
   }
 
-  private toApiModel(input: Category): CategoryApiModel {
+  private toApiModel(input: CategoryEntity): CategoryApiModel {
     return {
       id: parseInt(input.getId(), 10),
       name: input.getName(),
@@ -116,8 +116,8 @@ export class ApiCategoryRepository implements CategoryRepository {
     };
   }
 
-  private toDomainModel(data: CategoryApiModel): Category {
-    return new Category(
+  private toDomainModel(data: CategoryApiModel): CategoryEntity {
+    return new CategoryEntity(
       data.id.toString(),
       data.name,
       data.created_at.toString(),

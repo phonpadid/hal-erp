@@ -1,239 +1,210 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, watch } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import type { CategoryApiModel } from "@/modules/interfaces/category.interface";
-import { useCategoryStore } from "@/modules/presentation/Admin/stores/category.store";
-import { Category } from "@/modules/domain/entities/categories.entity";
-import { getColumns } from "./column";
-import { rules } from "./validation/category.vallidate";
+import type { CategoryInterface } from "@/modules/interfaces/category.interface";
+import { useCategoryStore } from "../../stores/category.store";
+import { columns } from "./column";
+import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
-import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
-import UiForm from "@/common/shared/components/Form/UiForm.vue";
+import Table from "@/common/shared/components/table/Table.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
+import CategoryForm from "@/modules/presentation/Admin/components/category/FormCategory.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
-const { success } = useNotification();
-const search = ref<string>("");
 const { t } = useI18n();
-const columns = computed(() => getColumns(t));
 const categoryStore = useCategoryStore();
-const categories = ref<CategoryApiModel[]>([]);
-const formRef = ref();
-const createModalVisible = ref(false);
-const editModalVisible = ref(false);
-const deleteModalVisible = ref(false);
-const loading = ref(false);
-const selectedCategory = ref<CategoryApiModel | null>(null);
-const errorMessage = ref("");
-const formModel = reactive({ name: "" });
+const { success, error, warning } = useNotification();
 
-const pageSizeOptions = ["10", "20", "50", "100"];
+// State
+const loading = ref<boolean>(false);
+const searchKeyword = ref<string>("");
+
+// Modal state
+const modalVisible = ref<boolean>(false);
+const deleteModalVisible = ref<boolean>(false);
+const submitLoading = ref<boolean>(false);
+const selectedCategory = ref<CategoryInterface | null>(null);
+const isEditMode = ref<boolean>(false);
+const categoryFormRef = ref();
+
+// Table pagination
+const tablePagination = computed(() => ({
+  current: categoryStore.pagination.page,
+  pageSize: categoryStore.pagination.limit,
+  total: categoryStore.pagination.total,
+  showSizeChanger: true,
+}));
 
 onMounted(async () => {
   await loadCategories();
 });
 
-watch(search, async (newValue) => {
-  if (!newValue) {
-    await loadCategories();
-  }
-});
-
-const loadCategories = async (): Promise<void> => {
+const loadCategories = async () => {
   loading.value = true;
+
   try {
-    const result = await categoryStore.fetchCategories({
+    await categoryStore.fetchCategories({
       page: categoryStore.pagination.page,
       limit: categoryStore.pagination.limit,
+      search: searchKeyword.value,
     });
-    categories.value = result.data.map((category: Category) => ({
-      id: parseInt(category.getId()),
-      name: category.getName(),
-      created_at: category.getCreatedAt(),
-      updated_at: category.getUpdatedAt(),
-    }));
-  } catch (error) {
-    console.log("error", error);
+  } catch (err: unknown) {
+    console.error("Error loading categories:", err);
+    error(t("category.error.loadFailed"));
   } finally {
     loading.value = false;
   }
 };
 
-const handleTableChange = async (pagination: TablePaginationType) => {
+// Handle pagination and sorting
+const handleTableChange = (
+  pagination: TablePaginationType
+) => {
   categoryStore.setPagination({
-    page: pagination.current ?? 1,
-    limit: pagination.pageSize ?? 10,
-    total: pagination.total ?? 0,
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total || 0,
   });
-  await loadCategories();
+  loadCategories();
 };
 
 const handleSearch = async () => {
-  loading.value = true;
-  try {
-    const result = await categoryStore.fetchCategories({
-      page: 1,
-      limit: categoryStore.pagination.limit,
-      search: search.value,
-    });
-    categories.value = result.data.map((category: Category) => ({
-      id: parseInt(category.getId()),
-      name: category.getName(),
-      created_at: category.getCreatedAt(),
-      updated_at: category.getUpdatedAt(),
-    }));
+  await categoryStore.fetchCategories({
+    page: 1,
+    limit: categoryStore.pagination.limit,
+    search: searchKeyword.value,
+  });
+};
+
+watch(searchKeyword, async (newVal) => {
+  if (newVal === "") {
     categoryStore.setPagination({
       page: 1,
       limit: categoryStore.pagination.limit,
       total: categoryStore.pagination.total,
     });
-  } catch (error) {
-    console.error("Search failed:", error);
-  } finally {
-    loading.value = false;
+    await loadCategories();
   }
+});
+
+// Modal handlers
+const showCreateModal = () => {
+  selectedCategory.value = null;
+  isEditMode.value = false;
+  modalVisible.value = true;
 };
 
-const showCreateModal = (): void => {
-  formModel.name = "";
-  errorMessage.value = "";
-  createModalVisible.value = true;
+const showEditModal = (category: CategoryInterface) => {
+  selectedCategory.value = { ...category };
+  isEditMode.value = true;
+  modalVisible.value = true;
 };
 
-const showEditModal = (record: CategoryApiModel): void => {
-  selectedCategory.value = record;
-  formModel.name = record.name;
-  errorMessage.value = "";
-  editModalVisible.value = true;
-};
-
-const showDeleteModal = (record: CategoryApiModel): void => {
-  selectedCategory.value = record;
+const showDeleteModal = (category: CategoryInterface) => {
+  selectedCategory.value = category;
   deleteModalVisible.value = true;
 };
 
-const handleCreate = async (): Promise<void> => {
-  loading.value = true;
-  errorMessage.value = "";
-  try {
-    await formRef.value.submitForm();
+const handleModalOk = () => {
+  categoryFormRef.value?.submitForm();
+};
 
-    await categoryStore.createCategory({ name: formModel.name });
-    success(t("categories.notify.created"));
+const handleModalCancel = () => {
+  modalVisible.value = false;
+};
+
+const handleFormSubmit = async (formData: { name: string; code: string }) => {
+  try {
+    submitLoading.value = true;
+
+    if (isEditMode.value && selectedCategory.value) {
+      // Don't spread id into formData! Pass id as first argument, then data without id.
+      await categoryStore.updateCategory(selectedCategory.value.id.toString(), {
+        name: formData.name,
+      });
+      success(t("category.success.title"), t("category.success.updated"));
+    } else {
+      await categoryStore.createCategory({
+        name: formData.name,
+      });
+      success(t("category.success.title"), t("category.success.created"));
+    }
+
+    modalVisible.value = false;
     await loadCategories();
-    createModalVisible.value = false;
-    formModel.name = "";
-  } catch (error: any) {
-    if (error.message && error.message.includes("already exists")) {
-      errorMessage.value = t(
-        "categories.error.duplicateName",
-        "A category with this name already exists."
-      );
-    } else {
-      errorMessage.value = error.message || "Create failed. Please try again.";
-    }
-    console.error("Create form validation failed:", error);
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("category.error.title"), String(errorMessage));
   } finally {
-    loading.value = false;
+    submitLoading.value = false;
   }
 };
 
-const handleEdit = async (): Promise<void> => {
-  loading.value = true;
-  errorMessage.value = "";
-  try {
-    await formRef.value.submitForm();
-    if (selectedCategory.value) {
-      const id = selectedCategory.value.id.toString();
-      await categoryStore.updateCategory(id, { name: formModel.name });
-      success(t("categories.notify.updated"));
-      await loadCategories();
-      editModalVisible.value = false;
-    }
-  } catch (error: any) {
-    if (error.message && error.message.includes("already exists")) {
-      errorMessage.value = t(
-        "categories.error.duplicateName",
-        "A category with this name already exists."
-      );
-    } else {
-      errorMessage.value = error.message || "Edit failed. Please try again.";
-    }
-    console.error("Edit form validation failed:", error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleDelete = async (): Promise<void> => {
+const handleDeleteConfirm = async () => {
   if (!selectedCategory.value) return;
-  loading.value = true;
+
   try {
-    const id = selectedCategory.value.id.toString();
-    await categoryStore.deleteCategory(id);
-    success(t("categories.notify.deleted"));
-    await loadCategories();
+    submitLoading.value = true;
+    await categoryStore.deleteCategory(selectedCategory.value.id.toString());
+    success(t("category.success.title"), t("category.success.deleted"));
+
     deleteModalVisible.value = false;
-  } catch (error) {
-    console.error("Delete failed:", error);
+    await loadCategories();
+  } catch (err) {
+    console.error("Error deleting category:", err);
+    error(t("category.error.deleteFailed"));
   } finally {
-    loading.value = false;
+    submitLoading.value = false;
   }
 };
 </script>
 
 <template>
-  <div class="category-list-container p-6">
-    <div class="mb-6 gap-4">
-      <h1 class="text-2xl font-semibold">
-        {{ t("categories.title") }}
-      </h1>
-      <div class="flex justify-between gap-20">
-        <div class="w-[20rem]">
-          <InputSearch
-            v-model:value="search"
-            @keyup.enter="handleSearch"
-            :placeholder="t('categories.placeholder.search')"
-          />
-        </div>
+  <div class="category-container p-6">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold">{{ t("categories.title") }}</h1>
+      </div>
+
+      <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
+        <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('categories.placeholder.search')"
+        />
         <UiButton
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
-          colorClass="flex items-center"
+          colorClass="text-white flex items-center"
         >
           {{ t("categories.add") }}
         </UiButton>
       </div>
     </div>
 
+    <!-- Categories Table -->
     <Table
-      :columns="columns"
-      :dataSource="categories"
-      :pagination="{
-        current: categoryStore.pagination.page,
-        pageSize: categoryStore.pagination.limit,
-        total: categoryStore.pagination.total,
-        showSizeChanger: true,
-        pageSizeOptions,
-      }"
+      :columns="columns(t)"
+      :dataSource="categoryStore.categories"
+      :pagination="tablePagination"
+      :loading="loading"
       row-key="id"
-      :loading="categoryStore.loading"
       @change="handleTableChange"
     >
+      <!-- Actions column -->
       <template #actions="{ record }">
-        <div class="flex gap-2">
+        <div class="flex items-center justify-center gap-2">
           <UiButton
             type=""
             icon="ant-design:edit-outlined"
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
-          >
-          </UiButton>
+            :disabled="!!record.deleted_at"
+          />
+
           <UiButton
             type=""
             danger
@@ -241,70 +212,51 @@ const handleDelete = async (): Promise<void> => {
             colorClass="flex items-center justify-center text-red-700"
             size="small"
             @click="showDeleteModal(record)"
-          >
-          </UiButton>
+          />
         </div>
       </template>
     </Table>
 
-    <!-- Create Modal -->
+    <!-- Create/Edit Category Modal -->
     <UiModal
-      :title="t('categories.header_form.add')"
-      :visible="createModalVisible"
-      :confirm-loading="loading"
-      @update:visible="createModalVisible = $event"
-      @ok="handleCreate"
-      @cancel="createModalVisible = false"
+      :title="isEditMode ? t('categories.header_form.edit') : t('categories.header_form.add')"
+      :visible="modalVisible"
+      :confirm-loading="submitLoading"
+      @update:visible="modalVisible = $event"
+      @ok="handleModalOk"
+      @cancel="handleModalCancel"
+      :okText="isEditMode ? t('button.edit') : t('button.save')"
       :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
     >
-      <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
-      <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem :label="t('categories.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('categories.placeholder.name')" />
-        </UiFormItem>
-      </UiForm>
-    </UiModal>
-
-    <!-- Edit Modal -->
-    <UiModal
-      :title="t('categories.header_form.edit')"
-      :visible="editModalVisible"
-      :confirm-loading="loading"
-      @update:visible="editModalVisible = $event"
-      @ok="handleEdit"
-      @cancel="editModalVisible = false"
-      :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
-    >
-      <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
-      <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem :label="t('categories.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('categories.placeholder.name')" />
-        </UiFormItem>
-      </UiForm>
+      <CategoryForm
+        ref="categoryFormRef"
+        :category="selectedCategory"
+        :is-edit-mode="isEditMode"
+        :loading="submitLoading"
+        @submit="handleFormSubmit"
+      />
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
     <UiModal
       :title="t('categories.header_form.delete.title')"
       :visible="deleteModalVisible"
-      :confirm-loading="loading"
+      :confirm-loading="submitLoading"
       @update:visible="deleteModalVisible = $event"
-      @ok="handleDelete"
-      :cancelText="t('button.cancel')"
+      @ok="handleDeleteConfirm"
       @cancel="deleteModalVisible = false"
-      :okText="t('button.confirm')"
-      okType="primary"
+      ok-text="ຢືນຢັນ"
+      ok-type="primary"
+      :danger="true"
     >
-      <p>{{ t("categories.header_form.delete.content") }} "{{ selectedCategory?.name }}"?</p>
-      <p class="text-red-500">{{ t("categories.header_form.delete.description") }}</p>
+      <p>{{ $t("categories.header_form.delete.content", { name: selectedCategory?.name }) }}</p>
+      <p class="text-red-500">{{ $t("categories.header_form.delete.description") }}</p>
     </UiModal>
   </div>
 </template>
 
 <style scoped>
-.category-list-container {
+.category-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);

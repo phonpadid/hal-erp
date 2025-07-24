@@ -1,6 +1,6 @@
 import type {CategoryRepository} from "@/modules/domain/repository/category.repository";
 import type {CategoryService} from "../ports/input/category.service";
-import type {Category} from "../../domain/entities/categories.entity";
+import type {CategoryEntity} from "../../domain/entities/categories.entity";
 import type {CreateCategoryDTO, UpdateCategoryDTO} from "../dtos/category.dto";
 import type {PaginationParams, PaginatedResult} from "@/modules/shared/pagination";
 import {CreateCategoryUseCase} from "../useCases/category/create-category.usecase";
@@ -24,26 +24,26 @@ import {RestoreCategoryUseCase} from "../useCases/category/restore-category.usec
     this.restoreCategoryUseCase = new RestoreCategoryUseCase(categoryRepository);
   }
 
-  async createCategory(createCategoryDTO: CreateCategoryDTO): Promise<Category> {
+  async createCategory(createCategoryDTO: CreateCategoryDTO): Promise<CategoryEntity> {
     return await this.createCategoryUseCase.execute(createCategoryDTO);
   }
 
-  async getCategoryById(id: string): Promise<Category | null> {
+  async getCategoryById(id: string): Promise<CategoryEntity | null> {
     return await this.getCategoryUseCase.execute(id);
   }
 
-  async getCategoryByName(name: string): Promise<Category | null> {
+  async getCategoryByName(name: string): Promise<CategoryEntity | null> {
     return await this.categoryRepository.findByName(name);
   }
 
   async getAllCategories(
     params: PaginationParams,
     includeDeleted: boolean = false
-  ): Promise<PaginatedResult<Category>> {
+  ): Promise<PaginatedResult<CategoryEntity>> {
     return await this.categoryRepository.findAll(params, includeDeleted);
   }
 
-  async updateCategory(id: string, updateCategoryDTO: UpdateCategoryDTO): Promise<Category> {
+  async updateCategory(id: string, updateCategoryDTO: UpdateCategoryDTO): Promise<CategoryEntity> {
     return await this.updateCategoryUseCase.execute(id, updateCategoryDTO);
   }
 

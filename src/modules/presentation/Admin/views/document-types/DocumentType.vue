@@ -11,7 +11,6 @@ import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import DocumentTypeForm from "@/modules/presentation/Admin/components/document-type/FormDocumentType.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import { warn } from "console";
 
 const { t } = useI18n();
 const documentTypeStore = useDocumentTypeStore();

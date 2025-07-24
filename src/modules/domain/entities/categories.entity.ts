@@ -1,4 +1,4 @@
-export class Category {
+export class CategoryEntity {
   private id: string
   private name: string
   private createdAt: string
@@ -47,8 +47,8 @@ export class Category {
     this.deletedAt = null
     this.updatedAt = new Date().toString()
   }
-  public static create(id: string, name: string): Category {
+  public static create(id: string, name: string): CategoryEntity {
     const now = new Date()
-    return new Category(id, name, now.toString(), now.toString())
+    return new CategoryEntity(id, name, now.toString(), now.toString())
   }
 }

@@ -1,6 +1,6 @@
 import type{ Column } from "@/modules/shared/column/column";
 
-export function getColumns(t: (key: string) => string) :Column[] {
+export function columns(t: (key: string) => string) :Column[] {
   return [
     {
       title: t("categories.field.name"),
