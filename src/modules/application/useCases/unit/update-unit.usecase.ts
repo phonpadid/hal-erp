@@ -1,5 +1,5 @@
 import type { UnitRepository } from "@/modules/domain/repository/unit.repository";
-import type { Unit } from "../../../domain/entities/unit.entities";
+import type { Unit } from "../../../domain/entities/unit.entity";
 import type { UpdateUnitDTO } from "../../dtos/unit.dto";
 
 export class UpdateUnitUseCase {

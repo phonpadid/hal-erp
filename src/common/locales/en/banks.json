@@ -19,9 +19,12 @@
   },
   "field": {
     "name": "Bank name",
+    "logo":"Logo",
+    "short_name":"short name",
     "created": "Created At",
     "updated": "Updated At",
-    "manage": "Manage"
+    "manage": "Manage",
+    "upload_logo":"upload logo"
   },
   "notify": {
     "created": "Info created successfully",

@@ -1,5 +1,5 @@
 import type { PurchaseRequestEntity } from "./purchase-request.entity";
-import type { Unit } from "../unit.entities";
+import type { Unit } from "../unit.entity";
 
 export class PurchaseRequestItemEntity {
   private id: string | null;

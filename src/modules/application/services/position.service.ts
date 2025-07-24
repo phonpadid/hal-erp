@@ -1,5 +1,5 @@
 import type { PositionRepository } from "@/modules/domain/repository/position.repository";
-import type{ Position } from "../../domain/entities/position.entities";
+import type{ Position } from "../../domain/entities/position.entity";
 import type { CreatePositionDTO } from "../dtos/position.dto";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import {CreatePositionUseCase} from "../useCases/position/create-position.usecase";

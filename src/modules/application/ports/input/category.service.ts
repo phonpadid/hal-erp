@@ -1,4 +1,4 @@
-import type { Category } from "../../../domain/entities/categories.entities";
+import type { Category } from "../../../domain/entities/categories.entity";
 import type { CreateCategoryDTO, UpdateCategoryDTO } from "../../dtos/category.dto";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 

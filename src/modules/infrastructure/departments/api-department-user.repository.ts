@@ -11,7 +11,7 @@ import { UserEntity } from "@/modules/domain/entities/user.entities";
 import { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
 import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
 import type { PositionApiModel } from "@/modules/interfaces/position.interface";
-import { Position } from "@/modules/domain/entities/position.entities";
+import { Position } from "@/modules/domain/entities/position.entity";
 import { Role } from "@/modules/domain/entities/role.entities";
 import type { Roleinterface } from "@/modules/interfaces/role.interface";
 import type { PermissionResponse } from "@/modules/interfaces/permission.interface";

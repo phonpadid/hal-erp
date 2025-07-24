@@ -13,9 +13,12 @@
 
   "field": {
     "name": "ຊື່ທະນາຄານ",
+    "logo": "ໂລໂກ້",
+    "short_name": "ຊື່ຫຍໍ້",
     "created": "ເວລາສ້າງ",
     "updated": "ເວລາອັບເດດ",
-    "manage": "ຈັດການ"
+    "manage": "ຈັດການ",
+    "upload_logo": "ອັບໂຫຼດ ໂລໂກ້"
   },
   "placeholder": {
     "name": "ກະລຸນາປ້ອນຊື້ທະນາຄານ",

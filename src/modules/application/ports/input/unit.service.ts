@@ -1,4 +1,4 @@
-import type { Unit } from "../../../domain/entities/unit.entities";
+import type { Unit } from "../../../domain/entities/unit.entity";
 import type { CreateUnitDTO, UpdateUnitDTO } from "../../dtos/unit.dto";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 

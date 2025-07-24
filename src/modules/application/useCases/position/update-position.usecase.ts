@@ -1,6 +1,6 @@
 import type{ UpdatePositionDTO } from "../../dtos/position.dto";
 import type{ PositionRepository } from "@/modules/domain/repository/position.repository";
-import type{ Position } from "../../../domain/entities/position.entities";
+import type{ Position } from "../../../domain/entities/position.entity";
 
 export class UpdatePositionUseCase {
   constructor(private readonly positionRepository: PositionRepository) {}

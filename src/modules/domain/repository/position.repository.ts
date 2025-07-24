@@ -1,4 +1,4 @@
-import { Position } from "../entities/position.entities";
+import { Position } from "../entities/position.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
 export interface PositionRepository {

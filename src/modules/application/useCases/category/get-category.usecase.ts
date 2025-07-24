@@ -1,5 +1,5 @@
 import type{ CategoryRepository } from "@/modules/domain/repository/category.repository";
-import type { Category } from "../../../domain/entities/categories.entities";
+import type { Category } from "../../../domain/entities/categories.entity";
 
 export class GetCategoryUseCase {
   constructor(private readonly categoryRepository: CategoryRepository) {}

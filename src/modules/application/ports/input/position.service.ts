@@ -1,4 +1,4 @@
-import type { Position } from "../../../domain/entities/position.entities";
+import type { Position } from "../../../domain/entities/position.entity";
 import type { CreatePositionDTO, UpdatePositionDTO } from "../../dtos/position.dto";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 

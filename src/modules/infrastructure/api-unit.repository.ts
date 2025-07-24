@@ -1,7 +1,7 @@
 import type { ApiListResponse } from "./../shared/repondata";
 import type { UnitApiModel } from "./../interfaces/unit.interface";
 import type { ApiResponse } from "./../shared/messageApi";
-import { Unit } from "../domain/entities/unit.entities";
+import { Unit } from "../domain/entities/unit.entity";
 import type { UnitRepository } from "../domain/repository/unit.repository";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { api } from "@/common/config/axios/axios";

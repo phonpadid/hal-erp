@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 import type { Ref } from "vue";
 import { UnitServiceImpl } from "@/modules/application/services/unit.service";
 import { ApiUnitRepository } from "@/modules/infrastructure/api-unit.repository";
-import { Unit } from "@/modules/domain/entities/unit.entities";
+import { Unit } from "@/modules/domain/entities/unit.entity";
 import type { CreateUnitDTO, UpdateUnitDTO } from "@/modules/application/dtos/unit.dto";
 import type { PaginationParams } from "@/modules/shared/pagination";
 

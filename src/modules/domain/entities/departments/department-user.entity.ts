@@ -1,4 +1,4 @@
-import type { Position } from "../position.entities"
+import type { Position } from "../position.entity"
 import type { UserEntity } from "../user.entities"
 import type { DepartmentEntity } from "./department.entity"
 import type { Role } from "../role.entities"

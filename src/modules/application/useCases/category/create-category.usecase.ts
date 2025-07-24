@@ -1,5 +1,5 @@
 import {v4 as uuidv4} from 'uuid';
-import {Category} from '../../../domain/entities/categories.entities';
+import {Category} from '../../../domain/entities/categories.entity';
 import type {CategoryRepository} from '@/modules/domain/repository/category.repository';
 import type { CreateCategoryDTO } from '../../dtos/category.dto';
 

@@ -1,6 +1,6 @@
 import type { UnitRepository } from "@/modules/domain/repository/unit.repository";
 import type { UnitService } from "../ports/input/unit.service";
-import type { Unit } from "../../domain/entities/unit.entities";
+import type { Unit } from "../../domain/entities/unit.entity";
 import type { CreateUnitDTO, UpdateUnitDTO } from "../dtos/unit.dto";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { CreateUnitUseCase } from "../useCases/unit/create-unit.usecase";

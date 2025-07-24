@@ -1,4 +1,4 @@
-import { Category } from "../entities/categories.entities";
+import { Category } from "../entities/categories.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
 export interface CategoryRepository {

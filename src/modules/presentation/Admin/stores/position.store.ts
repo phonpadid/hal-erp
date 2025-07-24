@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 import type { Ref } from "vue";
 import { PositionServiceImpl } from "@/modules/application/services/position.service";
 import { ApiPositionRepository } from "@/modules/infrastructure/api-position.repository";
-import { Position } from "@/modules/domain/entities/position.entities";
+import { Position } from "@/modules/domain/entities/position.entity";
 import type { CreatePositionDTO, UpdatePositionDTO } from "@/modules/application/dtos/position.dto";
 import type { PaginationParams } from "@/modules/shared/pagination";
 

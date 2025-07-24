@@ -1,6 +1,6 @@
 import type {CategoryRepository} from "@/modules/domain/repository/category.repository";
 import type {CategoryService} from "../ports/input/category.service";
-import type {Category} from "../../domain/entities/categories.entities";
+import type {Category} from "../../domain/entities/categories.entity";
 import type {CreateCategoryDTO, UpdateCategoryDTO} from "../dtos/category.dto";
 import type {PaginationParams, PaginatedResult} from "@/modules/shared/pagination";
 import {CreateCategoryUseCase} from "../useCases/category/create-category.usecase";

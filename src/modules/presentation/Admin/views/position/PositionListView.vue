@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import type { PositionApiModel } from "@/modules/interfaces/position.interface";
 import { usePositionStore } from "@/modules/presentation/Admin/stores/position.store";
-import { Position } from "@/modules/domain/entities/position.entities";
+import { Position } from "@/modules/domain/entities/position.entity";
 import { getColumns } from "./column";
 import { rules } from "./validation/position.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -30,7 +30,6 @@ const selectedPosition = ref<PositionApiModel | null>(null);
 const errorMessage = ref("");
 const formModel = reactive({ name: "" });
 
-
 const pageSizeOptions = ["10", "20", "50", "100"];
 
 onMounted(async () => {
@@ -41,7 +40,7 @@ watch(search, async (newValue) => {
   if (!newValue) {
     await loadPositions();
   }
-})
+});
 
 const loadPositions = async (): Promise<void> => {
   loading.value = true;
@@ -96,7 +95,7 @@ const handleSearch = async () => {
   } finally {
     loading.value = false;
   }
-}
+};
 
 const showCreateModal = (): void => {
   formModel.name = "";
@@ -122,7 +121,7 @@ const handleCreate = async (): Promise<void> => {
   try {
     await formRef.value.submitForm();
     await positionStore.createPosition({ name: formModel.name });
-    success(t('positions.notify.created'));
+    success(t("positions.notify.created"));
     await loadPositions();
     createModalVisible.value = false;
     formModel.name = "";
@@ -149,7 +148,7 @@ const handleEdit = async (): Promise<void> => {
     if (selectedPosition.value) {
       const id = selectedPosition.value.id.toString();
       await positionStore.updatePosition(id, { name: formModel.name });
-      success(t('positions.notify.updated'));
+      success(t("positions.notify.updated"));
       await loadPositions();
       editModalVisible.value = false;
     }
@@ -174,7 +173,7 @@ const handleDelete = async (): Promise<void> => {
   try {
     const id = selectedPosition.value.id.toString();
     await positionStore.deletePosition(id);
-    success(t('positions.notify.deleted'));
+    success(t("positions.notify.deleted"));
     await loadPositions();
     deleteModalVisible.value = false;
   } catch (error) {
@@ -193,38 +192,70 @@ const handleDelete = async (): Promise<void> => {
       </h1>
       <div class="flex justify-between gap-20">
         <div class="w-[20rem]">
-          <InputSearch v-model:value="search" @keyup.enter="handleSearch"
-            :placeholder="t('positions.placeholder.search')" />
+          <InputSearch
+            v-model:value="search"
+            @keyup.enter="handleSearch"
+            :placeholder="t('positions.placeholder.search')"
+          />
         </div>
-        <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal"
-          colorClass="flex items-center">
+        <UiButton
+          type="primary"
+          icon="ant-design:plus-outlined"
+          @click="showCreateModal"
+          colorClass="flex items-center"
+        >
           {{ t("positions.add") }}
         </UiButton>
       </div>
     </div>
 
     <!-- Table -->
-    <Table :columns="columns" :dataSource="positions" :pagination="{
-      current: positionStore.pagination.page,
-      pageSize: positionStore.pagination.limit,
-      total: positionStore.pagination.total,
-      showSizeChanger: true,
-      pageSizeOptions
-    }" row-key="id" :loading="positionStore.loading" @change="handleTableChange">
+    <Table
+      :columns="columns"
+      :dataSource="positions"
+      :pagination="{
+        current: positionStore.pagination.page,
+        pageSize: positionStore.pagination.limit,
+        total: positionStore.pagination.total,
+        showSizeChanger: true,
+        pageSizeOptions,
+      }"
+      row-key="id"
+      :loading="positionStore.loading"
+      @change="handleTableChange"
+    >
       <template #actions="{ record }">
         <div class="flex gap-2">
-          <UiButton type="" icon="ant-design:edit-outlined" size="small" @click="showEditModal(record)"
-            colorClass="flex items-center justify-center text-orange-400" />
-          <UiButton type="" danger icon="ant-design:delete-outlined"
-            colorClass="flex items-center justify-center text-red-700" size="small" @click="showDeleteModal(record)" />
+          <UiButton
+            type=""
+            icon="ant-design:edit-outlined"
+            size="small"
+            @click="showEditModal(record)"
+            colorClass="flex items-center justify-center text-orange-400"
+          />
+          <UiButton
+            type=""
+            danger
+            icon="ant-design:delete-outlined"
+            colorClass="flex items-center justify-center text-red-700"
+            size="small"
+            @click="showDeleteModal(record)"
+          />
         </div>
       </template>
     </Table>
 
     <!-- Create Modal -->
-    <UiModal :title="t('positions.header_form.add')" :visible="createModalVisible" :confirm-loading="loading"
-      @update:visible="createModalVisible = $event" @ok="handleCreate" @cancel="createModalVisible = false"
-      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
+    <UiModal
+      :title="t('positions.header_form.add')"
+      :visible="createModalVisible"
+      :confirm-loading="loading"
+      @update:visible="createModalVisible = $event"
+      @ok="handleCreate"
+      @cancel="createModalVisible = false"
+      :cancelText="t('button.cancel')"
+      :okText="t('button.confirm')"
+    >
       <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('positions.field.name')" name="name" required>
@@ -234,9 +265,16 @@ const handleDelete = async (): Promise<void> => {
     </UiModal>
 
     <!-- Edit Modal -->
-    <UiModal :title="t('positions.header_form.edit')" :visible="editModalVisible" :confirm-loading="loading"
-      @update:visible="editModalVisible = $event" @ok="handleEdit" @cancel="editModalVisible = false"
-      :cancelText="t('button.cancel')" :okText="t('button.confirm')">
+    <UiModal
+      :title="t('positions.header_form.edit')"
+      :visible="editModalVisible"
+      :confirm-loading="loading"
+      @update:visible="editModalVisible = $event"
+      @ok="handleEdit"
+      @cancel="editModalVisible = false"
+      :cancelText="t('button.cancel')"
+      :okText="t('button.confirm')"
+    >
       <div v-if="errorMessage" class="text-red-500 mb-2">{{ errorMessage }}</div>
       <UiForm ref="formRef" :model="formModel" :rules="rules">
         <UiFormItem :label="t('positions.field.name')" name="name" required>
@@ -246,9 +284,17 @@ const handleDelete = async (): Promise<void> => {
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
-    <UiModal :title="t('positions.header_form.delete.title')" :visible="deleteModalVisible" :confirm-loading="loading"
-      @update:visible="deleteModalVisible = $event" @ok="handleDelete" :cancelText="t('button.cancel')"
-      @cancel="deleteModalVisible = false" :okText="t('button.confirm')" okType="primary">
+    <UiModal
+      :title="t('positions.header_form.delete.title')"
+      :visible="deleteModalVisible"
+      :confirm-loading="loading"
+      @update:visible="deleteModalVisible = $event"
+      @ok="handleDelete"
+      :cancelText="t('button.cancel')"
+      @cancel="deleteModalVisible = false"
+      :okText="t('button.confirm')"
+      okType="primary"
+    >
       <p>{{ t("positions.header_form.delete.content") }} "{{ selectedPosition?.name }}"?</p>
       <p class="text-red-500">{{ t("positions.header_form.delete.description") }}</p>
     </UiModal>

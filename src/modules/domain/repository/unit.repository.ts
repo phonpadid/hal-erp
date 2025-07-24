@@ -1,4 +1,4 @@
-import { Unit } from "../entities/unit.entities";
+import { Unit } from "../entities/unit.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
 export interface UnitRepository {

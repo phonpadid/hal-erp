@@ -1,5 +1,5 @@
 import {v4 as uuidv4} from 'uuid';
-import {Position} from '../../../domain/entities/position.entities';
+import {Position} from '../../../domain/entities/position.entity';
 import type {PositionRepository} from '@/modules/domain/repository/position.repository';
 import type { CreatePositionDTO } from '../../dtos/position.dto';
 

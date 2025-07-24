@@ -1,6 +1,6 @@
 import type { UpdateCategoryDTO } from "../../dtos/category.dto";
 import type { CategoryRepository } from "@/modules/domain/repository/category.repository";
-import type { Category } from "../../../domain/entities/categories.entities";
+import type { Category } from "../../../domain/entities/categories.entity";
 
 export class UpdateCategoryUseCase {
   constructor(private readonly categoryRepository: CategoryRepository) { }

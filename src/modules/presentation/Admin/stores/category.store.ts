@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 import type { Ref } from "vue";
 import { CategoryServiceImpl } from "@/modules/application/services/category.service";
 import { ApiCategoryRepository } from "@/modules/infrastructure/api-category.repository";
-import { Category } from "@/modules/domain/entities/categories.entities";
+import { Category } from "@/modules/domain/entities/categories.entity";
 import type { CreateCategoryDTO, UpdateCategoryDTO } from "@/modules/application/dtos/category.dto";
 import type { PaginationParams } from "@/modules/shared/pagination";
 
