@@ -3,16 +3,17 @@ import { ref, reactive, defineProps, defineEmits, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import type { VendorBankAccountInterface } from "@/modules/interfaces/vendors/vendor_bank_accounts/vendor-bank-accounts.interface";
 import { createVendorBankAccountValidation } from "@/modules/presentation/Admin/views/vendors/vendor_bank_accounts/validations/vendor-bank-account.validatetion";
-import { useVendorStore } from "@/modules/presentation/Admin/stores/vendors/vendor.store";
 import { currencyStore } from "@/modules/presentation/Admin/stores/currency.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 const { t } = useI18n();
-const vendorStore = useVendorStore();
 const currencyStoreInstance = currencyStore();
 const { error } = useNotification();
 
@@ -51,7 +52,6 @@ const formState = reactive({
 const loadingVendors = ref(false);
 const loadingCurrencies = ref(false);
 // Options for select inputs
-const vendorOptions = ref<{ label: string; value: string }[]>([]);
 const currencyOptions = ref<{ label: string; value: string }[]>([]);
 
 // Load initial data
@@ -59,7 +59,7 @@ onMounted(async () => {
   try {
     loadingVendors.value = true;
     loadingCurrencies.value = true;
-    await Promise.all([loadVendors(), loadCurrencies()]);
+    await Promise.all([loadCurrencies()]);
   } catch (err) {
     console.error("Failed to load initial data:", err);
     error(t("vendors_bank.error.loadDataFailed"));
@@ -68,20 +68,6 @@ onMounted(async () => {
     loadingCurrencies.value = false;
   }
 });
-
-// Load vendors
-const loadVendors = async () => {
-  try {
-    const result = await vendorStore.fetchVendors();
-    vendorOptions.value = result.data.map((vendor) => ({
-      label: vendor.name,
-      value: vendor.id,
-    }));
-  } catch (err) {
-    console.error("Failed to load vendors:", err);
-    throw err;
-  }
-};
 
 // Load currencies
 const loadCurrencies = async () => {
@@ -155,7 +141,7 @@ const submitForm = async () => {
   try {
     await formRef.value.submitForm();
     emit("submit", {
-      vendor_id: formState.vendor_id,
+      vendor_id: String(route.params.id),
       currency_id: formState.currency_id,
       bank_name: formState.bank_name,
       account_name: formState.account_name,
@@ -175,16 +161,6 @@ defineExpose({
 
 <template>
   <UiForm ref="formRef" :model="formState" :rules="rules">
-    <UiFormItem :label="$t('vendors_bank.form.vendor')" name="vendor_id" required>
-      <UiInputSelect
-        v-model="formState.vendor_id"
-        :options="vendorOptions"
-        :placeholder="$t('vendors_bank.form.vendorPlaceholder')"
-        :loading="loadingVendors"
-        :disabled="loading"
-      />
-    </UiFormItem>
-
     <UiFormItem :label="$t('vendors_bank.form.currency')" name="currency_id" required>
       <UiInputSelect
         v-model="formState.currency_id"

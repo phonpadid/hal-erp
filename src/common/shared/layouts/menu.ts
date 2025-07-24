@@ -56,6 +56,10 @@ export const menuItems = computed<ItemType[]>(() => [
                 label: t("menu-sidebar.document_type"),
               },
               {
+                key: "vendors.index",
+                label: t("menu-sidebar.vendor"),
+              },
+              {
                 key: "user_approval.index",
                 label: t("menu-sidebar.user_approval"),
               },
@@ -139,36 +143,6 @@ export const menuItems = computed<ItemType[]>(() => [
               //   key: "budget-items-details",
               //   label: t("menu-sidebar.budget_item_detail"),
               // },
-            ],
-          },
-        ],
-        type: "group",
-      },
-
-      /** Vendor */
-      {
-        label: "",
-        children: [
-          { type: "divider" },
-          {
-            key: "4",
-            label: t("menu-sidebar.vendor_manage"),
-            icon: () =>
-              h("div", {}, [
-                h(Icon, {
-                  icon: "material-symbols:manage-accounts-outline-rounded",
-                  class: "text-base",
-                }),
-              ]),
-            children: [
-              {
-                key: "vendorsList",
-                label: t("menu-sidebar.vendor"),
-              },
-              {
-                key: "vendorsBankList",
-                label: t("menu-sidebar.vendor_bank"),
-              },
             ],
           },
         ],

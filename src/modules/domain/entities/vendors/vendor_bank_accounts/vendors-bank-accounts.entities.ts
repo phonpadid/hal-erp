@@ -1,3 +1,5 @@
+import { formatDate } from "@/modules/shared/formatdate";
+
 export class VendorsBankAccountEntity {
   private id: string;
   private vendor_id: string;
@@ -57,9 +59,9 @@ export class VendorsBankAccountEntity {
     this.account_name = account_name;
     this.account_number = account_number;
     this.is_selected = is_selected;
-    this.created_at = created_at;
-    this.updated_at = updated_at;
-    this.deleted_at = deleted_at;
+    this.created_at = formatDate(created_at);
+    this.updated_at = formatDate(updated_at);
+    this.deleted_at = deleted_at !== null ? formatDate(deleted_at) : null;
     this.vendor = vendor;
     this.currency = currency;
   }
