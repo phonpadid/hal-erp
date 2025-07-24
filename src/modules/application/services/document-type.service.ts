@@ -38,18 +38,6 @@ export class DocumentTypeServiceImpl implements DocumentTypeServices {
     id: string,
     documentTypeData: DocumentTypeUpdate
   ): Promise<DocumentTypeEntity> {
-    const documentType = await this.documentTypeRepository.findById(id);
-    if (!documentType) {
-      throw new Error(`Document type with id ${id} not found`);
-    }
-
-    if (documentTypeData.code) {
-      const existingCode = await this.documentTypeRepository.findByCode(documentTypeData.code);
-      if (existingCode && existingCode.getId() !== id) {
-        throw new Error(`Document type with code ${documentTypeData.code} already exists`);
-      }
-    }
-
     return await this.documentTypeRepository.update(id, documentTypeData);
   }
 

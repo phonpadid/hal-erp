@@ -4,7 +4,7 @@ import CategoryListView from "../views/category/CategoryListView.vue";
 export const categoryRoutes: RouteRecordRaw[] = [
   {
     path: "/categories",
-    name: "CategoryList",
+    name: "category.index",
     component: CategoryListView,
     meta: {
       Title: "categories",

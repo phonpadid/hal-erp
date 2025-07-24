@@ -55,8 +55,8 @@ export const useUnitStore = defineStore("unit", () => {
 
   // Get All Units
   const fetchUnits = async (
-    params: PaginationParams = { page: 1, limit: 10 },
-    includeDeleted: boolean = false
+    params: PaginationParams = { page: 1, limit: 10 }
+    // includeDeleted: boolean = false
   ) => {
     loading.value = true;
     error.value = null;
