@@ -52,13 +52,6 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
         total: result.total,
         totalPages: result.totalPages,
       };
-      return {
-        data: result.data.map(budgetItemEntityToInterface),
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -183,11 +176,10 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
       id: budgetItem.getId() || "",
       name: budgetItem.getName() || "",
       budget_account_id: budgetItem.getBudgetAccountsId() || "",
-      allocated_amount: budgetItem.getAllocatedAmount() || "",
+      allocated_amount: String(budgetItem.getAllocatedAmount() || ""),
       created_at: budgetItem.getCreatedAt() || "",
       updated_at: budgetItem.getUpdatedAt() || "",
       deleted_at: budgetItem.getDeletedAt(),
-      budget_item_details: budgetItem.getBudgetItemDetails(),
     };
   };
 
@@ -204,6 +196,12 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
     };
   };
 
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
+    pagination.value.total = newPagination.total;
+  };
+
   return {
     // State
     budgetItems,
@@ -211,6 +209,7 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
     loading,
     error,
     pagination,
+    setPagination,
 
     // Getters
     activeBudgetItems,

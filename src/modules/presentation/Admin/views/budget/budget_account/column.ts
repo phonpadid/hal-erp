@@ -19,16 +19,13 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("budget_accounts.list.allocatedAmount"),
-      dataIndex: "allocated_amount",
+      dataIndex: "format_allocated_amount",
       key: "allocated_amount",
     },
     {
       title: t("budget_accounts.list.department"),
-      dataIndex: "department",
+      dataIndex: "department.name",
       key: "department",
-      scopedSlots: {
-        customRender: "department",
-      },
     },
     {
       title: t("budget_accounts.list.createdAt"),

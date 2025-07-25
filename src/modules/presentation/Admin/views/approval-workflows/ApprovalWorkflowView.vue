@@ -34,7 +34,7 @@ const selectedData = ref<ApprovalWorkflowApiModel | null>(null);
 const docTypeStore = useDocumentTypeStore();
 const store = approvalWorkflowStore();
 const docTypeItems = computed(() =>
-  docTypeStore.documentType.map((item) => ({
+  docTypeStore.documentTypes.map((item) => ({
     value: item.getId(),
     label: item.getname(),
   }))

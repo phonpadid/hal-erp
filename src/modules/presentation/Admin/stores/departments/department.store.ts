@@ -71,7 +71,6 @@ export const departmentStore = defineStore("department", () => {
         total: result.total,
         totalPages: result.totalPages,
       };
-      return result;
     } catch (err) {
       error.value = err as Error;
       throw err;

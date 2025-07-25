@@ -15,7 +15,6 @@ export interface BudgetAccountInterface {
 }
 
 export interface CreateBudgetAccountInterface {
-
   name: string;
   fiscal_year: number | string;
   allocated_amount: number | string;
@@ -28,5 +27,5 @@ export interface UpdateBudgetAccountInterface {
   name: string;
   fiscal_year: string | number;
   allocated_amount: number | string;
-  department_id: number | string;
+  departmentId: number | string;
 }
