@@ -15,6 +15,7 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiTextArea from "@/common/shared/components/Input/Textarea.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import UiInputNumber from '@/common/shared/components/Input/InputNumber.vue';
 
 const { t } = useI18n();
 const budgetAccountStore = useBudgetAccountStore();
@@ -57,7 +58,7 @@ const itemDetails = ref([
   {
     name: "",
     province_id: "", // จังหวัดที่เลือกในฟอร์ม
-    allocated_amount: "",
+    allocated_amount: 0,
     description: "",
   },
 ]);
@@ -146,7 +147,7 @@ watch(
         {
           name: "",
           province_id: "",
-          allocated_amount: "",
+          allocated_amount: 0,
           description: "",
         },
       ];
@@ -159,7 +160,7 @@ const addDetailItem = () => {
   itemDetails.value.push({
     name: formState.name,
     province_id: "",
-    allocated_amount: "",
+    allocated_amount: 0,
     description: "",
   });
 
@@ -178,7 +179,7 @@ const removeDetailItem = (index: number) => {
     itemDetails.value[0] = {
       name: formState.name,
       province_id: "",
-      allocated_amount: "",
+      allocated_amount: 0,
       description: "",
     };
 
@@ -232,8 +233,7 @@ const formatAllocatedAmount = (index: number) => {
       const numValue = parseFloat(cleanValue);
 
       if (!isNaN(numValue)) {
-        // ฟอร์แมตเป็นทศนิยม 2 ตำแหน่ง
-        itemDetails.value[index].allocated_amount = numValue.toFixed(2);
+        itemDetails.value[index].allocated_amount = parseFloat(numValue.toFixed(2));
       }
     } catch (err) {
       console.error("Error formatting amount:", err);
@@ -250,7 +250,7 @@ const submitForm = async () => {
 
     // In edit mode, only validate the name field
     if (props.isEditMode) {
-      await formRef.value.validateFields(["name"]);
+      await formRef.value.validate(["name"]);
     } else {
       await formRef.value.validate();
     }
@@ -258,7 +258,9 @@ const submitForm = async () => {
     const details = itemDetails.value.map((item) => ({
       name: item.name || formState.name,
       provinceId: parseInt(item.province_id) || 0, // Add fallback to prevent NaN
-      allocated_amount: parseFloat(item.allocated_amount) || 0, // Add fallback to prevent NaN
+      allocated_amount: typeof item.allocated_amount === 'string'
+        ? parseFloat(item.allocated_amount) || 0
+        : item.allocated_amount || 0, // Add fallback to prevent NaN
       description: item.description || "",
     }));
 
@@ -353,15 +355,13 @@ defineExpose({
         <div class="gap-3">
           <span class="text-red-600">*</span>{{ $t("budget_items.form.allocatedAmount") }}
         </div>
-        <!-- :label="$t('budget_items.form.allocatedAmount')" -->
-        <!-- :name="`allocatedAmount_${index}`" -->
         <UiFormItem>
-          <UiInput
+          <UiInputNumber
             v-model="item.allocated_amount"
-            :placeholder="$t('budget_items.form.allocatedAmountPlaceholder')"
+            :placeholder="$t('budget_accounts.form.allocatedAmountPlaceholder')"
             :disabled="loading"
-            type="number"
-            step="0.01"
+            :formatter="(value: string | number) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+            :parser="(value: string) => value.replace(/\$\s?|(,*)/g, '')"
           />
         </UiFormItem>
 

@@ -107,24 +107,14 @@ export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
       budgetAccount.department
     );
   }
-  private toDepartmentEntity(departmentData: DepartmentApiModel): DepartmentEntity {
-    return new DepartmentEntity(
-      departmentData.id.toString(),
-      departmentData.name,
-      departmentData.code ?? "",
-      departmentData.created_at ?? "",
-      departmentData.updated_at ?? ""
-    );
-  }
 
   private handleApiError(error: unknown, defaultMessage: string): never {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
 
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`
