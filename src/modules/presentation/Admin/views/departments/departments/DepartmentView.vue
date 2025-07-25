@@ -46,13 +46,13 @@ const loadDpm = async (): Promise<void> => {
   if (useRealApi.value) {
     try {
       loading.value = true;
-      const result = await dpmStore.fetchDepartment({
+      dpmStore.fetchDepartment({
         page: dpmStore.pagination.page,
         limit: dpmStore.pagination.limit,
         search: search.value,
       });
 
-      department.value = result.data.map((dpm: DepartmentEntity) => {
+      department.value = dpmStore.departments.map((dpm: DepartmentEntity) => {
         return {
           id: Number(dpm.getId()),
           name: dpm.getName(),
@@ -78,13 +78,13 @@ const loadDpm = async (): Promise<void> => {
 const handleSearch = async () => {
   try {
     loading.value = true;
-    const result = await dpmStore.fetchDepartment({
+    dpmStore.fetchDepartment({
       page: 1,
       limit: dpmStore.pagination.limit,
       search: search.value,
     });
 
-    department.value = result.data.map((department: DepartmentEntity) => ({
+    department.value = dpmStore.departments.map((department: DepartmentEntity) => ({
       id: Number(department.getId()),
       name: department.getName(),
       code: department.getCode(),

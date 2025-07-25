@@ -94,7 +94,6 @@ export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
   }
 
   private toDomainModel(budgetAccount: BudgetAccountInterface): BudGetAccountsEntity {
-    console.log("BudGetAccountsEntity created:", budgetAccount);
     return new BudGetAccountsEntity(
       budgetAccount.id.toString(),
       budgetAccount.code,
@@ -105,11 +104,10 @@ export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
       budgetAccount.created_at || "",
       budgetAccount.updated_at || "",
       budgetAccount.deleted_at || null,
-      budgetAccount.department 
+      budgetAccount.department
     );
   }
   private toDepartmentEntity(departmentData: DepartmentApiModel): DepartmentEntity {
-    // console.log("DepartmentEntity created:", departmentData);
     return new DepartmentEntity(
       departmentData.id.toString(),
       departmentData.name,

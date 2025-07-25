@@ -94,14 +94,14 @@ onMounted(async () => {
 // Load budget accounts
 const loadBudgetAccounts = async () => {
   try {
-    const result = await budgetAccountStore.fetchBudgetAccounts({
+    await budgetAccountStore.fetchBudgetAccounts({
       page: 1,
       limit: 100,
     });
 
-    budgetAccountOptions.value = result.data.map((account) => ({
-      label: `${account.code} - ${account.name}`,
-      value: account.id.toString(),
+    budgetAccountOptions.value = budgetAccountStore.budgetAccounts.map((account) => ({
+      label: `${account.getCode()} - ${account.getName()} - ${account.getFormattedAllocatedAmount()}`,
+      value: account.getId().toString(),
     }));
   } catch (err) {
     console.error("Failed to load budget accounts:", err);
@@ -136,23 +136,6 @@ watch(
         budget_account_id: newBudgetItem.budget_account_id || "",
         name: newBudgetItem.name || "",
       });
-      if (props.isEditMode && newBudgetItem.budget_item_details?.length) {
-        itemDetails.value = newBudgetItem.budget_item_details.map((detail) => ({
-          name: detail.name || "",
-          province_id: detail.province_id ? detail.province_id.toString() : "",
-          allocated_amount: detail.allocated_amount ? detail.allocated_amount.toString() : "",
-          description: detail.description || "",
-        }));
-      } else {
-        itemDetails.value = [
-          {
-            name: newBudgetItem.name || "",
-            province_id: "",
-            allocated_amount: newBudgetItem.allocated_amount || "",
-            description: "",
-          },
-        ];
-      }
     } else {
       Object.assign(formState, {
         budget_account_id: props.preselectedBudgetAccountId || "",

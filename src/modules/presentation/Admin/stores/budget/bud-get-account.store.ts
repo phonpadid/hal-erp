@@ -52,13 +52,6 @@ export const useBudgetAccountStore = defineStore("budgetAccount", () => {
         total: result.total,
         totalPages: result.totalPages,
       };
-      return {
-        data: result.data.map(budgetAccountEntityToInterface),
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -181,6 +174,12 @@ export const useBudgetAccountStore = defineStore("budgetAccount", () => {
     };
   };
 
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
+    pagination.value.total = newPagination.total;
+  };
+
   return {
     // State
     budgetAccounts,
@@ -188,6 +187,7 @@ export const useBudgetAccountStore = defineStore("budgetAccount", () => {
     loading,
     error,
     pagination,
+    setPagination,
 
     // Getters
     activeBudgetAccounts,
