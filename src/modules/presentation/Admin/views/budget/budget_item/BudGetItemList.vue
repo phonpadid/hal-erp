@@ -181,8 +181,8 @@ const handleDeleteConfirm = async () => {
     deleteModalVisible.value = false;
     await loadBudgetItems();
   } catch (err) {
-    console.error("Error deleting budget item:", err);
-    error(t("budget_items.error.deleteFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("budget_items.error.deleteFailed"), errorMessage);
   } finally {
     submitLoading.value = false;
   }
@@ -241,12 +241,12 @@ const handleDeleteConfirm = async () => {
                 </span>
               </p>
             </div>
-            <div class="text-xs text-gray-500 flex justify-between">
+            <div class="text-xs text-gray-500 flex justify-between mt-[-10px]">
               <p>{{ $t("budget_accounts.list.department") }}:
                 <span class="text-blue-700"> {{record.budget_account.department.name}}</span>
               </p>
             </div>
-            </div>
+          </div>
         </div>
         <span v-else class="text-gray-500 italic">{{ t("budget_items.noDetails") }}</span>
       </template>
