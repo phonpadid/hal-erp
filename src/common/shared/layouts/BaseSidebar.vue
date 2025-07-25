@@ -36,7 +36,7 @@ onMounted(() => {
         alt="logo"
         class="w-16 h-16 rounded-full"
       />
-      <span class="text-2xl font-sans">HAL ERP <br />System</span>
+      <p class="text-2xl font-sans">HAL ERP</p>
     </div>
     <div class="mt-4">
       <a-menu

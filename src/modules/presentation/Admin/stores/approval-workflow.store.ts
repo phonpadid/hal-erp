@@ -5,7 +5,10 @@ import type { PaginationParams } from "@/modules/shared/pagination";
 import { ApiApprovalWorkflowRepository } from "@/modules/infrastructure/api-approval-workflow.repository";
 import { ApprovalWorkflowServiceImpl } from "@/modules/application/services/approval-flow.service";
 import { ApprovalWorkflowEntity } from "@/modules/domain/entities/approval-workflows.entity";
-import type { CreateApprovalWorkflowDTO, UpdateApprovalWorkflowDTO } from "@/modules/application/dtos/approval-workflow.dto";
+import type {
+  CreateApprovalWorkflowDTO,
+  UpdateApprovalWorkflowDTO,
+} from "@/modules/application/dtos/approval-workflow.dto";
 
 const createApprovalWorkflowService = () => {
   const approvalWorkflowRepo = new ApiApprovalWorkflowRepository();
@@ -27,7 +30,7 @@ export const approvalWorkflowStore = defineStore("approval-workflow", () => {
     totalPages: 0,
   });
 
-  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page;
     pagination.value.limit = newPagination.limit;
     pagination.value.total = newPagination.total;
@@ -59,10 +62,7 @@ export const approvalWorkflowStore = defineStore("approval-workflow", () => {
     error.value = null;
 
     try {
-      const result = await apvWorkflowService.getAll(
-        params,
-        includeDeleted
-      );
+      const result = await apvWorkflowService.getAll(params, includeDeleted);
       approval_workflows.value = result.data;
       pagination.value = {
         page: result.page,
@@ -163,6 +163,6 @@ export const approvalWorkflowStore = defineStore("approval-workflow", () => {
     fetchApprovalWorkflows,
     fetchById,
     update,
-    remove
+    remove,
   };
 });

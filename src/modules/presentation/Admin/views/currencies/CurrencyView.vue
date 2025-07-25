@@ -215,6 +215,7 @@ watch(createModalVisible, (visible) => {
     formRef.value?.resetFields(); // Optional: reset form validation state
   }
 });
+
 watch(search, async(newVal) => {
   if(newVal === '') {
     await currenciesList()

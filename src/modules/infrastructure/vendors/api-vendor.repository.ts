@@ -27,7 +27,7 @@ export class ApiVendorsRepository implements VendorsRepository {
         },
       });
 
-      // ตรวจสอบว่ามีข้อมูลและ pagination
+      // ກວ່າການຕອບກັບ API ມີຮູບແບບທີ່ຄາດເວັ້ນ
       if (!response.data || !response.data.data || !response.data.pagination) {
         throw new Error("Invalid response format from API");
       }
@@ -115,33 +115,19 @@ export class ApiVendorsRepository implements VendorsRepository {
   }
 
   private handleApiError(error: unknown, defaultMessage: string): never {
-    console.error("API Error Details:", error); 
-
     const axiosError = error as AxiosError<{
       message?: string;
       status_code?: number;
     }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
-      const errorCode = axiosError.response.data?.status_code;
-
-      console.error("Response Error:", {
-        statusCode,
-        serverMessage,
-        errorCode,
-        data: axiosError.response.data,
-      });
-
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(serverMessage);
     } else if (axiosError.request) {
-      console.error("Request Error:", axiosError.request);
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`
       );
     } else {
-      console.error("Unknown Error:", error);
       throw new Error(`${defaultMessage}: ${(error as Error).message || "Unknown error"}`);
     }
   }

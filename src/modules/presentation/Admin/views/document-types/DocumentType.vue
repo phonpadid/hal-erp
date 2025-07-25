@@ -1,32 +1,24 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { DoucmentTypeInterface } from "@/modules/interfaces/documenet-type.interface";
 import { useDocumentTypeStore } from "../../stores/document-type.store";
 import { columns } from "./column";
-import { formatDate } from "@/modules/shared/formatdate";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import DocumentTypeForm from "@/modules/presentation/Admin/components/document-type/FormDocumentType.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
 const { t } = useI18n();
 const documentTypeStore = useDocumentTypeStore();
-const { success, error } = useNotification();
+const { success, error, warning } = useNotification();
 
 // State
-const documentTypes = ref<DoucmentTypeInterface[]>([]);
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  totalPages: 0,
-});
 
 // Modal state
 const modalVisible = ref<boolean>(false);
@@ -38,9 +30,9 @@ const documentTypeFormRef = ref();
 
 // Table pagination
 const tablePagination = computed(() => ({
-  current: pagination.current,
-  pageSize: pagination.pageSize,
-  total: pagination.total,
+  current: documentTypeStore.pagination.page,
+  pageSize: documentTypeStore.pagination.limit,
+  total: documentTypeStore.pagination.total,
   showSizeChanger: true,
 }));
 
@@ -48,29 +40,18 @@ onMounted(async () => {
   await loadDocumentTypes();
 });
 
-const loadDocumentTypes = async (
-  page: number = pagination.current,
-  pageSize: number = pagination.pageSize,
-  search: string = searchKeyword.value,
-  sortBy?: string
-) => {
+const loadDocumentTypes = async () => {
   loading.value = true;
 
   try {
-    const result = await documentTypeStore.fetchdocumentType({
-      page,
-      limit: pageSize,
-      search,
-      sortBy,
+    await documentTypeStore.fetchdocumentType({
+      page: documentTypeStore.pagination.page,
+      limit: documentTypeStore.pagination.limit,
+      search: searchKeyword.value,
     });
-    documentTypes.value = result.data;
-    pagination.current = result.page;
-    pagination.pageSize = result.limit;
-    pagination.total = result.total;
-    pagination.totalPages = result.totalPages;
-  } catch (err) {
-    console.error("Error loading document types:", err);
-    error(t("documentType.error.loadFailed"));
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("documentType.error.loadFailed"), String(errorMessage));
   } finally {
     loading.value = false;
   }
@@ -78,28 +59,34 @@ const loadDocumentTypes = async (
 
 // Handle pagination and sorting
 const handleTableChange = (
-  paginationInfo: TablePaginationType,
-  _filters: Record<string, string[]>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sorter: any
+  pagination: TablePaginationType
 ) => {
-  const page = paginationInfo.current || 1;
-  const pageSize = paginationInfo.pageSize || 10;
+  documentTypeStore.setPagination({
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total || 0,
+  })
+  loadDocumentTypes();
+};
 
-  pagination.current = page;
-  pagination.pageSize = pageSize;
+const handleSearch = async () => {
+  await documentTypeStore.fetchdocumentType({
+    page: 1,
+    limit: documentTypeStore.pagination.limit,
+    search: searchKeyword.value,
+  });
+};
 
-  let sortBy;
-  if (sorter && sorter.field) {
-    sortBy = sorter.field;
+watch(searchKeyword, async(newVal: string) => {
+  if(newVal === '') {
+    documentTypeStore.setPagination({
+      page: 1,
+      limit: documentTypeStore.pagination.limit,
+      total: documentTypeStore.pagination.total,
+    })
+    await loadDocumentTypes()
   }
-  loadDocumentTypes(page, pageSize, searchKeyword.value, sortBy);
-};
-
-const handleSearch = () => {
-  pagination.current = 1;
-  loadDocumentTypes(1, pagination.pageSize, searchKeyword.value);
-};
+})
 
 // Modal handlers
 const showCreateModal = () => {
@@ -144,8 +131,9 @@ const handleFormSubmit = async (formData: { name: string; code: string }) => {
 
     modalVisible.value = false;
     await loadDocumentTypes();
-  } catch (error) {
-    console.error("Error saving document type:", error);
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("documentType.error.title"), String(errorMessage));
   } finally {
     submitLoading.value = false;
   }
@@ -162,8 +150,8 @@ const handleDeleteConfirm = async () => {
     deleteModalVisible.value = false;
     await loadDocumentTypes();
   } catch (err) {
-    console.error("Error deleting document type:", err);
-    error(t("documentType.error.deleteFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("documentType.error.deleteFailed"), String(errorMessage));
   } finally {
     submitLoading.value = false;
   }
@@ -178,12 +166,10 @@ const handleDeleteConfirm = async () => {
       </div>
 
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
-        <UiInput
-          v-model="searchKeyword"
-          :placeholder="t('documentType.list.search')"
-          allowClear
-          @update:modelvalue="handleSearch"
-          class="w-64"
+        <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
           type="primary"
@@ -199,20 +185,12 @@ const handleDeleteConfirm = async () => {
     <!-- Document Types Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="documentTypes"
+      :dataSource="documentTypeStore.documentTypes"
       :pagination="tablePagination"
       :loading="loading"
       row-key="id"
       @change="handleTableChange"
     >
-      <!-- Date columns -->
-      <template #created_at="{ record }">
-        {{ formatDate(record.created_at) }}
-      </template>
-
-      <template #updated_at="{ record }">
-        {{ formatDate(record.updated_at) }}
-      </template>
 
       <!-- Actions column -->
       <template #actions="{ record }">

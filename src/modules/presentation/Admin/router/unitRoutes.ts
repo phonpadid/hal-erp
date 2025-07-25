@@ -4,7 +4,7 @@ import UnitListView from "../views/unit/UnitListView.vue";
 export const unitRoutes: RouteRecordRaw[] = [
   {
     path: "/units",
-    name: "UnitList",
+    name: "unit.index",
     component: UnitListView,
     meta: {
       title: "Units",

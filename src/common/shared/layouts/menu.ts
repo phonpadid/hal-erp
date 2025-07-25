@@ -18,6 +18,171 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
+
+      /** ຈັດການຂໍ້ມູນຫຼັກ */
+      {
+        label: "",
+        children: [
+          { type: "divider" },
+          {
+            key: "1",
+            label: t("menu-sidebar.manage"),
+            icon: () =>
+              h("div", {}, [
+                h(Icon, {
+                  icon: "material-symbols:auto-transmission-outline",
+                  class: "text-base",
+                }),
+              ]),
+            children: [
+              {
+                key: "position.index",
+                label: t("menu-sidebar.position"),
+              },
+              {
+                key: "currencies.index",
+                label: t("menu-sidebar.currency"),
+              },
+              {
+                key: "unit.index",
+                label: t("menu-sidebar.unit"),
+              },
+              {
+                key: "category.index",
+                label: t("menu-sidebar.category"),
+              },
+              {
+                key: "document.type.index",
+                label: t("menu-sidebar.document_type"),
+              },
+              {
+                key: "vendors.index",
+                label: t("menu-sidebar.vendor"),
+              },
+              {
+                key: "user_approval.index",
+                label: t("menu-sidebar.user_approval"),
+              },
+              {
+                key: "budget_apv_rule.index",
+                label: t("menu-sidebar.budget_apv_rule"),
+              },
+              {
+                key: "approval_workflows.index",
+                label: t("menu-sidebar.approval_workflow"),
+              },
+            ],
+          },
+        ],
+        type: "group",
+      },
+
+      //department group
+      {
+        label: "",
+        children: [
+          { type: "divider" },
+          {
+            key: "2",
+            label: t("menu-sidebar.department_manage"),
+            icon: () =>
+              h("div", {}, [
+                h(Icon, {
+                  icon: "material-symbols:auto-transmission-outline",
+                  class: "text-base",
+                }),
+              ]),
+            children: [
+              {
+                key: "department.index",
+                label: t("menu-sidebar.department"),
+              },
+              {
+                key: "department_approver.index",
+                label: t("menu-sidebar.department_approver"),
+              },
+              {
+                key: "department_user.index",
+                label: t("menu-sidebar.department_user"),
+              },
+              {
+                key: "budget_apv_rule.index",
+                label: t("menu-sidebar.budget_apv_rule"),
+              },
+            ],
+          },
+        ],
+        type: "group",
+      },
+
+      /** Budget */
+      {
+        label: "",
+        children: [
+          { type: "divider" },
+          {
+            key: "3",
+            label: t("menu-sidebar.budget_manage"),
+            icon: () =>
+              h("div", {}, [
+                h(Icon, {
+                  icon: "material-symbols:folder-managed-outline",
+                  class: "text-base",
+                }),
+              ]),
+            children: [
+              {
+                key: "budget-accounts",
+                label: t("menu-sidebar.budget_account"),
+              },
+              {
+                key: "budget-items",
+                label: t("menu-sidebar.budget_item"),
+              },
+              // {
+              //   key: "budget-items-details",
+              //   label: t("menu-sidebar.budget_item_detail"),
+              // },
+            ],
+          },
+        ],
+        type: "group",
+      },
+
+      /** User */
+      {
+        label: "",
+        children: [
+          { type: "divider" },
+          {
+            key: "5",
+            label: t("menu-sidebar.user_manage"),
+            icon: () =>
+              h("div", {}, [
+                h(Icon, {
+                  icon: "mdi:user",
+                  class: "text-base",
+                }),
+              ]),
+            children: [
+              {
+                key: "userList",
+                label: t("menu-sidebar.user"),
+              },
+              {
+                key: "roleList",
+                label: t("menu-sidebar.role"),
+              },
+              {
+                key: "permissionsList",
+                label: t("menu-sidebar.permission"),
+              },
+            ],
+          },
+        ],
+        type: "group",
+      },
+
       {
         key: "",
         label: t("menu-sidebar.purchase_orde"),
@@ -96,85 +261,7 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
-      {
-        key: "PositionList",
-        label: t("menu-sidebar.position"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:baseline-person",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "UnitList",
-        label: t("menu-sidebar.unit"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:round-filter-list",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "CategoryList",
-        label: t("menu-sidebar.category"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:outline-lan",
 
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "document_typesList",
-        label: t("menu-sidebar.document_type"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:edit-document-sharp",
-
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "user_approval.index",
-        label: t("menu-sidebar.user_approval"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:outline-imagesearch-roller",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "budget_apv_rule.index",
-        label: t("menu-sidebar.budget_apv_rule"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "mdi:account-check",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "approval_workflows.index",
-        label: t("menu-sidebar.approval_workflow"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:docs-outline",
-              class: "text-base",
-            }),
-          ]),
-      },
       //purchase-rq
       {
         key: "purchase_request.index",
@@ -244,151 +331,11 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
-
-      {
-        key: "currencies.index",
-        label: t("menu-sidebar.currency"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:outline-currency-rupee",
-              class: "text-base",
-            }),
-          ]),
-      },
     ],
 
     type: "group",
   },
-  //department group
-  {
-    label: "",
-    children: [
-      { type: "divider" },
-      {
-        key: "120",
-        label: t("menu-sidebar.department_manage"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:auto-transmission-outline",
-              class: "text-base",
-            }),
-          ]),
-        children: [
-          {
-            key: "department.index",
-            label: t("menu-sidebar.department"),
-          },
-          {
-            key: "department_approver.index",
-            label: t("menu-sidebar.department_approver"),
-          },
-          {
-            key: "department_user.index",
-            label: t("menu-sidebar.department_user"),
-          },
-          {
-            key: "budget_apv_rule.index",
-            label: t("menu-sidebar.budget_apv_rule"),
-          },
-        ],
-      },
-    ],
-    type: "group",
-  },
-  {
-    label: "",
-    children: [
-      { type: "divider" },
-      {
-        key: "122",
-        label: t("menu-sidebar.budget_manage"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:folder-managed-outline",
-              class: "text-base",
-            }),
-          ]),
-        children: [
-          {
-            key: "budget-accounts",
-            label: t("menu-sidebar.budget_account"),
-          },
-          {
-            key: "budget-items",
-            label: t("menu-sidebar.budget_item"),
-          },
-          // {
-          //   key: "budget-items-details",
-          //   label: t("menu-sidebar.budget_item_detail"),
-          // },
-        ],
-      },
-    ],
-    type: "group",
-  },
-  {
-    label: "",
-    children: [
-      { type: "divider" },
-      {
-        key: "121",
-        label: t("menu-sidebar.vendor_manage"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:manage-accounts-outline-rounded",
-              class: "text-base",
-            }),
-          ]),
-        children: [
-          {
-            key: "vendorsList",
-            label: t("menu-sidebar.vendor"),
-          },
-          {
-            key: "vendorsBankList",
-            label: t("menu-sidebar.vendor_bank"),
-          },
-        ],
-      },
-    ],
-    type: "group",
-  },
-  {
-    label: "",
-    children: [
-      { type: "divider" },
-      {
-        key: "12",
-        label: t("menu-sidebar.user_manage"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "mdi:user",
-              class: "text-base",
-            }),
-          ]),
-        children: [
-          {
-            key: "userList",
-            label: t("menu-sidebar.user"),
-          },
-          {
-            key: "roleList",
-            label: t("menu-sidebar.role"),
-          },
-          {
-            key: "permissionsList",
-            label: t("menu-sidebar.permission"),
-          },
-        ],
-      },
-    ],
-    type: "group",
-  },
+
   {
     label: t("menu-sidebar.report"),
     children: [

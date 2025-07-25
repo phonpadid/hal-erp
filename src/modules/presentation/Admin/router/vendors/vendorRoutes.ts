@@ -4,7 +4,7 @@ import VendorView from "../../views/vendors/vendor/VendorView.vue";
 export const vendorsRoutes: RouteRecordRaw[] = [
   {
     path: "/vendors",
-    name: "vendorsList",
+    name: "vendors.index",
     component: VendorView,
     meta: {
       Title: "vendors",
