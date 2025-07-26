@@ -1,22 +1,23 @@
-export class Position {
+import { formatDate } from "@/modules/shared/formatdate"
+export class PositionEntity {
   private id: string
   private name: string
   private createdAt: string
   private updatedAt: string
-  private deletedAt: Date | null
+  private deletedAt: string | null
 
   constructor(
     id: string,
     name: string,
     createdAt: string,
     updatedAt: string,
-    deletedAt: Date | null = null
+    deletedAt: string | null = null
   ) {
     this.id = id
     this.name = name
-    this.createdAt = createdAt
-    this.updatedAt = updatedAt
-    this.deletedAt = deletedAt
+    this.createdAt = formatDate(createdAt)
+    this.updatedAt = formatDate(updatedAt)
+    this.deletedAt = deletedAt !== null ? formatDate(deletedAt) : null;
   }
 
   public getId(): string {
@@ -35,7 +36,7 @@ export class Position {
     return this.updatedAt
   }
 
-  public getDeletedAt(): Date | null {
+  public getDeletedAt(): string | null {
     return this.deletedAt
   }
 
@@ -45,21 +46,21 @@ export class Position {
 
   public updateName(name: string): void {
     this.name = name
-    this.updatedAt = new Date().toString()
+    this.updatedAt = new Date().toISOString().replace("T", "").substring(0, 19);
   }
 
   public delete(): void {
-    this.deletedAt = new Date()
-    this.updatedAt = new Date().toString()
+    this.deletedAt = new Date().toISOString().replace("T", "").substring(0, 19);
+    this.updatedAt = this.deletedAt;
   }
 
   public restore(): void {
     this.deletedAt = null
-    this.updatedAt = new Date().toString()
+    this.updatedAt = new Date().toISOString().replace("T", "").substring(0, 19);
   }
 
-  public static create(id: string, name: string): Position {
-    const now = new Date()
-    return new Position(id, name, now.toString(), now.toString())
+  public static create(id: string, name: string): PositionEntity {
+    const now = new Date().toISOString().replace("T", "").substring(0, 19);
+    return new PositionEntity(id, name, now, now, null);
   }
 }

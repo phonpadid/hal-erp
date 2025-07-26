@@ -1,18 +1,16 @@
-import type {
-  DocumentTypeCreate,
-  DocumentTypeUpdate,
-} from "./../../interfaces/documenet-type.interface";
-import type { DocumentTypeEntity } from "../entities/document-type.entities";
+import type { PositionEntity } from "../entities/position.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
+import type { CreatePositionDTO, UpdatePositionDTO } from "@/modules/application/dtos/position.dto";
 
-export interface DocumentTypeRepository {
+export interface PositionRepository {
   findAll(
     params: PaginationParams,
     includeDeleted?: boolean
-  ): Promise<PaginatedResult<DocumentTypeEntity>>;
-  findById(id: string): Promise<DocumentTypeEntity | null>;
-  findByCode(code: string): Promise<DocumentTypeEntity | null>;
-  create(data: DocumentTypeCreate): Promise<DocumentTypeEntity>;
-  update(id: string, data: DocumentTypeUpdate): Promise<DocumentTypeEntity>;
+  ): Promise<PaginatedResult<PositionEntity>>;
+  findById(id: string): Promise<PositionEntity | null>;
+  findByName(name: string): Promise<PositionEntity | null>;
+  create(data: CreatePositionDTO): Promise<PositionEntity>;
+  update(id: string, data: UpdatePositionDTO): Promise<PositionEntity>;
   delete(id: string): Promise<boolean>;
+  restore(id: string): Promise<boolean>;
 }

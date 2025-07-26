@@ -1,127 +1,120 @@
-import type { ApiListResponse } from "../shared/repondata";
-import type { PositionApiModel } from "../interfaces/position.interface";
-import type { ApiResponse } from "../shared/messageApi";
-import { Position } from "../domain/entities/position.entity";
-import type { PositionRepository } from "../domain/repository/position.repository";
+import type { PositionRepository } from "@/modules/domain/repository/position.repository";
+import { PositionEntity } from "@/modules/domain/entities/position.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
+import type { CreatePositionDTO, UpdatePositionDTO } from "@/modules/application/dtos/position.dto";
 
 export class ApiPositionRepository implements PositionRepository {
-  async create(input: Position): Promise<Position> {
+  private readonly baseUrl = "/positions";
+
+  async findAll(
+    params: PaginationParams,
+    includeDeleted: boolean = false
+  ): Promise<PaginatedResult<PositionEntity>> {
     try {
-      const response = (await api.post("/positions", this.toApiModel(input))) as {
-        data: ApiResponse<PositionApiModel>;
+      const response = await api.get(this.baseUrl, {
+        params: {
+          page: params.page || 1,
+          limit: params.limit || 10,
+          search: params.search || "",
+          sort_by: params.sortBy,
+          sortDirection: params.sortDirection,
+          include_deleted: includeDeleted,
+        },
+      });
+
+      return {
+        data: response.data.data.map((position: any) => this.toDomainModel(position)),
+        total: response.data.pagination.total,
+        page: response.data.pagination.page,
+        limit: response.data.pagination.limit,
+        totalPages: response.data.pagination.total_pages,
       };
-      return this.toDomainModel(response.data.data);
     } catch (error) {
-      this.handleApiError(error, "Failed to create position");
+      return this.handleApiError(error, "Failed to fetch positions list");
     }
   }
 
-  async findById(id: string): Promise<Position | null> {
+  async findById(id: string): Promise<PositionEntity | null> {
     try {
-      const response = (await api.get(`/positions/${id}`)) as {
-        data: ApiResponse<PositionApiModel>;
-      };
+      const response = await api.get(`${this.baseUrl}/${id}`);
       return this.toDomainModel(response.data.data);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.status === 404) {
         return null;
       }
-      this.handleApiError(error, `Failed to find position with id ${id}`);
+      return this.handleApiError(error, `Failed to find position with id ${id}`);
     }
   }
 
-  async findByName(name: string): Promise<Position | null> {
+  async findByName(name: string): Promise<PositionEntity | null> {
     try {
-      const response = (await api.get("/positions", {
-        params: { name },
-      })) as { data: ApiListResponse<PositionApiModel> };
+      const response = await api.get(this.baseUrl, {
+        params: { name, limit: 5 },
+      });
 
-      if (response.data.data.length === 0) {
+      const data = response.data.data;
+      if (!Array.isArray(data) || data.length === 0) {
         return null;
       }
+      const found = data.find(
+        (p: any) =>
+          p.name === name && (p.deleted_at === null || p.deleted_at === undefined)
+      );
+      if (!found) return null;
 
-      return this.toDomainModel(response.data.data[0]);
+      return this.toDomainModel(found);
     } catch (error) {
       console.error(`Error finding position by name '${name}':`, error);
       return null;
     }
   }
 
-  async findAll(
-    params: PaginationParams,
-    includeDeleted: boolean = false
-  ): Promise<PaginatedResult<Position>> {
+  async create(positionData: CreatePositionDTO): Promise<PositionEntity> {
     try {
-      const response = (await api.get("/positions", {
-        params: {
-          page: params.page,
-          limit: params.limit,
-          includeDeleted,
-          ...(params.search && { search: params.search }),
-        },
-      })) as { data: ApiListResponse<PositionApiModel> };
-
-      return {
-        data: response.data.data.map((item) => this.toDomainModel(item)),
-        total: response.data.pagination.total,
-        page: response.data.pagination.page,
-        limit: response.data.pagination.limit,
-        totalPages: response.data.pagination.total_pages
-      };
+      const response = await api.post(this.baseUrl, positionData);
+      return this.toDomainModel(response.data.data);
     } catch (error) {
-      this.handleApiError(error, "Failed to fetch positions list");
+      return this.handleApiError(error, "Failed to create position");
     }
   }
 
-  async update(input: Position): Promise<Position> {
+  async update(id: string, updatePositionDTO: UpdatePositionDTO): Promise<PositionEntity> {
     try {
-      const response = (await api.put(
-        `/positions/${input.getId()}`,
-        this.toApiModel(input)
-      )) as { data: ApiResponse<PositionApiModel> };
+      const response = await api.put(`${this.baseUrl}/${id}`, updatePositionDTO);
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      this.handleApiError(error, `Failed to update position with id ${input.getId()}`);
+      return this.handleApiError(error, `Failed to update position with id ${id}`);
     }
   }
 
   async delete(id: string): Promise<boolean> {
     try {
-      await api.delete(`/positions/${id}`);
+      await api.delete(`${this.baseUrl}/${id}`);
       return true;
     } catch (error) {
-      this.handleApiError(error, `Failed to delete position with id ${id}`);
+      return this.handleApiError(error, `Failed to delete position with id ${id}`);
     }
   }
 
   async restore(id: string): Promise<boolean> {
     try {
-      await api.post(`/positions/${id}/restore`);
+      await api.post(`${this.baseUrl}/${id}/restore`);
       return true;
     } catch (error) {
-      this.handleApiError(error, `Failed to restore position with id ${id}`);
+      return this.handleApiError(error, `Failed to restore position with id ${id}`);
     }
   }
 
-  private toApiModel(input: Position): PositionApiModel {
-    return {
-      id: parseInt(input.getId(), 10),
-      name: input.getName(),
-      created_at: input.getCreatedAt(),
-      updated_at: input.getUpdatedAt()
-    };
-  }
-
-  private toDomainModel(data: PositionApiModel): Position {
-    return new Position(
-      data.id.toString(),
-      data.name,
-      data.created_at.toString(),
-      data.updated_at.toString()
+  private toDomainModel(position: any): PositionEntity {
+    return new PositionEntity(
+      position.id?.toString() ?? "",
+      position.name ?? "",
+      position.created_at ?? "",
+      position.updated_at ?? "",
+      position.deleted_at ?? null
     );
   }
 
@@ -129,12 +122,11 @@ export class ApiPositionRepository implements PositionRepository {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(serverMessage);
     } else if (axiosError.request) {
       throw new Error(
-        `Network Error: The request was made but no response was received. Please check your connection.`
+        "Network Error: The request was made but no response was received. Please check your connection."
       );
     } else {
       throw new Error(`${defaultMessage}: ${(error as Error).message || "Unknown error"}`);

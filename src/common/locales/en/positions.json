@@ -27,5 +27,26 @@
     "created": "Info created successfully",
     "updated": "Info updated successfully",
     "deleted": "Info deleted successfully"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "nameMin": "Name must be at least 2 characters",
+    "nameMax": "Name cannot exceed 100 characters",
+    "codeRequired": "Code is required",
+    "codeMin": "Code must be at least 2 characters",
+    "codeMax": "Code cannot exceed 50 characters"
+  },
+  "modal": {
+    "create": "Create Position",
+    "edit": "Edit Position",
+    "delete": "Delete Position",
+    "deleteConfirm": "Are you sure you want to delete Position?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "form": {
+    "name": "Position Name",
+    "namePlaceholder": "Enter position",
+    "code": "Code",
+    "codePlaceholder": "Enter position"
   }
 }

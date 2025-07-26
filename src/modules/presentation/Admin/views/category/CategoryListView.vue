@@ -114,7 +114,7 @@ const handleModalCancel = () => {
   modalVisible.value = false;
 };
 
-const handleFormSubmit = async (formData: { name: string; code: string }) => {
+const handleFormSubmit = async (formData: { name: string}) => {
   try {
     submitLoading.value = true;
 

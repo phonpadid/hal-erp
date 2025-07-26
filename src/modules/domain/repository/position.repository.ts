@@ -1,12 +1,17 @@
-import { Position } from "../entities/position.entity";
+import type { PositionEntity } from "../entities/position.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
+import type { CreatePositionDTO, UpdatePositionDTO } from "@/modules/application/dtos/position.dto";
 
 export interface PositionRepository {
-  create(position: Position): Promise<Position>;
-  findById(id: string): Promise<Position | null>;
-  findByName(name: string): Promise<Position | null>;
-  findAll(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<Position>>;
-  update(position: Position): Promise<Position>;
+  findAll(
+    params: PaginationParams,
+    includeDeleted?: boolean
+  ): Promise<PaginatedResult<PositionEntity>>;
+  findById(id: string): Promise<PositionEntity | null>;
+  findByName(name: string): Promise<PositionEntity | null>;
+  create(data: CreatePositionDTO): Promise<PositionEntity>;
+  update(id: string, data: UpdatePositionDTO): Promise<PositionEntity>;
   delete(id: string): Promise<boolean>;
   restore(id: string): Promise<boolean>;
 }
+
