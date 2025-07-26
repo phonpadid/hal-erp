@@ -1,6 +1,4 @@
-// budget-item-details.entities.ts
 export class BudGetItemDetailsEntity {
-  [x: string]: any;
   private id: string;
   private name: string;
   private budget_item_id: string;
@@ -93,6 +91,11 @@ export class BudGetItemDetailsEntity {
 
   public isDeleted(): boolean {
     return this.deleted_at !== null;
+  }
+
+  public delete(): void {
+    this.deleted_at = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updated_at = this.deleted_at;
   }
 
   public static create(

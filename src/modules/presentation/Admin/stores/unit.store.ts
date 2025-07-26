@@ -62,7 +62,7 @@ export const useUnitStore = defineStore("unit", () => {
     error.value = null;
 
     try {
-      const result = await unitService.getAllUnits(params, includeDeleted);
+      const result = await unitService.getAllUnits(params);
 
       units.value = result.data;
       pagination.value = {

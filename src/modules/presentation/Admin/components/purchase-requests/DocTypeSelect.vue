@@ -21,7 +21,7 @@ const emit = defineEmits<{
 
 const store = useDocumentTypeStore();
 const docItem = computed(() =>
-  store.documentType.map((item) => ({
+  store.documentTypes.map((item) => ({
     value: item.getId(),
     label: item.getname(),
   }))

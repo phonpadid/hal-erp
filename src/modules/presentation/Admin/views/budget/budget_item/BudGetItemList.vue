@@ -1,25 +1,21 @@
-<!-- eslint-disable @typescript-eslint/no-explicit-any -->
-<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { BudgetItemInterface } from "@/modules/interfaces/budget/budget-item.interface";
-import { formatDate } from "@/modules/shared/formatdate";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useBudgetItemStore } from "../../../stores/budget/budget-item.store";
-import { useBudgetAccountStore } from "@/modules/presentation/Admin/stores/budget/bud-get-account.store";
 import { columns } from "./column";
 import { useRouter } from "vue-router";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import FormBudgetItem from "@/modules/presentation/Admin/components/budget/FormBudgetItem.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 
 const { t } = useI18n();
 const budgetItemStore = useBudgetItemStore();
-const budgetAccountStore = useBudgetAccountStore();
 const { success, error } = useNotification();
 const router = useRouter();
 
@@ -29,16 +25,9 @@ const props = defineProps<{
 }>();
 
 // State
-const budgetItems = ref<BudgetItemInterface[]>([]);
 const budgetAccounts = ref<Map<string, string>>(new Map());
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  totalPages: 0,
-});
 const showDetails = (record: BudgetItemInterface) => {
   router.push({
     name: "budget_items_details",
@@ -56,9 +45,9 @@ const budgetItemFormRef = ref();
 
 // Table pagination
 const tablePagination = computed(() => ({
-  current: pagination.current,
-  pageSize: pagination.pageSize,
-  total: pagination.total,
+  current: budgetItemStore.pagination.page,
+  pageSize: budgetItemStore.pagination.limit,
+  total: budgetItemStore.pagination.total,
   showSizeChanger: true,
 }));
 
@@ -72,65 +61,55 @@ const pageTitle = computed(() => {
 });
 
 onMounted(async () => {
-  await Promise.all([loadBudgetItems()]);
+  await loadBudgetItems();
 });
-const loadBudgetItems = async (
-  page: number = pagination.current,
-  pageSize: number = pagination.pageSize,
-  search: string = searchKeyword.value
-) => {
+
+const loadBudgetItems = async () => {
   loading.value = true;
 
   try {
-    let result;
-
-    // If budgetAccountId is provided, only fetch items for that account
-    if (props.budgetAccountId) {
-      result = await budgetItemStore.fetchBudgetItemsByAccountId(props.budgetAccountId, {
-        page,
-        limit: pageSize,
-        search,
-      });
-    } else {
-      result = await budgetItemStore.fetchBudgetItems({
-        page,
-        limit: pageSize,
-        search,
-      });
-    }
-
-    budgetItems.value = result.data;
-    pagination.current = result.page;
-    pagination.pageSize = result.limit;
-    pagination.total = result.total;
-    pagination.totalPages = result.totalPages;
-  } catch (err) {
-    console.error("Error loading budget items:", err);
-    error(t("budget_items.error.loadFailed"));
+    await budgetItemStore.fetchBudgetItems({
+      page: budgetItemStore.pagination.page,
+      limit: budgetItemStore.pagination.limit,
+      search: searchKeyword.value,
+    });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("budget_items.error.loadFailed"), errorMessage);
   } finally {
     loading.value = false;
   }
 };
 
 // Handle pagination and sorting
-const handleTableChange = (
-  paginationInfo: TablePaginationType,
-  _filters: Record<string, string[]>,
-  _sorter: any
-) => {
-  const page = paginationInfo.current || 1;
-  const pageSize = paginationInfo.pageSize || 10;
+const handleTableChange = (pagination: TablePaginationType) => {
+   budgetItemStore.setPagination({
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total ?? 0,
+  })
 
-  pagination.current = page;
-  pagination.pageSize = pageSize;
-
-  loadBudgetItems(page, pageSize, searchKeyword.value);
+  loadBudgetItems();
 };
 
-const handleSearch = () => {
-  pagination.current = 1;
-  loadBudgetItems(1, pagination.pageSize, searchKeyword.value);
+const handleSearch = async () => {
+  await budgetItemStore.fetchBudgetItems({
+    page: 1,
+    limit: budgetItemStore.pagination.limit,
+    search: searchKeyword.value
+  });
 };
+
+watch(searchKeyword, async(newVal: string) => {
+  if(newVal === '') {
+    budgetItemStore.setPagination({
+      page: 1,
+      limit: budgetItemStore.pagination.limit,
+      total: budgetItemStore.pagination.total,
+    })
+    await loadBudgetItems()
+  }
+})
 
 // Modal handlers
 const showCreateModal = () => {
@@ -202,8 +181,8 @@ const handleDeleteConfirm = async () => {
     deleteModalVisible.value = false;
     await loadBudgetItems();
   } catch (err) {
-    console.error("Error deleting budget item:", err);
-    error(t("budget_items.error.deleteFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("budget_items.error.deleteFailed"), errorMessage);
   } finally {
     submitLoading.value = false;
   }
@@ -218,12 +197,10 @@ const handleDeleteConfirm = async () => {
       </div>
 
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
-        <UiInput
-          v-model="searchKeyword"
-          :placeholder="t('budget_items.placeholder.search')"
-          allowClear
-          @update:modelvalue="handleSearch"
-          class="w-64"
+        <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
           type="primary"
@@ -239,44 +216,39 @@ const handleDeleteConfirm = async () => {
     <!-- Budget Items Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="budgetItems"
+      :dataSource="budgetItemStore.budgetItems"
       :pagination="tablePagination"
       :loading="loading"
       row-key="id"
       @change="handleTableChange"
     >
-      <template #budget_item_details="{ record }">
-        <div v-if="record.budget_item_details && record.budget_item_details.length">
-          <div v-for="(detail, index) in record.budget_item_details" :key="detail.id" class="mb-2">
-            <div class="flex flex-col">
-              <span class="font-medium">{{ detail.name }}</span>
-              <div class="text-xs text-gray-500 flex justify-between">
-                <span>{{ detail.province?.name || `Province ID: ${detail.province_id}` }}</span>
-              </div>
-              <div v-if="detail.description" class="text-xs italic text-gray-500">
-                {{ detail.description }}
-              </div>
-              <div
-                v-if="index < record.budget_item_details.length - 1"
-                class="border-b border-gray-200 my-1"
-              ></div>
+    <template #allocated_amount="{ record }">
+      <span :style="{ color: Number(record.allocated_amount) > 0 ? 'green' : 'red' }">
+        {{ record.format_allocated_amount }}
+      </span>
+    </template>
+      <template #budget_account="{ record }">
+        <div v-if="record.budget_account">
+          <div class="flex flex-col">
+            <span class="font-medium">{{ record.budget_account.name }}</span>
+            <div class="text-xs text-gray-500 flex justify-between">
+              <span>{{ $t("budget_accounts.list.code") }}: {{record.budget_account.code}}</span>
+            </div>
+            <div class="text-xs text-gray-500 flex justify-between">
+              <p>{{  $t("budget_items.field.allocated_amount") }}:
+                <span class="text-green-700">
+                  {{formatPrice(record.budget_account.allocated_amount)}}
+                </span>
+              </p>
+            </div>
+            <div class="text-xs text-gray-500 flex justify-between mt-[-10px]">
+              <p>{{ $t("budget_accounts.list.department") }}:
+                <span class="text-blue-700"> {{record.budget_account.department.name}}</span>
+              </p>
             </div>
           </div>
         </div>
         <span v-else class="text-gray-500 italic">{{ t("budget_items.noDetails") }}</span>
-      </template>
-      <!-- Budget Account Column -->
-      <template #budget_account="{ record }">
-        {{ budgetAccounts.get(record.budget_account_id) || record.budget_account_id }}
-      </template>
-
-      <!-- Date columns -->
-      <template #created_at="{ record }">
-        {{ formatDate(record.created_at) }}
-      </template>
-
-      <template #updated_at="{ record }">
-        {{ formatDate(record.updated_at) }}
       </template>
 
       <!-- Actions column -->

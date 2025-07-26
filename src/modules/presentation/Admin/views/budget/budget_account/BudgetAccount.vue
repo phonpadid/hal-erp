@@ -1,9 +1,8 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { BudgetAccountInterface } from "@/modules/interfaces/budget/budget-account.interface";
-import { formatDate } from "@/modules/shared/formatdate";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useBudgetAccountStore } from "@/modules/presentation/Admin/stores/budget/bud-get-account.store";
@@ -11,23 +10,20 @@ import { columns } from "./column";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import FormBudgetAccount from "@/modules/presentation/Admin/components/budget/FormBudgetAccount.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
+import UiInputSelect from '@/common/shared/components/Input/InputSelect.vue';
+
+const departStore = departmentStore();
 
 const { t } = useI18n();
 const budgetAccountStore = useBudgetAccountStore();
 const { success, error } = useNotification();
 
 // State
-const budgetAccounts = ref<BudgetAccountInterface[]>([]);
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  totalPages: 0,
-});
 
 // Modal state
 const modalVisible = ref<boolean>(false);
@@ -39,35 +35,24 @@ const budgetAccountFormRef = ref();
 
 // Table pagination
 const tablePagination = computed(() => ({
-  current: pagination.current,
-  pageSize: pagination.pageSize,
-  total: pagination.total,
+  current: budgetAccountStore.pagination.page,
+  pageSize: budgetAccountStore.pagination.limit,
+  total: budgetAccountStore.pagination.total,
   showSizeChanger: true,
 }));
 
-const loadBudgetAccounts = async (
-  page: number = pagination.current,
-  pageSize: number = pagination.pageSize,
-  search: string = searchKeyword.value,
-  sortBy?: string
-) => {
+const loadBudgetAccounts = async () => {
   loading.value = true;
 
   try {
-    const result = await budgetAccountStore.fetchBudgetAccounts({
-      page,
-      limit: pageSize,
-      search,
-      sortBy,
+    await budgetAccountStore.fetchBudgetAccounts({
+      page: budgetAccountStore.pagination.page,
+      limit: budgetAccountStore.pagination.limit,
+      search: searchKeyword.value,
     });
-    budgetAccounts.value = result.data;
-    pagination.current = result.page;
-    pagination.pageSize = result.limit;
-    pagination.total = result.total;
-    pagination.totalPages = result.totalPages;
   } catch (err) {
-    console.error("Error loading budget accounts:", err);
-    error(t("budget_accounts.error.loadFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("budget_accounts.error.loadFailed"), String(errorMessage));
   } finally {
     loading.value = false;
   }
@@ -75,28 +60,35 @@ const loadBudgetAccounts = async (
 
 // Handle pagination and sorting
 const handleTableChange = (
-  paginationInfo: TablePaginationType,
-  _filters: Record<string, string[]>,
-  sorter: any
-) => {
-  const page = paginationInfo.current || 1;
-  const pageSize = paginationInfo.pageSize || 10;
+  pagination: TablePaginationType) => {
+  budgetAccountStore.setPagination({
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total ?? 0,
+  })
 
-  pagination.current = page;
-  pagination.pageSize = pageSize;
+  loadBudgetAccounts();
+};
 
-  let sortBy;
-  if (sorter && sorter.field) {
-    sortBy = `${sorter.field}${sorter.order === "ascend" ? "" : ":desc"}`;
+const handleSearch = async () => {
+  await budgetAccountStore.fetchBudgetAccounts({
+    page: 1,
+    limit: budgetAccountStore.pagination.limit,
+    search: searchKeyword.value,
+    // departmentId: departmentId.value,
+  });
+};
+
+watch(searchKeyword, async(newVal: string) => {
+  if(newVal === '') {
+    budgetAccountStore.setPagination({
+      page: 1,
+      limit: budgetAccountStore.pagination.limit,
+      total: budgetAccountStore.pagination.total,
+    })
+    await loadBudgetAccounts()
   }
-
-  loadBudgetAccounts(page, pageSize, searchKeyword.value, sortBy);
-};
-
-const handleSearch = () => {
-  pagination.current = 1;
-  loadBudgetAccounts(1, pagination.pageSize, searchKeyword.value);
-};
+})
 
 // Modal handlers
 const showCreateModal = () => {
@@ -139,7 +131,7 @@ const handleFormSubmit = async (formData: {
         name: formData.name,
         fiscal_year: formData.fiscal_year,
         allocated_amount: formData.allocated_amount,
-        department_id: formData.departmentId,
+        departmentId: formData.departmentId,
       };
       await budgetAccountStore.updateBudgetAccount(
         String(selectedBudgetAccount.value.id),
@@ -178,8 +170,28 @@ const handleDeleteConfirm = async () => {
   }
 };
 
+const departmentId = ref<number | null>(null);
+const departmentOptions = computed(() =>
+  departStore.departments.map((dept: any) => ({
+    label: dept.name,
+    value: dept.id,
+  }))
+);
+
+const loadDepartments = async () => {
+  try {
+    await departStore.fetchDepartment({
+      page: 1,
+      limit: 100,
+    });
+  } catch (err) {
+    console.error("Failed to load departments:", err);
+    throw err;
+  }
+};
+
 onMounted(async () => {
-  await Promise.all([loadBudgetAccounts()]);
+  await Promise.all([loadBudgetAccounts(), loadDepartments()]);
 });
 </script>
 
@@ -191,12 +203,17 @@ onMounted(async () => {
       </div>
 
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
-        <UiInput
-          v-model="searchKeyword"
-          :placeholder="t('budget_accounts.list.search')"
-          allowClear
-          @update:modelvalue="handleSearch"
-          class="w-64"
+        <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('currency.placeholder.search')"
+        />
+        <UiInputSelect
+          v-model="departmentId"
+          :options="departmentOptions"
+          :placeholder="$t('budget_accounts.form.departmentPlaceholder')"
+          :disabled="loading"
+          @change="handleSearch"
         />
         <UiButton
           type="primary"
@@ -212,29 +229,18 @@ onMounted(async () => {
     <!-- Budget Accounts Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="budgetAccounts"
+      :dataSource="budgetAccountStore.budgetAccounts"
       :pagination="tablePagination"
       :loading="loading"
       row-key="id"
       @change="handleTableChange"
     >
-      <template #department="{ record }">
-        <span v-if="record.department && record.department.name">
-          {{ record.department.name }}
-        </span>
-        <span v-else-if="typeof record.getDepartment === 'function' && record.getDepartment()">
+      <!-- <template #department="{ record }">
+        <span v-if="record && record.getDepartment()">
           {{ record.getDepartment().name }}
         </span>
-        <span v-else>-</span>
-      </template>
-      <!-- Date columns -->
-      <template #created_at="{ record }">
-        {{ formatDate(record.created_at) }}
-      </template>
-
-      <template #updated_at="{ record }">
-        {{ formatDate(record.updated_at) }}
-      </template>
+        <span v-else>...</span>
+      </template> -->
 
       <!-- Actions column -->
       <template #actions="{ record }">

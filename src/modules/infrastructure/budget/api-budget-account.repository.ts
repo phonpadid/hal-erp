@@ -94,7 +94,6 @@ export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
   }
 
   private toDomainModel(budgetAccount: BudgetAccountInterface): BudGetAccountsEntity {
-    console.log("BudGetAccountsEntity created:", budgetAccount);
     return new BudGetAccountsEntity(
       budgetAccount.id.toString(),
       budgetAccount.code,
@@ -105,17 +104,7 @@ export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
       budgetAccount.created_at || "",
       budgetAccount.updated_at || "",
       budgetAccount.deleted_at || null,
-      budgetAccount.department 
-    );
-  }
-  private toDepartmentEntity(departmentData: DepartmentApiModel): DepartmentEntity {
-    // console.log("DepartmentEntity created:", departmentData);
-    return new DepartmentEntity(
-      departmentData.id.toString(),
-      departmentData.name,
-      departmentData.code ?? "",
-      departmentData.created_at ?? "",
-      departmentData.updated_at ?? ""
+      budgetAccount.department
     );
   }
 
@@ -123,10 +112,9 @@ export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
 
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`
