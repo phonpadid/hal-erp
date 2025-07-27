@@ -1,11 +1,12 @@
+import type { CreateUnitDTO, UpdateUnitDTO } from "@/modules/application/dtos/unit.dto";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { Ref } from "vue";
+import type { UnitEntity } from "@/modules/domain/entities/unit.entity";
+import type { PaginationParams } from "@/modules/shared/pagination";
 import { UnitServiceImpl } from "@/modules/application/services/unit.service";
 import { ApiUnitRepository } from "@/modules/infrastructure/api-unit.repository";
-import { Unit } from "@/modules/domain/entities/unit.entity";
-import type { CreateUnitDTO, UpdateUnitDTO } from "@/modules/application/dtos/unit.dto";
-import type { PaginationParams } from "@/modules/shared/pagination";
+import type { UnitInterface } from "@/modules/interfaces/unit.interface";
 
 const createUnitService = () => {
   const unitRepository = new ApiUnitRepository();
@@ -13,9 +14,12 @@ const createUnitService = () => {
 };
 
 export const useUnitStore = defineStore("unit", () => {
+  // service
   const unitService = createUnitService();
-  const units: Ref<Unit[]> = ref([]);
-  const currentUnit: Ref<Unit | null> = ref(null);
+
+  // State
+  const units: Ref<UnitEntity[]> = ref([]);
+  const currentUnit: Ref<UnitEntity | null> = ref(null);
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
   const pagination = ref({
@@ -26,44 +30,24 @@ export const useUnitStore = defineStore("unit", () => {
   });
 
   // Getters
-  const activeUnits = computed(() => units.value.filter((unit) => !unit.isDeleted()));
-  const deletedUnits = computed(() => units.value.filter((unit) => unit.isDeleted()));
+  const activeUnits = computed(() =>
+    units.value.filter((unit) => !unit.isDeleted())
+  );
+  const inactiveUnits = computed(() =>
+    units.value.filter((unit) => unit.isDeleted())
+  );
   const totalActiveUnits = computed(() => activeUnits.value.length);
-  const totalDeletedUnits = computed(() => deletedUnits.value.length);
-
-  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
-    pagination.value.page = newPagination.page || 1;
-    pagination.value.limit = newPagination.limit || 10;
-    pagination.value.total = newPagination.total;
-  };
-
-  const createUnit = async (data: CreateUnitDTO) => {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const unit = await unitService.createUnit(data);
-      units.value = [unit, ...units.value];
-      return unit;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
+  const totalInactiveUnits = computed(() => inactiveUnits.value.length);
 
   // Get All Units
   const fetchUnits = async (
     params: PaginationParams = { page: 1, limit: 10 }
-    // includeDeleted: boolean = false
   ) => {
     loading.value = true;
     error.value = null;
 
     try {
       const result = await unitService.getAllUnits(params);
-
       units.value = result.data;
       pagination.value = {
         page: result.page,
@@ -71,7 +55,7 @@ export const useUnitStore = defineStore("unit", () => {
         total: result.total,
         totalPages: result.totalPages,
       };
-      return result;
+
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -86,49 +70,49 @@ export const useUnitStore = defineStore("unit", () => {
     error.value = null;
 
     try {
-      currentUnit.value = await unitService.getUnitById(id);
-      return currentUnit.value;
+      const unit = await unitService.getUnitById(id);
+      currentUnit.value = unit;
+      return unit ? unitEntityToInterface(unit) : null;
     } catch (err) {
       error.value = err as Error;
-      return null;
+      throw err;
     } finally {
       loading.value = false;
     }
   };
 
-  // Get Unit By Name
-  const getUnitByName = async (name: string) => {
-    try {
-      return await unitService.getUnitByName(name);
-    } catch (err) {
-      console.error("Failed to check unit by name:", err);
-      return null;
-    }
-  };
-
-  // Update Unit
-  const updateUnit = async (id: string, data: UpdateUnitDTO) => {
+  const createUnit = async (unitData: CreateUnitDTO) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const updatedUnit = await unitService.updateUnit(id, data);
+      const unit = await unitService.createUnit(unitData);
+      units.value = [unit, ...units.value];
+      return unitEntityToInterface(unit);
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
-      // Update units list if it's loaded
-      if (units.value.length > 0) {
-        const index = units.value.findIndex((u) => u.getId() === id);
-        if (index !== -1) {
-          units.value[index] = updatedUnit;
-        }
+  // Update
+  const updateUnit = async (id: string, unitData: UpdateUnitDTO) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const updatedUnit = await unitService.updateUnit(id, unitData);
+      const index = units.value.findIndex((u) => u.getId() === id);
+      if (index !== -1) {
+        units.value[index] = updatedUnit;
       }
-
-      // Update current unit if it's loaded
       if (currentUnit.value && currentUnit.value.getId() === id) {
         currentUnit.value = updatedUnit;
       }
-
-      return updatedUnit;
-    } catch (err) {
+      return unitEntityToInterface(updatedUnit);
+    } catch (err: unknown) {
       error.value = err as Error;
       throw err;
     } finally {
@@ -136,32 +120,19 @@ export const useUnitStore = defineStore("unit", () => {
     }
   };
 
-  // Delete Unit
+  // Delete
   const deleteUnit = async (id: string) => {
     loading.value = true;
     error.value = null;
-    console.log("deleteUnit", id);
 
     try {
       const result = await unitService.deleteUnit(id);
-
-      // Update units list if it's loaded
-      if (units.value.length > 0) {
+      if (result) {
         const index = units.value.findIndex((u) => u.getId() === id);
         if (index !== -1) {
-          // Mark as deleted in the local array
-          const deletedUnit = units.value[index];
-          // Here we're simulating a soft delete by manually updating the unit status
-          units.value[index] = new Unit(
-            deletedUnit.getId(),
-            deletedUnit.getName(),
-            deletedUnit.getCreatedAt(),
-            new Date().toString(),
-            new Date()
-          );
+          units.value[index].delete();
         }
       }
-
       return result;
     } catch (err) {
       error.value = err as Error;
@@ -171,68 +142,22 @@ export const useUnitStore = defineStore("unit", () => {
     }
   };
 
-  // Restore Unit
-  const restoreUnit = async (id: string) => {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const result = await unitService.restoreUnit(id);
-
-      // Update units list if it's loaded
-      if (units.value.length > 0) {
-        const index = units.value.findIndex((u) => u.getId() === id);
-        if (index !== -1) {
-          // Mark as restored in the local array
-          const restoredUnit = units.value[index];
-          units.value[index] = new Unit(
-            restoredUnit.getId(),
-            restoredUnit.getName(),
-            restoredUnit.getCreatedAt(),
-            new Date().toString(),
-            null // Set deletedAt to null
-          );
-        }
-      }
-
-      return result;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
+  const unitEntityToInterface = (
+    unit: UnitEntity
+  ): UnitInterface => {
+    return {
+      id: parseInt(unit.getId()),
+      name: unit.getName(),
+      created_at: unit.getCreatedAt(),
+      updated_at: unit.getUpdatedAt(),
+      deleted_at: unit.getDeletedAt(),
+    };
   };
 
-  // Search Units
-  const searchUnitsByName = async (
-    name: string,
-    params: PaginationParams = { page: 1, limit: 10 }
-  ) => {
-    loading.value = true;
-    error.value = null;
-
-    try {
-      const result = await unitService.getAllUnits({
-        ...params,
-        search: name,
-      });
-
-      units.value = result.data;
-      pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
-
-      return result;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
+    pagination.value.total = newPagination.total;
   };
 
   // Reset state
@@ -258,19 +183,17 @@ export const useUnitStore = defineStore("unit", () => {
 
     // Getters
     activeUnits,
-    deletedUnits,
+    inactiveUnits,
     totalActiveUnits,
-    totalDeletedUnits,
+    totalInactiveUnits,
 
     // Actions
-    createUnit,
     fetchUnits,
     fetchUnitById,
+    createUnit,
     updateUnit,
     deleteUnit,
-    restoreUnit,
-    searchUnitsByName,
-    getUnitByName,
+
     resetState,
     setPagination,
   };

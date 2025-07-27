@@ -1,9 +1,12 @@
+import { formatDate } from "@/modules/shared/formatdate"
+
 export class CategoryEntity {
   private id: string
   private name: string
   private createdAt: string
   private updatedAt: string
   private deletedAt: string | null
+
   constructor(
     id: string,
     name: string,
@@ -11,44 +14,54 @@ export class CategoryEntity {
     updatedAt: string,
     deletedAt: string | null = null
   ) {
-    this.id = id;
-    this.name = name;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-    this.deletedAt = deletedAt;
+    this.id = id
+    this.name = name
+    this.createdAt = formatDate(createdAt)
+    this.updatedAt = formatDate(updatedAt)
+    this.deletedAt = deletedAt !== null ? formatDate(deletedAt) : null;
   }
+
   public getId(): string {
-    return this.id;
+    return this.id
   }
+
   public getName(): string {
-    return this.name;
+    return this.name
   }
+
   public getCreatedAt(): string {
-    return this.createdAt;
+    return this.createdAt
   }
+
   public getUpdatedAt(): string {
-    return this.updatedAt;
+    return this.updatedAt
   }
+
   public getDeletedAt(): string | null {
-    return this.deletedAt;
+    return this.deletedAt
   }
+
   public isDeleted(): boolean {
-    return this.deletedAt !== null;
+    return this.deletedAt !== null
   }
+
   public updateName(name: string): void {
-    this.name = name;
-    this.updatedAt = new Date().toString();
+    this.name = name
+    this.updatedAt = new Date().toISOString().replace("T", "").substring(0, 19);
   }
+
   public delete(): void {
-    this.deletedAt = new Date().toString();
-    this.updatedAt = new Date().toString();
+    this.deletedAt = new Date().toISOString().replace("T", "").substring(0, 19);
+    this.updatedAt = this.deletedAt;
   }
+
   public restore(): void {
-    this.deletedAt = null;
-    this.updatedAt = new Date().toString();
+    this.deletedAt = null
+    this.updatedAt = new Date().toISOString().replace("T", "").substring(0, 19);
   }
+
   public static create(id: string, name: string): CategoryEntity {
-    const now = new Date()
-    return new CategoryEntity(id, name, now.toString(), now.toString())
+    const now = new Date().toISOString().replace("T", "").substring(0, 19);
+    return new CategoryEntity(id, name, now, now, null);
   }
 }

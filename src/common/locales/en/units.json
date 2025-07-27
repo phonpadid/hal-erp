@@ -1,5 +1,5 @@
 {
-  "title": "Unit Information",
+  "title": "Unit information",
   "add": "Add new unit",
   "header_form": {
     "add": "Add new unit",
@@ -27,5 +27,26 @@
     "created": "Info created successfully",
     "updated": "Info updated successfully",
     "deleted": "Info deleted successfully"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "nameMin": "Name must be at least 2 characters",
+    "nameMax": "Name cannot exceed 100 characters",
+    "codeRequired": "Code is required",
+    "codeMin": "Code must be at least 2 characters",
+    "codeMax": "Code cannot exceed 50 characters"
+  },
+  "modal": {
+    "create": "Create Unit",
+    "edit": "Edit Unit",
+    "delete": "Delete Unit",
+    "deleteConfirm": "Are you sure you want to delete Unit?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "form": {
+    "name": "Unit Name",
+    "namePlaceholder": "Enter unit",
+    "code": "Code",
+    "codePlaceholder": "Enter unit"
   }
 }

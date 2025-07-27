@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { ref, reactive, defineProps, defineEmits, watch } from "vue";
-import type { CategoryInterface } from "@/modules/interfaces/category.interface";
+import type { UnitInterface } from "@/modules/interfaces/unit.interface";
 import { useI18n } from "vue-i18n";
-import { createCategoryValidation } from "@/modules/presentation/Admin/views/category/validation/category.vallidate";
+import { createUnitValidation } from "@/modules/presentation/Admin/views/unit/validation/unit.validate";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 
-
 const { t } = useI18n();
 const props = defineProps<{
-  category?: CategoryInterface | null;
+  unit?: UnitInterface | null;
   isEditMode: boolean;
   loading?: boolean;
 }>();
@@ -24,11 +23,9 @@ const formState = reactive({
   name: "",
 });
 
-
 const validationState = reactive({
   isEditMode: props.isEditMode,
 });
-
 
 watch(
   () => props.isEditMode,
@@ -37,15 +34,13 @@ watch(
   }
 );
 
-
-const categoryRules = createCategoryValidation(t, validationState);
-
+const unitRules = createUnitValidation(t, validationState);
 
 watch(
-  () => props.category,
-  (newCategory) => {
-    if (newCategory) {
-      formState.name = newCategory.name || "";
+  () => props.unit,
+  (newUnit) => {
+    if (newUnit) {
+      formState.name = newUnit.name || "";
     } else {
       formState.name = "";
     }
@@ -73,11 +68,11 @@ defineExpose({
 </script>
 
 <template>
-  <UiForm ref="formRef" :model="formState" :rules="categoryRules">
-    <UiFormItem :label="$t('categories.form.name')" name="name" required>
+  <UiForm ref="formRef" :model="formState" :rules="unitRules">
+    <UiFormItem :label="$t('units.form.name')" name="name" required>
       <UiInput
         v-model="formState.name"
-        :placeholder="$t('categories.form.namePlaceholder')"
+        :placeholder="$t('units.form.namePlaceholder')"
         :disabled="loading"
       />
     </UiFormItem>

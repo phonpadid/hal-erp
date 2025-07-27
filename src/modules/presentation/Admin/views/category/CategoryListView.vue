@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { CategoryInterface } from "@/modules/interfaces/category.interface";
 import { useCategoryStore } from "../../stores/category.store";
-import { columns } from "./column";
+import { Columns } from "./column";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -13,6 +13,7 @@ import CategoryForm from "@/modules/presentation/Admin/components/category/FormC
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
 const { t } = useI18n();
+
 const categoryStore = useCategoryStore();
 const { success, error, warning } = useNotification();
 
@@ -50,8 +51,8 @@ const loadCategories = async () => {
       search: searchKeyword.value,
     });
   } catch (err: unknown) {
-    console.error("Error loading categories:", err);
-    error(t("category.error.loadFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("categories.error.loadFailed"), String(errorMessage));
   } finally {
     loading.value = false;
   }
@@ -65,7 +66,7 @@ const handleTableChange = (
     page: pagination.current || 1,
     limit: pagination.pageSize || 10,
     total: pagination.total || 0,
-  });
+  })
   loadCategories();
 };
 
@@ -77,16 +78,16 @@ const handleSearch = async () => {
   });
 };
 
-watch(searchKeyword, async (newVal) => {
-  if (newVal === "") {
+watch(searchKeyword, async(newVal: string) => {
+  if(newVal === '') {
     categoryStore.setPagination({
       page: 1,
       limit: categoryStore.pagination.limit,
       total: categoryStore.pagination.total,
-    });
-    await loadCategories();
+    })
+    await loadCategories()
   }
-});
+})
 
 // Modal handlers
 const showCreateModal = () => {
@@ -114,28 +115,25 @@ const handleModalCancel = () => {
   modalVisible.value = false;
 };
 
-const handleFormSubmit = async (formData: { name: string}) => {
+const handleFormSubmit = async (formData: { name: string }) => {
   try {
     submitLoading.value = true;
 
     if (isEditMode.value && selectedCategory.value) {
-      // Don't spread id into formData! Pass id as first argument, then data without id.
       await categoryStore.updateCategory(selectedCategory.value.id.toString(), {
-        name: formData.name,
+        ...formData,
       });
-      success(t("category.success.title"), t("category.success.updated"));
+      success(t("categories.success.title"), t("categories.success.updated"));
     } else {
-      await categoryStore.createCategory({
-        name: formData.name,
-      });
-      success(t("category.success.title"), t("category.success.created"));
+      await categoryStore.createCategory(formData);
+      success(t("categories.success.title"), t("categories.success.created"));
     }
 
     modalVisible.value = false;
     await loadCategories();
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    warning(t("category.error.title"), String(errorMessage));
+    warning(t("categories.error.title"), String(errorMessage));
   } finally {
     submitLoading.value = false;
   }
@@ -147,13 +145,13 @@ const handleDeleteConfirm = async () => {
   try {
     submitLoading.value = true;
     await categoryStore.deleteCategory(selectedCategory.value.id.toString());
-    success(t("category.success.title"), t("category.success.deleted"));
+    success(t("categories.success.title"), t("categories.success.deleted"));
 
     deleteModalVisible.value = false;
     await loadCategories();
   } catch (err) {
-    console.error("Error deleting category:", err);
-    error(t("category.error.deleteFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("categories.error.deleteFailed"), String(errorMessage));
   } finally {
     submitLoading.value = false;
   }
@@ -186,13 +184,15 @@ const handleDeleteConfirm = async () => {
 
     <!-- Categories Table -->
     <Table
-      :columns="columns(t)"
+      :columns="Columns(t)"
       :dataSource="categoryStore.categories"
       :pagination="tablePagination"
       :loading="loading"
       row-key="id"
+
       @change="handleTableChange"
     >
+
       <!-- Actions column -->
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
@@ -219,7 +219,7 @@ const handleDeleteConfirm = async () => {
 
     <!-- Create/Edit Category Modal -->
     <UiModal
-      :title="isEditMode ? t('categories.header_form.edit') : t('categories.header_form.add')"
+      :title="isEditMode ? t('categories.modal.edit') : t('categories.modal.create')"
       :visible="modalVisible"
       :confirm-loading="submitLoading"
       @update:visible="modalVisible = $event"
@@ -228,6 +228,7 @@ const handleDeleteConfirm = async () => {
       :okText="isEditMode ? t('button.edit') : t('button.save')"
       :cancelText="t('button.cancel')"
     >
+
       <CategoryForm
         ref="categoryFormRef"
         :category="selectedCategory"
@@ -239,7 +240,7 @@ const handleDeleteConfirm = async () => {
 
     <!-- Delete Confirmation Modal -->
     <UiModal
-      :title="t('categories.header_form.delete.title')"
+      :title="t('categories.modal.delete')"
       :visible="deleteModalVisible"
       :confirm-loading="submitLoading"
       @update:visible="deleteModalVisible = $event"
@@ -249,8 +250,8 @@ const handleDeleteConfirm = async () => {
       ok-type="primary"
       :danger="true"
     >
-      <p>{{ $t("categories.header_form.delete.content", { name: selectedCategory?.name }) }}</p>
-      <p class="text-red-500">{{ $t("categories.header_form.delete.description") }}</p>
+      <p>{{ $t("categories.modal.deleteConfirm", { name: selectedCategory?.name }) }}</p>
+      <p class="text-red-500">{{ $t("categories.modal.deleteWarning") }}</p>
     </UiModal>
   </div>
 </template>

@@ -1,219 +1,210 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, watch } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import type { UnitApiModel } from "@/modules/interfaces/unit.interface";
-import { useUnitStore } from "@/modules/presentation/Admin/stores/unit.store";
-import { Unit } from "@/modules/domain/entities/unit.entity";
-import { getColumns } from "./column";
-import { rules } from "./validation/unit.validate";
+import type { UnitInterface } from "@/modules/interfaces/unit.interface";
+import { useUnitStore } from "../../stores/unit.store";
+import { Columns } from "./column";
+import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
-import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
-import UiForm from "@/common/shared/components/Form/UiForm.vue";
+import Table from "@/common/shared/components/table/Table.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
+import UnitForm from "@/modules/presentation/Admin/components/unit/FormUnit.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
-const { success } = useNotification();
-const search = ref<string>("");
 const { t } = useI18n();
-const columns = computed(() => getColumns(t));
-const unitStore = useUnitStore();
-const units = ref<UnitApiModel[]>([]);
-const formRef = ref();
-const createModalVisible = ref(false);
-const editModalVisible = ref(false);
-const deleteModalVisible = ref(false);
-const loading = ref(false);
-const selectedUnit = ref<UnitApiModel | null>(null);
-const formModel = reactive({ name: "" });
 
-const pageSizeOptions = ["10", "20", "50", "100"];
+const unitStore = useUnitStore();
+const { success, error, warning } = useNotification();
+
+// State
+const loading = ref<boolean>(false);
+const searchKeyword = ref<string>("");
+
+// Modal state
+const modalVisible = ref<boolean>(false);
+const deleteModalVisible = ref<boolean>(false);
+const submitLoading = ref<boolean>(false);
+const selectedUnit = ref<UnitInterface | null>(null);
+const isEditMode = ref<boolean>(false);
+const unitFormRef = ref();
+
+// Table pagination
+const tablePagination = computed(() => ({
+  current: unitStore.pagination.page,
+  pageSize: unitStore.pagination.limit,
+  total: unitStore.pagination.total,
+  showSizeChanger: true,
+}));
 
 onMounted(async () => {
   await loadUnits();
 });
 
-watch(search, async (newValue) => {
-  if (!newValue) {
-    await loadUnits();
-  }
-});
-
-const loadUnits = async (): Promise<void> => {
+const loadUnits = async () => {
   loading.value = true;
+
   try {
-    const result = await unitStore.fetchUnits({
+    await unitStore.fetchUnits({
       page: unitStore.pagination.page,
       limit: unitStore.pagination.limit,
+      search: searchKeyword.value,
     });
-    units.value = result.data.map((unit: Unit) => ({
-      id: parseInt(unit.getId()),
-      name: unit.getName(),
-      created_at: unit.getCreatedAt(),
-      updated_at: unit.getUpdatedAt(),
-    }));
-  } catch (error) {
-    console.log("error", error);
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("units.error.loadFailed"), String(errorMessage));
   } finally {
     loading.value = false;
   }
 };
 
-const handleTableChange = async (pagination: TablePaginationType) => {
+// Handle pagination and sorting
+const handleTableChange = (
+  pagination: TablePaginationType
+) => {
   unitStore.setPagination({
-    page: pagination.current ?? 1,
-    limit: pagination.pageSize ?? 10,
-    total: pagination.total ?? 0,
-  });
-  await loadUnits();
-};
-
-const showCreateModal = (): void => {
-  formModel.name = "";
-  createModalVisible.value = true;
-};
-
-const showEditModal = (record: UnitApiModel): void => {
-  selectedUnit.value = record;
-  formModel.name = record.name;
-  editModalVisible.value = true;
-};
-
-const showDeleteModal = (record: UnitApiModel): void => {
-  selectedUnit.value = record;
-  deleteModalVisible.value = true;
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total || 0,
+  })
+  loadUnits();
 };
 
 const handleSearch = async () => {
-  loading.value = true;
-  try {
-    const result = await unitStore.fetchUnits({
-      page: 1,
-      limit: unitStore.pagination.limit,
-      search: search.value,
-    });
-    units.value = result.data.map((unit: Unit) => ({
-      id: parseInt(unit.getId()),
-      name: unit.getName(),
-      created_at: unit.getCreatedAt(),
-      updated_at: unit.getUpdatedAt(),
-    }));
+  await unitStore.fetchUnits({
+    page: 1,
+    limit: unitStore.pagination.limit,
+    search: searchKeyword.value,
+  });
+};
+
+watch(searchKeyword, async(newVal: string) => {
+  if(newVal === '') {
     unitStore.setPagination({
       page: 1,
       limit: unitStore.pagination.limit,
-      total: result.total ?? 0,
-    });
-  } catch (error) {
-    console.error("Search failed:", error);
-  } finally {
-    loading.value = false;
+      total: unitStore.pagination.total,
+    })
+    await loadUnits()
   }
+})
+
+// Modal handlers
+const showCreateModal = () => {
+  selectedUnit.value = null;
+  isEditMode.value = false;
+  modalVisible.value = true;
 };
 
-const handleCreate = async (): Promise<void> => {
-  loading.value = true;
-  try {
-    await formRef.value.submitForm();
-    await unitStore.createUnit({ name: formModel.name });
-    success(t("units.notify.created"));
-    await loadUnits();
-    createModalVisible.value = false;
-    formModel.name = "";
-  } catch (error) {
-    console.error("Create form validation failed:", error);
-  } finally {
-    loading.value = false;
-  }
+const showEditModal = (unit: UnitInterface) => {
+  selectedUnit.value = { ...unit };
+  isEditMode.value = true;
+  modalVisible.value = true;
 };
 
-const handleEdit = async (): Promise<void> => {
-  loading.value = true;
-  try {
-    await formRef.value.submitForm();
+const showDeleteModal = (unit: UnitInterface) => {
+  selectedUnit.value = unit;
+  deleteModalVisible.value = true;
+};
 
-    if (selectedUnit.value) {
-      const id = selectedUnit.value.id.toString();
-      await unitStore.updateUnit(id, { name: formModel.name });
-      success(t("units.notify.updated"));
-      await loadUnits();
+const handleModalOk = () => {
+  unitFormRef.value?.submitForm();
+};
+
+const handleModalCancel = () => {
+  modalVisible.value = false;
+};
+
+const handleFormSubmit = async (formData: { name: string }) => {
+  try {
+    submitLoading.value = true;
+
+    if (isEditMode.value && selectedUnit.value) {
+      await unitStore.updateUnit(selectedUnit.value.id.toString(), {
+        ...formData,
+      });
+      success(t("units.success.title"), t("units.success.updated"));
+    } else {
+      await unitStore.createUnit(formData);
+      success(t("units.success.title"), t("units.success.created"));
     }
-    editModalVisible.value = false;
-  } catch (error) {
-    console.error("Edit form validation failed:", error);
+
+    modalVisible.value = false;
+    await loadUnits();
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("units.error.title"), String(errorMessage));
   } finally {
-    loading.value = false;
+    submitLoading.value = false;
   }
 };
 
-const handleDelete = async (): Promise<void> => {
+const handleDeleteConfirm = async () => {
   if (!selectedUnit.value) return;
-  loading.value = true;
+
   try {
-    const id = selectedUnit.value.id.toString();
-    await unitStore.deleteUnit(id);
-    success(t("units.notify.deleted"));
-    await loadUnits();
+    submitLoading.value = true;
+    await unitStore.deleteUnit(selectedUnit.value.id.toString());
+    success(t("units.success.title"), t("units.success.deleted"));
+
     deleteModalVisible.value = false;
-  } catch (error) {
-    console.error("Delete failed:", error);
+    await loadUnits();
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("units.error.deleteFailed"), String(errorMessage));
   } finally {
-    loading.value = false;
+    submitLoading.value = false;
   }
 };
 </script>
 
 <template>
-  <div class="unit-list-container p-6">
-    <div class="mb-6 gap-4">
-      <h1 class="text-2xl font-semibold">
-        {{ t("units.title") }}
-      </h1>
-      <div class="flex justify-between gap-20">
-        <div class="w-[20rem]">
-          <InputSearch
-            v-model:value="search"
-            @keyup.enter="handleSearch"
-            :placeholder="t('units.placeholder.search')"
-          />
-        </div>
+  <div class="unit-container p-6">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold">{{ t("units.title") }}</h1>
+      </div>
+
+      <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
+        <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('units.placeholder.search')"
+        />
         <UiButton
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
-          colorClass="flex items-center"
+          colorClass="text-white flex items-center"
         >
           {{ t("units.add") }}
         </UiButton>
       </div>
     </div>
 
-    <!-- Table -->
+    <!-- Units Table -->
     <Table
-      :columns="columns"
-      :dataSource="units"
-      :pagination="{
-        current: unitStore.pagination.page,
-        pageSize: unitStore.pagination.limit,
-        total: unitStore.pagination.total,
-        showSizeChanger: true,
-        pageSizeOptions,
-      }"
+      :columns="Columns(t)"
+      :dataSource="unitStore.units"
+      :pagination="tablePagination"
+      :loading="loading"
       row-key="id"
-      :loading="unitStore.loading"
+
       @change="handleTableChange"
     >
+
+      <!-- Actions column -->
       <template #actions="{ record }">
-        <div class="flex gap-2">
+        <div class="flex items-center justify-center gap-2">
           <UiButton
             type=""
             icon="ant-design:edit-outlined"
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
-          >
-          </UiButton>
+            :disabled="!!record.deleted_at"
+          />
+
           <UiButton
             type=""
             danger
@@ -221,68 +212,52 @@ const handleDelete = async (): Promise<void> => {
             colorClass="flex items-center justify-center text-red-700"
             size="small"
             @click="showDeleteModal(record)"
-          >
-          </UiButton>
+          />
         </div>
       </template>
     </Table>
 
-    <!-- Create Modal -->
+    <!-- Create/Edit Unit Modal -->
     <UiModal
-      :title="t('units.header_form.add')"
-      :visible="createModalVisible"
-      :confirm-loading="loading"
-      @update:visible="createModalVisible = $event"
-      @ok="handleCreate"
-      @cancel="createModalVisible = false"
+      :title="isEditMode ? t('units.modal.edit') : t('units.modal.create')"
+      :visible="modalVisible"
+      :confirm-loading="submitLoading"
+      @update:visible="modalVisible = $event"
+      @ok="handleModalOk"
+      @cancel="handleModalCancel"
+      :okText="isEditMode ? t('button.edit') : t('button.save')"
       :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
     >
-      <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem :label="t('units.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('units.placeholder.name')" />
-        </UiFormItem>
-      </UiForm>
-    </UiModal>
 
-    <!-- Edit Modal -->
-    <UiModal
-      :title="t('units.header_form.edit')"
-      :visible="editModalVisible"
-      :confirm-loading="loading"
-      @update:visible="editModalVisible = $event"
-      @ok="handleEdit"
-      @cancel="editModalVisible = false"
-      :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
-    >
-      <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem :label="t('units.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('units.placeholder.name')" />
-        </UiFormItem>
-      </UiForm>
+      <UnitForm
+        ref="unitFormRef"
+        :unit="selectedUnit"
+        :is-edit-mode="isEditMode"
+        :loading="submitLoading"
+        @submit="handleFormSubmit"
+      />
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
     <UiModal
-      :title="t('units.header_form.delete.title')"
+      :title="t('units.modal.delete')"
       :visible="deleteModalVisible"
-      :confirm-loading="loading"
+      :confirm-loading="submitLoading"
       @update:visible="deleteModalVisible = $event"
-      @ok="handleDelete"
-      :cancelText="t('button.cancel')"
+      @ok="handleDeleteConfirm"
       @cancel="deleteModalVisible = false"
-      :okText="t('button.confirm')"
-      okType="primary"
+      ok-text="ຢືນຢັນ"
+      ok-type="primary"
+      :danger="true"
     >
-      <p>{{ t("units.header_form.delete.content") }} "{{ selectedUnit?.name }}"?</p>
-      <p class="text-red-500">{{ t("units.header_form.delete.description") }}</p>
+      <p>{{ $t("units.modal.deleteConfirm", { name: selectedUnit?.name }) }}</p>
+      <p class="text-red-500">{{ $t("units.modal.deleteWarning") }}</p>
     </UiModal>
   </div>
 </template>
 
 <style scoped>
-.unit-list-container {
+.unit-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);

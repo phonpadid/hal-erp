@@ -1,4 +1,4 @@
-import type{ CategoryRepository } from "@/modules/domain/repository/category.repository";
+import type { CategoryRepository } from "@/modules/domain/repository/category.repository";
 
 export class DeleteCategoryUseCase {
   constructor(private readonly categoryRepository: CategoryRepository) {}

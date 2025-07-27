@@ -1,12 +1,16 @@
-import { Unit } from "../entities/unit.entity";
+import type { UnitEntity } from "../entities/unit.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
+import type { CreateUnitDTO, UpdateUnitDTO } from "@/modules/application/dtos/unit.dto";
 
 export interface UnitRepository {
-  create(unit: Unit): Promise<Unit>;
-  findById(id: string): Promise<Unit | null>;
-  findByName(name: string): Promise<Unit | null>;
-  findAll(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<Unit>>;
-  update(unit: Unit): Promise<Unit>;
+  findAll(
+    params: PaginationParams,
+    includeDeleted?: boolean
+  ): Promise<PaginatedResult<UnitEntity>>;
+  findById(id: string): Promise<UnitEntity | null>;
+  findByName(name: string): Promise<UnitEntity | null>;
+  create(data: CreateUnitDTO): Promise<UnitEntity>;
+  update(id: string, data: UpdateUnitDTO): Promise<UnitEntity>;
   delete(id: string): Promise<boolean>;
   restore(id: string): Promise<boolean>;
 }

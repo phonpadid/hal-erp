@@ -1,4 +1,4 @@
-import type{ CategoryRepository } from "@/modules/domain/repository/category.repository";
+import type { CategoryRepository } from "@/modules/domain/repository/category.repository";
 import type { CategoryEntity } from "../../../domain/entities/categories.entity";
 
 export class GetCategoryUseCase {

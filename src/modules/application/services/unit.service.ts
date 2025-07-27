@@ -1,6 +1,5 @@
 import type { UnitRepository } from "@/modules/domain/repository/unit.repository";
-import type { UnitService } from "../ports/input/unit.service";
-import type { Unit } from "../../domain/entities/unit.entity";
+import type { UnitEntity } from "../../domain/entities/unit.entity";
 import type { CreateUnitDTO, UpdateUnitDTO } from "../dtos/unit.dto";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { CreateUnitUseCase } from "../useCases/unit/create-unit.usecase";
@@ -8,6 +7,7 @@ import { GetUnitUseCase } from "../useCases/unit/get-unit.usecase";
 import { UpdateUnitUseCase } from "../useCases/unit/update-unit.usecase";
 import { DeleteUnitUseCase } from "../useCases/unit/delete-unit.usecase";
 import { RestoreUnitUseCase } from "../useCases/unit/restore-unit.usecase";
+import type { UnitService } from "../ports/input/unit.service";
 
 export class UnitServiceImpl implements UnitService {
   private readonly createUnitUseCase: CreateUnitUseCase;
@@ -24,26 +24,26 @@ export class UnitServiceImpl implements UnitService {
     this.restoreUnitUseCase = new RestoreUnitUseCase(unitRepository);
   }
 
-  async createUnit(createUnitDTO: CreateUnitDTO): Promise<Unit> {
+  async createUnit(createUnitDTO: CreateUnitDTO): Promise<UnitEntity> {
     return await this.createUnitUseCase.execute(createUnitDTO);
   }
 
-  async getUnitById(id: string): Promise<Unit | null> {
+  async getUnitById(id: string): Promise<UnitEntity | null> {
     return await this.getUnitUseCase.execute(id);
   }
 
-  async getUnitByName(name: string): Promise<Unit | null> {
+  async getUnitByName(name: string): Promise<UnitEntity | null> {
     return await this.unitRepository.findByName(name);
   }
 
   async getAllUnits(
     params: PaginationParams,
     includeDeleted: boolean = false
-  ): Promise<PaginatedResult<Unit>> {
+  ): Promise<PaginatedResult<UnitEntity>> {
     return await this.unitRepository.findAll(params, includeDeleted);
   }
 
-  async updateUnit(id: string, updateUnitDTO: UpdateUnitDTO): Promise<Unit> {
+  async updateUnit(id: string, updateUnitDTO: UpdateUnitDTO): Promise<UnitEntity> {
     return await this.updateUnitUseCase.execute(id, updateUnitDTO);
   }
 

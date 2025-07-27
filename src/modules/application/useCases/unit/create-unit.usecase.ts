@@ -1,12 +1,16 @@
-import { v4 as uuidv4 } from "uuid";
-import { Unit } from "../../../domain/entities/unit.entity";
+import type { CreateUnitDTO } from "@/modules/application/dtos/unit.dto";
 import type { UnitRepository } from "@/modules/domain/repository/unit.repository";
-import type { CreateUnitDTO } from "../../dtos/unit.dto";
+import type { UnitEntity } from "@/modules/domain/entities/unit.entity";
+
 export class CreateUnitUseCase {
   constructor(private readonly unitRepository: UnitRepository) {}
 
-  async execute(createUnitDTO: CreateUnitDTO): Promise<Unit> {
-    const unit = Unit.create(uuidv4(), createUnitDTO.name);
-    return await this.unitRepository.create(unit);
+  async execute(unitData: CreateUnitDTO): Promise<UnitEntity> {
+    const existing = await this.unitRepository.findByName(unitData.name);
+    if (existing) {
+      throw new Error(`Unit name "${unitData.name}" already exists`);
+    }
+    console.log('Proceeding to create unit:', unitData);
+    return await this.unitRepository.create(unitData);
   }
 }

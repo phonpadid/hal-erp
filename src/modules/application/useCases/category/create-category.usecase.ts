@@ -1,13 +1,16 @@
-import {v4 as uuidv4} from 'uuid';
-import {CategoryEntity} from '../../../domain/entities/categories.entity';
-import type {CategoryRepository} from '@/modules/domain/repository/category.repository';
-import type { CreateCategoryDTO } from '../../dtos/category.dto';
+import type { CreateCategoryDTO } from "@/modules/application/dtos/category.dto";
+import type { CategoryRepository } from "@/modules/domain/repository/category.repository";
+import type { CategoryEntity } from "@/modules/domain/entities/categories.entity";
 
 export class CreateCategoryUseCase {
   constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  async execute(createCategoryDTO: CreateCategoryDTO): Promise<CategoryEntity> {
-    const category = CategoryEntity.create(uuidv4(), createCategoryDTO.name);
-    return await this.categoryRepository.create(category);
+  async execute(categoryData: CreateCategoryDTO): Promise<CategoryEntity> {
+    const existing = await this.categoryRepository.findByName(categoryData.name);
+    if (existing) {
+      throw new Error(`Category name "${categoryData.name}" already exists`);
+    }
+    console.log('Proceeding to create category:', categoryData);
+    return await this.categoryRepository.create(categoryData);
   }
 }

@@ -1,22 +1,24 @@
-export class Unit {
+import { formatDate } from "@/modules/shared/formatdate"
+
+export class UnitEntity {
   private id: string
   private name: string
-  private created_at: string
-  private updated_at: string
-  private deleted_at: Date | null
+  private createdAt: string
+  private updatedAt: string
+  private deletedAt: string | null
 
   constructor(
     id: string,
     name: string,
-    created_at: string,
-    updated_at: string,
-    deleted_at: Date | null = null
+    createdAt: string,
+    updatedAt: string,
+    deletedAt: string | null = null
   ) {
     this.id = id
     this.name = name
-    this.created_at = created_at
-    this.updated_at = updated_at
-    this.deleted_at = deleted_at
+    this.createdAt = formatDate(createdAt)
+    this.updatedAt = formatDate(updatedAt)
+    this.deletedAt = deletedAt !== null ? formatDate(deletedAt) : null;
   }
 
   public getId(): string {
@@ -28,38 +30,38 @@ export class Unit {
   }
 
   public getCreatedAt(): string {
-    return this.created_at
+    return this.createdAt
   }
 
   public getUpdatedAt(): string {
-    return this.updated_at
+    return this.updatedAt
   }
 
-  public getDeletedAt(): Date | null {
-    return this.deleted_at
+  public getDeletedAt(): string | null {
+    return this.deletedAt
   }
 
   public isDeleted(): boolean {
-    return this.deleted_at !== null
+    return this.deletedAt !== null
   }
 
   public updateName(name: string): void {
     this.name = name
-    this.updated_at = new Date().toString()
+    this.updatedAt = new Date().toISOString().replace("T", "").substring(0, 19);
   }
 
   public delete(): void {
-    this.deleted_at = new Date()
-    this.updated_at = new Date().toString()
+    this.deletedAt = new Date().toISOString().replace("T", "").substring(0, 19);
+    this.updatedAt = this.deletedAt;
   }
 
   public restore(): void {
-    this.deleted_at = null
-    this.updated_at = new Date().toString()
+    this.deletedAt = null
+    this.updatedAt = new Date().toISOString().replace("T", "").substring(0, 19);
   }
 
-  public static create(id: string, name: string): Unit {
-    const now = new Date()
-    return new Unit(id, name, now.toString(), now.toString())
+  public static create(id: string, name: string): UnitEntity {
+    const now = new Date().toISOString().replace("T", "").substring(0, 19);
+    return new UnitEntity(id, name, now, now, null);
   }
 }
