@@ -14,9 +14,7 @@
     "name": "Please enter category name",
     "search": "Search by category name"
   },
-  "error": {
-    "name": "Please enter category name"
-  },
+  
   "field": {
     "name": "Category name",
     "created": "Created At",
@@ -49,5 +47,19 @@
     "namePlaceholder": "Enter category",
     "code": "Code",
     "codePlaceholder": "Enter category"
+  },
+   "success": {
+    "title": "Success",
+    "created": "Category created successfully",
+    "updated": "Category updated successfully",
+    "deleted": "Category deleted successfully"
+  },
+  "error": {
+    "name": "Please enter category name",
+    "title": "Error",
+    "loadFailed": "Failed to load Category",
+    "createFailed": "Failed to create Category",
+    "updateFailed": "Failed to update Category",
+    "deleteFailed": "Failed to delete Category"
   }
 }

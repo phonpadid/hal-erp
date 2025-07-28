@@ -14,9 +14,7 @@
     "name": "Please enter position name",
     "search": "Search by position name"
   },
-  "error": {
-    "name": "Please enter position name"
-  },
+ 
   "field": {
     "name": "Position name",
     "created": "Created At",
@@ -48,5 +46,19 @@
     "namePlaceholder": "Enter position",
     "code": "Code",
     "codePlaceholder": "Enter position"
+  },
+  "success": {
+    "title": "Success",
+    "created": "Position created successfully",
+    "updated": "Position updated successfully",
+    "deleted": "Position deleted successfully"
+  },
+  "error": {
+    "name": "Please enter category name",
+    "title": "Error",
+    "loadFailed": "Failed to load Position",
+    "createFailed": "Failed to create Position",
+    "updateFailed": "Failed to update Position",
+    "deleteFailed": "Failed to delete Position"
   }
 }

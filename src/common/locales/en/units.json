@@ -14,9 +14,7 @@
     "name": "Please enter unit name",
     "search": "Search by unit name"
   },
-  "error": {
-    "name": "Please enter unit name"
-  },
+  
   "field": {
     "name": "Unit name",
     "created": "Created At",
@@ -48,5 +46,19 @@
     "namePlaceholder": "Enter unit",
     "code": "Code",
     "codePlaceholder": "Enter unit"
+  },
+   "success": {
+    "title": "Success",
+    "created": "Unit created successfully",
+    "updated": "Unit updated successfully",
+    "deleted": "Unit deleted successfully"
+  },
+  "error": {
+    "name": "Please enter category name",
+    "title": "Error",
+    "loadFailed": "Failed to load Unit",
+    "createFailed": "Failed to create Unit",
+    "updateFailed": "Failed to update Unit",
+    "deleteFailed": "Failed to delete Unit"
   }
 }
