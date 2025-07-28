@@ -111,7 +111,7 @@ export const useBudgetItemDetailsStore = defineStore("budgetItemDetails", () => 
       const createDTO: CreateBudgetItemDetailsDTO = {
         budget_item_id: budgetItemDetailData.budget_item_id || "",
         name: budgetItemDetailData.name || "",
-        provinceId: budgetItemDetailData.provinceId || "",
+        province_id: budgetItemDetailData.province_id || "",
         description: budgetItemDetailData.description || "",
         allocated_amount: budgetItemDetailData.allocated_amount || "",
       };
@@ -137,7 +137,7 @@ export const useBudgetItemDetailsStore = defineStore("budgetItemDetails", () => 
       const updateDTO: UpdateBudgetItemDetailsDTO = {
         id,
         name: budgetItemDetailData.name || "",
-        provinceId: budgetItemDetailData.province_id || "",
+        province_id: budgetItemDetailData.province_id || "",
         description: budgetItemDetailData.description || "",
         allocated_amount: budgetItemDetailData.allocated_amount || "",
       };
@@ -171,7 +171,6 @@ export const useBudgetItemDetailsStore = defineStore("budgetItemDetails", () => 
       if (result) {
         const index = budgetItemDetails.value.findIndex((v) => v.getId() === id);
         if (index !== -1) {
-          // Mark as deleted
           budgetItemDetails.value[index].delete();
         }
       }

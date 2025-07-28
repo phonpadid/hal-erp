@@ -20,7 +20,7 @@ export interface BudgetItemDetailsInterface {
 export interface CreateBudgetItemDetailsInterface {
   budget_item_id: string | number;
   name: string;
-  provinceId?: string | number;
+  province_id?: string | number;
   description?: string;
   allocated_amount?: string;
 }

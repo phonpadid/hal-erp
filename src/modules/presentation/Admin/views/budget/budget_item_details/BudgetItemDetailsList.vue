@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { BudgetItemDetailsInterface } from "@/modules/interfaces/budget/budget-item-details.interface";
 import { formatDate } from "@/modules/shared/formatdate";
@@ -13,6 +13,7 @@ import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import FormBudgetItemDetails from "@/modules/presentation/Admin/components/budget/FormBudgetItemDetails.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
 const { t } = useI18n();
 const budgetItemDetailsStore = useBudgetItemDetailsStore();
@@ -72,8 +73,8 @@ const loadBudgetItemDetails = async () => {
       });
     }
   } catch (err) {
-    console.error("Error loading budget item details:", err);
-    error(t("budget_item_details.error.loadFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("budget_item_details.error.loadFailed"), errorMessage);
   } finally {
     loading.value = false;
   }
@@ -91,12 +92,25 @@ const handleTableChange = (
 };
 
 const handleSearch = async () => {
-  await budgetItemDetailsStore.fetchBudgetItemDetails({
+   const budgetItemId = route.params.id as string;
+
+  await budgetItemDetailsStore.fetchBudgetItemDetailsByItemId(budgetItemId, {
     page: 1,
     limit: budgetItemDetailsStore.pagination.limit,
     search: searchKeyword.value,
   });
 };
+
+watch(searchKeyword, async(newVal: string) => {
+  if(newVal === '') {
+    budgetItemDetailsStore.setPagination({
+      page: 1,
+      limit: budgetItemDetailsStore.pagination.limit,
+      total: budgetItemDetailsStore.pagination.total,
+    })
+    await loadBudgetItemDetails()
+  }
+})
 
 // Modal handlers
 const showCreateModal = () => {
@@ -194,12 +208,10 @@ const handleDeleteConfirm = async () => {
       </div>
 
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
-        <UiInput
-          v-model="searchKeyword"
-          :placeholder="t('budget_item_details.placeholder.search')"
-          allowClear
-          @update:modelvalue="handleSearch"
-          class="w-64"
+        <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
           type="primary"

@@ -1,4 +1,5 @@
 import type { UserAPIResponse, Role } from "@/modules/interfaces/user.interface";
+import { formatDate } from "@/modules/shared/formatdate";
 
 export class UserEntity {
   private id: string;
@@ -9,9 +10,9 @@ export class UserEntity {
   private roleIds: number[];
   private permissionIds: number[];
   private roles: Role[];
-  private createdAt: string;
-  private updatedAt: string;
-  private deletedAt: string | null;
+  private created_at: string;
+  private updated_at: string;
+  private deleted_at: string | null;
 
   constructor(
     id: string,
@@ -20,9 +21,9 @@ export class UserEntity {
     roleIds: number[],
     roles: Role[],
     permissionIds: number[],
-    createdAt: string,
-    updatedAt: string,
-    deletedAt: string | null = null,
+    created_at: string,
+    updated_at: string,
+    deleted_at: string | null = null,
     password?: string,
     tel?: string
   ) {
@@ -34,9 +35,9 @@ export class UserEntity {
     this.permissionIds = permissionIds;
     this.password = password;
     this.tel = tel;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-    this.deletedAt = deletedAt;
+    this.created_at = formatDate(created_at);
+    this.updated_at = formatDate(updated_at);
+    this.deleted_at = deleted_at === null ? null : formatDate(deleted_at);
   }
 
   public getId(): string {
@@ -70,58 +71,58 @@ export class UserEntity {
   }
 
   public getCreatedAt(): string {
-    return this.createdAt;
+    return this.created_at;
   }
 
   public getUpdatedAt(): string {
-    return this.updatedAt;
+    return this.updated_at;
   }
 
   public getDeletedAt(): string | null {
-    return this.deletedAt;
+    return this.deleted_at;
   }
 
   public isDeleted(): boolean {
-    return this.deletedAt !== null;
+    return this.deleted_at !== null;
   }
 
   public updateUsername(username: string): void {
     this.username = username;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
   public updateEmail(email: string): void {
     this.email = email;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
   public updateRoleIds(roleIds: number[]): void {
     this.roleIds = roleIds;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
   public updatePermissionIds(permissionIds: number[]): void {
     this.permissionIds = permissionIds;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
   public updatePassword(password: string): void {
     this.password = password;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
   public updateTel(tel: string | undefined): void {
     this.tel = tel;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
   public delete(): void {
-    this.deletedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
-    this.updatedAt = this.deletedAt;
+    this.deleted_at = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updated_at = this.deleted_at;
   }
 
   public restore(): void {
-    this.deletedAt = null;
-    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.deleted_at = null;
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
   public static create(
