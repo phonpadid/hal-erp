@@ -90,7 +90,7 @@ export class ApiBudgetItemDetailsRepository implements BudgetItemDetailsReposito
     try {
       const response = await api.post(`${this.baseUrl}/${budGetItemDetails.budget_item_id}`, {
         name: budGetItemDetails.name,
-        provinceId: Number(budGetItemDetails.provinceId) || "",
+        provinceId: Number(budGetItemDetails.province_id) || "",
         allocated_amount: Number(budGetItemDetails.allocated_amount) || 0,
         description: budGetItemDetails.description || "",
       });

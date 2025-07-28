@@ -128,9 +128,10 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
   </div>
 
   <!-- For grouped options -->
-  <div v-else class="flex flex-wrap gap-3">
+  <!-- <div v-else class="flex flex-wrap gap-3"> -->
+    <div v-else>
     <!-- "Check All" for all groups -->
-    <div class="w-full mb-2">
+    <div class="w-full mb-2 font-bold">
       <a-checkbox
         :checked="checkAllState['all'].checked"
         :indeterminate="checkAllState['all'].indeterminate"
@@ -141,25 +142,22 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
       <a-divider />
     </div>
 
-    <div v-for="(options, groupName) in groupedOptions" :key="groupName" class="w-44">
-      <div class="mb-2">
-        <h3 v-if="groupName" class="inline-block mr-2 text-sm font-medium">
-          {{ groupName }}
-        </h3>
+    <div v-for="(options, groupName) in groupedOptions" :key="groupName" class="w-100">
+      <div class="mb-1 font-bold">
         <a-checkbox
           :checked="checkAllState[groupName].checked"
           :indeterminate="checkAllState[groupName].indeterminate"
           @change="(e:any) => toggleCheckAll(groupName, e.target.checked)"
         >
-          ເລືອກທັງໝົດ
+          {{ groupName }}
         </a-checkbox>
       </div>
 
-      <ul class="w-44 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg">
-        <li
+      <div class="grid grid-cols-4 gap-2">
+        <p
           v-for="option in options"
           :key="option.value"
-          class="w-full px-2 py-1 border-b border-gray-200"
+          class="px-6"
         >
           <a-checkbox
             :value="option.value"
@@ -168,8 +166,9 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
           >
             {{ option.label }}
           </a-checkbox>
-        </li>
-      </ul>
+        </p>
+      </div>
+      <a-divider class="mt-[-10px]" />
     </div>
   </div>
 </template>

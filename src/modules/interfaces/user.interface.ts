@@ -13,13 +13,13 @@ export interface UserInterface {
   updated_at?: string;
   deleted_at?: string | null;
   getRoles(): Role[];
-  permissions?: Permission[]
+  permissions?: Permission[];
 }
 
 export interface UserCreatePayload {
   username: string;
   email: string;
-  password: string;
+  password?: string;
   tel?: string;
   roleIds: number[];
   permissionIds: number[];
