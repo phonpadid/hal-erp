@@ -7,12 +7,6 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "name",
       key: "name",
     },
-    // {
-    //   title: t("budget_item_details.field.budget_item"),
-    //   dataIndex: "budget_item_id",
-    //   key: "budget_item",
-    //   scopedSlots: { customRender: "budget_item" },
-    // },
     {
       title: t("budget_item_details.field.province"),
       dataIndex: "province",
@@ -20,14 +14,14 @@ export function columns(t: (key: string) => string): Column[] {
       scopedSlots: { customRender: "province" },
     },
     {
+      title: t("budget_item_details.field.allocated_amount"),
+      dataIndex: "format_allocated_amount",
+      key: "format_allocated_amount",
+    },
+    {
       title: t("budget_item_details.field.description"),
       dataIndex: "description",
       key: "description",
-    },
-    {
-      title: t("budget_item_details.field.allocated_amount"),
-      dataIndex: "allocated_amount",
-      key: "allocated_amount",
     },
     {
       title: t("budget_item_details.field.created"),
