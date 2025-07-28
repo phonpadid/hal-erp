@@ -262,40 +262,6 @@ export const menuItems = computed<ItemType[]>(() => [
           ]),
       },
       {
-        key: "PositionList",
-        label: t("menu-sidebar.position"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:baseline-person",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "UnitList",
-        label: t("menu-sidebar.unit"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:round-filter-list",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "CategoryList",
-        label: t("menu-sidebar.category"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:outline-lan",
-
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
         key: "document_typesList",
         label: t("menu-sidebar.document_type"),
         icon: () =>
