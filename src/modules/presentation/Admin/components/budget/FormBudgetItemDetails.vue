@@ -10,6 +10,7 @@ import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiTextArea from "@/common/shared/components/Input/Textarea.vue";
+import UiInputNumber from '@/common/shared/components/Input/InputNumber.vue';
 
 const { t } = useI18n();
 const provinceStore = useProvinceStore();
@@ -39,7 +40,7 @@ const formState = reactive({
   name: "",
   provinceId: "", // Changed from province_id to provinceId
   description: "",
-  allocated_amount: "",
+  allocated_amount: 0,
 });
 
 // Loading state for provinces
@@ -112,7 +113,7 @@ const submitForm = async () => {
       name: formState.name,
       provinceId: parseInt(formState.provinceId), // Ensure provinceId is a number
       description: formState.description,
-      allocated_amount: parseFloat(formState.allocated_amount),
+      allocated_amount: formState.allocated_amount,
     });
   } catch (error) {
     console.error("Form validation failed:", error);
@@ -145,25 +146,26 @@ defineExpose({
       />
     </UiFormItem>
 
+    <UiFormItem
+      :label="$t('budget_item_details.form.allocatedAmount')"
+      name="allocated_amount"
+      required
+    >
+      <UiInputNumber
+        v-model="formState.allocated_amount"
+        :placeholder="$t('budget_item_details.form.allocatedAmountPlaceholder')"
+        :disabled="loading"
+        :formatter="(value: string | number) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+        :parser="(value: string) => value.replace(/\$\s?|(,*)/g, '')"
+      />
+    </UiFormItem>
+
     <UiFormItem :label="$t('budget_item_details.form.description')" name="description">
       <UiTextArea
         v-model="formState.description"
         :placeholder="$t('budget_item_details.form.descriptionPlaceholder')"
         :disabled="loading"
         :rows="4"
-      />
-    </UiFormItem>
-
-    <UiFormItem
-      :label="$t('budget_item_details.form.allocatedAmount')"
-      name="allocated_amount"
-      required
-    >
-      <UiInput
-        v-model="formState.allocated_amount"
-        :placeholder="$t('budget_item_details.form.allocatedAmountPlaceholder')"
-        :disabled="loading"
-        type="number"
       />
     </UiFormItem>
   </UiForm>

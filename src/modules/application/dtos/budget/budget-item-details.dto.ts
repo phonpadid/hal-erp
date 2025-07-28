@@ -10,7 +10,7 @@ export interface BudgetItemDetailsDTO {
   deleted_at: string | null;
 }
 export interface CreateBudgetItemDetailsDTO {
-  // budget_item_id: string | number;
+  budget_item_id: string | number;
   name: string;
   provinceId?: string | number;
   description: string;
