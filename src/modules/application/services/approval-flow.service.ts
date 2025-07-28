@@ -1,4 +1,3 @@
-
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import type { ApprovalWorkflowService } from "../ports/input/approval-workflow.service";
 import { CreateApprovalWorkflowUseCase } from "../useCases/approval-flows/create.use-case";
@@ -7,7 +6,10 @@ import { GetOneApprovalWorkflowUseCase } from "../useCases/approval-flows/get-on
 import { GetAllApprovalWorkflowUseCase } from "../useCases/approval-flows/get-all.use-case";
 import { UpdateApprovalWorkflowUseCase } from "../useCases/approval-flows/update-department.use-case";
 import type { ApprovalWorkflowRepository } from "@/modules/domain/repository/approval-workflow.repository";
-import type { CreateApprovalWorkflowDTO, UpdateApprovalWorkflowDTO } from "../dtos/approval-workflow.dto";
+import type {
+  CreateApprovalWorkflowDTO,
+  UpdateApprovalWorkflowDTO,
+} from "../dtos/approval-workflow.dto";
 import type { ApprovalWorkflowEntity } from "@/modules/domain/entities/approval-workflows.entity";
 
 export class ApprovalWorkflowServiceImpl implements ApprovalWorkflowService {
@@ -46,5 +48,4 @@ export class ApprovalWorkflowServiceImpl implements ApprovalWorkflowService {
   async delete(id: string): Promise<boolean> {
     return await this.deleteApprovalWorkflowUseCase.execute(id);
   }
-
 }
