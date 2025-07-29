@@ -3,6 +3,7 @@ import type { UserEntity } from "../user.entities"
 import type { DepartmentEntity } from "./department.entity"
 import type { Role } from "../role.entities"
 import type { Permission } from "../permission.entities"
+import { formatDate } from "@/modules/shared/formatdate"
 
 export class DepartmentUserEntity {
   private id: string | null;
@@ -81,7 +82,7 @@ export class DepartmentUserEntity {
   public getDepartment(): DepartmentEntity | null {
     return this.department;
   }
-  public getPostion(): Position | null {
+  public getPostion(): PositionEntity | null {
     return this.position;
   }
   public getUser(): UserEntity | null {

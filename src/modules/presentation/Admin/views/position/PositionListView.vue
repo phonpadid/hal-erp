@@ -123,17 +123,17 @@ const handleFormSubmit = async (formData: { name: string }) => {
       await positionStore.updatePosition(selectedPosition.value.id.toString(), {
         ...formData,
       });
-      success(t("position.success.title"), t("position.success.updated"));
+      success(t("positions.success.title"), t("positions.success.updated"));
     } else {
       await positionStore.createPosition(formData);
-      success(t("position.success.title"), t("position.success.created"));
+      success(t("positions.success.title"), t("positions.success.created"));
     }
 
     modalVisible.value = false;
     await loadPositions();
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    warning(t("position.error.title"), String(errorMessage));
+    warning(t("positions.error.title"), String(errorMessage));
   } finally {
     submitLoading.value = false;
   }
@@ -145,13 +145,13 @@ const handleDeleteConfirm = async () => {
   try {
     submitLoading.value = true;
     await positionStore.deletePosition(selectedPosition.value.id.toString());
-    success(t("position.success.title"), t("position.success.deleted"));
+    success(t("positions.success.title"), t("positions.success.deleted"));
 
     deleteModalVisible.value = false;
     await loadPositions();
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    warning(t("position.error.deleteFailed"), String(errorMessage));
+    warning(t("positions.error.deleteFailed"), String(errorMessage));
   } finally {
     submitLoading.value = false;
   }

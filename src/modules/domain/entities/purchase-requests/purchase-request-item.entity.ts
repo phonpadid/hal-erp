@@ -66,7 +66,7 @@ import type { UnitEntity } from "../unit.entity";
       return this.unit_id;
     }
 
-    public getUnit(): Unit | null {
+    public getUnit(): UnitEntity | null {
       return this.unit;
     }
 

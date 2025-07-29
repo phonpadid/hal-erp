@@ -1,5 +1,5 @@
-import type { VatEntity } from "@/modules/domain/entities/vat.entity";
 import type { VatRepository } from "@/modules/domain/repository/vat.repository";
+import type { VatEntity } from "../../../domain/entities/vat.entity";
 
 export class GetVatUseCase {
   constructor(private readonly vatRepository: VatRepository) {}

@@ -1,4 +1,5 @@
 import { formatDate } from "@/modules/shared/formatdate"
+
 export class PositionEntity {
   private id: string
   private name: string

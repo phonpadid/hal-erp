@@ -1,4 +1,4 @@
-import type { VatEntity } from "../entities/vat.entity";
+import type { VatEntity } from "@/modules/domain/entities/vat.entity";
 import type { UpdateVatDTO } from "@/modules/application/dtos/vat.dto";
 
 export interface VatRepository {
