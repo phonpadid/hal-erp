@@ -3,18 +3,17 @@ import { ref, onMounted, watch } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import Table from "@/common/shared/components/table/Table.vue";
-import { dataDpmUser } from "@/modules/shared/utils/data.department";
+import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { useRouter } from "vue-router";
 import { departmenUsertStore } from "../../../stores/departments/department-user.store";
-import type { DepartmentUserEntity } from "@/modules/domain/entities/departments/department-user.entity";
 import type { DepartmentUserApiModel } from "@/modules/interfaces/departments/department-user.interface";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+
+const { warning } = useNotification();
 const { t } = useI18n();
 const dpmUserStore = departmenUsertStore();
-const department = ref<DepartmentUserApiModel[]>([]);
-const useRealApi = ref<boolean>(true); // Toggle between mock and real API
 const search = ref<string>("");
 // Form related
 const deleteModalVisible = ref<boolean>(false);
@@ -26,130 +25,42 @@ onMounted(async () => {
 });
 
 const departmentUser = async (): Promise<void> => {
-  if (useRealApi.value) {
-    try {
+  try {
       loading.value = true;
-      const result = await dpmUserStore.fetchDepartmentUser({
+      dpmUserStore.fetchDepartmentUser({
         page: dpmUserStore.pagination.page,
         limit: dpmUserStore.pagination.limit,
       });
-
-      department.value = result.data.map((dpmUser: DepartmentUserEntity) => {
-        const user = dpmUser.getUser();
-        const position = dpmUser.getPostion();
-        const dept = dpmUser.getDepartment();
-
-        return {
-          id: dpmUser?.getId() || undefined,
-          position_id: dpmUser.getPosition_id() || undefined,
-          signature_file: dpmUser.getSignature_file() || undefined,
-          department_id: dpmUser.getDepartmentId() || undefined,
-          user: user
-            ? {
-                id: user.getId() || undefined,
-                username: user.getUsername() || undefined,
-                email: user.getEmail() || undefined,
-                tel: user.getTel() || undefined,
-                created_at: user.getCreatedAt() ?? "",
-                updated_at: user.getUpdatedAt() ?? "",
-              }
-            : undefined,
-          department: dept
-            ? {
-                id: dept.getId() || undefined,
-                name: dept.getName() || undefined,
-                code: dept.getCode() || undefined,
-                created_at: dept.getCreatedAt() ?? "",
-                updated_at: dept.getUpdatedAt() ?? "",
-              }
-            : undefined,
-          position: position
-            ? {
-                id: position.getId() || undefined,
-                name: position.getName() || undefined,
-                created_at: position.getCreatedAt() ?? "",
-                updated_at: position.getUpdatedAt() ?? "",
-              }
-            : undefined,
-          created_at: user?.getCreatedAt() ?? "",
-          updated_at: user?.getUpdatedAt() ?? "",
-        };
-      }) as unknown as DepartmentUserApiModel[];
-
-      console.log("Department data loaded:", department.value);
-    } catch (error) {
-      console.error("Failed to fetch department from API:", error);
-      // department.value = [...dataDpm.value];
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      warning(t("departments.error.title"), String(errorMessage));
     } finally {
       loading.value = false;
     }
-  } else {
-    department.value = [...dataDpmUser.value];
-  }
 };
+
 //search
 const handleSearch = async () => {
   try {
     loading.value = true;
-    const result = await dpmUserStore.fetchDepartmentUser({
+    await dpmUserStore.fetchDepartmentUser({
       page: dpmUserStore.pagination.page,
       limit: dpmUserStore.pagination.limit,
       search: search.value,
     });
-
-    department.value = result.data.map((dpmUser: DepartmentUserEntity) => {
-      const user = dpmUser.getUser();
-      const position = dpmUser.getPostion();
-      const dept = dpmUser.getDepartment();
-
-      return {
-        id: dpmUser?.getId() || undefined,
-        position_id: dpmUser.getPosition_id() || undefined,
-        signature_file: dpmUser.getSignature_file() || undefined,
-        department_id: dpmUser.getDepartmentId() || undefined,
-        user: user
-          ? {
-              id: user.getId() || undefined,
-              username: user.getUsername() || undefined,
-              email: user.getEmail() || undefined,
-              tel: user.getTel() || undefined,
-              created_at: user.getCreatedAt() ?? "",
-              updated_at: user.getUpdatedAt() ?? "",
-            }
-          : undefined,
-        department: dept
-          ? {
-              id: dept.getId() || undefined,
-              name: dept.getName() || undefined,
-              code: dept.getCode() || undefined,
-              created_at: dept.getCreatedAt() ?? "",
-              updated_at: dept.getUpdatedAt() ?? "",
-            }
-          : undefined,
-        position: position
-          ? {
-              id: position.getId() || undefined,
-              name: position.getName() || undefined,
-              created_at: position.getCreatedAt() ?? "",
-              updated_at: position.getUpdatedAt() ?? "",
-            }
-          : undefined,
-        created_at: user?.getCreatedAt() ?? "",
-        updated_at: user?.getUpdatedAt() ?? "",
-      };
-    }) as unknown as DepartmentUserApiModel[];
-  } catch (error) {
-    console.error("Search failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("departments.error.title"), String(errorMessage));
   } finally {
     loading.value = false;
   }
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const handleTableChange = async (pagination: any) => {
+
+const handleTableChange = async (pagination: TablePaginationType) => {
   dpmUserStore.setPagination({
-    page: pagination.current | 1,
-    limit: pagination.pageSize,
-    total: pagination.total,
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total ?? 0,
   });
   await departmentUser();
 };
@@ -175,21 +86,19 @@ const handleDelete = async (): Promise<void> => {
   if (!selectedDpm.value) return;
 
   loading.value = true;
+  try {
+    // Use API to delete
+    const id = selectedDpm.value.id ?? "";
+    await dpmUserStore.deleteDepartmentUser(id);
 
-  if (useRealApi.value) {
-    try {
-      // Use API to delete
-      const id = selectedDpm.value.id ?? "";
-      await dpmUserStore.deleteDepartmentUser(id);
-
-      await departmentUser(); // Refresh the list
-    } catch (error) {
-      console.error("Delete failed:", error);
-    }
+    await departmentUser(); // Refresh the list
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("departments.error.title"), String(errorMessage));
+  } finally {
+    deleteModalVisible.value = false;
+    loading.value = false;
   }
-
-  deleteModalVisible.value = false;
-  loading.value = false;
 };
 watch(search, async(load) => {
   if(load === '') {
@@ -222,28 +131,20 @@ watch(search, async(load) => {
         </UiButton>
       </div>
       <div class="mt-4 text-slate-700 space-y-2">
-        <span
+        <!-- <span
           :loading="dpmUserStore.loading"
           class="block text-lg font-semibold"
-          v-if="department.length > 0 && department[0].department"
+          v-if="dpmUserStore.departmentUser.length > 0 && dpmUserStore.departmentUser[0].department.name"
         >
-          {{ department[0].department?.name }}
-        </span></div>
-      <!-- <div class="total-item mt-4 text-slate-700">
-        <a-tag color="red"
-          >{{
-            t("departments.dpm_user.total", {
-              count: dpmUserStore.pagination.total,
-            })
-          }}
-        </a-tag>
-      </div> -->
+          {{ dpmUserStore.departmentUser[0].department?.name }}
+        </span> -->
+      </div>
     </div>
 
     <!-- Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="department"
+      :dataSource="dpmUserStore.departmentUser"
       :pagination="{
         current: dpmUserStore.pagination.page,
         pageSize: dpmUserStore.pagination.limit,
@@ -255,7 +156,7 @@ watch(search, async(load) => {
     >
       <!-- Named slot: signature_file -->
       <template #signature_file="{ record }">
-        <a-image :src="record.signature_file" :width="60" />
+        <a-image :src="record.signature_file_url" :width="60" />
       </template>
 
       <!-- Named slot: actions -->
