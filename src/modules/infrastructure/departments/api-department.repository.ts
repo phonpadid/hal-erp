@@ -39,14 +39,14 @@ export class ApiDepartmentRepository implements DepartmentRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<DepartmentEntity>> {
     try {
-      const response = await api.get("/department", {
+      const response = (await api.get("/department", {
         params: {
           page: params.page,
           limit: params.limit,
           includeDeleted,
           ...(params.search && { search: params.search }),
         },
-      }) as { data: ApiListResponse<DepartmentApiModel> };
+      })) as { data: ApiListResponse<DepartmentApiModel> };
       const { pagination } = response.data;
       return {
         data: response.data.data.map((item) => this.toDomainModel(item)),
@@ -59,7 +59,6 @@ export class ApiDepartmentRepository implements DepartmentRepository {
       return this.handleApiError(error, "Failed to fetch list");
     }
   }
-
 
   async update(id: string, department: DepartmentEntity): Promise<DepartmentEntity> {
     try {
@@ -81,7 +80,6 @@ export class ApiDepartmentRepository implements DepartmentRepository {
     }
   }
 
-
   private toApiModel(input: DepartmentEntity): DepartmentApiModel {
     return {
       id: parseInt(input.getId(), 10),
@@ -98,7 +96,7 @@ export class ApiDepartmentRepository implements DepartmentRepository {
       data.name,
       data.code || "",
       data.created_at || "",
-      data.updated_at || "",
+      data.updated_at || ""
     );
   }
 
@@ -106,9 +104,8 @@ export class ApiDepartmentRepository implements DepartmentRepository {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`

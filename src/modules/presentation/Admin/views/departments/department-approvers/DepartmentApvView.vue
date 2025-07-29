@@ -3,10 +3,9 @@ import { ref, onMounted, computed, watch } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import Table from "@/common/shared/components/table/Table.vue";
+import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
-
 import { useI18n } from "vue-i18n";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { dpmApproverRules } from "./validation/department.validate";
@@ -14,13 +13,11 @@ import { departmentApproverStore } from "../../../stores/departments/department-
 import type { DepartmentApproverApiModel } from "@/modules/interfaces/departments/department-approver.interface";
 import { departmentStore } from "../../../stores/departments/department.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import type { DepartmentApproverEntity } from "@/modules/domain/entities/departments/department-approver.entity";
 import { departmenUsertStore } from "../../../stores/departments/department-user.store";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+
 const { t } = useI18n();
 const search = ref<string>("");
-// Initialize the unit store
-// departments data that will be displayed (from API or mock)
 const departmentApv = ref<DepartmentApproverApiModel[]>([]);
 const dpmStore = departmentStore();
 // Form related
@@ -31,7 +28,7 @@ const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedDpm = ref<DepartmentApproverApiModel | null>(null);
 const userStore = departmenUsertStore();
-const { success } = useNotification();
+const { success, warning } = useNotification();
 const userItem = computed(() =>
   userStore.departmentUser.map((item) => {
     const user = item.getUser?.();
@@ -56,101 +53,34 @@ const refreshUsers = async () => {
 onMounted(async () => {
   await dpmApproverList();
   await dpmStore.fetchDepartment();
-  await store.fetchDepartmentApprover();
   await refreshUsers();
 });
 
 const dpmApproverList = async (): Promise<void> => {
-  // if (useRealApi.value) {
   try {
     loading.value = true;
-    const result = await store.fetchDepartmentApprover({
-      page: store.pagination.page,
-      limit: store.pagination.limit,
-    });
-
-    departmentApv.value = result.data.map(
-      (dpmApv: DepartmentApproverEntity) => {
-        const dpm = dpmApv.getDepartment();
-        const user = dpmApv.getUser();
-
-        return {
-          id: Number(dpmApv.getId()), // ensure number
-          user_id: Number(dpmApv.getUser_id()), // ensure number
-          department: dpm
-            ? {
-                id: Number(dpm.getId()),
-                code: dpm.getCode(),
-                name: dpm.getName(),
-              }
-            : undefined,
-          user: user
-            ? {
-                id: user.getId() || undefined,
-                username: user.getUsername() || undefined,
-                email: user.getEmail() || undefined,
-                tel: user.getTel() || undefined,
-                created_at: user.getCreatedAt() ?? "",
-                updated_at: user.getUpdatedAt() ?? "",
-              }
-            : undefined,
-          created_at: dpmApv.getCreatedAt()?.toString() || "",
-          updated_at: dpmApv.getUpdatedAt()?.toString() || "",
-        };
-      }) as unknown as DepartmentApproverApiModel[];
-  } catch (error) {
-    console.error("Failed to fetch department from API:", error);
-  } finally {
-    loading.value = false;
-  }
-  // } else {
-  // department.value = [...dataDpmUser.value];
-  // }
-};
-//search
-const handleSearch = async () => {
-  try {
-    loading.value = true;
-    const result = await store.fetchDepartmentApprover({
+    await store.fetchDepartmentApprover({
       page: store.pagination.page,
       limit: store.pagination.limit,
       search: search.value,
     });
-
-    departmentApv.value = result.data.map(
-      (dpmApv: DepartmentApproverEntity) => {
-        const dpm = dpmApv.getDepartment();
-        const user = dpmApv.getUser();
-
-        return {
-          id: Number(dpmApv.getId()), // ensure number
-          user_id: Number(dpmApv.getUser_id()), // ensure number
-          department: dpm
-            ? {
-                id: Number(dpm.getId()),
-                code: dpm.getCode(),
-                name: dpm.getName(),
-              }
-            : undefined,
-          user: user
-            ? {
-                id: Number(user.getId()),
-                username: user.getUsername(),
-                tel: user.getTel(),
-                email: user.getEmail(),
-              }
-            : undefined,
-          created_at: dpmApv.getCreatedAt()?.toString() || "",
-          updated_at: dpmApv.getUpdatedAt()?.toString() || "",
-        };
-      }
-    )as unknown as DepartmentApproverApiModel[];
-  } catch (error) {
-    console.error("Failed to fetch department from API:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("messages.error.title"), errorMessage);
   } finally {
     loading.value = false;
   }
 };
+
+//search
+const handleSearch = async () => {
+  await store.fetchDepartmentApprover({
+    page: 1,
+    limit: store.pagination.limit,
+    search: search.value,
+  });
+};
+
 // CRUD operations
 const showCreateModal = (): void => {
   formModel.user_id = "";
@@ -180,8 +110,9 @@ const handleCreate = async (): Promise<void> => {
     await dpmApproverList(); // Refresh the list
     await refreshUsers();
     createModalVisible.value = false;
-  } catch (error) {
-    console.error("Create form validation failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("messages.error.title"), errorMessage);
   } finally {
     loading.value = false;
   }
@@ -204,8 +135,9 @@ const handleEdit = async (): Promise<void> => {
     }
 
     editModalVisible.value = false;
-  } catch (error) {
-    console.error("Edit form validation failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("messages.error.title"), errorMessage);
   } finally {
     loading.value = false;
   }
@@ -220,28 +152,37 @@ const handleDelete = async (): Promise<void> => {
     await store.deleteDepartmentApprover(id);
     await dpmApproverList(); // Refresh the list
     await refreshUsers();
-  } catch (error) {
-    console.error("Delete failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("messages.error.title"), errorMessage);
   }
 
   deleteModalVisible.value = false;
   loading.value = false;
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const handleTableChange = async (pagination: any) => {
-  dpmStore.setPagination({
-    page: pagination.current | 1,
-    limit: pagination.pageSize,
-    total: pagination.total,
+
+
+const handleTableChange = async (pagination: TablePaginationType) => {
+  store.setPagination({
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total ?? 0,
   });
   await dpmApproverList();
 };
+
+/** Watch Search */
 watch(search, async (newValue) => {
   if (newValue === "") {
+    store.setPagination({
+      page: 1,
+      limit: store.pagination.limit,
+      total: store.pagination.total,
+    })
     await dpmApproverList();
   }
 });
-// const total = computed(() => store.pagination.total)
+
 </script>
 
 <template>
@@ -288,7 +229,7 @@ watch(search, async (newValue) => {
     </div>
     <Table
       :columns="columns(t)"
-      :dataSource="departmentApv"
+      :dataSource="store.departmentApprover"
       :pagination="{
         current: store.pagination.page,
         pageSize: store.pagination.limit,

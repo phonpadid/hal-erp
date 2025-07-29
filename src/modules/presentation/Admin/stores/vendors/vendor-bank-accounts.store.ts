@@ -44,12 +44,15 @@ export const useVendorBankAccountStore = defineStore("vendor-bank-account", () =
   const totalInactiveBankAccounts = computed(() => inactiveBankAccounts.value.length);
 
   // ดึงรายการบัญชีธนาคารทั้งหมด
-  const fetchBankAccounts = async (params: PaginationParams = { page: 1, limit: 10 }) => {
+  const fetchBankAccounts = async (
+    vendorId: number,
+    params: PaginationParams = { page: 1, limit: 10 }
+  ) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const result = await bankAccountService.getAllVendorsBankAccount(params);
+      const result = await bankAccountService.getAllVendorsBankAccount(vendorId, params);
       bankAccounts.value = result.data;
       pagination.value = {
         page: result.page,

@@ -1,27 +1,27 @@
-import type { Position } from "../position.entity"
+import type { PositionEntity } from "../position.entity"
 import type { UserEntity } from "../user.entities"
 import type { DepartmentEntity } from "./department.entity"
 import type { Role } from "../role.entities"
 import type { Permission } from "../permission.entities"
 
 export class DepartmentUserEntity {
-  private id: string | null
-  private position_id: string
-  private signature_file: string | File
-  private signature_file_url: string | null
-  private department_id: string
-  private permissionIds: number[]
-  private roleIds: number[]
+  private id: string | null;
+  private position_id: string;
+  private signature_file: string | File;
+  private signature_file_url: string | null;
+  private department_id: string;
+  private permissionIds: number[];
+  private roleIds: number[];
 
-  private department: DepartmentEntity | null
-  private position: Position | null
-  private user: UserEntity | null
-  private roles: Role | null
-  private permissions: Permission | null
+  private department: DepartmentEntity | null;
+  private position: PositionEntity | null;
+  private user: UserEntity | null;
+  private roles: Role | null;
+  private permissions: Permission | null;
 
-  private createdAt: Date | null
-  private updatedAt: Date | null
-  private deletedAt: Date | null
+  private created_at: string;
+  private updated_at: string;
+  private deleted_at: string | null;
 
   constructor(
     id: string | null = null,
@@ -32,81 +32,81 @@ export class DepartmentUserEntity {
     permissionIds: number[],
     roleIds: number[],
     department: DepartmentEntity | null = null,
-    position: Position | null = null,
+    position: PositionEntity | null = null,
     user: UserEntity,
     roles: Role | null = null,
     permissions: Permission | null = null,
-    createdAt: Date | null = null,
-    updatedAt: Date | null = null,
-    deletedAt: Date | null = null
+    created_at: string,
+    updated_at: string,
+    deleted_at: string | null = null
   ) {
-    this.id = id
-    this.position_id = position_id
-    this.signature_file = signature_file
-    this.signature_file_url = signature_file_url
-    this.department_id = department_id
-    this.permissionIds = permissionIds
-    this.roleIds = roleIds
-    this.department = department
-    this.position = position
-    this.user = user
-    this.roles = roles
-    this.permissions = permissions
-    this.createdAt = createdAt
-    this.updatedAt = updatedAt
-    this.deletedAt = deletedAt
+    this.id = id;
+    this.position_id = position_id;
+    this.signature_file = signature_file;
+    this.signature_file_url = signature_file_url;
+    this.department_id = department_id;
+    this.permissionIds = permissionIds;
+    this.roleIds = roleIds;
+    this.department = department;
+    this.position = position;
+    this.user = user;
+    this.roles = roles;
+    this.permissions = permissions;
+    this.created_at = formatDate(created_at);
+    this.updated_at = formatDate(updated_at);
+    this.deleted_at = deleted_at ? formatDate(deleted_at) : null;
   }
 
   public getId(): string | null {
-    return this.id
+    return this.id;
   }
   public getPosition_id(): string {
-    return this.position_id
+    return this.position_id;
   }
   public getSignature_file(): string | File {
-    return this.signature_file
+    return this.signature_file;
   }
   public getSignature_file_url(): string | null {
-    return this.signature_file_url
+    return this.signature_file_url;
   }
   public getDepartmentId(): string {
-    return this.department_id
+    return this.department_id;
   }
   public getPermissionIds(): number[] {
-    return this.permissionIds
+    return this.permissionIds;
   }
   public getRoleIds(): number[] {
-    return this.roleIds
+    return this.roleIds;
   }
   public getDepartment(): DepartmentEntity | null {
-    return this.department
+    return this.department;
   }
   public getPostion(): Position | null {
-    return this.position
+    return this.position;
   }
   public getUser(): UserEntity | null {
-    return this.user
+    return this.user;
   }
   public getRoles(): Role | null {
-    return this.roles
+    return this.roles;
   }
   public getPermissions(): Permission | null {
-    return this.permissions
+    return this.permissions;
   }
-  public getCreatedAt(): Date | null {
-    return this.createdAt
-  }
-
-  public getUpdatedAt(): Date | null {
-    return this.updatedAt
+  public getCreatedAt(): string | null {
+    return this.created_at;
   }
 
-  public getDeletedAt(): Date | null {
-    return this.deletedAt
+  public getUpdatedAt(): string | null {
+    return this.updated_at;
+  }
+
+  public getDeletedAt(): string | null {
+    return this.deleted_at;
   }
 
   public isDeleted(): boolean {
-    return this.deletedAt !== null
+    return this.deleted_at !== null;
   }
 
   public updateDpmUser(
@@ -118,23 +118,23 @@ export class DepartmentUserEntity {
     roleIds: number[]
   ): void {
     // this.department_id = department_id
-    this.user = user
-    this.position_id = position_id
-    this.signature_file = signature_file
-    this.department_id = department_id
-    this.permissionIds = permissionIds
-    this.roleIds = roleIds
-    this.updatedAt = new Date()
+    this.user = user;
+    this.position_id = position_id;
+    this.signature_file = signature_file;
+    this.department_id = department_id;
+    this.permissionIds = permissionIds;
+    this.roleIds = roleIds;
+    this.updated_at = formatDate(new Date());
   }
 
   public delete(): void {
-    this.deletedAt = new Date()
-    this.updatedAt = new Date()
+    this.deleted_at = formatDate(new Date());
+    this.updated_at = formatDate(new Date());
   }
 
   public restore(): void {
-    this.deletedAt = null
-    this.updatedAt = new Date()
+    this.deleted_at = null;
+    this.updated_at = formatDate(new Date());
   }
 
   public static create(
@@ -146,17 +146,21 @@ export class DepartmentUserEntity {
     roleIds: number[]
   ): DepartmentUserEntity {
     return new DepartmentUserEntity(
-      null,                   // id
-      position_id,            // position_id
-      signature_file,         // signature_file
-      '',
-      department_id,
-      permissionIds,
-      roleIds,
-      null,                   // department
-      null,                   // position
-      user,                   // user
+      null, // id
+      position_id, // position_id
+      signature_file, // signature_file
+      "", // signature_file_url
+      department_id, // department_id
+      permissionIds, // permissionIds
+      roleIds, // roleIds
+      null, // department
+      null, // position
+      user, // user
+      null, // roles
+      null, // permissions
+      formatDate(new Date().toISOString()), // created_at
+      formatDate(new Date().toISOString()), // updated_at
+      null // deleted_at
     );
   }
-
 }

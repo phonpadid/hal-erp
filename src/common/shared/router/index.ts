@@ -36,6 +36,7 @@ import { reviewMoneyRoutes } from "@/modules/presentation/Admin/router/review-mo
 import { disbursementRoutes } from "@/modules/presentation/Admin/router/disbursement.router";
 import { banksRoutes } from "@/modules/presentation/Admin/router/bankRoutes";
 import { vatRoutes } from "@/modules/presentation/Admin/router/vatRoutes";
+import { exchangeRateRoutes } from "@/modules/presentation/Admin/router/exchange-rate.routers";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -79,7 +80,8 @@ const routes: RouteRecordRaw[] = [
       ...budgetApprovalRoutes,
       ...disbursementRoutes,
       ...banksRoutes,
-      ...vatRoutes
+      ...vatRoutes,
+      ...exchangeRateRoutes
     ],
   },
   ...authRoutes,

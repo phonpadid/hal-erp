@@ -72,12 +72,12 @@ export const menuItems = computed<ItemType[]>(() => [
                 label: t("menu-sidebar.user_approval"),
               },
               {
-                key: "budget_apv_rule.index",
-                label: t("menu-sidebar.budget_apv_rule"),
-              },
-              {
                 key: "approval_workflows.index",
                 label: t("menu-sidebar.approval_workflow"),
+              },
+              {
+                key: "exchange-rate.index",
+                label: t("menu-sidebar.exchange_rate"),
               },
             ],
           },
@@ -113,10 +113,6 @@ export const menuItems = computed<ItemType[]>(() => [
                 key: "department_user.index",
                 label: t("menu-sidebar.department_user"),
               },
-              {
-                key: "budget_apv_rule.index",
-                label: t("menu-sidebar.budget_apv_rule"),
-              },
             ],
           },
         ],
@@ -147,10 +143,10 @@ export const menuItems = computed<ItemType[]>(() => [
                 key: "budget-items",
                 label: t("menu-sidebar.budget_item"),
               },
-              // {
-              //   key: "budget-items-details",
-              //   label: t("menu-sidebar.budget_item_detail"),
-              // },
+              {
+                key: "budget_apv_rule.index",
+                label: t("menu-sidebar.budget_apv_rule"),
+              },
             ],
           },
         ],

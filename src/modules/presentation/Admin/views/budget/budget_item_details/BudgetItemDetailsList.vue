@@ -1,7 +1,5 @@
-<!-- eslint-disable @typescript-eslint/no-explicit-any -->
-<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { BudgetItemDetailsInterface } from "@/modules/interfaces/budget/budget-item-details.interface";
 import { formatDate } from "@/modules/shared/formatdate";
@@ -15,6 +13,7 @@ import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import FormBudgetItemDetails from "@/modules/presentation/Admin/components/budget/FormBudgetItemDetails.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
 const { t } = useI18n();
 const budgetItemDetailsStore = useBudgetItemDetailsStore();
@@ -27,17 +26,9 @@ const props = defineProps<{
 }>();
 
 // State
-const budgetItemDetails = ref<BudgetItemDetailsInterface[]>([]);
 const budgetItems = ref<Map<string, string>>(new Map());
-const provinces = ref<Map<string, string>>(new Map());
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  totalPages: 0,
-});
 
 // Modal state
 const modalVisible = ref<boolean>(false);
@@ -49,9 +40,9 @@ const budgetItemDetailFormRef = ref();
 
 // Table pagination
 const tablePagination = computed(() => ({
-  current: pagination.current,
-  pageSize: pagination.pageSize,
-  total: pagination.total,
+  current: budgetItemDetailsStore.pagination.page,
+  pageSize: budgetItemDetailsStore.pagination.limit,
+  total: budgetItemDetailsStore.pagination.total,
   showSizeChanger: true,
 }));
 
@@ -68,78 +59,58 @@ onMounted(async () => {
   await Promise.all([loadBudgetItemDetails()]);
 });
 
-const loadBudgetItemDetails = async (
-  page: number = pagination.current,
-  pageSize: number = pagination.pageSize,
-  search: string = searchKeyword.value
-) => {
+const loadBudgetItemDetails = async () => {
   loading.value = true;
 
   try {
-    let result;
     const budgetItemId = route.params.id as string;
 
     if (budgetItemId) {
-      console.log("Fetching details for budget item ID:", budgetItemId);
-      result = await budgetItemDetailsStore.fetchBudgetItemDetailsByItemId(budgetItemId, {
-        page,
-        limit: pageSize,
-        search,
-      });
-    } else {
-      result = await budgetItemDetailsStore.fetchBudgetItemDetails({
-        page,
-        limit: pageSize,
-        search,
+      budgetItemDetailsStore.fetchBudgetItemDetailsByItemId(budgetItemId, {
+        page: budgetItemDetailsStore.pagination.page,
+        limit: budgetItemDetailsStore.pagination.limit,
+        search: searchKeyword.value,
       });
     }
-
-    // Log data for debugging
-    console.log("Raw API response:", result);
-
-    // Transform data if needed
-    budgetItemDetails.value = result.data.map((item) => ({
-      ...item,
-      id: item.id.toString(),
-      budget_item_id: item.budget_item_id.toString(),
-      province_id: item.province_id.toString(),
-      allocated_amount: item.allocated_amount.toString(),
-
-      province: item.province,
-    }));
-
-    console.log("Transformed budget item details:", budgetItemDetails.value);
-
-    pagination.current = result.page;
-    pagination.pageSize = result.limit;
-    pagination.total = result.total;
-    pagination.totalPages = result.totalPages;
   } catch (err) {
-    console.error("Error loading budget item details:", err);
-    error(t("budget_item_details.error.loadFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("budget_item_details.error.loadFailed"), errorMessage);
   } finally {
     loading.value = false;
   }
 };
+
 // Handle pagination and sorting
 const handleTableChange = (
-  paginationInfo: TablePaginationType,
-  _filters: Record<string, string[]>,
-  _sorter: any
-) => {
-  const page = paginationInfo.current || 1;
-  const pageSize = paginationInfo.pageSize || 10;
-
-  pagination.current = page;
-  pagination.pageSize = pageSize;
-
-  loadBudgetItemDetails(page, pageSize, searchKeyword.value);
+  pagination: TablePaginationType) => {
+   budgetItemDetailsStore.setPagination({
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total || 0,
+  })
+  loadBudgetItemDetails();
 };
 
-const handleSearch = () => {
-  pagination.current = 1;
-  loadBudgetItemDetails(1, pagination.pageSize, searchKeyword.value);
+const handleSearch = async () => {
+   const budgetItemId = route.params.id as string;
+
+  await budgetItemDetailsStore.fetchBudgetItemDetailsByItemId(budgetItemId, {
+    page: 1,
+    limit: budgetItemDetailsStore.pagination.limit,
+    search: searchKeyword.value,
+  });
 };
+
+watch(searchKeyword, async(newVal: string) => {
+  if(newVal === '') {
+    budgetItemDetailsStore.setPagination({
+      page: 1,
+      limit: budgetItemDetailsStore.pagination.limit,
+      total: budgetItemDetailsStore.pagination.total,
+    })
+    await loadBudgetItemDetails()
+  }
+})
 
 // Modal handlers
 const showCreateModal = () => {
@@ -168,7 +139,6 @@ const handleModalCancel = () => {
 };
 
 const handleFormSubmit = async (formData: {
-  // budget_item_id: string;
   name: string;
   provinceId: number;
   description: string;
@@ -180,7 +150,6 @@ const handleFormSubmit = async (formData: {
     if (isEditMode.value && selectedBudgetItemDetail.value) {
       const updateData = {
         id: selectedBudgetItemDetail.value.id,
-        // budget_item_id: formData.budget_item_id,
         name: formData.name,
         province_id: formData.provinceId.toString(),
         description: formData.description,
@@ -193,7 +162,7 @@ const handleFormSubmit = async (formData: {
       success(t("budget_item_details.success.title"), t("budget_item_details.success.updated"));
     } else {
       const createData = {
-        // budget_item_id: formData.budget_item_id,
+        budget_item_id: route.params.id as string,
         name: formData.name,
         province_id: formData.provinceId.toString(),
         description: formData.description,
@@ -206,8 +175,8 @@ const handleFormSubmit = async (formData: {
     modalVisible.value = false;
     await loadBudgetItemDetails();
   } catch (err) {
-    console.error("Error saving budget item detail:", err);
-    error(t("budget_item_details.error.saveFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("budget_item_details.error.saveFailed"), errorMessage);
   } finally {
     submitLoading.value = false;
   }
@@ -222,18 +191,13 @@ const handleDeleteConfirm = async () => {
     deleteModalVisible.value = false;
     await loadBudgetItemDetails();
   } catch (err) {
-    console.error("Error deleting budget item detail:", err);
-    error(t("budget_item_details.error.deleteFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("budget_item_details.error.deleteFailed"), errorMessage);
   } finally {
     submitLoading.value = false;
   }
 };
-const getProvinceName = (record: BudgetItemDetailsInterface): string => {
-  if (record.province && record.province.name) {
-    return record.province.name;
-  }
-  return record.province_id.toString();
-};
+
 </script>
 
 <template>
@@ -244,12 +208,10 @@ const getProvinceName = (record: BudgetItemDetailsInterface): string => {
       </div>
 
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
-        <UiInput
-          v-model="searchKeyword"
-          :placeholder="t('budget_item_details.placeholder.search')"
-          allowClear
-          @update:modelvalue="handleSearch"
-          class="w-64"
+        <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
           type="primary"
@@ -265,30 +227,15 @@ const getProvinceName = (record: BudgetItemDetailsInterface): string => {
     <!-- Budget Item Details Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="budgetItemDetails"
+      :dataSource="budgetItemDetailsStore.budgetItemDetails"
       :pagination="tablePagination"
       :loading="loading"
       row-key="id"
       @change="handleTableChange"
     >
-      <!-- Budget Item Column -->
-      <template #budget_item="{ record }">
-        {{ budgetItems.get(record.budget_item_id) || record.budget_item_id }}
-      </template>
-
       <!-- Province Column -->
-
       <template #province="{ record }">
         {{ record.province?.name }}
-      </template>
-
-      <!-- Date columns -->
-      <template #created_at="{ record }">
-        {{ formatDate(record.created_at) }}
-      </template>
-
-      <template #updated_at="{ record }">
-        {{ formatDate(record.updated_at) }}
       </template>
 
       <!-- Actions column -->
