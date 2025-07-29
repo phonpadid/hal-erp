@@ -39,14 +39,14 @@ export class ApiUserApprovaltRepository implements UserApprovalRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<UserApprovalEntity>> {
     try {
-      const response = await api.get("/user-approval", {
+      const response = (await api.get("/user-approval", {
         params: {
           page: params.page,
           limit: params.limit,
           includeDeleted,
           ...(params.search && { search: params.search }),
         },
-      }) as { data: ApiListResponse<UserApprovalApiModel> };
+      })) as { data: ApiListResponse<UserApprovalApiModel> };
       const { pagination } = response.data;
       return {
         data: response.data.data.map((item) => this.toDomainModel(item)),
@@ -59,7 +59,6 @@ export class ApiUserApprovaltRepository implements UserApprovalRepository {
       return this.handleApiError(error, "Failed to fetch list");
     }
   }
-
 
   async update(id: string, department: UserApprovalEntity): Promise<UserApprovalEntity> {
     try {
@@ -81,7 +80,6 @@ export class ApiUserApprovaltRepository implements UserApprovalRepository {
     }
   }
 
-
   private toApiModel(input: UserApprovalEntity): UserApprovalApiModel {
     return {
       id: parseInt(input.getId(), 10),
@@ -92,8 +90,8 @@ export class ApiUserApprovaltRepository implements UserApprovalRepository {
       doc_title: input.getDocumentName() ?? "",
       approval_workflow_name: input.getApprovalName() ?? "",
       status_name: input.getStatusName() ?? "",
-      created_at: input.getCreatedAt() ?? '',
-      updated_at: input.getUpdatedAt() ?? '',
+      created_at: input.getCreatedAt() ?? "",
+      updated_at: input.getUpdatedAt() ?? "",
     };
   }
 
@@ -108,7 +106,7 @@ export class ApiUserApprovaltRepository implements UserApprovalRepository {
       data.status_name || "",
       data.doc_title || "",
       data.created_at || "",
-      data.updated_at || "",
+      data.updated_at || ""
     );
   }
 
@@ -116,9 +114,8 @@ export class ApiUserApprovaltRepository implements UserApprovalRepository {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`

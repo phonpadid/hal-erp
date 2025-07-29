@@ -3,13 +3,16 @@ import { ref } from "vue";
 import type { Ref } from "vue";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { BudgetApprovalRuleEntity } from "@/modules/domain/entities/budget-approval-rules/budget-approver-rules.entity";
-import type { CreateBudgetApprovalRuleDTO, UpdateBudgetApprovalRuleDTO } from "@/modules/application/dtos/budget-approval-rules/budget-approval-rules.repository";
+import type {
+  CreateBudgetApprovalRuleDTO,
+  UpdateBudgetApprovalRuleDTO,
+} from "@/modules/application/dtos/budget-approval-rules/budget-approval-rules.repository";
 import { ApiBudgetApprovalRuleRepository } from "@/modules/infrastructure/budget-approval-rules/api-budget-approval-rules.repository";
 import { BudgetApprovalRuleServiceImpl } from "@/modules/application/services/budget-approval-rules/budget-approval-rule.service";
 
 const formState = ref({
-  department_id: '',
-  approver_id: '',
+  department_id: "",
+  approver_id: "",
   min_amount: undefined as number | undefined,
   max_amount: undefined as number | undefined,
 });
@@ -33,28 +36,28 @@ export const budgetApprovalRuleStore = defineStore("budget-apv-rule-store", () =
     totalPages: 0,
   });
 
-  const setPagination = (newPagination: { page: number; limit: number , total: number }) => {
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page || 1;
     pagination.value.limit = newPagination.limit || 10;
     pagination.value.total = newPagination.total;
   };
 
   // Actions
-   const createBudgetApvRule = async (data: CreateBudgetApprovalRuleDTO) => {
-      loading.value = true;
-      error.value = null;
+  const createBudgetApvRule = async (data: CreateBudgetApprovalRuleDTO) => {
+    loading.value = true;
+    error.value = null;
 
-      try {
-        const res = await budgetApproviceRuleService.create(data);
-        budget_apv_rule.value = [res, ...budget_apv_rule.value];
-        return res;
-      } catch (err) {
-        error.value = err as Error;
-        throw error;
-      } finally {
-        loading.value = false;
-      }
-    };
+    try {
+      const res = await budgetApproviceRuleService.create(data);
+      budget_apv_rule.value = [res, ...budget_apv_rule.value];
+      return res;
+    } catch (err) {
+      error.value = err as Error;
+      throw error;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const fetchBudgetApvRules = async (
     params: PaginationParams = { page: 1, limit: 10 },
@@ -64,10 +67,7 @@ export const budgetApprovalRuleStore = defineStore("budget-apv-rule-store", () =
     error.value = null;
 
     try {
-      const result = await budgetApproviceRuleService.getAll(
-        params,
-        includeDeleted
-      );
+      const result = await budgetApproviceRuleService.getAll(params, includeDeleted);
       budget_apv_rule.value = result.data;
       pagination.value = {
         page: result.page,

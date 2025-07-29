@@ -204,7 +204,7 @@ watch(search, async(load) => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Lao&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Lao&display=swap"); */
 .list-container {
   background-color: #fff;
   border-radius: 8px;

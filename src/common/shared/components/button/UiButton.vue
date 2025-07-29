@@ -1,6 +1,6 @@
 <template>
   <a-button :type="type" :size="size" :block="block" :disabled="disabled" :class="customClass">
-    <Icon v-if="icon" :icon="icon" class="mr-2" />
+    <Icon v-if="icon" :icon="icon" />
     <slot></slot>
     <Icon v-if="iconRight" :icon="iconRight" class="ml-2" />
   </a-button>

@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import Table from "@/common/shared/components/table/Table.vue";
+import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
@@ -13,7 +13,6 @@ import { budgetApvRuleRules } from "./validation/BudgetApvRule.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { departmentStore } from "../../stores/departments/department.store";
 import { budgetApprovalRuleStore } from "../../stores/budget-apv-rule.store";
-import type { BudgetApprovalRuleEntity } from "@/modules/domain/entities/budget-approval-rules/budget-approver-rules.entity";
 import type { BudgetApprovalRuleApiModel } from "@/modules/interfaces/budget-approval-rules/budget-approval-rule.interface";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import {
@@ -22,15 +21,12 @@ import {
   parsePrice,
 } from "@/modules/shared/utils/format-price";
 import { departmenUsertStore } from "../../stores/departments/department-user.store";
-import type { UserInterface } from "@/modules/interfaces/user.interface";
+
 const search = ref<string>("");
 const { t } = useI18n();
-// Initialize the unit store
 const dpmStore = departmentStore();
-// departments data that will be displayed (from API or mock)
 const budget_apv_rules = ref<BudgetApprovalRuleApiModel[]>([]);
-const useRealApi = ref<boolean>(true); // Toggle between mock and real API
-const { success, error } = useNotification();
+const { success, error, warning } = useNotification();
 // Form related
 const formRef = ref();
 const createModalVisible = ref<boolean>(false);
@@ -40,12 +36,14 @@ const loading = ref<boolean>(false);
 const selectData = ref<BudgetApprovalRuleApiModel | null>(null);
 const budgetApvRuleStore = budgetApprovalRuleStore();
 const userStore = departmenUsertStore();
+
 const userItem = computed(() =>
   userStore.departmentUser.map((item) => ({
     value: item.getUser()?.getId() ?? "",
     label: item.getUser()?.getUsername() ?? "",
   }))
 );
+
 const departmentItem = computed(() =>
   dpmStore.departments.map((item) => ({
     value: item.getId(),
@@ -55,133 +53,42 @@ const departmentItem = computed(() =>
 
 // Form model
 const formModel = budgetApvRuleStore.formState;
-// Load data on component mount
+
+// Initialize
 onMounted(async () => {
   await loadDpm();
   await dpmStore.fetchDepartment();
   await userStore.fetchDepartmentUser({
     page: 1,
     limit: 1000,
-    // type: "approval_rules",
   });
 });
 
 const loadDpm = async (): Promise<void> => {
-  if (useRealApi.value) {
-    try {
-      loading.value = true;
-      const result = await budgetApvRuleStore.fetchBudgetApvRules({
-        page: budgetApvRuleStore.pagination.page,
-        limit: budgetApvRuleStore.pagination.limit,
-      });
-      budget_apv_rules.value = result.data.map(
-        (
-          budgetApvRule: BudgetApprovalRuleEntity
-        ): BudgetApprovalRuleApiModel => {
-          const department = budgetApvRule.getDepartment();
-          const approver = budgetApvRule.getUser();
-
-          return {
-            id: budgetApvRule.getId() ?? "",
-            department_id: Number(budgetApvRule.getDepartment_id()),
-            approver_id: Number(budgetApvRule.getApprover_id()),
-            min_amount: Number(budgetApvRule.getMin_amount()),
-            max_amount: Number(budgetApvRule.getMax_amount()),
-            department: department
-              ? {
-                  id: Number(department.getId()),
-                  name: department.getName(),
-                  code: department.getCode?.(),
-                  created_at: department.getCreatedAt?.(),
-                  updated_at: department.getUpdatedAt?.(),
-                }
-              : undefined,
-            approver: approver
-              ? {
-                  id: Number(approver.getId()),
-                  username: approver.getUsername(),
-                  email: approver.getEmail?.(),
-                  tel: approver.getTel?.(),
-                  created_at: approver.getCreatedAt?.(),
-                  updated_at: approver.getUpdatedAt?.(),
-                } as UserInterface
-              : undefined,
-
-            created_at: budgetApvRule.getCreatedAt() ?? "",
-            updated_at: budgetApvRule.getUpdatedAt() ?? "",
-          };
-        }
-      );
-    } catch (error) {
-      console.error("Failed to fetch department from API:", error);
-      // budget_apv_rules.value = [...dataDpm.value];
-    } finally {
-      loading.value = false;
-    }
-  } else {
-    // budget_apv_rules.value = [...dataDpm.value];
-  }
-};
-
-//search
-const handleSearch = async () => {
   try {
     loading.value = true;
-    const result = await budgetApvRuleStore.fetchBudgetApvRules({
-      page: 1,
+    await budgetApvRuleStore.fetchBudgetApvRules({
+      page: budgetApvRuleStore.pagination.page,
       limit: budgetApvRuleStore.pagination.limit,
       search: search.value,
     });
-
-    budget_apv_rules.value = result.data.map(
-      (budgetApvRule: BudgetApprovalRuleEntity): BudgetApprovalRuleApiModel => {
-        const department = budgetApvRule.getDepartment();
-        const approver = budgetApvRule.getUser();
-
-        return {
-          id: budgetApvRule.getId() ?? "",
-          department_id: Number(budgetApvRule.getDepartment_id()),
-          approver_id: Number(budgetApvRule.getApprover_id()),
-          min_amount: Number(budgetApvRule.getMin_amount()),
-          max_amount: Number(budgetApvRule.getMax_amount()),
-          department: department
-            ? {
-                id: Number(department.getId()),
-                name: department.getName(),
-                code: department.getCode?.(),
-                created_at: department.getCreatedAt?.(),
-                updated_at: department.getUpdatedAt?.(),
-              }
-            : undefined,
-          approver: approver
-            ? {
-                id: Number(approver.getId()),
-                username: approver.getUsername(),
-                email: approver.getEmail(),
-                tel: approver.getTel() ?? "",
-                created_at: approver.getCreatedAt?.(),
-                updated_at: approver.getUpdatedAt?.(),
-              } as UserInterface
-            : undefined,
-
-          created_at: budgetApvRule.getCreatedAt() ?? "",
-          updated_at: budgetApvRule.getUpdatedAt() ?? "",
-        };
-      }
-    );
-
-    // Optional: Update pagination
-    budgetApvRuleStore.setPagination({
-      page: 1,
-      limit: budgetApvRuleStore.pagination.limit,
-      total: budgetApvRuleStore.pagination.total,
-    });
-  } catch (error) {
-    console.error("Search failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("messages.error.title"), errorMessage);
   } finally {
     loading.value = false;
   }
 };
+
+/** Search */
+const handleSearch = async () => {
+  await budgetApvRuleStore.fetchBudgetApvRules({
+    page: 1,
+    limit: budgetApvRuleStore.pagination.limit,
+    search: search.value,
+  });
+};
+
 // CRUD operations
 const showCreateModal = (): void => {
   formModel.department_id = "";
@@ -208,6 +115,7 @@ const showDeleteModal = (record: BudgetApprovalRuleApiModel): void => {
 const mesage = `"${t("budget-apv-rule.field.max")}" ${t(
   "budget-apv-rule.error.max_cannot_min"
 )} "${t("budget-apv-rule.field.min")}"`;
+
 const handleCreate = async (): Promise<void> => {
   try {
     loading.value = true;
@@ -234,8 +142,9 @@ const handleCreate = async (): Promise<void> => {
       formModel.min_amount = undefined;
       formModel.max_amount = undefined;
     }
-  } catch (error) {
-    console.error("Create form validation failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("messages.error.title"), errorMessage);
   } finally {
     loading.value = false;
   }
@@ -268,8 +177,9 @@ const handleEdit = async (): Promise<void> => {
         editModalVisible.value = false;
       }
     }
-  } catch (error) {
-    console.error("Edit form validation failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("messages.error.title"), errorMessage);
   } finally {
     loading.value = false;
   }
@@ -290,24 +200,26 @@ const handleDelete = async (): Promise<void> => {
       limit: 1000,
       type: "approval_rules",
     });
-  } catch (error) {
-    console.error("Delete failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("messages.error.title"), errorMessage);
   }
 
   deleteModalVisible.value = false;
   loading.value = false;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const handleTableChange = async (pagination: any) => {
+
+const handleTableChange = async (pagination: TablePaginationType) => {
   budgetApvRuleStore.setPagination({
-    page: pagination.current | 1,
-    limit: pagination.pageSize,
-    total: pagination.total,
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total || 0,
   });
   await loadDpm();
 };
-//format form amount
+
+// format form amount
 const formattedMinAmount = computed({
   get() {
     return formatPrice(formModel.min_amount);
@@ -328,6 +240,8 @@ const formattedMaxAmount = computed({
     formModel.max_amount = parsePrice(digitsOnly);
   },
 });
+
+const checkedRadio = ref("personal");
 </script>
 
 <template>
@@ -375,7 +289,7 @@ const formattedMaxAmount = computed({
     <!--  Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="budget_apv_rules"
+      :dataSource="budgetApvRuleStore.budget_apv_rule"
       :pagination="{
         current: budgetApvRuleStore.pagination.page,
         pageSize: budgetApvRuleStore.pagination.limit,
@@ -426,9 +340,17 @@ const formattedMaxAmount = computed({
       :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="budgetApvRuleRules(t)">
+        <div class="mb-4 mt-4">
+          <a-radio-group v-model:value="checkedRadio">
+            <a-radio-button value="personal">Personal</a-radio-button>
+            <a-radio-button value="department">Department</a-radio-button>
+          </a-radio-group>
+        </div>
+
         <UiFormItem
           :label="t('budget-apv-rule.field.department')"
           name="department_id"
+          v-if="checkedRadio === 'department'"
           required
         >
           <InputSelect
@@ -486,7 +408,7 @@ const formattedMaxAmount = computed({
         <UiFormItem
           :label="t('budget-apv-rule.field.department')"
           name="department_id"
-          required
+          :rules="[]"
         >
           <InputSelect
             v-model="formModel.department_id"
