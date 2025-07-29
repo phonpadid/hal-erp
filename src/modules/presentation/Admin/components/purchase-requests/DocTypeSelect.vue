@@ -4,6 +4,7 @@ import { useDocumentTypeStore } from "../../stores/document-type.store";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { t } from "@/common/config/i18n/i18n.config";
+import type { DocumentTypeEntity } from "@/modules/domain/entities/document-type.entities";
 const formState = reactive({
   document_type_id: "",
 });
@@ -21,7 +22,7 @@ const emit = defineEmits<{
 
 const store = useDocumentTypeStore();
 const docItem = computed(() =>
-  store.documentType.map((item) => ({
+  store.documentTypes.map((item: DocumentTypeEntity) => ({
     value: item.getId(),
     label: item.getname(),
   }))

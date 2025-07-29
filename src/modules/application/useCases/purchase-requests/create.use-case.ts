@@ -6,12 +6,21 @@ export class CreatePurchaseRequestUseCase {
   constructor(private readonly repository: PurchaseRequestRepository) {}
 
   async execute(input: CreatePurchaseRequestDTO): Promise<PurchaseRequestEntity> {
-    const result = PurchaseRequestEntity.createPurchaseRequestWithItems(
-      input.documentTypeId,
-      input.expiredDate,
+    const purchaseRequest = PurchaseRequestEntity.createPurchaseRequestWithItems(
+      input.document.documentTypeId,
+      input.document.description,
+      input.expired_date,
       input.purposes,
-      input.purchaseItem || []
+      input.purchase_request_items.map(item => ({
+        title: item.title,
+        fileName: item.file_name,
+        quantity: item.quantity,
+        unitId: item.unit_id,
+        price: item.price,
+        remark: item.remark
+      }))
     );
-    return await this.repository.create(result);
+
+    return await this.repository.create(purchaseRequest);
   }
 }

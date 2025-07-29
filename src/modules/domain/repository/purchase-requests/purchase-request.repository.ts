@@ -1,15 +1,13 @@
-
-import type { PaginatedResult, PaginationParams } from "@/modules/shared/pagination";
 import type { PurchaseRequestEntity } from "../../entities/purchase-requests/purchase-request.entity";
-import type { PurchaseRequestItemEntity } from "../../entities/purchase-requests/purchase-request-item.entity";
+import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
 export interface PurchaseRequestRepository {
-  create(input: {
-    purchaseRequest: PurchaseRequestEntity;
-    items: PurchaseRequestItemEntity[];
-  }): Promise<PurchaseRequestEntity>;
+  create(input: PurchaseRequestEntity): Promise<PurchaseRequestEntity>;
   findById(id: string): Promise<PurchaseRequestEntity | null>;
-  findAll(query: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<PurchaseRequestEntity>>;
-  update(id: string, input: PurchaseRequestItemEntity): Promise<PurchaseRequestItemEntity>;
+  findAll(
+    params: PaginationParams,
+    includeDeleted?: boolean
+  ): Promise<PaginatedResult<PurchaseRequestEntity>>;
+  update(input: PurchaseRequestEntity): Promise<PurchaseRequestEntity>;
   delete(id: string): Promise<boolean>;
 }
