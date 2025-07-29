@@ -20,7 +20,7 @@ import { formatPrice, NumberOnly, parsePrice } from "@/modules/shared/utils/form
 import { formState, moreFunction } from "./formstate";
 import { CreatePRValidate } from "../../views/purchase-requests/validation/create-purchase-request";
 import { useI18n } from "vue-i18n";
-import { uploadFile } from "@/modules/application/services/upload.Service";
+import { uploadFile } from "@/modules/application/services/upload.service";
 
 // --- ENTITY & DTO TYPES ---
 import type { Unit } from "@/modules/domain/entities/unit.entities";
@@ -397,8 +397,6 @@ defineExpose({
         <p class="font-semibold">{{ t("purchase-rq.field.amount", "ຍອດລວມສຸດທິ") }}:</p>
         <p class="text-red-600 font-bold text-2xl">{{ formatPrice(totalPrice) }} LAK</p>
       </div>
-
-
     </div>
   </div>
 

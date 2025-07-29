@@ -14,6 +14,7 @@ export interface AddMoreItem {
 }
 
 export interface FormState {
+  requested_date: Dayjs | undefined;
   expired_date: Dayjs | undefined;
   purpose: string;
   addMore: AddMoreItem[];
@@ -33,6 +34,7 @@ const createNewItem = (): AddMoreItem => ({
 
 // 3. กำหนด state เริ่มต้นให้ถูกต้อง
 export const formState = ref<FormState>({
+  requested_date: undefined,
   expired_date: undefined,
   purpose: "",
   addMore: [createNewItem()],

@@ -32,21 +32,22 @@ const step2Data = props.stepsData.step2Data;
 const displayData = computed(() => {
   return {
     // Use step1Data if available, otherwise use defaults
-    docType: step1Data?.document_type_id || 'ປະເພດເອກະສານ',
+    docType: step1Data?.document_type_id || "ປະເພດເອກະສານ",
 
     // Use step2Data if available, otherwise use defaults
-    requestDate: step2Data?.requested_date || '18 ກໍລະກົດ 2025',
-    expiredDate: step2Data?.expired_date || '25 ກໍລະກົດ 2025',
-    purpose: step2Data?.purpose || 'ມີການຈັດຊື້ ເນື່ອງຈາກວ່າປະຈຸບັນນີ້ມີພະນັກງານເຂົ້າມາເພີ່ມໃໝ່ 5 ຄົນ',
+    requestDate: step2Data?.requested_date || "18 ກໍລະກົດ 2025",
+    expiredDate: step2Data?.expired_date || "25 ກໍລະກົດ 2025",
+    purpose:
+      step2Data?.purpose || "ມີການຈັດຊື້ ເນື່ອງຈາກວ່າປະຈຸບັນນີ້ມີພະນັກງານເຂົ້າມາເພີ່ມໃໝ່ 5 ຄົນ",
     items: step2Data?.addMore || dataMenu,
     images: imageList, // You might want to get this from addMore[].fileName
-    signature: '/public/2.png',
+    signature: "/public/2.png",
 
     // User info (you might want to get this from a user store/context)
     userName: userName.value,
     userPosition: userPosition.value,
     department: department.value,
-    profileImage: profileImage.value
+    profileImage: profileImage.value,
   };
 });
 
@@ -62,7 +63,7 @@ const calculatedTotal = computed(() => {
 const allImages = computed(() => {
   if (step2Data?.addMore && Array.isArray(step2Data.addMore)) {
     const images: string[] = [];
-    step2Data.addMore.forEach(item => {
+    step2Data.addMore.forEach((item) => {
       if (item.images && Array.isArray(item.images)) {
         images.push(...item.images);
       }
@@ -111,7 +112,7 @@ const allImages = computed(() => {
             :pagination="false"
             row-key="title"
           >
-            <template #bodyCell="{ column, record, index}">
+            <template #bodyCell="{ column, record, index }">
               <template v-if="column.key === 'id'">
                 <span>{{ index + 1 }}</span>
               </template>
@@ -128,7 +129,7 @@ const allImages = computed(() => {
                 <span>{{ record.count }}</span>
               </template>
               <template v-if="column.key === 'remark'">
-                <span>{{ record.remark || '-' }}</span>
+                <span>{{ record.remark || "-" }}</span>
               </template>
             </template>
           </a-table>
@@ -159,7 +160,7 @@ const allImages = computed(() => {
 
         <div class="signature shadow-sm py-4 px-6 rounded-md mb-[10rem]">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
-          <p class="text-slate-500 text-sm">{{t("purchase-rq.proposer")}}</p>
+          <p class="text-slate-500 text-sm">{{ t("purchase-rq.proposer") }}</p>
 
           <a-image
             :src="displayData.signature"

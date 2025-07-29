@@ -1,6 +1,6 @@
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import type { CreatePurchaseRequestDTO } from "../../dtos/purchase-requests/purchase-request.dto";
-import type { UpdatePurchaseRequestDTO } from "../../dtos/purchase-requests/purchase-request-item.dto";
+import type { UpdatePurchaseRequestDTO } from "../../dtos/purchase-requests/purchase-request.dto";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 
 export interface PurchaseRequestService {
