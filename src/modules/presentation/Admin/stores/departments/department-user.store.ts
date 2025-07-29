@@ -177,9 +177,9 @@ export const departmenUsertStore = defineStore("department-user", () => {
             user,
             deletedDpmUser.getRoles(),
             deletedDpmUser.getPermissions(),
-            deletedDpmUser.getCreatedAt(),
-            new Date(),
-            new Date()
+            deletedDpmUser.getCreatedAt() || "",
+            new Date().toString(),
+            new Date().toString()
           );
         }
       }

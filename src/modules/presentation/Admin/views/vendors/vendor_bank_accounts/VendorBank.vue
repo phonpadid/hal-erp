@@ -78,7 +78,8 @@ const handleTableChange = (
 };
 
 const handleSearch = async () => {
-  await vendorBankAccountStore.fetchBankAccounts({
+  const vendorId = Number(route.params.id);
+  await vendorBankAccountStore.fetchBankAccounts(vendorId,{
     page: 1,
     limit: vendorBankAccountStore.pagination.limit,
     search: searchKeyword.value,
