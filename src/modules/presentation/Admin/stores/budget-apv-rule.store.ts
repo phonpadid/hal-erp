@@ -143,7 +143,7 @@ export const budgetApprovalRuleStore = defineStore("budget-apv-rule-store", () =
           budgetApvRule.getMax_amount(),
           budgetApvRule.getDepartment(),
           budgetApvRule.getUser(),
-          budgetApvRule.getCreatedAt(),
+          budgetApvRule.getCreatedAt() || "",
           new Date().toString(),
           new Date().toString()
         );
