@@ -28,6 +28,7 @@ const createNewItem = (): AddMoreItem => ({
   images: [],
   file_name: "",
   remark: "",
+  totalPrice: 0,
 });
 
 // 3. กำหนด state เริ่มต้นให้ถูกต้อง
