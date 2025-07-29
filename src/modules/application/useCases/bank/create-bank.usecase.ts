@@ -1,18 +1,15 @@
-import { v4 as uuidv4 } from "uuid"
-import { Bank } from "../../../domain/entities/bank.entity"
-import type { BankRepository } from "@/modules/domain/repository/bank.repository"
-import type { CreateBankDTO } from "../../dtos/bank.dto"
+import type { BankCreate } from "@/modules/interfaces/bank.interface";
+import type { BankRepository } from "@/modules/domain/repository/bank.repository";
+import type { BankEntity } from "@/modules/domain/entities/bank.entity";
 
 export class CreateBankUseCase {
   constructor(private readonly bankRepository: BankRepository) {}
 
-  async execute(createBankDTO: CreateBankDTO): Promise<Bank> {
-    const bank = Bank.create(
-      uuidv4(),
-      createBankDTO.name,
-      createBankDTO.short_name,
-      createBankDTO.logo ?? null
-    )
-    return await this.bankRepository.create(bank)
+  async execute(bankData: BankCreate): Promise<BankEntity> {
+    const existingShortName = await this.bankRepository.findByShortName(bankData.short_name);
+    if (existingShortName) {
+      throw new Error(`short_name ${bankData.short_name} already exists`);
+    }
+    return await this.bankRepository.create(bankData);
   }
 }

@@ -1,12 +1,14 @@
-import type { PaginatedResult, PaginationParams } from "@/modules/shared/pagination";
-import type { Bank } from "../entities/bank.entity";
+import type { BankEntity } from "../entities/bank.entity";
+import type { BankCreate, BankUpdate } from "@/modules/interfaces/bank.interface";
+import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
 export interface BankRepository {
-  create(bank: Bank): Promise<Bank>
-  findById(id: string): Promise<Bank | null>
-  findByName(name: string): Promise<Bank | null>
-  findAll(params: PaginationParams, includeDelete?: boolean): Promise<PaginatedResult<Bank>>
-  update(bank: Bank): Promise<Bank>
-  delete(id: string): Promise<boolean>
-  restore(id: string): Promise<boolean>
+  findAll(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<BankEntity>>;
+  findById(id: string): Promise<BankEntity | null>;
+  findByName(name: string): Promise<BankEntity | null>;
+  findByShortName(short_name: string): Promise<BankEntity | null>;
+  create(data: BankCreate): Promise<BankEntity>;
+  update(id: string, data: BankUpdate): Promise<BankEntity>;
+  delete(id: string): Promise<boolean>;
+  restore(id: string): Promise<boolean>;
 }

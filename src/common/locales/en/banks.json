@@ -14,9 +14,7 @@
     "name": "Please enter bank name",
     "search": "Search by bank name"
   },
-  "error": {
-    "name": "Please enter bank name"
-  },
+  
   "field": {
     "name": "Bank name",
     "logo":"Logo",
@@ -30,5 +28,40 @@
     "created": "Info created successfully",
     "updated": "Info updated successfully",
     "deleted": "Info deleted successfully"
+  },
+  "validation": {
+    "nameRequired": "Bank name is required",
+    "nameMin": "Bank name must be at least 2 characters",
+    "nameMax": "Bank name cannot exceed 100 characters",
+    "shortNameRequired": "Short name is required",
+    "shortNameMin": "Short name must be at least 1 character",
+    "shortNameMax": "Short name cannot exceed 20 characters"
+  },
+  "modal": {
+    "create": "Create Bank",
+    "edit": "Edit Bank",
+    "delete": "Delete Bank",
+    "deleteConfirm": "Are you sure you want to delete this bank?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "form": {
+    "name": "Bank Name",
+    "namePlaceholder": "Enter bank name",
+    "short_name": "Short Name",
+    "shortNamePlaceholder": "Enter short name"
+  },
+  "success": {
+    "title": "Success",
+    "created": "Bank created successfully",
+    "updated": "Bank updated successfully",
+    "deleted": "Bank deleted successfully"
+  },
+  "error": {
+    "name": "Please enter bank name",
+    "title": "Error",
+    "loadFailed": "Failed to load bank",
+    "createFailed": "Failed to create bank",
+    "updateFailed": "Failed to update bank",
+    "deleteFailed": "Failed to delete bank"
   }
 }

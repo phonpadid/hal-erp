@@ -1,94 +1,97 @@
-export class Bank {
-  private id: string
-  private name: string
-  private short_name: string
-  private logo: string | null
-  private created_at: string
-  private updated_at: string
-  private deleted_at: Date | null
+import { formatDate } from "@/modules/shared/formatdate";
+
+export class BankEntity {
+  private id: string;
+  private name: string;
+  private shortName: string;
+  private logo: string | null;
+  private logoUrl: string | null;
+  private createdAt: string;
+  private updatedAt: string;
+  private deletedAt: string | null;
 
   constructor(
     id: string,
     name: string,
-    short_name: string,
+    shortName: string,
     logo: string | null,
-    created_at: string,
-    updated_at: string,
-    deleted_at: Date | null = null
+    logoUrl: string | null,
+    createdAt: string,
+    updatedAt: string,
+    deletedAt: string | null = null
   ) {
-    this.id = id
-    this.name = name
-    this.short_name = short_name
-    this.logo = logo
-    this.created_at = created_at
-    this.updated_at = updated_at
-    this.deleted_at = deleted_at
+    this.id = id;
+    this.name = name;
+    this.shortName = shortName;
+    this.logo = logo;
+    this.logoUrl = logoUrl;
+    this.createdAt = formatDate(createdAt);
+    this.updatedAt = formatDate(updatedAt);
+    this.deletedAt = deletedAt !== null ? formatDate(deletedAt) : null;
   }
 
   public getId(): string {
-    return this.id
+    return this.id;
   }
 
   public getName(): string {
-    return this.name
+    return this.name;
   }
 
   public getShortName(): string {
-    return this.short_name
+    return this.shortName;
   }
 
   public getLogo(): string | null {
-    return this.logo
+    return this.logo;
+  }
+
+  public getLogoUrl(): string | null {
+    return this.logoUrl;
   }
 
   public getCreatedAt(): string {
-    return this.created_at
+    return this.createdAt;
   }
 
   public getUpdatedAt(): string {
-    return this.updated_at
+    return this.updatedAt;
   }
 
-  public getDeletedAt(): Date | null {
-    return this.deleted_at
+  public getDeletedAt(): string | null {
+    return this.deletedAt;
   }
 
   public isDeleted(): boolean {
-    return this.deleted_at !== null
+    return this.deletedAt !== null;
   }
 
   public updateName(name: string): void {
-    this.name = name
-    this.updated_at = new Date().toString()
+    this.name = name;
+    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
-  public updateShortName(short_name: string): void {
-    this.short_name = short_name
-    this.updated_at = new Date().toString()
+  public updateShortName(shortName: string): void {
+    this.shortName = shortName;
+    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
   public updateLogo(logo: string | null): void {
-    this.logo = logo
-    this.updated_at = new Date().toString()
+    this.logo = logo;
+    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
   public delete(): void {
-    this.deleted_at = new Date()
-    this.updated_at = new Date().toString()
+    this.deletedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updatedAt = this.deletedAt;
   }
 
   public restore(): void {
-    this.deleted_at = null
-    this.updated_at = new Date().toString()
+    this.deletedAt = null;
+    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
-
-  public static create(
-    id: string,
-    name: string,
-    short_name: string,
-    logo: string | null = null
-  ): Bank {
-    const now = new Date().toString()
-    return new Bank(id, name, short_name, logo, now, now)
+  public static create(id: string, name: string, shortName: string, logo: string | null): BankEntity {
+    const now = new Date().toISOString().replace("T", " ").substring(0, 19);
+    return new BankEntity(id, name, shortName, logo,null, now, now, null);
   }
 }

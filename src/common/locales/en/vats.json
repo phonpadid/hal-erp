@@ -1,0 +1,59 @@
+{
+  "title": "VAT information",
+  "add": "Add new VAT",
+  "header_form": {
+    "add": "Add new VAT",
+    "edit": "Update VAT",
+    "delete": {
+      "title": "Confirm delete",
+      "content": "Are you sure you want to delete",
+      "description": "This action cannot be undone"
+    }
+  },
+  "placeholder": {
+    "amount": "Please enter VAT amount",
+    "search": "Search by VAT amount"
+  },
+  "field": {
+    "amount": "VAT amount",
+    "created": "Created At",
+    "updated": "Updated At",
+    "manage": "Manage"
+  },
+  "notify": {
+    "created": "Info created successfully",
+    "updated": "Info updated successfully",
+    "deleted": "Info deleted successfully"
+  },
+  "validation": {
+    "amountRequired": "Amount is required",
+    "amountMin": "Amount must be greater than 0",
+    "amountMax": "Amount cannot exceed 100",
+    "amountPattern": "Amount must be a valid number"
+  },
+  "modal": {
+    "create": "Create VAT",
+    "edit": "Edit VAT",
+    "delete": "Delete VAT",
+    "deleteConfirm": "Are you sure you want to delete VAT?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "form": {
+    "amount": "Amount",
+    "amountPlaceholder": "Enter VAT amount"
+  },
+  "success": {
+    "title": "Success",
+    "created": "VAT created successfully",
+    "updated": "VAT updated successfully",
+    "deleted": "VAT deleted successfully"
+  },
+  "error": {
+    "amount": "Please enter VAT amount",
+    "title": "Error",
+    "loadFailed": "Failed to load VAT",
+    "createFailed": "Failed to create VAT",
+    "updateFailed": "Failed to update VAT",
+    "deleteFailed": "Failed to delete VAT"
+  }
+}

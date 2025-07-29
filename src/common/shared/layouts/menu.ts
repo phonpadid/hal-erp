@@ -51,6 +51,14 @@ export const menuItems = computed<ItemType[]>(() => [
                 key: "category.index",
                 label: t("menu-sidebar.category"),
               },
+               {
+                key: "vat.index",
+                label: t("menu-sidebar.vats"),
+              },
+              {
+                key: "bank.index",
+                label: t("menu-sidebar.bank"),
+              },
               {
                 key: "document.type.index",
                 label: t("menu-sidebar.document_type"),

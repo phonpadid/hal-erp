@@ -1,4 +1,4 @@
-import type{ Column } from "@/modules/shared/column/column";
+import type { Column } from "@/modules/shared/column/column";
 
 export function getColumns(t: (key: string) => string): Column[] {
   return [
@@ -6,6 +6,7 @@ export function getColumns(t: (key: string) => string): Column[] {
       title: t("banks.field.logo"),
       dataIndex: "logo",
       key: "logo",
+      slot: "logo",
     },
     {
       title: t("banks.field.name"),
@@ -14,23 +15,24 @@ export function getColumns(t: (key: string) => string): Column[] {
     },
     {
       title: t("banks.field.short_name"),
-      dataIndex: "short_name",
-      key: "short_name",
+      dataIndex: "shortName",
+      key: "shortName",
     },
     {
       title: t("banks.field.created"),
-      dataIndex: "created_at",
-      key: "created_at",
+      dataIndex: "createdAt",
+      key: "createdAt",
     },
     {
       title: t("banks.field.updated"),
-      dataIndex: "updated_at",
-      key: "updated_at",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
     },
     {
       title: t("banks.field.manage"),
       dataIndex: "actions",
       key: "actions",
+      slot: "actions",
     },
   ];
 }

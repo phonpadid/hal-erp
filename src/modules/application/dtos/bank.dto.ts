@@ -15,6 +15,7 @@ export interface BankDTO {
   name: string
   short_name: string
   logo: string | null
+  logoUrl?: string
   createdAt: string
   updatedAt: string
   deletedAt: string | null

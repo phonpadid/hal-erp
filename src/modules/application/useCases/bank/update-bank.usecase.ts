@@ -1,38 +1,24 @@
-import type { BankRepository } from "@/modules/domain/repository/bank.repository"
-import type { Bank } from "../../../domain/entities/bank.entity"
-import type { UpdateBankDTO } from "../../dtos/bank.dto"
+import type { BankRepository } from "@/modules/domain/repository/bank.repository";
+import type { BankEntity } from "@/modules/domain/entities/bank.entity";
+import type { BankUpdate } from "@/modules/interfaces/bank.interface";
 
 export class UpdateBankUseCase {
   constructor(private readonly bankRepository: BankRepository) {}
 
-  async execute(id: string, updateBankDTO: UpdateBankDTO): Promise<Bank> {
-    const bank = await this.bankRepository.findById(id)
+  async execute(id: string, bankData: BankUpdate): Promise<BankEntity> {
+    const bank = await this.bankRepository.findById(id);
     if (!bank) {
-      throw new Error(`Bank with id ${id} not found`)
+      throw new Error(`Bank with id ${id} not found`);
     }
-
-    if (
-      updateBankDTO.name &&
-      bank.getName() !== updateBankDTO.name
-    ) {
-      const existingBank = await this.bankRepository.findByName(updateBankDTO.name)
-      if (existingBank && existingBank.getId() !== id) {
-        throw new Error(`Bank with name ${updateBankDTO.name} already exists`)
+    if (bank.isDeleted()) {
+      throw new Error(`Cannot update deleted bank with id ${id}`);
+    }
+    if (bankData.short_name && bankData.short_name !== bank.getShortName()) {
+      const existingShortName = await this.bankRepository.findByShortName(bankData.short_name);
+      if (existingShortName && existingShortName.getId() !== id) {
+        throw new Error(`short_name ${bankData.short_name} already exists`);
       }
-      bank.updateName(updateBankDTO.name)
     }
-
-    if (
-      updateBankDTO.short_name &&
-      bank.getShortName() !== updateBankDTO.short_name
-    ) {
-      bank.updateShortName(updateBankDTO.short_name)
-    }
-
-    if ('logo' in updateBankDTO) {
-      bank.updateLogo(updateBankDTO.logo ?? null)
-    }
-
-    return await this.bankRepository.update(bank)
+    return await this.bankRepository.update(id, bankData);
   }
 }

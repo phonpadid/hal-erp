@@ -1,255 +1,209 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, watch } from "vue";
+import { ref, reactive, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import type { BankApiModel } from "@/modules/interfaces/bank.interface";
 import { useBankStore } from "@/modules/presentation/Admin/stores/bank.store";
-import { Bank } from "@/modules/domain/entities/bank.entity";
 import { getColumns } from "./column";
-import { rules } from "./validation/bank.validate";
+import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
-import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
-import UiForm from "@/common/shared/components/Form/UiForm.vue";
+import Table from "@/common/shared/components/table/Table.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
+import FormBank from "@/modules/presentation/Admin/components/bank/FormBank.vue";
 
-const { success } = useNotification();
-const search = ref<string>("");
 const { t } = useI18n();
-const columns = computed(() => getColumns(t));
 const bankStore = useBankStore();
-const banks = ref<BankApiModel[]>([]);
-const formRef = ref();
-const createModalVisible = ref(false);
-const editModalVisible = ref(false);
-const deleteModalVisible = ref(false);
+const { success, error, warning } = useNotification();
+
 const loading = ref(false);
-const selectedBank = ref<BankApiModel | null>(null);
-const formModel = reactive({
-  name: "",
-  short_name: "",
-  logo: "",
-});
+const searchKeyword = ref("");
+const modalVisible = ref(false);
+const deleteModalVisible = ref(false);
+const submitLoading = ref(false);
 
-const showLogoModal = ref(false);
-const logoPreview = ref<string>("");
+const formModel = reactive<{
+  name: string;
+  short_name: string;
+  logo: string | File | null;
+  logoUrl: string | File | null;
+}>({ name: "", short_name: "", logo: null, logoUrl: null });
+const isEditMode = ref(false);
+const bankFormRef = ref();
+const selectedBankId = ref<string | null>(null);
 
-const handleLogoUpload = (file: File, previewUrl: string) => {
-  formModel.logo = previewUrl;
-  logoPreview.value = previewUrl;
-};
+const tablePagination = computed(() => ({
+  current: bankStore.pagination.page,
+  pageSize: bankStore.pagination.limit,
+  total: bankStore.pagination.total,
+  showSizeChanger: true,
+}));
 
-const pageSizeOptions = ["10", "20", "50", "100"];
+const mappedBanks = computed(() => bankStore.banks);
 
 onMounted(async () => {
   await loadBanks();
 });
 
-watch(search, async (newValue) => {
-  if (!newValue) {
+const loadBanks = async () => {
+  loading.value = true;
+  try {
+    await bankStore.fetchBanks({
+      page: bankStore.pagination.page,
+      limit: bankStore.pagination.limit,
+      search: searchKeyword.value,
+    });
+  } catch (err: unknown) {
+    error(t("banks.error.loadFailed"), String(err instanceof Error ? err.message : err));
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleTableChange = (pagination: TablePaginationType) => {
+  bankStore.setPagination({
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total || 0,
+  });
+  loadBanks();
+};
+
+const handleSearch = async () => {
+  await bankStore.fetchBanks({
+    page: 1,
+    limit: bankStore.pagination.limit,
+    search: searchKeyword.value,
+  });
+};
+
+watch(searchKeyword, async (newVal: string) => {
+  if (newVal === "") {
+    bankStore.setPagination({
+      page: 1,
+      limit: bankStore.pagination.limit,
+      total: bankStore.pagination.total,
+    });
     await loadBanks();
   }
 });
 
-const loadBanks = async (): Promise<void> => {
-  loading.value = true;
-  try {
-    const result = await bankStore.fetchBanks({
-      page: bankStore.pagination.page,
-      limit: bankStore.pagination.limit,
-      search: search.value || undefined,
-    });
-    banks.value = result.data.map((bank: Bank) => ({
-      id: bank.getId(),
-      name: bank.getName(),
-      short_name: bank.getShortName(),
-      logo: bank.getLogo(),
-      created_at: bank.getCreatedAt(),
-      updated_at: bank.getUpdatedAt(),
-      deleted_at: bank.getDeletedAt() ?? null,
-    }));
-    bankStore.setPagination({
-      page: result.page,
-      limit: result.limit,
-      total: result.total,
-    });
-  } catch (error) {
-    console.error("Failed to load banks:", error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleTableChange = async (pagination: TablePaginationType) => {
-  bankStore.setPagination({
-    page: pagination.current ?? 1,
-    limit: pagination.pageSize ?? 10,
-    total: pagination.total ?? 0,
-  });
-  await loadBanks();
-};
-
-const showCreateModal = (): void => {
+const showCreateModal = () => {
   formModel.name = "";
   formModel.short_name = "";
-  formModel.logo = "";
-  createModalVisible.value = true;
+  formModel.logo = null;
+  isEditMode.value = false;
+  selectedBankId.value = null;
+  modalVisible.value = true;
 };
 
-const showEditModal = (record: BankApiModel): void => {
-  selectedBank.value = record;
-  formModel.name = record.name;
-  formModel.short_name = record.short_name;
-  formModel.logo = record.logo ?? "";
-  editModalVisible.value = true;
+const showEditModal = (bank: any) => {
+  formModel.name = bank.name;
+  formModel.short_name = bank.shortName;
+  formModel.logo = bank.logo ?? "";
+  formModel.logoUrl = bank.logoUrl ?? "";
+  isEditMode.value = true;
+  selectedBankId.value = bank.id;
+  modalVisible.value = true;
 };
 
-const showDeleteModal = (record: BankApiModel): void => {
-  selectedBank.value = record;
+const showDeleteModal = (bank: any) => {
+  selectedBankId.value = bank.id;
+  formModel.name = bank.name;
+  formModel.short_name = bank.short_name;
+  formModel.logo = bank.logo ?? "";
   deleteModalVisible.value = true;
 };
 
-const handleSearch = async () => {
-  loading.value = true;
-  try {
-    const result = await bankStore.fetchBanks({
-      page: 1,
-      limit: bankStore.pagination.limit,
-      search: search.value,
-    });
-    banks.value = result.data.map((bank: Bank) => ({
-      id: bank.getId(),
-      name: bank.getName(),
-      short_name: bank.getShortName(),
-      logo: bank.getLogo(),
-      created_at: bank.getCreatedAt(),
-      updated_at: bank.getUpdatedAt(),
-      deleted_at: bank.getDeletedAt() ?? null,
-    }));
-    bankStore.setPagination({
-      page: 1,
-      limit: bankStore.pagination.limit,
-      total: result.total ?? 0,
-    });
-  } catch (error) {
-    console.error("Search failed:", error);
-  } finally {
-    loading.value = false;
-  }
+const handleModalOk = () => {
+  bankFormRef.value?.submitForm();
 };
 
-const handleCreate = async (): Promise<void> => {
-  loading.value = true;
-  try {
-    await formRef.value.submitForm();
-    await bankStore.createBank({
-      name: formModel.name,
-      short_name: formModel.short_name,
-      logo: formModel.logo || null,
-    });
-    success(t("banks.notify.created"));
-    await loadBanks();
-    createModalVisible.value = false;
-    formModel.name = "";
-    formModel.short_name = "";
-    formModel.logo = "";
-  } catch (error) {
-    console.error("Create form validation failed:", error);
-  } finally {
-    loading.value = false;
-  }
+const handleModalCancel = () => {
+  modalVisible.value = false;
 };
 
-const handleEdit = async (): Promise<void> => {
-  loading.value = true;
+const handleFormSubmit = async (formData: {
+  name: string;
+  short_name: string;
+  logo: string | File | null;
+}) => {
   try {
-    await formRef.value.submitForm();
-
-    if (selectedBank.value) {
-      const id = selectedBank.value.id.toString();
-      await bankStore.updateBank(id, {
-        name: formModel.name,
-        short_name: formModel.short_name,
-        logo: formModel.logo || null,
+    submitLoading.value = true;
+    if (isEditMode.value && selectedBankId.value) {
+      await bankStore.updateBank(selectedBankId.value, {
+        ...formData,
+        id: Number(selectedBankId.value),
       });
-      success(t("banks.notify.updated"));
-      await loadBanks();
+      success(t("banks.success.title"), t("banks.success.updated"));
+    } else {
+      await bankStore.createBank(formData);
+      success(t("banks.success.title"), t("banks.success.created"));
     }
-    editModalVisible.value = false;
-  } catch (error) {
-    console.error("Edit form validation failed:", error);
+    modalVisible.value = false;
+    await loadBanks();
+  } catch (err: unknown) {
+    warning(t("banks.error.title"), String(err instanceof Error ? err.message : err));
   } finally {
-    loading.value = false;
+    submitLoading.value = false;
   }
 };
 
-const handleDelete = async (): Promise<void> => {
-  if (!selectedBank.value) return;
-  loading.value = true;
+const handleDeleteConfirm = async () => {
+  if (!selectedBankId.value) return;
   try {
-    const id = selectedBank.value.id.toString();
-    await bankStore.deleteBank(id);
-    success(t("banks.notify.deleted"));
-    await loadBanks();
+    submitLoading.value = true;
+    await bankStore.deleteBank(selectedBankId.value);
+    success(t("banks.success.title"), t("banks.success.deleted"));
     deleteModalVisible.value = false;
-  } catch (error) {
-    console.error("Delete failed:", error);
+    await loadBanks();
+  } catch (err) {
+    warning(t("banks.error.deleteFailed"), String(err instanceof Error ? err.message : err));
   } finally {
-    loading.value = false;
+    submitLoading.value = false;
   }
 };
 </script>
 
 <template>
   <div class="bank-list-container p-6">
-    <div class="mb-6 gap-4">
-      <h1 class="text-2xl font-semibold">
-        {{ t("banks.title") }}
-      </h1>
-      <div class="flex justify-between gap-20">
-        <div class="w-[20rem]">
-          <InputSearch
-            v-model:value="search"
-            @keyup.enter="handleSearch"
-            :placeholder="t('banks.placeholder.search')"
-          />
-        </div>
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold">{{ t("banks.title") }}</h1>
+      </div>
+      <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
+        <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('banks.placeholder.search')"
+        />
         <UiButton
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
-          colorClass="flex items-center"
+          colorClass="text-white flex items-center"
         >
           {{ t("banks.add") }}
         </UiButton>
       </div>
     </div>
 
-    <!-- Table -->
     <Table
-      :columns="columns"
-      :dataSource="banks"
-      :pagination="{
-        current: bankStore.pagination.page,
-        pageSize: bankStore.pagination.limit,
-        total: bankStore.pagination.total,
-        showSizeChanger: true,
-        pageSizeOptions,
-      }"
+      :columns="getColumns(t)"
+      :dataSource="mappedBanks"
+      :pagination="tablePagination"
+      :loading="loading"
       row-key="id"
-      :loading="bankStore.loading"
       @change="handleTableChange"
     >
       <template #actions="{ record }">
-        <div class="flex gap-2">
+        <div class="flex items-center justify-center gap-2">
           <UiButton
             type=""
             icon="ant-design:edit-outlined"
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
+            :disabled="!!record.deleted_at"
           />
           <UiButton
             type=""
@@ -261,84 +215,48 @@ const handleDelete = async (): Promise<void> => {
           />
         </div>
       </template>
+      <template #logo="{ record }">
+        <img
+          v-if="record.logo"
+          :src="record.logoUrl"
+          alt="Logo"
+          class="w-16 h-16 object-contain border"
+        />
+        <span v-else>—</span>
+      </template>
     </Table>
 
-    <!-- Create Modal -->
     <UiModal
-      :title="t('banks.header_form.add')"
-      :visible="createModalVisible"
-      :confirm-loading="loading"
-      @update:visible="createModalVisible = $event"
-      @ok="handleCreate"
-      @cancel="createModalVisible = false"
+      :title="isEditMode ? t('banks.header_form.edit') : t('banks.header_form.add')"
+      :visible="modalVisible"
+      :confirm-loading="submitLoading"
+      @update:visible="modalVisible = $event"
+      @ok="handleModalOk"
+      @cancel="handleModalCancel"
+      :okText="isEditMode ? t('button.edit') : t('button.save')"
       :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
     >
-      <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem :label="t('banks.field.upload_logo')" name="logo">
-          <div class="flex items-center gap-4">
-            <img
-              v-if="formModel.logo"
-              :src="formModel.logo"
-              class="w-16 h-16 object-contain border"
-            />
-            <UiButton @click="showLogoModal = true" icon="ant-design:upload-outlined">
-              <!-- {{ t("banks.button.upload_logo") }} -->
-            </UiButton>
-          </div>
-        </UiFormItem>
-        <UiFormItem :label="t('banks.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('banks.placeholder.name')" />
-        </UiFormItem>
-        <UiFormItem :label="t('banks.field.short_name')" name="short_name" required>
-          <UiInput
-            v-model="formModel.short_name"
-            :placeholder="t('banks.placeholder.short_name')"
-          />
-        </UiFormItem>
-      </UiForm>
+      <FormBank
+        ref="bankFormRef"
+        v-model="formModel"
+        :loading="submitLoading"
+        :isEdit="isEditMode"
+        @submit="handleFormSubmit"
+      />
     </UiModal>
 
-    <!-- Edit Modal -->
-    <UiModal
-      :title="t('banks.header_form.edit')"
-      :visible="editModalVisible"
-      :confirm-loading="loading"
-      @update:visible="editModalVisible = $event"
-      @ok="handleEdit"
-      @cancel="editModalVisible = false"
-      :cancelText="t('button.cancel')"
-      :okText="t('button.confirm')"
-    >
-      <UiForm ref="formRef" :model="formModel" :rules="rules">
-        <UiFormItem :label="t('banks.field.name')" name="name" required>
-          <UiInput v-model="formModel.name" :placeholder="t('banks.placeholder.name')" />
-        </UiFormItem>
-        <UiFormItem :label="t('banks.field.short_name')" name="short_name" required>
-          <UiInput
-            v-model="formModel.short_name"
-            :placeholder="t('banks.placeholder.short_name')"
-          />
-        </UiFormItem>
-        <UiFormItem :label="t('banks.field.logo')" name="logo">
-          <UiInput v-model="formModel.logo" :placeholder="t('banks.placeholder.logo')" />
-        </UiFormItem>
-      </UiForm>
-    </UiModal>
-
-    <!-- Delete Confirmation Modal -->
     <UiModal
       :title="t('banks.header_form.delete.title')"
       :visible="deleteModalVisible"
-      :confirm-loading="loading"
+      :confirm-loading="submitLoading"
       @update:visible="deleteModalVisible = $event"
-      @ok="handleDelete"
-      :cancelText="t('button.cancel')"
+      @ok="handleDeleteConfirm"
       @cancel="deleteModalVisible = false"
-      :okText="t('button.confirm')"
-      okType="primary"
+      ok-text="ຢືນຢັນ"
+      ok-type="primary"
+      :danger="true"
     >
-      <p>{{ t("banks.header_form.delete.content") }} "{{ selectedBank?.name }}"?</p>
+      <p>{{ t("banks.header_form.delete.content") }} "{{ formModel.name }}"?</p>
       <p class="text-red-500">{{ t("banks.header_form.delete.description") }}</p>
     </UiModal>
   </div>

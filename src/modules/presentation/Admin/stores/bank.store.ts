@@ -1,11 +1,11 @@
+import type { BankCreate, BankUpdate, BankInterface } from "@/modules/interfaces/bank.interface";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { Ref } from "vue";
+import type { BankEntity } from "@/modules/domain/entities/bank.entity";
+import type { PaginationParams } from "@/modules/shared/pagination";
 import { BankServiceImpl } from "@/modules/application/services/bank.service";
 import { ApiBankRepository } from "@/modules/infrastructure/api-bank.repository";
-import { Bank } from "@/modules/domain/entities/bank.entity";
-import type { CreateBankDTO, UpdateBankDTO } from "@/modules/application/dtos/bank.dto";
-import type { PaginationParams } from "@/modules/shared/pagination";
 
 const createBankService = () => {
   const bankRepository = new ApiBankRepository();
@@ -14,8 +14,8 @@ const createBankService = () => {
 
 export const useBankStore = defineStore("bank", () => {
   const bankService = createBankService();
-  const banks: Ref<Bank[]> = ref([]);
-  const currentBank: Ref<Bank | null> = ref(null);
+  const banks: Ref<BankEntity[]> = ref([]);
+  const currentBank: Ref<BankEntity | null> = ref(null);
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
   const pagination = ref({
@@ -25,42 +25,17 @@ export const useBankStore = defineStore("bank", () => {
     totalPages: 0,
   });
 
-  // Getters
   const activeBanks = computed(() => banks.value.filter((bank) => !bank.isDeleted()));
-  const deletedBanks = computed(() => banks.value.filter((bank) => bank.isDeleted()));
+  const inactiveBanks = computed(() => banks.value.filter((bank) => bank.isDeleted()));
   const totalActiveBanks = computed(() => activeBanks.value.length);
-  const totalDeletedBanks = computed(() => deletedBanks.value.length);
+  const totalInactiveBanks = computed(() => inactiveBanks.value.length);
 
-  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
-    pagination.value.page = newPagination.page || 1;
-    pagination.value.limit = newPagination.limit || 10;
-    pagination.value.total = newPagination.total;
-  };
-
-  // Actions
-  const createBank = async (data: CreateBankDTO) => {
+  const fetchBanks = async (params: PaginationParams = { page: 1, limit: 10 }) => {
     loading.value = true;
     error.value = null;
     try {
-      const bank = await bankService.createBank(data);
-      banks.value = [bank, ...banks.value];
-      return bank;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
+      const result = await bankService.getAllBanks(params);
 
-  const fetchBanks = async (
-    params: PaginationParams = { page: 1, limit: 10 },
-    includeDeleted = false
-  ) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const result = await bankService.getAllBanks(params, includeDeleted);
       banks.value = result.data;
       pagination.value = {
         page: result.page,
@@ -68,7 +43,6 @@ export const useBankStore = defineStore("bank", () => {
         total: result.total,
         totalPages: result.totalPages,
       };
-      return result;
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -81,44 +55,46 @@ export const useBankStore = defineStore("bank", () => {
     loading.value = true;
     error.value = null;
     try {
-      currentBank.value = await bankService.getBankById(id);
-      return currentBank.value;
+      const bank = await bankService.getBankById(id);
+      currentBank.value = bank;
+      return bank ? BankEntityToInterface(bank) : null;
     } catch (err) {
       error.value = err as Error;
-      return null;
+      throw err;
     } finally {
       loading.value = false;
     }
   };
 
-  const getBankByName = async (name: string) => {
-    try {
-      return await bankService.getBankByName(name);
-    } catch (err) {
-      console.error("Failed to get bank by name:", err);
-      return null;
-    }
-  };
-
-  const updateBank = async (id: string, data: UpdateBankDTO) => {
+  const createBank = async (bankData: BankCreate) => {
     loading.value = true;
     error.value = null;
     try {
-      const updatedBank = await bankService.updateBank(id, data);
+      const bank = await bankService.createBank(bankData);
+      banks.value = [bank, ...banks.value];
+      return BankEntityToInterface(bank);
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
-      if (banks.value.length > 0) {
-        const index = banks.value.findIndex((b) => b.getId() === id);
-        if (index !== -1) {
-          banks.value[index] = updatedBank;
-        }
+  const updateBank = async (id: string, bankData: BankUpdate) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const updatedBank = await bankService.updateBank(id, bankData);
+      const index = banks.value.findIndex((b) => b.getId() === id);
+      if (index !== -1) {
+        banks.value[index] = updatedBank;
       }
-
       if (currentBank.value && currentBank.value.getId() === id) {
         currentBank.value = updatedBank;
       }
-
-      return updatedBank;
-    } catch (err) {
+      return BankEntityToInterface(updatedBank);
+    } catch (err: unknown) {
       error.value = err as Error;
       throw err;
     } finally {
@@ -131,23 +107,12 @@ export const useBankStore = defineStore("bank", () => {
     error.value = null;
     try {
       const result = await bankService.deleteBank(id);
-
-      if (banks.value.length > 0) {
+      if (result) {
         const index = banks.value.findIndex((b) => b.getId() === id);
         if (index !== -1) {
-          const deletedBank = banks.value[index];
-          banks.value[index] = new Bank(
-            deletedBank.getId(),
-            deletedBank.getName(),
-            deletedBank.getShortName(),
-            deletedBank.getLogo(),
-            deletedBank.getCreatedAt(),
-            new Date().toISOString(),
-            new Date()
-          );
+          banks.value[index].delete();
         }
       }
-
       return result;
     } catch (err) {
       error.value = err as Error;
@@ -157,62 +122,22 @@ export const useBankStore = defineStore("bank", () => {
     }
   };
 
-  const restoreBank = async (id: string) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const result = await bankService.restoreBank(id);
-
-      if (banks.value.length > 0) {
-        const index = banks.value.findIndex((b) => b.getId() === id);
-        if (index !== -1) {
-          const restoredBank = banks.value[index];
-          banks.value[index] = new Bank(
-            restoredBank.getId(),
-            restoredBank.getName(),
-            restoredBank.getShortName(),
-            restoredBank.getLogo(),
-            restoredBank.getCreatedAt(),
-            new Date().toISOString(),
-            null
-          );
-        }
-      }
-
-      return result;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
+  const BankEntityToInterface = (bank: BankEntity): BankInterface => {
+    return {
+      id: parseInt(bank.getId()),
+      name: bank.getName(),
+      short_name: bank.getShortName(),
+      logo: bank.getLogo(),
+      created_at: bank.getCreatedAt(),
+      updated_at: bank.getUpdatedAt(),
+      deleted_at: bank.getDeletedAt(),
+    };
   };
 
-  const searchBanksByName = async (
-    name: string,
-    params: PaginationParams = { page: 1, limit: 10 }
-  ) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const result = await bankService.getAllBanks({
-        ...params,
-        search: name,
-      });
-      banks.value = result.data;
-      pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
-      return result;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
+    pagination.value.total = newPagination.total;
   };
 
   const resetState = () => {
@@ -228,28 +153,20 @@ export const useBankStore = defineStore("bank", () => {
   };
 
   return {
-    // State
     banks,
     currentBank,
     loading,
     error,
     pagination,
-
-    // Getters
     activeBanks,
-    deletedBanks,
+    inactiveBanks,
     totalActiveBanks,
-    totalDeletedBanks,
-
-    // Actions
-    createBank,
+    totalInactiveBanks,
     fetchBanks,
     fetchBankById,
+    createBank,
     updateBank,
     deleteBank,
-    restoreBank,
-    searchBanksByName,
-    getBankByName,
     resetState,
     setPagination,
   };

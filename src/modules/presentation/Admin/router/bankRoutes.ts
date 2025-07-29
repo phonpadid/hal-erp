@@ -4,8 +4,8 @@ import BankListView from "../views/bank/BankListView.vue";
 
 export const banksRoutes: RouteRecordRaw[] = [
   {
-    path: "/bank",
-    name: "BankList",
+    path: "/banks",
+    name: "bank.index",
     component: BankListView,
     meta: {
       Title: "banks",
