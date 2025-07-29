@@ -127,8 +127,6 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
     <a-checkbox-group :options="props.options" v-model="selectedValues" />
   </div>
 
-  <!-- For grouped options -->
-  <!-- <div v-else class="flex flex-wrap gap-3"> -->
     <div v-else>
     <!-- "Check All" for all groups -->
     <div class="w-full mb-2 font-bold">
@@ -142,7 +140,7 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
       <a-divider />
     </div>
 
-    <div v-for="(options, groupName) in groupedOptions" :key="groupName" class="w-100">
+    <div v-for="(options, groupName) in groupedOptions" :key="groupName" class="w-100 py-2">
       <div class="mb-1 font-bold">
         <a-checkbox
           :checked="checkAllState[groupName].checked"
@@ -154,21 +152,26 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
       </div>
 
       <div class="grid grid-cols-4 gap-2">
-        <p
+        <div
           v-for="option in options"
           :key="option.value"
-          class="px-6"
+          class="flex items-center bg-gray-100 rounded px-3 py-2 space-x-2 ml-6"
         >
           <a-checkbox
             :value="option.value"
             :checked="isSelected(option.value)"
             @change="() => toggleOption(option.value)"
+          />
+          <span
+            class="truncate"
+            :title="option.label"
+            @click="() => toggleOption(option.value)"
+            style="cursor: pointer;"
           >
             {{ option.label }}
-          </a-checkbox>
-        </p>
+          </span>
+        </div>
       </div>
-      <a-divider class="mt-[-10px]" />
     </div>
   </div>
 </template>
