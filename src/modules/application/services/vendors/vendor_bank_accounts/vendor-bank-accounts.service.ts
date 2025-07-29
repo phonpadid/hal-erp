@@ -8,6 +8,7 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 
 export interface VendorBankAccountServices {
   getAllVendorsBankAccount(
+    vendorId: number,
     params: PaginationParams,
     includeDeleted?: boolean
   ): Promise<PaginatedResult<VendorsBankAccountEntity>>;
@@ -28,10 +29,11 @@ export class VendorBankAccountsServiceImpl implements VendorBankAccountServices 
   constructor(private readonly vendorsBankAccountRepository: VendorsBankAccountsRepository) {}
 
   async getAllVendorsBankAccount(
+    vendorId: number,
     params: PaginationParams,
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<VendorsBankAccountEntity>> {
-    return await this.vendorsBankAccountRepository.findAll(params, includeDeleted);
+    return await this.vendorsBankAccountRepository.findAll(vendorId, params, includeDeleted);
   }
 
   async getVendorsBankAccount(id: string): Promise<VendorsBankAccountEntity | null> {

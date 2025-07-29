@@ -347,9 +347,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
-      return new Error(`API Error (${statusCode}): ${serverMessage}`);
+      return new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       return new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`
