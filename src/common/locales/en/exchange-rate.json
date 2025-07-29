@@ -1,0 +1,36 @@
+{
+    "title": "Exchange Rate Info",
+    "title_from_create": "Exchange rate create form",
+    "title_from_edit": "Exchange rate update form",
+    "is_active": "Activate",
+    "in_active": "Deactivate",
+    "message": {
+        "title": "Success",
+        "create": "Create successfully",
+        "update": "Update successfully",
+        "delete": "Delete successfully",
+        "faild": "Wrong"
+    },
+
+    "alert": {
+        "confirm": "Confirm deletion",
+        "message": "Are you sure you want to delete this data",
+        "remark": "This action cannot be undone once you have confirmed it."
+    },
+    "field": {
+        "from_currency": "From currency",
+        "to_currency": "To currency",
+        "rate": "Rate",
+        "is_active": "Status"
+    },
+    "phd": {
+        "from_currency": "Select from currency",
+        "to_currency": "Select to currency",
+        "rate": "Enter rate"
+    },
+    "error": {
+        "from_currency": "Please select from currency",
+        "to_currency": "Please select to currency",
+        "rate": "Please enter rate"
+    }
+}

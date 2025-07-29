@@ -7,6 +7,7 @@ import { ApiCurrencyRepository } from "@/modules/infrastructure/api-currency.rep
 import { CurrencyServiceImpl } from "@/modules/application/services/currency.service";
 import { CurrencyEntity } from "@/modules/domain/entities/currency.entity";
 import type { CreateCurrencyDTO, UpdateCurrencyDTO } from "@/modules/application/dtos/currency.dto";
+import type { CurrencyApiModel } from "@/modules/interfaces/currency.interface";
 const currencyFormModel = reactive({
   name: "",
   code: "",
@@ -23,7 +24,17 @@ const currencyService = () => {
   const currencyRepo = new ApiCurrencyRepository();
   return new CurrencyServiceImpl(currencyRepo);
 };
+export const CurrencyEntityToInterface = (
+  currency: CurrencyEntity | null
+): CurrencyApiModel | undefined => {
+  if (!currency) return undefined;
 
+  return {
+    id: currency.getId()?? '',
+    name: currency.getName(),
+    code: currency.getCode(),
+  };
+};
 export const currencyStore = defineStore("currency-store", () => {
   const currenciesService = currencyService();
 

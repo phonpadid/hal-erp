@@ -71,6 +71,10 @@ export const menuItems = computed<ItemType[]>(() => [
                 key: "approval_workflows.index",
                 label: t("menu-sidebar.approval_workflow"),
               },
+              {
+                key: "exchange-rate.index",
+                label: t("menu-sidebar.exchange_rate"),
+              },
             ],
           },
         ],
