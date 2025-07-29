@@ -13,7 +13,7 @@ export const departmentUserRoutes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/add_department_user",
+    path: "/add/department-user",
     name: "add_department_user.index",
     component: DepartmentUser,
     meta: {
@@ -22,7 +22,7 @@ export const departmentUserRoutes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/edit_department_user/:id",
+    path: "/edit/department-user/:id",
     name: "edit_department_user.index",
     component: DepartmentUser,
     meta: {

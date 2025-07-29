@@ -5,7 +5,10 @@ import type { PaginationParams } from "@/modules/shared/pagination";
 import { ApiDepartmentUserRepository } from "@/modules/infrastructure/departments/api-department-user.repository";
 import { DepartmentUserEntity } from "@/modules/domain/entities/departments/department-user.entity";
 import { DepartmentUserServiceImpl } from "@/modules/application/services/departments/department-user.service";
-import type { CreateDepartmentUserDTO, UpdateDepartmentUserDTO } from "@/modules/application/dtos/departments/department-user.dto";
+import type {
+  CreateDepartmentUserDTO,
+  UpdateDepartmentUserDTO,
+} from "@/modules/application/dtos/departments/department-user.dto";
 
 export const dpmUserFormModel = reactive({
   id: "",
@@ -20,7 +23,7 @@ export const dpmUserFormModel = reactive({
   roleIds: [] as number[],
   permissionIds: [] as number[],
   signature_file: null as File | string | null,
-})
+});
 // สร้าง unit service
 const createDepartmentUserService = () => {
   const dpmUserRepository = new ApiDepartmentUserRepository();
@@ -28,7 +31,6 @@ const createDepartmentUserService = () => {
 };
 
 export const departmenUsertStore = defineStore("department-user", () => {
-  // สร้าง service
   const departmentUserService = createDepartmentUserService();
 
   // State
@@ -42,19 +44,22 @@ export const departmenUsertStore = defineStore("department-user", () => {
     total: 0,
     totalPages: 0,
   });
-  const setPagination = (newPagination: { page: number; limit: number, total: number }) => {
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page;
     pagination.value.limit = newPagination.limit;
     pagination.value.total = newPagination.total;
   };
   // Getters
-  const activeDepartmentUser = computed(() => departmentUser.value.filter((dpm) => !dpm.isDeleted()));
-  const deletedDepartmentUser = computed(() => departmentUser.value.filter((dpm) => dpm.isDeleted()));
+  const activeDepartmentUser = computed(() =>
+    departmentUser.value.filter((dpm) => !dpm.isDeleted())
+  );
+  const deletedDepartmentUser = computed(() =>
+    departmentUser.value.filter((dpm) => dpm.isDeleted())
+  );
   const totalActiveDepartmentUser = computed(() => activeDepartmentUser.value.length);
   const totalDeletedDepartmentUser = computed(() => deletedDepartmentUser.value.length);
 
-  // Actions
-  // Create Unit
+  // Create Department User
   const createDepartmentUser = async (input: CreateDepartmentUserDTO) => {
     loading.value = true;
     error.value = null;
@@ -71,7 +76,7 @@ export const departmenUsertStore = defineStore("department-user", () => {
     }
   };
 
-  // Get All Units
+  // Get All Department Users
   const fetchDepartmentUser = async (
     params: PaginationParams = { page: 1, limit: 10 },
     includeDeleted: boolean = false
@@ -82,7 +87,6 @@ export const departmenUsertStore = defineStore("department-user", () => {
     try {
       const result = await departmentUserService.getAllDepartmentUser(params, includeDeleted);
       departmentUser.value = result.data;
-
       pagination.value = {
         page: result.page,
         limit: result.limit,
@@ -163,7 +167,7 @@ export const departmenUsertStore = defineStore("department-user", () => {
             deletedDpmUser.getId(),
             deletedDpmUser.getPosition_id(),
             deletedDpmUser.getSignature_file(),
-            '',
+            "",
             deletedDpmUser.getDepartmentId(),
             deletedDpmUser.getPermissionIds(),
             deletedDpmUser.getRoleIds(),
@@ -173,9 +177,9 @@ export const departmenUsertStore = defineStore("department-user", () => {
             user,
             deletedDpmUser.getRoles(),
             deletedDpmUser.getPermissions(),
-            deletedDpmUser.getCreatedAt(),
-            new Date(),
-            new Date()
+            deletedDpmUser.getCreatedAt() || "",
+            new Date().toString(),
+            new Date().toString()
           );
         }
       }
@@ -201,20 +205,20 @@ export const departmenUsertStore = defineStore("department-user", () => {
       totalPages: 0,
     };
   };
- // In your department-user.store.ts
-const resetForm = () => {
-  dpmUserFormModel.userId = "";
-  dpmUserFormModel.username = "";
-  dpmUserFormModel.email = "";
-  dpmUserFormModel.tel = "";
-  dpmUserFormModel.password = "";
-  dpmUserFormModel.confirm_password = "";
-  dpmUserFormModel.position_id = "";
-  dpmUserFormModel.departmentId = "";
-  dpmUserFormModel.signature_file = null;
-  dpmUserFormModel.permissionIds = [];
-  dpmUserFormModel.roleIds = [];
-};
+  // In your department-user.store.ts
+  const resetForm = () => {
+    dpmUserFormModel.userId = "";
+    dpmUserFormModel.username = "";
+    dpmUserFormModel.email = "";
+    dpmUserFormModel.tel = "";
+    dpmUserFormModel.password = "";
+    dpmUserFormModel.confirm_password = "";
+    dpmUserFormModel.position_id = "";
+    dpmUserFormModel.departmentId = "";
+    dpmUserFormModel.signature_file = null;
+    dpmUserFormModel.permissionIds = [];
+    dpmUserFormModel.roleIds = [];
+  };
   return {
     // State
     departmentUser,
@@ -236,6 +240,6 @@ const resetForm = () => {
     updateDepartmentUser,
     deleteDepartmentUser,
     resetState,
-    resetForm
+    resetForm,
   };
 });

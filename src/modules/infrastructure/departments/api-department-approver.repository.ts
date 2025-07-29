@@ -13,7 +13,6 @@ import type { DepartmentApiModel } from "@/modules/interfaces/departments/depart
 
 export class ApiDepartmentApproverRepository implements DepartmentApproverRepository {
   async create(input: DepartmentApproverEntity): Promise<DepartmentApproverEntity> {
-
     try {
       // Convert to API model first
       const response = (await api.post("/department-approvers", this.toApiModel(input))) as {
@@ -65,9 +64,15 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
     }
   }
 
-  async update(id: string, department: DepartmentApproverEntity): Promise<DepartmentApproverEntity> {
+  async update(
+    id: string,
+    department: DepartmentApproverEntity
+  ): Promise<DepartmentApproverEntity> {
     try {
-      const response = (await api.put(`/department-approvers/${id}`, this.toApiModel(department))) as {
+      const response = (await api.put(
+        `/department-approvers/${id}`,
+        this.toApiModel(department)
+      )) as {
         data: ApiResponse<DepartmentApproverApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -89,9 +94,9 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
     const res = {
       id: Number(dpmApv.getId()),
       user_id: Number(dpmApv.getUser_id()),
-      created_at: dpmApv.getCreatedAt() ?? '',
-      updated_at: dpmApv.getUpdatedAt() ?? '',
-    }
+      created_at: dpmApv.getCreatedAt() ?? "",
+      updated_at: dpmApv.getUpdatedAt() ?? "",
+    };
     return res;
   }
 
@@ -109,59 +114,58 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
     );
   }
 
-//
-private toUserEntity(user: UserInterface): UserEntity {
-  const roleIds = user.roles?.map(role => role.id) || [];
-  const permissionIds = user.permissions?.map(perm => perm.id) || [];
-  const roles = user.roles || []
-  return new UserEntity(
-    user.id.toString(),
-    user.username,
-    user.email,
-    roleIds,
-    roles,
-    permissionIds,
-    user.created_at || "",
-    user.updated_at || "",
-    user.deleted_at || null,
-    user.password,
-    user.tel
-  );
-}
+  //
+  private toUserEntity(user: UserInterface): UserEntity {
+    const roleIds = user.roles?.map((role) => role.id) || [];
+    const permissionIds = user.permissions?.map((perm) => perm.id) || [];
+    const roles = user.roles || [];
+    return new UserEntity(
+      user.id.toString(),
+      user.username,
+      user.email,
+      roleIds,
+      roles,
+      permissionIds,
+      user.created_at || "",
+      user.updated_at || "",
+      user.deleted_at || null,
+      user.password,
+      user.tel
+    );
+  }
 
-private createPlaceholderUser(): UserEntity {
-  // Create a placeholder user entity when user data is not available
-  return new UserEntity(
-    '',           // id
-    '',           // username
-    '',
-    [],          // email
-    [],          // email
-    [],          // email
-    '',           // created_at
-    '',           // updated_at
-    null,         // deleted_at
-    undefined,    // password
-    undefined     // tel
-  );
-}
+  private createPlaceholderUser(): UserEntity {
+    // Create a placeholder user entity when user data is not available
+    return new UserEntity(
+      "", // id
+      "", // username
+      "",
+      [], // email
+      [], // email
+      [], // email
+      "", // created_at
+      "", // updated_at
+      null, // deleted_at
+      undefined, // password
+      undefined // tel
+    );
+  }
 
   private toDepartmentEntity(departmentData: DepartmentApiModel): DepartmentEntity {
     return new DepartmentEntity(
       departmentData.id.toString(),
       departmentData.name,
-      departmentData.code ?? '',
-      departmentData.created_at ?? '',
-      departmentData.updated_at ?? ''
+      departmentData.code ?? "",
+      departmentData.created_at ?? "",
+      departmentData.updated_at ?? ""
     );
   }
   private handleApiError<T>(error: unknown, defaultMessage: string): T {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`

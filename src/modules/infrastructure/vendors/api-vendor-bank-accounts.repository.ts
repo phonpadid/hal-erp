@@ -12,11 +12,12 @@ export class ApiVendorsBankAccountsRepository implements VendorsBankAccountsRepo
   private readonly baseUrl = "/vendor_bank_accounts";
 
   async findAll(
+    vendorId: number,
     params: PaginationParams,
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<VendorsBankAccountEntity>> {
     try {
-      const response = await api.get(this.baseUrl, {
+      const response = await api.get(`${this.baseUrl}/vendor/${vendorId}`, {
         params: {
           page: params.page || 1,
           limit: params.limit || 10,
@@ -149,10 +150,9 @@ export class ApiVendorsBankAccountsRepository implements VendorsBankAccountsRepo
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
 
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`

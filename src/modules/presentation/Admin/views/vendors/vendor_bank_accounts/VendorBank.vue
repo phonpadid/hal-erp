@@ -12,10 +12,12 @@ import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import VendorBankAccountForm from "@/modules/presentation/Admin/components/vendors/vendor_bank_accounts/FormVendorBank.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const { t } = useI18n();
 const vendorBankAccountStore = useVendorBankAccountStore();
-const { success, error } = useNotification();
+const { success, error, warning } = useNotification();
 
 // State
 const loading = ref<boolean>(false);
@@ -43,16 +45,17 @@ onMounted(async () => {
 
 const loadBankAccounts = async () => {
   loading.value = true;
+  const vendorId = Number(route.params.id);
 
   try {
-    await vendorBankAccountStore.fetchBankAccounts({
+    await vendorBankAccountStore.fetchBankAccounts(vendorId, {
       page: vendorBankAccountStore.pagination.page,
       limit: vendorBankAccountStore.pagination.limit,
       search: searchKeyword.value,
     });
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    error(t("vendors_bank.error.loadFailed"), errorMessage);
+    warning(t("messages.error.title"), errorMessage);
   } finally {
     loading.value = false;
   }
@@ -75,7 +78,8 @@ const handleTableChange = (
 };
 
 const handleSearch = async () => {
-  await vendorBankAccountStore.fetchBankAccounts({
+  const vendorId = Number(route.params.id);
+  await vendorBankAccountStore.fetchBankAccounts(vendorId,{
     page: 1,
     limit: vendorBankAccountStore.pagination.limit,
     search: searchKeyword.value,
