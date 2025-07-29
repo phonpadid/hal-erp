@@ -30,7 +30,6 @@
     "title": "ຢືນຢັນການອອກຈາກລະບົບ",
     "description": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການອອກຈາກລະບົບ?"
   },
-
   "purchaseRequests": "ຄຳຂໍຈັດຊື້ (PR)",
   "purchaseOrders": "ອະນຸມັດຈັດຊື້ (PO)",
   "approval_workflow_manage": "ຈັດການ ການອະນຸມັດເອກະສານ",
@@ -39,14 +38,12 @@
   "apv_purchase_rq": "ຜູ້ອະນຸມັດໃບສະເໜີ",
   "purchasePanak": "ອະນຸມັດຈັດຊື້ຫົວໜ້າພະແນກ",
   "budgetApproval": "ອະນຸມັດງົບປະມານ",
-
   "director": "ຜູ້ອຳນວຍການອານຸມັດຈັດຊື້",
   "reviewMoney": "ການອະນຸມັດເງິນ",
-
   "accounting_dpm": "ພະແນກບັນຊີລົງລະຫັດບັນຊີ",
   "accounting_dpm_check": "ພະແນກບັນຊີກວດສອບ",
   "approval_finance_dpm": "ພະແນກການເງິນອະນຸມັດ",
   "financial_dpm_transfer": "ພະແນກການເງິນໂອນເງິນ",
-
+  "exchange_rate": "ອັດຕາແລກປ່ຽນ",
   "manage": "ຈັດການຂໍ້ມູນຫຼັກ"
 }

@@ -6,6 +6,12 @@ export interface PaginationParams {
   sortBy?: string;
   sortDirection?: "asc" | "desc";
   type?: string;
+  //search between
+  filter?: {
+    from_currency_id?: string;
+    to_currency_id?: string;
+    [key: string]: string | undefined; // Allow additional filter fields
+  };
 }
 
 export interface APIResponse<T> {
