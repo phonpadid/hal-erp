@@ -3,11 +3,9 @@ import { ref, reactive, onMounted, watch } from "vue";
 import { columns } from "./column";
 import { departmentStore } from "../../../stores/departments/department.store";
 import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
-import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import Table from "@/common/shared/components/table/Table.vue";
-import { dataDpm } from "@/modules/shared/utils/data.department";
+import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
@@ -15,14 +13,12 @@ import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { dpmRules } from "./validation/department.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+
 const search = ref<string>("");
 const { t } = useI18n();
 // Initialize the unit store
 const dpmStore = departmentStore();
-// departments data that will be displayed (from API or mock)
-const department = ref<DepartmentApiModel[]>([]);
-const useRealApi = ref<boolean>(true); // Toggle between mock and real API
-const { success } = useNotification();
+const { success, warning } = useNotification();
 // Form related
 const formRef = ref();
 const createModalVisible = ref<boolean>(false);
@@ -43,34 +39,18 @@ onMounted(async () => {
 });
 
 const loadDpm = async (): Promise<void> => {
-  if (useRealApi.value) {
-    try {
-      loading.value = true;
-      dpmStore.fetchDepartment({
-        page: dpmStore.pagination.page,
-        limit: dpmStore.pagination.limit,
-        search: search.value,
-      });
-
-      department.value = dpmStore.departments.map((dpm: DepartmentEntity) => {
-        return {
-          id: Number(dpm.getId()),
-          name: dpm.getName(),
-          code: dpm.getCode(),
-          createdAt: dpm.getCreatedAt(),
-          updatedAt: dpm.getUpdatedAt(),
-        };
-      });
-
-      console.log("Department data loaded:", department.value);
-    } catch (error) {
-      console.error("Failed to fetch department from API:", error);
-      department.value = [...dataDpm.value];
-    } finally {
-      loading.value = false;
-    }
-  } else {
-    department.value = [...dataDpm.value];
+  try {
+    loading.value = true;
+    dpmStore.fetchDepartment({
+      page: dpmStore.pagination.page,
+      limit: dpmStore.pagination.limit,
+      search: search.value,
+    });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("departments.error.title"), String(errorMessage));
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -83,23 +63,9 @@ const handleSearch = async () => {
       limit: dpmStore.pagination.limit,
       search: search.value,
     });
-
-    department.value = dpmStore.departments.map((department: DepartmentEntity) => ({
-      id: Number(department.getId()),
-      name: department.getName(),
-      code: department.getCode(),
-      createdAt: department.getCreatedAt(),
-      updatedAt: department.getUpdatedAt(),
-    }));
-
-    // Optional: Update pagination
-    dpmStore.setPagination({
-      page: 1,
-      limit: dpmStore.pagination.limit || 10,
-      total: dpmStore.pagination.total,
-    });
-  } catch (error) {
-    console.error("Search failed:", error);
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("departments.error.title"), String(errorMessage));
   } finally {
     loading.value = false;
   }
@@ -137,8 +103,9 @@ const handleCreate = async (): Promise<void> => {
     createModalVisible.value = false;
     formModel.name = "";
     formModel.code = "";
-  } catch (error) {
-    console.error("Create form validation failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("departments.error.title"), String(errorMessage));
   } finally {
     loading.value = false;
   }
@@ -161,8 +128,9 @@ const handleEdit = async (): Promise<void> => {
     }
 
     editModalVisible.value = false;
-  } catch (error) {
-    console.error("Edit form validation failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("departments.error.title"), String(errorMessage));
   } finally {
     loading.value = false;
   }
@@ -178,19 +146,20 @@ const handleDelete = async (): Promise<void> => {
     await dpmStore.deleteDepartment(id);
     success(t("departments.notify.delete"));
     await loadDpm(); // Refresh the list
-  } catch (error) {
-    console.error("Delete failed:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("departments.error.title"), String(errorMessage));
   }
 
   deleteModalVisible.value = false;
   loading.value = false;
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const handleTableChange = async (pagination: any) => {
+
+const handleTableChange = async (pagination: TablePaginationType) => {
   dpmStore.setPagination({
     page: pagination.current || 1,
     limit: pagination.pageSize || 10,
-    total: pagination.total,
+    total: pagination.total ?? 0,
   });
   await loadDpm();
 };
@@ -238,7 +207,7 @@ watch(search, async (newValue) => {
     <!--  Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="department"
+      :dataSource="dpmStore.departments"
       :pagination="{
         current: dpmStore.pagination.page,
         pageSize: dpmStore.pagination.limit,

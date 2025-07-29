@@ -14,6 +14,7 @@ export interface UserInterface {
   deleted_at?: string | null;
   getRoles(): Role[];
   permissions?: Permission[];
+  user_signature?: string | null;
 }
 
 export interface UserCreatePayload {
