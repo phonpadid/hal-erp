@@ -5,7 +5,7 @@ import { useRouter } from "vue-router";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import DatePicker from "@/common/shared/components/Datepicker/DatePicker.vue";
+import DateTime from "@/common/shared/components/Datepicker/DateTime.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 
 const filterType = ref<string | null>(null);
@@ -125,11 +125,7 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
 
       <!-- Date Range Picker -->
       <div class="flex-grow">
-        <DatePicker
-          v-model:modelValueStart="dates.startDate"
-          v-model:modelValueEnd="dates.endDate"
-          :cols="8"
-        />
+        <DateTime v-model="dates.startDate" placeholder="ວັນທີ" />
       </div>
 
       <!-- Search Button -->

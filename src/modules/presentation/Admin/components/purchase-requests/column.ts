@@ -9,13 +9,13 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("purchase-rq.field.content"),
-      dataIndex: "content",
-      key: "content",
+      dataIndex: "title",
+      key: "title",
     },
     {
       title: t("purchase-rq.field.qty"),
-      dataIndex: "qty",
-      key: "qty",
+      dataIndex: "quantity",
+      key: "quantity",
     },
     {
       title: t("purchase-rq.field.price"),
@@ -27,6 +27,5 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "remark",
       key: "remark",
     },
-
   ];
 }

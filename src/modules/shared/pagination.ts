@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface PaginationParams {
   page: number;
   limit: number;
@@ -31,4 +32,5 @@ export interface PaginatedResult<T> {
   page: number;
   limit: number;
   totalPages: number;
+  status?: any[];
 }

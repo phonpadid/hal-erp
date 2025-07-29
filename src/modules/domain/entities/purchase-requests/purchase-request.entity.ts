@@ -1,65 +1,127 @@
-import type { DocumentTypeEntity } from "../document-type.entities";
 import { PurchaseRequestItemEntity } from "./purchase-request-item.entity";
+import type {
+  PurchaseRequestItemParams,
+  Department,
+  DocumentType,
+  Position,
+  Requester,
+} from "@/modules/interfaces/purchase-requests/purchase-request.interface";
 
 export class PurchaseRequestEntity {
-  private id: string | null;
-  private document_type_id: string;
+  private readonly id: string | null;
+  private documentTypeId: number;
   private pr_number: string | null;
   private requested_date: string | null;
   private expired_date: string;
-  private purposes: string | null;
-  private document_type: DocumentTypeEntity | null;
-
+  private purposes: string;
+  private document_description: string;
+  private status: string;
+  private document_type: DocumentType | null;
+  private department: Department | null;
+  private requester: Requester | null;
+  private position: Position | null;
+  private items: PurchaseRequestItemEntity[];
   private createdAt: string | null;
   private updatedAt: string | null;
-  private deletedAt: string | null
+  private deletedAt: string | null;
 
   constructor(
     id: string | null = null,
-    document_type_id: string,
+    documentTypeId: number,
+    document_description: string,
     pr_number: string | null = null,
     requested_date: string | null = null,
     expired_date: string,
-    purposes: string | null = null,
-    document_type: DocumentTypeEntity | null = null,
+    purposes: string,
+    status: string = "PENDING",
+    document_type: DocumentType | null = null,
+    department: Department | null = null,
+    requester: Requester | null = null,
+    position: Position | null = null,
     createdAt: string | null = null,
     updatedAt: string | null = null,
-    deletedAt: string | null = null) {
+    deletedAt: string | null = null
+  ) {
     this.id = id;
-    this.document_type_id = document_type_id;
+    this.documentTypeId = documentTypeId;
+    this.document_description = document_description;
     this.pr_number = pr_number;
-    this.requested_date = requested_date;
+    this.requested_date = requested_date || this.getCurrentTimestamp();
     this.expired_date = expired_date;
     this.purposes = purposes;
+    this.status = status;
     this.document_type = document_type;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+    this.department = department;
+    this.requester = requester;
+    this.position = position;
+    this.items = [];
+    this.createdAt = createdAt || this.getCurrentTimestamp();
+    this.updatedAt = updatedAt || this.getCurrentTimestamp();
     this.deletedAt = deletedAt;
   }
 
+  // Utility methods
+  private getCurrentTimestamp(): string {
+    return new Date().toISOString();
+  }
+
+  private updateTimestamp(): void {
+    this.updatedAt = this.getCurrentTimestamp();
+  }
+
+  // Getters with proper return types
   public getId(): string | null {
     return this.id;
   }
 
-  public getDocumentId(): string {
-    return this.document_type_id;
+  public getDocumentId(): number {
+    return this.documentTypeId;
+  }
+
+  public getDocumentType(): DocumentType | null {
+    return this.document_type;
+  }
+
+  public getStatus(): string {
+    return this.status;
+  }
+
+  public getDepartment(): Department | null {
+    return this.department;
+  }
+
+  public getRequester(): Requester | null {
+    return this.requester;
+  }
+
+  public getPosition(): Position | null {
+    return this.position;
+  }
+
+  public getDocumentDescription(): string {
+    return this.document_description;
   }
 
   public getPrNumber(): string | null {
     return this.pr_number;
   }
+
   public getRequestedDate(): string | null {
     return this.requested_date;
   }
+
   public getExpiredDate(): string {
     return this.expired_date;
   }
-  public getPurposes(): string | null {
+
+  public getPurposes(): string {
     return this.purposes;
   }
-  public getDocumentType(): DocumentTypeEntity | null {
-    return this.document_type;
+
+  public getItems(): PurchaseRequestItemEntity[] {
+    return [...this.items]; // Return a copy to prevent direct modification
   }
+
   public getCreatedAt(): string | null {
     return this.createdAt;
   }
@@ -67,104 +129,119 @@ export class PurchaseRequestEntity {
   public getUpdatedAt(): string | null {
     return this.updatedAt;
   }
-  public getDeleteddAt(): string | null {
-    return this.updatedAt;
+
+  public getDeletedAt(): string | null {
+    return this.deletedAt;
   }
+
+  // Setters and modifiers
+  public setItems(items: PurchaseRequestItemEntity[]): void {
+    this.items = [...items]; // Create a copy of the array
+    this.updateTimestamp();
+  }
+
+  public setStatus(status: string): void {
+    this.status = status;
+    this.updateTimestamp();
+  }
+
+  // Business logic methods
   public update(
-    document_type_id: string,
-    requested_date: string,
+    documentTypeId: number,
+    document_description: string,
     expired_date: string,
     purposes: string,
+    items?: PurchaseRequestItemEntity[]
   ): void {
-    this.document_type_id = document_type_id
-    this.requested_date = requested_date
-    this.expired_date = expired_date
-    this.purposes = purposes
+    this.documentTypeId = documentTypeId;
+    this.document_description = document_description;
+    this.expired_date = expired_date;
+    this.purposes = purposes;
+    if (items) {
+      this.setItems(items);
+    }
+    this.updateTimestamp();
   }
+
   public isDeleted(): boolean {
-    return this.deletedAt !== null
+    return this.deletedAt !== null;
   }
+
   public delete(): void {
-    this.deletedAt = new Date().toString()
-    this.updatedAt = new Date().toString()
+    this.deletedAt = this.getCurrentTimestamp();
+    this.updateTimestamp();
   }
+
+  // Static factory methods
   public static create(
-    document_type_id: string,
+    documentTypeId: number,
+    document_description: string,
     expired_date: string,
     purposes: string
   ): PurchaseRequestEntity {
     return new PurchaseRequestEntity(
       null,
-      document_type_id,
+      documentTypeId,
+      document_description,
       null,
+      null, // requested_date will be set in constructor
       expired_date,
       purposes,
-      null, null, null, null)
+      "PENDING",
+      null,
+      null,
+      null,
+      null,
+      null, // timestamps will be set in constructor
+      null,
+      null
+    );
   }
 
   public static createPurchaseRequestWithItems(
-    documentTypeId: string,
+    documentTypeId: number,
+    documentDescription: string,
     expiredDate: string,
     purposes: string,
-    purchaseItem: Array<{
-      title: string;
-      fileName?: string[] | null;
-      quantity: number;
-      unitId: string;
-      price: number;
-      totalPrice: number;
-      remark?: string;
-    }>
-  ) {
-    // Create the main purchase request
+    purchaseItems: PurchaseRequestItemParams[]
+  ): PurchaseRequestEntity {
     const purchaseRequest = PurchaseRequestEntity.create(
       documentTypeId,
+      documentDescription,
       expiredDate,
       purposes
     );
 
-    // Create all items
-    const purchaseRequestItems = purchaseItem.map(item =>
+    const purchaseRequestItems = purchaseItems.map((item) =>
       PurchaseRequestItemEntity.create(
         item.title,
-        item.fileName || null,
+        item.fileName,
         item.quantity,
-        item.unitId,
+        item.unitId.toString(),
         item.price,
-        item.totalPrice,
+        item.quantity * item.price,
         item.remark || ""
       )
     );
 
-    return {
-      purchaseRequest,
-      items: purchaseRequestItems
-    };
+    purchaseRequest.setItems(purchaseRequestItems);
+
+    return purchaseRequest;
+  }
+
+  // Helper method for calculating total
+  public calculateTotal(): number {
+    return this.items.reduce((total, item) => total + item.getTotalPrice(), 0);
+  }
+
+  // Validation method
+  public validate(): boolean {
+    return (
+      this.documentTypeId > 0 &&
+      this.document_description.trim() !== "" &&
+      this.expired_date !== "" &&
+      Array.isArray(this.items) &&
+      this.items.length > 0
+    );
   }
 }
-
-
-// const data = {
-//   documentTypeId: "1",
-//   requestedDate: "2024-01-15",
-//   expiredDate: "2024-02-15",
-//   purposes: "Office supplies",
-//   [
-//     {
-//       title: "Printer Paper",
-//       file_name: ['object', 'object'],
-//       quantity: 100,
-//       unit_id: "unit-001",
-//       price: 5.50,
-//       total_price: 550.00
-//     },
-//     {
-//       title: "Pens",
-//       file_name: ['object', 'object'],
-//       quantity: 50,
-//       unit_id: "unit-002",
-//       price: 1.20,
-//       total_price: 60.00
-//     }
-//   ]
-// }
