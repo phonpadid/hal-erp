@@ -1,12 +1,9 @@
-<!-- filepath: e:\project_ERP\hal-erp\src\modules\presentation\Admin\views\user\UserList.vue -->
-<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import type { UserInterface } from "@/modules/interfaces/user.interface";
+import type { UserCreatePayload, UserInterface } from "@/modules/interfaces/user.interface";
 import { useUserStore } from "../../stores/user.store";
 import { columns } from "./column";
-import { formatDate } from "@/modules/shared/formatdate";
 import { useRouter } from "vue-router";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -14,8 +11,8 @@ import ResetPasswordForm from "../../components/user/ResetPasswordForm.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UserForm from "../../components/user/UserForm.vue";
+import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -23,15 +20,8 @@ const router = useRouter();
 const { success, error } = useNotification();
 
 // State
-const users = ref<UserInterface[]>([]);
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  totalPages: 0,
-});
 
 // Modal state
 const modalVisible = ref<boolean>(false);
@@ -45,9 +35,9 @@ const userFormRef = ref();
 
 // Table pagination
 const tablePagination = computed(() => ({
-  current: pagination.current,
-  pageSize: pagination.pageSize,
-  total: pagination.total,
+  current: userStore.pagination.page,
+  pageSize: userStore.pagination.limit,
+  total: userStore.pagination.total,
   showSizeChanger: true,
 }));
 
@@ -55,29 +45,18 @@ onMounted(async () => {
   await loadUsers();
 });
 
-const loadUsers = async (
-  page: number = pagination.current,
-  pageSize: number = pagination.pageSize,
-  search: string = searchKeyword.value,
-  sortBy?: string
-) => {
+const loadUsers = async () => {
   loading.value = true;
 
   try {
-    const result = await userStore.fetchUsers({
-      page,
-      limit: pageSize,
-      search,
-      sortBy,
+    await userStore.fetchUsers({
+      page: userStore.pagination.page,
+      limit: userStore.pagination.limit,
+      search: searchKeyword.value,
     });
-    users.value = result.data;
-    pagination.current = result.page;
-    pagination.pageSize = result.limit;
-    pagination.total = result.total;
-    pagination.totalPages = result.totalPages;
   } catch (err) {
-    console.error("Error loading users:", err);
-    error(t("user.error.loadFailed"));
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("user.error.loadFailed"), errorMessage);
   } finally {
     loading.value = false;
   }
@@ -85,28 +64,35 @@ const loadUsers = async (
 
 // Handle pagination and sorting
 const handleTableChange = (
-  paginationInfo: TablePaginationType,
-  _filters: Record<string, string[]>,
-  sorter: any
+  pagination: TablePaginationType
 ) => {
-  const page = paginationInfo.current || 1;
-  const pageSize = paginationInfo.pageSize || 10;
+  userStore.setPagination({
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: pagination.total ?? 0,
+  })
 
-  pagination.current = page;
-  pagination.pageSize = pageSize;
+  loadUsers();
+};
 
-  let sortBy;
+const handleSearch = async () => {
+  await userStore.fetchUsers({
+    page: 1,
+    limit: userStore.pagination.limit,
+    search: searchKeyword.value,
+  });
+};
 
-  if (sorter && sorter.field) {
-    sortBy = sorter.field;
+watch(searchKeyword, async(newVal: string) => {
+  if(newVal === '') {
+    userStore.setPagination({
+      page: 1,
+      limit: userStore.pagination.limit,
+      total: userStore.pagination.total,
+    })
+    await loadUsers()
   }
-  loadUsers(page, pageSize, searchKeyword.value, sortBy);
-};
-
-const handleSearch = () => {
-  pagination.current = 1;
-  loadUsers(1, pagination.pageSize, searchKeyword.value);
-};
+})
 
 const addUser = () => {
   router.push({ name: "UserAdd" });
@@ -135,7 +121,7 @@ const handleModalCancel = () => {
   modalVisible.value = false;
 };
 
-const handleFormSubmit = async (formData: any) => {
+const handleFormSubmit = async (formData: UserCreatePayload) => {
   try {
     submitLoading.value = true;
 
@@ -152,8 +138,9 @@ const handleFormSubmit = async (formData: any) => {
 
     modalVisible.value = false;
     await loadUsers();
-  } catch (error: any) {
-    console.error("Error saving user:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Error saving user:", errorMessage);
   } finally {
     submitLoading.value = false;
   }
@@ -172,9 +159,9 @@ const handleResetPassword = async (data: { old_password: string; new_password: s
     );
     success(t("user.success.title"), t("user.success.passwordReset"));
     resetPasswordModalVisible.value = false;
-  } catch (err) {
-    console.error("Error resetting password:", err);
-    error(t("user.error.passwordResetFailed"));
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("user.error.passwordResetFailed"), errorMessage);
   } finally {
     submitLoading.value = false;
   }
@@ -190,9 +177,9 @@ const handleDeleteConfirm = async () => {
 
     deleteModalVisible.value = false;
     await loadUsers();
-  } catch (err) {
-    console.error("Error deleting user:", err);
-    error(t("user.error.deleteFailed"));
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("user.error.deleteFailed"), errorMessage);
   } finally {
     submitLoading.value = false;
   }
@@ -207,12 +194,10 @@ const handleDeleteConfirm = async () => {
       </div>
 
       <div class="flex gap-2">
-        <UiInput
-          v-model="searchKeyword"
-          :placeholder="t('user.list.search')"
-          allowClear
-          @update:modelvalue="handleSearch"
-          class="w-64"
+        <InputSearch
+          v-model:value="searchKeyword"
+          @keyup.enter="handleSearch"
+          :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
           type="primary"
@@ -228,7 +213,7 @@ const handleDeleteConfirm = async () => {
     <!-- Users Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="users"
+      :dataSource="userStore.users"
       :pagination="tablePagination"
       :loading="loading"
       row-key="id"
@@ -239,15 +224,6 @@ const handleDeleteConfirm = async () => {
         <a-tag :color="record.deleted_at ? 'red' : 'green'">
           {{ record.deleted_at ? t("user.status.inactive") : t("user.status.active") }}
         </a-tag>
-      </template>
-
-      <!-- Date columns -->
-      <template #created_at="{ record }">
-        {{ formatDate(record.created_at) }}
-      </template>
-
-      <template #updated_at="{ record }">
-        {{ formatDate(record.updated_at) }}
       </template>
 
       <!-- Actions column -->
