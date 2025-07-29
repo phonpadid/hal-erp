@@ -31,13 +31,13 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
         data: response.data.data.map((budGetItem: BudgetItemInterface) =>
           this.toDomainModel(budGetItem)
         ),
-        total: response.data.total,
-        page: response.data.page,
-        limit: response.data.limit,
-        totalPages: Math.ceil(response.data.total / response.data.limit),
+        total: response.data.pagination.total,
+        page: response.data.pagination.page,
+        limit: response.data.pagination.limit,
+        totalPages: response.data.pagination.totalPages,
       };
     } catch (error) {
-      this.handleApiError(error, "Failed to fetch budGetAccountss list");
+      this.handleApiError(error, "Failed to fetch budget items list");
     }
   }
 
@@ -117,7 +117,7 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
       budGet.created_at || "",
       budGet.updated_at || "",
       budGet.deleted_at || null,
-      budGet.budget_item_details
+      budGet.budget_account
     );
   }
 
@@ -125,10 +125,9 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
 
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`

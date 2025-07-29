@@ -1,7 +1,6 @@
-<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { ref, reactive, defineProps, defineEmits, watch, onMounted, computed } from "vue";
-import type { UserInterface } from "@/modules/interfaces/user.interface";
+import type { UserCreatePayload, UserInterface } from "@/modules/interfaces/user.interface";
 import type { PermissionGroup } from "@/modules/interfaces/permission.interface";
 import { useI18n } from "vue-i18n";
 import { createUserValidation } from "../../views/user/validation/user.validate";
@@ -59,7 +58,6 @@ onMounted(async () => {
   try {
     loadingPermissions.value = true;
     await roleStore.fetchRoles();
-    console.log("Roles loaded:", roleStore.rawRoles);
     const result = await permissionStore.fetchPermission();
     permissionData.value = result.data as unknown as PermissionGroup[];
   } catch (error) {
@@ -98,12 +96,12 @@ watch(
 
 // Get validation rules
 const userRules = createUserValidation(t, validationState);
+
 // Watch for user changes
 watch(
   () => props.user,
   (newUser) => {
     if (newUser) {
-      console.log("Received user data:", newUser);
       formState.username = newUser.username;
       formState.email = newUser.email;
       formState.tel = newUser.tel || "";
@@ -123,7 +121,7 @@ const submitForm = async () => {
       tel: formState.tel || undefined,
       roleIds: formState.roleIds.map((id) => Number(id)),
       permissionIds: formState.permissionIds.map((id) => Number(id)),
-    } as any;
+    } as UserCreatePayload;
 
     if (formState.password) {
       formData.password = formState.password;
@@ -181,9 +179,10 @@ const roleOptions = computed(() => {
           </UiFormItem>
         </div>
       </div>
+      <a-divider style="margin-bottom: 10px; margin-top: -10px;" v-if="!isEditMode"/>
 
       <!-- Password -->
-      <div class="form-section">
+      <div class="form-section" v-if="!isEditMode">
         <h2 class="section-title">{{ t("user.form.password") }}</h2>
         <div class="form-grid">
           <UiFormItem :label="t('user.form.password')" name="password" :required="!isEditMode">
@@ -211,6 +210,7 @@ const roleOptions = computed(() => {
           </UiFormItem>
         </div>
       </div>
+      <a-divider style="margin-bottom: 10px; margin-top: -10px;" />
 
       <!-- Roles -->
       <div class="form-section">
@@ -225,6 +225,7 @@ const roleOptions = computed(() => {
           />
         </UiFormItem>
       </div>
+      <a-divider style="margin-bottom: 10px; margin-top: -10px;" />
 
       <!-- Permissions -->
       <div class="form-section">
@@ -263,8 +264,8 @@ const roleOptions = computed(() => {
 .form-section {
   background: white;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 24px;
+  /* padding: 20px; */
+  /* margin-bottom: 24px; */
 }
 
 .section-title {

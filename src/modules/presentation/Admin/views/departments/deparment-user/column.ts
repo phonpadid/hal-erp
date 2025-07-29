@@ -8,6 +8,11 @@ interface Column {
 export function columns(t: (key: string) => string): Column[] {
   return [
     {
+      title: t("departments.dpm_user.field.signature"),
+      dataIndex: "signature_file_url",
+      key: "signature_file",
+    },
+    {
       title: t("departments.dpm_user.field.user"),
       dataIndex: "user.username",
       key: "username",
@@ -22,21 +27,10 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "user.tel",
       key: "tel",
     },
-    // {
-    //   title: t("departments.dpm.field.name"),
-    //   dataIndex: "department.name",
-    //   key: "department",
-    // },
     {
       title: t("departments.dpm_user.field.position"),
       dataIndex: "position.name",
       key: "position",
-    },
-
-    {
-      title: t("departments.dpm_user.field.signature"),
-      dataIndex: "signature_file",
-      key: "signature_file",
     },
     {
       title: t("departments.dpm.field.created"),

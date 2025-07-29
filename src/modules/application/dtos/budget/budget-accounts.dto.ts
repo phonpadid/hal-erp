@@ -19,5 +19,5 @@ export interface UpdateBudgetAccountDTO {
   name: string;
   fiscal_year: string | number;
   allocated_amount: string | number;
-  department_id: string | number;
+  departmentId: string | number;
 }

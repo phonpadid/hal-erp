@@ -46,22 +46,15 @@ export class ApiBudgetItemDetailsRepository implements BudgetItemDetailsReposito
     params: PaginationParams
   ): Promise<PaginatedResult<BudGetItemDetailsEntity>> {
     try {
-      console.log(`Fetching budget item details for budgetItemId: ${budgetItemId}`);
-
-      // สร้าง URL ตามที่ต้องการ
-      const url = `${this.baseUrl}/budget-item-id/${budgetItemId}`;
-      console.log(`URL being requested: ${url}`);
-
-      const response = await api.get(url, {
+      const response = await api.get(`${this.baseUrl}/budget-item-id/${budgetItemId}`, {
         params: {
+          page: params.page || 1,
           limit: params.limit || 10,
-          column: "id", // ตามที่ต้องการ
-          sort_order: "DESC", // ตามที่ต้องการ
+          column: "id",
+          sort_order: "DESC",
           search: params.search || "",
         },
       });
-
-      console.log("findByBudgetItemId response:", response.data);
 
       return {
         data: response.data.data.map((item: BudgetItemDetailsInterface) =>
@@ -95,14 +88,12 @@ export class ApiBudgetItemDetailsRepository implements BudgetItemDetailsReposito
     budGetItemDetails: CreateBudgetItemDetailsInterface
   ): Promise<BudGetItemDetailsEntity> {
     try {
-      // ทำให้แน่ใจว่า description ถูกส่งไป แม้จะเป็น empty string
-      const dataToSend = {
-        ...budGetItemDetails,
+      const response = await api.post(`${this.baseUrl}/${budGetItemDetails.budget_item_id}`, {
+        name: budGetItemDetails.name,
+        provinceId: Number(budGetItemDetails.province_id) || "",
+        allocated_amount: Number(budGetItemDetails.allocated_amount) || 0,
         description: budGetItemDetails.description || "",
-      };
-
-      console.log("Sending create request with data:", dataToSend);
-      const response = await api.post(this.baseUrl, dataToSend);
+      });
       return this.toDomainModel(response.data.data);
     } catch (error) {
       this.handleApiError(error, "Failed to create budget item details");
@@ -114,13 +105,11 @@ export class ApiBudgetItemDetailsRepository implements BudgetItemDetailsReposito
     budGetItemDetails: UpdateBudgetItemDetailsInterface
   ): Promise<BudGetItemDetailsEntity> {
     try {
-   
       const dataToSend = {
         ...budGetItemDetails,
         description: budGetItemDetails.description || "",
       };
 
-      console.log(`Sending update request for ID ${id} with data:`, dataToSend);
       const response = await api.put(`${this.baseUrl}/${id}`, dataToSend);
       return this.toDomainModel(response.data.data);
     } catch (error) {
@@ -165,10 +154,9 @@ export class ApiBudgetItemDetailsRepository implements BudgetItemDetailsReposito
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
 
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`

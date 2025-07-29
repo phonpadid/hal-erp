@@ -57,13 +57,6 @@ export const useUserStore = defineStore("user", () => {
         total: result.total,
         totalPages: result.totalPages,
       };
-      return {
-        data: result.data.map(userEntityToInterface),
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -136,10 +129,7 @@ export const useUserStore = defineStore("user", () => {
   };
 
   // Update User
-  const updateUser = async (
-    id: string,
-    userData: UserUpdatePayload
-  ) => {
+  const updateUser = async (id: string, userData: UserUpdatePayload) => {
     loading.value = true;
     error.value = null;
 
@@ -214,6 +204,12 @@ export const useUserStore = defineStore("user", () => {
     };
   };
 
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
+    pagination.value.total = newPagination.total;
+  };
+
   return {
     // State
     users,
@@ -221,6 +217,7 @@ export const useUserStore = defineStore("user", () => {
     loading,
     error,
     pagination,
+    setPagination,
 
     // Getters
     activeUsers,

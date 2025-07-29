@@ -23,6 +23,7 @@ import PermissionCard from "./PermissionCard.vue";
 import { useRoleStore } from "../../../stores/role.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { updateDpmUserRules } from "../../../views/departments/deparment-user/validation/update-department-user.validate";
+
 const roleStore = useRoleStore();
 const userStore = useUserStore();
 const positionStore = usePositionStore();
@@ -81,6 +82,7 @@ watch(
   },
   { deep: true }
 );
+
 watch(
   () => dpmUserFormModel.signature_file,
   (newValue) => {
@@ -117,9 +119,9 @@ const loadDepartmentUser = async () => {
         dpmUserFormModel.tel = userData?.getTel?.() || "";
         dpmUserFormModel.position_id = positionData?.getId() || "";
         dpmUserFormModel.departmentId = departmentUser.getDepartmentId();
+        const signatureFileUrl = departmentUser.getSignature_file_url();
 
-        // Debug: Let's see what we're getting for signature file
-        const signatureFileUrl = departmentUser.getSignature_file();
+        // signature_file_url
         if (signatureFileUrl) {
           existingSignatureUrl.value = signatureFileUrl;
           dpmUserFormModel.signature_file = signatureFileUrl;
@@ -233,9 +235,9 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-      dpmUserStore.resetForm();
-      existingSignatureUrl.value = null;
-      formRef.value?.resetFields?.();
+  dpmUserStore.resetForm();
+  existingSignatureUrl.value = null;
+  formRef.value?.resetFields?.();
 })
 
 </script>

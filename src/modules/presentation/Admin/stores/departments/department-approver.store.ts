@@ -5,10 +5,13 @@ import type { PaginationParams } from "@/modules/shared/pagination";
 import { ApiDepartmentApproverRepository } from "@/modules/infrastructure/departments/api-department-approver.repository";
 import { DepartmentApporverServiceImpl } from "@/modules/application/services/departments/department-approver.service";
 import { DepartmentApproverEntity } from "@/modules/domain/entities/departments/department-approver.entity";
-import type { CreateDepartmentApproverDTO, UpdateDepartmentApproverDTO } from "@/modules/application/dtos/departments/department-approver.dto";
+import type {
+  CreateDepartmentApproverDTO,
+  UpdateDepartmentApproverDTO,
+} from "@/modules/application/dtos/departments/department-approver.dto";
 export const dpmApproverFormModel = reactive({
   user_id: "",
-})
+});
 // สร้าง unit service
 const createDepartmentApproverService = () => {
   const dpmApproverRepository = new ApiDepartmentApproverRepository();
@@ -32,8 +35,12 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
   });
 
   // Getters
-  const activeDepartmentApprover = computed(() => departmentApprover.value.filter((dpm) => !dpm.isDeleted()));
-  const deletedDepartmentApprover = computed(() => departmentApprover.value.filter((dpm) => dpm.isDeleted()));
+  const activeDepartmentApprover = computed(() =>
+    departmentApprover.value.filter((dpm) => !dpm.isDeleted())
+  );
+  const deletedDepartmentApprover = computed(() =>
+    departmentApprover.value.filter((dpm) => dpm.isDeleted())
+  );
   const totalActiveDepartmentApprover = computed(() => activeDepartmentApprover.value.length);
   const totalDeletedDepartmentApprover = computed(() => deletedDepartmentApprover.value.length);
 
@@ -65,12 +72,14 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
     try {
       const result = await departmentApproverService.getAll(params, includeDeleted);
       departmentApprover.value = result.data;
+      // Update pagination state
       pagination.value = {
         page: result.page,
         limit: result.limit,
         total: result.total,
         totalPages: result.totalPages,
       };
+
       return result;
     } catch (err) {
       error.value = err as Error;
@@ -162,8 +171,15 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
 
   // Reset state
   const resetForm = () => {
-    dpmApproverFormModel.user_id = ""
-  }
+    dpmApproverFormModel.user_id = "";
+  };
+
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+    pagination.value.page = newPagination.page;
+    pagination.value.limit = newPagination.limit;
+    pagination.value.total = newPagination.total;
+  };
+
   return {
     // State
     dpmApproverFormModel,
@@ -172,6 +188,7 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
     loading,
     error,
     pagination,
+    setPagination,
 
     // Getters
     activeDepartmentApprover,
@@ -185,6 +202,6 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
     fetchDepartmentApproverById,
     updateDepartmentApprover,
     deleteDepartmentApprover,
-    resetForm
+    resetForm,
   };
 });

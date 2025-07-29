@@ -1,3 +1,4 @@
+import type { BudgetAccountInterface } from "./budget-account.interface";
 
 export interface BudgetItemDetailForInterfaceType {
   id: string | number;
@@ -24,7 +25,7 @@ export interface BudgetItemInterface {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
-  budget_item_details?: BudgetItemDetailForInterfaceType[];
+  budget_account?: BudgetAccountInterface;
 }
 
 export interface CreateBudgetItemInterface {

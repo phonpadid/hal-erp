@@ -43,14 +43,14 @@ export class ApiBudgetApprovalRuleRepository implements BudgetApprovalRuleReposi
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<BudgetApprovalRuleEntity>> {
     try {
-      const response = await api.get("/budget-approval-rules", {
+      const response = (await api.get("/budget-approval-rules", {
         params: {
           page: params.page,
           limit: params.limit,
           includeDeleted,
           ...(params.search && { search: params.search }),
         },
-      }) as { data: ApiListResponse<BudgetApprovalRuleApiModel> };
+      })) as { data: ApiListResponse<BudgetApprovalRuleApiModel> };
       const { pagination } = response.data;
       return {
         data: response.data.data.map((item) => this.toDomainModel(item)),
@@ -64,10 +64,15 @@ export class ApiBudgetApprovalRuleRepository implements BudgetApprovalRuleReposi
     }
   }
 
-
-  async update(id: string, department: BudgetApprovalRuleEntity): Promise<BudgetApprovalRuleEntity> {
+  async update(
+    id: string,
+    department: BudgetApprovalRuleEntity
+  ): Promise<BudgetApprovalRuleEntity> {
     try {
-      const response = (await api.put(`/budget-approval-rules/${id}`, this.toApiModel(department))) as {
+      const response = (await api.put(
+        `/budget-approval-rules/${id}`,
+        this.toApiModel(department)
+      )) as {
         data: ApiResponse<BudgetApprovalRuleApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -85,10 +90,9 @@ export class ApiBudgetApprovalRuleRepository implements BudgetApprovalRuleReposi
     }
   }
 
-
   private toApiModel(input: BudgetApprovalRuleEntity): BudgetApprovalRuleApiModel {
     return {
-      id: input.getId() ?? '',
+      id: input.getId() ?? "",
       department_id: Number(input.getDepartment_id()),
       approver_id: Number(input.getApprover_id()),
       min_amount: Number(input.getMin_amount()),
@@ -106,14 +110,14 @@ export class ApiBudgetApprovalRuleRepository implements BudgetApprovalRuleReposi
       data.department ? this.toDepartmentEntity(data.department) : undefined,
       data.approver ? this.toUserEntity(data.approver) : undefined,
       data.created_at || "",
-      data.updated_at || "",
+      data.updated_at || ""
     );
   }
 
   private toUserEntity(user: UserInterface): UserEntity {
-    const roleIds = user.roles?.map(role => role.id) || [];
-    const permissionIds = user.permissions?.map(perm => perm.id) || [];
-    const roles = user.roles || []
+    const roleIds = user.roles?.map((role) => role.id) || [];
+    const permissionIds = user.permissions?.map((perm) => perm.id) || [];
+    const roles = user.roles || [];
     return new UserEntity(
       user.id.toString(),
       user.username,
@@ -133,9 +137,9 @@ export class ApiBudgetApprovalRuleRepository implements BudgetApprovalRuleReposi
     return new DepartmentEntity(
       departmentData.id.toString(),
       departmentData.name,
-      departmentData.code ?? '',
-      departmentData.created_at ?? '',
-      departmentData.updated_at ?? ''
+      departmentData.code ?? "",
+      departmentData.created_at ?? "",
+      departmentData.updated_at ?? ""
     );
   }
 
@@ -143,9 +147,8 @@ export class ApiBudgetApprovalRuleRepository implements BudgetApprovalRuleReposi
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
-      throw new Error(`API Error (${statusCode}): ${serverMessage}`);
+      throw new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`

@@ -1,5 +1,12 @@
 {
     "loading": "Loading...",
     "err": "Something went wrong!",
-    "notification": "Notification"
+    "notification": "Notification",
+    "error": {
+      "title": "Error",
+      "loadFailed": "load failed",
+      "createFailed": "create failed",
+      "updateFailed": "update failed",
+      "deleteFailed": "delete failed"
+    }
 }

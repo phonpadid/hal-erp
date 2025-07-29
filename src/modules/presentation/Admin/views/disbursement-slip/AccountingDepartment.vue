@@ -19,7 +19,7 @@ const { push } = useRouter();
 const docTypeStore = useDocumentTypeStore();
 const docItem = computed(() => [
   { value: "all", label: "ທັງໝົດ" }, // This is the "All" option
-  ...docTypeStore.documentType.map((item) => ({
+  ...docTypeStore.documentTypes.map((item) => ({
     value: item.getId(),
     label: item.getname(),
   })),

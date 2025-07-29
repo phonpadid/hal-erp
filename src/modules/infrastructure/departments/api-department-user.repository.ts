@@ -25,45 +25,45 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
 
       // Append user fields with null checks
       if (apiModel.user) {
-        formData.append('username', apiModel.user.username || '');
-        formData.append('email', apiModel.user.email || '');
+        formData.append("username", apiModel.user.username || "");
+        formData.append("email", apiModel.user.email || "");
         if (apiModel.user.password) {
-          formData.append('password', apiModel.user.password);
+          formData.append("password", apiModel.user.password);
         }
         if (apiModel.user.tel) {
-          formData.append('tel', apiModel.user.tel);
+          formData.append("tel", apiModel.user.tel);
         }
       }
 
       // Append position with proper validation
       if (apiModel.position_id) {
-        formData.append('positionId', apiModel.position_id);
+        formData.append("positionId", apiModel.position_id);
       }
 
       // Handle signature file properly
       if (apiModel.signature_file instanceof File) {
-        formData.append('signatureFile', apiModel.signature_file);
-      } else if (typeof apiModel.signature_file === 'string' && apiModel.signature_file.trim()) {
-        formData.append('signatureFile', apiModel.signature_file);
+        formData.append("signatureFile", apiModel.signature_file);
+      } else if (typeof apiModel.signature_file === "string" && apiModel.signature_file.trim()) {
+        formData.append("signatureFile", apiModel.signature_file);
       }
 
       // Append departmentId with proper validation
       if (apiModel.department_id) {
-        formData.append('departmentId', String(apiModel.department_id));
+        formData.append("departmentId", String(apiModel.department_id));
       }
 
       // Handle arrays properly
       const permissionIds = Array.isArray(apiModel.permissionIds) ? apiModel.permissionIds : [];
       const roleIds = Array.isArray(apiModel.roleIds) ? apiModel.roleIds : [];
 
-      formData.append('permissionIds', JSON.stringify(permissionIds));
-      formData.append('roleIds', JSON.stringify(roleIds));
+      formData.append("permissionIds", JSON.stringify(permissionIds));
+      formData.append("roleIds", JSON.stringify(roleIds));
 
-      const response = await api.post("/department-users", formData, {
+      const response = (await api.post("/department-users", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
-      }) as {
+      })) as {
         data: ApiResponse<DepartmentUserApiModel>;
       };
 
@@ -75,7 +75,7 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
 
   async findById(id: string): Promise<DepartmentUserEntity | null> {
     try {
-      const response = await api.get(`/department-users/${id}`) as {
+      const response = (await api.get(`/department-users/${id}`)) as {
         data: ApiResponse<DepartmentUserApiModel>;
       };
 
@@ -91,9 +91,9 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
 
   async findByName(name: string): Promise<DepartmentUserEntity | null> {
     try {
-      const response = await api.get("/department-users", {
+      const response = (await api.get("/department-users", {
         params: { name },
-      }) as { data: ApiListResponse<DepartmentUserApiModel> };
+      })) as { data: ApiListResponse<DepartmentUserApiModel> };
 
       if (!response.data.data || response.data.data.length === 0) {
         return null;
@@ -111,7 +111,7 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<DepartmentUserEntity>> {
     try {
-      const response = await api.get("/department-users", {
+      const response = (await api.get("/department-users", {
         params: {
           page: params.page,
           limit: params.limit,
@@ -119,7 +119,7 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
           ...(params.search && { search: params.search }),
           ...(params.type && { type: params.type }),
         },
-      }) as { data: ApiListResponse<DepartmentUserApiModel> };
+      })) as { data: ApiListResponse<DepartmentUserApiModel> };
 
       const validItems = response.data.data.filter((item) => item.user);
       const domainModels = validItems.map((item) => this.toDomainModel(item));
@@ -136,55 +136,55 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
   }
 
   async update(id: string, input: DepartmentUserEntity): Promise<DepartmentUserEntity> {
-    const userId = input.getUser()?.getId()
+    const userId = input.getUser()?.getId();
     try {
       const apiModel = this.toApiModel(input);
       const formData = new FormData();
 
       // Append user fields with null checks
       if (apiModel.user) {
-        formData.append('username', apiModel.user.username || '');
-        formData.append('email', apiModel.user.email || '');
+        formData.append("username", apiModel.user.username || "");
+        formData.append("email", apiModel.user.email || "");
         if (apiModel.user.password) {
-          formData.append('password', apiModel.user.password);
+          formData.append("password", apiModel.user.password);
         }
         if (apiModel.user.tel) {
-          formData.append('tel', apiModel.user.tel);
+          formData.append("tel", apiModel.user.tel);
         }
       }
 
       // Append position with proper validation
       if (apiModel.position_id) {
-        formData.append('positionId', apiModel.position_id);
+        formData.append("positionId", apiModel.position_id);
       }
 
       // Handle signature file properly
       if (apiModel.signature_file instanceof File) {
-        formData.append('signatureFile', apiModel.signature_file);
-      } else if (typeof apiModel.signature_file === 'string' && apiModel.signature_file.trim()) {
-        formData.append('signatureFile', apiModel.signature_file);
-      }else {
-        formData.append('signatureFile', '');
+        formData.append("signatureFile", apiModel.signature_file);
+      } else if (typeof apiModel.signature_file === "string" && apiModel.signature_file.trim()) {
+        formData.append("signatureFile", apiModel.signature_file);
+      } else {
+        formData.append("signatureFile", "");
       }
 
       // Append departmentId with proper validation
       if (apiModel.department_id) {
-        formData.append('departmentId', String(apiModel.department_id));
+        formData.append("departmentId", String(apiModel.department_id));
       }
 
       // Handle arrays properly
       const permissionIds = Array.isArray(apiModel.permissionIds) ? apiModel.permissionIds : [];
       const roleIds = Array.isArray(apiModel.roleIds) ? apiModel.roleIds : [];
 
-      formData.append('permissionIds', JSON.stringify(permissionIds));
-      formData.append('roleIds', JSON.stringify(roleIds));
+      formData.append("permissionIds", JSON.stringify(permissionIds));
+      formData.append("roleIds", JSON.stringify(roleIds));
 
       // Use the provided id parameter instead of extracting from input
-      const response = await api.put(`/department-users/${userId}`, formData, {
+      const response = (await api.put(`/department-users/${userId}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
-      }) as {
+      })) as {
         data: ApiResponse<DepartmentUserApiModel>;
       };
 
@@ -207,32 +207,33 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     const user = dpmUser.getUser();
     return {
       user: user
-        ? {
-          id: Number(user.getId()),
-          username: user.getUsername(),
-          email: user.getEmail(),
-          password: user.getPassword(),
-          tel: user.getTel(),
-          roleIds: user.getRoleIds(),
-          roles: user.getRoles(),
-          permissionIds: user.getPermissionIds()
-        } as UserInterface
+        ? ({
+            id: Number(user.getId()),
+            username: user.getUsername(),
+            email: user.getEmail(),
+            password: user.getPassword(),
+            tel: user.getTel(),
+            roleIds: user.getRoleIds(),
+            roles: user.getRoles(),
+            permissionIds: user.getPermissionIds(),
+          } as UserInterface)
         : undefined,
       position_id: dpmUser.getPosition_id(),
       signature_file: dpmUser.getSignature_file(),
       department_id: Number(dpmUser.getDepartmentId()),
       permissionIds: dpmUser.getPermissionIds(),
-      roleIds: dpmUser.getRoleIds()
+      roleIds: dpmUser.getRoleIds(),
     };
   }
 
   private toDomainModel(data: DepartmentUserApiModel): DepartmentUserEntity {
-    const id = data.id ?? '';
-    const position_id = data.position_id ?? '';
-    const signature_file = data.signature_file_url || '';
-    const departmentId = data.department_id ? String(data.department_id) : '';
-    const permissionIds = data.user?.roles.map(role => role.id) ?? [];
-    const roleIds = data.user?.permissions?.map(per => per.id) ?? [];
+    const id = data.id ?? "";
+    const position_id = data.position_id ?? "";
+    const signature_file = data.user?.user_signature || {};
+    const signature_file_url = (signature_file as { signature_url?: string }).signature_url || "";
+    const departmentId = data.department_id ? String(data.department_id) : "";
+    const permissionIds = data.user?.roles.map((role) => role.id) ?? [];
+    const roleIds = data.user?.permissions?.map((per) => per.id) ?? [];
 
     const department = data.department ? this.toDepartmentEntity(data.department) : undefined;
     const position = data.position ? this.toPositionEntity(data.position) : undefined;
@@ -243,14 +244,14 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     const roles = data.roles ? this.toRoleEntity(data.roles) : undefined;
     const permissions = data.permissions ? this.toPermissionEntity(data.permissions) : undefined;
 
-    const createdAt = data.created_at ? new Date(data.created_at) : null;
-    const updatedAt = data.updated_at ? new Date(data.updated_at) : null;
+    const created_at = data.created_at;
+    const updated_at = data.updated_at;
 
     return new DepartmentUserEntity(
       id,
       position_id,
-      signature_file,
-      '', // Empty string for the 4th parameter - you may need to adjust this
+      typeof signature_file === "string" || signature_file instanceof File ? signature_file : "",
+      signature_file_url || "", // Use the signature_file string directly
       departmentId,
       roleIds,
       permissionIds,
@@ -259,16 +260,16 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       user, // This is now always UserEntity (never undefined)
       roles,
       permissions,
-      createdAt,
-      updatedAt,
+      created_at || "",
+      updated_at || "",
       null
     );
   }
 
   private toUserEntity(user: UserInterface): UserEntity {
-    const roleIds = user.roles?.map(role => role.id) || [];
-    const permissionIds = user.permissions?.map(perm => perm.id) || [];
-    const roles = user.roles || []
+    const roleIds = user.roles?.map((role) => role.id) || [];
+    const permissionIds = user.permissions?.map((perm) => perm.id) || [];
+    const roles = user.roles || [];
     return new UserEntity(
       user.id.toString(),
       user.username,
@@ -287,17 +288,17 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
   private createPlaceholderUser(): UserEntity {
     // Create a placeholder user entity when user data is not available
     return new UserEntity(
-      '',           // id
-      '',           // username
-      '',
-      [],          // email
-      [],          // email
-      [],          // email
-      '',           // created_at
-      '',           // updated_at
-      null,         // deleted_at
-      undefined,    // password
-      undefined     // tel
+      "", // id
+      "", // username
+      "",
+      [], // email
+      [], // email
+      [], // email
+      "", // created_at
+      "", // updated_at
+      null, // deleted_at
+      undefined, // password
+      undefined // tel
     );
   }
 
@@ -305,9 +306,9 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     return new DepartmentEntity(
       departmentData.id.toString(),
       departmentData.name,
-      departmentData.code ?? '',
-      departmentData.created_at ?? '',
-      departmentData.updated_at ?? ''
+      departmentData.code ?? "",
+      departmentData.created_at ?? "",
+      departmentData.updated_at ?? ""
     );
   }
 
@@ -315,8 +316,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     return new Position(
       position.id.toString(),
       position.name,
-      position.created_at ?? '',
-      position.updated_at ?? ''
+      position.created_at ?? "",
+      position.updated_at ?? ""
     );
   }
 
@@ -325,8 +326,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       role.id.toString(),
       role.name,
       role.display_name,
-      role.created_at ?? '',
-      role.updated_at ?? ''
+      role.created_at ?? "",
+      role.updated_at ?? ""
     );
   }
 
@@ -337,8 +338,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       per.display_name,
       "",
       [],
-      per.created_at ?? '',
-      per.updated_at ?? ''
+      per.created_at ?? "",
+      per.updated_at ?? ""
     );
   }
 
@@ -346,9 +347,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const statusCode = axiosError.response.status;
       const serverMessage = axiosError.response.data?.message || defaultMessage;
-      return new Error(`API Error (${statusCode}): ${serverMessage}`);
+      return new Error(`${serverMessage}`);
     } else if (axiosError.request) {
       return new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`

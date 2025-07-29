@@ -10,7 +10,7 @@
       "remark": "This action cannot be undone once you have confirmed it."
     },
     "dpm": {
-      "total": "There are a total of {count} departments",
+      "total": "total {count} departments",
       "title": "Departments information",
       "add": "Add departments",
       "header_form": {
@@ -46,7 +46,7 @@
       },
       "field": {
         "department": "Departments",
-        "user": "Department approver",
+        "user": "Username",
         "tel": "Tel",
         "email": "Email",
         "position": "Position",
@@ -79,5 +79,12 @@
       "title": "Departments approvers information",
       "total": "There are {count} department approvers"
 
+    },
+    "error": {
+      "title": "Error",
+      "loadFailed": "Failed to load departments",
+      "createFailed": "Failed to create departments",
+      "updateFailed": "Failed to update departments",
+      "deleteFailed": "Failed to delete departments"
     }
 }

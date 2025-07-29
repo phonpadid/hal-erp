@@ -7,6 +7,7 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 
 export interface VendorsBankAccountsRepository {
   findAll(
+    vendorId: number,
     params: PaginationParams,
     includeDeleted?: boolean
   ): Promise<PaginatedResult<VendorsBankAccountEntity>>;

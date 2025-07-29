@@ -1,6 +1,7 @@
-// budget-item-details.entities.ts
+import { formatDate } from "@/modules/shared/formatdate";
+import { formatPrice } from "@/modules/shared/utils/format-price";
+
 export class BudGetItemDetailsEntity {
-  [x: string]: any;
   private id: string;
   private name: string;
   private budget_item_id: string;
@@ -16,6 +17,7 @@ export class BudGetItemDetailsEntity {
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
+  private format_allocated_amount?: string | number;
 
   constructor(
     id: string,
@@ -41,9 +43,10 @@ export class BudGetItemDetailsEntity {
     this.province_id = province_id;
     this.province = province;
     this.allocated_amount = allocated_amount;
-    this.created_at = created_at;
-    this.updated_at = updated_at;
-    this.deleted_at = deleted_at;
+    this.format_allocated_amount = formatPrice(Number(allocated_amount));
+    this.created_at = formatDate(created_at);
+    this.updated_at = formatDate(updated_at);
+    this.deleted_at = deleted_at ? formatDate(deleted_at) : null;
   }
 
   public getId(): string {
@@ -75,6 +78,10 @@ export class BudGetItemDetailsEntity {
     return this.allocated_amount;
   }
 
+  public getFormattedAllocatedAmount(): string | number | undefined {
+    return this.format_allocated_amount;
+  }
+
   public getDescription(): string {
     return this.description;
   }
@@ -93,6 +100,11 @@ export class BudGetItemDetailsEntity {
 
   public isDeleted(): boolean {
     return this.deleted_at !== null;
+  }
+
+  public delete(): void {
+    this.deleted_at = new Date().toISOString().replace("T", " ").substring(0, 19);
+    this.updated_at = this.deleted_at;
   }
 
   public static create(

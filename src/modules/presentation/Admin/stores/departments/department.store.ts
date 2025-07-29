@@ -26,7 +26,7 @@ export const departmentStore = defineStore("department", () => {
   const error: Ref<Error | null> = ref(null);
   const pagination = ref({
     page: 1,
-    limit: 1,
+    limit: 10,
     total: 0,
     totalPages: 0,
   });
@@ -71,7 +71,6 @@ export const departmentStore = defineStore("department", () => {
         total: result.total,
         totalPages: result.totalPages,
       };
-      return result;
     } catch (err) {
       error.value = err as Error;
       throw err;

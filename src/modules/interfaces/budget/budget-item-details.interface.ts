@@ -18,7 +18,7 @@ export interface BudgetItemDetailsInterface {
   province_id: string | number;
 }
 export interface CreateBudgetItemDetailsInterface {
-  // budget_item_id: string | number;
+  budget_item_id: string | number;
   name: string;
   province_id?: string | number;
   description?: string;

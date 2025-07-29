@@ -1,32 +1,37 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { BudgetAccountInterface } from "@/modules/interfaces/budget/budget-account.interface";
+import { formatDate } from "@/modules/shared/formatdate";
+import { formatPrice } from "@/modules/shared/utils/format-price";
+
 export class BudGetItemEntity {
   private id: string;
   private budget_account_id: string;
+  private budget_account: BudgetAccountInterface | undefined;
   private name: string;
-  private allocated_amount?: string;
+  private allocated_amount: string | number;
+  private format_allocated_amount: string | number;
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
-  private budget_item_details?: any[];
 
   constructor(
     id: string,
     budget_account_id: string,
     name: string,
-    allocated_amount: string | undefined,
+    allocated_amount: string | number,
     created_at: string,
     updated_at: string,
     deleted_at: string | null = null,
-    budget_item_details?: any[]
+    budget_account?: BudgetAccountInterface
   ) {
     this.id = id;
     this.budget_account_id = budget_account_id;
     this.name = name;
+    this.budget_account = budget_account;
     this.allocated_amount = allocated_amount;
-    this.created_at = created_at;
-    this.updated_at = updated_at;
-    this.deleted_at = deleted_at;
-    this.budget_item_details = budget_item_details;
+    this.format_allocated_amount = formatPrice(Number(allocated_amount));
+    this.created_at = formatDate(created_at);
+    this.updated_at = formatDate(updated_at);
+    this.deleted_at = deleted_at ? formatDate(deleted_at) : null;
   }
 
   public getId(): string {
@@ -41,8 +46,16 @@ export class BudGetItemEntity {
     return this.budget_account_id;
   }
 
-  public getAllocatedAmount(): string | undefined {
+  public getAllocatedAmount(): number | string | undefined {
     return this.allocated_amount;
+  }
+
+  public getFormattedAllocatedAmount(): string | number | undefined {
+    return this.format_allocated_amount;
+  }
+
+  public getBudgetAccount(): BudgetAccountInterface | undefined {
+    return this.budget_account;
   }
 
   public getCreatedAt(): string {
@@ -55,9 +68,6 @@ export class BudGetItemEntity {
 
   public getDeletedAt(): string | null {
     return this.deleted_at;
-  }
-  public getBudgetItemDetails(): any[] | undefined {
-    return this.budget_item_details;
   }
 
   public isDeleted(): boolean {
@@ -73,7 +83,7 @@ export class BudGetItemEntity {
     this.budget_account_id = budget_account_id;
     this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
-  public updateAllocateAmount(allocated_amount: string | undefined): void {
+  public updateAllocateAmount(allocated_amount: number): void {
     this.allocated_amount = allocated_amount;
     this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
@@ -87,7 +97,7 @@ export class BudGetItemEntity {
     id: string,
     name: string,
     budget_account_id: string,
-    allocated_amount: string | undefined
+    allocated_amount: number
   ): BudGetItemEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
     return new BudGetItemEntity(id, name, budget_account_id, allocated_amount, now, now, null);

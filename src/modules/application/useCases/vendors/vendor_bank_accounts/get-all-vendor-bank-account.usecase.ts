@@ -6,9 +6,10 @@ export class GetAllVendorAccountsUseCase {
   constructor(private readonly vendorAccountsRepository: VendorsBankAccountsRepository) {}
 
   async execute(
+    vendorId: number,
     params: PaginationParams,
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<VendorsBankAccountEntity>> {
-    return await this.vendorAccountsRepository.findAll(params, includeDeleted);
+    return await this.vendorAccountsRepository.findAll(vendorId, params, includeDeleted);
   }
 }

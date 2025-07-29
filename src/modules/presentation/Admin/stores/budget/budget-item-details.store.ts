@@ -56,13 +56,6 @@ export const useBudgetItemDetailsStore = defineStore("budgetItemDetails", () => 
         total: result.total,
         totalPages: result.totalPages,
       };
-      return {
-        data: result.data.map(budgetItemDetailsEntityToInterface),
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -81,13 +74,6 @@ export const useBudgetItemDetailsStore = defineStore("budgetItemDetails", () => 
       const result = await budgetItemDetailsService.getBudgetItemDetailsByItemId(itemId, params);
       budgetItemDetails.value = result.data;
       pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
-      return {
-        data: result.data.map(budgetItemDetailsEntityToInterface),
         page: result.page,
         limit: result.limit,
         total: result.total,
@@ -123,8 +109,9 @@ export const useBudgetItemDetailsStore = defineStore("budgetItemDetails", () => 
 
     try {
       const createDTO: CreateBudgetItemDetailsDTO = {
+        budget_item_id: budgetItemDetailData.budget_item_id || "",
         name: budgetItemDetailData.name || "",
-        provinceId: budgetItemDetailData.province_id || "",
+        province_id: budgetItemDetailData.province_id || "",
         description: budgetItemDetailData.description || "",
         allocated_amount: budgetItemDetailData.allocated_amount || "",
       };
@@ -147,15 +134,13 @@ export const useBudgetItemDetailsStore = defineStore("budgetItemDetails", () => 
     error.value = null;
 
     try {
-      // Convert Interface to DTO by providing default values for optional properties
       const updateDTO: UpdateBudgetItemDetailsDTO = {
         id,
         name: budgetItemDetailData.name || "",
-        provinceId: budgetItemDetailData.province_id || "",
+        province_id: budgetItemDetailData.province_id || "",
         description: budgetItemDetailData.description || "",
         allocated_amount: budgetItemDetailData.allocated_amount || "",
       };
-
       const updatedBudgetItemDetail = await budgetItemDetailsService.updateBudgetItemDetails(
         id,
         updateDTO
@@ -186,7 +171,6 @@ export const useBudgetItemDetailsStore = defineStore("budgetItemDetails", () => 
       if (result) {
         const index = budgetItemDetails.value.findIndex((v) => v.getId() === id);
         if (index !== -1) {
-          // Mark as deleted
           budgetItemDetails.value[index].delete();
         }
       }
@@ -229,6 +213,12 @@ export const useBudgetItemDetailsStore = defineStore("budgetItemDetails", () => 
     };
   };
 
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
+    pagination.value.total = newPagination.total;
+  };
+
   return {
     // State
     budgetItemDetails,
@@ -236,6 +226,7 @@ export const useBudgetItemDetailsStore = defineStore("budgetItemDetails", () => 
     loading,
     error,
     pagination,
+    setPagination,
 
     // Getters
     activeBudgetItemDetails,

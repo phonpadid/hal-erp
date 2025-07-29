@@ -3,6 +3,7 @@
 import { ref } from "vue";
 import type { Dayjs } from "dayjs";
 export interface AddMoreItem {
+  totalPrice: number;
   title: string;
   count: string; // รับเป็น string จาก input, ค่อยแปลงเป็น number ตอนบันทึก
   unit_id: number | undefined; // เพิ่ม unit_id

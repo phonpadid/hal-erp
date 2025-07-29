@@ -9,6 +9,7 @@ import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
+import UiInputNumber from "@/common/shared/components/Input/InputNumber.vue";
 
 const { t } = useI18n();
 const departmentStoreInstance = departmentStore();
@@ -38,7 +39,7 @@ const formState = reactive({
   code: "",
   name: "",
   fiscal_year: "",
-  allocated_amount: "",
+  allocated_amount: 0,
   departmentId: "",
 });
 
@@ -70,6 +71,7 @@ onMounted(async () => {
     loadingDepartments.value = true;
     generateFiscalYearOptions();
     await loadDepartments();
+    formState.departmentId = props.budgetAccount?.department_id !== undefined ? String(props.budgetAccount.department_id) : "";
   } catch (err) {
     console.error("Failed to load initial data:", err);
     error(t("budget_accounts.error.loadDataFailed"));
@@ -81,12 +83,12 @@ onMounted(async () => {
 // Load departments
 const loadDepartments = async () => {
   try {
-    const result = await departmentStoreInstance.fetchDepartment({
+    await departmentStoreInstance.fetchDepartment({
       page: 1,
       limit: 100,
     });
 
-    departmentOptions.value = result.data.map((department) => ({
+    departmentOptions.value = departmentStoreInstance.departments.map((department) => ({
       label: `${department.getCode()} - ${department.getName()}`,
       value: department.getId() || "",
     }));
@@ -105,7 +107,7 @@ watch(
         code: newBudgetAccount.code || "",
         name: newBudgetAccount.name || "",
         fiscal_year: newBudgetAccount.fiscal_year || "",
-        allocated_amount: newBudgetAccount.allocated_amount || "",
+        allocated_amount: newBudgetAccount.allocated_amount || 0,
         departmentId: newBudgetAccount.departmentId || "",
       });
     } else {
@@ -113,7 +115,7 @@ watch(
         code: "",
         name: "",
         fiscal_year: "",
-        allocated_amount: "",
+        allocated_amount: 0,
         departmentId: "",
       });
     }
@@ -130,7 +132,7 @@ const submitForm = async () => {
     emit("submit", {
       name: formState.name,
       fiscal_year: parseInt(formState.fiscal_year),
-      allocated_amount: parseFloat(formState.allocated_amount),
+      allocated_amount: formState.allocated_amount,
       departmentId: parseInt(formState.departmentId),
     });
   } catch (error) {
@@ -177,11 +179,12 @@ defineExpose({
       name="allocated_amount"
       required
     >
-      <UiInput
+      <UiInputNumber
         v-model="formState.allocated_amount"
         :placeholder="$t('budget_accounts.form.allocatedAmountPlaceholder')"
         :disabled="loading"
-        type="number"
+        :formatter="(value: string | number) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+        :parser="(value: string) => value.replace(/\$\s?|(,*)/g, '')"
       />
     </UiFormItem>
   </UiForm>
