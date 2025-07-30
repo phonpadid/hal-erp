@@ -285,7 +285,7 @@ const handleToggleIsSelected = async (record: VendorBankAccountInterface) => {
       ok-type="primary"
       :danger="true"
     >
-      <p>{{ $t("vendors_bank.modal.deleteMessage", { name: selectedBankAccount?.bank_name }) }}</p>
+      <p>{{ $t("vendors_bank.modal.deleteMessage", { name: selectedBankAccount?.bank?.short_name }) }}</p>
       <p class="text-red-500">{{ $t("vendors_bank.modal.deleteSuccess") }}</p>
     </UiModal>
   </div>
