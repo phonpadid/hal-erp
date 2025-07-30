@@ -4,7 +4,7 @@ export interface VendorInterface {
   contact_info: string;
   vendor_bank_account: {
     currency_id: number;
-    bank_name: string;
+    bank_id: number;
     account_name: string;
     account_number: string;
   }[];

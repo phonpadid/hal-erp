@@ -126,7 +126,7 @@ const handleModalCancel = () => {
 const handleFormSubmit = async (formData: {
   vendor_id: string | number;
   currency_id: string;
-  bank_name: string;
+  bank_id: string;
   account_name: string;
   account_number: string;
   is_selected: boolean;
@@ -137,6 +137,7 @@ const handleFormSubmit = async (formData: {
       ...formData,
       vendor_id: Number(formData.vendor_id),
       currency_id: Number(formData.currency_id),
+      bank_id: Number(formData.bank_id),
     };
 
     if (isEditMode.value && selectedBankAccount.value) {

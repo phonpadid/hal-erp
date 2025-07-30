@@ -26,7 +26,8 @@
     "accountNamePlaceholder": "Enter Account Name",
     "accountNumber": "Account Number",
     "accountNumberPlaceholder": "Enter Account Number",
-    "completeBankAccount": " Bank account added successfully"
+    "completeBankAccount": " Bank account added successfully",
+    "bankPlaceholder": "Select Bank"
   },
   "modal": {
     "create": "Add Vendor",

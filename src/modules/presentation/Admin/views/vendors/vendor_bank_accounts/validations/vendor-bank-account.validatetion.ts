@@ -1,4 +1,4 @@
-import type { Rule } from 'ant-design-vue/es/form';
+import type { Rule } from "ant-design-vue/es/form";
 
 export const createVendorBankAccountValidation = (
   t: (key: string) => string
@@ -7,48 +7,48 @@ export const createVendorBankAccountValidation = (
     vendor_id: [
       {
         required: true,
-        message: t('vendors_bank.validation.vendorRequired')
-      }
+        message: t("vendors_bank.validation.vendorRequired"),
+      },
     ],
     currency_id: [
       {
         required: true,
-        message: t('vendors_bank.validation.currencyRequired')
-      }
+        message: t("vendors_bank.validation.currencyRequired"),
+      },
     ],
-    bank_name: [
+    bank_id: [
       {
         required: true,
-        message: t('vendors_bank.validation.bankNameRequired')
+        message: t("vendors_bank.validation.bankNameRequired"),
       },
       {
         max: 100,
-        message: t('vendors_bank.validation.bankNameMax')
-      }
+        message: t("vendors_bank.validation.bankNameMax"),
+      },
     ],
     account_name: [
       {
         required: true,
-        message: t('vendors_bank.validation.accountNameRequired')
+        message: t("vendors_bank.validation.accountNameRequired"),
       },
       {
         max: 100,
-        message: t('vendors_bank.validation.accountNameMax')
-      }
+        message: t("vendors_bank.validation.accountNameMax"),
+      },
     ],
     account_number: [
       {
         required: true,
-        message: t('vendors_bank.validation.accountNumberRequired')
+        message: t("vendors_bank.validation.accountNumberRequired"),
       },
       {
         pattern: /^\d+$/,
-        message: t('vendors_bank.validation.accountNumberFormat')
+        message: t("vendors_bank.validation.accountNumberFormat"),
       },
       {
         max: 20,
-        message: t('vendors_bank.validation.accountNumberMax')
-      }
-    ]
+        message: t("vendors_bank.validation.accountNumberMax"),
+      },
+    ],
   };
 };

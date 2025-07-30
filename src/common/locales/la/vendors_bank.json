@@ -39,7 +39,8 @@
     "accountNamePlaceholder": "ປ້ອນຊື່ບັນຊີ",
     "accountNumber": "ເລກບັນຊີ",
     "accountNumberPlaceholder": "ປ້ອນເລກບັນຊີ",
-    "isSelected": "ເລືອກໃຊ້"
+    "isSelected": "ເລືອກໃຊ້",
+    "bankPlaceholder": "ເລືອກທະນາຄານ"
   },
   "validation": {
     "vendorRequired": "ກະລຸນາເລືອກຜູ້ສະໜອງ",

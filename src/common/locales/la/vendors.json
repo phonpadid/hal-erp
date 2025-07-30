@@ -27,7 +27,8 @@
     "accountNumber": "ເລກບັນຊີ",
     "accountNumberPlaceholder": "ປ້ອນເລກບັນຊີ",
     "vendor_bank_account": "ກະລຸນາປ້ອນບັນຊີເງິນຜູ້ຈັດຊື້",
-    "completeBankAccount": " ບັນທຶກສຳເລັດແລ້ວ"
+    "completeBankAccount": " ບັນທຶກສຳເລັດແລ້ວ",
+    "bankPlaceholder": "ເລືອກທະນາຄານ"
   },
   "modal": {
     "create": "ເພີ່ມຜູ້ຈັດຊື້",

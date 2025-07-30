@@ -61,7 +61,7 @@ export const createVendorValidation = (
             if (!value.currency_id) {
               return Promise.reject(t("vendors.validation.currencyRequired"));
             }
-            if (!value.bank_name) {
+            if (!value.bank_id) {
               return Promise.reject(t("vendors.validation.bankNameRequired"));
             }
             return Promise.resolve();

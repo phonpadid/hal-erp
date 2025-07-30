@@ -7,15 +7,15 @@ export function columns(t: (key: string) => string): Column[] {
     //   dataIndex: "vendor",
     //   key: "vendor",
     // },
-    // {
-    //   title: t("vendors_bank.table.currency"),
-    //   dataIndex: "currency_id",
-    //   key: "currency_id",
-    // },
     {
       title: t("vendors_bank.table.bankName"),
-      dataIndex: "bank_name",
+      dataIndex: "bank.short_name",
       key: "bank_name",
+    },
+    {
+      title: t("vendors_bank.table.currency"),
+      dataIndex: "currency.code",
+      key: "currency_id",
     },
     {
       title: t("vendors_bank.table.accountName"),
