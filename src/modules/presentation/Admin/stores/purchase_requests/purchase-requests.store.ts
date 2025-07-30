@@ -111,23 +111,29 @@ export const usePurchaseRequestsStore = defineStore("purchaseRequests", () => {
     try {
       const oldRequest = await repository.findById(id);
       if (!oldRequest) throw new Error("Not found");
+
+      // แปลง items จาก DTO ให้เป็น Entity
+      const itemsEntities = data.purchase_request_items?.map((itemDTO) =>
+        PurchaseRequestItemEntity.create(
+          itemDTO.title,
+          itemDTO.file_name,
+          null, // file_name_url (ถ้ามี)
+          itemDTO.quantity,
+          itemDTO.unit_id.toString(),
+          itemDTO.price,
+          itemDTO.quantity * itemDTO.price,
+          itemDTO.remark || ""
+        )
+      );
+
       oldRequest.update(
         data.document.documentTypeId,
         data.document.description,
         data.expired_date,
         data.purposes,
-        data.purchase_request_items?.map((item) =>
-          PurchaseRequestItemEntity.create(
-            item.title,
-            item.file_name,
-            item.quantity,
-            item.unit_id.toString(),
-            item.price,
-            item.quantity * item.price,
-            item.remark || ""
-          )
-        )
+        itemsEntities
       );
+
       return await repository.update(oldRequest);
     } catch (err: any) {
       error.value = err.message || "Failed to update purchase request.";

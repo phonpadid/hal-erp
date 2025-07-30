@@ -12,6 +12,8 @@ export interface PaginationParams {
     to_currency_id?: string;
     [key: string]: string | undefined; // Allow additional filter fields
   };
+  document_type_id?: string | number; 
+  status_id?: string | number;
 }
 
 export interface APIResponse<T> {

@@ -20,7 +20,7 @@ export interface CreatePurchaseRequestDTO {
 }
 
 export interface UpdatePurchaseRequestDTO {
-  id: string;
+
   expired_date: string;
   purposes: string;
   document: DocumentDTO;
