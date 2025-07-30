@@ -51,6 +51,14 @@ export const menuItems = computed<ItemType[]>(() => [
                 key: "category.index",
                 label: t("menu-sidebar.category"),
               },
+               {
+                key: "vat.index",
+                label: t("menu-sidebar.vats"),
+              },
+              {
+                key: "bank.index",
+                label: t("menu-sidebar.bank"),
+              },
               {
                 key: "document.type.index",
                 label: t("menu-sidebar.document_type"),
@@ -257,7 +265,51 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
+      {
+        key: "document_typesList",
+        label: t("menu-sidebar.document_type"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:edit-document-sharp",
 
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "user_approval.index",
+        label: t("menu-sidebar.user_approval"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "ic:outline-imagesearch-roller",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "budget_apv_rule.index",
+        label: t("menu-sidebar.budget_apv_rule"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "mdi:account-check",
+              class: "text-base",
+            }),
+          ]),
+      },
+      {
+        key: "approval_workflows.index",
+        label: t("menu-sidebar.approval_workflow"),
+        icon: () =>
+          h("div", {}, [
+            h(Icon, {
+              icon: "material-symbols:docs-outline",
+              class: "text-base",
+            }),
+          ]),
+      },
       //purchase-rq
       {
         key: "purchase_request.index",

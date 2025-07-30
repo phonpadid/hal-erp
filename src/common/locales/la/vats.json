@@ -1,0 +1,59 @@
+{
+  "title": "ຂໍ້ມູນ VAT",
+  "add": "ເພີ່ມ VAT ໃໝ່",
+  "header_form": {
+    "add": "ເພີ່ມ VAT ໃໝ່",
+    "edit": "ແກ້ໄຂ VAT",
+    "delete": {
+      "title": "ຢືນຢັນການລຶບ",
+      "content": "ທ່ານແນ່ໃຈບໍວ່າຈະລຶບ",
+      "description": "ການລຶບນີ້ບໍ່ສາມາດກັບຄືນໄດ້"
+    }
+  },
+  "placeholder": {
+    "amount": "ກະລຸນາປ້ອນຈຳນວນ VAT",
+    "search": "ຄົ້ນຫາຂໍ້ມູນ VAT"
+  },
+  "field": {
+    "amount": "ຈຳນວນ VAT",
+    "created": "ເວລາສ້າງ",
+    "updated": "ເວລາແກ້ໄຂ",
+    "manage": "ຈັດການ"
+  },
+  "notify": {
+    "created": "ສ້າງຂໍ້ມູນສຳເລັດ",
+    "updated": "ອັບເດດຂໍ້ມູນສຳເລັດ",
+    "deleted": "ລຶບຂໍ້ມູນສຳເລັດ"
+  },
+  "validation": {
+    "amountRequired": "ກະລຸນາປ້ອນຈຳນວນ",
+    "amountMin": "ຈຳນວນຕ້ອງຫຼາຍກວ່າ 0",
+    "amountMax": "ຈຳນວນບໍ່ສາມາດເກີນ 100",
+    "amountPattern": "ຈຳນວນຕ້ອງເປັນຕົວເລກ"
+  },
+  "modal": {
+    "create": "ສ້າງ VAT",
+    "edit": "ແກ້ໄຂ VAT",
+    "delete": "ລຶບ VAT",
+    "deleteConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ VAT?",
+    "deleteWarning": "ການກະທຳນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້."
+  },
+  "form": {
+    "amount": "ຈຳນວນ",
+    "amountPlaceholder": "ປ້ອນຈຳນວນ VAT"
+  },
+  "success": {
+    "title": "ສຳເລັດ",
+    "created": "ສ້າງ VAT ສຳເລັດ",
+    "updated": "ອັບເດດ VAT ສຳເລັດ",
+    "deleted": "ລຶບ VAT ສຳເລັດ"
+  },
+  "error": {
+    "amount": "ກະລຸນາປ້ອນຈຳນວນ VAT",
+    "title": "ເກີດຂໍ້ຜິດພາດ",
+    "loadFailed": "ບໍ່ສາມາດໂຫຼດ VAT",
+    "createFailed": "ບໍ່ສາມາດສ້າງ VAT",
+    "updateFailed": "ບໍ່ສາມາດອັບເດດ VAT",
+    "deleteFailed": "ບໍ່ສາມາດລຶບ VAT"
+  }
+}

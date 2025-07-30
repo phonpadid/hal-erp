@@ -1,6 +1,6 @@
 import type{ Column } from "@/modules/shared/column/column";
 
-export function getColumns(t: (key: string) => string) : Column[] {
+export function Columns(t: (key: string) => string) : Column[] {
   return [
     {
       title: t("units.field.name"),
@@ -9,13 +9,13 @@ export function getColumns(t: (key: string) => string) : Column[] {
     },
     {
       title: t("units.field.created"),
-      dataIndex: "created_at",
-      key: "created_at",
+      dataIndex: "createdAt",
+      key: "createdAt",
     },
     {
       title: t("units.field.updated"),
-      dataIndex: "updated_at",
-      key: "updated_at",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
     },
     {
       title: t("units.field.manage"),
