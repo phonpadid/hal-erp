@@ -1,11 +1,12 @@
+import type { CreatePositionDTO, UpdatePositionDTO } from "@/modules/application/dtos/position.dto";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { Ref } from "vue";
+import type { PositionEntity } from "@/modules/domain/entities/position.entity";
+import type { PaginationParams } from "@/modules/shared/pagination";
 import { PositionServiceImpl } from "@/modules/application/services/position.service";
 import { ApiPositionRepository } from "@/modules/infrastructure/api-position.repository";
-import { Position } from "@/modules/domain/entities/position.entities";
-import type { CreatePositionDTO, UpdatePositionDTO } from "@/modules/application/dtos/position.dto";
-import type { PaginationParams } from "@/modules/shared/pagination";
+import type { PositionInterface } from "@/modules/interfaces/position.interface";
 
 const createPositionService = () => {
   const positionRepository = new ApiPositionRepository();
@@ -13,10 +14,12 @@ const createPositionService = () => {
 };
 
 export const usePositionStore = defineStore("position", () => {
+  // service
   const positionService = createPositionService();
 
-  const positions: Ref<Position[]> = ref([]);
-  const currentPosition: Ref<Position | null> = ref(null);
+  // State
+  const positions: Ref<PositionEntity[]> = ref([]);
+  const currentPosition: Ref<PositionEntity | null> = ref(null);
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
   const pagination = ref({
@@ -26,14 +29,130 @@ export const usePositionStore = defineStore("position", () => {
     totalPages: 0,
   });
 
+  // Getters
   const activePositions = computed(() =>
-    positions.value.filter((position) => !position.isDeleted())
+    positions.value.filter((pos) => !pos.isDeleted())
   );
-  const deletedPositions = computed(() =>
-    positions.value.filter((position) => position.isDeleted())
+  const inactivePositions = computed(() =>
+    positions.value.filter((pos) => pos.isDeleted())
   );
   const totalActivePositions = computed(() => activePositions.value.length);
-  const totalDeletedPositions = computed(() => deletedPositions.value.length);
+  const totalInactivePositions = computed(() => inactivePositions.value.length);
+
+  // Get All Positions
+  const fetchPositions = async (
+    params: PaginationParams = { page: 1, limit: 10 }
+  ) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const result = await positionService.getAllPositions(params);
+      positions.value = result.data;
+      pagination.value = {
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
+      };
+
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // Get Position By ID
+  const fetchPositionById = async (id: string) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const position = await positionService.getPositionById(id);
+      currentPosition.value = position;
+      return position ? positionEntityToInterface(position) : null;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const createPosition = async (positionData: CreatePositionDTO) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const position = await positionService.createPosition(positionData);
+      positions.value = [position, ...positions.value];
+      return positionEntityToInterface(position);
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // Update
+  const updatePosition = async (id: string, positionData: UpdatePositionDTO) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const updatedPosition = await positionService.updatePosition(id, positionData);
+      const index = positions.value.findIndex((p) => p.getId() === id);
+      if (index !== -1) {
+        positions.value[index] = updatedPosition;
+      }
+      if (currentPosition.value && currentPosition.value.getId() === id) {
+        currentPosition.value = updatedPosition;
+      }
+      return positionEntityToInterface(updatedPosition);
+    } catch (err: unknown) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // Delete
+  const deletePosition = async (id: string) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const result = await positionService.deletePosition(id);
+      if (result) {
+        const index = positions.value.findIndex((p) => p.getId() === id);
+        if (index !== -1) {
+          positions.value[index].delete();
+        }
+      }
+      return result;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const positionEntityToInterface = (
+    position: PositionEntity
+  ): PositionInterface => {
+    return {
+      id: parseInt(position.getId()),
+      name: position.getName(),
+      created_at: position.getCreatedAt(),
+      updated_at: position.getUpdatedAt(),
+      deleted_at: position.getDeletedAt(),
+    };
+  };
 
   const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page || 1;
@@ -41,166 +160,7 @@ export const usePositionStore = defineStore("position", () => {
     pagination.value.total = newPagination.total;
   };
 
-  const createPosition = async (data: CreatePositionDTO) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const position = await positionService.createPosition(data);
-      positions.value = [position, ...positions.value];
-      return position;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const fetchPositions = async (
-    params: PaginationParams = { page: 1, limit: 10 },
-    includeDeleted: boolean = false
-  ) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const result = await positionService.getAllPositions(params, includeDeleted);
-      positions.value = result.data;
-      pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
-      return result;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const fetchPositionById = async (id: string) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      currentPosition.value = await positionService.getPositionById(id);
-      return currentPosition.value;
-    } catch (err) {
-      error.value = err as Error;
-      return null;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const getPositionByName = async (name: string) => {
-    try {
-      return await positionService.getPositionByName(name);
-    } catch (err) {
-      console.error("Failed to check position by name:", err);
-      return null;
-    }
-  };
-
-  const updatePosition = async (id: string, data: UpdatePositionDTO) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const updatedPosition = await positionService.updatePosition(id, data);
-      const index = positions.value.findIndex((p) => p.getId() === id);
-      if (index !== -1) {
-        positions.value[index] = updatedPosition;
-      }
-      if (currentPosition.value?.getId() === id) {
-        currentPosition.value = updatedPosition;
-      }
-      return updatedPosition;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const deletePosition = async (id: string) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const result = await positionService.deletePosition(id);
-      const index = positions.value.findIndex((p) => p.getId() === id);
-      if (index !== -1) {
-        const deletedPosition = positions.value[index];
-        positions.value[index] = new Position(
-          deletedPosition.getId(),
-          deletedPosition.getName(),
-          deletedPosition.getCreatedAt(),
-          new Date().toString(),
-          new Date()
-        );
-      }
-      return result;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const restorePosition = async (id: string) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const result = await positionService.restorePosition(id);
-      const index = positions.value.findIndex((p) => p.getId() === id);
-      if (index !== -1) {
-        const restoredPosition = positions.value[index];
-        positions.value[index] = new Position(
-          restoredPosition.getId(),
-          restoredPosition.getName(),
-          restoredPosition.getCreatedAt(),
-          new Date().toString(),
-          null
-        );
-      }
-      return result;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const searchPositionsByName = async (
-    name: string,
-    params: PaginationParams = { page: 1, limit: 10 }
-  ) => {
-    loading.value = true;
-    error.value = null;
-    try {
-      const result = await positionService.getAllPositions({
-        ...params,
-        search: name,
-      });
-      positions.value = result.data;
-      pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
-      return result;
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
+  // Reset state
   const resetState = () => {
     positions.value = [];
     currentPosition.value = null;
@@ -214,25 +174,26 @@ export const usePositionStore = defineStore("position", () => {
   };
 
   return {
+    // State
     positions,
     currentPosition,
     loading,
     error,
     pagination,
 
+    // Getters
     activePositions,
-    deletedPositions,
+    inactivePositions,
     totalActivePositions,
-    totalDeletedPositions,
+    totalInactivePositions,
 
-    createPosition,
+    // Actions
     fetchPositions,
     fetchPositionById,
+    createPosition,
     updatePosition,
     deletePosition,
-    restorePosition,
-    searchPositionsByName,
-    getPositionByName,
+
     resetState,
     setPagination,
   };

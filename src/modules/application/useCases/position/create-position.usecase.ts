@@ -1,17 +1,16 @@
-import {v4 as uuidv4} from 'uuid';
-import {Position} from '../../../domain/entities/position.entities';
-import type {PositionRepository} from '@/modules/domain/repository/position.repository';
-import type { CreatePositionDTO } from '../../dtos/position.dto';
+import type { CreatePositionDTO } from "@/modules/application/dtos/position.dto";
+import type { PositionRepository } from "@/modules/domain/repository/position.repository";
+import type { PositionEntity } from "@/modules/domain/entities/position.entity";
 
 export class CreatePositionUseCase {
   constructor(private readonly positionRepository: PositionRepository) {}
 
-  async execute(createPositionDTO: CreatePositionDTO): Promise<Position> {
-    // const existingPosition = await this.positionRepository.findByName(createPositionDTO.name);
-    // if (existingPosition) {
-    //   throw new Error(`Position with name ${createPositionDTO.name} already exists`);
-    // }
-    const position = Position.create(uuidv4(), createPositionDTO.name);
-    return await this.positionRepository.create(position);
+  async execute(positionData: CreatePositionDTO): Promise<PositionEntity> {
+    const existing = await this.positionRepository.findByName(positionData.name);
+    if (existing) {
+      throw new Error(`Position name "${positionData.name}" already exists`);
+    }
+    console.log('Proceeding to create position:', positionData);
+    return await this.positionRepository.create(positionData);
   }
 }

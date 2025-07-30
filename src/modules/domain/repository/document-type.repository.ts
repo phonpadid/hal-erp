@@ -1,9 +1,6 @@
-import type {
-  DocumentTypeCreate,
-  DocumentTypeUpdate,
-} from "./../../interfaces/documenet-type.interface";
-import type { DocumentTypeEntity } from "../entities/document-type.entities";
+import type { DocumentTypeEntity } from "@/modules/domain/entities/document-type.entities";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
+import type { DocumentTypeCreate, DocumentTypeUpdate } from "../../interfaces/documenet-type.interface";
 
 export interface DocumentTypeRepository {
   findAll(
