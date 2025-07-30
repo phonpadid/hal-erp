@@ -19,7 +19,6 @@ const { t } = useI18n();
 const route = useRoute(); // << 3. Get route instance
 const purchaseRequestStore = usePurchaseRequestsStore(); // << 4. Get store instance
 
-// 5. สร้าง ref เพื่อเก็บข้อมูลที่ fetch มา
 const requestDetail = ref<PurchaseRequestEntity | null>(null);
 const loading = ref(true);
 
@@ -38,10 +37,11 @@ const departmentInfo = computed(() => requestDetail.value?.getDepartment());
 const positionInfo = computed(() => requestDetail.value?.getPosition());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
 
-// const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
+const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
+console.log("Total Amount:", totalAmount.value);
 
 const imageList = computed(() => {
-  return items.value.map((item) => (item as any).file_name_url).filter((url) => !!url);
+  return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
 });
 // Print handler
 const handlePrint = async () => {
@@ -119,19 +119,19 @@ const handleToggle = () => {
         <div class="table -space-y-0 mb-2 w-full px-6 shadow-sm rounded-md">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.field.title") }}</h2>
           <a-table :columns="columns(t)" :dataSource="items" :pagination="false" row-key="id">
-            <template #bodyCell="{ column, record }">
-              <template v-if="column.key === 'price'">
-                <span>₭ {{ formatPrice(record.purchase_request_item.price) }}</span>
+            <template #bodyCell="{ column, record, index }">
+              <template v-if="column.key === 'id'">
+                <span>{{ index + 1 }}</span>
               </template>
               <template v-if="column.key === 'total_price'">
-                <span>₭ {{ formatPrice(record.total) }}</span>
+                <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
               </template>
             </template>
           </a-table>
           <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4">
             <p class="font-medium text-slate-600">{{ t("purchase-rq.field.amount") }}:</p>
             <p class="font-semibold md:text-lg text-sm text-slate-700">
-              <!-- {{ formatPrice(totalAmount) }} ₭ -->
+              {{ formatPrice(totalAmount) }} ₭
             </p>
           </div>
         </div>
@@ -169,6 +169,6 @@ const handleToggle = () => {
         </div>
       </div>
     </div>
-    <div v-else class="mt-[10rem] text-center text-red-500">ไม่พบข้อมูล</div>
+    <div v-else class="mt-[10rem] text-center text-red-500">ບໍ່ມີພົບຂໍ້ມູນ</div>
   </div>
 </template>

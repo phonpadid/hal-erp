@@ -30,6 +30,7 @@ import type { CreatePurchaseRequestDTO } from "@/modules/application/dtos/purcha
 import { useUnitStore } from "../../stores/unit.store";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 import { departmenUsertStore } from "../../stores/departments/department-user.store";
+import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 
 // --- SCRIPT LOGIC ---
 const { t } = useI18n();
@@ -40,7 +41,9 @@ const createModalVisible = ref(false);
 const currentUploadIndex = ref<number>(0);
 
 const props = defineProps<{
-  documentTypeId: number | string;
+  documentTypeId?: number | string;
+  isEditing?: boolean;
+  requestId?: string;
 }>();
 
 const purchaseRequestStore = usePurchaseRequestsStore();
@@ -51,17 +54,40 @@ const units: Ref<Unit[]> = ref([]);
 
 const profileImage = ref("/public/Profile-PNG-File.png");
 const userPosition = ref("ພະແນກການເງິນ, ພະນັກງານ");
-const data = localStorage.getItem("userData");
-const parsed = data ? JSON.parse(data) : null;
 const departmentUser = userLocal.currentDpmUser;
 
 onMounted(async () => {
-  if (parsed?.id) {
-    await userLocal.fetchDepartmentUserById(parsed.id);
-  }
+  // Fetch dropdown data
   await unitStore.fetchUnits({ page: 1, limit: 1000 });
   units.value = unitStore.activeUnits;
+
+  // ถ้าเป็นโหมดแก้ไข ให้ดึงข้อมูลเก่ามาใส่ฟอร์ม
+  if (props.isEditing && props.requestId) {
+    const existingData = await purchaseRequestStore.fetchById(props.requestId);
+    if (existingData) {
+      populateForm(existingData);
+    }
+  }
 });
+
+const populateForm = (entity: PurchaseRequestEntity) => {
+  const dateString = entity.getExpiredDate();
+  if (dateString) {
+    formState.value.expired_date = dayjs(dateString, "DD-MM-YYYY HH:mm:ss");
+  }
+
+  formState.value.purpose = entity.getPurposes();
+  formState.value.addMore = entity.getItems().map((item) => ({
+    title: item.getTitle(),
+    count: item.getQuantity().toString(),
+    unit_id: Number(item.getUnitId()),
+    price: item.getPrice(),
+    totalPrice: item.getTotalPrice(), // << ADDED: เพิ่ม totalPrice
+    remark: item.getRemark(),
+    file_name: item.getFileName() || "",
+    images: item.file_name_url ? [item.file_name_url] : [],
+  }));
+};
 
 const removeMore = (index: number) => {
   if (formState.value.addMore.length > 1) {
@@ -172,24 +198,27 @@ async function handleSave(): Promise<boolean> {
   };
 
   try {
-    const result = await purchaseRequestStore.create(payload);
+    let result;
+    if (props.isEditing && props.requestId) {
+      // ถ้าเป็นโหมดแก้ไข ให้เรียก update
+      result = await purchaseRequestStore.update(props.requestId, payload);
+    } else {
+      result = await purchaseRequestStore.create(payload);
+    }
+
     if (result) {
-      message.success(t("purchase-rq.msg.create_success", "ສ້າງໃບສະເໜີສຳເລັດ!"));
-      loading.value = false;
+      message.success(props.isEditing ? "อัปเดตสำเร็จ!" : "สร้างสำเร็จ!");
       return true;
     } else {
-      message.error(
-        purchaseRequestStore.error ||
-          t("purchase-rq.msg.create_fail", "ເກດຂໍ້ຜິດພາດໃນການສ້າງໃບຂໍຊື້")
-      );
-      loading.value = false;
+      message.error(purchaseRequestStore.error || "เกิดข้อผิดพลาด");
       return false;
     }
   } catch (err) {
-    console.error("Failed to save purchase request:", err);
-    message.error(t("purchase-rq.msg.create_fail", "ເກດຂໍ້ຜິດພາດໃນການສ້າງໃບຂໍຊື້"));
-    loading.value = false;
+    console.error("Save/Update failed:", err);
+    message.error("เกิดข้อผิดพลาด");
     return false;
+  } finally {
+    loading.value = false;
   }
 }
 

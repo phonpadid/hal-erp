@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, computed } from "vue";
+import { defineProps, defineEmits } from "vue";
 import type { PropType } from "vue";
 
 const props = defineProps({
   modelValue: {
-    type: [String, Number, null] as PropType<string | number | null>,
-    default: null,
+    type: [String, Number, undefined] as PropType<string | number | undefined>,
+    default: undefined,
   },
   options: {
     type: Array as PropType<{ label: string; value: string | number }[]>,
@@ -14,6 +14,11 @@ const props = defineProps({
   placeholder: {
     type: String,
     default: "ກະລູນາເລືອກຂໍ້ມູນ",
+  },
+  // 1. เพิ่ม prop นี้ เพื่อให้ Component แม่ กำหนดได้ว่าเมื่อ Clear แล้วค่าควรเป็นอะไร
+  clearValue: {
+    type: [String, Number],
+    default: "all", // ค่าเริ่มต้นคือ "all"
   },
   width: {
     type: String,
@@ -33,24 +38,27 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:modelValue", "change"]);
+// 2. เพิ่ม event 'clear' เข้าไป
+const emit = defineEmits(["update:modelValue", "change", "clear"]);
 
-// Compute a safe value - ensure empty string is represented as null
-const safeValue = computed(() => {
-  return props.modelValue === "" ? null : props.modelValue;
-});
-
-function onChange(value: string | number | null) {
-  // Ensure empty string is converted to null
-  const newValue = value === "" ? null : value;
-  emit("update:modelValue", newValue);
-  emit("change", newValue);
+// 3. แก้ไขฟังก์ชัน onChange ทั้งหมด
+function onChange(value: string | number | undefined) {
+  // Component <a-select> จะส่งค่า 'undefined' กลับมาเมื่อผู้ใช้กดปุ่ม Clear
+  if (value === undefined) {
+    // นี่คือตอนที่ผู้ใช้กดปุ่ม Clear (x)
+    emit("update:modelValue", props.clearValue); // Reset ค่า v-model ใน Component แม่ ให้เป็น 'all'
+    emit("clear"); // ส่งสัญญาณ 'clear' ออกไปให้ Component แม่รับรู้
+  } else {
+    // นี่คือตอนที่ผู้ใช้เลือกค่าอื่นๆ ตามปกติ
+    emit("update:modelValue", value);
+    emit("change", value);
+  }
 }
 </script>
 
 <template>
   <a-select
-    :value="safeValue"
+    :value="modelValue"
     @change="onChange"
     :placeholder="placeholder"
     :style="{ width }"
@@ -72,128 +80,3 @@ function onChange(value: string | number | null) {
     </a-select-option>
   </a-select>
 </template>
-
-<style scoped>
-:deep(.ant-select-dropdown) {
-  min-width: 200px !important;
-  max-width: 400px !important;
-}
-
-:deep(.ant-select-item) {
-  white-space: normal !important;
-  height: auto !important;
-  padding: 8px 12px !important;
-}
-
-:deep(.ant-select-item-option-content) {
-  white-space: normal !important;
-  word-break: break-word !important;
-  line-height: 1.4 !important;
-}
-
-:deep(.ant-select-selection-item) {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-:deep(.ant-select-item:hover) {
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-:deep(.ant-select-item-option) {
-  min-height: 32px;
-  height: auto !important;
-}
-</style>
-<style>
-/* Dark Mode Styles สำหรับ Select */
-.dark .ant-select-selector {
-  background-color: #1f2937 !important; /* gray.800 */
-  border-color: #4b5563 !important; /* gray.600 */
-  color: #ffffff !important;
-}
-
-.dark .ant-select-selection-placeholder {
-  color: #6b7280 !important; /* gray.500 */
-}
-
-.dark .ant-select-arrow {
-  color: #9ca3af !important; /* gray.400 */
-}
-
-.dark .ant-select-focused .ant-select-selector,
-.dark .ant-select-selector:hover {
-  border-color: #3b82f6 !important; /* blue.500 */
-}
-
-.dark .ant-select-focused .ant-select-selector {
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
-}
-
-.dark .ant-select-dropdown {
-  background-color: #1f2937 !important; /* gray.800 */
-  border-color: #4b5563 !important; /* gray.600 */
-}
-
-.dark .ant-select-item {
-  color: #ffffff !important;
-}
-
-.dark .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
-  background-color: #374151 !important; /* gray.700 */
-}
-
-.dark .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-  background-color: #3b82f6 !important; /* blue.500 */
-  color: #ffffff !important;
-}
-
-.dark .ant-select-item-option:hover:not(.ant-select-item-option-disabled) {
-  background-color: #374151 !important; /* gray.700 */
-}
-
-.dark .ant-select-clear {
-  background-color: #1f2937 !important; /* gray.800 */
-  color: #9ca3af !important; /* gray.400 */
-}
-</style>
-
-<style scoped>
-/* ปรับแต่ง dropdown ให้กว้างขึ้น และรองรับข้อความยาว */
-:deep(.ant-select-dropdown) {
-  min-width: 200px !important;
-  max-width: 400px !important;
-}
-
-/* ปรับแต่งตัวเลือกให้แสดงข้อความยาวได้ */
-:deep(.ant-select-item) {
-  white-space: normal !important;
-  height: auto !important;
-  padding: 8px 12px !important;
-}
-
-:deep(.ant-select-item-option-content) {
-  white-space: normal !important;
-  word-break: break-word !important;
-  line-height: 1.4 !important;
-}
-
-/* สำหรับตัว select เมื่อเลือกแล้ว */
-:deep(.ant-select-selection-item) {
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-/* เพิ่ม hover effect */
-:deep(.ant-select-item:hover) {
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-/* ปรับความสูงของแต่ละ option ให้พอดีกับเนื้อหา */
-:deep(.ant-select-item-option) {
-  min-height: 32px;
-  height: auto !important;
-}
-</style>

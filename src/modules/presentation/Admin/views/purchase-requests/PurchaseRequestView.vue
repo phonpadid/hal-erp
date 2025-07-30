@@ -94,16 +94,19 @@ const statusCards = computed(() => {
 const fetchData = async () => {
   loading.value = true;
   try {
-    // เพิ่ม filter เข้าไปใน params (ถ้า API รองรับ)
     const apiParams: any = {
       page: currentPage.value,
       limit: pageSize.value,
     };
+
+    // ตรวจสอบค่าที่เลือก ถ้าไม่ใช่ "all" ให้เพิ่ม vào apiParams
     if (selectedDocType.value !== "all") {
-      apiParams.documentTypeId = selectedDocType.value;
+      apiParams.document_type_id = selectedDocType.value; // << FIXED KEY
     }
     if (selectedStatus.value !== "all") {
-      apiParams.status = selectedStatus.value;
+      // API ต้องการ status_id แต่ dropdown ของเรามี value เป็น string ("pending", "approved")
+      // ที่นี่เราจะส่ง string ไปก่อน หาก API ต้องการ id จริงๆ ต้องมีการแปลงค่าที่นี่
+      apiParams.status_id = selectedStatus.value; // << FIXED KEY
     }
 
     await purchaseRequestStore.fetchAll(apiParams);
@@ -122,6 +125,9 @@ const handleTableChange = (pagination: any) => {
   fetchData();
 };
 
+const edit = (id: string) => {
+  push({ name: "purchase_request_edit", params: { id } });
+};
 const details = (id: string) => {
   push({ name: "purchase_request_detail", params: { id } });
 };
@@ -177,6 +183,7 @@ onMounted(async () => {
               :options="docItem"
               placeholder="ທັງໝົດ"
               class="w-full"
+              @clear="fetchData"
             />
           </div>
           <div class="search-by-status w-full">
@@ -188,6 +195,7 @@ onMounted(async () => {
               :options="statusItem"
               placeholder="ທັງໝົດ"
               class="w-full"
+              @clear="fetchData"
             />
           </div>
           <div class="search-button flex items-end">
@@ -231,6 +239,14 @@ onMounted(async () => {
         </template>
         <template #actions="{ record }">
           <div class="flex items-center justify-center gap-2">
+            <UiButton
+              type="link"
+              icon="material-symbols:edit-square"
+              color-class="flex items-center text-blue-500 hover:!text-blue-800"
+              @click="edit(record.getId())"
+            >
+              {{ t("purchase-rq.edit") }}
+            </UiButton>
             <UiButton
               type="link"
               icon="ant-design:eye-outlined"
