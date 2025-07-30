@@ -14,23 +14,52 @@
     "name": "Please enter category name",
     "search": "Search by category name"
   },
-  "error": {
-    "name": "Please enter category name"
-  },
+  
   "field": {
     "name": "Category name",
     "created": "Created At",
     "updated": "Updated At",
     "manage": "Manage"
   },
-
-  "status": {
-    "active": "Active",
-    "inactive": "Deleted"
-  },
+  
   "notify": {
-    "created": "Info created successfully",
-    "updated": "Info updated successfully",
-    "deleted": "Info deleted successfully"
+    "created": "Category created successfully",
+    "updated": "Category updated successfully",
+    "deleted": "Category deleted successfully"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "nameMin": "Name must be at least 2 characters",
+    "nameMax": "Name cannot exceed 100 characters",
+    "codeRequired": "Code is required",
+    "codeMin": "Code must be at least 2 characters",
+    "codeMax": "Code cannot exceed 50 characters"
+  },
+  "modal": {
+    "create": "Create Category",
+    "edit": "Edit Category",
+    "delete": "Delete Category",
+    "deleteConfirm": "Are you sure you want to delete Category?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "form": {
+    "name": "Category Name",
+    "namePlaceholder": "Enter category",
+    "code": "Code",
+    "codePlaceholder": "Enter category"
+  },
+   "success": {
+    "title": "Success",
+    "created": "Category created successfully",
+    "updated": "Category updated successfully",
+    "deleted": "Category deleted successfully"
+  },
+  "error": {
+    "name": "Please enter category name",
+    "title": "Error",
+    "loadFailed": "Failed to load Category",
+    "createFailed": "Failed to create Category",
+    "updateFailed": "Failed to update Category",
+    "deleteFailed": "Failed to delete Category"
   }
 }

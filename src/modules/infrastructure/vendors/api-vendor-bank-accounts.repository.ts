@@ -118,13 +118,13 @@ export class ApiVendorsBankAccountsRepository implements VendorsBankAccountsRepo
       vendors.id.toString(),
       vendors.vendor_id.toString(),
       vendors.currency_id.toString(),
-      vendors.bank_name,
       vendors.account_name,
       vendors.account_number,
       vendors.is_selected || false,
       vendors.created_at || "",
       vendors.updated_at || "",
       vendors.deleted_at || null,
+      vendors.bank,
       vendors.vendor
         ? {
             id: vendors.vendor.id,

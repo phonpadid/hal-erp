@@ -162,6 +162,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       data.created_at || null,
       data.updated_at || null,
       data.deleted_at || null
+      
     );
 
     if (data.purchase_request_item) {

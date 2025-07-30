@@ -5,6 +5,7 @@ export interface CreateCategoryDTO {
 export interface UpdateCategoryDTO {
   name: string;
 }
+
 export interface CategoryDTO {
   id: string;
   name: string;

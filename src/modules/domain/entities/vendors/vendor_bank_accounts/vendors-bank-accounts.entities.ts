@@ -4,13 +4,21 @@ export class VendorsBankAccountEntity {
   private id: string;
   private vendor_id: string;
   private currency_id: number | string;
-  private bank_name: string;
+  private bank_id: number;
   private account_name: string;
   private account_number: string;
   private is_selected: boolean;
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
+  private bank?: {
+    id: number;
+    name: string;
+    logoUrl: string;
+    short_name: string;
+    created_at: string;
+    updated_at: string;
+  } | null;
   private vendor?: {
     id: number;
     name: string;
@@ -30,13 +38,20 @@ export class VendorsBankAccountEntity {
     id: string,
     vendor_id: string,
     currency_id: string | number,
-    bank_name: string,
     account_name: string,
     account_number: string,
     is_selected: boolean,
     created_at: string,
     updated_at: string,
     deleted_at: string | null = null,
+    bank?: {
+      id: number;
+      name: string;
+      logoUrl: string;
+      short_name: string;
+      created_at: string;
+      updated_at: string;
+    },
     vendor?: {
       id: number;
       name: string;
@@ -55,13 +70,14 @@ export class VendorsBankAccountEntity {
     this.id = id;
     this.vendor_id = vendor_id;
     this.currency_id = currency_id;
-    this.bank_name = bank_name;
+    this.bank_id = bank?.id || 0;
     this.account_name = account_name;
     this.account_number = account_number;
     this.is_selected = is_selected;
     this.created_at = formatDate(created_at);
     this.updated_at = formatDate(updated_at);
     this.deleted_at = deleted_at !== null ? formatDate(deleted_at) : null;
+    this.bank = bank;
     this.vendor = vendor;
     this.currency = currency;
   }
@@ -73,6 +89,10 @@ export class VendorsBankAccountEntity {
     return this.currency;
   }
 
+  public getBank() {
+    return this.bank;
+  }
+
   public getId(): string {
     return this.id;
   }
@@ -81,8 +101,8 @@ export class VendorsBankAccountEntity {
     return this.vendor_id;
   }
 
-  public getBankName(): string {
-    return this.bank_name;
+  public getBankId(): number {
+    return this.bank_id;
   }
 
   public getAccountName(): string {
@@ -139,6 +159,19 @@ export class VendorsBankAccountEntity {
     this.currency = currency;
   }
 
+  public setBank(
+    bank: {
+      id: number;
+      name: string;
+      logoUrl: string;
+      short_name: string;
+      created_at: string;
+      updated_at: string;
+    } | null
+  ): void {
+    this.bank = bank;
+  }
+
   public updatevendor_id(vendor_id: string): void {
     this.vendor_id = vendor_id;
     this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
@@ -163,10 +196,17 @@ export class VendorsBankAccountEntity {
     id: string,
     vendor_id: string,
     currency_id: string | number,
-    bank_name: string,
     account_name: string,
     account_number: string,
     is_selected: boolean = false,
+    bank?: {
+      id: number;
+      name: string;
+      logoUrl: string;
+      short_name: string;
+      created_at: string;
+      updated_at: string;
+    },
     vendor?: {
       id: number;
       name: string;
@@ -187,13 +227,13 @@ export class VendorsBankAccountEntity {
       id,
       vendor_id,
       currency_id,
-      bank_name,
       account_name,
       account_number,
       is_selected,
       now,
       now,
-      null,
+      undefined,
+      bank,
       vendor,
       currency
     );

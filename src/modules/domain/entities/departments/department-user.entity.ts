@@ -1,9 +1,9 @@
-import type { Position } from "../position.entities";
-import type { UserEntity } from "../user.entities";
-import type { DepartmentEntity } from "./department.entity";
-import type { Role } from "../role.entities";
-import type { Permission } from "../permission.entities";
-import { formatDate } from "@/modules/shared/formatdate";
+import type { PositionEntity } from "../position.entity"
+import type { UserEntity } from "../user.entities"
+import type { DepartmentEntity } from "./department.entity"
+import type { Role } from "../role.entities"
+import type { Permission } from "../permission.entities"
+import { formatDate } from "@/modules/shared/formatdate"
 
 export class DepartmentUserEntity {
   private id: string | null;
@@ -15,7 +15,7 @@ export class DepartmentUserEntity {
   private roleIds: number[];
 
   private department: DepartmentEntity | null;
-  private position: Position | null;
+  private position: PositionEntity | null;
   private user: UserEntity | null;
   private roles: Role | null;
   private permissions: Permission | null;
@@ -33,7 +33,7 @@ export class DepartmentUserEntity {
     permissionIds: number[],
     roleIds: number[],
     department: DepartmentEntity | null = null,
-    position: Position | null = null,
+    position: PositionEntity | null = null,
     user: UserEntity,
     roles: Role | null = null,
     permissions: Permission | null = null,
@@ -82,7 +82,7 @@ export class DepartmentUserEntity {
   public getDepartment(): DepartmentEntity | null {
     return this.department;
   }
-  public getPostion(): Position | null {
+  public getPostion(): PositionEntity | null {
     return this.position;
   }
   public getUser(): UserEntity | null {

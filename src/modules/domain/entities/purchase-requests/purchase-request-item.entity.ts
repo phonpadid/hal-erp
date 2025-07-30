@@ -1,15 +1,15 @@
 import type { PurchaseRequestEntity } from "./purchase-request.entity";
-import type { Unit } from "../unit.entities";
+import type { UnitEntity } from "../unit.entity";
 
 export class PurchaseRequestItemEntity {
   private id: string | null;
   private title: string;
   private file_name: string | null; // Changed to array as requested
   public file_name_url: string | null;
-  
+
   private quantity: number;
   private unit_id: string;
-  private unit: Unit | null;
+  private unit: UnitEntity | null;
   private price: number;
   private total_price: number;
   private purchase_request: PurchaseRequestEntity | null;
@@ -25,7 +25,7 @@ export class PurchaseRequestItemEntity {
     file_name_url: string | null = null,
     quantity: number = 0,
     unit_id: string = "",
-    unit: Unit | null = null,
+    unit: UnitEntity | null = null,
     price: number = 0,
     total_price: number = 0,
     purchase_request: PurchaseRequestEntity | null = null,
@@ -70,7 +70,7 @@ export class PurchaseRequestItemEntity {
     return this.unit_id;
   }
 
-  public getUnit(): Unit | null {
+  public getUnit(): UnitEntity | null {
     return this.unit;
   }
 

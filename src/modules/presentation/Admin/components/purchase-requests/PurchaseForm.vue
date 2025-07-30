@@ -23,7 +23,7 @@ import { useI18n } from "vue-i18n";
 import { uploadFile } from "@/modules/application/services/upload.service";
 
 // --- ENTITY & DTO TYPES ---
-import type { Unit } from "@/modules/domain/entities/unit.entities";
+import type { UnitEntity } from "@/modules/domain/entities/unit.entity";
 import type { CreatePurchaseRequestDTO } from "@/modules/application/dtos/purchase-requests/purchase-request.dto";
 
 // --- STORES ---
@@ -50,7 +50,7 @@ const purchaseRequestStore = usePurchaseRequestsStore();
 const unitStore = useUnitStore();
 const userLocal = departmenUsertStore();
 
-const units: Ref<Unit[]> = ref([]);
+const units: Ref<UnitEntity[]> = ref([]);
 
 const profileImage = ref("/public/Profile-PNG-File.png");
 const userPosition = ref("ພະແນກການເງິນ, ພະນັກງານ");

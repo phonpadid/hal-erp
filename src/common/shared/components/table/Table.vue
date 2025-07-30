@@ -43,6 +43,7 @@ export interface TablePaginationType {
   pageSize?: number;
   total?: number;
   showSizeChanger?: boolean;
+  pageSizeOptions?:string[];
 }
 
 export interface SorterResult {

@@ -7,7 +7,7 @@ export const unitRoutes: RouteRecordRaw[] = [
     name: "unit.index",
     component: UnitListView,
     meta: {
-      title: "Units",
+      title: "units",
       requiredAuth: true,
     },
   },
