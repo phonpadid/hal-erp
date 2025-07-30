@@ -126,7 +126,7 @@ const handleModalCancel = () => {
 const handleFormSubmit = async (formData: {
   vendor_id: string | number;
   currency_id: string;
-  bank_name: string;
+  bank_id: string;
   account_name: string;
   account_number: string;
   is_selected: boolean;
@@ -137,6 +137,7 @@ const handleFormSubmit = async (formData: {
       ...formData,
       vendor_id: Number(formData.vendor_id),
       currency_id: Number(formData.currency_id),
+      bank_id: Number(formData.bank_id),
     };
 
     if (isEditMode.value && selectedBankAccount.value) {
@@ -284,7 +285,7 @@ const handleToggleIsSelected = async (record: VendorBankAccountInterface) => {
       ok-type="primary"
       :danger="true"
     >
-      <p>{{ $t("vendors_bank.modal.deleteMessage", { name: selectedBankAccount?.bank_name }) }}</p>
+      <p>{{ $t("vendors_bank.modal.deleteMessage", { name: selectedBankAccount?.bank?.short_name }) }}</p>
       <p class="text-red-500">{{ $t("vendors_bank.modal.deleteSuccess") }}</p>
     </UiModal>
   </div>

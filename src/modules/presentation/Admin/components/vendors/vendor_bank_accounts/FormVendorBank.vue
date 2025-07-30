@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, defineProps, defineEmits, watch, onMounted } from "vue";
+import { ref, reactive, defineProps, defineEmits, watch, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { VendorBankAccountInterface } from "@/modules/interfaces/vendors/vendor_bank_accounts/vendor-bank-accounts.interface";
 import { createVendorBankAccountValidation } from "@/modules/presentation/Admin/views/vendors/vendor_bank_accounts/validations/vendor-bank-account.validatetion";
@@ -10,11 +10,13 @@ import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { useRoute } from "vue-router";
+import { useBankStore } from "@/modules/presentation/Admin/stores/bank.store";
 
 const route = useRoute();
 
 const { t } = useI18n();
 const currencyStoreInstance = currencyStore();
+const bankStore = useBankStore();
 const { error } = useNotification();
 
 const props = defineProps<{
@@ -29,7 +31,7 @@ const emit = defineEmits<{
     data: {
       vendor_id: string;
       currency_id: string;
-      bank_name: string;
+      bank_id: string;
       account_name: string;
       account_number: string;
       is_selected: boolean;
@@ -42,7 +44,7 @@ const formRef = ref();
 const formState = reactive({
   vendor_id: "",
   currency_id: "",
-  bank_name: "",
+  bank_id: "",
   account_name: "",
   account_number: "",
   is_selected: false,
@@ -51,6 +53,7 @@ const formState = reactive({
 // Loading states
 const loadingVendors = ref(false);
 const loadingCurrencies = ref(false);
+const loadingBanks = ref(false);
 // Options for select inputs
 const currencyOptions = ref<{ label: string; value: string }[]>([]);
 
@@ -59,15 +62,24 @@ onMounted(async () => {
   try {
     loadingVendors.value = true;
     loadingCurrencies.value = true;
-    await Promise.all([loadCurrencies()]);
-  } catch (err) {
-    console.error("Failed to load initial data:", err);
-    error(t("vendors_bank.error.loadDataFailed"));
+    loadingBanks.value = true;
+    await Promise.all([loadCurrencies(), bankStore.fetchBanks({ page: 1, limit: 100 })]);
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("messages.error.title"), errorMessage);
   } finally {
     loadingVendors.value = false;
     loadingCurrencies.value = false;
+    loadingBanks.value = false;
   }
 });
+
+const bankOptions = computed(() =>
+  bankStore.banks.map((bank) => ({
+    label: bank.getName(),
+    value: Number(bank.getId()),
+  }))
+);
 
 // Load currencies
 const loadCurrencies = async () => {
@@ -84,9 +96,9 @@ const loadCurrencies = async () => {
       )}`,
       value: currency.getId()?.toString() || "",
     }));
-  } catch (err) {
-    console.error("Failed to load currencies:", err);
-    throw err;
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("messages.error.title"), errorMessage);
   }
 };
 
@@ -115,7 +127,7 @@ watch(
       Object.assign(formState, {
         vendor_id: newBankAccount.vendor_id,
         currency_id: newBankAccount.currency_id,
-        bank_name: newBankAccount.bank_name,
+        bank_id: newBankAccount.bank_id,
         account_name: newBankAccount.account_name,
         account_number: newBankAccount.account_number,
         is_selected: newBankAccount.is_selected,
@@ -124,7 +136,7 @@ watch(
       Object.assign(formState, {
         vendor_id: "",
         currency_id: "",
-        bank_name: "",
+        bank_id: "",
         account_name: "",
         account_number: "",
         is_selected: false,
@@ -143,7 +155,7 @@ const submitForm = async () => {
     emit("submit", {
       vendor_id: String(route.params.id),
       currency_id: formState.currency_id,
-      bank_name: formState.bank_name,
+      bank_id: formState.bank_id,
       account_name: formState.account_name,
       account_number: formState.account_number,
       is_selected: formState.is_selected,
@@ -161,20 +173,22 @@ defineExpose({
 
 <template>
   <UiForm ref="formRef" :model="formState" :rules="rules">
+    <UiFormItem :label="$t('vendors_bank.form.bankName')" name="bank_id" required>
+      <UiInputSelect
+        v-model="formState.bank_id"
+        :options="bankOptions"
+        :placeholder="$t('vendors_bank.form.bankPlaceholder')"
+        :loading="loadingBanks"
+        :disabled="loading"
+      />
+    </UiFormItem>
+
     <UiFormItem :label="$t('vendors_bank.form.currency')" name="currency_id" required>
       <UiInputSelect
         v-model="formState.currency_id"
         :options="currencyOptions"
         :placeholder="$t('vendors_bank.form.currencyPlaceholder')"
         :loading="loadingCurrencies"
-        :disabled="loading"
-      />
-    </UiFormItem>
-
-    <UiFormItem :label="$t('vendors_bank.form.bankName')" name="bank_name" required>
-      <UiInput
-        v-model="formState.bank_name"
-        :placeholder="$t('vendors_bank.form.bankNamePlaceholder')"
         :disabled="loading"
       />
     </UiFormItem>
@@ -194,16 +208,5 @@ defineExpose({
         :disabled="loading"
       />
     </UiFormItem>
-
-    <!-- <UiFormItem :label="$t('vendors_bank.form.isSelected')" name="is_selected">
-      <a-switch v-model:checked="formState.is_selected" :disabled="loading" />
-      <span class="ml-2 text-sm text-gray-500">
-        {{
-          formState.is_selected
-            ? t("vendors_bank.form.isSelectedActive")
-            : t("vendors_bank.form.isSelectedInactive")
-        }}
-      </span>
-    </UiFormItem> -->
   </UiForm>
 </template>

@@ -10,10 +10,12 @@ import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import { useBankStore } from "@/modules/presentation/Admin/stores/bank.store";
 
 const { t } = useI18n();
 const rules = createVendorValidation(t);
 const store = currencyStore();
+const bankStore = useBankStore();
 
 const props = defineProps<{
   vendor?: VendorInterface | null;
@@ -29,7 +31,7 @@ const emit = defineEmits<{
       contact_info: string;
       vendor_bank_account?: {
         currency_id: number;
-        bank_name: string;
+        bank_id: number;
         account_name: string;
         account_number: string;
       }[];
@@ -42,7 +44,7 @@ const emit = defineEmits<{
 const addBankAccount = () => {
   formState.vendor_bank_account.push({
     currency_id: undefined as unknown as number,
-    bank_name: "",
+    bank_id: undefined as unknown as number,
     account_name: "",
     account_number: "",
   });
@@ -54,7 +56,7 @@ const formState = reactive({
   contact_info: "",
   vendor_bank_account: [] as {
     currency_id: number;
-    bank_name: string;
+    bank_id: number;
     account_name: string;
     account_number: string;
   }[],
@@ -64,6 +66,13 @@ const currencyOptions = computed(() =>
   store.currencies.map((currency) => ({
     label: `${currency.getName()} (${currency.getCode()})`,
     value: Number(currency.getId()),
+  }))
+);
+
+const bankOptions = computed(() =>
+  bankStore.banks.map((bank) => ({
+    label: bank.getName(),
+    value: Number(bank.getId()),
   }))
 );
 
@@ -119,6 +128,7 @@ defineExpose({
 
 onMounted(async () => {
   await store.fetchCurrencies({ page: 1, limit: 100 });
+  await bankStore.fetchBanks({ page: 1, limit: 100 });
 });
 </script>
 
@@ -173,6 +183,19 @@ onMounted(async () => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <UiFormItem
+              :label="$t('vendors.form.bankName')"
+              :name="['vendor_bank_account', String(index), 'bank_id']"
+              required
+            >
+              <UiInputSelect
+                v-model:value="bankAccount.bank_id"
+                :options="bankOptions"
+                :placeholder="$t('vendors.form.bankPlaceholder')"
+                :disabled="loading"
+              />
+            </UiFormItem>
+
+            <UiFormItem
               :label="$t('vendors.form.currency')"
               :name="['vendor_bank_account', String(index), 'currency_id']"
               required
@@ -181,18 +204,6 @@ onMounted(async () => {
                 v-model:value="bankAccount.currency_id"
                 :options="currencyOptions"
                 :placeholder="$t('vendors.form.currencyPlaceholder')"
-                :disabled="loading"
-              />
-            </UiFormItem>
-
-            <UiFormItem
-              :label="$t('vendors.form.bankName')"
-              :name="['vendor_bank_account', String(index), 'bank_name']"
-              required
-            >
-              <UiInput
-                v-model="bankAccount.bank_name"
-                :placeholder="$t('vendors.form.bankNamePlaceholder')"
                 :disabled="loading"
               />
             </UiFormItem>

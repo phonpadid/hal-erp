@@ -30,7 +30,7 @@ export const CurrencyEntityToInterface = (
   if (!currency) return undefined;
 
   return {
-    id: currency.getId()?? '',
+    id: currency.getId() ?? "",
     name: currency.getName(),
     code: currency.getCode(),
   };

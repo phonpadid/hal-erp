@@ -17,17 +17,18 @@ const createVendorService = () => {
   const vendorRepository = new ApiVendorsRepository();
   return new VendorServiceImpl(vendorRepository);
 };
+
 const bankAccountToSimpleObject = (
   bankAccount: VendorsBankAccountEntity
 ): {
   currency_id: number;
-  bank_name: string;
+  bank_id: number;
   account_name: string;
   account_number: string;
 } => {
   return {
     currency_id: Number(bankAccount.getcurrency_id()),
-    bank_name: bankAccount.getBankName(),
+    bank_id: Number(bankAccount.getBankId()),
     account_name: bankAccount.getAccountName(),
     account_number: bankAccount.getAccountNumber(),
   };

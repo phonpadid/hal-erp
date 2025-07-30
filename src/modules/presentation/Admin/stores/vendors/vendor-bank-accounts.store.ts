@@ -175,7 +175,7 @@ export const useVendorBankAccountStore = defineStore("vendor-bank-account", () =
       id: account.getId(),
       vendor_id: account.getvendor_id(),
       currency_id: account.getcurrency_id(),
-      bank_name: account.getBankName(),
+      bank_id: account.getBankId(),
       account_name: account.getAccountName(),
       account_number: account.getAccountNumber(),
       is_selected: account.getIsSelected(),

@@ -26,7 +26,8 @@
     "accountNamePlaceholder": "Enter account name",
     "accountNumber": "Account Number",
     "accountNumberPlaceholder": "Enter account number",
-    "isSelected": "Is Selected"
+    "isSelected": "Is Selected",
+    "bankPlaceholder": "Select bank"
   },
   "validation": {
     "vendorRequired": "Please select a vendor",
