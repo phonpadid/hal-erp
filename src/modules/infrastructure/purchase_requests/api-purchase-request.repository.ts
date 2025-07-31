@@ -9,56 +9,42 @@ import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 
 // API Model Interfaces
+// API Model Interfaces (ส่วนบนสุดของไฟล์)
+
 interface PurchaseRequestItemApiModel {
   id?: string;
   title: string;
   file_name: string | null;
+  file_name_url?: string; // << ตรวจสอบว่ามี property นี้
   quantity: number;
   unit_id: number;
   price: number;
   total_price: number;
   remark: string;
+  unit?: { name: string }; // << เพิ่ม object unit ที่ซ้อนกันอยู่
 }
+
 interface PurchaseRequestApiModel {
   id?: string;
   document: {
     id: number;
     description: string;
     documentTypeId: number;
-    department: {
-      id: number;
-      code: string;
-      name: string;
-    };
-    requester: {
-      id: number;
-      username: string;
-      email: string;
-    };
-    position: {
-      id: number;
-      name: string;
-    };
-    document_type: {
-      id: string;
-      code: string;
-      name: string;
-    };
+    department: any;
+    requester: any;
+    position: any[] | null; // << แก้ไข Type ให้เป็น Array หรือ null
+    document_type: any;
   };
   pr_number?: string;
   requested_date?: string;
   expired_date: string;
   purposes: string;
-  purchase_request_items: PurchaseRequestItemApiModel[];
+  purchase_request_item: PurchaseRequestItemApiModel[]; // << แก้ไขชื่อ key ให้ไม่มี 's'
   created_at?: string;
   updated_at?: string;
   deleted_at?: string;
-  user_approval?: {
-    document_status: {
-      id: number;
-      name: string;
-    };
-  };
+  user_approval?: any;
+  total?: number;
 }
 
 export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
@@ -88,17 +74,13 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
     }
   }
 
-  async findAll(
-    params: PaginationParams,
-    includeDeleted: boolean = false
-  ): Promise<PaginatedResult<PurchaseRequestEntity>> {
+  // ใน class ApiPurchaseRequestRepository
+
+  async findAll(params: PaginationParams): Promise<PaginatedResult<PurchaseRequestEntity>> {
     try {
       const response = (await api.get("/purchase-requests", {
         params: {
-          page: params.page,
-          limit: params.limit,
-          includeDeleted,
-          ...(params.search && { search: params.search }),
+          ...params,
         },
       })) as { data: ApiListResponse<PurchaseRequestApiModel> };
 
@@ -147,50 +129,62 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       expired_date: input.getExpiredDate(),
       purposes: input.getPurposes(),
 
-      purchase_request_items:
+      purchase_request_item:
         input.getItems()?.map((item) => ({
           title: item.getTitle(),
           file_name: item.getFileName(),
           quantity: item.getQuantity(),
           unit_id: Number(item.getUnitId()),
           price: item.getPrice(),
-
           remark: item.getRemark() || "",
         })) || [],
     };
   }
   private toDomainModel(data: PurchaseRequestApiModel): PurchaseRequestEntity {
+    const positionData =
+      data.document && Array.isArray(data.document.position) && data.document.position.length > 0
+        ? data.document.position[0]
+        : null;
+
     const purchaseRequest = new PurchaseRequestEntity(
       data.id || null,
-      data.document ? data.document.documentTypeId : 0,
-      data.document ? data.document.description : "",
+      data.document?.documentTypeId ?? 0,
+      data.document?.description ?? "",
       data.pr_number || null,
       data.requested_date || null,
       data.expired_date,
       data.purposes,
       data.user_approval?.document_status?.name || "pending",
-      data.document ? data.document.document_type : undefined,
-      data.document ? data.document.department : undefined,
-      data.document ? data.document.requester : undefined,
-      data.document ? data.document.position : undefined,
+      data.document?.document_type,
+      data.document?.department,
+      data.document?.requester,
+      positionData,
       data.created_at || null,
       data.updated_at || null,
       data.deleted_at || null
+      
     );
 
-    if (data.purchase_request_items) {
-      const items = data.purchase_request_items.map((item) =>
-        PurchaseRequestItemEntity.create(
+    if (data.purchase_request_item) {
+      const items = data.purchase_request_item.map((item: any) => {
+        const itemEntity = PurchaseRequestItemEntity.create(
           item.title,
           item.file_name,
+          item.file_name_url,
           item.quantity,
           item.unit_id.toString(),
           item.price,
           item.total_price,
           item.remark || ""
-        )
-      );
+        );
+
+        return itemEntity;
+      });
       purchaseRequest.setItems(items);
+    }
+
+    if (data.total) {
+      purchaseRequest.setTotal(data.total);
     }
 
     return purchaseRequest;

@@ -4,6 +4,7 @@ export interface IDocumentTypeId {
 export interface PurchaseRequestItemParams {
   title: string;
   fileName: string;
+  fileNameUrl?: string | null;
   quantity: number;
   unitId: number;
   price: number;
@@ -32,5 +33,3 @@ export interface StatusSummary {
   status: string;
   amount: number;
 }
-
-

@@ -19,8 +19,8 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("purchase-rq.field.price"),
-      dataIndex: "price",
-      key: "price",
+      dataIndex: "total_price",
+      key: "total_price",
     },
     {
       title: t("purchase-rq.field.remark"),

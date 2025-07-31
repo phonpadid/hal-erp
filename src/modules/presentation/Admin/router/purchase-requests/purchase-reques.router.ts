@@ -4,6 +4,7 @@ import PurchaseRequestDetail from "../../components/purchase-requests/PurchaseRe
 import CreatePurchaseRq from "../../components/purchase-requests/CreatePurchaseRq.vue";
 import ApprovalPuchaseRq from "../../components/purchase-requests/approval-purchase-requests/ApprovalPuchaseRq.vue";
 import ApprovalPuchaseRqDetail from "../../components/purchase-requests/approval-purchase-requests/ApprovalPuchaseRqDetail.vue";
+import UpdatePurchaseRequest from "../../components/purchase-requests/UpdatePurchaseRequest.vue";
 
 export const purchaseRequestRoutes: RouteRecordRaw[] = [
   {
@@ -12,6 +13,15 @@ export const purchaseRequestRoutes: RouteRecordRaw[] = [
     component: PurchaseRequestView,
     meta: {
       title: "Purchase requests",
+      requiredAuth: true,
+    },
+  },
+  {
+    path: "/purchase-requests/:id",
+    name: "purchase_request_edit",
+    component: UpdatePurchaseRequest,
+    meta: {
+      title: "Purchase Edit",
       requiredAuth: true,
     },
   },

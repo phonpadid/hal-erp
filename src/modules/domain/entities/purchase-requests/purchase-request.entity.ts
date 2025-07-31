@@ -20,6 +20,7 @@ export class PurchaseRequestEntity {
   private department: Department | null;
   private requester: Requester | null;
   private position: Position | null;
+  private total: number;
   private items: PurchaseRequestItemEntity[];
   private createdAt: string | null;
   private updatedAt: string | null;
@@ -54,6 +55,7 @@ export class PurchaseRequestEntity {
     this.department = department;
     this.requester = requester;
     this.position = position;
+    this.total = 0;
     this.items = [];
     this.createdAt = createdAt || this.getCurrentTimestamp();
     this.updatedAt = updatedAt || this.getCurrentTimestamp();
@@ -72,6 +74,13 @@ export class PurchaseRequestEntity {
   // Getters with proper return types
   public getId(): string | null {
     return this.id;
+  }
+  public getTotal(): number {
+    return this.total;
+  }
+
+  public setTotal(total: number): void {
+    this.total = total;
   }
 
   public getDocumentId(): number {
@@ -216,6 +225,7 @@ export class PurchaseRequestEntity {
       PurchaseRequestItemEntity.create(
         item.title,
         item.fileName,
+        item.fileNameUrl || null,
         item.quantity,
         item.unitId.toString(),
         item.price,
@@ -227,11 +237,6 @@ export class PurchaseRequestEntity {
     purchaseRequest.setItems(purchaseRequestItems);
 
     return purchaseRequest;
-  }
-
-  // Helper method for calculating total
-  public calculateTotal(): number {
-    return this.items.reduce((total, item) => total + item.getTotalPrice(), 0);
   }
 
   // Validation method
