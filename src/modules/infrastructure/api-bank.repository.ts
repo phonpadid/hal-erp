@@ -95,6 +95,8 @@ export class ApiBankRepository implements BankRepository {
         formData.append("logo", bankData.logo);
       } else if (typeof bankData.logo === "string" && bankData.logo.trim() !== "") {
         formData.append("logo", bankData.logo);
+      }else{
+        formData.append("logo","");
       }
       const response = await api.put(`${this.baseUrl}/${id}?_method=PUT`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
