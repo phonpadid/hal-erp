@@ -9,7 +9,7 @@ export interface AddMoreItem {
   unit_id: number | undefined; // เพิ่ม unit_id
   price: number | undefined;
   images: string[];
-  file_name: string; // เพิ่ม file_name
+  file_name: string;
   remark: string;
 }
 

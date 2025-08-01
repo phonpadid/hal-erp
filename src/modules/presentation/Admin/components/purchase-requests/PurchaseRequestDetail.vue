@@ -22,7 +22,6 @@ const purchaseRequestStore = usePurchaseRequestsStore(); // << 4. Get store inst
 const requestDetail = ref<PurchaseRequestEntity | null>(null);
 const loading = ref(true);
 
-// 6. Fetch ข้อมูลเมื่อ component ถูกสร้าง
 onMounted(async () => {
   const requestId = route.params.id as string;
   if (requestId) {
@@ -38,7 +37,6 @@ const positionInfo = computed(() => requestDetail.value?.getPosition());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
 
 const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
-console.log("Total Amount:", totalAmount.value);
 
 const imageList = computed(() => {
   return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
