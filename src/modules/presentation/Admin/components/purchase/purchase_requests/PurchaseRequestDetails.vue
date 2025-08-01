@@ -1,24 +1,41 @@
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { columns } from "../../../views/purchase_requests/column";
 import { useI18n } from "vue-i18n";
-import { purchaseRequestData } from "@/modules/shared/utils/purchaseRequestDetails";
+import { storeToRefs } from "pinia";
+import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
 import { useToggleStore } from "../../../stores/storage.store";
+import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
+import { useRoute } from "vue-router";
+import { formatDate } from "@/modules/shared/formatdate";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
-import { storeToRefs } from "pinia";
 /********************************************************* */
+
 const { t } = useI18n();
+const toggleStore = useToggleStore();
+const { toggle } = storeToRefs(toggleStore);
 const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
 const confirmLoading = ref(false);
-const toggleStore = useToggleStore();
-const { toggle } = storeToRefs(toggleStore);
+const loading = ref(true);
+const route = useRoute();
+const purchaseRequestStore = usePurchaseRequestsStore();
+const requestDetail = ref<PurchaseRequestEntity | null>(null);
+const requesterInfo = computed(() => requestDetail.value?.getRequester());
+const departmentInfo = computed(() => requestDetail.value?.getDepartment());
+const positionInfo = computed(() => requestDetail.value?.getPosition());
+const items = computed(() => requestDetail.value?.getItems() ?? []);
+const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
+const imageList = computed(() => {
+  return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
+});
 
 // Custom buttons for header
 const customButtons = [
@@ -39,16 +56,14 @@ const customButtons = [
 ];
 
 const topbarStyle = computed(() => {
-  return toggle.value
-    ? "left-64 w-[calc(100%-16rem)]" // 16rem = 256px = sidebar width
-    : "left-0 w-full";
+  return toggle.value ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
 });
 // Handle approve
 const handleApprove = async () => {
   try {
     confirmLoading.value = true;
-    // Your approve logic here
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     isApproveModalVisible.value = false;
   } finally {
     confirmLoading.value = false;
@@ -63,7 +78,7 @@ const handleReject = async () => {
     }
     confirmLoading.value = true;
     // Your reject logic here
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     isRejectModalVisible.value = false;
     rejectReason.value = "";
   } finally {
@@ -82,21 +97,14 @@ const documentDetails = {
   purpose: "ຈັດຊື້ເພື່ອ ເພື່ອຍົກລະດັບ-ສ້າງໃຫ້ເປັນການແຂ່ງຂັນໃໝ່ 1 ຄັນ",
 };
 
-// Signatures
-const signatures = [
-  {
-    role: "ຜູ້ສະເໜີ",
-    name: "ພົມມະກອນ ຄວາມຄູ",
-    position: "ພະນັກງານພັດທະນາລະບົບ",
-    signature: "/public/2.png",
-  },
-  {
-    role: "ອະນຸມັດ",
-    name: "ສຸກສະຫວັນ ພົນໂຍທາ",
-    position: "ຫົວໜ້າພະແນກພັດທະນາລະບົບ",
-    signature: "/public/3.png",
-  },
-];
+onMounted(async () => {
+  const requestId = route.params.id as string;
+  if (requestId) {
+    loading.value = true;
+    requestDetail.value = await purchaseRequestStore.fetchById(requestId);
+    loading.value = false;
+  }
+});
 </script>
 
 <template>
@@ -167,7 +175,8 @@ const signatures = [
     </UiModal>
 
     <!-- Main Content -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mt-40">
+    <div v-if="loading" class="mt-[10rem] text-center">Loading...</div>
+    <div v-else-if="requestDetail" class="bg-white rounded-lg shadow-sm p-6 mt-40">
       <!-- Requester Information -->
       <div class="flex items-start gap-4 mb-2">
         <img
@@ -176,52 +185,94 @@ const signatures = [
           class="w-14 h-14 rounded-full mb-2"
         />
         <div>
-          <h3 class="text-lg font-semibold">{{ documentDetails.requester.name }}</h3>
-          <p class="text-gray-600">{{ documentDetails.requester.position }}</p>
+          <h3 class="text-lg font-semibold">{{ requesterInfo?.username }}</h3>
+          <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
         </div>
       </div>
       <p class="text-gray-500">
-        <span>ວັນທີ່ຕ້ອງການ: <br /></span> {{ documentDetails.requestDate }}
+        <span>{{ t("purchase-rq.field.date_rq") }}<br /></span>
+        {{ formatDate(requestDetail.getExpiredDate()) }}
       </p>
 
       <!-- Purpose -->
       <div class="mb-6">
-        <h4 class="text-base font-semibold mb-2">ຈຸດປະສົງ ແລະ ອາຍເຫດ</h4>
-        <p class="text-gray-600">{{ documentDetails.purpose }}</p>
+        <h4 class="text-base font-semibold mb-2">{{ t("purchase-rq.proposer_list") }}</h4>
+        <p class="text-gray-600">{{ requestDetail.getPurposes() }}</p>
       </div>
 
       <!-- Items Table -->
       <div class="mb-6">
         <h4 class="text-base font-semibold mb-2">ລາຍການ</h4>
-        <Table :columns="columns(t)" :dataSource="purchaseRequestData">
-          <template #price="{ record }">
-            <span class="text-gray-600">{{ record.unit }} {{ record.price.toLocaleString() }}</span>
+        <Table :columns="columns(t)" :dataSource="items" row-key="id">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'id'">
+              <span>{{ index + 1 }}</span>
+            </template>
+            <template v-if="column.key === 'total_price'">
+              <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
+            </template>
           </template>
         </Table>
         <div>
           <p class="text-gray-500 mt-2 flex justify-end">
             {{ t("purchase_qequest.table.total") }}:
-            <span class="font-semibold">25,936,000 ₭</span>
+            <span class="font-semibold">{{ formatPrice(totalAmount) }}₭</span>
           </p>
         </div>
       </div>
 
       <!-- Attachments -->
-      <div class="mb-6">
-        <h4 class="text-base font-semibold mb-2">ຮູບຕົວຢ່າງ</h4>
-        <div class="border rounded-lg p-4">
-          <img src="/public/1.png" alt="MacBook Air" class="max-w-md rounded-lg" />
+      <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
+        <h2 class="text-md font-semibold">{{ t("purchase-rq.field.img_example") }}</h2>
+        <div class="flex flex-wrap gap-6">
+          <a-image
+            v-for="(imgUrl, index) in imageList"
+            :key="index"
+            :src="imgUrl"
+            alt="example"
+            :width="280"
+            :height="150"
+            :preview="true"
+            class="rounded-xl shadow-sm"
+          />
         </div>
       </div>
 
       <!-- Signatures -->
-      <div class="grid grid-cols-2 gap-6">
-        <h4 class="text-base font-semibold mb-4 col-span-2">ລາຍເຊັ່ນ</h4>
-        <div v-for="(sig, index) in signatures" :key="index" class="text-center">
-          <p class="font-semibold mb-2">{{ sig.role }}</p>
-          <img :src="sig.signature" :alt="`${sig.role} signature`" class="h-16 mx-auto mb-2" />
-          <p class="font-semibold">{{ sig.name }}</p>
-          <p class="text-gray-600">{{ sig.position }}</p>
+      <div class="signature shadow-sm py-4 px-6 rounded-md mb-[10rem]">
+        <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
+        <div class="grid grid-cols-2 gap-6">
+          <!-- Proposer Signature -->
+          <div>
+            <p class="text-slate-500 text-sm">{{ t("purchase-rq.proposer") }}</p>
+            <a-image
+              :src="(requesterInfo as any)?.user_signature?.signature_url ?? '/public/2.png'"
+              alt="signature"
+              :width="180"
+              :height="100"
+              :preview="false"
+            />
+            <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+              <p>{{ requesterInfo?.username }}</p>
+              <p>{{ departmentInfo?.name }}</p>
+            </div>
+          </div>
+          <div>
+            <p class="text-slate-500 text-sm">{{ t("purchase-rq.approver") }}</p>
+            <a-image
+              :src="(requesterInfo as any)?.user_signature?.signature_url ?? '/public/2.png'"
+              alt="signature"
+              :width="180"
+              :height="100"
+              :preview="false"
+            />
+            <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+              <p>{{ requesterInfo?.username }}</p>
+              <p>{{ departmentInfo?.name }}</p>
+            </div>
+          </div>
+
+          <!-- Approver Signature -->
         </div>
       </div>
     </div>

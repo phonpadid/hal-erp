@@ -78,11 +78,12 @@ const populateForm = (entity: PurchaseRequestEntity) => {
 
   formState.value.purpose = entity.getPurposes();
   formState.value.addMore = entity.getItems().map((item) => ({
+    id: item.getId(),
     title: item.getTitle(),
     count: item.getQuantity().toString(),
     unit_id: Number(item.getUnitId()),
     price: item.getPrice(),
-    totalPrice: item.getTotalPrice(), // << ADDED: เพิ่ม totalPrice
+    totalPrice: item.getTotalPrice(),
     remark: item.getRemark(),
     file_name: item.getFileName() || "",
     images: item.file_name_url ? [item.file_name_url] : [],
@@ -189,6 +190,7 @@ async function handleSave(): Promise<boolean> {
       return {
         title: item.title,
         file_name: item.file_name || "",
+        file_name_url: null,
         quantity: quantity,
         price: item.price || 0,
         remark: item.remark,

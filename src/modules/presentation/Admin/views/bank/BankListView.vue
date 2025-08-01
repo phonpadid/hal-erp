@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { computed, onMounted, watch, ref, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";

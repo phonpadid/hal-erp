@@ -1,7 +1,11 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
+import { columns } from "./column";
+import { useI18n } from "vue-i18n";
+import { formatDate } from "@/modules/shared/formatdate";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
@@ -14,10 +18,53 @@ const dates = reactive({
   startDate: null,
   endDate: null,
 });
+const { t } = useI18n();
+const currentPage = ref(1);
+const pageSize = ref(10);
+const loading = ref(false);
+const purchaseRequestStore = usePurchaseRequestsStore();
 
-const handleDetailsDocument = (record: any) => {
-  console.log("Viewing details for document:", record);
-  router.push({ name: "purchaseRequestsDetail", params: { id: record.key } });
+const tablePagination = computed(() => ({
+  current: purchaseRequestStore.pagination.page,
+  pageSize: purchaseRequestStore.pagination.limit,
+  total: purchaseRequestStore.pagination.total,
+  showSizeChanger: true,
+}));
+
+const statusCounts = computed(() => {
+  return purchaseRequestStore.statusSummary.reduce((acc, current) => {
+    const statusKey = current.status.toLowerCase();
+    acc[statusKey] = current.amount;
+    return acc;
+  }, {} as Record<string, number>);
+});
+const statusCards = computed(() => {
+  const counts = statusCounts.value; // { pending: 18, approved: 0, ... }
+
+  return [
+    {
+      key: "pending",
+      label: t("purchase-rq.status.pending"),
+      count: counts.pending ?? 0,
+      textColor: "text-yellow-600",
+    },
+    // {
+    //   key: "approved",
+    //   label: t("purchase-rq.status.approved"),
+    //   count: counts.approved ?? 0,
+    //   textColor: "text-green-600",
+    // },
+    // {
+    //   key: "rejected",
+    //   label: t("purchase-rq.status.rejected"),
+    //   count: counts.rejected ?? 0,
+    //   textColor: "text-red-600",
+    // },
+  ];
+});
+
+const handleDetailsDocument = (id: any) => {
+  router.push({ name: "purchaseRequestsDetail", params: { id } });
 };
 
 const documentTypes = [
@@ -26,48 +73,18 @@ const documentTypes = [
   { label: "ສາຂາ", value: "branch" },
 ];
 
-const columns = [
-  {
-    title: "ເລກທີ",
-    dataIndex: "documentNumber",
-    key: "documentNumber",
-    width: 100,
-  },
-  {
-    title: "ຜູ້ສະເໜີ",
-    dataIndex: "documentName",
-    key: "documentName",
-    width: 200,
-  },
-  {
-    title: "ພະແນກ",
-    dataIndex: "department",
-    key: "department",
-    width: 150,
-  },
-  {
-    title: "ວັນທີສະເໜີ",
-    dataIndex: "createdDate",
-    key: "createdDate",
-    width: 150,
-  },
-  {
-    title: "ຈັດການ",
-    key: "actions",
-    width: 100,
-    fixed: "right",
-  },
-];
-
-const dataSource = ref([
-  {
-    key: "1",
-    documentNumber: "0036",
-    documentName: "ໃບນະເສນີ ຈັດໃຈ",
-    department: "ພັດທະນາລະບົບ",
-    createdDate: "26 ມີນາ 2025",
-  },
-]);
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    const apiParams: any = {
+      page: currentPage.value,
+      limit: pageSize.value,
+    };
+    await purchaseRequestStore.fetchAll(apiParams);
+  } finally {
+    loading.value = false;
+  }
+};
 
 const handleSearch = () => {
   console.log("Searching with:", {
@@ -76,18 +93,15 @@ const handleSearch = () => {
   });
 };
 
-// Pagination config
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: dataSource.value.length,
-  showSizeChanger: true,
-});
-
 // Handle table change
-const handleTableChange = (pag: any, filters: any, sorter: any) => {
-  console.log("Table changed:", { pag, filters, sorter });
+const handleTableChange = (pagination: any) => {
+  currentPage.value = pagination.current;
+  pageSize.value = pagination.pageSize;
+  fetchData();
 };
+onMounted(async () => {
+  await fetchData();
+});
 </script>
 
 <template>
@@ -98,11 +112,16 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
       color="#333446"
       class="flex justify-center items-center text-2xl"
     />
-    <span class="text-sm">ໃບສະເໜີ</span>
+    <span class="text-sm">{{ t("purchase-rq.field.proposal") }}</span>
   </div>
   <br />
-  <div class="flex items-center gap-2 mb-6">
-    <h1 class="text-xl font-semibold text-yellow-600">12 ໃບສະເໜີ</h1>
+
+  <div class="flex items-center gap-6 mb-6">
+    <div v-for="card in statusCards" :key="card.key" class="flex items-center gap-2">
+      <h1 class="text-xl font-semibold" :class="card.textColor">
+        {{ card.count }} {{ t("purchase-rq.field.proposal") }}
+      </h1>
+    </div>
   </div>
 
   <!-- Filters section -->
@@ -120,14 +139,13 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
       <!-- Radio buttons -->
       <!-- Department/Branch Select -->
       <div class="w-64">
-        <InputSelect v-model="filterType" :options="documentTypes" placeholder="ເລືອກພະແນກ" />
+        <InputSelect v-model:value="filterType" :options="documentTypes" placeholder="ເລືອກພະແນກ" />
       </div>
 
       <!-- Date Range Picker -->
       <div class="flex-grow">
         <DateTime v-model="dates.startDate" placeholder="ວັນທີ" />
       </div>
-
       <!-- Search Button -->
       <UiButton
         type="primary"
@@ -143,18 +161,28 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
   <!-- Table section -->
   <div class="bg-white rounded-lg shadow-sm">
     <Table
-      :columns="columns"
-      :data-source="dataSource"
-      :pagination="pagination"
+      :columns="columns(t)"
+      :data-source="purchaseRequestStore.requests"
+      :pagination="tablePagination"
       @change="handleTableChange"
+      :loading="loading"
     >
+      <template #username="{ record }">
+        <span class="text-gray-600">{{ record.getRequester()?.username }}</span>
+      </template>
+      <template #department="{ record }">
+        <span class="text-gray-600">{{ record.getDepartment()?.name }}</span>
+      </template>
+      <template #requested_date="{ record }">
+        <span class="text-gray-600">{{ formatDate(record.requested_date) }}</span>
+      </template>
       <!-- Custom cell rendering for actions column -->
       <template #actions="{ record }">
         <UiButton
           type="link"
           icon="ant-design:eye-outlined"
           color-class="flex items-center text-red-500 hover:!text-red-900"
-          @click="() => handleDetailsDocument(record)"
+          @click="() => handleDetailsDocument(record.getId())"
         >
           ລາຍລະອຽດ
         </UiButton>
