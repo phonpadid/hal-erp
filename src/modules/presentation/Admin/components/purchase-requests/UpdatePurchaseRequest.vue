@@ -15,7 +15,7 @@ const router = useRouter();
 const purchaseFormRef = ref<any>(null);
 const loading = ref(false);
 
-const id = route.params.id as string; // ดึง ID จาก URL
+const id = route.params.id as string;
 
 const handleUpdate = async () => {
   if (purchaseFormRef.value) {
@@ -32,18 +32,18 @@ const handleUpdate = async () => {
 const actionButtons = computed(() => [
   {
     label: t("button.cancel"),
-    onClick: () => router.back(), // ปุ่มยกเลิก ให้ย้อนกลับไปหน้าก่อนหน้า
+    onClick: () => router.back(),
     show: true,
     type: "default" as ButtonType,
     class: "button-hover",
   },
   {
-    label: t("purchase-rq.edit"), // "บันทึกการแก้ไข"
+    label: t("purchase-rq.edit"),
     onClick: handleUpdate,
     show: true,
     type: "primary" as ButtonType,
     class: "button-hover",
-    loading: loading.value, // ให้ปุ่มแสดง loading ขณะบันทึก
+    loading: loading.value,
   },
 ]);
 </script>

@@ -59,7 +59,6 @@ const getStatusLabel = (statusValue: string) => {
 // Computed properties for status counts
 const statusCounts = computed(() => {
   return purchaseRequestStore.statusSummary.reduce((acc, current) => {
-    console.log("current", current.amount);
     const statusKey = current.status.toLowerCase();
     acc[statusKey] = current.amount;
     return acc;
@@ -69,20 +68,19 @@ const statusCounts = computed(() => {
 const statusCards = computed(() => {
   return [
     {
-      label: t("purchase-rq.card_title.padding"), // "รอดำเนินการ"
-      // ใช้ ?? 0 เพื่อป้องกัน error ถ้าไม่มีข้อมูล pending (จะแสดงเป็น 0)
+      label: t("purchase-rq.card_title.padding"),
       count: statusCounts.value.pending ?? 0,
       icon: "solar:document-text-bold",
       textColor: "text-yellow-600",
     },
     {
-      label: t("purchase-rq.card_title.success"), // "สำเร็จ"
+      label: t("purchase-rq.card_title.success"),
       count: statusCounts.value.approved ?? 0,
       icon: "solar:clipboard-check-bold",
       textColor: "text-green-600",
     },
     {
-      label: t("purchase-rq.card_title.refused"), // "ปฏิเสธ"
+      label: t("purchase-rq.card_title.refused"),
       count: statusCounts.value.rejected ?? 0,
       icon: "solar:clipboard-remove-bold",
       textColor: "text-red-600",
@@ -99,13 +97,10 @@ const fetchData = async () => {
       limit: pageSize.value,
     };
 
-    // ตรวจสอบค่าที่เลือก ถ้าไม่ใช่ "all" ให้เพิ่ม vào apiParams
     if (selectedDocType.value !== "all") {
       apiParams.document_type_id = selectedDocType.value; // << FIXED KEY
     }
     if (selectedStatus.value !== "all") {
-      // API ต้องการ status_id แต่ dropdown ของเรามี value เป็น string ("pending", "approved")
-      // ที่นี่เราจะส่ง string ไปก่อน หาก API ต้องการ id จริงๆ ต้องมีการแปลงค่าที่นี่
       apiParams.status_id = selectedStatus.value; // << FIXED KEY
     }
 
