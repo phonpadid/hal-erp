@@ -21,7 +21,7 @@ const router = useRouter();
 
 // State
 const searchKeyword = ref<string>("");
-// Modal state
+// Modal State
 const modalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const selectedVendor = ref<VendorInterface | null>(null);
