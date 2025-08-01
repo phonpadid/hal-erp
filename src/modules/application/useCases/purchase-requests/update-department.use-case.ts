@@ -12,23 +12,24 @@ export class UpdatePurchaseRequestUseCase {
       throw new Error(`Purchase request with id ${id} not found`);
     }
 
-    existingRequest.update(
-      input.document.documentTypeId,
-      input.document.description,
-      input.expired_date,
-      input.purposes,
-      input.purchase_request_items?.map((item) =>
-        PurchaseRequestItemEntity.create(
-          item.title,
-          item.file_name,
-          item.quantity,
-          item.unit_id.toString(),
-          item.price,
-          item.quantity * item.price,
-          item.remark || ""
-        )
-      )
-    );
+   existingRequest.update(
+  input.document.documentTypeId,
+  input.document.description,
+  input.expired_date,
+  input.purposes,
+  input.purchase_request_items?.map((item) =>
+    PurchaseRequestItemEntity.create(
+      item.title,
+      item.file_name ?? null,
+      item.file_name_url ?? null,
+      Number(item.quantity),
+      String(item.unit_id),
+      Number(item.price),
+      Number(item.quantity) * Number(item.price),
+      item.remark ?? ""
+    )
+  )
+);
 
     return await this.repository.update(existingRequest);
   }

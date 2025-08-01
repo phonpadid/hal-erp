@@ -9,28 +9,23 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("purchase_qequest.table.name"),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "title",
+      key: "title",
     },
     {
       title: t("purchase_qequest.table.quantity"),
       dataIndex: "quantity",
       key: "quantity",
     },
-    // {
-    //   title: t("purchase_qequest.table.unit"),
-    //   dataIndex: "unit",
-    //   key: "unit",
-    // },
     {
       title: t("purchase_qequest.table.price"),
-      dataIndex: "price",
-      key: "price",
+      dataIndex: "total_price",
+      key: "total_price",
     },
     {
       title: t("purchase_qequest.table.note"),
-      dataIndex: "note",
-      key: "note",
+      dataIndex: "remark",
+      key: "remark",
     },
   ];
 }

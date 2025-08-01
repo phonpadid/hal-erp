@@ -209,7 +209,7 @@ onMounted(async () => {
           :placeholder="t('currency.placeholder.search')"
         />
         <UiInputSelect
-          v-model="departmentId"
+          v-model:value="departmentId"
           :options="departmentOptions"
           :placeholder="$t('budget_accounts.form.departmentPlaceholder')"
           :disabled="loading"

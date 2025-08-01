@@ -134,7 +134,7 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
       <!-- Radio buttons -->
       <!-- Department/Branch Select -->
       <div class="w-64">
-        <InputSelect v-model="filterType" :options="documentTypes" placeholder="ເລືອກພະແນກ" />
+        <InputSelect v-model:value="filterType" :options="documentTypes" placeholder="ເລືອກພະແນກ" />
       </div>
 
       <!-- Date Range Picker -->

@@ -1,10 +1,12 @@
 export interface PurchaseRequestItemDTO {
+  file_name_url: null;
   title: string;
   file_name: string;
   quantity: number;
   unit_id: number;
   price: number;
   remark?: string;
+  images?: string[] | null; 
 }
 
 interface DocumentDTO {
@@ -20,7 +22,6 @@ export interface CreatePurchaseRequestDTO {
 }
 
 export interface UpdatePurchaseRequestDTO {
-
   expired_date: string;
   purposes: string;
   document: DocumentDTO;

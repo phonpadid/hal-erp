@@ -132,7 +132,7 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
   <div class="bg-white p-2 rounded-lg shadow-sm">
     <div class="flex items-center gap-4">
       <div class="w-64">
-        <InputSelect v-model="filterType" :options="documentTypes" placeholder="ເລືອກພະແນກ" />
+        <InputSelect v-model:value="filterType" :options="documentTypes" placeholder="ເລືອກພະແນກ" />
       </div>
       <div>
         <DateTime v-model="dates.startDate" placeholder="ວັນທີ" />

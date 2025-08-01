@@ -7,7 +7,7 @@ export class PurchaseRequestItemEntity {
   private file_name: string | null; // Changed to array as requested
   public file_name_url: string | null;
 
-  private quantity: number;
+  private quantity: number ;
   private unit_id: string;
   private unit: UnitEntity | null;
   private price: number;
