@@ -97,10 +97,6 @@ defineExpose({ submitForm });
         <div v-if="!logoFile && existingLogoUrl" class="mb-2">
           <img :src="existingLogoUrl" alt="Logo Preview" class="w-32 h-32 object-contain border" />
         </div>
-        <!-- Show preview of uploaded file (string = base64 or url) -->
-        <div v-else-if="typeof logoFile === 'string' && logoFile" class="mb-2">
-          <img :src="logoFile" alt="Logo Preview" class="w-32 h-32 object-contain border" />
-        </div>
         <UploadFile
           v-model="logoFile"
           :width="'100%'"
