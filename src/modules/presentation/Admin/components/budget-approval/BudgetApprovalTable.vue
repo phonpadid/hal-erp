@@ -22,7 +22,7 @@ const dates = reactive({
 });
 
 const handleDetailsDocument = (record: any) => {
-  console.log("Viewing details for document:", record);
+  // console.log("Viewing details for document:", record);
   router.push({ name: "budget-approval-detail", params: { id: record.id } });
 };
 

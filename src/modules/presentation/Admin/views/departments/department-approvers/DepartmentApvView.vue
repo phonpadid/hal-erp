@@ -107,7 +107,7 @@ const handleCreate = async (): Promise<void> => {
       user_id: Number(formModel.user_id),
     });
     success(t("departments.notify.created"));
-    await dpmApproverList(); // Refresh the list
+    await dpmApproverList();
     await refreshUsers();
     createModalVisible.value = false;
   } catch (error: unknown) {

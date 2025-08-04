@@ -117,33 +117,40 @@ const mesage = `"${t("budget-apv-rule.field.max")}" ${t(
 )} "${t("budget-apv-rule.field.min")}"`;
 
 const handleCreate = async (): Promise<void> => {
+  await formRef.value.submitForm();
   try {
     loading.value = true;
-    await formRef.value.submitForm();
-    if (Number(formModel.max_amount) < Number(formModel.min_amount)) {
-      error(mesage);
-    } else {
-      await budgetApvRuleStore.createBudgetApvRule({
-        department_id: formModel.department_id,
-        approver_id: formModel.approver_id,
-        min_amount: formModel.min_amount ?? 0,
-        max_amount: formModel.max_amount ?? 0,
-      });
-      success(t("departments.notify.created"));
-      await loadDpm(); // Refresh the list
-      await userStore.fetchDepartmentUser({
-        page: 1,
-        limit: 1000,
-        type: "approval_rules",
-      });
-      createModalVisible.value = false;
-      formModel.department_id = "";
-      formModel.approver_id = "";
-      formModel.min_amount = undefined;
-      formModel.max_amount = undefined;
-    }
+    await budgetApvRuleStore.createBudgetApvRule({
+      department_id: formModel.department_id,
+      approver_id: formModel.approver_id,
+      min_amount: formModel.min_amount ?? 0,
+      max_amount: formModel.max_amount ?? 0,
+    });
+    success(t("departments.notify.created"));
+    await loadDpm();
+    await userStore.fetchDepartmentUser({
+      page: 1,
+      limit: 1000,
+      type: "approval_rules",
+    });
+    createModalVisible.value = false;
+    formModel.department_id = "";
+    formModel.approver_id = "";
+    formModel.min_amount = undefined;
+    formModel.max_amount = undefined;
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    let errorMessage = "Unknown error";
+    if (typeof error === 'object' && error !== null) {
+      const maybeRef = error as { value?: Error; _value?: Error } | Error;
+
+      if (typeof maybeRef === 'object' && maybeRef !== null && 'value' in maybeRef && maybeRef.value instanceof Error) {
+        errorMessage = maybeRef.value.message;
+      } else if (typeof maybeRef === 'object' && maybeRef !== null && '_value' in maybeRef && maybeRef._value instanceof Error) {
+        errorMessage = maybeRef._value.message;
+      } else if (maybeRef instanceof Error) {
+        errorMessage = maybeRef.message;
+      }
+    }
     warning(t("messages.error.title"), errorMessage);
   } finally {
     loading.value = false;
