@@ -104,9 +104,19 @@ export class BudGetItemEntity {
     id: string,
     name: string,
     budget_account_id: string,
-    allocated_amount: number
+    allocated_amount: number,
+    description: string
   ): BudGetItemEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-    return new BudGetItemEntity(id, name, budget_account_id, allocated_amount, now, now, null);
+    return new BudGetItemEntity(
+      id,
+      name,
+      budget_account_id,
+      allocated_amount,
+      description,
+      now,
+      now,
+      null
+    );
   }
 }
