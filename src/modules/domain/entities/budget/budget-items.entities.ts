@@ -8,6 +8,7 @@ export class BudGetItemEntity {
   private budget_account: BudgetAccountInterface | undefined;
   private name: string;
   private allocated_amount: string | number;
+  private description: string;
   private format_allocated_amount: string | number;
   private created_at: string;
   private updated_at: string;
@@ -18,6 +19,7 @@ export class BudGetItemEntity {
     budget_account_id: string,
     name: string,
     allocated_amount: string | number,
+    description: string,
     created_at: string,
     updated_at: string,
     deleted_at: string | null = null,
@@ -27,6 +29,7 @@ export class BudGetItemEntity {
     this.budget_account_id = budget_account_id;
     this.name = name;
     this.budget_account = budget_account;
+    this.description = description;
     this.allocated_amount = allocated_amount;
     this.format_allocated_amount = formatPrice(Number(allocated_amount));
     this.created_at = formatDate(created_at);
@@ -48,6 +51,10 @@ export class BudGetItemEntity {
 
   public getAllocatedAmount(): number | string | undefined {
     return this.allocated_amount;
+  }
+
+  public getDescription(): string {
+    return this.description;
   }
 
   public getFormattedAllocatedAmount(): string | number | undefined {

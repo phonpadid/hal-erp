@@ -13,21 +13,23 @@ export interface BudgetItemtDTO {
 export interface CreateBudgetItemDTO {
   budget_accountId: number;
   name: string;
-  budget_item_details: Array<{
-    name: string;
-    provinceId: number;
-    allocated_amount: number;
-    description: string;
-  }>;
+  allocated_amount: number;
+  description: string;
+  // budget_item_details: Array<{
+  //   name: string;
+  //   provinceId: number;
+  //   allocated_amount: number;
+  //   description: string;
+  // }>;
 }
 export interface UpdateBudgetItemDTO {
   id: string;
   budget_accountId: number;
   name: string;
-  budget_item_details: Array<{
-    name: string;
-    provinceId: number;
-    allocated_amount: number;
-    description: string;
-  }>;
+  // budget_item_details: Array<{
+  //   name: string;
+  //   provinceId: number;
+  //   allocated_amount: number;
+  //   description: string;
+  // }>;
 }

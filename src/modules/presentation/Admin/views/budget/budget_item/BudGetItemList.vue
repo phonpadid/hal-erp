@@ -6,7 +6,7 @@ import type { TablePaginationType } from "@/common/shared/components/table/Table
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useBudgetItemStore } from "../../../stores/budget/budget-item.store";
 import { columns } from "./column";
-import { useRouter } from "vue-router";
+// import { useRouter } from "vue-router";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -17,7 +17,7 @@ import { formatPrice } from "@/modules/shared/utils/format-price";
 const { t } = useI18n();
 const budgetItemStore = useBudgetItemStore();
 const { success, error } = useNotification();
-const router = useRouter();
+// const router = useRouter();
 
 // Props for filtered view
 const props = defineProps<{
@@ -28,12 +28,13 @@ const props = defineProps<{
 const budgetAccounts = ref<Map<string, string>>(new Map());
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
-const showDetails = (record: BudgetItemInterface) => {
-  router.push({
-    name: "budget_items_details",
-    params: { id: record.id },
-  });
-};
+
+// const showDetails = (record: BudgetItemInterface) => {
+//   router.push({
+//     name: "budget_items_details",
+//     params: { id: record.id },
+//   });
+// };
 
 // Modal state
 const modalVisible = ref<boolean>(false);
@@ -140,12 +141,14 @@ const handleModalCancel = () => {
 const handleFormSubmit = async (formData: {
   budget_accountId: number;
   name: string;
-  budget_item_details: Array<{
-    name: string;
-    provinceId: number;
-    allocated_amount: number;
-    description: string;
-  }>;
+  allocated_amount: number;
+  description: string;
+  // budget_item_details: Array<{
+  //   name: string;
+  //   provinceId: number;
+  //   allocated_amount: number;
+  //   description: string;
+  // }>;
 }) => {
   try {
     submitLoading.value = true;
@@ -254,14 +257,14 @@ const handleDeleteConfirm = async () => {
       <!-- Actions column -->
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
-          <UiButton
+          <!-- <UiButton
             type=""
             icon="ic:baseline-remove-red-eye"
             size="small"
             @click="showDetails(record)"
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
-          />
+          /> -->
           <UiButton
             type=""
             icon="ant-design:edit-outlined"
