@@ -22,6 +22,7 @@ export interface BudgetItemInterface {
   budget_account_id: string;
   name: string;
   allocated_amount: string;
+  description: string;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -31,22 +32,24 @@ export interface BudgetItemInterface {
 export interface CreateBudgetItemInterface {
   budget_accountId: number;
   name: string;
-  budget_item_details: Array<{
-    name: string;
-    provinceId: number;
-    allocated_amount: number;
-    description: string;
-  }>;
+  allocated_amount: number;
+  description: string;
+  // budget_item_details: Array<{
+  //   name: string;
+  //   provinceId: number;
+  //   allocated_amount: number;
+  //   description: string;
+  // }>;
 }
 
 export interface UpdateBudgetItemInterface {
   id: string;
   budget_accountId: number;
   name: string;
-  budget_item_details: Array<{
-    name: string;
-    provinceId: number;
-    allocated_amount: number;
-    description: string;
-  }>;
+  // budget_item_details: Array<{
+  //   name: string;
+  //   provinceId: number;
+  //   allocated_amount: number;
+  //   description: string;
+  // }>;
 }

@@ -90,7 +90,7 @@
     "nameMax": "Item name must not exceed 100 characters",
     "allocatedAmountRequired": "Please enter allocated amount",
     "allocatedAmountFormat": "Allocated amount must be a number with maximum 2 decimal places",
-    "detailsRequired": "At least one budget item detail is required",
+    "detailsRequired": "At least one budget item is required",
     "provinceRequired": "Province is required for item {index}",
     "detailAllocatedAmountRequired": "Allocated amount is required for item {index}",
     "detailAllocatedAmountFormat": "Allocated amount must be a number with maximum 2 decimal places for item {index}",

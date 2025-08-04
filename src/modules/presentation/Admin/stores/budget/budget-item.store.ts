@@ -177,6 +177,7 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
       name: budgetItem.getName() || "",
       budget_account_id: budgetItem.getBudgetAccountsId() || "",
       allocated_amount: String(budgetItem.getAllocatedAmount() || ""),
+      description: budgetItem.getDescription() || "",
       created_at: budgetItem.getCreatedAt() || "",
       updated_at: budgetItem.getUpdatedAt() || "",
       deleted_at: budgetItem.getDeletedAt(),
