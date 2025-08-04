@@ -90,7 +90,7 @@
     "nameMax": "ຊື່ລາຍການຕ້ອງບໍ່ເກີນ 100 ຕົວອັກສອນ",
     "allocatedAmountRequired": "ກະລຸນາປ້ອນຈໍານວນເງິນທີ່ຈັດສັນ",
     "allocatedAmountFormat": "ຈໍານວນເງິນຕ້ອງເປັນຕົວເລກ ແລະ ມີທົດນິຍົມບໍ່ເກີນ 2 ຕໍາແໜ່ງ",
-    "detailsRequired": "ຕ້ອງມີລາຍລະອຽດຢ່າງໜ້ອຍໜຶ່ງລາຍການ",
+    "detailsRequired": "ກະລຸນາ ປ້ອນລາຍລະອຽດກ່ອນ",
     "provinceRequired": "ແຂວງແມ່ນຈໍາເປັນສໍາລັບລາຍການ {index}",
     "detailAllocatedAmountRequired": "ຈໍານວນເງິນທີ່ຈັດສັນແມ່ນຈໍາເປັນສໍາລັບລາຍການ {index}",
     "detailAllocatedAmountFormat": "ຈໍານວນເງິນທີ່ຈັດສັນຕ້ອງເປັນຕົວເລກທີ່ມີທົດນິຍົມບໍ່ເກີນ 2 ຕໍາແໜ່ງສໍາລັບລາຍການ {index}",

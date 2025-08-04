@@ -114,6 +114,7 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
       budGet.budget_account_id.toString(),
       budGet.name,
       budGet.allocated_amount,
+      budGet.description || "",
       budGet.created_at || "",
       budGet.updated_at || "",
       budGet.deleted_at || null,

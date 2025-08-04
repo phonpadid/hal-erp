@@ -19,6 +19,28 @@ export const createBudgetItemValidation = (t: (key: string) => string): Record<s
         message: t("budget_items.validation.nameMax"),
       },
     ],
+    allocated_amount: [
+      {
+        required: true,
+        message: t("budget_items.validation.detailAllocatedAmountRequired"),
+      },
+      {
+        validator: (_: any, value: string) => {
+          if (!value) return Promise.resolve();
+
+          if (!/^[0-9]+(\.[0-9]{1,2})?$/.test(value)) {
+            return Promise.reject(t("budget_items.validation.detailAllocatedAmountFormat"));
+          }
+          return Promise.resolve();
+        },
+      },
+    ],
+    description: [
+      {
+        required: true,
+        message: t("budget_items.validation.detailsRequired"),
+      },
+    ],
   };
 };
 
