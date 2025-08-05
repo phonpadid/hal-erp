@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, defineProps, defineEmits, watch, onMounted, computed, nextTick } from "vue";
+import { ref, reactive, defineProps, defineEmits, watch, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { BudgetItemInterface } from "@/modules/interfaces/budget/budget-item.interface";
 import {
   createBudgetItemValidation,
-  createItemDetailRules,
+  // createItemDetailRules,
 } from "../../views/budget/budget_item/validation/bud-get-item.validation";
 import { useBudgetAccountStore } from "@/modules/presentation/Admin/stores/budget/bud-get-account.store";
 import { useProvinceStore } from "@/modules/presentation/Admin/stores/province.store";
@@ -14,7 +14,7 @@ import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiTextArea from "@/common/shared/components/Input/Textarea.vue";
-import UiButton from "@/common/shared/components/button/UiButton.vue";
+// import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiInputNumber from '@/common/shared/components/Input/InputNumber.vue';
 
 const { t } = useI18n();
@@ -35,12 +35,14 @@ const emit = defineEmits<{
     data: {
       budget_accountId: number;
       name: string;
-      budget_item_details: Array<{
-        name: string;
-        provinceId: number;
-        allocated_amount: number;
-        description: string;
-      }>;
+      allocated_amount: number;
+      description: string;
+      // budget_item_details: Array<{
+      //   name: string;
+      //   provinceId: number;
+      //   allocated_amount: number;
+      //   description: string;
+      // }>;
     }
   ): void;
   (e: "cancel"): void;
@@ -49,19 +51,21 @@ const emit = defineEmits<{
 // แยก formState เป็นสองส่วน: ข้อมูลหลักและข้อมูลรายละเอียด
 const formRef = ref();
 const formState = reactive({
-  budget_account_id: "", // ยังใช้ชื่อเดิมในฟอร์ม
+  budget_account_id: "",
   name: "",
+  allocated_amount: 0,
+  description: "",
 });
 
-// สร้าง array สำหรับเก็บรายละเอียด
-const itemDetails = ref([
-  {
-    name: "",
-    province_id: "", // จังหวัดที่เลือกในฟอร์ม
-    allocated_amount: 0,
-    description: "",
-  },
-]);
+
+// const itemDetails = ref([
+//   {
+//     name: "",
+//     province_id: "",
+//     allocated_amount: 0,
+//     description: "",
+//   },
+// ]);
 
 // Loading states
 const loadingBudgetAccounts = ref(false);
@@ -136,69 +140,73 @@ watch(
       Object.assign(formState, {
         budget_account_id: newBudgetItem.budget_account_id || "",
         name: newBudgetItem.name || "",
+        allocated_amount: newBudgetItem.allocated_amount || 0,
+        description: newBudgetItem.description || "",
       });
     } else {
       Object.assign(formState, {
         budget_account_id: props.preselectedBudgetAccountId || "",
         name: "",
+        allocated_amount: 0,
+        description: "",
       });
 
-      itemDetails.value = [
-        {
-          name: "",
-          province_id: "",
-          allocated_amount: 0,
-          description: "",
-        },
-      ];
+      // itemDetails.value = [
+      //   {
+      //     name: "",
+      //     province_id: "",
+      //     allocated_amount: 0,
+      //     description: "",
+      //   },
+      // ];
     }
   },
   { immediate: true }
 );
 
-const addDetailItem = () => {
-  itemDetails.value.push({
-    name: formState.name,
-    province_id: "",
-    allocated_amount: 0,
-    description: "",
-  });
+// const addDetailItem = () => {
+//   itemDetails.value.push({
+//     name: formState.name,
+//     province_id: "",
+//     allocated_amount: 0,
+//     description: "",
+//   });
 
-  nextTick(() => {});
-};
+//   nextTick(() => {});
+// };
 
-const removeDetailItem = (index: number) => {
-  if (itemDetails.value.length > 1) {
-    itemDetails.value.splice(index, 1);
-    if (!props.isEditMode) {
-      nextTick(() => {
-        formRef.value?.validateFields();
-      });
-    }
-  } else {
-    itemDetails.value[0] = {
-      name: formState.name,
-      province_id: "",
-      allocated_amount: 0,
-      description: "",
-    };
+// const removeDetailItem = (index: number) => {
+//   if (itemDetails.value.length > 1) {
+//     itemDetails.value.splice(index, 1);
+//     if (!props.isEditMode) {
+//       nextTick(() => {
+//         formRef.value?.validateFields();
+//       });
+//     }
+//   } else {
+//     itemDetails.value[0] = {
+//       name: formState.name,
+//       province_id: "",
+//       allocated_amount: 0,
+//       description: "",
+//     };
 
-    // Only validate these fields if not in edit mode
-    if (!props.isEditMode) {
-      formRef.value?.validateFields([`province_0`, `allocatedAmount_0`]);
-    }
-  }
-};
+//     // Only validate these fields if not in edit mode
+//     if (!props.isEditMode) {
+//       formRef.value?.validateFields([`province_0`, `allocatedAmount_0`]);
+//     }
+//   }
+// };
 
-// เมื่อชื่อรายการหลักเปลี่ยน ให้อัปเดตชื่อในรายละเอียดด้วย
-watch(
-  () => formState.name,
-  (newName) => {
-    itemDetails.value.forEach((item) => {
-      item.name = newName;
-    });
-  }
-);
+
+// watch(
+//   () => formState.name,
+//   (newName) => {
+//     itemDetails.value.forEach((item) => {
+//       item.name = newName;
+//     });
+//   }
+// );
 
 // Validation rules
 const baseRules = createBudgetItemValidation(t);
@@ -216,37 +224,37 @@ const rules = computed(() => {
   // In create mode, include all validations
   const allRules = { ...baseRules };
 
-  itemDetails.value.forEach((_, index) => {
-    const detailRules = createItemDetailRules(t, index);
-    Object.assign(allRules, detailRules);
-  });
+  // itemDetails.value.forEach((_, index) => {
+  //   const detailRules = createItemDetailRules(t, index);
+  //   Object.assign(allRules, detailRules);
+  // });
 
   return allRules;
 });
 
-const formatAllocatedAmount = (index: number) => {
-  const value = itemDetails.value[index].allocated_amount;
-  if (value) {
-    try {
-      // ลบอักขระที่ไม่ใช่ตัวเลขและจุดทศนิยม
-      const cleanValue = value.toString().replace(/[^\d.]/g, "");
-      const numValue = parseFloat(cleanValue);
+// const formatAllocatedAmount = (index: number) => {
+//   const value = itemDetails.value[index].allocated_amount;
+//   if (value) {
+//     try {
+//       // ลบอักขระที่ไม่ใช่ตัวเลขและจุดทศนิยม
+//       const cleanValue = value.toString().replace(/[^\d.]/g, "");
+//       const numValue = parseFloat(cleanValue);
 
-      if (!isNaN(numValue)) {
-        itemDetails.value[index].allocated_amount = parseFloat(numValue.toFixed(2));
-      }
-    } catch (err) {
-      console.error("Error formatting amount:", err);
-    }
-  }
-};
+//       if (!isNaN(numValue)) {
+//         itemDetails.value[index].allocated_amount = parseFloat(numValue.toFixed(2));
+//       }
+//     } catch (err) {
+//       console.error("Error formatting amount:", err);
+//     }
+//   }
+// };
 
 const submitForm = async () => {
   try {
     formValidationError.value = undefined;
 
     // Format amounts
-    itemDetails.value.forEach((_, index) => formatAllocatedAmount(index));
+    // itemDetails.value.forEach((_, index) => formatAllocatedAmount(index));
 
     // In edit mode, only validate the name field
     if (props.isEditMode) {
@@ -255,19 +263,21 @@ const submitForm = async () => {
       await formRef.value.validate();
     }
 
-    const details = itemDetails.value.map((item) => ({
-      name: item.name || formState.name,
-      provinceId: parseInt(item.province_id) || 0, // Add fallback to prevent NaN
-      allocated_amount: typeof item.allocated_amount === 'string'
-        ? parseFloat(item.allocated_amount) || 0
-        : item.allocated_amount || 0, // Add fallback to prevent NaN
-      description: item.description || "",
-    }));
+    // const details = itemDetails.value.map((item) => ({
+    //   name: item.name || formState.name,
+    //   provinceId: parseInt(item.province_id) || 0, // Add fallback to prevent NaN
+    //   allocated_amount: typeof item.allocated_amount === 'string'
+    //     ? parseFloat(item.allocated_amount) || 0
+    //     : item.allocated_amount || 0, // Add fallback to prevent NaN
+    //   description: item.description || "",
+    // }));
 
     emit("submit", {
       budget_accountId: parseInt(formState.budget_account_id) || 0, // Add fallback
       name: formState.name,
-      budget_item_details: details,
+      allocated_amount: formState.allocated_amount || 0,
+      description: formState.description || "",
+      // budget_item_details: details,
     });
   } catch (error) {
     console.error("Form validation failed:", error);
@@ -309,15 +319,34 @@ defineExpose({
       />
     </UiFormItem>
 
+    <UiFormItem :label="$t('budget_items.form.allocatedAmount')" name="allocated_amount" required>
+      <UiInputNumber
+        v-model="formState.allocated_amount"
+        :placeholder="$t('budget_accounts.form.allocatedAmountPlaceholder')"
+        :disabled="loading"
+        :formatter="(value: string | number) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+        :parser="(value: string) => value.replace(/\$\s?|(,*)/g, '')"
+      />
+    </UiFormItem>
+
+    <UiFormItem :label="$t('budget_items.form.description')" name="description">
+      <UiTextArea
+        v-model="formState.description"
+        :placeholder="$t('budget_items.form.descriptionPlaceholder')"
+        :disabled="loading"
+        :rows="3"
+      />
+    </UiFormItem>
+
     <!-- Details -->
-    <div class="mt-4" v-if="!props.isEditMode">
+    <!-- <div class="mt-4" v-if="!props.isEditMode">
       <h3 class="text-lg font-medium mb-2">{{ $t("budget_items.form.detailsTitle") }}</h3>
 
       <div v-if="formValidationError" class="mb-3 text-red-500">
         {{ formValidationError }}
-      </div>
+      </div> -->
 
-      <div
+    <!-- <div
         v-for="(item, index) in itemDetails"
         :key="index"
         class="border rounded p-4 mb-4 bg-gray-50"
@@ -336,11 +365,10 @@ defineExpose({
           />
         </div>
 
-        <!-- Province -->
+
         <div class="gap-3">
           <span class="text-red-600">*</span>{{ $t("budget_items.form.province") }}
         </div>
-        <!-- :label="$t('budget_items.form.province')" :name="`province_${index}`" -->
         <UiFormItem>
           <UiInputSelect
             v-model="item.province_id"
@@ -351,7 +379,7 @@ defineExpose({
           />
         </UiFormItem>
 
-        <!-- amount -->
+
         <div class="gap-3">
           <span class="text-red-600">*</span>{{ $t("budget_items.form.allocatedAmount") }}
         </div>
@@ -365,7 +393,7 @@ defineExpose({
           />
         </UiFormItem>
 
-        <!-- descript -->
+
         <UiFormItem :label="$t('budget_items.form.description')" :name="`description_${index}`">
           <UiTextArea
             v-model="item.description"
@@ -374,10 +402,9 @@ defineExpose({
             :rows="3"
           />
         </UiFormItem>
-      </div>
+    </div>
 
-      <!-- button -->
-      <div class="mt-3 flex justify-center">
+    <div class="mt-3 flex justify-center">
         <UiButton
           type="dashed"
           block
@@ -387,7 +414,8 @@ defineExpose({
         >
           <span>{{ $t("budget_items.form.addDetail") }}</span>
         </UiButton>
-      </div>
-    </div>
+      </div> -->
+    <!-- </div> -->
+
   </UiForm>
 </template>
