@@ -24,8 +24,8 @@ export class ApprovalWorkflowStepServiceImpl implements ApprovalWorkflowStepServ
     this.getOneApprovalWorkflowStepUseCase = new GetOneApprovalWorkflowStepUseCase(approvalFlowStepRepo);
     this.getAllApprovalWorkflowStepUseCase = new GetAllApprovalWorkflowStepUseCase(approvalFlowStepRepo);
   }
-  async create(input: CreateApprovalWorkflowStepDTO): Promise<ApprovalWorkflowStepEntity> {
-    return await this.createApprovalWorkflowStepUseCase.execute(input);
+  async create(id: number, input: CreateApprovalWorkflowStepDTO): Promise<ApprovalWorkflowStepEntity> {
+    return await this.createApprovalWorkflowStepUseCase.execute(id, input);
   }
 
   async getOne(id: string): Promise<ApprovalWorkflowStepEntity | null> {

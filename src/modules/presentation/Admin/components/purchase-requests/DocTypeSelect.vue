@@ -6,7 +6,7 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { t } from "@/common/config/i18n/i18n.config";
 import type { DocumentTypeEntity } from "@/modules/domain/entities/document-type.entities";
 const formState = reactive({
-  document_type_id: "all",
+  document_type_id: "",
 });
 export type FormState = typeof formState;
 interface Props {
