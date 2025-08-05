@@ -28,6 +28,12 @@
   "description": "Detail",
   "edit": "Edit",
   "date": "Date",
+  "all": "All",
+  "status":{
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
   "card_title": {
     "title": "Procurement proposal title",
     "padding": "In progress",

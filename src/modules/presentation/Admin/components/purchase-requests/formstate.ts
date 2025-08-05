@@ -3,10 +3,11 @@
 import { ref } from "vue";
 import type { Dayjs } from "dayjs";
 export interface AddMoreItem {
+  id?: number | string | null;
   totalPrice: number;
   title: string;
-  count: string; // รับเป็น string จาก input, ค่อยแปลงเป็น number ตอนบันทึก
-  unit_id: number | undefined; // เพิ่ม unit_id
+  count: string;
+  unit_id: number | undefined;
   price: number | undefined;
   images: string[];
   file_name: string;
@@ -22,6 +23,7 @@ export interface FormState {
 
 // 2. สร้างฟังก์ชันสำหรับ new item ให้ตรงกับ Interface
 const createNewItem = (): AddMoreItem => ({
+  id: null,
   title: "",
   count: "",
   unit_id: undefined,

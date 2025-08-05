@@ -32,14 +32,14 @@ interface PurchaseRequestApiModel {
     documentTypeId: number;
     department: any;
     requester: any;
-    position: any[] | null; // << แก้ไข Type ให้เป็น Array หรือ null
+    position: any[] | null;
     document_type: any;
   };
   pr_number?: string;
   requested_date?: string;
   expired_date: string;
   purposes: string;
-  purchase_request_item: PurchaseRequestItemApiModel[]; // << แก้ไขชื่อ key ให้ไม่มี 's'
+  purchase_request_item: PurchaseRequestItemApiModel[];
   created_at?: string;
   updated_at?: string;
   deleted_at?: string;
@@ -64,6 +64,8 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       const response = (await api.get(`/purchase-requests/${id}`)) as {
         data: ApiResponse<PurchaseRequestApiModel>;
       };
+
+      console.log("--- RAW API Response ---:", response.data.data);
       return this.toDomainModel(response.data.data);
     } catch (error) {
       const axiosError = error as AxiosError;
@@ -97,17 +99,15 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
     }
   }
 
-  async update(input: PurchaseRequestEntity): Promise<PurchaseRequestEntity> {
+  async update(id: string, payload: any): Promise<PurchaseRequestEntity> {
     try {
-      const response = (await api.put(
-        `/purchase-requests/${input.getId()}`,
-        this.toApiModel(input)
-      )) as {
+      console.log(`Repository updating ID: ${id} with payload:`, payload);
+      const response = (await api.put(`/purchase-requests/${id}`, payload)) as {
         data: ApiResponse<PurchaseRequestApiModel>;
       };
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      this.handleApiError(error, `Failed to update purchase request with id ${input.getId()}`);
+      this.handleApiError(error, `Failed to update purchase request with id ${id}`);
     }
   }
 
@@ -129,7 +129,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       expired_date: input.getExpiredDate(),
       purposes: input.getPurposes(),
 
-      purchase_request_item:
+      purchase_request_items:
         input.getItems()?.map((item) => ({
           title: item.getTitle(),
           file_name: item.getFileName(),
@@ -162,23 +162,23 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       data.created_at || null,
       data.updated_at || null,
       data.deleted_at || null
-      
     );
 
     if (data.purchase_request_item) {
       const items = data.purchase_request_item.map((item: any) => {
-        const itemEntity = PurchaseRequestItemEntity.create(
+        return new PurchaseRequestItemEntity(
+          item.id,
           item.title,
           item.file_name,
           item.file_name_url,
           item.quantity,
           item.unit_id.toString(),
+          item.unit,
           item.price,
           item.total_price,
+          null, // purchase_request (ไม่จำเป็น)
           item.remark || ""
         );
-
-        return itemEntity;
       });
       purchaseRequest.setItems(items);
     }
