@@ -75,7 +75,7 @@ const showCreateModal = (): void => {
 };
 
 const showEditModal = (record: ApprovalWorkflowApiModel): void => {
-  const id = record.document_types?.id ?? ''
+  const id = record.document_type?.id ?? ''
   selectedData.value = record;
   formModel.name = record.name;
   formModel.document_type_id = id?.toString();

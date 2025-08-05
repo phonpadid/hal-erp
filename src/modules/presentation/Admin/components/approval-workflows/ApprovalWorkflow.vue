@@ -13,7 +13,7 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { useDocumentTypeStore } from "../../stores/document-type.store";
 import { useUserStore } from "../../stores/user.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import { approvalWorkflowStore, formState, moreFunction } from "../../stores/approval-workflow.store";
+import { approvalWorkflowStore, formState, moreFunction, resetForm } from "../../stores/approval-workflow.store";
 import { apvStepRules } from "../../views/approval-workflows/validation/approval-workflow.validate";
 import { useRouter } from "vue-router";
 const {success, warning} = useNotification()
@@ -70,7 +70,9 @@ const rateOptions = computed(() => [
   { label: t("approval-workflow-step.no"), value: "false" },
 ]);
 
+
 onMounted(async () => {
+  resetForm()
   await dpmStore.fetchDepartment({ limit: 1000, page: 1 });
   await userStore.fetchUsers({ limit: 1000, page: 1 });
   await docTypeStore.fetchdocumentType({ limit: 1000, page: 1 });
@@ -99,6 +101,8 @@ const handleSubmit = async (): Promise<void> => {
         document_type_id: formState.document_type_id,
         steps: item
       });
+      formRef.value?.resetFields();
+      resetForm()
       success(t("approval-workflow-step.notify.created"));
       push({name: 'approval_workflows.index'})
   } catch (err: unknown) {

@@ -4,7 +4,7 @@ export function columns(t: (key: string) => string): Column[] {
   return [
     {
       title: t("approval-workflow.field.code"),
-      dataIndex: "document_types.code",
+      dataIndex: "document_type.code",
       key: "code",
     },
     {
@@ -14,7 +14,7 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("approval-workflow.field.doc_type"),
-      dataIndex: "document_types.name",
+      dataIndex: "document_type.name",
       key: "document_type",
     },
     {

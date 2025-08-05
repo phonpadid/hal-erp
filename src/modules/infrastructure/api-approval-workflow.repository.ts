@@ -110,11 +110,12 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
       data.id.toString(),
       data.name,
       String(data.documentTypeId),
-      data.document_types ? this.toDocumentTypeEntity(data.document_types) : undefined,
+      data.document_type ? this.toDocumentTypeEntity(data.document_type) : undefined,
       [],
       data.created_at || "",
       data.updated_at || "",
     );
+
     return res
   }
 

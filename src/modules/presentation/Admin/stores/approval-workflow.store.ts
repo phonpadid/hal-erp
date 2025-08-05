@@ -195,3 +195,20 @@ export const moreFunction = () => {
     requires_file: "false",
   });
 };
+
+export const resetForm = () => {
+  formState.name = "";
+  formState.document_type_id = "";
+  formState.addMore = [
+    {
+      approval_workflow_id: "",
+      department_id: "",
+      step_name: "",
+      step_number: 0,
+      type: "",
+      user_id: "",
+      requires_file: "false",
+    },
+  ];
+};
+
