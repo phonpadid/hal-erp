@@ -17,7 +17,7 @@ export const purchaseRequestRoutes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/purchase-requests/:id",
+    path: "/purchase-requests/edit/:id",
     name: "purchase_request_edit",
     component: UpdatePurchaseRequest,
     meta: {

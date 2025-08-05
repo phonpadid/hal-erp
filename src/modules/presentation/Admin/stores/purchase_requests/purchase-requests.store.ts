@@ -13,7 +13,6 @@ import type {
   StatusSummary,
 } from "@/modules/interfaces/purchase-requests/purchase-request.interface";
 import { ApiPurchaseRequestRepository } from "@/modules/infrastructure/purchase_requests/api-purchase-request.repository";
-import { PurchaseRequestItemEntity } from "@/modules/domain/entities/purchase-requests/purchase-request-item.entity";
 
 const repository = new ApiPurchaseRequestRepository();
 
@@ -101,7 +100,6 @@ export const usePurchaseRequestsStore = defineStore("purchaseRequests", () => {
       loading.value = false;
     }
   }
-
   async function update(
     id: string,
     data: UpdatePurchaseRequestDTO
@@ -109,32 +107,8 @@ export const usePurchaseRequestsStore = defineStore("purchaseRequests", () => {
     loading.value = true;
     error.value = null;
     try {
-      const oldRequest = await repository.findById(id);
-      if (!oldRequest) throw new Error("Not found");
-
-      // แปลง items จาก DTO ให้เป็น Entity
-      const itemsEntities = data.purchase_request_items?.map((itemDTO) =>
-        PurchaseRequestItemEntity.create(
-          itemDTO.title,
-          itemDTO.file_name,
-          null, // file_name_url (ถ้ามี)
-          itemDTO.quantity,
-          itemDTO.unit_id.toString(),
-          itemDTO.price,
-          itemDTO.quantity * itemDTO.price,
-          itemDTO.remark || ""
-        )
-      );
-
-      oldRequest.update(
-        data.document.documentTypeId,
-        data.document.description,
-        data.expired_date,
-        data.purposes,
-        itemsEntities
-      );
-
-      return await repository.update(oldRequest);
+      console.log("Store is sending this payload to repository:", data);
+      return await repository.update(id, data);
     } catch (err: any) {
       error.value = err.message || "Failed to update purchase request.";
       return null;

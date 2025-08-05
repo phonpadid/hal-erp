@@ -6,10 +6,7 @@ import { DeletePurchaseRequestUseCase } from "../useCases/purchase-requests/dele
 import { GetOnePurchaseRequestUseCase } from "../useCases/purchase-requests/get-one.usecase";
 import { GetAllPurchaseRequestUseCase } from "../useCases/purchase-requests/get-all.use-case";
 import type { PurchaseRequestRepository } from "@/modules/domain/repository/purchase-requests/purchase-request.repository";
-import type {
-  CreatePurchaseRequestDTO,
-  UpdatePurchaseRequestDTO,
-} from "../dtos/purchase-requests/purchase-request.dto";
+import type { CreatePurchaseRequestDTO } from "../dtos/purchase-requests/purchase-request.dto";
 
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 
@@ -42,8 +39,8 @@ export class PurchaseRequestServiceImpl implements PurchaseRequestService {
     return await this.getAllUseCase.execute(params, includeDeleted);
   }
 
-  async update(id: string, input: UpdatePurchaseRequestDTO): Promise<PurchaseRequestEntity> {
-    return await this.updateUseCase.execute(id, input);
+  async update(id: string): Promise<PurchaseRequestEntity> {
+    return await this.updateUseCase.execute(id);
   }
 
   async delete(id: string): Promise<boolean> {

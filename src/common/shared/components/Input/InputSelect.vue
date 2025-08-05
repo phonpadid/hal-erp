@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from "vue";
+import { computed } from "vue";
 import type { PropType } from "vue";
 
+// --- Props Definition ---
 const props = defineProps({
   modelValue: {
     type: [String, Number, undefined] as PropType<string | number | undefined>,
@@ -11,14 +12,18 @@ const props = defineProps({
     type: Array as PropType<{ label: string; value: string | number }[]>,
     default: () => [],
   },
+
+  lang: {
+    type: String as PropType<"lo" | "en">,
+    default: "lo",
+  },
   placeholder: {
     type: String,
-    default: "ກະລູນາເລືອກຂໍ້ມູນ",
+    default: "",
   },
-  // 1. เพิ่ม prop นี้ เพื่อให้ Component แม่ กำหนดได้ว่าเมื่อ Clear แล้วค่าควรเป็นอะไร
   clearValue: {
     type: [String, Number],
-    default: "all", // ค่าเริ่มต้นคือ "all"
+    default: "all",
   },
   width: {
     type: String,
@@ -38,45 +43,68 @@ const props = defineProps({
   },
 });
 
-// 2. เพิ่ม event 'clear' เข้าไป
+// --- Emits Definition ---
 const emit = defineEmits(["update:modelValue", "change", "clear"]);
 
-// 3. แก้ไขฟังก์ชัน onChange ทั้งหมด
-function onChange(value: string | number | undefined) {
-  // Component <a-select> จะส่งค่า 'undefined' กลับมาเมื่อผู้ใช้กดปุ่ม Clear
-  if (value === undefined) {
-    // นี่คือตอนที่ผู้ใช้กดปุ่ม Clear (x)
-    emit("update:modelValue", props.clearValue); // Reset ค่า v-model ใน Component แม่ ให้เป็น 'all'
-    emit("clear"); // ส่งสัญญาณ 'clear' ออกไปให้ Component แม่รับรู้
-  } else {
-    // นี่คือตอนที่ผู้ใช้เลือกค่าอื่นๆ ตามปกติ
-    emit("update:modelValue", value);
-    emit("change", value);
+// --- Dynamic Placeholder ---
+// สร้าง Object สำหรับเก็บข้อความในภาษาต่างๆ
+const textByLang = {
+  lo: "ກະລຸນາເລືອກຂໍ້ມູນ",
+  en: "Please select an item",
+};
+
+// ใช้ computed property เพื่อเลือก placeholder ที่จะแสดงผล
+const displayPlaceholder = computed(() => {
+  // ถ้ามีการส่ง prop 'placeholder' มาโดยตรง ให้ใช้ค่านั้นก่อน
+  if (props.placeholder) {
+    return props.placeholder;
   }
-}
+  // ถ้าไม่ ให้เลือกตามภาษาจาก prop 'lang'
+  return textByLang[props.lang];
+});
+
+// --- Core Logic with Computed v-model ---
+// ใช้ computed property เพื่อจัดการค่าที่แสดงผลและค่าที่ส่งกลับ
+// นี่คือหัวใจของการแก้ไขปัญหา placeholder
+const internalValue = computed({
+  // Getter: จะถูกเรียกเมื่อ <a-select> ต้องการแสดงผล
+  get() {
+    // ถ้าค่า modelValue จากข้างนอกเป็นค่า clearValue (เช่น 'all')
+    // ให้เราส่งค่า 'undefined' เข้าไปใน <a-select> แทน
+    // เพื่อให้ <a-select> รู้ว่าตอนนี้ไม่มีค่าที่ถูกเลือก และต้องแสดง placeholder
+    if (props.modelValue === props.clearValue) {
+      return undefined;
+    }
+    return props.modelValue;
+  },
+  // Setter: จะถูกเรียกเมื่อผู้ใช้เลือกค่าใน <a-select>
+  set(newValue) {
+    // เมื่อผู้ใช้กดปุ่ม Clear (x), <a-select> จะส่งค่า 'undefined' กลับมา
+    if (newValue === undefined) {
+      // เราจะ emit 'update:modelValue' ด้วยค่า clearValue (เช่น 'all') กลับไปให้ Component แม่
+      emit("update:modelValue", props.clearValue);
+      emit("clear");
+    } else {
+      emit("update:modelValue", newValue);
+      emit("change", newValue);
+    }
+  },
+});
 </script>
 
 <template>
   <a-select
-    :value="modelValue"
-    @change="onChange"
-    :placeholder="placeholder"
+    v-model:value="internalValue"
+    :placeholder="displayPlaceholder"
     :style="{ width }"
     :size="size"
     :loading="loading"
     :disabled="disabled"
+    :options="options"
     allow-clear
     :dropdown-match-select-width="false"
-    class="custom-select"
     show-search
+    class="custom-select"
   >
-    <a-select-option
-      v-for="option in options"
-      :key="option.value"
-      :value="option.value"
-      :title="option.label"
-    >
-      {{ option.label }}
-    </a-select-option>
   </a-select>
 </template>
