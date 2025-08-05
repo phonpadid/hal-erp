@@ -75,7 +75,7 @@ export class PurchaseRequestEntity {
   public getId(): string | null {
     return this.id;
   }
-  
+
   public getTotal(): number {
     return this.total;
   }
@@ -194,7 +194,7 @@ export class PurchaseRequestEntity {
       null,
       null,
       null,
-      null, // timestamps will be set in constructor
+      null, 
       null,
       null
     );
