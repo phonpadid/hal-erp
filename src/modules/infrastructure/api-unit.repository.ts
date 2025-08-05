@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { UnitRepository } from "@/modules/domain/repository/unit.repository";
 import { UnitEntity } from "@/modules/domain/entities/unit.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";

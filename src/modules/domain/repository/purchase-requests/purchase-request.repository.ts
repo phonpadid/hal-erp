@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PurchaseRequestEntity } from "../../entities/purchase-requests/purchase-request.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
@@ -8,6 +9,6 @@ export interface PurchaseRequestRepository {
     params: PaginationParams,
     includeDeleted?: boolean
   ): Promise<PaginatedResult<PurchaseRequestEntity>>;
-  update(input: PurchaseRequestEntity): Promise<PurchaseRequestEntity>;
+  update(id: string, payload: any): Promise<PurchaseRequestEntity>;
   delete(id: string): Promise<boolean>;
 }
