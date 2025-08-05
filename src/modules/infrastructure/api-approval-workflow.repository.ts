@@ -49,6 +49,8 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
           ...(params.search && { search: params.search }),
         },
       }) as { data: ApiListResponse<ApprovalWorkflowApiModel> };
+      console.log('ddddddddd:', response.data);
+
       const { pagination } = response.data;
       return {
         data: response.data.data.map((item) => this.toDomainModel(item)),
@@ -88,7 +90,17 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
     return {
       id: Number(input.getId()),
       name: input.getName(),
-      documentTypeId: Number(input.getDocument_type_id()),
+      documentTypeId: Number(input.getDocumentTypeId()),
+      steps: input.getSteps().map((item) => ({
+        id: item.id ?? '',
+        approval_workflow_id: item.approval_workflow_id, // Changed from approvalWorkflowId
+        departmentId: item.departmentId,
+        userId: item.userId,
+        step_name: item.step_name,
+        step_number: item.step_number,
+        type: item.type,
+        requires_file: item.requires_file,
+      })),
     };
   }
 
@@ -98,7 +110,8 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
       data.id.toString(),
       data.name,
       String(data.documentTypeId),
-      data.document_type ? this.toDocumentTypeEntity(data.document_type) : undefined,
+      data.document_types ? this.toDocumentTypeEntity(data.document_types) : undefined,
+      [],
       data.created_at || "",
       data.updated_at || "",
     );

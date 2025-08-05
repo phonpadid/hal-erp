@@ -10,29 +10,27 @@ import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import { dpmRules } from "./validation/approval-workflow.validate";
+import { apvStepRules } from "./validation/approval-workflow.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 // import { dataApprovalFlow } from "@/modules/shared/utils/approval-flow";
 import { useDocumentTypeStore } from "../../stores/document-type.store";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import type { ApprovalWorkflowApiModel } from "@/modules/interfaces/approval-workflow.interface";
 import { approvalWorkflowStore } from "../../stores/approval-workflow.store";
-import type { ApprovalWorkflowEntity } from "@/modules/domain/entities/approval-workflows.entity";
 import { useRouter } from "vue-router";
 const search = ref<string>("");
 const { t } = useI18n();
-const approval_workflow = ref<ApprovalWorkflowApiModel[]>([]);
 // const useRealApi = ref<boolean>(true); // Toggle between mock and real API
-const { success } = useNotification();
+const { success, error, warning } = useNotification();
 // Form related
 const formRef = ref();
-const createModalVisible = ref<boolean>(false);
 const editModalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedData = ref<ApprovalWorkflowApiModel | null>(null);
 const docTypeStore = useDocumentTypeStore();
 const store = approvalWorkflowStore();
+const {push} = useRouter()
 const docTypeItems = computed(() =>
   docTypeStore.documentTypes.map((item) => ({
     value: item.getId(),
@@ -45,116 +43,44 @@ const formModel = reactive({
   document_type_id: "",
 });
 
-// Load data on component mount
-onMounted(async () => {
-  await loadDpm();
-  await docTypeStore.fetchdocumentType();
-});
 
-const loadDpm = async (): Promise<void> => {
+const loadData = async (): Promise<void> => {
   // if (useRealApi.value) {
-  try {
     loading.value = true;
-    const result = await store.fetchApprovalWorkflows({
+    try {
+    await store.fetchApprovalWorkflows({
       page: store.pagination.page,
       limit: store.pagination.limit,
+      search: search.value,
     });
-
-    approval_workflow.value = result.data.map(
-      (data: ApprovalWorkflowEntity): ApprovalWorkflowApiModel => {
-        const doc = data.getDocument_type();
-        return {
-          id: Number(data.getId()), // convert to number
-          name: data.getName(),
-          documentTypeId: Number(data.getDocument_type_id()), // make sure it's a string if needed
-          document_type: doc
-            ? {
-                id: Number(doc.getId()),
-                name: doc.getname(),
-                code: doc.getcode(),
-                created_at: doc.getCreatedAt() ?? undefined,
-                updated_at: doc.getUpdatedAt() ?? undefined,
-                deleted_at: doc.getDeletedAt?.() ?? undefined, // optional if your type expects it
-              }
-            : undefined,
-          created_at: data.getCreatedAt() ?? undefined,
-          updated_at: data.getUpdatedAt() ?? undefined,
-        };
-      }
-    );
-
-    // console.log("Department data loaded:", department.value);
-  } catch (error) {
-    console.error("Failed to fetch department from API:", error);
-    // department.value = [...dataApprovalFlow.value];
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("documentType.error.loadFailed"), String(errorMessage));
   } finally {
     loading.value = false;
   }
-  // } else {
-  // approval_workflow.value = [...dataApprovalFlow.value];
-  // }
 };
 
 //search
 const handleSearch = async () => {
-  try {
-    loading.value = true;
-    const result = await store.fetchApprovalWorkflows({
-      page: 1,
-      limit: store.pagination.limit,
-      search: search.value,
-    });
-
-    approval_workflow.value = result.data.map(
-      (data: ApprovalWorkflowEntity): ApprovalWorkflowApiModel => {
-        const doc = data.getDocument_type();
-        return {
-          id: Number(data.getId()), // convert to number
-          name: data.getName(),
-          documentTypeId: Number(data.getDocument_type_id()), // make sure it's a string if needed
-          document_type: doc
-            ? {
-                id: Number(doc.getId()),
-                name: doc.getname(),
-                code: doc.getcode(),
-                created_at: doc.getCreatedAt() ?? undefined,
-                updated_at: doc.getUpdatedAt() ?? undefined,
-                deleted_at: doc.getDeletedAt?.() ?? undefined, // optional if your type expects it
-              }
-            : undefined,
-          created_at: data.getCreatedAt() ?? undefined,
-          updated_at: data.getUpdatedAt() ?? undefined,
-        };
-      }
-    );
-
-    // Optional: Update pagination
-    store.setPagination({
-      page: 1,
-      limit: store.pagination.limit,
-      total: store.pagination.total,
-    });
-  } catch (error) {
-    console.error("Search failed:", error);
-  } finally {
-    loading.value = false;
-  }
+  await store.fetchApprovalWorkflows({
+    page: 1,
+    limit: store.pagination.limit,
+    search: search.value,
+  });
 };
 // CRUD operations
 const showCreateModal = (): void => {
-  formModel.name = "";
-  formModel.document_type_id = "";
-  createModalVisible.value = true;
+  push({name: 'create-approval-workflow'})
 };
 
 const showEditModal = (record: ApprovalWorkflowApiModel): void => {
-  const id = record.document_type?.id ?? ''
+  const id = record.document_types?.id ?? ''
   selectedData.value = record;
   formModel.name = record.name;
   formModel.document_type_id = id?.toString();
   editModalVisible.value = true;
 };
-const {push} = useRouter()
 const info = (id: string)  => {
   push({name: 'approval_workflow_step.index', params: {id: id}})
 };
@@ -163,28 +89,6 @@ const showDeleteModal = (record: ApprovalWorkflowApiModel): void => {
   selectedData.value = record;
   deleteModalVisible.value = true;
 };
-
-const handleCreate = async (): Promise<void> => {
-  try {
-    loading.value = true;
-    await formRef.value.submitForm();
-
-    await store.create({
-      name: formModel.name,
-      document_type_id: formModel.document_type_id,
-    });
-    success(t("departments.notify.created"));
-    await loadDpm(); // Refresh the list
-    createModalVisible.value = false;
-    formModel.name = "";
-    formModel.document_type_id = "";
-  } catch (error) {
-    console.error("Create form validation failed:", error);
-  } finally {
-    loading.value = false;
-  }
-};
-
 const handleEdit = async (): Promise<void> => {
   try {
     loading.value = true;
@@ -198,12 +102,13 @@ const handleEdit = async (): Promise<void> => {
         document_type_id: formModel.document_type_id,
       });
       success(t("departments.notify.update"));
-      await loadDpm();
+      await loadData();
     }
 
     editModalVisible.value = false;
-  } catch (error) {
-    console.error("Edit form validation failed:", error);
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("documentType.error.title"), String(errorMessage));
   } finally {
     loading.value = false;
   }
@@ -218,28 +123,46 @@ const handleDelete = async (): Promise<void> => {
     const id = selectedData.value.id.toString();
     await store.remove(id);
     success(t("departments.notify.delete"));
-    await loadDpm(); // Refresh the list
-  } catch (error) {
-    console.error("Delete failed:", error);
+    await loadData(); // Refresh the list
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("documentType.error.title"), String(errorMessage));
   }
 
   deleteModalVisible.value = false;
   loading.value = false;
 };
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleTableChange = async (pagination: any) => {
   store.setPagination({
-    page: pagination.current | 1,
+    page: pagination.current || 10,
     limit: pagination.pageSize,
     total: pagination.total,
   });
-  await loadDpm();
+  await loadData();
 };
+
+const tablePagination = computed(() => ({
+  current: store.pagination.page,
+  pageSize: store.pagination.limit,
+  total: store.pagination.total,
+  showSizeChanger: true,
+}));
 watch(search , async(newValue) => {
   if(newValue === '') {
-    await loadDpm()
+    await loadData()
   }
 })
+onMounted(async () => {
+  store.setPagination({
+    page: 1,
+    limit: 10, // or whatever your default page size should be
+    total: store.pagination.total,
+  });
+  await loadData();
+  await docTypeStore.fetchdocumentType();
+});
 </script>
 
 <template>
@@ -276,12 +199,8 @@ watch(search , async(newValue) => {
     <!--  Table -->
     <Table
       :columns="columns(t)"
-      :dataSource="approval_workflow"
-      :pagination="{
-        current: store.pagination.page,
-        pageSize: store.pagination.limit,
-        total: store.pagination.total,
-      }"
+      :dataSource="store.approval_workflows"
+      :pagination="tablePagination"
       row-key="id"
       :loading="store.loading"
       @change="handleTableChange"
@@ -316,43 +235,6 @@ watch(search , async(newValue) => {
         </div>
       </template>
     </Table>
-
-    <!-- Create Modal -->
-    <UiModal
-      :title="t('approval-workflow.header_form.add')"
-      :visible="createModalVisible"
-      :confirm-loading="loading"
-      @update:visible="createModalVisible = $event"
-      @ok="handleCreate"
-      @cancel="createModalVisible = false"
-      :okText="t('button.save')"
-      :cancelText="t('button.cancel')"
-    >
-      <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
-        <UiFormItem
-          :label="t('approval-workflow.field.form_name')"
-          name="name"
-          required
-        >
-          <UiInput
-            v-model="formModel.name"
-            :placeholder="t('approval-workflow.placeholder.name')"
-          />
-        </UiFormItem>
-        <UiFormItem
-          :label="t('approval-workflow.field.doc_type')"
-          name="document_type_id"
-          required
-        >
-          <InputSelect
-            v-model="formModel.document_type_id"
-            :options="docTypeItems"
-            :placeholder="t('approval-workflow.placeholder.doc_type')"
-          />
-        </UiFormItem>
-      </UiForm>
-    </UiModal>
-
     <!-- Edit Modal -->
     <UiModal
       :title="t('approval-workflow.header_form.edit')"
@@ -364,7 +246,7 @@ watch(search , async(newValue) => {
       :okText="t('button.edit')"
       :cancelText="t('button.cancel')"
     >
-      <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
+      <UiForm ref="formRef" :model="formModel" :rules="apvStepRules(t)">
         <UiFormItem
           :label="t('approval-workflow.field.form_name')"
           name="name"
