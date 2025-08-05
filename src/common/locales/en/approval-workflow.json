@@ -1,5 +1,6 @@
 {
-    "notify": {
+  "addMore": "Add more forms",  
+  "notify": {
       "created": "Information created successfully.",
       "update": "Information updated successfully.",
       "delete": "Information deleted successfully."

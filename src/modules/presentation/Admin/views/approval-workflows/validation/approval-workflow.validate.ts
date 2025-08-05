@@ -1,4 +1,6 @@
-export const dpmRules = (t: (key: string) => string) => ({
+import { itemValidate } from "./item-setp.validate";
+
+export const apvStepRules = (t: (key: string) => string) => ({
   name: [
     {
       required: true,
@@ -19,4 +21,5 @@ export const dpmRules = (t: (key: string) => string) => ({
       trigger: "blur",
     },
   ],
+  ...itemValidate(t)
 });

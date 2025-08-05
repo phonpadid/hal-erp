@@ -13,6 +13,20 @@ export const approvalWorkflowStepRules = (t: (key: string) => string) => ({
       trigger: "blur",
     },
   ],
+  type: [
+    {
+      required: true,
+      message: t("approval-workflow-step.error.type"), // example key
+      trigger: "blur",
+    },
+  ],
+  user_id: [
+    {
+      required: true,
+      message: t("approval-workflow-step.error.user"), // example key
+      trigger: "blur",
+    },
+  ],
   step_name: [
     {
       required: true,
@@ -33,6 +47,7 @@ export const approvalWorkflowStepRules = (t: (key: string) => string) => ({
       trigger: "blur",
     },
     {
+      type: 'number',
       min: 1,
       max: 12,
       message: t("approval-workflow-step.error.max_number"), // example key

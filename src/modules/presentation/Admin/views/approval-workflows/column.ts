@@ -19,12 +19,12 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("approval-workflow.field.created"),
-      dataIndex: "created_at",
+      dataIndex: "createdAt",
       key: "createdAt",
     },
     {
       title: t("approval-workflow.field.updated"),
-      dataIndex: "updated_at",
+      dataIndex: "updatedAt",
       key: "updatedAt",
     },
     {

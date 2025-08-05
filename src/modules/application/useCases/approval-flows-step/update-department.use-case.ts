@@ -10,10 +10,13 @@ export class UpdateApprovalWorkflowStepUseCase {
       throw new Error(` with id ${id} not found`);
     }
     data.update(
-      input.approval_workflow_id,
+      input.approval_workflow_id ?? '',
       input.department_id,
       input.step_name,
       input.step_number,
+      input.user_id,
+      input.type,
+      input.requires_file,
     );
     return await this.approvalWorkflowStepRepository.update(id, data);
   }
