@@ -38,4 +38,4 @@ jobs:
       # Copy Project
       - name: Copy dist folder to server
         run: |
-          rsync -az --delete dist/ root@${{ secrets.DEPLOY_SERVER_IP }}:/var/www/apis/
+          rsync -az --delete dist/ root@${{ secrets.DEPLOY_SERVER_IP }}:/var/www/admin/
