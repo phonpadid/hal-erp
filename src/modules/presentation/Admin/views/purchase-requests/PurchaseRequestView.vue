@@ -2,21 +2,23 @@
 <script setup lang="ts">
 import Table from "@/common/shared/components/table/Table.vue";
 import { useI18n } from "vue-i18n";
-import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import UiButton from "@/common/shared/components/button/UiButton.vue";
-import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
-import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import { useDocumentTypeStore } from "../../stores/document-type.store";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { columns } from "./column";
 import type { DocumentTypeEntity } from "@/modules/domain/entities/document-type.entities";
+import { useDocumentStatusStore } from "../../stores/document-status.store";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
+import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
+import UiTag from "@/common/shared/components/tag/UiTag.vue";
 
 const { t } = useI18n();
 const { push } = useRouter();
 const docTypeStore = useDocumentTypeStore();
 const purchaseRequestStore = usePurchaseRequestsStore();
+const documentStatusStore = useDocumentStatusStore();
 
 // Filters state
 const selectedDocType = ref("all");
@@ -40,13 +42,21 @@ const docItem = computed(() => [
     label: item.getname(),
   })),
 ]);
+
+const documentStatusItem = computed(() => [
+  { value: "all", label: "ທັງໝົດ" },
+  ...documentStatusStore.document_Status.map((item) => ({
+    value: item.getId(),
+    label: item.getName(),
+  })),
+]);
 // Status options
 const statusItem = [
-  { value: "all", label: "ທັງໝົດ" },
-  { value: "pending", label: "ລໍຖ້າອະນຸມັດ" },
-  { value: "Approved", label: "ອະນຸມັດແລ້ວ" },
-  { value: "Rejected", label: "ປະຕິເສດ" },
-  { value: "canceled", label: "ຍົກເລີກ" },
+  // { value: "all", label: "ທັງໝົດ" },
+  { value: "1", label: "ລໍຖ້າອະນຸມັດ" },
+  { value: "2", label: "ອະນຸມັດແລ້ວ" },
+  { value: "3", label: "ປະຕິເສດ" },
+  { value: "4", label: "ຍົກເລີກ" },
 ];
 // check if statusItem is defined
 const getStatusLabel = (statusValue: string) => {
@@ -143,6 +153,7 @@ const getStatusColor = (status: string) => {
 // Lifecycle hooks
 onMounted(async () => {
   await Promise.all([docTypeStore.fetchdocumentType({ page: 1, limit: 1000 }), fetchData()]);
+  await documentStatusStore.fetctDocumentStatus({ page: 1, limit: 1000 });
 });
 </script>
 
@@ -176,7 +187,7 @@ onMounted(async () => {
             <InputSelect
               v-model="selectedDocType"
               :options="docItem"
-              placeholder="ທັງໝົດ"
+              :placeholder="t('purchase-rq.all')"
               class="w-full"
               @clear="fetchData"
             />
@@ -187,8 +198,8 @@ onMounted(async () => {
             </label>
             <InputSelect
               v-model="selectedStatus"
-              :options="statusItem"
-              placeholder="ທັງໝົດ"
+              :options="documentStatusItem"
+              :placeholder="t('purchase-rq.all')"
               class="w-full"
               @clear="fetchData"
             />

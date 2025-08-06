@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import type { Ref } from "vue";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { ApiApprovalWorkflowRepository } from "@/modules/infrastructure/api-approval-workflow.repository";
@@ -133,8 +133,9 @@ export const approvalWorkflowStore = defineStore("approval-workflow", () => {
         approval_workflows.value[index] = new ApprovalWorkflowEntity(
           dpm.getId(),
           dpm.getName(),
-          dpm.getDocument_type_id(),
-          dpm.getDocument_type(),
+          dpm.getDocumentTypeId(),
+          dpm.getDocumentType(),
+          dpm.getSteps(),
           dpm.getCreatedAt(),
           new Date().toISOString(),
           new Date().toISOString()
@@ -165,4 +166,49 @@ export const approvalWorkflowStore = defineStore("approval-workflow", () => {
     update,
     remove,
   };
+}
+);
+export const formState = reactive({
+  name: "",
+  document_type_id: "",
+  addMore: [
+    {
+      approval_workflow_id: "",
+      department_id: "",
+      step_name: "",
+      step_number: 0 as number,
+      type: "",
+      user_id: "",
+      requires_file: "false",
+    },
+  ],
 });
+//add
+export const moreFunction = () => {
+  formState.addMore.push({
+    approval_workflow_id: "",
+    department_id: "",
+    step_name: "",
+    step_number: 0 as number,
+    type: "",
+    user_id: "",
+    requires_file: "false",
+  });
+};
+
+export const resetForm = () => {
+  formState.name = "";
+  formState.document_type_id = "";
+  formState.addMore = [
+    {
+      approval_workflow_id: "",
+      department_id: "",
+      step_name: "",
+      step_number: 0,
+      type: "",
+      user_id: "",
+      requires_file: "false",
+    },
+  ];
+};
+

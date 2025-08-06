@@ -81,7 +81,7 @@ const routes: RouteRecordRaw[] = [
       ...disbursementRoutes,
       ...banksRoutes,
       ...vatRoutes,
-      ...exchangeRateRoutes
+      ...exchangeRateRoutes,
     ],
   },
   ...authRoutes,

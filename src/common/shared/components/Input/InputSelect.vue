@@ -1,25 +1,27 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from "vue";
+import { computed } from "vue";
 import type { PropType } from "vue";
 
+// --- Props Definition ---
 const props = defineProps({
+  // เปลี่ยนให้รับค่า null ได้ และค่าเริ่มต้นคือ null
   modelValue: {
-    type: [String, Number, undefined] as PropType<string | number | undefined>,
-    default: undefined,
+    type: [String, Number, null] as PropType<string | number | null>,
+    default: null,
   },
   options: {
     type: Array as PropType<{ label: string; value: string | number }[]>,
     default: () => [],
   },
+  lang: {
+    type: String as PropType<"lo" | "en">,
+    default: "lo",
+  },
   placeholder: {
     type: String,
-    default: "ກະລູນາເລືອກຂໍ້ມູນ",
+    default: "",
   },
-  // 1. เพิ่ม prop นี้ เพื่อให้ Component แม่ กำหนดได้ว่าเมื่อ Clear แล้วค่าควรเป็นอะไร
-  clearValue: {
-    type: [String, Number],
-    default: "all", // ค่าเริ่มต้นคือ "all"
-  },
+  // ไม่ต้องใช้ clearValue อีกต่อไป
   width: {
     type: String,
     default: "100%",
@@ -38,45 +40,46 @@ const props = defineProps({
   },
 });
 
-// 2. เพิ่ม event 'clear' เข้าไป
-const emit = defineEmits(["update:modelValue", "change", "clear"]);
+// --- Emits Definition ---
+const emit = defineEmits(["update:modelValue", "change"]);
 
-// 3. แก้ไขฟังก์ชัน onChange ทั้งหมด
-function onChange(value: string | number | undefined) {
-  // Component <a-select> จะส่งค่า 'undefined' กลับมาเมื่อผู้ใช้กดปุ่ม Clear
-  if (value === undefined) {
-    // นี่คือตอนที่ผู้ใช้กดปุ่ม Clear (x)
-    emit("update:modelValue", props.clearValue); // Reset ค่า v-model ใน Component แม่ ให้เป็น 'all'
-    emit("clear"); // ส่งสัญญาณ 'clear' ออกไปให้ Component แม่รับรู้
-  } else {
-    // นี่คือตอนที่ผู้ใช้เลือกค่าอื่นๆ ตามปกติ
-    emit("update:modelValue", value);
-    emit("change", value);
+const textByLang = {
+  lo: "ກະລຸນາເລືอกຂໍ້ມູນ",
+  en: "Please select an item",
+};
+
+const displayPlaceholder = computed(() => {
+  if (props.placeholder) {
+    return props.placeholder;
   }
-}
+  return textByLang[props.lang];
+});
+
+const value = computed({
+  get() {
+    return props.modelValue;
+  },
+
+  set(newValue) {
+    const emitValue = newValue === undefined ? null : newValue;
+    emit("update:modelValue", emitValue);
+    emit("change", emitValue);
+  },
+});
 </script>
 
 <template>
   <a-select
-    :value="modelValue"
-    @change="onChange"
-    :placeholder="placeholder"
+    v-model:value="value"
+    :placeholder="displayPlaceholder"
     :style="{ width }"
     :size="size"
     :loading="loading"
     :disabled="disabled"
+    :options="options"
     allow-clear
     :dropdown-match-select-width="false"
-    class="custom-select"
     show-search
-  >
-    <a-select-option
-      v-for="option in options"
-      :key="option.value"
-      :value="option.value"
-      :title="option.label"
-    >
-      {{ option.label }}
-    </a-select-option>
-  </a-select>
+    class="custom-select"
+  />
 </template>

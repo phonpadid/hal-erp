@@ -35,12 +35,12 @@ export const approvalWorkflowStepStore = defineStore("approval-workflow-step", (
 
   // Getters
   // Actions
-  const create = async (data: CreateApprovalWorkflowStepDTO) => {
+  const create = async (id: number, data: CreateApprovalWorkflowStepDTO) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const res = await apvWorkflowStepService.create(data);
+      const res = await apvWorkflowStepService.create(id, data);
       approval_workflow_steps.value = [res, ...approval_workflow_steps.value];
       return res;
     } catch (err) {
@@ -98,7 +98,6 @@ export const approvalWorkflowStepStore = defineStore("approval-workflow-step", (
   const update = async (id: string, data: UpdateApprovalWorkflowStepDTO) => {
     loading.value = true;
     error.value = null;
-
     try {
       const res = await apvWorkflowStepService.update(id, data);
 
@@ -136,7 +135,11 @@ export const approvalWorkflowStepStore = defineStore("approval-workflow-step", (
           remove.getDepartemntId(),
           remove.getStepName(),
           remove.getStepNumber(),
+          remove.getUserId(),
+          remove.getType(),
+          remove.getRequiredFile(),
           remove.getApprovalWorkflow(),
+          remove.getUser(),
           remove.getDepartment(),
           remove.getCreatedAt(),
           new Date().toISOString(),

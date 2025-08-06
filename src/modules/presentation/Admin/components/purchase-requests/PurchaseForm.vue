@@ -24,7 +24,10 @@ import { uploadFile } from "@/modules/application/services/upload.service";
 
 // --- ENTITY & DTO TYPES ---
 import type { UnitEntity } from "@/modules/domain/entities/unit.entity";
-import type { CreatePurchaseRequestDTO } from "@/modules/application/dtos/purchase-requests/purchase-request.dto";
+import type {
+  CreatePurchaseRequestDTO,
+  UpdatePurchaseRequestDTO,
+} from "@/modules/application/dtos/purchase-requests/purchase-request.dto";
 
 // --- STORES ---
 import { useUnitStore } from "../../stores/unit.store";
@@ -57,11 +60,8 @@ const userPosition = ref("ພະແນກການເງິນ, ພະນັກ�
 const departmentUser = userLocal.currentDpmUser;
 
 onMounted(async () => {
-  // Fetch dropdown data
   await unitStore.fetchUnits({ page: 1, limit: 1000 });
   units.value = unitStore.activeUnits;
-
-  // ถ้าเป็นโหมดแก้ไข ให้ดึงข้อมูลเก่ามาใส่ฟอร์ม
   if (props.isEditing && props.requestId) {
     const existingData = await purchaseRequestStore.fetchById(props.requestId);
     if (existingData) {
@@ -119,7 +119,7 @@ const handleImageUpload = async (files: File[]) => {
 
     if (filename) {
       const currentItem = formState.value.addMore[currentUploadIndex.value];
-      currentItem.file_name = filename; // << NO ERROR NOW
+      currentItem.file_name = filename; 
       const url = URL.createObjectURL(file);
       currentItem.images.push(url);
       message.success("ອັບໂຫລດຮູບພາບສຳເລັດ");
@@ -166,58 +166,67 @@ async function handleSave(): Promise<boolean> {
   loading.value = true;
   const isValid = await validateForm();
   if (!isValid) {
-    message.error(t("purchase-rq.msg.validate_fail", "ກະລຸນາກວດສອບຂໍ້ມູນໃນຟອມໃຫ້ຄົບຖ້ວນ"));
+    message.error(t("purchase-rq.msg.validate_fail"));
     loading.value = false;
     return false;
   }
 
   const formData = getFormData();
-  if (!props.documentTypeId || !formData.expired_date) {
-    message.error("Document Type and Expired Date are required.");
+  if (!formData.expired_date) {
+    message.error("Expired Date is required.");
     loading.value = false;
     return false;
   }
 
-  const payload: CreatePurchaseRequestDTO = {
-    expired_date: dayjs(formData.expired_date).format("YYYY-MM-DD"),
-    purposes: formData.purpose,
-    document: {
-      description: formData.purpose,
-      documentTypeId: Number(props.documentTypeId),
-    },
-    purchase_request_items: formData.addMore.map((item) => {
-      const quantity = item.count ? parseInt(item.count, 10) : 0;
-      return {
-        title: item.title,
-        file_name: item.file_name || "",
-        file_name_url: null,
-        quantity: quantity,
-        price: item.price || 0,
-        remark: item.remark,
-        unit_id: item.unit_id!,
-      };
-    }),
-  };
+  const itemsPayload = formData.addMore.map((item) => ({
+    ...(item.id && { id: item.id }),
+    title: item.title,
+    file_name: item.file_name || "",
+    quantity: item.count ? parseInt(item.count, 10) : 0,
+    price: item.price || 0,
+    remark: item.remark,
+    unit_id: item.unit_id!,
+  }));
 
   try {
     let result;
     if (props.isEditing && props.requestId) {
-      // ถ้าเป็นโหมดแก้ไข ให้เรียก update
-      result = await purchaseRequestStore.update(props.requestId, payload);
+      // --- UPDATE LOGIC ---
+      const updatePayload: UpdatePurchaseRequestDTO = {
+        expired_date: dayjs(formData.expired_date).format("YYYY-MM-DD"),
+        purposes: formData.purpose,
+        purchase_request_items: itemsPayload,
+      };
+      result = await purchaseRequestStore.update(props.requestId, updatePayload);
     } else {
-      result = await purchaseRequestStore.create(payload);
+      // --- CREATE LOGIC ---
+      if (!props.documentTypeId) {
+        message.error("Document Type is required.");
+        loading.value = false;
+        return false;
+      }
+      const createPayload: CreatePurchaseRequestDTO = {
+        expired_date: dayjs(formData.expired_date).format("YYYY-MM-DD"),
+        purposes: formData.purpose,
+        document: {
+          description: formData.purpose,
+          documentTypeId: Number(props.documentTypeId),
+        },
+        purchase_request_items: itemsPayload,
+      };
+      result = await purchaseRequestStore.create(createPayload);
     }
 
     if (result) {
-      message.success(props.isEditing ? "อัปเดตสำเร็จ!" : "สร้างสำเร็จ!");
+      message.success(props.isEditing ? "ອັບເດດສຳເລັດ!" : "ສ້າງສຳເລັດ!");
       return true;
     } else {
-      message.error(purchaseRequestStore.error || "เกิดข้อผิดพลาด");
+      message.error(purchaseRequestStore.error || "ເກີດຂໍ້ຜິດພາດ");
       return false;
     }
   } catch (err) {
     console.error("Save/Update failed:", err);
-    message.error("เกิดข้อผิดพลาด");
+    message.error("ເກີດຂໍ້ຜິດພາດ ກະລຸນາລອງໃໝ່");
     return false;
   } finally {
     loading.value = false;

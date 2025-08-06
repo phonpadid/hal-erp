@@ -75,6 +75,7 @@ export class PurchaseRequestEntity {
   public getId(): string | null {
     return this.id;
   }
+
   public getTotal(): number {
     return this.total;
   }
@@ -155,15 +156,7 @@ export class PurchaseRequestEntity {
   }
 
   // Business logic methods
-  public update(
-    documentTypeId: number,
-    document_description: string,
-    expired_date: string,
-    purposes: string,
-    items?: PurchaseRequestItemEntity[]
-  ): void {
-    this.documentTypeId = documentTypeId;
-    this.document_description = document_description;
+  public update(expired_date: string, purposes: string, items?: PurchaseRequestItemEntity[]): void {
     this.expired_date = expired_date;
     this.purposes = purposes;
     if (items) {
@@ -201,7 +194,7 @@ export class PurchaseRequestEntity {
       null,
       null,
       null,
-      null, // timestamps will be set in constructor
+      null, 
       null,
       null
     );

@@ -17,7 +17,7 @@ const props = defineProps<Props>();
 
 // Define emit for parent communication
 const emit = defineEmits<{
-  'next-step': [data?: FormState];
+  "next-step": [data?: FormState];
 }>();
 
 const store = useDocumentTypeStore();
@@ -27,8 +27,6 @@ const docItem = computed(() =>
     label: item.getname(),
   }))
 );
-
-
 
 // Watch for initialData changes and populate form
 watch(
@@ -44,7 +42,7 @@ watch(
 const nextStep = () => {
   if (formState.document_type_id) {
     // Emit the form data to parent and trigger next step
-    emit('next-step', {
+    emit("next-step", {
       document_type_id: formState.document_type_id,
       // Add any other data you want to pass to the next step
     });
@@ -63,11 +61,11 @@ onMounted(async () => {
 
 <template>
   <div class="px-2">
-    <h2 class="text-md font-semibold px-0 mb-4">{{ t('purchase-rq.field.doc_type') }}</h2>
+    <h2 class="text-md font-semibold px-0 mb-4">{{ t("purchase-rq.field.doc_type") }}</h2>
     <div class="input flex flex-col md:flex-row items-start gap-4">
       <div class="search-by-doc-type">
         <label class="block text-sm font-medium text-gray-700 mb-2">
-          {{ t('purchase-rq.field.doc_type') }}
+          {{ t("purchase-rq.field.doc_type") }}
         </label>
         <InputSelect
           v-model="formState.document_type_id"
@@ -83,7 +81,7 @@ onMounted(async () => {
           color-class="flex items-center justify-center gap-2"
           class="px-6"
         >
-          <span>{{ t('purchase-rq.btn.confirm') }}</span>
+          <span>{{ t("purchase-rq.btn.confirm") }}</span>
         </UiButton>
       </div>
     </div>

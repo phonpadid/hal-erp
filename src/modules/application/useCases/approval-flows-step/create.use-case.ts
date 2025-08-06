@@ -5,13 +5,17 @@ import { ApprovalWorkflowStepEntity } from "@/modules/domain/entities/approval-w
 export class CreateApprovalWorkflowStepUseCase {
   constructor(private readonly approvalWorkflowStepRepo: ApprovalWorkflowStepRepository) { }
 
-  async execute(input: CreateApprovalWorkflowStepDTO): Promise<ApprovalWorkflowStepEntity> {
+  async execute(id: number, input: CreateApprovalWorkflowStepDTO): Promise<ApprovalWorkflowStepEntity> {
     const res = ApprovalWorkflowStepEntity.create(
-      input.approval_workflow_id,
+      id,
+      input.approval_workflow_id ?? '',
       input.department_id,
       input.step_name,
       input.step_number,
+      input.user_id,
+      input.type,
+      input.requires_file,
     );
-    return await this.approvalWorkflowStepRepo.create(res);
+    return await this.approvalWorkflowStepRepo.create(id, res);
   }
 }
