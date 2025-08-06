@@ -151,7 +151,7 @@ const viewDetail = (id: number) => {
   <div class="vendor-container p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">{{ t("vendors.list.title") }} s</h1>
+        <h1 class="text-2xl font-semibold">{{ t("vendors.list.title") }} ss</h1>
       </div>
 
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
