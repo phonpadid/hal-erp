@@ -11,6 +11,7 @@ export interface ApprovalWorkflowStepApiModel {
   userId: number;
   type: string;
   requires_file: boolean;
+  is_otp: boolean;
   approval_workflow?: ApprovalWorkflowApiModel;
   user?: UserInterface;
   department?: DepartmentApiModel
@@ -26,6 +27,7 @@ export interface IApprovalWorkflowStepApiModel {
   user_id: number;
   type: string;
   requires_file: boolean;
+  is_otp: boolean;
   approval_workflow?: ApprovalWorkflowApiModel;
   user?: UserInterface;
   department?: DepartmentApiModel

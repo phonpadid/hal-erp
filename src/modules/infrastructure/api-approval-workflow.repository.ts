@@ -100,6 +100,7 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
         step_number: item.step_number,
         type: item.type,
         requires_file: item.requires_file,
+        is_otp: item.is_otp,
       })),
     };
   }

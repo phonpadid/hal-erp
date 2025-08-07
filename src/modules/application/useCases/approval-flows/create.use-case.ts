@@ -17,7 +17,8 @@ export class CreateApprovalWorkflowUseCase {
         type: item.type,
         departmentId: Number(item.department_id),
         userId: Number(item.user_id),
-        requires_file: item.requires_file === "true"
+        requires_file: item.requires_file === "true",
+        is_otp: item.is_otp === "true"
       }))
     );
     return await this.approvalWorkflowRepo.create(res);

@@ -180,6 +180,7 @@ export const formState = reactive({
       type: "",
       user_id: "",
       requires_file: "false",
+      is_otp: "false",
     },
   ],
 });
@@ -193,6 +194,7 @@ export const moreFunction = () => {
     type: "",
     user_id: "",
     requires_file: "false",
+    is_otp: "false",
   });
 };
 
@@ -208,6 +210,7 @@ export const resetForm = () => {
       type: "",
       user_id: "",
       requires_file: "false",
+      is_otp: "false",
     },
   ];
 };

@@ -99,6 +99,7 @@ export class ApiApprovalWorkflowStepRepository implements ApprovalWorkflowStepRe
       userId: input.getUserId(),
       type: input.getType(),
       requires_file: Boolean(input.getRequiredFile() === "true"),
+      is_otp: Boolean(input.getIsOtp() === "true"),
     };
   }
 
@@ -113,6 +114,7 @@ export class ApiApprovalWorkflowStepRepository implements ApprovalWorkflowStepRe
       data.user_id,
       data.type,
       String(data.requires_file),
+      String(data.is_otp),
       data.approval_workflow ? this.toApprovalWorkflowEntity(data.approval_workflow): undefined,
       data.user ? this.toUserEntity(data.user): undefined,
       data.department ? this.toDepartmentEntity(data.department): undefined,

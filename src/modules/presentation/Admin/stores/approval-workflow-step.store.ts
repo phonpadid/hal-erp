@@ -138,6 +138,7 @@ export const approvalWorkflowStepStore = defineStore("approval-workflow-step", (
           remove.getUserId(),
           remove.getType(),
           remove.getRequiredFile(),
+          remove.getIsOtp(),
           remove.getApprovalWorkflow(),
           remove.getUser(),
           remove.getDepartment(),

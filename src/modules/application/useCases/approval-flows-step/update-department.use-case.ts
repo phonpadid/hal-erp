@@ -17,6 +17,7 @@ export class UpdateApprovalWorkflowStepUseCase {
       input.user_id,
       input.type,
       input.requires_file,
+      input.is_otp,
     );
     return await this.approvalWorkflowStepRepository.update(id, data);
   }
