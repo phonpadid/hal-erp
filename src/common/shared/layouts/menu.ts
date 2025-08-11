@@ -51,7 +51,7 @@ export const menuItems = computed<ItemType[]>(() => [
                 key: "category.index",
                 label: t("menu-sidebar.category"),
               },
-               {
+              {
                 key: "vat.index",
                 label: t("menu-sidebar.vats"),
               },
@@ -186,30 +186,39 @@ export const menuItems = computed<ItemType[]>(() => [
         ],
         type: "group",
       },
-
+      // PR
       {
-        key: "",
-        label: t("menu-sidebar.purchase_orde"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "ic:outline-receipt",
-              class: "text-base",
-            }),
-          ]),
+        label: "",
+        children: [
+          { type: "divider" },
+          {
+            key: "6",
+            label: t("menu-sidebar.pr_manage"),
+            icon: () =>
+              h("div", {}, [
+                h(Icon, {
+                  icon: "mdi:file-document-box-outline",
+                  class: "text-base",
+                }),
+              ]),
+            children: [
+              {
+                key: "purchaseRequestsList",
+                label: t("menu-sidebar.purchaseRequests"),
+              },
+              {
+                key: "purchase_request.index",
+                label: t("menu-sidebar.purchase_rq"),
+              },
+              {
+                key: "apv_purchase_request.index",
+                label: t("menu-sidebar.apv_purchase_rq"),
+              },
+            ],
+          },
+        ],
+        type: "group",
       },
-      {
-        key: "purchaseRequestsList",
-        label: t("menu-sidebar.purchaseRequests"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "mdi:file-document-box-outline",
-              class: "text-base",
-            }),
-          ]),
-      },
-
       {
         key: "purchaseOrdersList",
         label: t("menu-sidebar.purchaseOrders"),
@@ -310,30 +319,6 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
-      //purchase-rq
-      {
-        key: "purchase_request.index",
-        label: t("menu-sidebar.purchase_rq"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:app-registration-outline",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "apv_purchase_request.index",
-        label: t("menu-sidebar.apv_purchase_rq"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:app-registration-outline",
-              class: "text-base",
-            }),
-          ]),
-      },
-
       //disbursement
       {
         key: "accounting-department.index",

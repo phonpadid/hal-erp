@@ -92,14 +92,16 @@ export const useAuthStore = defineStore("auth", () => {
         parsedUser.username,
         parsedUser.email,
         parsedUser.tel,
-        "", // created_at not stored
-        "", // updated_at not stored
-        null, // deleted_at not stored
+        "",
+        "",
+        null,
         token
       );
     }
   };
   const checkSession = () => {
+    // Check if access token exists in localStorage
+
     const token = localStorage.getItem("accessToken");
     return !!token;
   };

@@ -8,22 +8,41 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 
-// API Model Interfaces
-// API Model Interfaces (ส่วนบนสุดของไฟล์)
-
 interface PurchaseRequestItemApiModel {
   id?: string;
   title: string;
   file_name: string | null;
-  file_name_url?: string; // << ตรวจสอบว่ามี property นี้
+  file_name_url?: string;
   quantity: number;
   unit_id: number;
   price: number;
   total_price: number;
   remark: string;
-  unit?: { name: string }; // << เพิ่ม object unit ที่ซ้อนกันอยู่
+  unit?: { name: string };
 }
 
+// interface PurchaseRequestApiModel {
+//   id?: string;
+//   document: {
+//     id: number;
+//     description: string;
+//     documentTypeId: number;
+//     department: any;
+//     requester: any;
+//     position: any[] | null;
+//     document_type: any;
+//   };
+//   pr_number?: string;
+//   requested_date?: string;
+//   expired_date: string;
+//   purposes: string;
+//   purchase_request_item: PurchaseRequestItemApiModel[];
+//   created_at?: string;
+//   updated_at?: string;
+//   deleted_at?: string;
+//   user_approval?: any;
+//   total?: number;
+// }
 interface PurchaseRequestApiModel {
   id?: string;
   document: {
@@ -43,7 +62,23 @@ interface PurchaseRequestApiModel {
   created_at?: string;
   updated_at?: string;
   deleted_at?: string;
-  user_approval?: any;
+  user_approval?: {
+    id: number;
+    document_id: number;
+    status_id: number;
+    approval_step: Array<{
+      id: number;
+      user_approval_id: number;
+      step_number: number;
+      approver_id: number;
+      status_id: number;
+      remark: string;
+    }>;
+    document_status: {
+      id: number;
+      name: string;
+    };
+  };
   total?: number;
 }
 
@@ -146,6 +181,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
         ? data.document.position[0]
         : null;
 
+    // แก้ไขตรงนี้: ส่ง user_approval เข้าไปใน constructor
     const purchaseRequest = new PurchaseRequestEntity(
       data.id || null,
       data.document?.documentTypeId ?? 0,
@@ -159,6 +195,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       data.document?.department,
       data.document?.requester,
       positionData,
+      data.user_approval, // ส่ง user_approval object ทั้งก้อน
       data.created_at || null,
       data.updated_at || null,
       data.deleted_at || null
@@ -176,7 +213,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
           item.unit,
           item.price,
           item.total_price,
-          null, // purchase_request (ไม่จำเป็น)
+          null,
           item.remark || ""
         );
       });
@@ -187,8 +224,60 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       purchaseRequest.setTotal(data.total);
     }
 
+    // เพิ่ม log เพื่อตรวจสอบ
+    console.log('API Response user_approval:', data.user_approval);
+
     return purchaseRequest;
   }
+  // private toDomainModel(data: PurchaseRequestApiModel): PurchaseRequestEntity {
+  //   const positionData =
+  //     data.document && Array.isArray(data.document.position) && data.document.position.length > 0
+  //       ? data.document.position[0]
+  //       : null;
+
+  //   const purchaseRequest = new PurchaseRequestEntity(
+  //     data.id || null,
+  //     data.document?.documentTypeId ?? 0,
+  //     data.document?.description ?? "",
+  //     data.pr_number || null,
+  //     data.requested_date || null,
+  //     data.expired_date,
+  //     data.purposes,
+  //     data.user_approval?.document_status?.name || "pending",
+  //     data.document?.document_type,
+  //     data.document?.department,
+  //     data.document?.requester,
+  //     positionData,
+  //     data.created_at || null,
+  //     data.updated_at || null,
+  //     data.deleted_at || null
+  //   );
+
+  //   if (data.purchase_request_item) {
+  //     const items = data.purchase_request_item.map((item: any) => {
+  //       return new PurchaseRequestItemEntity(
+  //         item.id,
+  //         item.title,
+  //         item.file_name,
+  //         item.file_name_url,
+  //         item.quantity,
+  //         item.unit_id.toString(),
+  //         item.unit,
+  //         item.price,
+  //         item.total_price,
+  //         null, // purchase_request (ไม่จำเป็น)
+  //         item.remark || ""
+  //       );
+  //     });
+  //     purchaseRequest.setItems(items);
+  //   }
+
+  //   if (data.total) {
+  //     purchaseRequest.setTotal(data.total);
+  //   }
+
+  //   return purchaseRequest;
+  // }
 
   private handleApiError(error: unknown, defaultMessage: string): never {
     const axiosError = error as AxiosError<{ message?: string }>;
