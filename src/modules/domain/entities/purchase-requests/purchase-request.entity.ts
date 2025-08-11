@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PurchaseRequestItemEntity } from "./purchase-request-item.entity";
 import type {
   PurchaseRequestItemParams,
@@ -5,6 +6,7 @@ import type {
   DocumentType,
   Position,
   Requester,
+  UserApproval,
 } from "@/modules/interfaces/purchase-requests/purchase-request.interface";
 
 export class PurchaseRequestEntity {
@@ -22,6 +24,20 @@ export class PurchaseRequestEntity {
   private position: Position | null;
   private total: number;
   private items: PurchaseRequestItemEntity[];
+  private user_approval: {
+    id: number;
+    document_id: number;
+    status_id: number;
+    approval_step: Array<{
+      id: number;
+      user_approval_id: number;
+      step_number: number;
+      approver_id: number;
+      status_id: number;
+      remark: string;
+    }>;
+  } | null = null;
+
   private createdAt: string | null;
   private updatedAt: string | null;
   private deletedAt: string | null;
@@ -39,6 +55,7 @@ export class PurchaseRequestEntity {
     department: Department | null = null,
     requester: Requester | null = null,
     position: Position | null = null,
+    user_approval: any = null,
     createdAt: string | null = null,
     updatedAt: string | null = null,
     deletedAt: string | null = null
@@ -55,6 +72,7 @@ export class PurchaseRequestEntity {
     this.department = department;
     this.requester = requester;
     this.position = position;
+    this.user_approval = user_approval;
     this.total = 0;
     this.items = [];
     this.createdAt = createdAt || this.getCurrentTimestamp();
@@ -106,6 +124,22 @@ export class PurchaseRequestEntity {
 
   public getPosition(): Position | null {
     return this.position;
+  }
+  public getUserApproval() {
+
+    if (
+      this.user_approval &&
+      typeof this.user_approval === "object" &&
+      "id" in this.user_approval &&
+      "approval_step" in this.user_approval
+    ) {
+      return this.user_approval;
+    }
+    return null;
+  }
+  public setUserApproval(userApproval: UserApproval): void {
+    this.user_approval = userApproval;
+    this.updateTimestamp();
   }
 
   public getDocumentDescription(): string {
@@ -179,7 +213,8 @@ export class PurchaseRequestEntity {
     documentTypeId: number,
     document_description: string,
     expired_date: string,
-    purposes: string
+    purposes: string,
+    user_approval: UserApproval | null = null
   ): PurchaseRequestEntity {
     return new PurchaseRequestEntity(
       null,
@@ -194,7 +229,8 @@ export class PurchaseRequestEntity {
       null,
       null,
       null,
-      null, 
+      user_approval,
+      null,
       null,
       null
     );

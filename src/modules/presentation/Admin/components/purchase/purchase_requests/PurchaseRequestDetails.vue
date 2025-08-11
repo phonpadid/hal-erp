@@ -4,9 +4,7 @@ import { computed, onMounted, ref } from "vue";
 import { columns } from "../../../views/purchase_requests/column";
 import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
-import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
-import { useToggleStore } from "../../../stores/storage.store";
-import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
+import { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 import { useRoute } from "vue-router";
 import { formatDate } from "@/modules/shared/formatdate";
 import { formatPrice } from "@/modules/shared/utils/format-price";
@@ -15,19 +13,40 @@ import Table from "@/common/shared/components/table/Table.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
-/********************************************************* */
+
+// ******************* การเปลี่ยนแปลงทั้งหมดจะอยู่ในนี้ *******************
+import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
+import { useToggleStore } from "../../../stores/storage.store";
+import { useApprovalStepStore } from "../../../stores/approval-step.store";
+import { useDocumentStatusStore } from "../../../stores/document-status.store";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 
 const { t } = useI18n();
+const route = useRoute();
+const { error } = useNotification();
+
+// 2. สร้าง Instance ของ Store ทั้งหมดที่ต้องใช้
 const toggleStore = useToggleStore();
+const purchaseRequestStore = usePurchaseRequestsStore();
+const approvalStepStore = useApprovalStepStore();
+const documentStatusStore = useDocumentStatusStore();
+
 const { toggle } = storeToRefs(toggleStore);
+
 const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
-const confirmLoading = ref(false);
 const loading = ref(true);
-const route = useRoute();
-const purchaseRequestStore = usePurchaseRequestsStore();
 const requestDetail = ref<PurchaseRequestEntity | null>(null);
+
+const confirmLoading = computed(() => approvalStepStore.loading);
+
+const approvedStatusId = computed(() => {
+  return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
+});
+const rejectedStatusId = computed(() => {
+  return documentStatusStore.document_Status.find((s) => s.getName() === "REJECTED")?.getId();
+});
 const requesterInfo = computed(() => requestDetail.value?.getRequester());
 const departmentInfo = computed(() => requestDetail.value?.getDepartment());
 const positionInfo = computed(() => requestDetail.value?.getPosition());
@@ -37,7 +56,13 @@ const imageList = computed(() => {
   return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
 });
 
-// Custom buttons for header
+const documentDetails = {
+  requester: {
+    avatar: "/public/4.png",
+  },
+};
+
+// Custom buttons ที่ส่งให้ HeaderComponent (ถูกต้องอยู่แล้ว)
 const customButtons = [
   {
     label: "ປະຕິເສດ",
@@ -58,51 +83,108 @@ const customButtons = [
 const topbarStyle = computed(() => {
   return toggle.value ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
 });
-// Handle approve
+
 const handleApprove = async () => {
-  try {
-    confirmLoading.value = true;
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    isApproveModalVisible.value = false;
-  } finally {
-    confirmLoading.value = false;
+  if (!approvedStatusId.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Approved' ໃນລະບົບ");
+    return;
   }
-};
 
-// Handle reject
-const handleReject = async () => {
+  if (!requestDetail.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+    return;
+  }
+
   try {
-    if (!rejectReason.value.trim()) {
+    const userApproval = requestDetail.value.getUserApproval();
+    if (!userApproval?.approval_step?.[0]?.id) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
       return;
     }
-    confirmLoading.value = true;
-    // Your reject logic here
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    isRejectModalVisible.value = false;
-    rejectReason.value = "";
-  } finally {
-    confirmLoading.value = false;
+
+    // ใช้ id จาก approval_step[0]
+    const approvalStepId = userApproval.approval_step[0].id;
+    console.log("Approval Step ID:", approvalStepId); // log เพื่อตรวจสอบ
+
+    const documentId = route.params.id as string;
+    const payload = {
+      type: "pr" as const,
+      statusId: Number(approvedStatusId.value), // แปลงเป็น number
+      remark: "Approved",
+      approvalStepId: Number(approvalStepId), // แปลงเป็น number
+    };
+
+    const success = await approvalStepStore.submitApproval(documentId, payload);
+    if (success) {
+      isApproveModalVisible.value = false;
+    }
+  } catch (err) {
+    console.error("Error in handleApprove:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
   }
 };
 
-// Document details
-const documentDetails = {
-  requester: {
-    name: "ທ່ານ ພົມມະກອນ ຄວາມຄູ",
-    position: "ພະນັກງານພັດທະນາລະບົບ, ຝ່າຍໄອທີ",
-    avatar: "/public/4.png",
-  },
-  requestDate: "30 ມີນາ 2025",
-  purpose: "ຈັດຊື້ເພື່ອ ເພື່ອຍົກລະດັບ-ສ້າງໃຫ້ເປັນການແຂ່ງຂັນໃໝ່ 1 ຄັນ",
-};
+const handleReject = async () => {
+  if (!rejectReason.value.trim()) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາລະບຸເຫດຜົນໃນການປະຕິເສດ");
+    return;
+  }
 
+  if (!rejectedStatusId.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Rejected' ໃນລະບົບ");
+    return;
+  }
+
+  if (!requestDetail.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+    return;
+  }
+
+  try {
+    const userApproval = requestDetail.value.getUserApproval();
+    if (!userApproval?.approval_step?.[0]?.id) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
+      return;
+    }
+
+    const approvalStepId = userApproval.approval_step[0].id;
+
+    const documentId = route.params.id as string;
+    const payload = {
+      type: "pr" as const,
+      statusId: Number(rejectedStatusId.value),
+      remark: rejectReason.value,
+      approvalStepId: Number(approvalStepId),
+    };
+
+    console.log("Sending payload:", payload);
+
+    const success = await approvalStepStore.submitApproval(documentId, payload);
+    if (success) {
+      isRejectModalVisible.value = false;
+      rejectReason.value = "";
+    }
+  } catch (err) {
+    console.error("Error in handleReject:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+  }
+};
 onMounted(async () => {
   const requestId = route.params.id as string;
   if (requestId) {
     loading.value = true;
-    requestDetail.value = await purchaseRequestStore.fetchById(requestId);
-    loading.value = false;
+    try {
+      const [data] = await Promise.all([
+        purchaseRequestStore.fetchById(requestId),
+        documentStatusStore.fetctDocumentStatus({ page: 1, limit: 100 }),
+      ]);
+
+      requestDetail.value = data;
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    } finally {
+      loading.value = false;
+    }
   }
 });
 </script>
@@ -125,20 +207,19 @@ onMounted(async () => {
     </div>
 
     <UiModal
-      title="ປະຕິເສດ"
+      title="ອະນຸມັດ"
       :visible="isApproveModalVisible"
       :confirm-loading="confirmLoading"
       @update:visible="isApproveModalVisible = false"
-      @ok="handleApprove"
     >
       <p>ທ່ານຕ້ອງການຢືນຢັນຄຳຂໍຈັດຊື້ ແທ້ ຫຼື ບໍ່?</p>
       <template #footer>
-        <div class="flex">
+        <div class="flex gap-x-2">
           <UiButton @click="isApproveModalVisible = false" type="default" color-class="w-full"
             >ຍົກເລີກ</UiButton
           >
           <UiButton
-            @click="handleReject"
+            @click="handleApprove"
             type="primary"
             :loading="confirmLoading"
             color-class="w-full"
@@ -148,29 +229,29 @@ onMounted(async () => {
       </template>
     </UiModal>
 
-    <!-- Reject Modal -->
     <UiModal
       title="ປະຕິເສດ"
       :visible="isRejectModalVisible"
       :confirm-loading="confirmLoading"
       @update:visible="isRejectModalVisible = false"
-      @ok="handleReject"
     >
       <div class="space-y-4">
         <p>ໃສ່ເຫດຜົນໃນການປະຕິເສດ</p>
         <div>
           <p class="mb-2 font-semibold">ເຫດຜົນ</p>
-          <Textarea :modelValue="rejectReason" placeholder="ປ້ອນເຫດຜົນ" :rows="4" />
+          <Textarea v-model="rejectReason" placeholder="ປ້ອນເຫດຜົນ" :rows="4" />
         </div>
       </div>
       <template #footer>
-        <UiButton
-          @click="handleReject"
-          type="primary"
-          :loading="confirmLoading"
-          color-class="w-full"
-          >ຢືນຢັນ</UiButton
-        >
+        <div class="flex gap-x-2">
+          <UiButton
+            @click="handleReject"
+            type="primary"
+            :loading="confirmLoading"
+            color-class="w-full"
+            >ຢືນຢັນ</UiButton
+          >
+        </div>
       </template>
     </UiModal>
 
