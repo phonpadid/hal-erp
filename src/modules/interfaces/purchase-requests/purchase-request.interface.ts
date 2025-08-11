@@ -33,3 +33,35 @@ export interface StatusSummary {
   status: string;
   amount: number;
 }
+
+export interface DocumentStatus {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApprovalStep {
+  id: number;
+  user_approval_id: number;
+  step_number: number;
+  approver_id: number;
+  approved_at: string | null;
+  status_id: number;
+  remark: string;
+  requires_file_upload: boolean;
+  created_at: string;
+  updated_at: string;
+  document_status: DocumentStatus;
+  approver: Requester | null;
+}
+
+export interface UserApproval {
+  id: number;
+  document_id: number;
+  status_id: number;
+  created_at: string;
+  updated_at: string;
+  document_status: DocumentStatus;
+  approval_step: ApprovalStep[];
+}
