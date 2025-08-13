@@ -3,7 +3,9 @@ import { ref, onMounted, computed, watch } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
+import Table, {
+  type TablePaginationType,
+} from "@/common/shared/components/table/Table.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import { useI18n } from "vue-i18n";
@@ -15,45 +17,79 @@ import { departmentStore } from "../../../stores/departments/department.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { departmenUsertStore } from "../../../stores/departments/department-user.store";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import { canAccessAll } from "@/modules/shared/utils/check-user-type.util";
 
 const { t } = useI18n();
 const search = ref<string>("");
 const departmentApv = ref<DepartmentApproverApiModel[]>([]);
 const dpmStore = departmentStore();
+
 // Form related
 const formRef = ref();
-const createModalVisible = ref<boolean>(false);
-const editModalVisible = ref<boolean>(false);
+const modalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedDpm = ref<DepartmentApproverApiModel | null>(null);
+const isEditMode = ref<boolean>(false); // Track if we're in edit mode
 const userStore = departmenUsertStore();
 const { success, warning } = useNotification();
+
 const userItem = computed(() =>
-  userStore.departmentUser.map((item) => {
+  userStore.departmentUserByDpm.map((item) => {
     const user = item.getUser?.();
     return {
-      value: user?.getId?.() ?? "", // convert to string
+      value: user?.getId() ?? "", // convert to string
       label: user?.getUsername?.() ?? "",
     };
   })
 );
-
+const dpmOption = computed(() =>
+  dpmStore.departments.map((item) => {
+    return {
+      value: item?.getId?.() ?? "", // convert to string
+      label: item?.getName?.() ?? "",
+    };
+  })
+);
 
 // Form model
 const store = departmentApproverStore();
 const formModel = store.dpmApproverFormModel;
-const refreshUsers = async () => {
-  await userStore.fetchDepartmentUser({
-    page: 1,
-    limit: 1000,
-  });
-};
+
+// Modal title computed property
+const modalTitle = computed(() => {
+  return isEditMode.value
+    ? t("departments.dpm.header_form.edit")
+    : t("departments.dpm.header_form.add");
+});
+
+// Modal OK button text computed property
+const modalOkText = computed(() => {
+  return isEditMode.value ? t("button.edit") : t("button.save");
+});
+
+watch(
+  () => formModel.department_id,
+  async (newDpmId) => {
+    if (newDpmId) {
+      userStore.departmentUserByDpm = [];
+      await userStore.fetchDepartmentUserByDpm(newDpmId);
+      if (!isEditMode.value) {
+        formModel.user_id = "";
+      }
+    } else {
+      userStore.departmentUserByDpm = [];
+      formModel.user_id = "";
+    }
+  }
+);
+
+
 // Load data on component mount
 onMounted(async () => {
   await dpmApproverList();
-  await dpmStore.fetchDepartment();
-  await refreshUsers();
+  await dpmStore.fetchDepartment({limit: 1000, page: 1});
+  // await refreshUsers();
 });
 
 const dpmApproverList = async (): Promise<void> => {
@@ -83,15 +119,18 @@ const handleSearch = async () => {
 
 // CRUD operations
 const showCreateModal = (): void => {
+  isEditMode.value = false;
+  selectedDpm.value = null;
   formModel.user_id = "";
-  createModalVisible.value = true;
+  modalVisible.value = true;
 };
 
 const showEditModal = (record: DepartmentApproverApiModel): void => {
-  const userId = record.user?.id;
+  isEditMode.value = true;
   selectedDpm.value = record;
-  formModel.user_id = String(userId);
-  editModalVisible.value = true;
+  formModel.department_id = String(record.department_id);
+  formModel.user_id = String(record.user_id);
+  modalVisible.value = true;
 };
 
 const showDeleteModal = (record: DepartmentApproverApiModel): void => {
@@ -99,17 +138,35 @@ const showDeleteModal = (record: DepartmentApproverApiModel): void => {
   deleteModalVisible.value = true;
 };
 
+const handleModalOk = async (): Promise<void> => {
+  if (isEditMode.value) {
+    await handleEdit();
+  } else {
+    await handleCreate();
+  }
+};
+
 const handleCreate = async (): Promise<void> => {
   try {
     loading.value = true;
     await formRef.value.submitForm();
-    await store.createDepartmentApprover({
-      user_id: Number(formModel.user_id),
-    });
-    success(t("departments.notify.created"));
-    await dpmApproverList();
-    await refreshUsers();
-    createModalVisible.value = false;
+    if (canAccessAll) {
+      await store.createDepartmentApproverByAdmin({
+        user_id: Number(formModel.user_id),
+        department_id: Number(formModel.department_id),
+      });
+      success(t("departments.notify.created"));
+      await dpmApproverList();
+      modalVisible.value = false;
+    } else {
+      await store.createDepartmentApprover({
+        user_id: Number(formModel.user_id),
+        // department_id: Number(formModel.department_id),
+      });
+      success(t("departments.notify.created"));
+      await dpmApproverList();
+      modalVisible.value = false;
+    }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     warning(t("messages.error.title"), errorMessage);
@@ -119,22 +176,32 @@ const handleCreate = async (): Promise<void> => {
 };
 
 const handleEdit = async (): Promise<void> => {
+
   try {
     loading.value = true;
     await formRef.value.submitForm();
 
     if (selectedDpm.value) {
       const id = selectedDpm.value.id.toString();
-      await store.updateDepartmentApprover({
+      if(canAccessAll) {
+        await store.updateDepartmentApproverByAdmin({
+        id,
+        user_id: formModel.user_id,
+        department_id: formModel.department_id,
+      });
+      success(t("departments.notify.update"));
+      await dpmApproverList();
+      }else{
+        await store.updateDepartmentApprover({
         id,
         user_id: formModel.user_id,
       });
       success(t("departments.notify.update"));
       await dpmApproverList();
-      await refreshUsers();
+      }
     }
 
-    editModalVisible.value = false;
+    modalVisible.value = false;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     warning(t("messages.error.title"), errorMessage);
@@ -151,7 +218,6 @@ const handleDelete = async (): Promise<void> => {
     const id = selectedDpm.value.id.toString();
     await store.deleteDepartmentApprover(id);
     await dpmApproverList(); // Refresh the list
-    await refreshUsers();
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     warning(t("messages.error.title"), errorMessage);
@@ -160,7 +226,6 @@ const handleDelete = async (): Promise<void> => {
   deleteModalVisible.value = false;
   loading.value = false;
 };
-
 
 const handleTableChange = async (pagination: TablePaginationType) => {
   store.setPagination({
@@ -171,6 +236,15 @@ const handleTableChange = async (pagination: TablePaginationType) => {
   await dpmApproverList();
 };
 
+const handleModalCancel = async () => {
+  modalVisible.value = false;
+  // Reset form state
+  formModel.user_id = "";
+  formModel.department_id = "";
+  userStore.departmentUserByDpm = [];
+  selectedDpm.value = null;
+};
+
 /** Watch Search */
 watch(search, async (newValue) => {
   if (newValue === "") {
@@ -178,11 +252,10 @@ watch(search, async (newValue) => {
       page: 1,
       limit: store.pagination.limit,
       total: store.pagination.total,
-    })
+    });
     await dpmApproverList();
   }
 });
-
 </script>
 
 <template>
@@ -217,16 +290,9 @@ watch(search, async (newValue) => {
         >
           {{ departmentApv[0].department?.name }}
         </span>
-
-        <!-- <a-tag :loading="store.loading" color="red" class="inline-block">
-          {{
-            t("departments.dpm_approver.total", {
-              count: total,
-            })
-          }}
-        </a-tag> -->
       </div>
     </div>
+
     <Table
       :columns="columns(t)"
       :dataSource="store.departmentApprover"
@@ -264,44 +330,30 @@ watch(search, async (newValue) => {
       </template>
     </Table>
 
-    <!-- Create Modalfffdf -->
+    <!-- Single Modal for Create/Edit -->
     <UiModal
-      :title="t('departments.dpm.header_form.add')"
-      :visible="createModalVisible"
+      :title="modalTitle"
+      :visible="modalVisible"
       :confirm-loading="loading"
-      @update:visible="createModalVisible = $event"
-      @ok="handleCreate"
-      @cancel="createModalVisible = false"
-      :ok-text="t('button.save')"
+      @update:visible="modalVisible = $event"
+      @ok="handleModalOk"
+      @cancel="handleModalCancel"
+      :ok-text="modalOkText"
       :cancel-text="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="dpmApproverRules(t)">
         <UiFormItem
-          :label="t('departments.dpm_user.field.user')"
-          name="user_id"
+          :label="t('departments.dpm_user.field.department')"
+          name="department_id"
           required
+          v-if="canAccessAll"
         >
           <InputSelect
-            v-model="formModel.user_id"
-            :options="userItem"
-            :placeholder="t('departments.dpm_user.placeholder.user')"
+            v-model="formModel.department_id"
+            :options="dpmOption"
+            :placeholder="t('departments.dpm_user.placeholder.dpm')"
           />
         </UiFormItem>
-      </UiForm>
-    </UiModal>
-
-    <!-- Edit Modal -->
-    <UiModal
-      :title="t('departments.dpm.header_form.edit')"
-      :visible="editModalVisible"
-      :confirm-loading="loading"
-      @update:visible="editModalVisible = $event"
-      @ok="handleEdit"
-      @cancel="editModalVisible = false"
-      :ok-text="t('button.edit')"
-      :cancel-text="t('button.cancel')"
-    >
-      <UiForm ref="formRef" :model="formModel" :rules="dpmApproverRules(t)">
         <UiFormItem
           :label="t('departments.dpm_user.field.user')"
           name="user_id"

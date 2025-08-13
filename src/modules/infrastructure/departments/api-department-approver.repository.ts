@@ -23,6 +23,17 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
       return this.handleApiError(error, "Failed to create");
     }
   }
+  async createByAdmin(input: DepartmentApproverEntity): Promise<DepartmentApproverEntity> {
+    try {
+      // Convert to API model first
+      const response = (await api.post("/department-approvers/by/user", this.toApiModel(input))) as {
+        data: ApiResponse<DepartmentApproverApiModel>;
+      };
+      return this.toDomainModel(response.data.data);
+    } catch (error) {
+      return this.handleApiError(error, "Failed to create");
+    }
+  }
 
   async findOne(id: string): Promise<DepartmentApproverEntity | null> {
     try {
@@ -80,6 +91,22 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
       return this.handleApiError(error, `Failed to update unit with id ${department.getId()}`);
     }
   }
+  async updateByAdmin(
+    id: string,
+    department: DepartmentApproverEntity
+  ): Promise<DepartmentApproverEntity> {
+    try {
+      const response = (await api.put(
+        `/department-approvers/by/user/${id}`,
+        this.toApiModel(department)
+      )) as {
+        data: ApiResponse<DepartmentApproverApiModel>;
+      };
+      return this.toDomainModel(response.data.data);
+    } catch (error) {
+      return this.handleApiError(error, `Failed to update unit with id ${department.getId()}`);
+    }
+  }
 
   async delete(id: string): Promise<boolean> {
     try {
@@ -94,6 +121,7 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
     const res = {
       id: Number(dpmApv.getId()),
       user_id: Number(dpmApv.getUser_id()),
+      department_id: Number(dpmApv.getDepartmentId()) ?? "",
       created_at: dpmApv.getCreatedAt() ?? "",
       updated_at: dpmApv.getUpdatedAt() ?? "",
     };
@@ -106,6 +134,7 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
     return new DepartmentApproverEntity(
       data.id.toString(),
       data.user_id.toString(),
+      data.department_id.toString() ?? "",
       user,
       department,
       data.created_at,

@@ -247,13 +247,20 @@ onMounted(async () => {
         <div class="flex items-center justify-center gap-2">
           <UiButton
             type=""
+            icon="ant-design:info-circle-outlined"
+            size="small"
+            @click="showEditModal(record)"
+            colorClass="flex items-center justify-center text-red-400"
+            :disabled="!!record.deleted_at"
+          />
+          <UiButton
+            type=""
             icon="ant-design:edit-outlined"
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
           />
-
           <UiButton
             type=""
             danger

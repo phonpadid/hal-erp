@@ -9,11 +9,13 @@ import type { DepartmentUserEntity } from "@/modules/domain/entities/departments
 import { GetDepartmentUserUseCase } from "../../useCases/departments/department-user/get-department-user.usecase";
 import { DeleteDepartmentUserUseCase } from "../../useCases/departments/department-user/delete-department-user.usecase";
 import { GetOneDepartmentUserUseCase } from "../../useCases/departments/department-user/get-one-department-user.usecase";
+import { GetDepartmentUserByDpmUseCase } from "../../useCases/departments/department-user/get-all-by-department.usecase";
 
 export class DepartmentUserServiceImpl implements DepartmentUserService {
   private readonly createDpmUserUseCase: CreateDepartmentUserUseCase;
   private readonly updateDpmUserUseCase: UpdateDepartmentUserUseCase;
   private readonly getAllDpmUserUseCase: GetDepartmentUserUseCase;
+  private readonly getAllDpmUserByDpmUseCase: GetDepartmentUserByDpmUseCase;
   private readonly getOneDpmUserUseCase: GetOneDepartmentUserUseCase;
   private readonly deleteDpmUserUseCase: DeleteDepartmentUserUseCase;
 
@@ -21,6 +23,7 @@ export class DepartmentUserServiceImpl implements DepartmentUserService {
     this.createDpmUserUseCase = new CreateDepartmentUserUseCase(dpmUserRepository);
     this.updateDpmUserUseCase = new UpdateDepartmentUserUseCase(dpmUserRepository);
     this.getAllDpmUserUseCase = new GetDepartmentUserUseCase(dpmUserRepository);
+    this.getAllDpmUserByDpmUseCase = new GetDepartmentUserByDpmUseCase(dpmUserRepository);
     this.getOneDpmUserUseCase = new GetOneDepartmentUserUseCase(dpmUserRepository);
     this.deleteDpmUserUseCase = new DeleteDepartmentUserUseCase(dpmUserRepository);
   }
@@ -37,6 +40,11 @@ export class DepartmentUserServiceImpl implements DepartmentUserService {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<DepartmentUserEntity>> {
     return await this.getAllDpmUserUseCase.execute(params, includeDeleted);
+  }
+  async getAllDepartmentUserByDmp(
+    id: string
+  ): Promise<DepartmentUserEntity[]> {
+    return await this.getAllDpmUserByDpmUseCase.execute(id);
   }
 
   async updateDepartmentUser(id: string, input: UpdateDepartmentUserDTO): Promise<DepartmentUserEntity> {

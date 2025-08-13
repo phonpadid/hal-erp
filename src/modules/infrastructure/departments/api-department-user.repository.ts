@@ -88,6 +88,18 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       throw this.handleApiError(error, `Failed to find department user with id ${id}`);
     }
   }
+  async findAllByDpm(id: string): Promise<DepartmentUserEntity[]> {
+    try {
+      const response = (await api.get(`/department-users/by/department/${id}`)) as {
+        data: ApiResponse<DepartmentUserApiModel[]>;
+      };
+      const validItems = response.data.data.filter((item) => item.user);
+      const domainModels = validItems.map((item) => this.toDomainModel(item));
+      return domainModels
+    } catch (error) {
+      throw this.handleApiError(error, `Failed to find department user with id ${id}`);
+    }
+  }
 
   async findByName(name: string): Promise<DepartmentUserEntity | null> {
     try {
@@ -246,8 +258,7 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
 
     const created_at = data.created_at;
     const updated_at = data.updated_at;
-
-    return new DepartmentUserEntity(
+    const res = new DepartmentUserEntity(
       id,
       position_id,
       typeof signature_file === "string" || signature_file instanceof File ? signature_file : "",
@@ -264,6 +275,7 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       updated_at || "",
       null
     );
+    return res
   }
 
   private toUserEntity(user: UserInterface): UserEntity {

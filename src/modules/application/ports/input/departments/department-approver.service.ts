@@ -4,8 +4,10 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 
 export interface DepartmentApproverService {
   created(input: CreateDepartmentApproverDTO): Promise<DepartmentApproverEntity>;
+  createdByAdmin(input: CreateDepartmentApproverDTO): Promise<DepartmentApproverEntity>;
   getOne(id: string): Promise<DepartmentApproverEntity | null>;
   getAll(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<DepartmentApproverEntity>>;
+  updatedByAdmin(id: string, input: UpdateDepartmentApproverDTO): Promise<DepartmentApproverEntity>;
   updated(id: string, input: UpdateDepartmentApproverDTO): Promise<DepartmentApproverEntity>;
   deleted(id: string): Promise<boolean>;
 }

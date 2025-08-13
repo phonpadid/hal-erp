@@ -11,6 +11,7 @@ import type {
 } from "@/modules/application/dtos/departments/department-approver.dto";
 export const dpmApproverFormModel = reactive({
   user_id: "",
+  department_id: "",
 });
 // สร้าง unit service
 const createDepartmentApproverService = () => {
@@ -51,6 +52,21 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
 
     try {
       const dpm = await departmentApproverService.created(input);
+      departmentApprover.value = [dpm, ...departmentApprover.value];
+      return dpm;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+  const createDepartmentApproverByAdmin = async (input: CreateDepartmentApproverDTO) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const dpm = await departmentApproverService.createdByAdmin(input);
       departmentApprover.value = [dpm, ...departmentApprover.value];
       return dpm;
     } catch (err) {
@@ -133,6 +149,33 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
       loading.value = false;
     }
   };
+  const updateDepartmentApproverByAdmin = async (input: UpdateDepartmentApproverDTO) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const updatedDpm = await departmentApproverService.updatedByAdmin(input.id, input);
+
+      // Update  list if it's loaded
+      if (departmentApprover.value.length > 0) {
+        const index = departmentApprover.value.findIndex((u) => u.getId() === input.id);
+        if (index !== -1) {
+          departmentApprover.value[index] = updatedDpm;
+        }
+      }
+
+      if (currentDpmApprover.value && currentDpmApprover.value.getId() === input.id) {
+        currentDpmApprover.value = updatedDpm;
+      }
+
+      return currentDpmApprover;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const deleteDepartmentApprover = async (id: string) => {
     loading.value = true;
@@ -151,6 +194,7 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
           departmentApprover.value[index] = new DepartmentApproverEntity(
             deletedDpmApprover.getId(),
             deletedDpmApprover.getUser_id(),
+            deletedDpmApprover.getDepartmentId(),
             deletedDpmApprover.getUser(),
             deletedDpmApprover.getDepartment(),
             deletedDpmApprover.getCreatedAt(),
@@ -172,6 +216,7 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
   // Reset state
   const resetForm = () => {
     dpmApproverFormModel.user_id = "";
+    dpmApproverFormModel.department_id = "";
   };
 
   const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
@@ -203,5 +248,7 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
     updateDepartmentApprover,
     deleteDepartmentApprover,
     resetForm,
+    updateDepartmentApproverByAdmin,
+    createDepartmentApproverByAdmin
   };
 });

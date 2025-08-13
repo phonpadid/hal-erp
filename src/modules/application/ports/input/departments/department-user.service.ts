@@ -8,4 +8,5 @@ export interface DepartmentUserService {
   getAllDepartmentUser(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<DepartmentUserEntity>>;
   updateDepartmentUser(id: string, updateDepartmentDTO: UpdateDepartmentUserDTO): Promise<DepartmentUserEntity>;
   deleteDepartmentUser(id: string): Promise<boolean>;
+  getAllDepartmentUserByDmp(department_id: string): Promise<DepartmentUserEntity[]>;
 }
