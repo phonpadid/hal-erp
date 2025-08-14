@@ -1,4 +1,4 @@
-import type { BankCreate, BankUpdate, BankInterface } from "@/modules/interfaces/bank.interface";
+import type { BankInterface } from "@/modules/interfaces/bank.interface";
 import { defineStore } from "pinia";
 import { ref, computed, reactive } from "vue";
 import type { Ref } from "vue";
@@ -6,6 +6,7 @@ import type { BankEntity } from "@/modules/domain/entities/bank.entity";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { BankServiceImpl } from "@/modules/application/services/bank.service";
 import { ApiBankRepository } from "@/modules/infrastructure/api-bank.repository";
+import type { CreateBankDTO, UpdateBankDTO } from "@/modules/application/dtos/bank.dto";
 
 export const bankFormModel = reactive({
   name: "",
@@ -56,7 +57,9 @@ export const useBankStore = defineStore("bank", () => {
   const totalActiveBanks = computed(() => activeBanks.value.length);
   const totalInactiveBanks = computed(() => inactiveBanks.value.length);
 
-  const fetchBanks = async (params: PaginationParams & { search?: string } = { page: 1, limit: 10 }) => {
+  const fetchBanks = async (
+    params: PaginationParams & { search?: string } = { page: 1, limit: 10 }
+  ) => {
     loading.value = true;
     error.value = null;
     try {
@@ -92,7 +95,7 @@ export const useBankStore = defineStore("bank", () => {
     }
   };
 
-  const createBank = async (bankData: BankCreate) => {
+  const createBank = async (bankData: CreateBankDTO) => {
     submitLoading.value = true;
     error.value = null;
     try {
@@ -107,7 +110,7 @@ export const useBankStore = defineStore("bank", () => {
     }
   };
 
-  const updateBank = async (id: string, bankData: BankUpdate) => {
+  const updateBank = async (id: string, bankData: UpdateBankDTO) => {
     submitLoading.value = true;
     error.value = null;
     try {
@@ -212,6 +215,7 @@ export const useBankStore = defineStore("bank", () => {
     modalVisible.value = true;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const showEditModal = (bank: any) => {
     bankFormModel.name = bank.name ?? "";
     bankFormModel.short_name = bank.short_name ?? bank.shortName ?? "";
@@ -222,7 +226,7 @@ export const useBankStore = defineStore("bank", () => {
     selectedBankId.value = bank.id;
     modalVisible.value = true;
   };
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const showDeleteModal = (bank: any) => {
     selectedBankId.value = bank.id;
     bankFormModel.name = bank.name;
@@ -232,6 +236,7 @@ export const useBankStore = defineStore("bank", () => {
   };
 
   // Modal handlers for ok/cancel
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleModalOk = (bankFormRef: any) => {
     bankFormRef?.submitForm();
   };
@@ -246,7 +251,11 @@ export const useBankStore = defineStore("bank", () => {
       submitLoading.value = true;
       await deleteBank(selectedBankId.value);
       deleteModalVisible.value = false;
-      await fetchBanks({ page: pagination.value.page, limit: pagination.value.limit, search: searchKeyword.value });
+      await fetchBanks({
+        page: pagination.value.page,
+        limit: pagination.value.limit,
+        search: searchKeyword.value,
+      });
     } catch (err) {
       console.error("Error deleting bank:", err);
     } finally {

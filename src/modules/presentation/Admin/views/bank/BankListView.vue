@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { computed, onMounted, watch, ref, onUnmounted } from "vue";
+import { onMounted, watch, ref, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { useBankStore } from "@/modules/presentation/Admin/stores/bank.store";

@@ -1,22 +1,23 @@
 export interface CreateBankDTO {
-  name: string
-  short_name: string
-  logo?: string | null
+  name: string;
+  short_name: string;
+  logo?: string | File | null;
 }
 
 export interface UpdateBankDTO {
-  name?: string
-  short_name?: string
-  logo?: string | null
+  id: number;
+  name?: string;
+  short_name?: string;
+  logo?: string | File | null;
 }
 
 export interface BankDTO {
-  id: string
-  name: string
-  short_name: string
-  logo: string | null
-  logoUrl?: string
-  createdAt: string
-  updatedAt: string
-  deletedAt: string | null
+  id: string;
+  name: string;
+  short_name: string;
+  logo: string;
+  logoUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
 }

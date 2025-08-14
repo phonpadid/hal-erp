@@ -8,7 +8,10 @@ import type { AxiosError } from "axios";
 export class ApiBankRepository implements BankRepository {
   private readonly baseUrl = "/banks";
 
-  async findAll(params: PaginationParams, includeDeleted: boolean = false): Promise<PaginatedResult<BankEntity>> {
+  async findAll(
+    params: PaginationParams,
+    includeDeleted: boolean = false
+  ): Promise<PaginatedResult<BankEntity>> {
     try {
       const response = await api.get(this.baseUrl, {
         params: {
@@ -58,9 +61,21 @@ export class ApiBankRepository implements BankRepository {
 
   async findByShortName(short_name: string): Promise<BankEntity | null> {
     try {
-      const response = await api.get(this.baseUrl, { params: { short_name, limit: 1 } });
+      const normalizedShortName = short_name.trim().toLowerCase();
+      const response = await api.get(this.baseUrl, {
+        params: { short_name: normalizedShortName, limit: 1 },
+      });
       if (response.data.data.length === 0) return null;
-      return this.toDomainModel(response.data.data[0]);
+      // Find a matching bank that is not deleted
+      const bank = response.data.data.find(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (b: any) =>
+          b.short_name &&
+          b.short_name.trim().toLowerCase() === normalizedShortName &&
+          (!b.deleted_at || b.deleted_at === null)
+      );
+      if (!bank) return null;
+      return this.toDomainModel(bank);
     } catch (error) {
       console.error(`Error finding bank by short_name '${short_name}':`, error);
       return null;
@@ -95,8 +110,8 @@ export class ApiBankRepository implements BankRepository {
         formData.append("logo", bankData.logo);
       } else if (typeof bankData.logo === "string" && bankData.logo.trim() !== "") {
         formData.append("logo", bankData.logo);
-      }else{
-        formData.append("logo","");
+      } else {
+        formData.append("logo", "");
       }
       const response = await api.put(`${this.baseUrl}/${id}?_method=PUT`, formData, {
         headers: { "Content-Type": "multipart/form-data" },

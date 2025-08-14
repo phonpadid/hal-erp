@@ -67,8 +67,7 @@ function handleFileChange(file: File) {
 // On submit: use new file if present, else use existing image URL if present, else null
 function submitForm() {
   let logoToSend: File | string | null = null;
-  if(!existingLogoUrl.value){
-
+  if (!existingLogoUrl.value) {
   }
   if (logoFile.value instanceof File) {
     logoToSend = logoFile.value;
@@ -77,7 +76,7 @@ function submitForm() {
   } else if (existingLogoUrl.value) {
     logoToSend = existingLogoUrl.value;
   }
-   const image=existingLogoUrl.value === null? logoToSend :null;
+  const image = existingLogoUrl.value === null ? logoToSend : null;
   emit("submit", {
     ...bankStore.bankFormModel,
     logo: image,
