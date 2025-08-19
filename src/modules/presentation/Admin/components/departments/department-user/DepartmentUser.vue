@@ -220,11 +220,11 @@ const handlerCancel = () => {
 };
 
 onMounted(async () => {
-  await dpmStore.fetchDepartment();
-  await userStore.fetchUsers();
-  await positionStore.fetchPositions();
-  await permissionStore.fetchPermission();
-  await roleStore.fetchRoles();
+  await dpmStore.fetchDepartment({limit: 10000, page: 1});
+  await userStore.fetchUsers({limit: 10000, page: 1});
+  await positionStore.fetchPositions({limit: 10000, page: 1});
+  await permissionStore.fetchPermission({limit: 10000, page: 1});
+  await roleStore.fetchRoles({limit: 10000, page: 1});
   // Load existing data if in edit mode
   await loadDepartmentUser();
 

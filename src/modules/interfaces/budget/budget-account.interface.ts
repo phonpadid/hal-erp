@@ -8,6 +8,7 @@ export interface BudgetAccountInterface {
   departmentId: number | string;
   fiscal_year: number | string;
   allocated_amount: number | string;
+  type: string;
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;

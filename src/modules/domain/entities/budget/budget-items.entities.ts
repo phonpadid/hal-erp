@@ -1,15 +1,17 @@
-import type { BudgetAccountInterface } from "@/modules/interfaces/budget/budget-account.interface";
 import { formatDate } from "@/modules/shared/formatdate";
 import { formatPrice } from "@/modules/shared/utils/format-price";
+import type { BudGetAccountsEntity } from "./budget-accounts.entities";
 
 export class BudGetItemEntity {
   private id: string;
   private budget_account_id: string;
-  private budget_account: BudgetAccountInterface | undefined;
-  private name: string;
-  private allocated_amount: string | number;
+  private budget_account: BudGetAccountsEntity | undefined;
+  private name?: string;
+  private allocated_amount: number;
+  private use_amount: number | null;
+  private balance_amount: number | null;
   private description: string;
-  private format_allocated_amount: string | number;
+  private format_allocated_amount: string;
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
@@ -18,12 +20,14 @@ export class BudGetItemEntity {
     id: string,
     budget_account_id: string,
     name: string,
-    allocated_amount: string | number,
+    allocated_amount: number,
+    use_amount: number | null,
+    balance_amount: number | null,
     description: string,
     created_at: string,
     updated_at: string,
     deleted_at: string | null = null,
-    budget_account?: BudgetAccountInterface
+    budget_account?: BudGetAccountsEntity
   ) {
     this.id = id;
     this.budget_account_id = budget_account_id;
@@ -31,6 +35,8 @@ export class BudGetItemEntity {
     this.budget_account = budget_account;
     this.description = description;
     this.allocated_amount = allocated_amount;
+    this.use_amount = use_amount;
+    this.balance_amount = balance_amount;
     this.format_allocated_amount = formatPrice(Number(allocated_amount));
     this.created_at = formatDate(created_at);
     this.updated_at = formatDate(updated_at);
@@ -42,26 +48,34 @@ export class BudGetItemEntity {
   }
 
   public getName(): string {
-    return this.name;
+    return this.name || "";
   }
 
   public getBudgetAccountsId(): string {
     return this.budget_account_id;
   }
 
-  public getAllocatedAmount(): number | string | undefined {
+  public getAllocatedAmount(): number {
     return this.allocated_amount;
+  }
+
+  public getUseAmount(): number | null {
+    return this.use_amount;
+  }
+
+  public getBalance(): number | null {
+    return this.balance_amount;
   }
 
   public getDescription(): string {
     return this.description;
   }
 
-  public getFormattedAllocatedAmount(): string | number | undefined {
+  public getFormattedAllocatedAmount(): string {
     return this.format_allocated_amount;
   }
 
-  public getBudgetAccount(): BudgetAccountInterface | undefined {
+  public getBudgetAccount(): BudGetAccountsEntity | undefined {
     return this.budget_account;
   }
 
@@ -90,6 +104,7 @@ export class BudGetItemEntity {
     this.budget_account_id = budget_account_id;
     this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
+
   public updateAllocateAmount(allocated_amount: number): void {
     this.allocated_amount = allocated_amount;
     this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
@@ -110,9 +125,11 @@ export class BudGetItemEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
     return new BudGetItemEntity(
       id,
-      name,
       budget_account_id,
+      name,
       allocated_amount,
+      null,
+      null,
       description,
       now,
       now,

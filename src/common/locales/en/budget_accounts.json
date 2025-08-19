@@ -103,6 +103,7 @@
   },
 
   "button": {
+    "add":"Request budget",
     "save": "Save",
     "edit": "Edit",
     "cancel": "Cancel"
