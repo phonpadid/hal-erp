@@ -14,3 +14,25 @@ export class SubmitApprovalStepUseCase {
     return result;
   }
 }
+/********************************************************** */
+interface OtpResponse {
+  id: number;
+  approval_id: number;
+  expires_in: string;
+  max_attempts: number;
+  status: string;
+  approver: {
+    id: number;
+    name: string;
+    email: string;
+    tel: string;
+  }
+}
+export class SendOtpUseCase {
+  constructor(private readonly approvalStepRepo: ApprovalStepRepository) {}
+
+  async execute(approvalStepId: number): Promise<OtpResponse | null> {
+    const result = await this.approvalStepRepo.sendOtp(approvalStepId);
+    return result;
+  }
+}

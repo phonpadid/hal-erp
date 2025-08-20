@@ -11,6 +11,7 @@ export function columns(t: (key: string) => string): Column[] {
       title: t("approval-workflow-step.field.step"),
       dataIndex: "step_number",
       key: "step_number",
+      width: 100
     },
     {
       title: t("approval-workflow-step.field.department"),
@@ -28,9 +29,14 @@ export function columns(t: (key: string) => string): Column[] {
       key: "type",
     },
     {
-      title: t("approval-workflow-step.field.requires_file"),
+      title: t("approval-workflow-step.field.requires_upload"),
       dataIndex: "requires_file",
       key: "requires_file",
+    },
+    {
+      title: t("approval-workflow-step.field.isOtp"),
+      dataIndex: "is_otp",
+      key: "is_otp",
     },
     {
       title: t("approval-workflow.field.created"),

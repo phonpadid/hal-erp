@@ -20,29 +20,6 @@ interface PurchaseRequestItemApiModel {
   remark: string;
   unit?: { name: string };
 }
-
-// interface PurchaseRequestApiModel {
-//   id?: string;
-//   document: {
-//     id: number;
-//     description: string;
-//     documentTypeId: number;
-//     department: any;
-//     requester: any;
-//     position: any[] | null;
-//     document_type: any;
-//   };
-//   pr_number?: string;
-//   requested_date?: string;
-//   expired_date: string;
-//   purposes: string;
-//   purchase_request_item: PurchaseRequestItemApiModel[];
-//   created_at?: string;
-//   updated_at?: string;
-//   deleted_at?: string;
-//   user_approval?: any;
-//   total?: number;
-// }
 interface PurchaseRequestApiModel {
   id?: string;
   document: {
@@ -100,7 +77,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
         data: ApiResponse<PurchaseRequestApiModel>;
       };
 
-      console.log("--- RAW API Response ---:", response.data.data);
+      // console.log("--- RAW API Response ---:", response.data.data);
       return this.toDomainModel(response.data.data);
     } catch (error) {
       const axiosError = error as AxiosError;
@@ -136,7 +113,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
 
   async update(id: string, payload: any): Promise<PurchaseRequestEntity> {
     try {
-      console.log(`Repository updating ID: ${id} with payload:`, payload);
+      // console.log(`Repository updating ID: ${id} with payload:`, payload);
       const response = (await api.put(`/purchase-requests/${id}`, payload)) as {
         data: ApiResponse<PurchaseRequestApiModel>;
       };
@@ -223,6 +200,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
     if (data.total) {
       purchaseRequest.setTotal(data.total);
     }
+    // console.log('API Response user_approval:', data.user_approval);
 
     // เพิ่ม log เพื่อตรวจสอบ
     console.log('API Response user_approval:', data.user_approval);

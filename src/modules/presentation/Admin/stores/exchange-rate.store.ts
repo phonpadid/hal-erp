@@ -97,8 +97,10 @@ export const useExchangeRateStore = defineStore("exchange-rate", () => {
 
     try {
       const data = await exchangeRateService.create(input); // expects array return
-      exchangeRate.value = [...(data as ExchangeRateEntity[]), ...exchangeRate.value];
-      return (data as ExchangeRateEntity[]).map(ExchangeRateEntityToInterface);
+      // exchangeRate.value = [...(data as ExchangeRateEntity[]), ...exchangeRate.value];
+      const resArray = Array.isArray(data) ? data : [data];
+      exchangeRate.value = [...resArray, ...exchangeRate.value];
+      return resArray;
     } catch (err) {
       error.value = err as Error;
       throw err;

@@ -10,6 +10,8 @@ export class BudGetAccountsEntity {
   private allocated_amount: string | number;
   private format_allocated_amount?: string | number;
   private department_id?: string | number;
+  private type: string | null;
+  private description: string | null;
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
@@ -22,6 +24,8 @@ export class BudGetAccountsEntity {
     fiscal_year: string | undefined | number,
     allocated_amount: string | number,
     department_id: string | undefined | number,
+    type: string | null = null,
+    description: string | null = null,
     created_at: string,
     updated_at: string,
     deleted_at: string | null = null,
@@ -34,6 +38,8 @@ export class BudGetAccountsEntity {
     this.allocated_amount = allocated_amount;
     this.format_allocated_amount = formatPrice(Number(allocated_amount));
     this.department_id = department_id;
+    this.type = type;
+    this.description = description;
     this.created_at = formatDate(created_at);
     this.updated_at = formatDate(updated_at);
     this.deleted_at = deleted_at === null ? null : formatDate(deleted_at);
@@ -65,6 +71,12 @@ export class BudGetAccountsEntity {
 
   public getDepartmentId(): string | number | undefined {
     return this.department_id;
+  }
+  public getType(): string | null {
+    return this.type;
+  }
+  public getDescription(): string | null {
+    return this.description;
   }
   public getCreatedAt(): string {
     return this.created_at;
@@ -142,6 +154,8 @@ export class BudGetAccountsEntity {
       fiscal_year,
       allocated_amount,
       department_id,
+      null,
+      null,
       now,
       now,
       null

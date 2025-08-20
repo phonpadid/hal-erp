@@ -155,6 +155,7 @@ export const useBudgetAccountStore = defineStore("budgetAccount", () => {
       department_id: String(budgetAccount.getDepartmentId()) || "",
       fiscal_year: String(budgetAccount.getFiscalYear()) || "",
       allocated_amount: String(budgetAccount.getAllocatedAmount()) || "",
+      type: budgetAccount.getType() || "",
       created_at: budgetAccount.getCreatedAt() || "",
       updated_at: budgetAccount.getUpdatedAt() || "",
       deleted_at: budgetAccount.getDeletedAt(),

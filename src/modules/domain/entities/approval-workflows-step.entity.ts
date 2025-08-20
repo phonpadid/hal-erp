@@ -11,6 +11,7 @@ export class ApprovalWorkflowStepEntity {
   private user_id: number;
   private type: string;
   private requires_file: string;
+  private is_otp: string;
 
   private approval_workflow: ApprovalWorkflowEntity | null;
   private user: UserEntity | null;
@@ -28,6 +29,7 @@ export class ApprovalWorkflowStepEntity {
     user_id: number,
     type: string,
     requires_file: string,
+    is_otp: string,
     approval_workflow: ApprovalWorkflowEntity | null = null,
     user: UserEntity | null = null,
     department: DepartmentEntity | null = null,
@@ -44,6 +46,7 @@ export class ApprovalWorkflowStepEntity {
     this.user_id = user_id;
     this.type = type;
     this.requires_file = requires_file;
+    this.is_otp = is_otp;
     this.approval_workflow = approval_workflow;
     this.department = department;
     this.user = user;
@@ -78,6 +81,9 @@ export class ApprovalWorkflowStepEntity {
   public getRequiredFile(): string {
     return this.requires_file;
   }
+  public getIsOtp(): string {
+    return this.is_otp;
+  }
   public getApprovalWorkflow(): ApprovalWorkflowEntity | null {
     return this.approval_workflow;
   }
@@ -106,6 +112,7 @@ export class ApprovalWorkflowStepEntity {
     user_id: number,
     type: string,
     requires_file: string,
+    is_otp: string,
   ): void {
     this.approval_workflow_id = approval_workflow_id
     this.department_id = department_id
@@ -114,6 +121,7 @@ export class ApprovalWorkflowStepEntity {
     this.user_id = user_id
     this.type = type
     this.requires_file = requires_file
+    this.is_otp = is_otp
   }
   public isDeleted(): boolean {
     return this.deletedAt !== null
@@ -135,6 +143,7 @@ export class ApprovalWorkflowStepEntity {
     user_id: number,
     type: string,
     requires_file: string,
+    is_otp: string,
   ): ApprovalWorkflowStepEntity {
     return new ApprovalWorkflowStepEntity(
       id.toString(),
@@ -145,6 +154,7 @@ export class ApprovalWorkflowStepEntity {
       user_id,
       type,
       requires_file,
+      is_otp,
     )
   }
 }

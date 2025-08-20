@@ -1,6 +1,6 @@
 export interface UnitInterface {
   id: number;
-  name: string;
+  name?: string;
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;

@@ -4,8 +4,8 @@ export function columns(t: (key: string) => string): Column[] {
   return [
     {
       title: t("purchase_qequest.table.number"),
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "index",
+      key: "index",
     },
     {
       title: t("purchase_qequest.table.name"),

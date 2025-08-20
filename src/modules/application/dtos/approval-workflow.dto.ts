@@ -12,6 +12,7 @@ export interface CreateApprovalWorkflowDTO {
     type: string
     user_id: string
     requires_file: string,
+    is_otp: string,
   }[]
 }
 

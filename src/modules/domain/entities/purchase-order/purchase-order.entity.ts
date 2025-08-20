@@ -1,49 +1,89 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PurchaseOrderItemEntity } from "./purchase-order-item.entity";
 import { PurchaseOrderVendorEntity } from "./purchase-order-vendor.entity";
 
-// สร้าง Interface สำหรับ Document เพื่อให้ Type ชัดเจน
 interface PurchaseOrderDocument {
   description: string | null;
   documentTypeId: number;
+  department?: any;
+  requester?: any;
+  position?: Array<{
+    id: number;
+    name: string;
+    created_at: string;
+    updated_at: string;
+  }>;
+  created_by?: string;
+  created_at?: string;
+  updated_by?: string;
+  updated_at?: string;
 }
 
-// แก้ชื่อเป็น Singular: PurchaseOrderEntity
 export class PurchaseOrderEntity {
   private id: number | null;
-  private poNumber: string | null; // เพิ่มเลขที่ PO
+  private poNumber: string | null;
   private purchaseRequestId: number;
   private document: PurchaseOrderDocument;
+  private purchaseRequest: any;
+  private userApproval: any;
   private items: PurchaseOrderItemEntity[];
-  private createdAt: Date;
-  private updatedAt: Date;
-  private deletedAt: Date | null;
+  private createdBy: string;
+  private createdAt: string;
+  private updatedBy: string;
+  private updatedAt: string;
+  private deletedAt: string | null;
 
-  // ทำให้ constructor เป็น private เพื่อควบคุมการสร้าง Object ผ่าน Factory Method
   private constructor(
     id: number | null,
     poNumber: string | null,
     purchaseRequestId: number,
     document: PurchaseOrderDocument,
-    items: PurchaseOrderItemEntity[]
+    items: PurchaseOrderItemEntity[],
+    createdBy: string,
+    createdAt: string,
+    updatedBy: string,
+    updatedAt: string,
+    deletedAt: string | null = null,
+    purchaseRequest?: any,
+    userApproval?: any
   ) {
     this.id = id;
     this.poNumber = poNumber;
     this.purchaseRequestId = purchaseRequestId;
     this.document = document;
     this.items = items;
-    this.createdAt = new Date();
-    this.updatedAt = new Date();
-    this.deletedAt = null;
+    this.purchaseRequest = purchaseRequest;
+    this.userApproval = userApproval;
+    this.createdBy = createdBy;
+    this.createdAt = createdAt;
+    this.updatedBy = updatedBy;
+    this.updatedAt = updatedAt;
+    this.deletedAt = deletedAt;
   }
 
-  /**
-   * Factory Method หลักสำหรับสร้าง Purchase Order ใหม่จากข้อมูลดิบ (DTO)
-   * @param data - ข้อมูลจาก JSON ที่ส่งมา
-   * @returns {PurchaseOrderEntity}
-   */
   public static create(data: {
+    id?: number;
+    poNumber?: string;
     purchase_request_id: number;
-    document: { description: string; documentTypeId: number };
+    document: {
+      description: string | null;
+      documentTypeId: number;
+      department?: string;
+      requester?: string;
+      position?: Array<{
+        id: number;
+        name: string;
+        created_at: string;
+        updated_at: string;
+      }>;
+      document_type_id?: number;
+      created_by?: string;
+      created_at?: string;
+      updated_by?: string;
+      updated_at?: string;
+    };
+    purchase_request?: any;
+    user_approval?: any;
     items: Array<{
       purchase_request_item_id: number;
       price: number;
@@ -56,7 +96,15 @@ export class PurchaseOrderEntity {
         selected: boolean;
       }>;
     }>;
+    created_by?: string;
+    created_at?: string;
+    updated_by?: string;
+    updated_at?: string;
+    deleted_at?: string | null;
   }): PurchaseOrderEntity {
+    const currentTimestamp = "2025-08-12 03:05:12"; // UTC time
+    const currentUser = "phonpadid";
+
     const orderItems = data.items.map((itemDto) => {
       const selectedVendorDto = itemDto.selected_vendor.find((v) => v.selected === true);
 
@@ -66,34 +114,55 @@ export class PurchaseOrderEntity {
         );
       }
 
-      const vendor = PurchaseOrderVendorEntity.create(
-        selectedVendorDto.vendor_id,
-        typeof selectedVendorDto.vendor_bank_account_id === "number"
-          ? selectedVendorDto.vendor_bank_account_id
-          : null,
-        selectedVendorDto.filename,
-        selectedVendorDto.reason
-      );
+      const vendor = PurchaseOrderVendorEntity.create({
+        vendorId: selectedVendorDto.vendor_id,
+        vendorBankAccountId:
+          typeof selectedVendorDto.vendor_bank_account_id === "number"
+            ? selectedVendorDto.vendor_bank_account_id
+            : null,
+        filename: selectedVendorDto.filename,
+        reason: selectedVendorDto.reason,
+        created_by: currentUser,
+        created_at: currentTimestamp,
+      });
 
-      return PurchaseOrderItemEntity.create(
-        itemDto.purchase_request_item_id,
-        itemDto.price,
-        itemDto.is_vat,
-        vendor
-      );
+      return PurchaseOrderItemEntity.create({
+        purchaseRequestItemId: itemDto.purchase_request_item_id,
+        price: itemDto.price,
+        isVat: itemDto.is_vat,
+        selectedVendor: vendor,
+        created_by: currentUser,
+        created_at: currentTimestamp,
+      });
     });
 
     if (orderItems.length === 0) {
       throw new Error("Purchase Order must have at least one item.");
     }
 
-    // สร้าง PurchaseOrderEntity ผ่าน private constructor
     return new PurchaseOrderEntity(
-      null, // ID จะถูกสร้างโดย Database
-      null, // PO Number จะถูกสร้างโดยระบบ
+      data.id || null,
+      data.poNumber || null,
       data.purchase_request_id,
-      data.document,
-      orderItems
+      {
+        ...data.document,
+        documentTypeId: data.document.documentTypeId,
+        department: data.document.department || null,
+        requester: data.document.requester || null,
+        position: data.document.position || [],
+        created_by: data.document.created_by || currentUser,
+        created_at: data.document.created_at || currentTimestamp,
+        updated_by: data.document.updated_by || currentUser,
+        updated_at: data.document.updated_at || currentTimestamp,
+      },
+      orderItems,
+      data.created_by || currentUser,
+      data.created_at || currentTimestamp,
+      data.updated_by || currentUser,
+      data.updated_at || currentTimestamp,
+      data.deleted_at || null,
+      data.purchase_request,
+      data.user_approval
     );
   }
 
@@ -113,14 +182,29 @@ export class PurchaseOrderEntity {
   public getDocument(): PurchaseOrderDocument {
     return this.document;
   }
-  public getCreatedAt(): Date {
+  public getCreatedAt(): Date | string {
     return this.createdAt;
   }
-  public getUpdatedAt(): Date {
+  public getUpdatedAt(): Date | string {
     return this.updatedAt;
   }
-  public getDeletedAt(): Date | null {
+  public getDeletedAt(): Date | string | null {
     return this.deletedAt;
+  }
+  public getPurchaseRequest(): any {
+    return this.purchaseRequest;
+  }
+
+  public getUserApproval(): any {
+    return this.userApproval;
+  }
+
+  public getDepartment(): any {
+    return this.document.department;
+  }
+
+  public getRequester(): any {
+    return this.document.requester;
   }
 
   // --- Business Logic Methods (ตัวอย่าง) ---
@@ -129,7 +213,10 @@ export class PurchaseOrderEntity {
    * คำนวณยอดรวมของใบสั่งซื้อ
    * @returns {number}
    */
-  public getTotalAmount(): number {
-    return this.items.reduce((total, item) => total + item.price, 0);
+  public getTotalWithVAT(): number {
+    return this.items.reduce((total, item) => {
+      const itemPrice = item.getPrice();
+      return total + (item.getIsVat() ? itemPrice * 1.07 : itemPrice);
+    }, 0);
   }
 }

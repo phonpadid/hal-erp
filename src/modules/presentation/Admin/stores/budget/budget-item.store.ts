@@ -114,7 +114,10 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
     error.value = null;
 
     try {
-      const budgetItem = await budgetItemService.createBudgetItem(budgetItemData);
+      const budgetItem = await budgetItemService.createBudgetItem({
+        ...budgetItemData,
+        description: budgetItemData.description || '',
+      });
       budgetItems.value = [budgetItem, ...budgetItems.value];
       return budgetItemEntityToInterface(budgetItem);
     } catch (err) {
@@ -176,7 +179,7 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
       id: budgetItem.getId() || "",
       name: budgetItem.getName() || "",
       budget_account_id: budgetItem.getBudgetAccountsId() || "",
-      allocated_amount: String(budgetItem.getAllocatedAmount() || ""),
+      allocated_amount: Number(budgetItem.getAllocatedAmount() || 0),
       description: budgetItem.getDescription() || "",
       created_at: budgetItem.getCreatedAt() || "",
       updated_at: budgetItem.getUpdatedAt() || "",

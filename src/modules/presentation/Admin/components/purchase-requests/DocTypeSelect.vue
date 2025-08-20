@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, watch } from "vue";
 import { useDocumentTypeStore } from "../../stores/document-type.store";
-import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { t } from "@/common/config/i18n/i18n.config";
 import type { DocumentTypeEntity } from "@/modules/domain/entities/document-type.entities";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
 const formState = reactive({
   document_type_id: "",
 });

@@ -16,7 +16,10 @@ export class ApiAuthRepository implements AuthRepository {
       if (response.data.status_code !== 201) {
         throw new Error(response.data.message);
       }
-
+      localStorage.setItem(
+        "userType",
+        JSON.stringify(response?.data?.data?.user?.user_type ?? [])
+      );
       return this.toEntity(response.data.data);
     } catch (error) {
       throw this.handleError(error as AxiosError, "Login failed");

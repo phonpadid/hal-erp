@@ -9,6 +9,7 @@ export interface CreateApprovalWorkflowStepDTO {
   user_id: number;
   type: string;
   requires_file: string;
+  is_otp: string;
 }
 
 export interface UpdateApprovalWorkflowStepDTO {
@@ -20,6 +21,7 @@ export interface UpdateApprovalWorkflowStepDTO {
   user_id: number;
   type: string;
   requires_file: string;
+  is_otp: string;
 }
 
 export interface ApprovalWorkflowStepDTO {

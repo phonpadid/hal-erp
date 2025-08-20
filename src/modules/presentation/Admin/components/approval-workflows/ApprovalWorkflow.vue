@@ -4,7 +4,7 @@ import { NumberOnly } from "@/modules/shared/utils/format-price";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watchEffect } from "vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { departmentStore } from "../../stores/departments/department.store";
 import InputNumber from "@/common/shared/components/Input/InputNumber.vue";
@@ -95,6 +95,7 @@ const handleSubmit = async (): Promise<void> => {
         type: item.type,
         user_id: item.user_id,
         requires_file: item.requires_file,
+        is_otp: item.is_otp,
       }));
     await apvWorkflowStore.create({
         name: formState.name,
@@ -112,6 +113,11 @@ const handleSubmit = async (): Promise<void> => {
     loading.value = false;
   }
 };
+watchEffect(() => {
+  formState.addMore.forEach((item, index) => {
+    item.step_number = index + 1;
+  });
+});
 </script>
 <template>
   <div class="mt-[1rem] px-6 shadow-sm p-2">
@@ -235,6 +241,14 @@ const handleSubmit = async (): Promise<void> => {
         >
           <Radio v-model="value.requires_file" :options="rateOptions" />
         </UiFormItem>
+          <UiFormItem
+          :label="t('approval-workflow-step.field.is_otp')"
+          :name="['addMore', index.toString(), 'is_otp']"
+        >
+          <Radio v-model="value.is_otp" :options="rateOptions" />
+        </UiFormItem>
+
+        </div>
         <UiFormItem
           :label="t('approval-workflow.addMore')"
         >
@@ -255,7 +269,6 @@ const handleSubmit = async (): Promise<void> => {
           />
         </div>
         </UiFormItem>
-        </div>
       </div>
       <div class="btn mb-16 flex items-center justify-start gap-3">
         <UiButton @click="push({name: 'approval_workflows.index'})" >{{ t('button.cancel') }}</UiButton>

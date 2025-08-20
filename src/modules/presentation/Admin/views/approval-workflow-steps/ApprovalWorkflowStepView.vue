@@ -61,6 +61,7 @@ const formState = reactive({
   step_number: 0 as number,
   type: "",
   requires_file: "false",
+  is_otp: "false",
   user_id: "",
   approval_workflow_id: ""
 });
@@ -143,6 +144,7 @@ const resetForm = (): void => {
   formState.type = "";
   formState.user_id = "";
   formState.requires_file = "false";
+  formState.is_otp = "false";
   formState.approval_workflow_id = "";
 };
 
@@ -164,6 +166,7 @@ const showEditModal = (record: IApprovalWorkflowStepApiModel): void => {
   formState.type = record.type;
   formState.user_id = record.user_id?.toString() ?? "";
   formState.requires_file = String(record.requires_file);
+  formState.is_otp = String(record.is_otp);
   formState.approval_workflow_id = record.approval_workflow_id?.toString() ?? "";
 
   modalVisible.value = true;
@@ -189,6 +192,7 @@ const handleSubmit = async (): Promise<void> => {
         user_id: Number(formState.user_id),
         type: formState.type,
         requires_file: formState.requires_file,
+        is_otp: formState.is_otp,
         approval_workflow_id: formState.approval_workflow_id,
       });
       success(t("approval-workflow-step.notify.update"));
@@ -200,6 +204,7 @@ const handleSubmit = async (): Promise<void> => {
         type: formState.type,
         user_id: Number(formState.user_id),
         requires_file: formState.requires_file,
+        is_otp: formState.is_otp,
         approval_workflow_id: formState.approval_workflow_id,
       });
       success(t("approval-workflow-step.notify.created"));
@@ -258,6 +263,12 @@ const rateOptions = computed(() => [
   { label: t("approval-workflow-step.yes"), value: "true" },
   { label: t("approval-workflow-step.no"), value: "false" },
 ]);
+const getColor = (value: string) => {
+  return value === "true" ? "text-green-600" : "text-red-600";
+};
+const getTypeLabel = (type: string) => {
+  return typeEnum.value.find((item) => item.value === type)?.label || type;
+};
 </script>
 
 <template>
@@ -310,9 +321,25 @@ const rateOptions = computed(() => [
       </template>
       <template #requires_file="{ record }">
         <div class="flex items-center justify-start gap-2">
-         {{
-          record.requires_file === "true" ? t("approval-workflow-step.yes") : t("approval-workflow-step.no")
-          }}
+          <span :class="getColor(record.requires_file)">
+            {{
+            record.requires_file === "true" ? t("approval-workflow-step.yes") : t("approval-workflow-step.no")
+            }}
+          </span>
+        </div>
+      </template>
+      <template #is_otp="{ record }">
+        <div class="flex items-center justify-start gap-2">
+          <span :class="getColor(record.is_otp)">
+            {{
+            record.is_otp === "true" ? t("approval-workflow-step.yes") : t("approval-workflow-step.no")
+            }}
+          </span>
+        </div>
+      </template>
+      <template #type="{ record }">
+        <div class="flex items-center justify-start gap-2">
+          <span>{{ getTypeLabel(record.type) }}</span>
         </div>
       </template>
       <template #user="{ record }">
@@ -363,14 +390,14 @@ const rateOptions = computed(() => [
       @cancel="modalVisible = false"
       :okText="modalOkText"
       :cancelText="t('button.cancel')"
-      width="600px"
+      width="540px"
     >
       <UiForm
         ref="formRef"
         :model="formState"
         :rules="approvalWorkflowStepRules(t)"
       >
-        <div class="flex gap-4 w-full items-start">
+        <div class="flex gap-10 w-full items-start">
           <UiFormItem
             class="w-1/4"
             :label="t('approval-workflow-step.field.step_number')"
@@ -435,17 +462,23 @@ const rateOptions = computed(() => [
             :placeholder="t('approval-workflow-step.placeholder.user')"
           />
         </UiFormItem>
-
-        <UiFormItem
+        <div class="md:flex justify-start">
+          <UiFormItem
           :label="t('approval-workflow-step.field.requires_file')"
-          name="requires_file_upload"
+          name="requires_file"
+          class="w-1/3"
         >
-          <Radio
-            v-model="formState.requires_file"
-            :options="rateOptions"
-            :disabled="loading"
-          />
+          <Radio v-model="formState.requires_file" :options="rateOptions" />
         </UiFormItem>
+          <UiFormItem
+          :label="t('approval-workflow-step.field.is_otp')"
+          name="is_otp"
+          class="w-1/3"
+        >
+          <Radio v-model="formState.is_otp" :options="rateOptions" />
+        </UiFormItem>
+
+        </div>
       </UiForm>
     </UiModal>
 

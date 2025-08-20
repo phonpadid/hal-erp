@@ -24,7 +24,6 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from "vue";
 
-// กำหนด interface ให้มีความยืดหยุ่น
 export interface Column {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   title: string | any;
@@ -57,7 +56,7 @@ export interface SorterResult {
 const props = defineProps<{
   columns: Column[];
   dataSource: TableRecord[];
-  pagination?: TablePaginationType;
+  pagination?: TablePaginationType | boolean;
   loading?: boolean;
   scrollX?: number;
   scrollY?: number;

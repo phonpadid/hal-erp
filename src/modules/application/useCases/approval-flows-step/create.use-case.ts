@@ -15,6 +15,7 @@ export class CreateApprovalWorkflowStepUseCase {
       input.user_id,
       input.type,
       input.requires_file,
+      input.is_otp,
     );
     return await this.approvalWorkflowStepRepo.create(id, res);
   }
