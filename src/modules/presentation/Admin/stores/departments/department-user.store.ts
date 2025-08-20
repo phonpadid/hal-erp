@@ -35,6 +35,7 @@ export const departmenUsertStore = defineStore("department-user", () => {
 
   // State
   const departmentUser: Ref<DepartmentUserEntity[]> = ref([]);
+  const departmentUserByDpm: Ref<DepartmentUserEntity[]> = ref([]);
   const currentDpmUser: Ref<DepartmentUserEntity | null> = ref(null);
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
@@ -110,6 +111,21 @@ export const departmenUsertStore = defineStore("department-user", () => {
     try {
       currentDpmUser.value = await departmentUserService.getDepartmentUserById(id);
       return currentDpmUser.value;
+    } catch (err) {
+      error.value = err as Error;
+      return null;
+    } finally {
+      loading.value = false;
+    }
+  };
+  const fetchDepartmentUserByDpm = async (id: string) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const result = await departmentUserService.getAllDepartmentUserByDmp(id);
+      departmentUserByDpm.value = result;
+      return departmentUserByDpm.value;
     } catch (err) {
       error.value = err as Error;
       return null;
@@ -223,6 +239,7 @@ export const departmenUsertStore = defineStore("department-user", () => {
     // State
     departmentUser,
     currentDpmUser,
+    departmentUserByDpm,
     loading,
     error,
     pagination,
@@ -241,5 +258,6 @@ export const departmenUsertStore = defineStore("department-user", () => {
     deleteDepartmentUser,
     resetState,
     resetForm,
+    fetchDepartmentUserByDpm
   };
 });

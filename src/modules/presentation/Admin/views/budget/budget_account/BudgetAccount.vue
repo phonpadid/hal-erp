@@ -14,7 +14,8 @@ import FormBudgetAccount from "@/modules/presentation/Admin/components/budget/Fo
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
 import UiInputSelect from '@/common/shared/components/Input/InputSelect.vue';
-
+import { useRouter } from "vue-router";
+const { push } = useRouter();
 const departStore = departmentStore();
 
 const { t } = useI18n();
@@ -189,7 +190,9 @@ const loadDepartments = async () => {
     throw err;
   }
 };
-
+const increaseBudgetView = () => {
+  push({name: 'increase_budget', params: { }})
+}
 onMounted(async () => {
   await Promise.all([loadBudgetAccounts(), loadDepartments()]);
 });
@@ -215,6 +218,13 @@ onMounted(async () => {
           :disabled="loading"
           @change="handleSearch"
         />
+        <UiButton
+          icon="ant-design:plus-outlined"
+          @click="increaseBudgetView"
+          colorClass="hover:text-white flex items-center"
+        >
+          {{ t("budget_accounts.button.add") }}
+        </UiButton>
         <UiButton
           type="primary"
           icon="ant-design:plus-outlined"
@@ -251,9 +261,7 @@ onMounted(async () => {
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
-            :disabled="!!record.deleted_at"
           />
-
           <UiButton
             type=""
             danger

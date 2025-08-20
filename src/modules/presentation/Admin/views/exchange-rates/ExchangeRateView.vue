@@ -197,14 +197,7 @@ const handleFormSubmit = async (
       // const promises = formDataArray.map(formData =>
       await exchangeRateStore.created(input);
       // );
-      const successMessage =
-        formDataArray.length > 1
-          ? t("exchange-rate.message.createMultiple", {
-              count: formDataArray.length,
-            })
-          : t("exchange-rate.message.create");
-
-      success(t("exchange-rate.message.title"), successMessage);
+      success(t("exchange-rate.message.title"), t("exchange-rate.message.create"));
     }
 
     modalVisible.value = false;

@@ -202,8 +202,60 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
     }
     // console.log('API Response user_approval:', data.user_approval);
 
+    // เพิ่ม log เพื่อตรวจสอบ
+    console.log('API Response user_approval:', data.user_approval);
+
     return purchaseRequest;
   }
+  // private toDomainModel(data: PurchaseRequestApiModel): PurchaseRequestEntity {
+  //   const positionData =
+  //     data.document && Array.isArray(data.document.position) && data.document.position.length > 0
+  //       ? data.document.position[0]
+  //       : null;
+
+  //   const purchaseRequest = new PurchaseRequestEntity(
+  //     data.id || null,
+  //     data.document?.documentTypeId ?? 0,
+  //     data.document?.description ?? "",
+  //     data.pr_number || null,
+  //     data.requested_date || null,
+  //     data.expired_date,
+  //     data.purposes,
+  //     data.user_approval?.document_status?.name || "pending",
+  //     data.document?.document_type,
+  //     data.document?.department,
+  //     data.document?.requester,
+  //     positionData,
+  //     data.created_at || null,
+  //     data.updated_at || null,
+  //     data.deleted_at || null
+  //   );
+
+  //   if (data.purchase_request_item) {
+  //     const items = data.purchase_request_item.map((item: any) => {
+  //       return new PurchaseRequestItemEntity(
+  //         item.id,
+  //         item.title,
+  //         item.file_name,
+  //         item.file_name_url,
+  //         item.quantity,
+  //         item.unit_id.toString(),
+  //         item.unit,
+  //         item.price,
+  //         item.total_price,
+  //         null, // purchase_request (ไม่จำเป็น)
+  //         item.remark || ""
+  //       );
+  //     });
+  //     purchaseRequest.setItems(items);
+  //   }
+
+  //   if (data.total) {
+  //     purchaseRequest.setTotal(data.total);
+  //   }
+
+  //   return purchaseRequest;
+  // }
 
   private handleApiError(error: unknown, defaultMessage: string): never {
     const axiosError = error as AxiosError<{ message?: string }>;

@@ -25,12 +25,12 @@ export function columns(t: (key: string) => string): Column[] {
 
     {
       title: t("departments.dpm.field.created"),
-      dataIndex: "created_at",
+      dataIndex: "createdAt",
       key: "createdAt",
     },
     {
       title: t("departments.dpm.field.updated"),
-      dataIndex: "updated_at",
+      dataIndex: "updatedAt",
       key: "updatedAt",
     },
     {

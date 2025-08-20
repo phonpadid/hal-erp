@@ -1,10 +1,12 @@
 export interface CreateDepartmentApproverDTO {
   user_id: string | null | number;
+  department_id?: string | null | number;
 }
 
 export interface UpdateDepartmentApproverDTO {
   id: string;
   user_id: string;
+  department_id?: string;
 }
 
 export interface DepartmentApproverDTO {

@@ -9,23 +9,32 @@ import { DeleteDepartmentApproverUseCase } from "../../useCases/departments/depa
 import type { DepartmentApproverRepository } from "@/modules/domain/repository/departments/department-approver.repository";
 import type { DepartmentApproverEntity } from "@/modules/domain/entities/departments/department-approver.entity";
 import type { CreateDepartmentApproverDTO, UpdateDepartmentApproverDTO } from "../../dtos/departments/department-approver.dto";
+import { CreateDepartmentApproverAdminUseCase } from "../../useCases/departments/department-approvers/create-department-approver-admin.usecase";
+import { UpdateDepartmentApproverAdminUseCase } from "../../useCases/departments/department-approvers/update-by-admin.usecase";
 
 export class DepartmentApporverServiceImpl implements DepartmentApproverService {
   private readonly createUsecase: CreateDepartmentApproverUseCase;
+  private readonly createAdminUsecase: CreateDepartmentApproverAdminUseCase;
   private readonly updateUsecase: UpdateDepartmentApproverUseCase;
+  private readonly updateAdminUsecase: UpdateDepartmentApproverAdminUseCase;
   private readonly getAllUsecase: GetAllDepartmentApproverUseCase;
   private readonly getOneUsecase: GetOneDepartmentApproverUseCase;
   private readonly deleteUsecase: DeleteDepartmentApproverUseCase;
 
   constructor(private readonly dpmApproverRepository: DepartmentApproverRepository) {
     this.createUsecase = new CreateDepartmentApproverUseCase(dpmApproverRepository);
+    this.createAdminUsecase = new CreateDepartmentApproverAdminUseCase(dpmApproverRepository);
     this.updateUsecase = new UpdateDepartmentApproverUseCase(dpmApproverRepository);
+    this.updateAdminUsecase = new UpdateDepartmentApproverAdminUseCase(dpmApproverRepository);
     this.getAllUsecase = new GetAllDepartmentApproverUseCase(dpmApproverRepository);
     this.getOneUsecase = new GetOneDepartmentApproverUseCase(dpmApproverRepository);
     this.deleteUsecase = new DeleteDepartmentApproverUseCase(dpmApproverRepository);
   }
   async created(input: CreateDepartmentApproverDTO): Promise<DepartmentApproverEntity> {
     return await this.createUsecase.execute(input);
+  }
+  async createdByAdmin(input: CreateDepartmentApproverDTO): Promise<DepartmentApproverEntity> {
+    return await this.createAdminUsecase.execute(input);
   }
 
   async getOne(id: string): Promise<DepartmentApproverEntity | null> {
@@ -41,6 +50,9 @@ export class DepartmentApporverServiceImpl implements DepartmentApproverService 
 
   async updated(id: string, input: UpdateDepartmentApproverDTO): Promise<DepartmentApproverEntity> {
     return await this.updateUsecase.execute(id, input);
+  }
+  async updatedByAdmin(id: string, input: UpdateDepartmentApproverDTO): Promise<DepartmentApproverEntity> {
+    return await this.updateAdminUsecase.execute(id, input);
   }
 
   async deleted(id: string): Promise<boolean> {

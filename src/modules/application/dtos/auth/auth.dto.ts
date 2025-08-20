@@ -9,6 +9,7 @@ export interface UserDTO {
   username: string;
   email: string;
   tel: string;
+  user_type?: []
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

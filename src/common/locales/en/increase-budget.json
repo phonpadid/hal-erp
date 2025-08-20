@@ -1,0 +1,31 @@
+{
+    "title": "Budget Details",
+    "title_create": "Budget Request Creation Form",
+    "title_edit": "Edit Information Form",
+    "add_item": "Item",
+    "table": {
+      "title": "Budget Title",
+      "description": "Description",
+      "file_name": "File",
+      "allocated_amount": "Allocated Amount",
+      "created_by": "Created By",
+      "import_date": "Import Date",
+      "use_amount": "Used Amount",
+      "balance_amount": "Remaining Amount"
+    },
+    "phd": {
+      "title": "Select Budget Title",
+      "description": "Enter Description",
+      "file_name": "Choose File",
+      "item": "Select item",
+      "allocated_amount": "Enter Allocated Amount"
+    },
+    "vld": {
+      "title": "Please select a budget title",
+      "file_name": "Please select a file",
+      "allocated_amount": "Please enter an allocated amount",
+      "item": "Please Select item",
+      "max": "Cannot enter more than 14 digits for the allocated amount"
+    }
+  }
+  

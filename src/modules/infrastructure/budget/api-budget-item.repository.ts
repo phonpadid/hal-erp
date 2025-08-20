@@ -8,6 +8,7 @@ import type { BudgetItemRepository } from "@/modules/domain/repository/budget/bu
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
+import { BudGetAccountsEntity } from "@/modules/domain/entities/budget/budget-accounts.entities";
 
 export class ApiBudgetItemRepository implements BudgetItemRepository {
   private readonly baseUrl = "/budget-items";
@@ -114,11 +115,26 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
       budGet.budget_account_id.toString(),
       budGet.name,
       budGet.allocated_amount,
-      budGet.description || "",
-      budGet.created_at || "",
-      budGet.updated_at || "",
+      null,
+      null,
+      budGet.description || null, // This should be use_amount, not description
+      budGet.created_at || "", // This should be balance_amount, not created_at
+      budGet.updated_at || "", // This should be description, not updated_at
       budGet.deleted_at || null,
       budGet.budget_account
+        ? new BudGetAccountsEntity(
+            budGet.budget_account.id.toString(),
+            budGet.budget_account.code,
+            budGet.budget_account.name,
+            budGet.budget_account.departmentId.toString(),
+            budGet.budget_account.fiscal_year.toString(),
+            budGet.budget_account.allocated_amount,
+            budGet.budget_account.type,
+            budGet.budget_account.created_at || "",
+            budGet.budget_account.updated_at || "",
+            budGet.budget_account.deleted_at || ""
+          )
+        : undefined
     );
   }
 

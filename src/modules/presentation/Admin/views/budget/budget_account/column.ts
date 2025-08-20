@@ -18,11 +18,6 @@ export function columns(t: (key: string) => string): Column[] {
       key: "fiscal_year",
     },
     {
-      title: t("budget_accounts.list.allocatedAmount"),
-      dataIndex: "format_allocated_amount",
-      key: "allocated_amount",
-    },
-    {
       title: t("budget_accounts.list.department"),
       dataIndex: "department.name",
       key: "department",

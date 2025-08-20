@@ -4,6 +4,7 @@ export interface Column {
   key: string;
   align?: string;
   slot?: string;
+  width?: number;
   scopedSlots?: {
     customRender: string;
   };

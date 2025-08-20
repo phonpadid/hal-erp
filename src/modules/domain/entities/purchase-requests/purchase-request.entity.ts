@@ -141,7 +141,6 @@ export class PurchaseRequestEntity {
   }
   public setUserApproval(userApproval: UserApproval): void {
     this.user_approval = userApproval;
-
     this.updateTimestamp();
   }
 
