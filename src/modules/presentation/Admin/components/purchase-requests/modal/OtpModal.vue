@@ -1,29 +1,53 @@
 <script setup lang="ts">
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import { nextTick, ref, computed, watch } from "vue";
+import { nextTick, ref, computed, watch, defineProps, defineEmits } from "vue";
 import { useI18n } from "vue-i18n";
-const {t} = useI18n()
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import { useApprovalStepStore } from "../../../stores/approval-step.store";
+
+const { t } = useI18n();
+const { error } = useNotification();
+const approvalStepStore = useApprovalStepStore();
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const otpInputRefs = ref<any[]>([]);
 const otpValue = ref<string[]>(Array(6).fill(""));
 const confirmOTP = ref(false);
+const resendLoading = ref(false);
+const resendCooldown = ref(false);
+const cooldownTime = ref(60);
 
 const props = defineProps<{
   visible: boolean;
   title: string;
+  approvalStepId?: number | null;
+  loading?: boolean;
 }>();
 
 const emit = defineEmits<{
-  confirm: [];
-  close: [];
+  (e: "confirm", otpValue: string): void;
+  (e: "close"): void;
+  (e: "resend"): void;
 }>();
+
+// เบอร์โทรศัพท์จาก OTP response
+const phoneNumber = computed(() => {
+  if (approvalStepStore.otpResponse?.approver?.tel) {
+    const tel = approvalStepStore.otpResponse.approver.tel;
+    return `+856 ${tel}`;
+  }
+  return "+856 20 502 221 02"; // เบอร์โทรศัพท์เริ่มต้น
+});
+
+// วันที่และเวลาปัจจุบัน
+const currentDateTime = ref("2025-08-18 08:33:30"); // ค่าเริ่มต้น
+// ชื่อผู้ใช้ปัจจุบัน
+const currentUserLogin = ref("phonpadid");
 
 // Computed property to check if OTP is complete
 const isOtpComplete = computed(() => {
-  return (
-    otpValue.value.every((digit) => digit !== "") && otpValue.value.length === 6
-  );
+  return otpValue.value.every((digit) => digit !== "") && otpValue.value.length === 6;
 });
 
 watch(
@@ -33,9 +57,21 @@ watch(
       // Reset state when modal closes
       confirmOTP.value = false;
       otpValue.value = Array(6).fill("");
+      resendCooldown.value = false;
+    } else if (newVisible && !confirmOTP.value) {
+      // เมื่อโมดัลแสดง ให้โฟกัสที่ช่องแรก
+      nextTick(() => {
+        const firstInput = otpInputRefs.value[0];
+        if (firstInput) {
+          const inputElement = firstInput.$el.querySelector("input") || firstInput.$el;
+          inputElement?.focus();
+        }
+      });
     }
   }
 );
+
+const cooldownInterval = ref<number | null>(null);
 
 const handleOtpInputEvent = async (value: string, index: number) => {
   const numericValue = value.replace(/[^0-9]/g, "");
@@ -109,28 +145,69 @@ const confirmOtpStep = () => {
 };
 
 const finalConfirm = () => {
-  emit("confirm");
+  // รวม OTP เป็น string
+  const otp = otpValue.value.join("");
+
+  // ส่ง OTP กลับไปที่ parent component
+  emit("confirm", otp);
 };
 
 const closeModal = () => {
   emit("close");
 };
 
-const resendOtp = () => {
-  // Reset OTP values and focus first input
-  otpValue.value = Array(6).fill("");
-  nextTick(() => {
-    const firstInput = otpInputRefs.value[0];
-    if (firstInput) {
-      const antInput = firstInput.$el?.querySelector("input") || firstInput.$el;
-      if (antInput && typeof antInput.focus === "function") {
-        antInput.focus();
-      }
+const startCooldown = () => {
+  resendCooldown.value = true;
+  cooldownTime.value = 60;
+
+  // ล้าง interval เดิมถ้ามี
+  if (cooldownInterval.value !== null) {
+    clearInterval(cooldownInterval.value);
+  }
+
+  // เริ่ม interval ใหม่
+  cooldownInterval.value = window.setInterval(() => {
+    cooldownTime.value--;
+    if (cooldownTime.value <= 0) {
+      resendCooldown.value = false;
+      clearInterval(cooldownInterval.value as number);
     }
-  });
-  // Here you would typically call an API to resend OTP
-  console.log("Resending OTP...");
+  }, 1000) as unknown as number;
 };
+
+const resendOtp = async () => {
+  if (resendCooldown.value || !props.approvalStepId || resendLoading.value) {
+    return;
+  }
+
+  try {
+    resendLoading.value = true;
+
+    // ส่ง event ให้ parent component จัดการ
+    emit("resend");
+
+    // เริ่มนับถอยหลัง
+    startCooldown();
+
+    // Reset OTP values and focus first input
+    otpValue.value = Array(6).fill("");
+    nextTick(() => {
+      const firstInput = otpInputRefs.value[0];
+      if (firstInput) {
+        const antInput = firstInput.$el?.querySelector("input") || firstInput.$el;
+        if (antInput && typeof antInput.focus === "function") {
+          antInput.focus();
+        }
+      }
+    });
+  } catch (err) {
+    console.error("Error resending OTP:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
+  } finally {
+    resendLoading.value = false;
+  }
+};
+
 const setOtpInputElement = (el: unknown, index: number) => {
   if (el) {
     otpInputRefs.value[index] = el;
@@ -147,19 +224,17 @@ const setOtpInputElement = (el: unknown, index: number) => {
   >
     <div class="mt-4 px-2">
       <!-- User Info Header -->
-      <div
-        class="text-center text-sm flex items-center justify-start gap-2"
-      >
-        <p>ສຸກີ້ ວົງພະຈັນ</p>
+      <div class="text-center text-sm flex items-center justify-start gap-2">
+        <p>{{ approvalStepStore.otpResponse?.approver?.name || "ສຸກີ້ ວົງພະຈັນ" }}</p>
         <span class="-mt-3 ml-1 text-bold">•</span>
         <p>ບໍລິຫານ</p>
       </div>
 
       <!-- OTP Input Step -->
       <div v-if="!confirmOTP" class="mb-6">
-        <p class="text-start mb-2 font-medium">{{ t('purchase-rq.check_message') }}</p>
+        <p class="text-start mb-2 font-medium">{{ t("purchase-rq.check_message") }}</p>
         <p class="text-start text-sm text-gray-600 mb-4">
-          {{ t('purchase-rq.content') }} +856 20 502 221 02
+          {{ t("purchase-rq.content") }} {{ phoneNumber }}
         </p>
 
         <!-- OTP Input Fields -->
@@ -178,16 +253,21 @@ const setOtpInputElement = (el: unknown, index: number) => {
           </template>
         </div>
 
-        <!-- Resend Link -->
+        <!-- Resend Link with Cooldown -->
         <div class="text-center mb-4">
           <p class="text-sm text-gray-500">
-            {{ t('purchase-rq.no_code') }}
+            {{ t("purchase-rq.no_code") }}
             <button
               type="button"
               @click="resendOtp"
-              class="text-red-600 hover:text-red-700 underline ml-1"
+              :disabled="resendCooldown || resendLoading"
+              class="text-red-600 hover:text-red-700 underline ml-1 disabled:text-gray-400 disabled:cursor-not-allowed"
             >
-            {{ t('purchase-rq.send_again') }}
+              <span v-if="resendCooldown"
+                >{{ t("purchase-rq.send_again") }} ({{ cooldownTime }}s)</span
+              >
+              <span v-else-if="resendLoading">{{ t("purchase-rq.sending") }}...</span>
+              <span v-else>{{ t("purchase-rq.send_again") }}</span>
             </button>
           </p>
         </div>
@@ -195,10 +275,16 @@ const setOtpInputElement = (el: unknown, index: number) => {
 
       <!-- Signature Confirmation Step -->
       <div v-else class="mb-6">
-        <p class="text-start mb-2 font-bold">{{ t('purchase-rq.signature') }}</p>
+        <p class="text-start mb-2 font-bold">{{ t("purchase-rq.signature") }}</p>
         <p class="text-start text-sm text-gray-600 mb-4">
-          {{t('purchase-rq.message')}}
+          {{ t("purchase-rq.message") }}
         </p>
+
+        <!-- Current date and user info -->
+        <div class="text-sm text-gray-600 mb-2">
+          <p>{{ t("purchase-rq.date_time") }}: {{ currentDateTime }}</p>
+          <p>{{ t("purchase-rq.user") }}: {{ currentUserLogin }}</p>
+        </div>
 
         <!-- Signature Display - Clickable -->
         <div
@@ -220,24 +306,74 @@ const setOtpInputElement = (el: unknown, index: number) => {
         <button
           v-if="!confirmOTP"
           @click="confirmOtpStep"
-          :disabled="!isOtpComplete"
+          :disabled="!isOtpComplete || props.loading"
           :class="[
-            'px-4 py-2 w-full rounded-lg transition-colors',
-            isOtpComplete
+            'px-4 py-2 w-full rounded-lg transition-colors flex items-center justify-center',
+            isOtpComplete && !props.loading
               ? 'bg-red-600 text-white hover:bg-red-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed',
           ]"
         >
-        {{ t('purchase-rq.btn.confirm') }}
+          <span v-if="props.loading" class="mr-2">
+            <svg
+              class="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </span>
+          {{ t("purchase-rq.btn.confirm") }}
         </button>
 
         <!-- Final Confirm Button for Signature Step -->
         <button
           v-else
           @click="finalConfirm"
-          class="px-4 py-2 w-full bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          :disabled="props.loading"
+          :class="[
+            'px-4 py-2 w-full rounded-lg transition-colors flex items-center justify-center',
+            !props.loading
+              ? 'bg-red-600 text-white hover:bg-red-700'
+              : 'bg-red-400 text-white cursor-not-allowed',
+          ]"
         >
-        {{ t('purchase-rq.btn.confirm') }}
+          <span v-if="props.loading" class="mr-2">
+            <svg
+              class="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </span>
+          {{ t("purchase-rq.btn.confirm") }}
         </button>
       </div>
     </div>

@@ -1,26 +1,22 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, watch } from "vue";
-import { useDocumentTypeStore } from "../../stores/document-type.store";
+import { computed, onMounted, reactive } from "vue";
+import { useDocumentTypeStore } from "../../../stores/document-type.store";
+import { useRoute, useRouter } from "vue-router";
 import { t } from "@/common/config/i18n/i18n.config";
 import type { DocumentTypeEntity } from "@/modules/domain/entities/document-type.entities";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+
+const route = useRoute();
+const router = useRouter();
+
 const formState = reactive({
   document_type_id: "",
 });
-export type FormState = typeof formState;
-interface Props {
-  initialData?: FormState | null;
-}
-
-const props = defineProps<Props>();
-
-// Define emit for parent communication
-const emit = defineEmits<{
-  "next-step": [data?: FormState];
-}>();
 
 const store = useDocumentTypeStore();
+
+// options สำหรับ select
 const docItem = computed(() =>
   store.documentTypes.map((item: DocumentTypeEntity) => ({
     value: item.getId(),
@@ -28,39 +24,33 @@ const docItem = computed(() =>
   }))
 );
 
-// Watch for initialData changes and populate form
-watch(
-  () => props.initialData,
-  (newData) => {
-    if (newData && newData.document_type_id) {
-      formState.document_type_id = newData.document_type_id;
-    }
-  },
-  { immediate: true }
-);
-
+// เมื่อกดปุ่มยืนยัน
 const nextStep = () => {
   if (formState.document_type_id) {
-    // Emit the form data to parent and trigger next step
-    emit("next-step", {
-      document_type_id: formState.document_type_id,
-      // Add any other data you want to pass to the next step
-    });
+    // ดึง purchase_request_id จาก query params
+    const purchaseRequestId = route.query.purchase_request_id;
+
+    if (purchaseRequestId) {
+      router.push({
+        name: "purchaseOrdersDetail",
+        params: {
+          id: purchaseRequestId.toString(),
+        },
+        query: {
+          document_type_id: formState.document_type_id,
+        },
+      });
+    }
   }
 };
 
 onMounted(async () => {
   await store.fetchdocumentType({ page: 1, limit: 1000 });
-
-  // Populate form with initial data after mounting (if available)
-  if (props.initialData && props.initialData.document_type_id) {
-    formState.document_type_id = props.initialData.document_type_id;
-  }
 });
 </script>
 
 <template>
-  <div class="px-2">
+  <div class="px-2 mt-8">
     <h2 class="text-md font-semibold px-0 mb-4">{{ t("purchase-rq.field.doc_type") }}</h2>
     <div class="input flex flex-col md:flex-row items-start gap-4">
       <div class="search-by-doc-type">

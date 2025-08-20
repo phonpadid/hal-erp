@@ -29,12 +29,15 @@ export class PurchaseRequestEntity {
     document_id: number;
     status_id: number;
     approval_step: Array<{
+      approver: any;
       id: number;
       user_approval_id: number;
       step_number: number;
       approver_id: number;
       status_id: number;
       remark: string;
+      is_otp: boolean;
+      requires_file_upload: boolean;
     }>;
   } | null = null;
 
@@ -126,7 +129,6 @@ export class PurchaseRequestEntity {
     return this.position;
   }
   public getUserApproval() {
-
     if (
       this.user_approval &&
       typeof this.user_approval === "object" &&
@@ -139,6 +141,7 @@ export class PurchaseRequestEntity {
   }
   public setUserApproval(userApproval: UserApproval): void {
     this.user_approval = userApproval;
+
     this.updateTimestamp();
   }
 
@@ -163,7 +166,7 @@ export class PurchaseRequestEntity {
   }
 
   public getItems(): PurchaseRequestItemEntity[] {
-    return [...this.items]; // Return a copy to prevent direct modification
+    return [...this.items];
   }
 
   public getCreatedAt(): string | null {

@@ -49,6 +49,7 @@ export interface ApprovalStep {
   approved_at: string | null;
   status_id: number;
   remark: string;
+  is_otp: boolean;
   requires_file_upload: boolean;
   created_at: string;
   updated_at: string;

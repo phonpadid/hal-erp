@@ -13,16 +13,23 @@ export interface Purchase_order_itemsInterface {
 export interface FileNameinterface {
   file_name: string | null;
 }
+// modules/interfaces/approval-step.interface.ts
 export interface SubmitApprovalStepInterface {
   type: "pr" | "po" | "r";
   statusId: string | number;
+  approval_id?: number;
+  step_number?: number;
+  approver_id?: string;
+  approved_at?: string;
   remark?: string;
-  approvalStepId?: number; 
+  approvalStepId: number;
   purchase_order_items?: {
     id: number;
     budget_item_detail_id: number;
   };
   account_code?: string;
+  otp?: string;
+  is_otp?: boolean;
   files?: Array<{
     file_name: string;
   }>;
