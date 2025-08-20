@@ -139,11 +139,11 @@ const details = (id: string) => {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case "pending":
+    case "PENDING":
       return "yellow";
-    case "approved":
+    case "APPROVED":
       return "green";
-    case "rejected":
+    case "REJECTED":
       return "red";
     default:
       return "gray";

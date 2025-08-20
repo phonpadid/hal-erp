@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
 import { computed, onMounted, ref } from "vue";
@@ -8,6 +9,7 @@ import { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-reques
 import { useRoute } from "vue-router";
 import { formatDate } from "@/modules/shared/formatdate";
 import { formatPrice } from "@/modules/shared/utils/format-price";
+import { useRouter } from "vue-router";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
@@ -20,10 +22,12 @@ import { useToggleStore } from "../../../stores/storage.store";
 import { useApprovalStepStore } from "../../../stores/approval-step.store";
 import { useDocumentStatusStore } from "../../../stores/document-status.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
 
 const { t } = useI18n();
 const route = useRoute();
 const { error } = useNotification();
+const router = useRouter();
 
 // 2. สร้าง Instance ของ Store ทั้งหมดที่ต้องใช้
 const toggleStore = useToggleStore();
@@ -37,9 +41,14 @@ const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
 const loading = ref(true);
+const isOtpModalVisible = ref(false);
+const otpValue = ref("");
+const currentStepForApproval = ref<any>(null);
 const requestDetail = ref<PurchaseRequestEntity | null>(null);
 
 const confirmLoading = computed(() => approvalStepStore.loading);
+
+const approvalSteps = computed(() => requestDetail.value?.getUserApproval()?.approval_step ?? []);
 
 const approvedStatusId = computed(() => {
   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
@@ -56,73 +65,204 @@ const imageList = computed(() => {
   return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
 });
 
+const currentApprovalStep = computed(() => {
+  return approvalSteps.value.find(
+    (step) =>
+      step.status_id === 1 && // PENDING
+      !step.approver &&
+      step.step_number === (getPreviousApprovedStep.value?.step_number ?? 0) + 1
+  );
+});
+
+const getPreviousApprovedStep = computed(() => {
+  return [...approvalSteps.value]
+    .filter((step) => step.status_id === 2)
+    .sort((a, b) => b.step_number - a.step_number)[0];
+});
+
+// ตรวจสอบว่าเป็น step สุดท้ายหรือไม่
+const isLastStep = computed(() => {
+  const lastStep = [...approvalSteps.value].sort((a, b) => b.step_number - a.step_number)[0];
+  return currentApprovalStep.value?.step_number === lastStep?.step_number;
+});
+
+// ตรวจสอบว่าสามารถอนุมัติได้หรือไม่
+const canApprove = computed(() => {
+  const currentStep = currentApprovalStep.value;
+  const previousStep = getPreviousApprovedStep.value;
+
+  // ถ้าไม่มี step ปัจจุบัน หรือไม่มี step ก่อนหน้า (กรณี step แรก)
+  if (!currentStep) return false;
+
+  // ถ้าเป็น step แรก (step_number === 1)
+  if (currentStep.step_number === 1) return true;
+
+  // ตรวจสอบว่า step ก่อนหน้าได้รับการอนุมัติแล้ว
+  return (
+    previousStep &&
+    previousStep.status_id === 2 && // APPROVED
+    previousStep.step_number === currentStep.step_number - 1
+  );
+});
+
 const documentDetails = {
   requester: {
     avatar: "/public/4.png",
   },
 };
 
-// Custom buttons ที่ส่งให้ HeaderComponent (ถูกต้องอยู่แล้ว)
-const customButtons = [
-  {
-    label: "ປະຕິເສດ",
-    type: "default" as ButtonType,
-    onClick: () => {
-      isRejectModalVisible.value = true;
+const customButtons = computed(() => {
+  // ถ้าไม่สามารถอนุมัติได้ ไม่ต้องแสดงปุ่ม
+  if (!canApprove.value) {
+    return [];
+  }
+
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep) return [];
+
+  return [
+    {
+      label: "ປະຕິເສດ",
+      type: "default" as ButtonType,
+      onClick: () => {
+        isRejectModalVisible.value = true;
+      },
     },
-  },
-  {
-    label: "ອະນຸມັດ",
-    type: "primary" as ButtonType,
-    onClick: () => {
-      isApproveModalVisible.value = true;
+    {
+      label: `ອະນຸມັດ (ຂັ້ນຕອນທີ່ ${currentStep.step_number})`,
+      type: "primary" as ButtonType,
+      onClick: () => {
+        isApproveModalVisible.value = true;
+      },
     },
-  },
-];
+  ];
+});
 
 const topbarStyle = computed(() => {
   return toggle.value ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
 });
 
-const handleApprove = async () => {
-  if (!approvedStatusId.value) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Approved' ໃນລະບົບ");
+// const handleApprove = async () => {
+//   if (!approvedStatusId.value) {
+//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Approved' ໃນລະບົບ");
+//     return;
+//   }
+
+//   if (!requestDetail.value) {
+//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+//     return;
+//   }
+
+//   const currentStep = currentApprovalStep.value;
+//   if (!currentStep?.id) {
+//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
+//     return;
+//   }
+
+//   try {
+//     const documentId = route.params.id as string;
+//     const payload = {
+//       type: "pr" as const,
+//       statusId: Number(approvedStatusId.value),
+//       remark: "Approved",
+//       approvalStepId: Number(currentStep.id),
+//       approver_id: "phonpadid",
+//       step_number: currentStep.step_number,
+//       approved_at: new Date().toISOString(),
+//     };
+
+//     console.log("Approving step:", {
+//       currentStep: currentStep.step_number,
+//       previousStep: getPreviousApprovedStep.value?.step_number,
+//       isLastStep: isLastStep.value,
+//     });
+
+//     const success = await approvalStepStore.submitApproval(documentId, payload);
+//     if (success) {
+//       isApproveModalVisible.value = false;
+//       if (isLastStep.value) {
+//         router.push({
+//           name: 'doc-type-select',
+//           query: {
+//             purchase_request_id: requestDetail.value.getId()
+//           }
+//         });
+//       }
+//     }
+//   } catch (err) {
+//     console.error("Error in handleApprove:", err);
+//     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+//   }
+// };
+
+const handleApprove = async (otpCode?: string) => {
+  if (!approvedStatusId.value || !requestDetail.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນທີ່ຈຳເປັນ");
     return;
   }
 
-  if (!requestDetail.value) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep?.id) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
     return;
   }
 
   try {
-    const userApproval = requestDetail.value.getUserApproval();
-    if (!userApproval?.approval_step?.[0]?.id) {
-      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
+    const documentId = route.params.id as string;
+
+    if (!otpCode && currentStep.is_otp === true) {
+      currentStepForApproval.value = currentStep;
+      isOtpModalVisible.value = true;
       return;
     }
+    const now = new Date();
+    const formattedDate = now.toISOString()
+      .replace('T', ' ')
+      .split('.')[0];
 
-    // ใช้ id จาก approval_step[0]
-    const approvalStepId = userApproval.approval_step[0].id;
-    console.log("Approval Step ID:", approvalStepId); // log เพื่อตรวจสอบ
-
-    const documentId = route.params.id as string;
-    const payload = {
-      type: "pr" as const,
-      statusId: Number(approvedStatusId.value), // แปลงเป็น number
+    const payload: SubmitApprovalStepInterface = {
+      type: "pr",
+      statusId: Number(approvedStatusId.value),
       remark: "Approved",
-      approvalStepId: Number(approvalStepId), // แปลงเป็น number
+      approvalStepId: Number(currentStep.id),
+      step_number: currentStep.step_number,
+      approver_id: "phonpadid", // ใช้ค่า Current User's Login
+      approved_at: formattedDate, // ใช้ formatted date
+      approval_id: Number(currentStep.id),
+      is_otp: false,
+      files: [],
+      otp: otpCode || "",
     };
 
+    console.log("Sending payload Appove:", payload);
+
     const success = await approvalStepStore.submitApproval(documentId, payload);
+    console.log("Approval step submission result:", success);
+
     if (success) {
       isApproveModalVisible.value = false;
+      isOtpModalVisible.value = false;
+      otpValue.value = "";
+      currentStepForApproval.value = null;
+
+      if (isLastStep.value) {
+        router.push({
+          name: "doc-type-select",
+          query: {
+            purchase_request_id: requestDetail.value.getId(),
+          },
+        });
+      }
     }
   } catch (err) {
     console.error("Error in handleApprove:", err);
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+    isOtpModalVisible.value = false;
+    otpValue.value = "";
+    currentStepForApproval.value = null;
   }
 };
+
 
 const handleReject = async () => {
   if (!rejectReason.value.trim()) {
@@ -157,7 +297,7 @@ const handleReject = async () => {
       approvalStepId: Number(approvalStepId),
     };
 
-    console.log("Sending payload:", payload);
+    console.log("Sending payload Reject:", payload);
 
     const success = await approvalStepStore.submitApproval(documentId, payload);
     if (success) {
@@ -285,13 +425,11 @@ onMounted(async () => {
       <div class="mb-6">
         <h4 class="text-base font-semibold mb-2">ລາຍການ</h4>
         <Table :columns="columns(t)" :dataSource="items" row-key="id">
-          <template #bodyCell="{ column, record, index }">
-            <template v-if="column.key === 'id'">
-              <span>{{ index + 1 }}</span>
-            </template>
-            <template v-if="column.key === 'total_price'">
-              <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
-            </template>
+          <template #index="{ index }">
+            <span>{{ index + 1 }}</span>
+          </template>
+          <template #total_price="{ record }">
+            <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
           </template>
         </Table>
         <div>

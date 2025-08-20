@@ -121,7 +121,7 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
     const res = {
       id: Number(dpmApv.getId()),
       user_id: Number(dpmApv.getUser_id()),
-      department_id: Number(dpmApv.getDepartmentId()) ?? "",
+      department_id: dpmApv.getDepartmentId() ?? "",
       created_at: dpmApv.getCreatedAt() ?? "",
       updated_at: dpmApv.getUpdatedAt() ?? "",
     };

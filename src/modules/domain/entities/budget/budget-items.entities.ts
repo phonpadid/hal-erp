@@ -10,7 +10,7 @@ export class BudGetItemEntity {
   private allocated_amount: number;
   private use_amount: number | null;
   private balance_amount: number | null;
-  private description: string;
+  private description: string | null;
   private format_allocated_amount: string;
   private created_at: string;
   private updated_at: string;
@@ -23,7 +23,7 @@ export class BudGetItemEntity {
     allocated_amount: number,
     use_amount: number | null,
     balance_amount: number | null,
-    description: string,
+    description: string | null,
     created_at: string,
     updated_at: string,
     deleted_at: string | null = null,
@@ -67,7 +67,7 @@ export class BudGetItemEntity {
     return this.balance_amount;
   }
 
-  public getDescription(): string {
+  public getDescription(): string | null {
     return this.description;
   }
 

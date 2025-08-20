@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { BankCreate, BankUpdate, BankInterface } from "@/modules/interfaces/bank.interface";
 import { defineStore } from "pinia";
 import { ref, computed, reactive } from "vue";

@@ -8,8 +8,6 @@ import type { BudgetAccountsRepository } from "@/modules/domain/repository/budge
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
-import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
-import { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
 
 export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
   private readonly baseUrl = "/budget-accounts";
@@ -103,8 +101,8 @@ export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
       budgetAccount.department_id?.toString(),
       budgetAccount.created_at || "",
       budgetAccount.updated_at || "",
-      budgetAccount.deleted_at || null,
-      budgetAccount.department
+      budgetAccount.deleted_at || "",
+      budgetAccount.department_id?.toString()
     );
   }
 

@@ -1,26 +1,58 @@
 <script setup lang="ts">
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
-import { computed, ref, watch } from "vue";
-import { dataMenu } from "@/modules/shared/utils/data.department";
+import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import type { ButtonType } from "@/modules/shared/buttonType";
 import { storeToRefs } from "pinia";
 import { columns } from "../column";
 import { useToggleStore } from "../../../stores/storage.store";
+import { printContent } from "../helpers/printer";
+import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
+import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
+import { useRoute } from "vue-router";
+import { useDocumentStatusStore } from "../../../stores/document-status.store";
+import { formatDate } from "@/modules/shared/formatdate";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import { useApprovalStepStore } from "../../../stores/approval-step.store";
 import OtpModal from "../modal/OtpModal.vue";
 import SuccessModal from "../modal/SuccessModal.vue";
-import { printContent } from "../helpers/printer";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import Table from "@/common/shared/components/table/Table.vue";
 
 const { t } = useI18n();
+const purchaseRequestStore = usePurchaseRequestsStore();
+const documentStatusStore = useDocumentStatusStore();
+const requestDetail = ref<PurchaseRequestEntity | null>(null);
+const { error } = useNotification();
+const approvalStepStore = useApprovalStepStore();
+const route = useRoute();
 const profileImage = ref("/public/Profile-PNG-File.png");
 const userName = ref("ທ້າວສຸກີ້");
-const userPosition = ref("ພະແນກການເງິນ, ພະນັກງານ");
 const department = ref("ພະແນກການເງິນ");
-const imageList = ["/public/1.png", "/public/1.png"];
+const loading = ref(true);
+const isApproveModalVisible = ref(false);
+
+/****************************************** */
+
+const requesterInfo = computed(() => requestDetail.value?.getRequester());
+const departmentInfo = computed(() => requestDetail.value?.getDepartment());
+const positionInfo = computed(() => requestDetail.value?.getPosition());
+const items = computed(() => requestDetail.value?.getItems() ?? []);
+const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
+const imageList = computed(() => {
+  return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
+});
+/****************************************** */
+const approvedStatusId = computed(() => {
+  return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
+});
+const rejectedStatusId = computed(() => {
+  return documentStatusStore.document_Status.find((s) => s.getName() === "REJECTED")?.getId();
+});
+/****************************************** */
 
 // Modal states
 const isOtpModalVisible = ref(false);
@@ -30,6 +62,9 @@ const modalAction = ref(""); // 'approve' or 'reject'
 const approval = ref(false);
 const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
+const approvalStepId = ref<number | null>(null);
+const requiresOtp = ref(false);
+const approvalId = ref<number | null>(null);
 
 const customButtons = computed(() => {
   return [
@@ -44,9 +79,12 @@ const customButtons = computed(() => {
     {
       label: t("purchase-rq.btn.approval"),
       type: "primary" as ButtonType,
-      onClick: () => {
+      onClick: async () => {
         modalAction.value = "approve";
-        isOtpModalVisible.value = true;
+        const success = await handleApprove();
+        if (!success) {
+          modalAction.value = "";
+        }
       },
     },
   ];
@@ -83,14 +121,71 @@ const customButtonSuccess = [
 ];
 
 // Handle OTP confirmation - show success modal after OTP
-const handleOtpConfirm = () => {
-  console.log(`Action: ${modalAction.value}`);
-  isOtpModalVisible.value = false;
+const handleOtpConfirm = async (otpCode: string) => {
+  if (!otpCode) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
+    return;
+  }
 
-  // Show success modal after OTP verification
-  setTimeout(() => {
-    isSuccessModalVisible.value = true;
-  }, 300);
+  if (!approvalStepId.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຂັ້ນຕອນການອະນຸມັດ");
+    return;
+  }
+
+  try {
+    confirmLoading.value = true;
+    const approvalId = approvalStepStore.otpResponse?.approval_id;
+
+    if (!approvalId) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນການອະນຸມັດ");
+      return;
+    }
+    const documentId = route.params.id as string;
+    const payload = {
+      type: "pr" as const,
+      statusId: Number(approvedStatusId.value),
+      remark: "Approved",
+      approvalStepId: Number(approvalStepId.value),
+      approval_id: approvalId,
+      otp: otpCode,
+      is_otp: true,
+    };
+    const { approval_id } = payload;
+
+    const success = await approvalStepStore.submitApproval(documentId, {
+      ...payload,
+      approval_id,
+    });
+
+    if (success) {
+      isOtpModalVisible.value = false;
+      setTimeout(() => {
+        isSuccessModalVisible.value = true;
+      }, 300);
+    } else {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດຢືນຢັນ OTP ໄດ້");
+    }
+  } catch (err) {
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+  } finally {
+    confirmLoading.value = false;
+  }
+};
+
+const handleResendOtp = async () => {
+  if (!approvalStepId.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຂັ້ນຕອນການອະນຸມັດ");
+    return;
+  }
+  try {
+    const otpData = await approvalStepStore.sendOtp(approvalStepId.value);
+    if (otpData) {
+      approvalId.value = otpData.approval_id;
+    }
+  } catch (err) {
+    console.error("Error resending OTP:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+  }
 };
 
 const handleOtpClose = () => {
@@ -98,63 +193,128 @@ const handleOtpClose = () => {
   modalAction.value = "";
 };
 
-// Handle final success confirmation
-const handleSuccessConfirm = async () => {
-  confirmLoading.value = true;
+const handleApprove = async () => {
+  if (!approvedStatusId.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Approved' ໃນລະບົບ");
+    return false;
+  }
+
+  if (!requestDetail.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+    return false;
+  }
 
   try {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    if (modalAction.value === "approve") {
-      console.log("Document approved successfully");
-      // Add your approval API call here
-      // await approveDocument(documentId);
-    } else {
-      console.log("Document rejected successfully");
-      // Add your rejection API call here
-      // await rejectDocument(documentId);
+    const userApproval = requestDetail.value.getUserApproval();
+    if (!userApproval?.approval_step?.[0]) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
+      return false;
     }
+    const currentStep = userApproval.approval_step[0];
+    approvalStepId.value = currentStep.id;
+    requiresOtp.value = currentStep.is_otp === true;
+    modalAction.value = "approve";
 
-    isSuccessModalVisible.value = false;
-    modalAction.value = "";
-  } catch (error) {
-    console.error("Error processing action:", error);
-    // Handle error (show error message, etc.)
-  } finally {
-    confirmLoading.value = false;
+    if (requiresOtp.value && approvalStepId.value) {
+      const otpData = await approvalStepStore.sendOtp(approvalStepId.value);
+      if (!otpData) {
+        return false;
+      }
+      approvalId.value = otpData.approval_id;
+      isApproveModalVisible.value = false;
+      isOtpModalVisible.value = true;
+      return true;
+    } else {
+      const documentId = route.params.id as string;
+      const payload = {
+        type: "pr" as const,
+        statusId: Number(approvedStatusId.value),
+        remark: "Approved",
+        approvalStepId: Number(approvalStepId.value),
+        is_otp: false,
+      };
+
+      const success = await approvalStepStore.submitApproval(documentId, payload);
+      if (success) {
+        isApproveModalVisible.value = false;
+        isSuccessModalVisible.value = true;
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    console.error("Error in handleApprove:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+    return false;
   }
 };
 
-// Handle reject modal
+// Handle final success confirmation
 const handleReject = async () => {
   if (!rejectReason.value.trim()) {
-    console.error("Please provide a reason for rejection");
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາລະບຸເຫດຜົນໃນການປະຕິເສດ");
     return;
   }
 
-  confirmLoading.value = true;
+  if (!rejectedStatusId.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Rejected' ໃນລະບົບ");
+    return;
+  }
+
+  if (!requestDetail.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+    return;
+  }
 
   try {
-    // Simulate API call for rejection
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const userApproval = requestDetail.value.getUserApproval();
+    if (!userApproval?.approval_step?.[0]) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
+      return;
+    }
 
-    console.log("Document rejected successfully with reason:", rejectReason.value);
-    // Add your rejection API call here
-    // await rejectDocument(documentId, rejectReason.value);
+    const currentStep = userApproval.approval_step[0];
+    approvalStepId.value = currentStep.id;
+    requiresOtp.value = currentStep.is_otp === true;
 
+    if (!requiresOtp.value) {
+      const documentId = route.params.id as string;
+      const payload = {
+        type: "pr" as const,
+        statusId: Number(rejectedStatusId.value),
+        remark: rejectReason.value,
+        approvalStepId: Number(approvalStepId.value),
+      };
+
+      console.log("Sending payload:", payload);
+
+      const success = await approvalStepStore.submitApproval(documentId, payload);
+      if (success) {
+        isRejectModalVisible.value = false;
+        rejectReason.value = "";
+        isSuccessModalVisible.value = true;
+      }
+      return;
+    }
+
+    // ถ้าต้องใช้ OTP แสดง OTP Modal
     isRejectModalVisible.value = false;
-    modalAction.value = "reject";
-    rejectReason.value = "";
+    isOtpModalVisible.value = true;
+  } catch (err) {
+    console.error("Error in handleReject:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+  }
+};
 
-    // Show success modal after rejection
-    setTimeout(() => {
-      isSuccessModalVisible.value = true;
-    }, 300);
-
-  } catch (error) {
-    console.error("Error rejecting document:", error);
-    // Handle error (show error message, etc.)
+const handleSuccessConfirm = async () => {
+  confirmLoading.value = true;
+  try {
+    // ปิด Success Modal
+    isSuccessModalVisible.value = false;
+    modalAction.value = "";
+    approval.value = true;
+  } catch (err) {
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
   } finally {
     confirmLoading.value = false;
   }
@@ -203,6 +363,25 @@ watch(modalAction, (newVal) => {
     approval.value = false; // optional if you need to reset
   }
 });
+
+onMounted(async () => {
+  const requestId = route.params.id as string;
+  if (requestId) {
+    loading.value = true;
+    try {
+      const [data] = await Promise.all([
+        purchaseRequestStore.fetchById(requestId),
+        documentStatusStore.fetctDocumentStatus({ page: 1, limit: 100 }),
+      ]);
+
+      requestDetail.value = data;
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    } finally {
+      loading.value = false;
+    }
+  }
+});
 </script>
 
 <template>
@@ -215,14 +394,9 @@ watch(modalAction, (newVal) => {
       <header-component
         @toggle="handleToggle"
         :header-title="t('purchase-rq.approval_proposal')"
-        :breadcrumb-items="[
-          t('purchase-rq.approval_proposal'),
-          t('purchase-rq.btn.approval'),
-        ]"
+        :breadcrumb-items="[t('purchase-rq.approval_proposal'), t('purchase-rq.btn.approval')]"
         :document-prefix="t('purchase-rq.field.proposal')"
-        :document-number="`${t('purchase-rq.field.pr_number')} 0036/ພລ - ${t(
-          'purchase-rq.date'
-        )}`"
+        :document-number="`${t('purchase-rq.field.pr_number')} 0036/ພລ - ${t('purchase-rq.date')}`"
         :document-date="new Date('2025-03-26')"
         :action-buttons="approval ? customButtonSuccess : customButtons"
         document-status="ລໍຖ້າຫົວໜ້າພະແນກພັດທະນາທຸລະກິດກວດສອບ"
@@ -231,7 +405,9 @@ watch(modalAction, (newVal) => {
     </div>
 
     <!-- Main Content -->
-    <div class="body mt-[10rem]">
+    <div v-if="loading" class="mt-[10rem] text-center">Loading...</div>
+
+    <div class="body mt-[10rem]" v-else-if="requestDetail">
       <div class="user-info shadow-sm py-2">
         <!-- User Information Section -->
         <h2 class="text-md font-semibold px-6 mb-4">
@@ -247,8 +423,8 @@ watch(modalAction, (newVal) => {
             :preview="false"
           />
           <div class="detail -space-y-2">
-            <p class="font-medium">{{ userName }}</p>
-            <p class="text-gray-600">{{ userPosition }}</p>
+            <p class="font-medium">{{ requesterInfo?.username }}</p>
+            <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
           </div>
         </div>
 
@@ -257,7 +433,7 @@ watch(modalAction, (newVal) => {
           <h2 class="text-md font-semibold">
             {{ t("purchase-rq.field.date_rq") }}
           </h2>
-          <p class="text-gray-600 text-sm">18 ກໍລະກົດ 2025</p>
+          <p class="text-gray-600 text-sm">{{ formatDate(requestDetail.getExpiredDate()) }}</p>
         </div>
 
         <!-- Purpose Section -->
@@ -266,7 +442,7 @@ watch(modalAction, (newVal) => {
             {{ t("purchase-rq.field.purposes") }}
           </h2>
           <p class="text-gray-600 text-sm">
-            ມີການຈັດຊື້ ເນື່ອງຈາກວ່າປະຈຸບັນນີ້ມີພະນັກງານເຂົ້າມາເພີ່ມໃໝ່ 5 ຄົນ
+            {{ requestDetail.getPurposes() }}
           </p>
         </div>
 
@@ -275,26 +451,18 @@ watch(modalAction, (newVal) => {
           <h2 class="text-md font-semibold">
             {{ t("purchase-rq.field.title") }}
           </h2>
-          <a-table
-            :columns="columns(t)"
-            :dataSource="dataMenu"
-            :pagination="false"
-            row-key="id"
-          >
-            <template #bodyCell="{ column, record }">
-              <template v-if="column.key === 'price'">
-                <span>₭ {{ formatPrice(record.price) }}</span>
-              </template>
+          <Table :columns="columns(t)" :dataSource="items" :pagination="false" row-key="id">
+            <template #index="{ index }">
+              <span>{{ index + 1 }}</span>
             </template>
-          </a-table>
-          <div
-            class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4"
-          >
-            <p class="font-medium text-slate-600">
-              {{ t("purchase-rq.field.amount") }}:
-            </p>
+            <template #total_price="{ record }">
+              <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
+            </template>
+          </Table>
+          <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4">
+            <p class="font-medium text-slate-600">{{ t("purchase-rq.field.amount") }}:</p>
             <p class="font-semibold md:text-lg text-sm text-slate-700">
-              {{ formatPrice(49000000) }} ₭
+              {{ formatPrice(totalAmount) }}₭
             </p>
           </div>
         </div>
@@ -343,7 +511,7 @@ watch(modalAction, (newVal) => {
             </div>
           </div>
           <div v-if="approval" class="signature1">
-            <p class="text-slate-500 text-sm mt-10">{{t('purchase-rq.approver')}}</p>
+            <p class="text-slate-500 text-sm mt-10">{{ t("purchase-rq.approver") }}</p>
             <a-image
               src="/public/2.png"
               alt="signature"
@@ -363,10 +531,19 @@ watch(modalAction, (newVal) => {
     <!-- OTP Modal -->
     <OtpModal
       :visible="isOtpModalVisible"
+      :title="t('purchase-rq.otp_verification')"
+      :approval-step-id="approvalStepId"
+      :loading="confirmLoading"
+      @confirm="handleOtpConfirm"
+      @close="handleOtpClose"
+      @resend="handleResendOtp"
+    />
+    <!-- <OtpModal
+      :visible="isOtpModalVisible"
       :title="t('purchase-rq.confirm_otp')"
       @confirm="handleOtpConfirm"
       @close="handleOtpClose"
-    />
+    /> -->
 
     <!-- Success Modal -->
     <SuccessModal
@@ -390,9 +567,9 @@ watch(modalAction, (newVal) => {
       @ok="handleReject"
     >
       <div class="space-y-4">
-        <p>{{t('modal.description')}}</p>
+        <p>{{ t("modal.description") }}</p>
         <div>
-          <p class="mb-2 font-semibold">{{t('modal.reason')}}</p>
+          <p class="mb-2 font-semibold">{{ t("modal.reason") }}</p>
           <Textarea :modelValue="rejectReason" :placeholder="t('modal.enter_reason')" :rows="4" />
         </div>
       </div>
@@ -402,7 +579,7 @@ watch(modalAction, (newVal) => {
           type="primary"
           :loading="confirmLoading"
           color-class="w-full"
-          >{{t('purchase-rq.btn.confirm')}}</UiButton
+          >{{ t("purchase-rq.btn.confirm") }}</UiButton
         >
       </template>
     </UiModal>

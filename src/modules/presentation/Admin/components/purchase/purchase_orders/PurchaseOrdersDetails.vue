@@ -3,13 +3,22 @@
 import ProgressStepsComponent, {
   type ActionButton,
 } from "@/common/shared/components/header/ProgressStepsComponent.vue";
-import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
-import { computed, reactive, ref, nextTick } from "vue";
+import { computed, reactive, ref, nextTick, onMounted, watch } from "vue";
 import type { ButtonType } from "@/modules/shared/buttonType";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Icon } from "@iconify/vue";
-import type { UploadFile } from "ant-design-vue";
+import { useVendorBankAccountStore } from "../../../stores/vendors/vendor-bank-accounts.store";
+import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
+import { formatDate } from "@/modules/shared/formatdate";
+import { formatPrice } from "@/modules/shared/utils/format-price";
+import { convertToLaoWords } from "@/modules/shared/utils/formatLao-and-en";
+import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
+// import { columns } from "../../../views/vendors/vendor/column";
+import { useVendorStore } from "../../../stores/vendors/vendor.store";
+// import { useI18n } from "vue-i18n";
+import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
+// import UiTable from "@/common/shared/components/table/UiTable.vue";
 import PurchaseOrderShowDrawer from "./PurchaseOrderShowDrawer.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderPending from "./PurchaseOrderPending.vue";
@@ -19,13 +28,14 @@ import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
-import dayjs from "dayjs";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import MultipleImageUpload from "@/common/shared/components/Upload/MultipleImageUpload.vue";
+import ModalVendorCreate from "./ModalVendorCreate.vue";
 
 /************************************* */
 const { success, error } = useNotification();
 const router = useRouter();
+const route = useRoute();
 const currentStep = ref(0);
 const currentStatus = ref<"wait" | "process" | "finish" | "error">("process");
 const confirmLoading = ref(false);
@@ -35,12 +45,120 @@ const otpInputRefs = ref<any[]>([]);
 const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const signatureData = ref("");
-const tallFiles = ref<UploadFile[]>([]);
+const bankAccount = useVendorBankAccountStore();
+const purchaseRequestStore = usePurchaseRequestsStore();
+const vendorModalRef = ref<InstanceType<typeof ModalVendorCreate> | null>(null);
+// const { t } = useI18n();
+const loading = ref(true);
+/*****************State Purchase Request********************* */
 
+// const selectedRowKey = ref<string>("");
+// const selectedRow = ref(null);
+
+// const onSelectChange = (selectedKeysArr: string[], selectedRows: any[]) => {
+//   selectedRowKey.value = selectedKeysArr[0]; // radio จะมีแค่รายการเดียวเสมอ
+//   selectedRow.value = selectedRows[0]; // ข้อมูลแถวที่เลือก
+//   console.log("selectedRowKey", selectedRowKey.value);
+//   console.log("selectedRow", selectedRow.value);
+// };
 /*****************Show Ui Drawer********************* */
+
+const requestDetail = ref<PurchaseRequestEntity | null>(null);
+
+// ใน onMounted ปรับการโหลดข้อมูล
+onMounted(async () => {
+  const purchaseRequestId = route.params.id as string;
+
+  if (!purchaseRequestId) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນທີ່ຈຳເປັນ");
+    router.push({ name: "purchaseRequestsList" });
+    return;
+  }
+
+  try {
+    loading.value = true;
+    const result = await purchaseRequestStore.fetchById(purchaseRequestId);
+    if (result) {
+      requestDetail.value = result as unknown as PurchaseRequestEntity;
+    }
+  } catch (err) {
+    console.error("Error loading purchase request:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫລດຂໍ້ມູນໄດ້");
+  } finally {
+    loading.value = false;
+  }
+});
+/*****************Show Ui Drawer********************* */
+
 const showDrawer = () => {
   visible.value = true;
 };
+const forms = reactive({
+  invoiceType: "",
+  descriptions: "",
+});
+
+const handleUploadClick = () => {
+  if (vendorModal.value) {
+    vendorModal.value.reset();
+    if (forms.invoiceType) {
+      vendorModal.value.setSelectedType(forms.invoiceType);
+    }
+
+    vendorModal.value.open();
+  }
+};
+/********************************* */
+interface VendorData {
+  id: string;
+  name: string;
+  imageUrl: string;
+  type: string;
+}
+const vendorStore = useVendorStore();
+
+const vendorModal = ref<InstanceType<typeof ModalVendorCreate> | null>(null);
+
+const selectedVendorData = ref<VendorData | null>(null);
+
+const getVendorFromLocalStorage = (): VendorData | null => {
+  try {
+    const data = localStorage.getItem("selectedVendor");
+    return data ? JSON.parse(data) : null;
+  } catch (err) {
+    console.error("Error reading from localStorage:", err);
+    return null;
+  }
+};
+
+const handleVendorModalSubmitted = (payload: {
+  vendorId: string;
+  fileNames: string[];
+  fileUrl?: string;
+}) => {
+  const { vendorId, fileUrl = "" } = payload;
+  const vendor = vendorStore.activeVendors.find((v) => v.getId() === vendorId);
+
+  if (vendor) {
+    selectedVendorData.value = {
+      id: vendorId,
+      name: vendor.getname(),
+      imageUrl: fileUrl,
+      type: form.value.invoiceType,
+    };
+  }
+};
+
+onMounted(() => {
+  const savedVendor = getVendorFromLocalStorage();
+  if (savedVendor) {
+    selectedVendorData.value = {
+      ...savedVendor,
+    };
+    form.value.invoiceType = savedVendor.type;
+  }
+});
+
 /******************************************************* */
 // Update handleConfirm function for first confirmation
 const handleConfirm = async (allData: Record<number, any>) => {
@@ -76,14 +194,12 @@ const handleOtpInput = (value: string, index: number) => {
 const handleOtpKeydown = (event: KeyboardEvent, index: number) => {
   if (event.key === "Backspace" && !otpValue.value[index]) {
     event.preventDefault();
-    // ย้ายไป input ก่อนหน้า
     if (index > 0) {
       nextTick(() => {
         const prevInput = otpInputRefs.value[index - 1];
         if (prevInput) {
           const inputElement = prevInput.$el.querySelector("input") || prevInput.$el;
           inputElement?.focus();
-          // เคลียร์ค่าของ input ก่อนหน้า
           otpValue.value[index - 1] = "";
         }
       });
@@ -109,7 +225,6 @@ const handlePaste = (event: ClipboardEvent) => {
         otpValue.value[index] = digit;
       }
     });
-    // โฟกัสที่ช่องถัดจากตัวเลขสุดท้ายที่วาง
     const nextIndex = Math.min(digits.length, 5);
     nextTick(() => {
       const nextInput = otpInputRefs.value[nextIndex];
@@ -120,7 +235,7 @@ const handlePaste = (event: ClipboardEvent) => {
     });
   }
 };
-/********************************************************** */
+/***********************************************************/
 const handleOtpConfirm = async () => {
   try {
     confirmLoading.value = true;
@@ -255,7 +370,7 @@ const handleButtonClick = (buttonData: any) => {
   console.log("Button clicked:", buttonData);
 };
 
-interface Product {
+export interface Product {
   key: number;
   name: string;
   quantity: number;
@@ -264,21 +379,107 @@ interface Product {
   remark: string;
 }
 
-const form = ref({
+export interface FormState {
+  documentId: string;
+  date: Date | null;
+  name: string;
+  quantity: string;
+  summary: string;
+  sumTotal: string;
+  totalName: string;
+  price: string;
+  total_price: string;
+  invoiceType: string;
+  descriptions: string;
+  purposes: string;
+  title: string;
+  products: Product[];
+  bank: string;
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+  currencyCode: string;
+  vendorImage: string;
+  vendorType: string;
+}
+const form = ref<FormState>({
   documentId: "",
   date: null,
-  name: "ຄອມພີວເຕີ MacBook Ar M3 (16GB/512GB)",
-  quantity: "1 ເຄື່ອງ",
-  summary: "30,000,000 ₭",
-  sumTotal: "30,000,000 ₭",
-  totalName: "ສາມສິບລ້ານກີບ",
-  invoiceType: "COMCOM",
-  descriptions:
-    "ທາງຮ້ານສາມາດໃຫ້ຊຳລະເປັນເດືອນໄດ້ ມີການຮັບປະກັນຕາມປະເພດສິນຄ້າ, ຖ້າຫາກມີຂໍ້ບົກພ່ອງ ທາງຮ້ານຈະປ່ຽນໃໝ່ໃຫ້",
-  products: [] as Product[],
-  bank: "BCEL",
+  name: "",
+  summary: "",
+  sumTotal: "",
+  totalName: "",
+  invoiceType: "",
+  descriptions: "",
+  quantity: "",
+  total_price: "",
+  price: "",
+  purposes: "",
+  title: "",
+  products: [],
+  bank: "",
+  accountName: "",
   accountNumber: "",
+  bankName: "",
+  currencyCode: "",
+  vendorImage: "",
+  vendorType: "",
 });
+interface BankOption {
+  value: string;
+  label: string;
+  accountName: string;
+  accountNumber: string;
+  logoUrl?: string;
+  bankName?: string;
+  currencyCode?: string;
+}
+const bankOptions = computed<BankOption[]>(() => {
+  return bankAccount.activeBankAccounts.map((account) => ({
+    value: account.getId(),
+    label: account.getBank()?.name || "",
+    accountName: account.getAccountName(),
+    accountNumber: account.getAccountNumber(),
+    logoUrl: account.getBank()?.logoUrl,
+    bankName: account.getBank()?.name,
+    currencyCode: account.getCurrency()?.code,
+  }));
+});
+
+// เพิ่ม method สำหรับจัดการการเปลี่ยนแปลงธนาคาร
+const handleBankChange = (value: string) => {
+  const selectedBank = bankAccount.activeBankAccounts.find((account) => account.getId() === value);
+
+  if (selectedBank) {
+    form.value.accountName = selectedBank.getAccountName();
+    form.value.accountNumber = selectedBank.getAccountNumber();
+    form.value.bankName = selectedBank.getBank()?.name || "";
+    form.value.currencyCode = selectedBank.getCurrency()?.code || "";
+  } else {
+    form.value.accountName = "";
+    form.value.accountNumber = "";
+    form.value.bankName = "";
+    form.value.currencyCode = "";
+  }
+};
+
+onMounted(async () => {
+  try {
+    await bankAccount.fetchBankAccounts(17);
+  } catch (err) {
+    console.error("Error fetching bank accounts:", err);
+    error("ເກີດຂໍ້ຜິດພາດໃນການໂຫລດຂໍ້ມູນທະນາຄານ");
+  }
+});
+
+watch(
+  () => form.value.bank,
+  (newValue) => {
+    if (newValue) {
+      handleBankChange(newValue);
+    }
+  }
+);
 
 // User info
 const userInfo = {
@@ -286,16 +487,6 @@ const userInfo = {
   department: "ພະແນກໄອທີ, ພະບໍລິມາດ",
 };
 
-const formattedDate = computed(() => {
-  return dayjs().format("DD MM YYYY");
-});
-
-// Invoice previews
-const invoicePreviews = [
-  { type: "COMCOM", image: "/public/5.png" },
-  { type: "LTH", image: "/public/6.png" },
-  { type: "CLOUD", image: "/public/7.png" },
-];
 const handlePendingConfirm = async () => {
   try {
     confirmLoading.value = true;
@@ -323,6 +514,59 @@ const handlePendingCancel = () => {
 const handleListOrder = () => {
   router.push({ name: "purchaseOrdersList" });
 };
+const totalAmount = computed(() => {
+  return requestDetail.value?.getItems().reduce((sum, item) => sum + item.getTotalPrice(), 0) || 0;
+});
+const totalInLaoWords = computed(() => {
+  return convertToLaoWords(totalAmount.value);
+});
+
+watch(
+  totalAmount,
+  (newValue) => {
+    form.value.totalName = convertToLaoWords(newValue);
+  },
+  { immediate: true }
+);
+
+onMounted(async () => {
+  const purchaseRequestId = route.params.id;
+  const documentTypeId = route.query.document_type_id;
+
+  if (!purchaseRequestId || !documentTypeId) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນທີ່ຈຳເປັນ");
+    router.push({ name: "doc-type-select" });
+    return;
+  }
+
+  try {
+    loading.value = true;
+    const id = Array.isArray(purchaseRequestId) ? purchaseRequestId[0] : purchaseRequestId;
+    const result = await purchaseRequestStore.fetchById(id);
+
+    if (result) {
+      requestDetail.value = result;
+      form.value.purposes = result.getPurposes();
+      const items = result.getItems();
+      form.value.title = items.map((item) => item.getTitle()).join(", ");
+      form.value.quantity = items
+        .map((item) => `${item.getQuantity()} ${(item.getUnit() as any)?.name || ""}`)
+        .join(", ");
+      form.value.price = items.map((item) => formatPrice(item.getPrice())).join(", ");
+      form.value.total_price = items.map((item) => formatPrice(item.getTotalPrice())).join(", ");
+
+      form.value.total_price = result
+        .getItems()
+        .map((item) => formatPrice(item.getTotalPrice()))
+        .join(", ");
+    }
+  } catch (err) {
+    console.error("Error loading purchase request:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫລດຂໍ້ມູນໄດ້");
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
 
 <template>
@@ -362,7 +606,9 @@ const handleListOrder = () => {
     >
       <PurchaseOrderShowDrawer />
     </UiDrawer>
-
+    <!--  -->
+    <ModalVendorCreate ref="vendorModalRef" @submitted="handleVendorModalSubmitted" />
+    <!--  -->
     <!-- OTP Modal -->
     <UiModal
       title="ລາຍເຊັນ"
@@ -471,12 +717,12 @@ const handleListOrder = () => {
           />
 
           <div>
-            <h2 class="text-sm">{{ userInfo.name }}</h2>
-            <p class="text-gray-600 text-sm">{{ userInfo.department }}</p>
+            <h2 class="text-sm">{{ requestDetail?.getRequester()?.username }}</h2>
+            <p class="text-gray-600 text-sm">{{ requestDetail?.getDepartment()?.name }}</p>
           </div>
           <div>
             <h2 class="text-sm">ວັນທີສະເໜີ</h2>
-            <p class="text-gray-500 text-sm">{{ formattedDate }}</p>
+            <p class="text-gray-500 text-sm">{{ formatDate(requestDetail?.getExpiredDate()) }}</p>
           </div>
         </div>
         <div>
@@ -484,148 +730,219 @@ const handleListOrder = () => {
           <div class="flex items-start gap-4 mb-2">
             <div>
               <h2 class="text-sm">ຂໍ້ສະເໜີເບີກງົບປະມານ</h2>
-              <p class="text-gray-600 text-sm">ຈັດຊື້ຄອມ</p>
+              <p class="text-gray-600 text-sm">{{ requestDetail?.getPurposes() }}</p>
             </div>
             <div>
               <h2 class="text-sm">ຈຳນວນ</h2>
-              <p class="text-gray-500 text-sm">1</p>
+              <p class="text-gray-500 text-sm">
+                {{
+                  requestDetail
+                    ?.getItems()
+                    ?.map((item) => item.getQuantity())
+                    .join(", ")
+                }}
+              </p>
             </div>
             <div>
               <h2 class="text-sm">ພະແນກ</h2>
-              <p class="text-gray-500 text-sm">ພັດທະນາທຸລະກິດ</p>
+              <p class="text-gray-500 text-sm">{{ requestDetail?.getDepartment()?.name }}</p>
             </div>
             <div>
               <h2 class="text-sm">ໜ່ວຍງານ</h2>
-              <p class="text-gray-500 text-sm">ພະນັກງານ</p>
+              <p class="text-gray-500 text-sm">{{ requestDetail?.getPosition()?.name }}</p>
             </div>
           </div>
         </div>
         <div>
           <span>ຈຸດປະສົ່ງ</span>
           <div class="flex items-start gap-4 mb-6">
-            <UiInput v-model="form.bank" placeholder="ປ້ອນລະຫັດເອກະສານ" class="w-full" />
+            <UiInput
+              v-model="form.purposes"
+              placeholder="ປ້ອນລະຫັດເອກະສານ"
+              class="w-full"
+              :default-value="requestDetail?.getPurposes()"
+            />
+            <!-- {{ requestDetail?.getDocumentDescription() }} -->
           </div>
         </div>
 
         <!-- Form Fields -->
         <div class="space-y-6">
           <!-- Invoice Type Selection -->
+
           <div class="border rounded-lg p-4 space-y-4">
             <h3 class="font-medium mb-4">ໃບສະເໜີລາຄາ</h3>
-            <a-radio-group v-model:value="form.invoiceType" class="grid grid-cols-3 gap-4">
-              <a-radio value="COMCOM">ຮ້ານ ຄອມຄອມ COMCOM</a-radio>
-              <a-radio value="LTH">ຮ້ານ LTH</a-radio>
-              <a-radio value="CLOUD">ຮ້ານ Cloud Store</a-radio>
-            </a-radio-group>
-            <!-- Invoice Preview -->
-            <div class="grid grid-cols-3 gap-4 mt-4">
-              <div
-                v-for="(preview, index) in invoicePreviews"
-                :key="index"
-                class="border rounded-lg p-2 cursor-pointer hover:border-blue-500"
-                :class="{ 'border-blue-500': form.invoiceType === preview.type }"
-                @click="form.invoiceType = preview.type"
-              >
-                <img :src="preview.image" :alt="preview.type" class="w-full h-auto" />
-              </div>
+            <!-- <UiTable
+              :columns="columns(t)"
+              :dataSource="vendorStore.vendors"
+              :row-selection="{
+                type: 'radio',
+                selectedRowKeys: [selectedRowKey],
+
+              }"
+            /> -->
+            <!-- ปุ่มอัพโหลด -->
+            <div @click="handleUploadClick" class="mt-4">
+              <MultipleImageUpload
+                class="pointer-events-none select-none"
+                :max-count="1"
+                upload-text="ອັບໂຫລດເອກະສານ"
+                upload-hint="ລາກວາງຟາຍຫຼືຄິກເພື່ອເລືອກ"
+                :upload-width="'100%'"
+                :upload-height="'auto'"
+                :upload-button-width="'300px'"
+                :upload-button-height="'400px'"
+                :icon-size="'64px'"
+                :text-size="'18px'"
+                :hint-size="'14px'"
+                thumbnailFit="fill"
+              />
             </div>
-            <MultipleImageUpload
-              v-model="tallFiles"
-              :max-count="6"
-              upload-text="ອັບໂຫລດເອກະສານ"
-              upload-hint="ລາກວາງຟາຍຫຼືຄິກເພື່ອເລືອກ"
-              upload-width="100%"
-              upload-height="auto"
-              upload-button-width="300px"
-              upload-button-height="400px"
-              icon-size="64px"
-              text-size="18px"
-              hint-size="14px"
-              thumbnailFit="fill"
-            />
-            <div>
-              <br />
+
+            <!-- เหตุผลที่เลือก -->
+            <div class="mt-4">
               <span>ເຫດຜົນທີເລືອກ</span>
               <div class="flex items-start gap-4 mb-6">
                 <Textarea v-model="form.descriptions" placeholder="ປ້ອນເຫດຜົນ" class="w-full" />
               </div>
             </div>
           </div>
+
           <!-- Product Details -->
           <div class="border rounded-lg p-4">
             <h3 class="font-medium mb-4">ລາຍລະອຽດຮ້ານຄ້າ</h3>
-            <div class="flex items-center gap-4 mb-4">
+
+            <!-- ส่วนหัวข้อร้าน -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4">
               <UiAvatar
                 icon="solar:shop-2-bold"
                 :size="'large'"
                 class="flex justify-center items-center"
               />
-              <span>ຮ້ານ ຄອມຄອມ COMCOM</span>
+              <span class="text-sm sm:text-base">ຮ້ານ ຄອມຄອມ COMCOM</span>
             </div>
-            <div class="grid grid-cols-3 gap-4">
+
+            <!-- ส่วนฟอร์มข้อมูล -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <UiFormItem label="ສິນຄ້າ" required>
-                <UiInput v-model="form.name" placeholder="ປ້ອນຊື່ສິນຄ້າ" />
+                <UiInput v-model="form.title" placeholder="ປ້ອນຊື່ສິນຄ້າ" :disabled="true" />
               </UiFormItem>
+
               <UiFormItem label="ຈຳນວນ" required>
-                <UiInput v-model="form.quantity" placeholder="ປ້ອນຈຳນວນ" />
+                <UiInput v-model="form.quantity" placeholder="ປ້ອນຈຳນວນ" :disabled="true" />
               </UiFormItem>
+
               <UiFormItem label="ລາຄາ/ຫົວໜ່ວຍ" required>
-                <UiInput v-model="form.summary" placeholder="ຫົວໜ່ວຍ" />
+                <UiInput v-model="form.price" placeholder="ຫົວໜ່ວຍ" :disabled="true" />
               </UiFormItem>
+
               <UiFormItem label="ລາຄາລວມ" required>
-                <UiInput v-model="form.sumTotal" placeholder="ປ້ອນຊື່ສິນຄ້າ" />
+                <UiInput v-model="form.total_price" placeholder="ປ້ອນຊື່ສິນຄ້າ" :disabled="true" />
               </UiFormItem>
-              <UiFormItem label="ຈຳນວນເງີນ(ຕົວໜັງສື)" required>
-                <UiInput v-model="form.totalName" placeholder="ປ້ອນຊື່ສິນຄ້າ" />
+
+              <UiFormItem label="ຈຳນວນເງີນ(ຕົວໜັງສື)" required class="sm:col-span-2 lg:col-span-1">
+                <UiInput
+                  v-model="form.totalName"
+                  placeholder="ປ້ອນຊື່ສິນຄ້າ"
+                  :value="totalInLaoWords"
+                  :disabled="true"
+                />
               </UiFormItem>
             </div>
-            <div class="grid grid-cols-2 gap-4 mt-4"></div>
-            <div class="flex justify-end">
-              <span>ມູນລາຄາລວມທັງໝົດ {{ form.sumTotal }}</span>
-            </div>
-            <div class="flex justify-end">
-              <span>ມູນລາຄາລວມທັງໝົດກີບ {{ form.sumTotal }}</span>
+
+            <!-- ส่วนว่าง -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4"></div>
+
+            <!-- ส่วนราคารวม -->
+            <div class="flex flex-col items-end mt-6 text-sm sm:text-base">
+              <span>
+                ມູນລາຄາລວມທັງໝົດ
+                {{
+                  formatPrice(
+                    requestDetail?.getItems().reduce((sum, item) => sum + item.getTotalPrice(), 0)
+                  )
+                }}
+                ₭
+              </span>
+              <span class="mt-1">
+                ມູນລາຄາລວມທັງໝົດກີບ
+                {{
+                  formatPrice(
+                    requestDetail?.getItems().reduce((sum, item) => sum + item.getTotalPrice(), 0)
+                  )
+                }}
+                ₭
+              </span>
             </div>
           </div>
         </div>
         <!-- Payment Details -->
         <div class="border rounded-lg p-4">
           <h3 class="font-medium mb-4">ຂໍ້ມູນບັນຊີຮ້ານ</h3>
-          <div class="grid grid-cols-2 gap-6">
-            <UiFormItem label="ຊື່ບັນທຶກ" required>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- ธนาคาร -->
+            <UiFormItem label="ທະນາຄານ" required>
               <InputSelect
-                v-model="form.bank"
-                :options="[
-                  { label: 'BCEL', value: 'BCEL' },
-                  { label: 'ທະນາຄານລາວ', value: 'ທະນາຄານລາວ' },
-                  { label: 'ທະນາຄານອື່ນ', value: 'ທະນາຄານອື່ນ' },
-                ]"
-                placeholder="ເລືອກຊື່ບັນທຶກ"
-              />
+                v-model:modelValue="form.bank"
+                :options="bankOptions"
+                placeholder="ເລືອກທະນາຄານ"
+                @update:modelValue="handleBankChange"
+              >
+                <template #option="{ option }">
+                  <div class="flex items-center gap-2">
+                    <img
+                      v-if="option.logoUrl"
+                      :src="option.logoUrl"
+                      class="w-5 h-5 sm:w-6 sm:h-6 object-contain"
+                      :alt="option.bankName"
+                    />
+                    <span class="text-sm sm:text-base">{{ option.label }}</span>
+                  </div>
+                </template>
+              </InputSelect>
             </UiFormItem>
+
+            <!-- ชื่อบัญชี -->
             <UiFormItem label="ຊື່ບັນຊີ (Account Name)" required>
-              <UiInput v-model="form.accountNumber" placeholder="ຊື່ບັນຊີ" />
+              <UiInput v-model="form.accountName" placeholder="ຊື່ບັນຊີ" :disabled="true" />
             </UiFormItem>
-            <UiFormItem label="ເລກບັນຊີ" required>
-              <UiInput v-model="form.accountNumber" placeholder="xxxx xxxx xxxx xxxx" />
+
+            <!-- เลขบัญชี -->
+            <UiFormItem label="ເລກບັນຊີ" required class="sm:col-span-2 md:col-span-1">
+              <div class="relative">
+                <UiInput
+                  v-model="form.accountNumber"
+                  placeholder="xxxx xxxx xxxx xxxx"
+                  :disabled="true"
+                />
+                <span
+                  v-if="form.currencyCode"
+                  class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm sm:text-base"
+                >
+                  {{ form.currencyCode }}
+                </span>
+              </div>
             </UiFormItem>
           </div>
-          <span>ເອກະສານທີຕິດຂັດ</span>
-          <HeaderComponent
-            header-title="ໃບສະເໜີຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ"
-            header-title-color="blue-600"
-            prefix-icon="mdi:file-document-outline"
-            suffix-icon="mdi:arrow-top-right"
-            prefix-icon-class="text-blue-500"
-            suffix-icon-class="text-blue-500"
-            :suffix-icon-clickable="true"
-            :show-document-date="false"
-            :show-document-number="false"
-            :show-document-prefix="false"
-            :show-breadcrumb="false"
-            class="cursor-pointer"
-            @click="showDrawer"
-          />
+
+          <div class="mt-6">
+            <span class="block mb-2 text-sm sm:text-base">ເອກະສານທີຕິດຂັດ</span>
+            <HeaderComponent
+              header-title="ໃບສະເໜີຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ"
+              header-title-color="blue-600"
+              prefix-icon="mdi:file-document-outline"
+              suffix-icon="mdi:arrow-top-right"
+              prefix-icon-class="text-blue-500"
+              suffix-icon-class="text-blue-500"
+              :suffix-icon-clickable="true"
+              :show-document-date="false"
+              :show-document-number="false"
+              :show-document-prefix="false"
+              :show-breadcrumb="false"
+              class="cursor-pointer w-full overflow-hidden"
+              @click="showDrawer"
+            />
+          </div>
         </div>
       </div>
     </div>

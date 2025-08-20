@@ -21,8 +21,8 @@ export interface BudgetItemInterface {
   id: string;
   budget_account_id: string;
   name: string;
-  allocated_amount: string;
-  description: string;
+  allocated_amount: number;
+  description: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -33,7 +33,7 @@ export interface CreateBudgetItemInterface {
   budget_accountId: number;
   name: string;
   allocated_amount: number;
-  description: string;
+  description: string | null;
   // budget_item_details: Array<{
   //   name: string;
   //   provinceId: number;

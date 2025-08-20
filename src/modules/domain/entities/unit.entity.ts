@@ -2,7 +2,7 @@ import { formatDate } from "@/modules/shared/formatdate"
 
 export class UnitEntity {
   private id: string
-  private name: string
+  private name?: string
   private createdAt: string
   private updatedAt: string
   private deletedAt: string | null
@@ -25,7 +25,7 @@ export class UnitEntity {
     return this.id
   }
 
-  public getName(): string {
+  public getName(): string | undefined {
     return this.name
   }
 
