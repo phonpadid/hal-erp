@@ -3,13 +3,14 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import type { ButtonType } from "@/modules/shared/buttonType";
 // import { useI18n } from "vue-i18n";
-
+const selectType = ref<string>(''); // Single selection - empty string initially
 // Components
 import Table from "@/common/shared/components/table/Table.vue";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderShowDrawer from "../purchase/purchase_orders/PurchaseOrderShowDrawer.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
+import Radio from "@/common/shared/components/Input/Radio.vue";
 
 /********************************************************* */
 // const { t } = useI18n();
@@ -37,6 +38,7 @@ const customButtons = [
       // Logic to create and sign
       console.log("Purpose:", purpose.value);
       console.log("Remark:", remark.value);
+      console.log("Selected payment types:", selectType.value); // Added this line
 
       router.push({ name: "review-money-success" });
     },
@@ -78,7 +80,11 @@ const items = ref([
 ]);
 
 const grandTotal = ref(25939000); // Grand total from image
-
+const typeOption = [
+  { label: "ເງິນສົດ (Cash)", value: "cash" },
+  { label: "ໂອນເງິນ (Transfer)", value: "transfer" },
+  { label: "ເຊັກ (Cheque)", value: "cheque" },
+];
 const columns = [
   {
     title: "ລຳດັບ",
@@ -163,6 +169,17 @@ const columns = [
         </div>
       </div>
 
+      <!-- FIXED CHECKBOX SECTION - SINGLE SELECTION -->
+      <div class="select-type mb-6">
+        <h3 class="text-base font-semibold mb-4">ປະເພດການຈ່າຍເງິນ</h3>
+        <div class="space-y-2">
+          <Radio
+            v-model="selectType"
+            :options="typeOption"
+          />
+        </div>
+      </div>
+
       <div class="mb-6">
         <h3 class="text-base font-semibold mb-2">ລາຍການ</h3>
         <Table :columns="columns" :dataSource="items">
@@ -240,5 +257,7 @@ const columns = [
 </template>
 
 <style scoped>
-/* Add any additional scoped styles if needed */
+.select-type .space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
 </style>
