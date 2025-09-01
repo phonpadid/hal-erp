@@ -42,6 +42,7 @@ const loading = ref<boolean>(false);
 const uploadLoading = ref<boolean>(false);
 const createModalVisible = ref(false);
 const currentUploadIndex = ref<number>(0);
+const newApprovalStepId = ref<number | null>(null);
 
 const props = defineProps<{
   documentTypeId?: number | string;
@@ -119,7 +120,7 @@ const handleImageUpload = async (files: File[]) => {
 
     if (filename) {
       const currentItem = formState.value.addMore[currentUploadIndex.value];
-      currentItem.file_name = filename; 
+      currentItem.file_name = filename;
       const url = URL.createObjectURL(file);
       currentItem.images.push(url);
       message.success("ອັບໂຫລດຮູບພາບສຳເລັດ");
@@ -162,20 +163,20 @@ function getFormData() {
   return formState.value;
 }
 
-async function handleSave(): Promise<boolean> {
+async function handleSave(): Promise<any | null> {
   loading.value = true;
   const isValid = await validateForm();
   if (!isValid) {
     message.error(t("purchase-rq.msg.validate_fail"));
     loading.value = false;
-    return false;
+    return null;
   }
 
   const formData = getFormData();
   if (!formData.expired_date) {
     message.error("Expired Date is required.");
     loading.value = false;
-    return false;
+    return null;
   }
 
   const itemsPayload = formData.addMore.map((item) => ({
@@ -203,7 +204,7 @@ async function handleSave(): Promise<boolean> {
       if (!props.documentTypeId) {
         message.error("Document Type is required.");
         loading.value = false;
-        return false;
+        return null;
       }
       const createPayload: CreatePurchaseRequestDTO = {
         expired_date: dayjs(formData.expired_date).format("YYYY-MM-DD"),
@@ -219,15 +220,15 @@ async function handleSave(): Promise<boolean> {
 
     if (result) {
       message.success(props.isEditing ? "ອັບເດດສຳເລັດ!" : "ສ້າງສຳເລັດ!");
-      return true;
+      return result;
     } else {
       message.error(purchaseRequestStore.error || "ເກີດຂໍ້ຜິດພາດ");
-      return false;
+      return null;
     }
   } catch (err) {
     console.error("Save/Update failed:", err);
     message.error("ເກີດຂໍ້ຜິດພາດ ກະລຸນາລອງໃໝ່");
-    return false;
+    return null;
   } finally {
     loading.value = false;
   }

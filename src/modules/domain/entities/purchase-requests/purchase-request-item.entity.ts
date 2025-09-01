@@ -88,6 +88,9 @@ export class PurchaseRequestItemEntity {
   public getRemark(): string {
     return this.remark;
   }
+  public getFileNameUrl(): string | null {
+    return this.file_name_url;
+  }
 
   public getCreatedAt(): string | null {
     return this.createdAt;

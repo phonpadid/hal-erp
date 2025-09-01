@@ -14,6 +14,7 @@ import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
+import { formatDate } from "@/modules/shared/formatdate";
 
 const { t } = useI18n();
 const route = useRoute(); // << 3. Get route instance
@@ -80,7 +81,7 @@ const handleToggle = () => {
         :document-number="`${t('purchase-rq.field.pr_number')} ${
           requestDetail?.getPrNumber() ?? ''
         }`"
-        :document-date="new Date(requestDetail?.getRequestedDate() ?? Date.now())"
+        :document-date="formatDate(requestDetail?.getRequestedDate() ?? new Date())"
         :action-buttons="getCustomButtons()"
         :document-status="requestDetail?.getStatus()"
         document-status-class="text-orange-400 text-sm font-medium ml-2 ring-2 ring-orange-300 px-3 py-1 rounded-full"

@@ -3,19 +3,34 @@ import type { Column } from "@/modules/shared/column/column";
 export function columnsDirecter(t: (key: string) => string): Column[] {
   return [
     {
-      title: t("purchase_orders.table.order_number"),
-      dataIndex: "orderNumber",
-      key: "orderNumber",
+      title: t("purchase-rq.field.pr_number"),
+      dataIndex: "pr_number",
+      key: "pr_number",
     },
     {
-      title: t("purchase_orders.table.name"),
-      dataIndex: "vendorName",
-      key: "vendorName",
+      title: t("purchase-rq.field.user"),
+      dataIndex: "user",
+      key: "user",
     },
     {
-      title: t("purchase_orders.table.created_at"),
-      dataIndex: "orderDate",
-      key: "orderDate",
+      title: t("purchase-rq.field.position"),
+      dataIndex: "position.name",
+      key: "position",
+    },
+    {
+      title: t("purchase-rq.field.department"),
+      dataIndex: "department.name",
+      key: "department",
+    },
+    {
+      title: t("purchase-rq.field.rq_date"),
+      dataIndex: "requested_date",
+      key: "requested_date",
+    },
+    {
+      title: t("purchase-rq.field.doc_type"),
+      dataIndex: "document_type.name",
+      key: "document_type",
     },
     {
       title: t("purchase_orders.table.status"),

@@ -14,23 +14,26 @@ import { formatDate } from "@/modules/shared/formatdate";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { convertToLaoWords } from "@/modules/shared/utils/formatLao-and-en";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
-// import { columns } from "../../../views/vendors/vendor/column";
+import { columns } from "./column";
 import { useVendorStore } from "../../../stores/vendors/vendor.store";
-// import { useI18n } from "vue-i18n";
+import { useI18n } from "vue-i18n";
+import type { Key } from "ant-design-vue/lib/table/interface";
+import { usePurchaseOrderStore } from "../../../stores/purchase_requests/purchase-order";
+import { Modal } from "ant-design-vue";
+import type { RowSelectionType } from "ant-design-vue/es/table/interface";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
-// import UiTable from "@/common/shared/components/table/UiTable.vue";
+import UiTable from "@/common/shared/components/table/UiTable.vue";
 import PurchaseOrderShowDrawer from "./PurchaseOrderShowDrawer.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderPending from "./PurchaseOrderPending.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
-import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
-import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
-import MultipleImageUpload from "@/common/shared/components/Upload/MultipleImageUpload.vue";
 import ModalVendorCreate from "./ModalVendorCreate.vue";
+import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 
 /************************************* */
 const { success, error } = useNotification();
@@ -47,20 +50,392 @@ const isSignatureModalVisible = ref(false);
 const signatureData = ref("");
 const bankAccount = useVendorBankAccountStore();
 const purchaseRequestStore = usePurchaseRequestsStore();
+const purchaseOrderStore = usePurchaseOrderStore();
 const vendorModalRef = ref<InstanceType<typeof ModalVendorCreate> | null>(null);
-// const { t } = useI18n();
+const { t } = useI18n();
 const loading = ref(true);
-/*****************State Purchase Request********************* */
+/*****************State Purchase Order********************* */
+const itemVendors = ref<{
+  [itemId: string]: {
+    vendor_id: string | number;
+    vendor_name: string;
+    vendor_bank_account_id: string | number;
+    bank_name: string;
+    account_number: string;
+    filename: string;
+    file_url: string;
+    reason: string;
+    is_vat: boolean;
+    selected: boolean;
+  };
+}>({});
+// ฟังก์ชันตรวจสอบว่าเลือกร้านค้าครบทุกรายการหรือไม่
+const isAllItemsHaveVendor = computed(() => {
+  return purchaseItems.value.every((item) => {
+    return item.id != null && itemVendors.value[item.id];
+  });
+});
+const isSubmitting = ref(false);
 
-// const selectedRowKey = ref<string>("");
-// const selectedRow = ref(null);
+// ฟังก์ชันสร้าง Payload สำหรับส่งไปหลังบ้าน
+// ฟังก์ชันสร้าง Payload สำหรับส่งไปหลังบ้าน
+const createPurchaseOrderPayload = () => {
+  // ตรวจสอบว่ามี requestDetail หรือไม่
+  if (!requestDetail.value) {
+    throw new Error("ບໍ່ພົບຂໍ້ມູນການຮ້ອງຂໍ");
+  }
 
-// const onSelectChange = (selectedKeysArr: string[], selectedRows: any[]) => {
-//   selectedRowKey.value = selectedKeysArr[0]; // radio จะมีแค่รายการเดียวเสมอ
-//   selectedRow.value = selectedRows[0]; // ข้อมูลแถวที่เลือก
-//   console.log("selectedRowKey", selectedRowKey.value);
-//   console.log("selectedRow", selectedRow.value);
+  // สร้างรายการสินค้า
+  const items = purchaseItems.value.map((item) => {
+    const vendorData = itemVendors.value[item.id?.toString() ?? ""];
+
+    // ตรวจสอบว่ามีข้อมูลร้านค้าหรือไม่
+    if (!vendorData) {
+      throw new Error(`ກະລຸນາເລືອກຮ້ານຄ້າສຳລັບລາຍການ ${item.title}`);
+    }
+
+    return {
+      purchase_request_item_id: Number(item.id),
+      price: Number(item.price),
+      is_vat: vendorData.is_vat,
+      selected_vendor: [
+        {
+          vendor_id: Number(vendorData.vendor_id),
+          vendor_bank_account_id: Number(vendorData.vendor_bank_account_id),
+          filename: vendorData.filename,
+          reason: vendorData.reason || "", // ใส่ค่าว่างถ้าไม่มี reason
+          selected: true, // ค่าเริ่มต้นคือ true
+        },
+      ],
+    };
+  });
+
+  // สร้าง Payload
+  return {
+    purchase_request_id: Number(requestDetail.value.getId()),
+    document: {
+      description: form.value.descriptions || "", // ใส่ค่าว่างถ้าไม่มี descriptions
+      documentTypeId: Number(route.query.document_type_id) || 2,
+    },
+    items,
+  };
+};
+
+// const handleVendorModalSubmitted = (payload: {
+//   vendorId: string;
+//   fileNames: string[];
+//   fileUrl?: string;
+//   bankId?: string;
+//   bankName?: string;
+//   accountName?: string;
+//   accountNumber?: string;
+//   reason?: string;
+//   is_vat?: boolean;
+// }) => {
+//   console.log("ได้รับข้อมูลจาก Modal:", payload);
+
+//   const itemId = localStorage.getItem("currentSelectedItemId");
+//   console.log("itemId จาก localStorage:", itemId);
+//   if (!itemId) {
+//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບລາຍການທີ່ກຳລັງເລືອກ");
+//     return;
+//   }
+
+//   const selectedVendor = vendorStore.activeVendors.find((v) => v.getId() === payload.vendorId);
+//   if (!selectedVendor) {
+//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຮ້ານຄ້າທີ່ເລືອກ");
+//     return;
+//   }
+
+//   itemVendors.value[itemId] = {
+//     vendor_id: payload.vendorId,
+//     vendor_name: selectedVendor.getname(),
+//     vendor_bank_account_id: payload.bankId || "",
+//     bank_name: payload.bankName || "",
+//     account_number: payload.accountNumber || "",
+//     filename: payload.fileNames[0] || "",
+//     file_url: payload.fileUrl || "",
+//     reason: payload.reason || "",
+//     is_vat: payload.is_vat || false,
+//     selected: true,
+//   };
+
+//   console.log("บันทึกข้อมูลร้านค้าสำเร็จ:", itemVendors.value);
+//   success(`ເລືອກຮ້ານຄ້າ ${selectedVendor.getname()} ສຳເລັດແລ້ວ`);
+//   window.sessionStorage.removeItem("currentSelectedItemId");
 // };
+
+const handleVendorModalSubmitted = (payload: {
+  vendorId: string;
+  fileNames: string[];
+  fileUrl?: string;
+  bankId?: string;
+  bankName?: string;
+  accountName?: string;
+  accountNumber?: string;
+  reason?: string;
+  is_vat?: boolean;
+}) => {
+  console.log("ได้รับข้อมูลจาก Modal:", payload);
+
+  // ดึงข้อมูลร้านค้าที่เลือก
+  const selectedVendor = vendorStore.activeVendors.find((v) => v.getId() === payload.vendorId);
+  if (!selectedVendor) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຮ້ານຄ້າທີ່ເລືອກ");
+    return;
+  }
+
+  // เพิ่มข้อมูลร้านค้าให้กับทุกรายการที่เลือก
+  selectedRowKeys.value.forEach((itemId) => {
+    itemVendors.value[itemId.toString()] = {
+      vendor_id: payload.vendorId,
+      vendor_name: selectedVendor.getname(),
+      vendor_bank_account_id: payload.bankId || "",
+      bank_name: payload.bankName || "",
+      account_number: payload.accountNumber || "",
+      filename: payload.fileNames[0] || "",
+      file_url: payload.fileUrl || "",
+      reason: payload.reason || "",
+      is_vat: payload.is_vat || false,
+      selected: true,
+    };
+  });
+
+  // รีเซ็ตการเลือกรายการ
+  selectedRowKeys.value = [];
+  selectedRows.value = [];
+
+  console.log("บันทึกข้อมูลร้านค้าสำเร็จ:", itemVendors.value);
+  success(`ເລືອກຮ້ານຄ້າ ${selectedVendor.getname()} ສຳເລັດແລ້ວ`);
+};
+
+const vendorReasonModalVisible = ref(false);
+const currentReasonData = ref<{
+  item_id: string | number;
+  vendor_id: string | number;
+  vendor_name: string;
+  vendor_bank_account_id: string | number;
+  reason: string;
+  is_vat: boolean;
+}>({
+  item_id: "",
+  vendor_id: "",
+  vendor_name: "",
+  vendor_bank_account_id: "",
+  reason: "",
+  is_vat: false,
+});
+
+const openVendorReasonModal = (itemId: string | number, vendorId: string | number) => {
+  // ดึงข้อมูลร้านค้า
+  const vendor = vendorStore.activeVendors.find((v) => v.getId() === vendorId);
+  if (!vendor) return;
+
+  // ดึงข้อมูลที่มีอยู่แล้ว (ถ้ามี)
+  const existingData = itemVendors.value[itemId.toString()];
+
+  // ตั้งค่าข้อมูลสำหรับ Modal
+  currentReasonData.value = {
+    item_id: itemId,
+    vendor_id: vendorId,
+    vendor_name: vendor.getname(),
+    vendor_bank_account_id: existingData?.vendor_bank_account_id || "",
+    reason: existingData?.reason || "",
+    is_vat: existingData?.is_vat || false,
+  };
+
+  // โหลดบัญชีธนาคารของร้านค้า
+  loadVendorBankAccounts(vendorId);
+
+  // เปิด Modal
+  vendorReasonModalVisible.value = true;
+};
+
+const vendorBankOptions = computed(() => {
+  // กรณีที่ยังไม่มีร้านค้าที่เลือก
+  if (!currentReasonData.value.vendor_id) return [];
+
+  // ดึงบัญชีธนาคารของร้านค้าที่เลือก
+  return bankAccount.activeBankAccounts
+    .filter((account) => account.getvendor_id() === currentReasonData.value.vendor_id)
+    .map((account) => ({
+      value: account.getId(),
+      label: `${account.getBank()?.name || ""} - ${account.getAccountNumber()}`,
+      bank_name: account.getBank()?.name || "",
+      account_number: account.getAccountNumber(),
+    }));
+});
+
+const loadVendorBankAccounts = async (vendorId: string | number) => {
+  try {
+    await bankAccount.fetchBankAccounts(Number(vendorId));
+  } catch (err) {
+    console.error("Error loading vendor bank accounts:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫລດຂໍ້ມູນບັນຊີທະນາຄານໄດ້");
+  }
+};
+
+// ฟังก์ชันปิด Modal
+const closeVendorReasonModal = () => {
+  vendorReasonModalVisible.value = false;
+};
+
+const saveVendorReason = () => {
+  // ตรวจสอบข้อมูลที่จำเป็น
+  if (!currentReasonData.value.vendor_bank_account_id) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກບັນຊີທະນາຄານ");
+    return;
+  }
+
+  const itemId = currentReasonData.value.item_id.toString();
+
+  // ดึงข้อมูลบัญชีธนาคารที่เลือก
+  const selectedBank = bankAccount.activeBankAccounts.find(
+    (account) => account.getId() === currentReasonData.value.vendor_bank_account_id
+  );
+
+  if (!selectedBank) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນບັນຊີທະນາຄານທີ່ເລືອກ");
+    return;
+  }
+
+  // อัพเดทข้อมูลในรายการสินค้า
+  const updatedItemVendor = {
+    ...itemVendors.value[itemId],
+    vendor_bank_account_id: currentReasonData.value.vendor_bank_account_id,
+    bank_name: selectedBank.getBank()?.name || "",
+    account_number: selectedBank.getAccountNumber(),
+    reason: currentReasonData.value.reason,
+    is_vat: currentReasonData.value.is_vat,
+    selected: true,
+  };
+
+  // บันทึกข้อมูล
+  itemVendors.value[itemId] = updatedItemVendor;
+
+  // ปิด Modal
+  closeVendorReasonModal();
+
+  // แจ้งเตือนสำเร็จ
+  success("ບັນທຶກຂໍ້ມູນສຳເລັດແລ້ວ");
+};
+
+const editVendorForItem = (itemId: string | number) => {
+  // ดึงข้อมูลที่มีอยู่แล้ว
+  const itemData = itemVendors.value[itemId.toString()];
+  if (!itemData) return;
+
+  // เปิด Modal กรอกเหตุผลและเลือกบัญชีธนาคาร
+  openVendorReasonModal(itemId, itemData.vendor_id);
+};
+
+// ฟังก์ชันลบร้านค้าสำหรับรายการสินค้า
+const removeVendorForItem = (itemId: string | number) => {
+  // แสดง Modal ยืนยันการลบ
+  Modal.confirm({
+    title: "ຢືນຢັນການລຶບ",
+    content: "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບຮ້ານຄ້ານີ້ອອກຈາກລາຍການ?",
+    okText: "ຢືນຢັນ",
+    okType: "danger",
+    cancelText: "ຍົກເລີກ",
+    onOk() {
+      // ลบข้อมูลร้านค้าออกจากรายการสินค้า
+      delete itemVendors.value[itemId.toString()];
+      success("ລຶບຮ້ານຄ້າອອກຈາກລາຍການສຳເລັດແລ້ວ");
+    },
+  });
+};
+
+/*****************State Purchase Order********************* */
+
+const submitPurchaseOrder = async () => {
+  try {
+    // ตรวจสอบว่าเลือกร้านค้าครบทุกรายการหรือไม่
+    if (!isAllItemsHaveVendor.value) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກຮ້ານຄ້າໃຫ້ຄົບທຸກລາຍການ");
+      return null;
+    }
+
+    // สร้าง Payload
+    const payload = createPurchaseOrderPayload();
+
+    // แสดง Payload ในคอนโซล (สำหรับการพัฒนา)
+    console.log("Purchase Order Payload:", JSON.stringify(payload, null, 2));
+
+    // แสดงสถานะกำลังโหลด
+    isSubmitting.value = true;
+
+    // ส่งข้อมูลไปหลังบ้านโดยใช้ store ที่สร้างไว้
+    const result = await purchaseOrderStore.create(payload);
+
+    if (result) {
+      // แสดงข้อความสำเร็จ
+      success("ສ້າງໃບສັ່ງຊື້ສຳເລັດແລ້ວ");
+
+      // เปลี่ยนสถานะเป็นสำเร็จ
+      currentStatus.value = "finish";
+      currentStep.value = 2;
+      customSteps.value[1].disabled = false;
+      customSteps.value[2].disabled = false;
+
+      // จัดเก็บข้อมูลผลลัพธ์ไว้ใน stepsData
+      stepsData[2] = { order: result };
+
+      return result;
+    } else {
+      throw new Error("ບໍ່ສາມາດສ້າງໃບສັ່ງຊື້ໄດ້");
+    }
+  } catch (err: any) {
+    console.error("Error submitting purchase order:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", err.message || "ບໍ່ສາມາດສ້າງໃບສັ່ງຊື້ໄດ້");
+    return null;
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+/**********************logic Tabel Select *************************** */
+const selectedRowKeys = ref<Key[]>([]);
+const selectedRows = ref<any[]>([]);
+const selectionType = ref<RowSelectionType>("checkbox");
+const rowSelectionConfig = computed(() => ({
+  type: selectionType.value,
+  selectedRowKeys: selectedRowKeys.value,
+  onChange: (keysArr: Key[], rows: any[]) => {
+    selectedRowKeys.value = keysArr;
+    selectedRows.value = rows;
+    console.log("Selected keys:", keysArr);
+    console.log("Selected rows:", rows);
+  },
+}));
+
+const purchaseItems = computed(() => {
+  if (!requestDetail.value) return [];
+
+  return requestDetail.value.getItems().map((item) => ({
+    id: item.getId(),
+    title: item.getTitle(),
+    quantity: item.getQuantity(),
+    unit: item.getUnit(), // เป็น object ที่มี property name
+    price: item.getPrice(),
+    total_price: item.getTotalPrice(),
+    remark: item.getRemark(),
+    file_name_url: item.getFileNameUrl(),
+  }));
+});
+
+const imageModalVisible = ref(false);
+const selectedImage = ref("");
+
+const showImageModal = (imageUrl: string) => {
+  if (imageUrl) {
+    selectedImage.value = imageUrl;
+    imageModalVisible.value = true;
+  }
+};
+
+/******************selection vendor********************* */
+
 /*****************Show Ui Drawer********************* */
 
 const requestDetail = ref<PurchaseRequestEntity | null>(null);
@@ -93,21 +468,6 @@ onMounted(async () => {
 const showDrawer = () => {
   visible.value = true;
 };
-const forms = reactive({
-  invoiceType: "",
-  descriptions: "",
-});
-
-const handleUploadClick = () => {
-  if (vendorModal.value) {
-    vendorModal.value.reset();
-    if (forms.invoiceType) {
-      vendorModal.value.setSelectedType(forms.invoiceType);
-    }
-
-    vendorModal.value.open();
-  }
-};
 /********************************* */
 interface VendorData {
   id: string;
@@ -115,10 +475,23 @@ interface VendorData {
   imageUrl: string;
   type: string;
 }
+
+const openVendorModal = () => {
+  if (selectedRowKeys.value.length === 0) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກລາຍການກ່ອນເພີ່ມຮ້ານຄ້າ");
+    return;
+  }
+
+  if (vendorModalRef.value) {
+    vendorModalRef.value.reset();
+
+    if (form.value.invoiceType) {
+      vendorModalRef.value.setSelectedType(form.value.invoiceType);
+    }
+    vendorModalRef.value.open();
+  }
+};
 const vendorStore = useVendorStore();
-
-const vendorModal = ref<InstanceType<typeof ModalVendorCreate> | null>(null);
-
 const selectedVendorData = ref<VendorData | null>(null);
 
 const getVendorFromLocalStorage = (): VendorData | null => {
@@ -128,24 +501,6 @@ const getVendorFromLocalStorage = (): VendorData | null => {
   } catch (err) {
     console.error("Error reading from localStorage:", err);
     return null;
-  }
-};
-
-const handleVendorModalSubmitted = (payload: {
-  vendorId: string;
-  fileNames: string[];
-  fileUrl?: string;
-}) => {
-  const { vendorId, fileUrl = "" } = payload;
-  const vendor = vendorStore.activeVendors.find((v) => v.getId() === vendorId);
-
-  if (vendor) {
-    selectedVendorData.value = {
-      id: vendorId,
-      name: vendor.getname(),
-      imageUrl: fileUrl,
-      type: form.value.invoiceType,
-    };
   }
 };
 
@@ -161,18 +516,35 @@ onMounted(() => {
 
 /******************************************************* */
 // Update handleConfirm function for first confirmation
-const handleConfirm = async (allData: Record<number, any>) => {
-  console.log("All steps data:", allData);
-  if (currentStep.value === 0) {
-    try {
-      isOtpModalVisible.value = true;
-    } catch (err) {
-      console.error(err);
-      error("ເກີດຂໍ້ຜິດພາດ");
+
+const handleConfirm = async () => {
+  try {
+    // ตรวจสอบว่าเลือกร้านค้าครบทุกรายการหรือไม่
+    if (!isAllItemsHaveVendor.value) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກຮ້ານຄ້າໃຫ້ຄົບທຸກລາຍການ");
+      return;
     }
+
+    // สร้าง Payload โดยรวมข้อมูลร้านค้าที่เลือก
+    const payload = createPurchaseOrderPayload();
+
+    // ส่งข้อมูลไปยัง API
+    const result = await purchaseOrderStore.create(payload);
+
+    if (result) {
+      success("ສ້າງໃບສັ່ງຊື້ສຳເລັດແລ້ວ");
+      currentStatus.value = "finish";
+      currentStep.value = 2;
+      customSteps.value[1].disabled = false;
+      customSteps.value[2].disabled = false;
+      stepsData[2] = { order: result };
+    }
+  } catch (err: any) {
+    console.error("Error creating purchase order:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", err.message || "ບໍ່ສາມາດສ້າງໃບສັ່ງຊື້ໄດ້");
   }
 };
-/******************************************************************** */
+/*********************************************************************/
 const handleOtpInput = (value: string, index: number) => {
   const numericValue = value.replace(/[^0-9]/g, "");
   if (numericValue) {
@@ -255,12 +627,15 @@ const handleOtpConfirm = async () => {
 const handleSignatureConfirm = async () => {
   try {
     confirmLoading.value = true;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const result = await submitPurchaseOrder();
     isSignatureModalVisible.value = false;
-    currentStep.value = 1;
-    success("ການຢືນຢັນສຳເລັດ");
+
+    if (result) {
+      success("ການຢືນຢັນລາຍເຊັນສຳເລັດແລ້ວ");
+    }
   } catch (err) {
-    console.error(err);
+    console.error("Error confirming signature:", err);
     error("ການຢືນຢັນລາຍເຊັນລົ້ມເຫລວ");
   } finally {
     confirmLoading.value = false;
@@ -320,9 +695,10 @@ const actionButtons = computed<ActionButton[]>(() => {
         {
           label: "ຢືນຢັນໃບອານຸມັດ",
           type: "primary" as ButtonType,
-          onClick: () => handleConfirm(stepsData),
+          onClick: () => handleConfirm(),
+          // onClick: () => handleConfirm(stepsData),
           show: true,
-          disabled: !isFormValid.value,
+          disabled: !isFormValid.value || !isAllItemsHaveVendor.value,
           class: "button-hover",
         },
       ];
@@ -401,6 +777,7 @@ export interface FormState {
   currencyCode: string;
   vendorImage: string;
   vendorType: string;
+  vendorId: string;
 }
 const form = ref<FormState>({
   documentId: "",
@@ -424,29 +801,9 @@ const form = ref<FormState>({
   currencyCode: "",
   vendorImage: "",
   vendorType: "",
-});
-interface BankOption {
-  value: string;
-  label: string;
-  accountName: string;
-  accountNumber: string;
-  logoUrl?: string;
-  bankName?: string;
-  currencyCode?: string;
-}
-const bankOptions = computed<BankOption[]>(() => {
-  return bankAccount.activeBankAccounts.map((account) => ({
-    value: account.getId(),
-    label: account.getBank()?.name || "",
-    accountName: account.getAccountName(),
-    accountNumber: account.getAccountNumber(),
-    logoUrl: account.getBank()?.logoUrl,
-    bankName: account.getBank()?.name,
-    currencyCode: account.getCurrency()?.code,
-  }));
+  vendorId: "",
 });
 
-// เพิ่ม method สำหรับจัดการการเปลี่ยนแปลงธนาคาร
 const handleBankChange = (value: string) => {
   const selectedBank = bankAccount.activeBankAccounts.find((account) => account.getId() === value);
 
@@ -516,9 +873,6 @@ const handleListOrder = () => {
 };
 const totalAmount = computed(() => {
   return requestDetail.value?.getItems().reduce((sum, item) => sum + item.getTotalPrice(), 0) || 0;
-});
-const totalInLaoWords = computed(() => {
-  return convertToLaoWords(totalAmount.value);
 });
 
 watch(
@@ -769,50 +1123,179 @@ onMounted(async () => {
         <!-- Form Fields -->
         <div class="space-y-6">
           <!-- Invoice Type Selection -->
-
           <div class="border rounded-lg p-4 space-y-4">
-            <h3 class="font-medium mb-4">ໃບສະເໜີລາຄາ</h3>
-            <!-- <UiTable
-              :columns="columns(t)"
-              :dataSource="vendorStore.vendors"
-              :row-selection="{
-                type: 'radio',
-                selectedRowKeys: [selectedRowKey],
-
-              }"
-            /> -->
-            <!-- ปุ่มอัพโหลด -->
-            <div @click="handleUploadClick" class="mt-4">
-              <MultipleImageUpload
-                class="pointer-events-none select-none"
-                :max-count="1"
-                upload-text="ອັບໂຫລດເອກະສານ"
-                upload-hint="ລາກວາງຟາຍຫຼືຄິກເພື່ອເລືອກ"
-                :upload-width="'100%'"
-                :upload-height="'auto'"
-                :upload-button-width="'300px'"
-                :upload-button-height="'400px'"
-                :icon-size="'64px'"
-                :text-size="'18px'"
-                :hint-size="'14px'"
-                thumbnailFit="fill"
-              />
+            <div class="flex items-center justify-between">
+              <h3 class="font-medium">ໃບສະເໜີລາຄາ</h3>
+              <UiButton
+                color-class="flex items-center bg-red-500 hover:!text-white hover:!bg-red-800 text-white"
+                @click="openVendorModal"
+                :disabled="selectedRowKeys.length === 0"
+              >
+                <Icon icon="mdi:plus" class="mr-1" /> ເພີ່ມຂໍ້ມູນ
+              </UiButton>
             </div>
 
-            <!-- เหตุผลที่เลือก -->
+            <UiTable
+              :columns="columns(t)"
+              :dataSource="purchaseItems"
+              :row-selection="rowSelectionConfig"
+              :row-key="'id'"
+              :pagination="false"
+            >
+              <template #bodyCell="{ column, record }">
+                <!-- แสดงรูปภาพจากใบเสนอราคา -->
+                <template v-if="column.dataIndex === 'file_name_url' && record.file_name_url">
+                  <div class="image-thumbnail-container">
+                    <a-image
+                      :src="record.file_name_url"
+                      class="image-thumbnail cursor-pointer"
+                      @click="showImageModal(record.file_name_url)"
+                      alt="เอกสาร PR"
+                      style="
+                        max-width: 80px;
+                        max-height: 80px;
+                        object-fit: cover;
+                        border-radius: 4px;
+                      "
+                    />
+                  </div>
+                </template>
+
+                <!-- แสดงร้านค้าที่เลือก -->
+                <template v-else-if="column.dataIndex === 'vendor'">
+                  <div v-if="itemVendors[record.id]" class="flex items-center gap-2">
+                    <a-image
+                      v-if="itemVendors[record.id].file_url"
+                      :src="itemVendors[record.id].file_url"
+                      class="rounded w-16 h-16 object-cover cursor-pointer"
+                      @click="showImageModal(itemVendors[record.id].file_url)"
+                    />
+                    <div class="flex flex-col">
+                      <span class="font-medium">{{ itemVendors[record.id].vendor_name }}</span>
+                      <span class="text-xs text-gray-500">{{
+                        itemVendors[record.id].bank_name
+                      }}</span>
+                      <span class="text-xs text-gray-500">{{
+                        itemVendors[record.id].account_number
+                      }}</span>
+                    </div>
+                  </div>
+                  <span v-else class="text-gray-400">ກະລຸນາເລືອກຮ້ານຄ້າ</span>
+                </template>
+
+                <!-- ปุ่มดำเนินการกับร้านค้า -->
+                <template v-else-if="column.dataIndex === 'action'">
+                  <div v-if="itemVendors[record.id]" class="flex space-x-2">
+                    <UiButton
+                      type="default"
+                      size="small"
+                      @click="editVendorForItem(record.id)"
+                      color-class="flex items-center hover:bg-blue-50"
+                    >
+                      <Icon icon="mdi:pencil" class="mr-1" />
+                      ແກ້ໄຂ
+                    </UiButton>
+                    <UiButton
+                      type="default"
+                      size="small"
+                      @click="removeVendorForItem(record.id)"
+                      color-class="flex items-center bg-red-500 text-white hover:bg-red-600"
+                    >
+                      <Icon icon="mdi:trash" class="mr-1" />
+                      ລຶບ
+                    </UiButton>
+                  </div>
+                </template>
+              </template>
+            </UiTable>
+
+            <!-- แสดงสรุปจำนวนรายการที่เลือก -->
+            <div v-if="selectedRowKeys.length > 0" class="mt-2 text-sm text-gray-600">
+              ເລືອກ {{ selectedRowKeys.length }} ລາຍການ
+            </div>
+
+            <!-- ส่วนกรอกเหตุผล -->
             <div class="mt-4">
-              <span>ເຫດຜົນທີເລືອກ</span>
-              <div class="flex items-start gap-4 mb-6">
-                <Textarea v-model="form.descriptions" placeholder="ປ້ອນເຫດຜົນ" class="w-full" />
+              <span class="font-medium">ເຫດຜົນທີເລືອກ</span>
+              <div class="flex items-start gap-4 mt-2">
+                <Textarea
+                  v-model="form.descriptions"
+                  placeholder="ປ້ອນເຫດຜົນ"
+                  class="w-full"
+                  :rows="4"
+                />
               </div>
             </div>
           </div>
 
-          <!-- Product Details -->
-          <div class="border rounded-lg p-4">
-            <h3 class="font-medium mb-4">ລາຍລະອຽດຮ້ານຄ້າ</h3>
+          <!-- Modal แสดงรูปภาพ -->
+          <a-modal v-model:visible="imageModalVisible" :footer="null" :width="800">
+            <img :src="selectedImage" style="width: 100%" alt="Preview" />
+          </a-modal>
+          <!-- Modal สำหรับกรอกเหตุผลและเลือกบัญชีธนาคาร -->
+          <UiModal
+            v-model:visible="vendorReasonModalVisible"
+            title="ຂໍ້ມູນເພີ່ມເຕີມ"
+            :footer="null"
+            @cancel="closeVendorReasonModal"
+          >
+            <div class="space-y-4">
+              <!-- แสดงชื่อร้านค้าที่เลือก -->
+              <div v-if="currentReasonData.vendor_name" class="mb-4">
+                <h3 class="text-lg font-medium">ຮ້ານຄ້າ: {{ currentReasonData.vendor_name }}</h3>
+              </div>
 
-            <!-- ส่วนหัวข้อร้าน -->
+              <!-- เลือกบัญชีธนาคาร -->
+              <UiFormItem label="ບັນຊີທະນາຄານ">
+                <InputSelect
+                  v-model="currentReasonData.vendor_bank_account_id"
+                  :options="vendorBankOptions"
+                  placeholder="ເລືອກບັນຊີທະນາຄານ"
+                  class="w-full"
+                >
+                  <template #option="{ option }">
+                    <div class="flex flex-col">
+                      <span>{{ option.bank_name }}</span>
+                      <span class="text-gray-500 text-xs">{{ option.account_number }}</span>
+                    </div>
+                  </template>
+                </InputSelect>
+              </UiFormItem>
+
+              <!-- กรอกเหตุผล -->
+              <UiFormItem label="ເຫດຜົນໃນການເລືອກ">
+                <Textarea
+                  v-model="currentReasonData.reason"
+                  placeholder="ກະລຸນາລະບຸເຫດຜົນໃນການເລືອກຮ້ານຄ້ານີ້"
+                  :rows="3"
+                  class="w-full"
+                />
+              </UiFormItem>
+
+              <!-- ตัวเลือก VAT -->
+              <UiFormItem>
+                <a-checkbox v-model:checked="currentReasonData.is_vat">
+                  ລວມພາສີມູນຄ່າເພີ່ມ (VAT)
+                </a-checkbox>
+              </UiFormItem>
+
+              <!-- ปุ่มบันทึก -->
+              <div class="flex justify-end gap-2">
+                <UiButton @click="closeVendorReasonModal"> ຍົກເລີກ </UiButton>
+                <UiButton
+                  type="primary"
+                  @click="saveVendorReason"
+                  :disabled="!currentReasonData.vendor_bank_account_id"
+                >
+                  ບັນທຶກ
+                </UiButton>
+              </div>
+            </div>
+          </UiModal>
+
+          <!-- Product Details -->
+          <!-- <div class="border rounded-lg p-4">
+            <h3 class="font-medium mb-4">ລາຍລະອຽດຮ້ານຄ້າ</h3>
             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4">
               <UiAvatar
                 icon="solar:shop-2-bold"
@@ -821,8 +1304,6 @@ onMounted(async () => {
               />
               <span class="text-sm sm:text-base">ຮ້ານ ຄອມຄອມ COMCOM</span>
             </div>
-
-            <!-- ส่วนฟอร์มข้อมูล -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <UiFormItem label="ສິນຄ້າ" required>
                 <UiInput v-model="form.title" placeholder="ປ້ອນຊື່ສິນຄ້າ" :disabled="true" />
@@ -849,11 +1330,7 @@ onMounted(async () => {
                 />
               </UiFormItem>
             </div>
-
-            <!-- ส่วนว่าง -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4"></div>
-
-            <!-- ส่วนราคารวม -->
             <div class="flex flex-col items-end mt-6 text-sm sm:text-base">
               <span>
                 ມູນລາຄາລວມທັງໝົດ
@@ -874,13 +1351,12 @@ onMounted(async () => {
                 ₭
               </span>
             </div>
-          </div>
+          </div> -->
         </div>
         <!-- Payment Details -->
         <div class="border rounded-lg p-4">
-          <h3 class="font-medium mb-4">ຂໍ້ມູນບັນຊີຮ້ານ</h3>
+          <!-- <h3 class="font-medium mb-4">ຂໍ້ມູນບັນຊີຮ້ານ</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <!-- ธนาคาร -->
             <UiFormItem label="ທະນາຄານ" required>
               <InputSelect
                 v-model:modelValue="form.bank"
@@ -902,12 +1378,12 @@ onMounted(async () => {
               </InputSelect>
             </UiFormItem>
 
-            <!-- ชื่อบัญชี -->
+
             <UiFormItem label="ຊື່ບັນຊີ (Account Name)" required>
               <UiInput v-model="form.accountName" placeholder="ຊື່ບັນຊີ" :disabled="true" />
             </UiFormItem>
 
-            <!-- เลขบัญชี -->
+
             <UiFormItem label="ເລກບັນຊີ" required class="sm:col-span-2 md:col-span-1">
               <div class="relative">
                 <UiInput
@@ -923,7 +1399,7 @@ onMounted(async () => {
                 </span>
               </div>
             </UiFormItem>
-          </div>
+          </div> -->
 
           <div class="mt-6">
             <span class="block mb-2 text-sm sm:text-base">ເອກະສານທີຕິດຂັດ</span>

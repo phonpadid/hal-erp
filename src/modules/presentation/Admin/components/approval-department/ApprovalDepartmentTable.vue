@@ -1,10 +1,13 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { purchaseOrderData } from "@/modules/shared/utils/purchaseOrder";
 import { columns } from "../../views/approval-department/column/cloumn";
 import { useI18n } from "vue-i18n";
+import { usePurchaseOrderStore } from "@/modules/presentation/Admin/stores/purchase_requests/purchase-order";
+import { formatDate } from "@/modules/shared/formatdate";
+import { departmentStore } from "../../stores/departments/department.store";
+import type { PaginationParams } from "@/modules/shared/pagination";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -15,7 +18,10 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 /******************************************************** */
 const { t } = useI18n();
 const filterType = ref<string | null>(null);
+const selectedDepartment = ref<string | null>(null);
 const router = useRouter();
+const purchaseOrderStore = usePurchaseOrderStore();
+const departmentStoreInstance = departmentStore();
 const dates = reactive({
   startDate: null,
   endDate: null,
@@ -26,19 +32,38 @@ const handleDetailsDocument = (record: any) => {
   router.push({ name: "approval_department_panak_detail", params: { id: record.id } });
 };
 
-const documentTypes = [
-  { label: "ທັງໝົດ", value: "all" },
-  { label: "ພະແນກ", value: "department" },
-  { label: "ສາຂາ", value: "branch" },
-];
+// Computed properties for status counts
+const pendingCount = computed(
+  () => purchaseOrderStore.statusSummary.find((s) => s.status === "PENDING")?.amount || 0
+);
+const completedCount = computed(
+  () => purchaseOrderStore.statusSummary.find((s) => s.status === "COMPLETED")?.amount || 0
+);
+const rejectedCount = computed(
+  () => purchaseOrderStore.statusSummary.find((s) => s.status === "REJECTED")?.amount || 0
+);
+
+// Convert departments to options format for select component
+const departmentOptions = computed(() => {
+  // Add "All" option at the beginning
+  const allOption = { label: "ທັງໝົດ", value: "all" };
+
+  // Map departments to the format expected by the select component
+  const options = departmentStoreInstance.departments.map((department) => ({
+    label: department.getName(),
+    value: department.getId(),
+  }));
+
+  return [allOption, ...options];
+});
 
 const getStatusColor = (status: string) => {
-  switch (status) {
-    case "pending":
+  switch (status?.toUpperCase()) {
+    case "PENDING":
       return "warning";
-    case "completed":
+    case "COMPLETED":
       return "success";
-    case "rejected":
+    case "REJECTED":
       return "error";
     default:
       return "default";
@@ -46,12 +71,12 @@ const getStatusColor = (status: string) => {
 };
 
 const getStatusIcon = (status: string) => {
-  switch (status) {
-    case "pending":
+  switch (status?.toUpperCase()) {
+    case "PENDING":
       return "ant-design:clock-circle-outlined";
-    case "completed":
+    case "COMPLETED":
       return "ant-design:check-circle-outlined";
-    case "rejected":
+    case "REJECTED":
       return "ant-design:close-circle-outlined";
     default:
       return "";
@@ -59,29 +84,80 @@ const getStatusIcon = (status: string) => {
 };
 
 const getStatusText = (status: string) => {
-  switch (status) {
-    case "pending":
+  switch (status?.toUpperCase()) {
+    case "PENDING":
       return "ກຳລັງດຳເນີນການ";
-    case "completed":
+    case "COMPLETED":
       return "ສຳເລັດ";
-    case "rejected":
+    case "REJECTED":
       return "ປະຕິເສດ";
     default:
-      return status;
+      return status || "N/A";
   }
 };
 
-const handleSearch = () => {
-  console.log("Searching with:", {
-    type: filterType.value,
-    dateRange: dates,
-  });
+const getDocumentStatus = (record: any) => {
+  return record.getUserApproval()?.document_status?.name || "N/A";
 };
 
-// Handle table change
-const handleTableChange = (pag: any, filters: any, sorter: any) => {
-  console.log("Table changed:", { pag, filters, sorter });
+const handleSearch = async () => {
+  // Create a pagination params object
+  const params: PaginationParams = {
+    page: 1,
+    limit: 1000, // Set a very high limit to get all records
+  };
+
+  // Add search parameter if a department is selected
+  if (selectedDepartment.value && selectedDepartment.value !== "all") {
+    // Use the search property that exists in PaginationParams
+    params.search = selectedDepartment.value;
+  }
+
+  await purchaseOrderStore.fetchAll(params);
 };
+
+const handleTableChange = async (pagination: any) => {
+  // Create a pagination params object
+  const params: PaginationParams = {
+    page: pagination.current,
+    limit: 1000, // Set a very high limit to get all records
+  };
+
+  // Add search parameter if a department is selected
+  if (selectedDepartment.value && selectedDepartment.value !== "all") {
+    // Use the search property that exists in PaginationParams
+    params.search = selectedDepartment.value;
+  }
+
+  await purchaseOrderStore.fetchAll(params);
+};
+
+// Handle department selection change
+const handleDepartmentChange = (value: string | null) => {
+  selectedDepartment.value = value;
+  console.log("Selected department:", value);
+};
+
+// Fetch all departments (no pagination)
+const fetchAllDepartments = async () => {
+  try {
+    // Set a very large limit to get all departments
+    await departmentStoreInstance.fetchDepartment({ page: 1, limit: 1000 });
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+  }
+};
+
+// Fetch initial data
+onMounted(async () => {
+  // Fetch ALL departments data
+  await fetchAllDepartments();
+
+  // Fetch purchase orders with a high limit
+  await purchaseOrderStore.fetchAll({ page: 1, limit: 1000 });
+
+
+});
 </script>
 
 <template>
@@ -114,9 +190,9 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
   </div>
   <div></div>
   <div class="grid grid-cols-3 mt-2">
-    <h1 class="text-xl font-semibold text-yellow-600">12 ໃບສະເໜີ</h1>
-    <h1 class="text-xl font-semibold text-green-600">12 ໃບສະເໜີ</h1>
-    <h1 class="text-xl font-semibold text-red-600">12 ໃບສະເໜີ</h1>
+    <h1 class="text-xl font-semibold text-yellow-600">{{ pendingCount }} ໃບສະເໜີ</h1>
+    <h1 class="text-xl font-semibold text-green-600">{{ completedCount }} ໃບສະເໜີ</h1>
+    <h1 class="text-xl font-semibold text-red-600">{{ rejectedCount }} ໃບສະເໜີ</h1>
   </div>
 
   <!-- Filters section -->
@@ -131,10 +207,15 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
 
   <div class="bg-white p-2 rounded-lg shadow-sm">
     <div class="flex items-center gap-4">
-      <!-- Radio buttons -->
-      <!-- Department/Branch Select -->
+      <!-- Department Select using data from departmentStore -->
       <div class="w-64">
-        <InputSelect v-model:value="filterType" :options="documentTypes" placeholder="ເລືອກພະແນກ" />
+        <InputSelect
+          v-model:modelValue="selectedDepartment"
+          :options="departmentOptions"
+          placeholder="ເລືອກພະແນກ"
+          @change="handleDepartmentChange"
+          :loading="departmentStoreInstance.loading"
+        />
       </div>
 
       <!-- Date Range Picker -->
@@ -160,14 +241,35 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
 
   <!-- Table section -->
   <div class="bg-white rounded-lg shadow-sm">
-    <Table :columns="columns(t)" :data-source="purchaseOrderData" @change="handleTableChange">
+    <Table
+      :columns="columns(t)"
+      :loading="purchaseOrderStore.loading"
+      :data-source="purchaseOrderStore.orders"
+      :pagination="{
+        ...purchaseOrderStore.pagination,
+        pageSize: 1000, // Show many items per page
+        showSizeChanger: false, // Hide the page size changer
+      }"
+      @change="handleTableChange"
+    >
       <!-- Custom cell rendering for actions column -->
       <template #status="{ record }">
         <UiTag
-          :color="getStatusColor(record.status)"
-          :icon="getStatusIcon(record.status)"
-          :text="getStatusText(record.status)"
+          :color="getStatusColor(getDocumentStatus(record))"
+          :icon="getStatusIcon(getDocumentStatus(record))"
+          :text="getStatusText(getDocumentStatus(record))"
         />
+      </template>
+      <template #po_number="{ record }">
+        <span class="font-semibold">{{ record.getPurchaseRequest()?.pr_number }}</span>
+      </template>
+
+      <template #requester="{ record }">
+        <span>{{ record.getRequester()?.username }}</span>
+      </template>
+
+      <template #created_at="{ record }">
+        <span>{{ formatDate(record.getCreatedAt()) }}</span>
       </template>
       <template #action="{ record }">
         <UiButton

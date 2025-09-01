@@ -9,10 +9,10 @@ interface ApprovalStepApiModel {
   remark?: string;
   approvalStepId: number;
   approval_id?: number;
-  purchase_order_items?: {
+  purchase_order_items?: Array<{
     id: number;
     budget_item_detail_id: number;
-  };
+  }>;
   account_code?: string;
   otp?: string;
   is_otp: boolean;
@@ -27,6 +27,8 @@ export class ApiApprovalStepRepository implements ApprovalStepRepository {
 
       const apiModel = this.toApiModel(step);
 
+      console.log("Final API model being sent:", JSON.stringify(apiModel, null, 2));
+
       await api.post(endpoint, apiModel);
 
       return true;
@@ -35,6 +37,7 @@ export class ApiApprovalStepRepository implements ApprovalStepRepository {
       return false;
     }
   }
+
   async sendOtp(approvalStepId: number): Promise<{
     id: number;
     approval_id: number;
@@ -63,22 +66,25 @@ export class ApiApprovalStepRepository implements ApprovalStepRepository {
   }
 
   private toApiModel(entity: ApprovalStepEntity): ApprovalStepApiModel {
-    const purchaseOrderItem = entity.getPurchaseOrderItem();
+    const purchaseOrderItems = entity.getPurchaseOrderItems();
     const approvalId = entity.getApprovalId();
-    // console.log("API model - approval_id before sending:", approvalId);
 
     return {
       type: entity.getType(),
       statusId: entity.getStatusId(),
       remark: entity.getRemark() ?? undefined,
       approvalStepId: entity.getApprovalStepId(),
-      approval_id: approvalId,
-      purchase_order_items: purchaseOrderItem
-        ? { id: purchaseOrderItem.id, budget_item_detail_id: purchaseOrderItem.budgetItemId }
-        : undefined,
+      approval_id: approvalId || undefined,
+      purchase_order_items:
+        purchaseOrderItems.length > 0
+          ? purchaseOrderItems.map((item) => ({
+              id: item.id,
+              budget_item_detail_id: item.budgetItemId,
+            }))
+          : [],
       account_code: entity.getAccountCode() ?? undefined,
       otp: entity.getOtp() ?? undefined,
-      is_otp: entity.getIsOtp() ?? false,
+      is_otp: entity.getIsOtp(),
       files: entity.getFiles().map((f) => ({ file_name: f.fileName })),
     };
   }

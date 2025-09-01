@@ -35,37 +35,6 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
       this.handleApiError(error, `Failed to find purchase order with id ${id}`);
     }
   }
-
-  // async findAll(params: PaginationParams): Promise<PaginatedResult<PurchaseOrderEntity>> {
-  //   try {
-  //     console.log('Repository findAll called with params:', params);
-  //     const response = (await api.get("/purchase-orders", {
-  //       params: {
-  //         ...params,
-  //       },
-  //     })) as { data: ApiListResponse<PurchaseOrderApiModel> };
-  //     console.log('API Response:', response.data);
-
-  //     const transformedData = {
-  //       data: response.data.data.map((item) => {
-  //         console.log('Transforming item:', item);
-  //         const entity = this.toDomainModel(item);
-  //         console.log('Transformed to entity:', entity);
-  //         return entity;
-  //       }),
-  //       total: response.data.pagination.total,
-  //       page: response.data.pagination.page,
-  //       limit: response.data.pagination.limit,
-  //       totalPages: response.data.pagination.total_pages,
-  //       status: response.data.status,
-  //     };
-
-  //     console.log('Final transformed data:', transformedData);
-  //     return transformedData;
-  //   } catch (error) {
-  //     this.handleApiError(error, "Failed to fetch purchase orders list");
-  //   }
-  // }
   // ใน ApiPurchaseOrderRepository
   async findAll(params: PaginationParams): Promise<PaginatedResult<PurchaseOrderEntity>> {
     try {
@@ -170,6 +139,7 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
   }
 
   private toDomainModel(data: PurchaseOrderApiModel): PurchaseOrderEntity {
+    console.log("--- purchase_order_item data from API ---:", data.purchase_order_item);
     console.log("--- Converting API Model to Domain Model ---:", data);
 
     const currentTimestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
@@ -190,6 +160,7 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
         updated_at: data.document?.updated_at || currentTimestamp,
       },
       purchase_request: data.purchase_request,
+
       user_approval: data.user_approval,
       items: (data.purchase_order_item || []).map((item) => ({
         purchase_request_item_id: item.purchase_request_item_id,
@@ -203,6 +174,7 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
           selected: vendor.selected || false,
         })),
       })),
+      purchase_order_item: data.purchase_order_item,
       created_by: data.created_by,
       created_at: data.created_at,
       updated_by: data.updated_by,

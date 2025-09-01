@@ -4,7 +4,7 @@ import { ref } from "vue";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import type {
-  CreatePurchaseOrderDTO,
+  
   UpdatePurchaseOrderDTO,
 } from "@/modules/application/dtos/purchase-order/purchase-order.dto";
 import type { StatusSummary } from "@/modules/interfaces/purchase-requests/purchase-request.interface";
@@ -35,29 +35,8 @@ export const usePurchaseOrderStore = defineStore("purchaseOrders", () => {
       console.log('Repository result:', result);
 
       if (result) {
-        // ตรวจสอบข้อมูลก่อน assign
-        console.log('Data before assignment:', {
-          hasData: !!result.data,
-          dataLength: result.data?.length,
-          firstItem: result.data?.[0],
-          pagination: {
-            page: result.page,
-            limit: result.limit,
-            total: result.total,
-            totalPages: result.totalPages,
-          },
-          status: result.status
-        });
 
         orders.value = result.data;
-
-        // ตรวจสอบหลัง assign
-        console.log('Store state after assignment:', {
-          orders: orders.value,
-          ordersLength: orders.value?.length,
-          firstOrder: orders.value?.[0],
-          isEntityInstance: orders.value?.[0] instanceof PurchaseOrderEntity
-        });
 
         pagination.value = {
           page: result.page,
@@ -98,7 +77,7 @@ export const usePurchaseOrderStore = defineStore("purchaseOrders", () => {
     }
   }
 
-  async function create(data: CreatePurchaseOrderDTO): Promise<PurchaseOrderEntity | null> {
+  async function create(data: any): Promise<PurchaseOrderEntity | null> {
     loading.value = true;
     error.value = null;
     try {

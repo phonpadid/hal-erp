@@ -1,33 +1,41 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, onBeforeUnmount } from "vue";
 import { useVendorStore } from "../../../stores/vendors/vendor.store";
-import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { Upload, message } from "ant-design-vue";
 import type { UploadFile } from "ant-design-vue";
 import { uploadFile } from "@/modules/application/services/upload.service";
+import { useVendorBankAccountStore } from "../../../stores/vendors/vendor-bank-accounts.store";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import UiModal from "@/common/shared/components/Modal/UiModal.vue";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
+import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 
-// store ร้านค้า
 const vendorStore = useVendorStore();
-
-// state โมดัล
+const { error } = useNotification();
 const visible = ref(false);
-
-// ฟอร์ม
 const selectedVendor = ref<string>("");
 const fileList = ref<UploadFile[]>([]);
-
-// พรีวิว
 const previewUrl = ref<string>("");
-// ชื่อไฟล์จากเซิร์ฟเวอร์
+const bankAccount = useVendorBankAccountStore();
 const uploadedFileNames = ref<string[]>([]);
-// สถานะอัปโหลด (โชว์สปิน/ปิดปุ่มยืนยันขณะอัปโหลด)
 const uploadLoading = ref(false);
 
-// emit กลับไป parent เมื่อกดยืนยัน (ส่ง vendorId + fileNames ที่อัปโหลดแล้ว)
 const emit = defineEmits<{
-  (e: "submitted", payload: { vendorId: string; fileNames: string[]; fileUrl?: string }): void;
+  (
+    e: "submitted",
+    payload: {
+      vendorId: string;
+      fileNames: string[];
+      fileUrl?: string;
+      bankId?: string;
+      bankName?: string;
+      accountName?: string;
+      accountNumber?: string;
+      reason?: string;
+      is_vat?: boolean;
+    }
+  ): void;
 }>();
 
 // เปิด/ปิด/รีเซ็ต โมดัล
@@ -37,6 +45,9 @@ const open = () => {
 const close = () => {
   visible.value = false;
 };
+
+const isVat = ref(false);
+
 const reset = () => {
   selectedVendor.value = "";
   fileList.value = [];
@@ -63,17 +74,103 @@ onMounted(async () => {
   }
 });
 
+/****************Bank account ************************** */
+export interface FormState {
+  documentId: string;
+  date: Date | null;
+  name: string;
+  quantity: string;
+  summary: string;
+  sumTotal: string;
+  totalName: string;
+  price: string;
+  total_price: string;
+  invoiceType: string;
+  descriptions: string;
+  purposes: string;
+  title: string;
+  bank: string;
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+  currencyCode: string;
+  vendorImage: string;
+  vendorType: string;
+  vendorId: string;
+}
+const form = ref<FormState>({
+  documentId: "",
+  date: null,
+  name: "",
+  summary: "",
+  sumTotal: "",
+  totalName: "",
+  invoiceType: "",
+  descriptions: "",
+  quantity: "",
+  total_price: "",
+  price: "",
+  purposes: "",
+  title: "",
+  bank: "",
+  accountName: "",
+  accountNumber: "",
+  bankName: "",
+  currencyCode: "",
+  vendorImage: "",
+  vendorType: "",
+  vendorId: "",
+});
+interface BankOption {
+  value: string;
+  label: string;
+  accountName: string;
+  accountNumber: string;
+  logoUrl?: string;
+  bankName?: string;
+  currencyCode?: string;
+}
+const bankOptions = computed<BankOption[]>(() => {
+  return bankAccount.activeBankAccounts.map((account) => ({
+    value: account.getId(),
+    label: account.getBank()?.name || "",
+    accountName: account.getAccountName(),
+    accountNumber: account.getAccountNumber(),
+    logoUrl: account.getBank()?.logoUrl,
+    bankName: account.getBank()?.name,
+    currencyCode: account.getCurrency()?.code,
+  }));
+});
+const handleBankChange = (value: string) => {
+  const selectedBank = bankAccount.activeBankAccounts.find((account) => account.getId() === value);
+
+  if (selectedBank) {
+    form.value.accountName = selectedBank.getAccountName();
+    form.value.accountNumber = selectedBank.getAccountNumber();
+    form.value.bankName = selectedBank.getBank()?.name || "";
+    form.value.currencyCode = selectedBank.getCurrency()?.code || "";
+  } else {
+    form.value.accountName = "";
+    form.value.accountNumber = "";
+    form.value.bankName = "";
+    form.value.currencyCode = "";
+  }
+};
+onMounted(async () => {
+  try {
+    await bankAccount.fetchBankAccounts(17);
+  } catch (err) {
+    console.error("Error fetching bank accounts:", err);
+    error("ເກີດຂໍ້ຜິດພາດໃນການໂຫລດຂໍ້ມູນທະນາຄານ");
+  }
+});
+
+/****************Bank account ************************** */
+
 // เลือกร้านค้า
 const handleVendorChange = (value: string) => {
   selectedVendor.value = value;
 };
-// const getBase64 = (file: File) =>
-//   new Promise<string>((resolve, reject) => {
-//     const reader = new FileReader();
-//     reader.readAsDataURL(file);
-//     reader.onload = () => resolve(reader.result as string);
-//     reader.onerror = reject;
-//   });
 const beforeUpload = async (file: File) => {
   if (!selectedVendor.value) {
     message.warning("ກະລຸນາເລືອກຮ້ານຄ້າກ່ອນ");
@@ -143,13 +240,14 @@ const setSelectedType = (type: string) => {
   selectedType.value = type;
 
   // หากมีร้านค้าที่ตรงกับประเภทนี้ ให้เลือกไว้ล่วงหน้า
-  const matchingVendor = vendorStore.activeVendors.find(v => v.getId() === type);
+  const matchingVendor = vendorStore.activeVendors.find((v) => v.getId() === type);
   if (matchingVendor) {
     selectedVendor.value = matchingVendor.getId();
   }
 };
 
-// ยืนยัน: ส่ง vendorId + fileNames กลับไปให้ parent
+// ใน ModalVendorCreate.vue
+// ฟังก์ชัน handleOk ที่จะส่งข้อมูลกลับไปยังไฟล์หลัก
 const handleOk = () => {
   if (!selectedVendor.value) {
     message.warning("ກະລຸນາເລືອກຮ້ານຄ້າ");
@@ -159,19 +257,32 @@ const handleOk = () => {
     message.warning("ກະລຸນາເລືອກຮູບແລະອັບໂຫລດໃຫ້ສຳເລັດ");
     return;
   }
+  if (!form.value.bank) {
+    message.warning("ກະລຸນາເລືອກບັນຊີທະນາຄານ");
+    return;
+  }
   if (uploadLoading.value) return;
 
+  // ตรวจสอบ localStorage ก่อนส่งข้อมูล
+  const itemId = localStorage.getItem('currentSelectedItemId');
+  console.log("ใน handleOk - itemId จาก localStorage:", itemId);
+
+  // ส่งข้อมูลกลับไปยังไฟล์หลัก
   emit("submitted", {
     vendorId: selectedVendor.value,
     fileNames: uploadedFileNames.value,
     fileUrl: previewUrl.value,
+    bankId: form.value.bank,
+    bankName: form.value.bankName,
+    accountName: form.value.accountName,
+    accountNumber: form.value.accountNumber,
+    reason: form.value.descriptions || "",
+    is_vat: isVat.value
   });
 
   close();
 };
-
-defineExpose({ open, close, reset , setSelectedType });
-
+defineExpose({ open, close, reset, setSelectedType });
 </script>
 
 <template>
@@ -183,24 +294,37 @@ defineExpose({ open, close, reset , setSelectedType });
     @cancel="close"
   >
     <div class="space-y-4">
-      <!-- ถึงร้านค้า -->
-      <InputSelect
-        v-model="selectedVendor"
-        :options="vendorOptions"
-        placeholder="ເລືອກຮ້ານຄ້າ"
-        @change="handleVendorChange"
-      >
-        <template #option="{ option }">
-          <div class="flex flex-col">
-            <span>{{ option.label }}</span>
-            <span class="text-gray-500 text-sm">{{ option.contact }}</span>
-          </div>
-        </template>
-      </InputSelect>
+      <UiFormItem label="ເລືອກຮ້ານຄ້າ" required>
+        <InputSelect
+          v-model="selectedVendor"
+          :options="vendorOptions"
+          placeholder="ເລືອກຮ້ານຄ້າ"
+          @change="handleVendorChange"
+        >
+          <template #option="{ option }">
+            <div class="flex flex-col">
+              <span>{{ option.label }}</span>
+              <span class="text-gray-500 text-sm">{{ option.contact }}</span>
+            </div>
+          </template>
+        </InputSelect>
+      </UiFormItem>
+
+      <UiFormItem label="ທະນາຄານ" required>
+        <InputSelect
+          v-model:modelValue="form.bank"
+          :options="bankOptions"
+          placeholder="ເລືອກທະນາຄານ"
+          @update:modelValue="handleBankChange"
+        >
+        </InputSelect>
+      </UiFormItem>
+
+      <UiFormItem label="ເລືອກພາສີ">
+        <a-checkbox v-model:checked="isVat"> ລວມພາສີມູນຄ່າເພີ່ມ (VAT) </a-checkbox>
+      </UiFormItem>
 
       <div class="text-gray-600">ອັບໂຫລດໃບສະເໜີເພື່ອປັບຮູບແບບຕາມເລືອກຮ້ານ</div>
-
-      <!-- พื้นที่อัปโหลดแบบเส้นประ + แสดงพรีวิวใหญ่กลางกรอบ -->
       <Upload.Dragger
         v-model:file-list="fileList"
         :before-upload="beforeUpload"

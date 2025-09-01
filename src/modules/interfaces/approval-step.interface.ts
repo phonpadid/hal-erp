@@ -14,6 +14,11 @@ export interface FileNameinterface {
   file_name: string | null;
 }
 // modules/interfaces/approval-step.interface.ts
+
+interface PurchaseOrderinterface {
+  id: number;
+  budget_item_id: number;
+}
 export interface SubmitApprovalStepInterface {
   type: "pr" | "po" | "r";
   statusId: string | number;
@@ -23,11 +28,27 @@ export interface SubmitApprovalStepInterface {
   approved_at?: string;
   remark?: string;
   approvalStepId: number;
-  purchase_order_items?: {
-    id: number;
-    budget_item_detail_id: number;
-  };
+  purchase_order_items?: PurchaseOrderinterface[];
   account_code?: string;
+  otp?: string;
+  is_otp?: boolean;
+  files?: Array<{
+    file_name: string;
+  }>;
+}
+
+export interface SubmitApprovalStepDepartment {
+  type: "pr" | "po" | "r";
+  statusId: string | number;
+  approval_id?: number;
+  step_number?: number;
+  approver_id?: string;
+  remark?: string;
+  approvalStepId: number;
+  purchase_order_items?: Array<{
+    id: number;
+    budget_item_id: number;
+  }>;
   otp?: string;
   is_otp?: boolean;
   files?: Array<{

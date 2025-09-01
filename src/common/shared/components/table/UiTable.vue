@@ -30,25 +30,17 @@
 
         <!-- Default Body Cell Slot -->
         <template #bodyCell="{ column, text, record, index }">
-          <slot
-            name="bodyCell"
-            :column="column"
-            :text="text"
-            :record="record"
-            :index="index"
-          >
+          <slot name="bodyCell" :column="column" :text="text" :record="record" :index="index">
             <!-- Link Column Type -->
             <template v-if="column.link && text !== undefined">
-              <a :href="typeof column.link === 'function' ? column.link(record) : '#'">{{ text }}</a>
+              <a :href="typeof column.link === 'function' ? column.link(record) : '#'">{{
+                text
+              }}</a>
             </template>
 
             <!-- Action Column Type -->
             <template v-else-if="column.dataIndex === 'action' || column.key === 'action'">
-              <slot
-                name="action"
-                :record="record"
-                :index="index"
-              ></slot>
+              <slot name="action" :record="record" :index="index"></slot>
             </template>
 
             <!-- Status Column Type -->
@@ -73,15 +65,31 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType } from 'vue';
-import type { TableProps, TableColumnType, TablePaginationConfig } from 'ant-design-vue';
-import type { FilterValue, SorterResult } from 'ant-design-vue/es/table/interface';
+import { computed, type PropType } from "vue";
+import type {  TablePaginationConfig } from "ant-design-vue";
+import type {
+  FilterValue,
+  SorterResult,
+  RowSelectionType,
+} from "ant-design-vue/lib/table/interface";
+
+interface CustomTableRowSelection {
+  type?: RowSelectionType;
+  selectedRowKeys?: (string | number)[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onChange?: (selectedRowKeys: (string | number)[], selectedRows: any[]) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getCheckboxProps?: (record: any) => any;
+  // เพิ่ม properties อื่นๆ ตามที่ต้องการ
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
 
 // Define props for the component
 const props = defineProps({
   columns: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    type: Array as PropType<TableColumnType<any>[]>,
+    type: Array as PropType<any[]>,
     required: true,
   },
   dataSource: {
@@ -90,7 +98,8 @@ const props = defineProps({
     default: () => [],
   },
   rowSelection: {
-    type: Object as PropType<TableProps['rowSelection']>,
+    // เปลี่ยนเป็น CustomTableRowSelection
+    type: Object as PropType<CustomTableRowSelection>,
     default: null,
   },
   loading: {
@@ -99,7 +108,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: '',
+    default: "",
   },
   pagination: {
     type: [Object, Boolean] as PropType<TablePaginationConfig | false>,
@@ -113,51 +122,57 @@ const props = defineProps({
   },
   scroll: {
     type: Object as PropType<{ x?: number | string | true; y?: number | string }>,
-    default: () => ({ x: '100%' }),
+    default: () => ({ x: "100%" }),
   },
   rowKey: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     type: [String, Function] as PropType<string | ((record: any) => string)>,
-    default: 'key',
+    default: "key",
   },
   bordered: {
     type: Boolean,
     default: false,
   },
   size: {
-    type: String as PropType<'default' | 'middle' | 'small'>,
-    default: 'default',
+    type: String as PropType<"default" | "middle" | "small">,
+    default: "default",
   },
   statusColors: {
     type: Object as PropType<Record<string, string>>,
     default: () => ({
-      active: 'green',
-      running: 'green',
-      online: 'green',
-      success: 'green',
-      completed: 'green',
+      active: "green",
+      running: "green",
+      online: "green",
+      success: "green",
+      completed: "green",
 
-      pending: 'gold',
-      processing: 'blue',
-      warning: 'orange',
+      pending: "gold",
+      processing: "blue",
+      warning: "orange",
 
-      stopped: 'red',
-      failed: 'red',
-      error: 'red',
-      deleted: 'red',
+      stopped: "red",
+      failed: "red",
+      error: "red",
+      deleted: "red",
 
-      default: '',
+      default: "",
     }),
-  }
+  },
 });
 
 // Define emits
 const emit = defineEmits<{
+
+  (
+    e: "change",
+    pagination: TablePaginationConfig,
+    filters: Record<string, FilterValue | null>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sorter: SorterResult<any> | SorterResult<any>[]
+  ): void;
+  (e: "update:pagination", pagination: TablePaginationConfig): void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (e: 'change', pagination: TablePaginationConfig, filters: Record<string, FilterValue | null>, sorter: SorterResult<any> | SorterResult<any>[]): void;
-  (e: 'update:pagination', pagination: TablePaginationConfig): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (e: 'select', selectedRowKeys: (string | number)[], selectedRows: any[]): void;
+  (e: "select", selectedRowKeys: (string | number)[], selectedRows: any[]): void;
 }>();
 
 // Computed pagination configuration
@@ -167,7 +182,7 @@ const paginationConfig = computed(() => {
   }
 
   return {
-    ...(typeof props.pagination === 'object' ? props.pagination : {}),
+    ...(typeof props.pagination === "object" ? props.pagination : {}),
     showTotal: (total: number) => `ທັງໝົດ ${total} ລາຍການ`,
   };
 });
@@ -177,18 +192,18 @@ const handleTableChange = (
   pagination: TablePaginationConfig,
   filters: Record<string, FilterValue | null>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sorter: SorterResult<any> | SorterResult<any>[],
+  sorter: SorterResult<any> | SorterResult<any>[]
 ) => {
-  emit('change', pagination, filters, sorter);
-  emit('update:pagination', pagination);
+  emit("change", pagination, filters, sorter);
+  emit("update:pagination", pagination);
 };
 
 // Helper function to get status color
 const getStatusColor = (status: string): string => {
-  if (!status) return '';
+  if (!status) return "";
 
   const normalizedStatus = status.toLowerCase();
-  return props.statusColors[normalizedStatus] || props.statusColors.default || '';
+  return props.statusColors[normalizedStatus] || props.statusColors.default || "";
 };
 </script>
 

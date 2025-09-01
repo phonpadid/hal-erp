@@ -5,30 +5,27 @@
   "position": "Positions",
   "unit": "Units",
   "category": "Categories",
-  "vats":"VAT",
-  "bank":"Banks",
+  "vats": "VAT",
+  "bank": "Banks",
   "document_type": "Document types",
   "user_approval": "User approvals",
   "budget_apv_rule": "Budget approval rules",
   "approval_workflow": "Approval workflows",
   "currency": "Currencies",
-
   "department_manage": "Department Manage",
   "department": "Departments",
   "department_approver": "Department approvers",
   "department_user": "Department users",
-
   "budget_manage": "Budget Manage",
   "budget_account": "Budget accounts",
   "budget_item": "Budget items",
   "budget_item_detail": "Budget item details",
-
   "vendor_manage": "Vendor manage",
   "vendor": "Vendors",
   "vendor_bank": "Vendor bank",
-
   "user_manage": "User manage",
   "pr_manage": "Proposal manage",
+  "po_manage": "Purchase order manage",
   "user": "Users",
   "role": "Roles",
   "permission": "Permissions",
@@ -37,24 +34,23 @@
     "title": "Logout Confirmation",
     "description": "Are you sure you want to logout?"
   },
-
   "purchaseRequests": "Purchase requests",
   "purchaseOrders": "Purchase orders",
-
   "approval_workflow_manage": "Approval workflow manage",
   "approval_workflow_step": "Appoval workflow steps",
   "purchase_rq": "Proposals",
   "apv_purchase_rq": "Proposal approvals",
   "purchasePanak": "Purchase panels",
   "budgetApproval": "Budget approvals",
-
   "director": "Director approvals",
   "reviewMoney": "Review money approvals",
-
   "accounting_dpm": "Accounting department",
   "accounting_dpm_check": "Accounting department check",
   "approval_finance_dpm": "Approval finance department",
   "financial_dpm_transfer": "Financial department transfer",
   "exchange_rate": "Exchange rates",
-  "manage": "Manage"
+  "manage": "Manage",
+  "receipt_manage": "Receipt Manage",
+  "receipt": "Receipt",
+  "receipt_approved": "Approved Receipt"
 }

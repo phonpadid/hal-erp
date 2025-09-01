@@ -5,8 +5,8 @@ import FormCreate from "../components/review-money/FormCreate.vue";
 import FormSucess from "../components/review-money/FormSucess.vue";
 export const reviewMoneyRoutes: RouteRecordRaw[] = [
   {
-    path: "/review-money",
-    name: "review-money-list",
+    path: "/receipts",
+    name: "receipt.index",
     component: ReviewMoneyView,
     meta: {
       title: " Review Money List",

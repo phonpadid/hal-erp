@@ -97,7 +97,7 @@ const signatures = [
       :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
       document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
       document-number="0036/ພລ - ວັນທີ"
-      :document-date="new Date('2025-03-26')"
+      :document-date="('2025-03-26')"
       :action-buttons="customButtons"
     />
     <UiModal

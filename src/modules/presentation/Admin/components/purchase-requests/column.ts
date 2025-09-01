@@ -8,6 +8,11 @@ export function columns(t: (key: string) => string): Column[] {
       key: "index",
     },
     {
+      title: t("purchase-rq.field.img_example"),
+      dataIndex: "image",
+      key: "image",
+    },
+    {
       title: t("purchase-rq.field.content"),
       dataIndex: "title",
       key: "title",

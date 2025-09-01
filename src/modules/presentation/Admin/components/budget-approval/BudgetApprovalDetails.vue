@@ -267,7 +267,7 @@ const handleModalCancel = () => {
       :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
       document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
       document-number="0036/ພລ - ວັນທີ"
-      :document-date="new Date('2025-03-26')"
+      :document-date="('2025-03-26')"
       :action-buttons="customButtons"
       document-status="ລໍຖ້າງົບປະມານກວດສອບ"
       document-status-class="text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"

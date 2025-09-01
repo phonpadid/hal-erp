@@ -35,6 +35,39 @@ const department = ref("ພະແນກການເງິນ");
 const loading = ref(true);
 const isApproveModalVisible = ref(false);
 
+/*********************check show button to data ********************* */
+const approvalSteps = computed(() => requestDetail.value?.getUserApproval()?.approval_step ?? []);
+const currentApprovalStep = computed(() => {
+  return approvalSteps.value.find(
+    (step) =>
+      step.status_id === 1 && // PENDING
+      !step.approver &&
+      step.step_number === (getPreviousApprovedStep.value?.step_number ?? 0) + 1
+  );
+});
+
+const getPreviousApprovedStep = computed(() => {
+  return [...approvalSteps.value]
+    .filter((step) => step.status_id === 2) // APPROVED
+    .sort((a, b) => b.step_number - a.step_number)[0];
+});
+
+const canApprove = computed(() => {
+  const currentStep = currentApprovalStep.value;
+  const previousStep = getPreviousApprovedStep.value;
+
+  if (!currentStep) return false;
+
+  // ถ้าเป็น step แรก
+  if (currentStep.step_number === 1) return true;
+
+  // ตรวจสอบว่า step ก่อนหน้าได้รับการอนุมัติแล้ว
+  return (
+    previousStep &&
+    previousStep.status_id === 2 && // APPROVED
+    previousStep.step_number === currentStep.step_number - 1
+  );
+});
 /****************************************** */
 
 const requesterInfo = computed(() => requestDetail.value?.getRequester());
@@ -42,9 +75,9 @@ const departmentInfo = computed(() => requestDetail.value?.getDepartment());
 const positionInfo = computed(() => requestDetail.value?.getPosition());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
 const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
-const imageList = computed(() => {
-  return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
-});
+// const imageList = computed(() => {
+//   return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
+// });
 /****************************************** */
 const approvedStatusId = computed(() => {
   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
@@ -67,6 +100,13 @@ const requiresOtp = ref(false);
 const approvalId = ref<number | null>(null);
 
 const customButtons = computed(() => {
+  // if (!canApprove.value) {
+  //   return [];
+  // }
+
+  // const currentStep = currentApprovalStep.value;
+  // if (!currentStep) return [];
+
   return [
     {
       label: t("purchase-rq.card_title.refused"),
@@ -296,7 +336,6 @@ const handleReject = async () => {
       }
       return;
     }
-
     // ถ้าต้องใช้ OTP แสดง OTP Modal
     isRejectModalVisible.value = false;
     isOtpModalVisible.value = true;
@@ -356,6 +395,7 @@ const successModalProps = computed(() => {
     };
   }
 });
+
 watch(modalAction, (newVal) => {
   if (newVal === "") {
     approval.value = true;
@@ -397,7 +437,7 @@ onMounted(async () => {
         :breadcrumb-items="[t('purchase-rq.approval_proposal'), t('purchase-rq.btn.approval')]"
         :document-prefix="t('purchase-rq.field.proposal')"
         :document-number="`${t('purchase-rq.field.pr_number')} 0036/ພລ - ${t('purchase-rq.date')}`"
-        :document-date="new Date('2025-03-26')"
+        :document-date="'2025-03-26'"
         :action-buttons="approval ? customButtonSuccess : customButtons"
         document-status="ລໍຖ້າຫົວໜ້າພະແນກພັດທະນາທຸລະກິດກວດສອບ"
         document-status-class="text-orange-400 text-sm font-medium ml-2 ring-2 ring-orange-300 px-3 py-1 rounded-full"
@@ -413,28 +453,30 @@ onMounted(async () => {
         <h2 class="text-md font-semibold px-6 mb-4">
           {{ t("purchase-rq.field.proposer") }}
         </h2>
-        <div class="info flex items-center px-6 gap-4 mb-4">
-          <a-image
-            :src="profileImage"
-            alt="avatar"
-            class="w-20 h-20 rounded-full object-cover"
-            :width="80"
-            :height="80"
-            :preview="false"
-          />
-          <div class="detail -space-y-2">
-            <p class="font-medium">{{ requesterInfo?.username }}</p>
-            <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
+        <div class="info flex items-center justify-between px-6 gap-4 mb-4">
+          <div class="flex items-center gap-4">
+            <a-image
+              :src="profileImage"
+              alt="avatar"
+              class="w-20 h-20 rounded-full object-cover"
+              :width="80"
+              :height="80"
+              :preview="false"
+            />
+            <div class="detail -space-y-2">
+              <p class="font-medium">{{ requesterInfo?.username }}</p>
+              <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
+            </div>
+          </div>
+          <div class="want-date -space-y-0 px-6 mb-4">
+            <h2 class="text-md font-semibold">
+              {{ t("purchase-rq.field.date_rq") }}
+            </h2>
+            <p class="text-gray-600 text-sm">{{ formatDate(requestDetail.getExpiredDate()) }}</p>
           </div>
         </div>
 
         <!-- Required Date Section -->
-        <div class="want-date -space-y-0 px-6 mb-4">
-          <h2 class="text-md font-semibold">
-            {{ t("purchase-rq.field.date_rq") }}
-          </h2>
-          <p class="text-gray-600 text-sm">{{ formatDate(requestDetail.getExpiredDate()) }}</p>
-        </div>
 
         <!-- Purpose Section -->
         <div class="purposes -space-y-0 px-6 mb-4">
@@ -458,6 +500,18 @@ onMounted(async () => {
             <template #total_price="{ record }">
               <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
             </template>
+            <template #image="{ record }">
+              <a-image
+                v-if="record.file_name_url"
+                :src="record.file_name_url"
+                alt="example"
+                :width="50"
+                :height="50"
+                :preview="true"
+                class="rounded-lg shadow-sm"
+              />
+              <span v-else class="text-gray-400 italic">No Image</span>
+            </template>
           </Table>
           <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4">
             <p class="font-medium text-slate-600">{{ t("purchase-rq.field.amount") }}:</p>
@@ -468,7 +522,7 @@ onMounted(async () => {
         </div>
 
         <!-- Sample Images Section -->
-        <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
+        <!-- <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
           <h2 class="text-md font-semibold">
             {{ t("purchase-rq.field.img_example") }}
           </h2>
@@ -484,7 +538,7 @@ onMounted(async () => {
               class="rounded-xl shadow-sm"
             />
           </div>
-        </div>
+        </div> -->
 
         <!-- Signature Section -->
         <div
@@ -538,12 +592,6 @@ onMounted(async () => {
       @close="handleOtpClose"
       @resend="handleResendOtp"
     />
-    <!-- <OtpModal
-      :visible="isOtpModalVisible"
-      :title="t('purchase-rq.confirm_otp')"
-      @confirm="handleOtpConfirm"
-      @close="handleOtpClose"
-    /> -->
 
     <!-- Success Modal -->
     <SuccessModal

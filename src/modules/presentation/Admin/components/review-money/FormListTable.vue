@@ -1,8 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
-import { purchaseOrderData } from "@/modules/shared/utils/purchaseOrder";
 import { columnsDirecter } from "../../views/director/column/column";
 import { useI18n } from "vue-i18n";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
@@ -11,6 +10,7 @@ import Table from "@/common/shared/components/table/Table.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import DatePicker from "@/common/shared/components/Datepicker/DatePicker.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 
 /******************************************************** */
 const { t } = useI18n();
@@ -20,6 +20,29 @@ const dates = reactive({
   startDate: null,
   endDate: null,
 });
+const currentPage = ref(1);
+const pageSize = ref(10);
+const loading = ref(false);
+const purchaseRequestStore = usePurchaseRequestsStore();
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    const apiParams: any = {
+      page: currentPage.value,
+      limit: pageSize.value,
+    };
+    await purchaseRequestStore.fetchAll(apiParams);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const tablePagination = computed(() => ({
+  current: purchaseRequestStore.pagination.page,
+  pageSize: purchaseRequestStore.pagination.limit,
+  total: purchaseRequestStore.pagination.total,
+  showSizeChanger: true,
+}));
 
 const handleDetailsDocument = (record: any) => {
   console.log("Viewing details for document:", record);
@@ -82,6 +105,9 @@ const handleSearch = () => {
 const handleTableChange = (pag: any, filters: any, sorter: any) => {
   console.log("Table changed:", { pag, filters, sorter });
 };
+onMounted(async () => {
+  await fetchData()
+})
 </script>
 
 <template>
@@ -162,9 +188,14 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
   <div class="bg-white rounded-lg shadow-sm">
     <Table
       :columns="columnsDirecter(t)"
-      :data-source="purchaseOrderData"
+      :data-source="purchaseRequestStore.requests"
+      :pagination="tablePagination"
       @change="handleTableChange"
+      :loading="loading"
     >
+    <template #user="{ record }">
+        <span class="text-gray-600">{{ record.getRequester()?.username }}</span>
+      </template>
       <!-- Custom cell rendering for actions column -->
       <template #status="{ record }">
         <UiTag

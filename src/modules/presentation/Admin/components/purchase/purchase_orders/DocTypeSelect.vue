@@ -27,7 +27,6 @@ const docItem = computed(() =>
 // เมื่อกดปุ่มยืนยัน
 const nextStep = () => {
   if (formState.document_type_id) {
-    // ดึง purchase_request_id จาก query params
     const purchaseRequestId = route.query.purchase_request_id;
 
     if (purchaseRequestId) {

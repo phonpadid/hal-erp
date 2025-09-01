@@ -9,16 +9,18 @@ interface ApprovalFile {
   fileName: string;
 }
 
+export interface OrderItem {
+  id: number;
+  budget_item_id: number;
+}
+
 interface CreateApprovalStepData {
   type: string;
   statusId: number | string;
   remark?: string;
   approvalStepId?: number;
   approval_id?: number;
-  purchase_order_items?: {
-    id: number;
-    budget_item_detail_id: number;
-  };
+  purchase_order_items?: OrderItem[];
   account_code?: string;
   otp?: string;
   is_otp?: boolean;
@@ -29,7 +31,7 @@ export class ApprovalStepEntity {
   private readonly type: ApprovalType;
   private readonly statusId: number;
   private readonly remark: string | null;
-  private readonly purchaseOrderItem: ApprovalPurchaseOrderItem | null;
+  private readonly purchase_order_items: ApprovalPurchaseOrderItem[];
   private readonly accountCode: string | null;
   private readonly otp: string | null;
   private readonly isOtp: boolean;
@@ -43,7 +45,7 @@ export class ApprovalStepEntity {
     approvalStepId: number,
     approval_id: number,
     remark: string | null,
-    purchaseOrderItem: ApprovalPurchaseOrderItem | null,
+    purchase_order_items: ApprovalPurchaseOrderItem[],
     accountCode: string | null,
     otp: string | null,
     isOtp: boolean,
@@ -54,7 +56,7 @@ export class ApprovalStepEntity {
     this.approvalStepId = approvalStepId;
     this.approval_id = approval_id;
     this.remark = remark;
-    this.purchaseOrderItem = purchaseOrderItem;
+    this.purchase_order_items = purchase_order_items;
     this.accountCode = accountCode;
     this.otp = otp;
     this.isOtp = isOtp;
@@ -70,7 +72,6 @@ export class ApprovalStepEntity {
       approvalStepId,
       purchase_order_items,
       account_code,
-
       otp,
       is_otp,
       files,
@@ -99,12 +100,14 @@ export class ApprovalStepEntity {
     const finalapproval_id = data.approval_id !== undefined ? Number(data.approval_id) : 0;
 
     const finalFiles = (files || []).map((f) => ({ fileName: f.file_name }));
-    const finalPurchaseOrderItem = purchase_order_items
-      ? {
-          id: purchase_order_items.id,
-          budgetItemId: purchase_order_items.budget_item_detail_id,
-        }
-      : null;
+    const finalPurchaseOrderItems = purchase_order_items
+      ? (Array.isArray(purchase_order_items) ? purchase_order_items : [purchase_order_items]).map(
+          (item) => ({
+            id: item.id,
+            budgetItemId: item.budget_item_id,
+          })
+        )
+      : [];
 
     return new ApprovalStepEntity(
       approvalType,
@@ -112,7 +115,7 @@ export class ApprovalStepEntity {
       approvalStepId,
       finalapproval_id,
       finalRemark,
-      finalPurchaseOrderItem,
+      finalPurchaseOrderItems,
       finalAccountCode,
       finalOtp,
       finalIsOtp,
@@ -120,10 +123,11 @@ export class ApprovalStepEntity {
     );
   }
 
-  // Getters คงเดิม
+  // Getters
   public getType(): ApprovalType {
     return this.type;
   }
+
   public getStatusId(): number {
     return this.statusId;
   }
@@ -131,12 +135,15 @@ export class ApprovalStepEntity {
   public getOtp(): string | null {
     return this.otp;
   }
+
   public getIsOtp(): boolean {
     return this.isOtp;
   }
+
   getApprovalId(): number {
     return this.approval_id ?? 0;
   }
+
   setApprovalId(approval_id: number): void {
     this.approval_id = approval_id;
   }
@@ -144,21 +151,31 @@ export class ApprovalStepEntity {
   public getApprovalStepId(): number {
     return this.approvalStepId;
   }
+
   public getRemark(): string | null {
     return this.remark;
   }
-  public getPurchaseOrderItem(): ApprovalPurchaseOrderItem | null {
-    return this.purchaseOrderItem;
+
+  public getPurchaseOrderItems(): ApprovalPurchaseOrderItem[] {
+    return [...this.purchase_order_items];
   }
+
+  public getPurchaseOrderItem(): ApprovalPurchaseOrderItem[] {
+    return this.getPurchaseOrderItems();
+  }
+
   public getAccountCode(): string | null {
     return this.accountCode;
   }
+
   public getFiles(): ApprovalFile[] {
     return [...this.files];
   }
+
   public isApproved(): boolean {
     return this.statusId === 2;
   }
+
   public hasFiles(): boolean {
     return this.files.length > 0;
   }

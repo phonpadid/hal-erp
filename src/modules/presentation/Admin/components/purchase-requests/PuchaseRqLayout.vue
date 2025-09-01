@@ -10,9 +10,11 @@ import { getCustomSteps } from "./PurchaseRqStep";
 import type { ButtonType } from "@/modules/shared/buttonType";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useI18n } from "vue-i18n";
-const {t} = useI18n()
-const currentStatus = ref<"wait" | "process" | "finish" | "error">("process");
+
+/***************************************************/
+const { t } = useI18n();
 const { error } = useNotification();
+const currentStatus = ref<"wait" | "process" | "finish" | "error">("process");
 
 // Props for step management
 interface Props {
@@ -38,10 +40,8 @@ const props = defineProps<Props>();
 const toggleStore = useToggleStore();
 const { toggle } = storeToRefs(toggleStore);
 const topbarStyle = computed(() => {
-const defaultL = toggle.value ? true : false;
-  return defaultL
-    ? "left-64 w-[calc(100%-16rem)]" // 16rem = 256px = sidebar width
-    : "left-0 w-full";
+  const defaultL = toggle.value ? true : false;
+  return defaultL ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
 });
 
 // Handle step changes
@@ -73,13 +73,12 @@ const handleConfirm = async (allData: Record<number, any>) => {
     }
   }
 };
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleDone = async (allData: Record<number, any>) => {
   console.log("All steps data:", allData);
   if (props.currentStep === 2) {
-    // Changed from 0 to 1 since you want confirmation after step 1
     try {
-      // Emit event to parent to show modal instead of handling internally
       emit("update:currentStep", 3);
     } catch (err) {
       console.error(err);
@@ -88,7 +87,7 @@ const handleDone = async (allData: Record<number, any>) => {
   }
 };
 
-const canCel = () => {
+const cancel = () => {
   goToFirstStep();
 };
 
@@ -103,15 +102,15 @@ const actionButtons = computed<ActionButton[]>(() => {
     case 1:
       return [
         {
-          label: t('purchase-rq.btn.cancel'),
-          onClick: async () => canCel(),
+          label: t("purchase-rq.btn.cancel"),
+          onClick: async () => cancel(),
           show: true,
           disabled: false,
           class: "button-hover",
           type: undefined,
         },
         {
-          label: t('purchase-rq.btn.confirm'),
+          label: t("purchase-rq.btn.confirm"),
           type: "primary" as ButtonType,
           onClick: async () => await handleConfirm(props.stepsData),
           show: true,
@@ -122,7 +121,7 @@ const actionButtons = computed<ActionButton[]>(() => {
     case 2:
       return [
         {
-          label: t('purchase-rq.btn.cancel'),
+          label: t("purchase-rq.btn.cancel"),
           onClick: () => goBack(),
           show: true,
           disabled: false,
@@ -130,7 +129,7 @@ const actionButtons = computed<ActionButton[]>(() => {
           type: undefined,
         },
         {
-          label: t('purchase-rq.btn.confirm'),
+          label: t("purchase-rq.btn.submit"),
           onClick: async () => await handleDone(props.stepsData),
           show: true,
           disabled: false,
@@ -154,9 +153,8 @@ const actionButtons = computed<ActionButton[]>(() => {
       :breadcrumb-items="[t('purchase-rq.field.proposal'), t('purchase-rq.description')]"
       :document-prefix="t('purchase-rq.field.proposal')"
       :document-number="`${t('purchase-rq.field.pr_number')} 0036/ພລ - ${t('purchase-rq.date')}`"
-      :document-date="new Date('2025-03-26')"
-      />
-      <!-- :document-number="ເລກທີ 0036/ພລ - ວັນທີ" -->
+      :document-date="'2025-03-26'"
+    />
 
     <progress-steps-component
       class="mt-4"

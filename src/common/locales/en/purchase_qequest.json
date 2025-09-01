@@ -1,11 +1,17 @@
 {
   "table": {
+    "title": "Title",
     "name": "Name",
     "number": "Number",
     "quantity": "Quantity",
     "price": "Price",
     "unit": "Unit",
     "total": "Total",
-    "note": "Note"
+    "note": "Note",
+    "total_price": "Total Price",
+    "image": "Image",
+    "remark": "Remark",
+    "action": "Action"
+
   }
 }

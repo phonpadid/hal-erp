@@ -39,14 +39,16 @@ export const disbursementRoutes: RouteRecordRaw[] = [
 
   //apv by finance dpm
   {
-    path: "/approval-by-finance-department",
-    name: "approval-by-finance-department.index",
+    path: "/approval-receipt",
+    name: "approval-receipt.index",
     component: ApprovalByFinanceDepartment,
     meta: {
       title: "approval by department ",
       requiredAuth: true,
     },
   },
+
+
   {
     path: "/approval-by-finance-department/:id",
     name: "approval-by-finance-department-detail.index",
@@ -56,6 +58,17 @@ export const disbursementRoutes: RouteRecordRaw[] = [
       requiredAuth: true,
     },
   },
+  {
+    path: "/approval-receipt/:id/account_code=:code",
+    name: "approval-receipt-account-code.index",
+    component: ApprovalByFinanceDpmDetail,
+    meta: {
+      title: "approval by department ",
+      requiredAuth: true,
+    },
+  },
+
+
   {
     path: "/financial-department-transfer",
     name: "financial-department-transfer.index",
