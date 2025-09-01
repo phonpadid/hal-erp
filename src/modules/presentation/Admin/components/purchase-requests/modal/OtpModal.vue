@@ -31,18 +31,15 @@ const emit = defineEmits<{
   (e: "resend"): void;
 }>();
 
-// เบอร์โทรศัพท์จาก OTP response
 const phoneNumber = computed(() => {
   if (approvalStepStore.otpResponse?.approver?.tel) {
     const tel = approvalStepStore.otpResponse.approver.tel;
     return `+856 ${tel}`;
   }
-  return "+856 20 502 221 02"; // เบอร์โทรศัพท์เริ่มต้น
+  return "+856 20 502 221 02";
 });
 
-// วันที่และเวลาปัจจุบัน
-const currentDateTime = ref("2025-08-18 08:33:30"); // ค่าเริ่มต้น
-// ชื่อผู้ใช้ปัจจุบัน
+const currentDateTime = ref("2025-08-18 08:33:30");
 const currentUserLogin = ref("phonpadid");
 
 // Computed property to check if OTP is complete
@@ -145,10 +142,7 @@ const confirmOtpStep = () => {
 };
 
 const finalConfirm = () => {
-  // รวม OTP เป็น string
   const otp = otpValue.value.join("");
-
-  // ส่ง OTP กลับไปที่ parent component
   emit("confirm", otp);
 };
 
@@ -160,12 +154,10 @@ const startCooldown = () => {
   resendCooldown.value = true;
   cooldownTime.value = 60;
 
-  // ล้าง interval เดิมถ้ามี
   if (cooldownInterval.value !== null) {
     clearInterval(cooldownInterval.value);
   }
 
-  // เริ่ม interval ใหม่
   cooldownInterval.value = window.setInterval(() => {
     cooldownTime.value--;
     if (cooldownTime.value <= 0) {
@@ -179,17 +171,10 @@ const resendOtp = async () => {
   if (resendCooldown.value || !props.approvalStepId || resendLoading.value) {
     return;
   }
-
   try {
     resendLoading.value = true;
-
-    // ส่ง event ให้ parent component จัดการ
     emit("resend");
-
-    // เริ่มนับถอยหลัง
     startCooldown();
-
-    // Reset OTP values and focus first input
     otpValue.value = Array(6).fill("");
     nextTick(() => {
       const firstInput = otpInputRefs.value[0];

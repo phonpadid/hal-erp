@@ -93,7 +93,7 @@ watch(modalAction, (newVal) => {
         :document-number="`${t('purchase-rq.field.pr_number')} 0036/ພລ - ${t(
           'purchase-rq.date'
         )}`"
-        :document-date="new Date('2025-03-26')"
+        :document-date="('2025-03-26')"
         :action-buttons="customButtons"
         document-status="ລໍຖ້າຫົວໜ້າພະແນກພັດທະນາທຸລະກິດກວດສອບ"
         document-status-class="text-orange-400 text-sm font-medium ml-2 ring-2 ring-orange-300 px-3 py-1 rounded-full"

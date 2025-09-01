@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, watch } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { usePurchaseOrderStore } from "../../../stores/purchase_requests/purchase-order";
@@ -37,7 +37,7 @@ const rejectedCount = computed(
 
 const handleDetailsDocument = (record: any) => {
   console.log("Viewing details for document:", record);
-  router.push({ name: "purchaseOrdersDetail", params: { id: record.id } });
+  router.push({ name: "purchaseOrdersDetails", params: { id: record.id } });
 };
 
 const documentTypes = [
@@ -114,24 +114,6 @@ const handleTableChange = async (pagination: any) => {
 onMounted(async () => {
   await store.fetchAll();
 });
-watch(
-  () => store.orders,
-  (newOrders) => {
-    if (newOrders.length > 0) {
-      const firstOrder = newOrders[0];
-      console.log("First Order Debug:", {
-        entireObject: firstOrder,
-        poNumber: firstOrder.getPoNumber?.(),
-        requester: firstOrder.getRequester?.(),
-        document: firstOrder.getDocument?.(),
-        userApproval: firstOrder.getUserApproval?.(),
-      });
-    } else {
-      console.log("No orders in store");
-    }
-  },
-  { immediate: true, deep: true }
-);
 </script>
 
 <template>

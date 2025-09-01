@@ -219,28 +219,37 @@ export const menuItems = computed<ItemType[]>(() => [
         ],
         type: "group",
       },
+      // PO
       {
-        key: "purchaseOrdersList",
-        label: t("menu-sidebar.purchaseOrders"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "solar:archive-check-broken",
-              class: "text-base",
-            }),
-          ]),
+        label: "",
+        children: [
+          { type: "divider" },
+          {
+            key: "7",
+            label: t("menu-sidebar.po_manage"),
+            icon: () =>
+              h("div", {}, [
+                h(Icon, {
+                  icon: "solar:archive-check-broken",
+                  class: "text-base",
+                }),
+              ]),
+            children: [
+              {
+                key: "purchaseOrdersList",
+                label: t("menu-sidebar.purchaseOrders"),
+              },
+              {
+                key: "approval_department_panak",
+                label: t("menu-sidebar.purchasePanak"),
+              },
+             
+            ],
+          },
+        ],
+        type: "group",
       },
-      {
-        key: "approval_department_panak",
-        label: t("menu-sidebar.purchasePanak"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "solar:archive-check-broken",
-              class: "text-base",
-            }),
-          ]),
-      },
+      // Budget Approval
       {
         key: "budget-approval",
         label: t("menu-sidebar.budgetApproval"),

@@ -29,6 +29,7 @@
 
   "user_manage": "User manage",
   "pr_manage": "Proposal manage",
+  "po_manage": "Purchase order manage",
   "user": "Users",
   "role": "Roles",
   "permission": "Permissions",

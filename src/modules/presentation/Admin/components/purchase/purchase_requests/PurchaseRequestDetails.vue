@@ -10,6 +10,7 @@ import { useRoute } from "vue-router";
 import { formatDate } from "@/modules/shared/formatdate";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { useRouter } from "vue-router";
+import OtpModal from "../../purchase-requests/modal/OtpModal.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
@@ -42,8 +43,8 @@ const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
 const loading = ref(true);
 const isOtpModalVisible = ref(false);
-const otpValue = ref("");
-const currentStepForApproval = ref<any>(null);
+// const otpValue = ref("");
+// const currentStepForApproval = ref<any>(null);
 const requestDetail = ref<PurchaseRequestEntity | null>(null);
 
 const confirmLoading = computed(() => approvalStepStore.loading);
@@ -61,9 +62,9 @@ const departmentInfo = computed(() => requestDetail.value?.getDepartment());
 const positionInfo = computed(() => requestDetail.value?.getPosition());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
 const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
-const imageList = computed(() => {
-  return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
-});
+// const imageList = computed(() => {
+//   return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
+// });
 
 const currentApprovalStep = computed(() => {
   return approvalSteps.value.find(
@@ -86,24 +87,24 @@ const isLastStep = computed(() => {
   return currentApprovalStep.value?.step_number === lastStep?.step_number;
 });
 
-// ตรวจสอบว่าสามารถอนุมัติได้หรือไม่
-const canApprove = computed(() => {
-  const currentStep = currentApprovalStep.value;
-  const previousStep = getPreviousApprovedStep.value;
 
-  // ถ้าไม่มี step ปัจจุบัน หรือไม่มี step ก่อนหน้า (กรณี step แรก)
-  if (!currentStep) return false;
+// const canApprove = computed(() => {
+//   const currentStep = currentApprovalStep.value;
+//   const previousStep = getPreviousApprovedStep.value;
 
-  // ถ้าเป็น step แรก (step_number === 1)
-  if (currentStep.step_number === 1) return true;
 
-  // ตรวจสอบว่า step ก่อนหน้าได้รับการอนุมัติแล้ว
-  return (
-    previousStep &&
-    previousStep.status_id === 2 && // APPROVED
-    previousStep.step_number === currentStep.step_number - 1
-  );
-});
+//   if (!currentStep) return false;
+
+
+//   if (currentStep.step_number === 1) return true;
+
+
+//   return (
+//     previousStep &&
+//     previousStep.status_id === 2 && // APPROVED
+//     previousStep.step_number === currentStep.step_number - 1
+//   );
+// });
 
 const documentDetails = {
   requester: {
@@ -113,12 +114,12 @@ const documentDetails = {
 
 const customButtons = computed(() => {
   // ถ้าไม่สามารถอนุมัติได้ ไม่ต้องแสดงปุ่ม
-  if (!canApprove.value) {
-    return [];
-  }
+  // if (!canApprove.value) {
+  //   return [];
+  // }
 
-  const currentStep = currentApprovalStep.value;
-  if (!currentStep) return [];
+  // const currentStep = currentApprovalStep.value;
+  // if (!currentStep) return [];
 
   return [
     {
@@ -129,7 +130,7 @@ const customButtons = computed(() => {
       },
     },
     {
-      label: `ອະນຸມັດ (ຂັ້ນຕອນທີ່ ${currentStep.step_number})`,
+      label: `ອະນຸມັດ`,
       type: "primary" as ButtonType,
       onClick: () => {
         isApproveModalVisible.value = true;
@@ -142,62 +143,12 @@ const topbarStyle = computed(() => {
   return toggle.value ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
 });
 
-// const handleApprove = async () => {
-//   if (!approvedStatusId.value) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Approved' ໃນລະບົບ");
-//     return;
-//   }
-
-//   if (!requestDetail.value) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
-//     return;
-//   }
-
-//   const currentStep = currentApprovalStep.value;
-//   if (!currentStep?.id) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
-//     return;
-//   }
-
-//   try {
-//     const documentId = route.params.id as string;
-//     const payload = {
-//       type: "pr" as const,
-//       statusId: Number(approvedStatusId.value),
-//       remark: "Approved",
-//       approvalStepId: Number(currentStep.id),
-//       approver_id: "phonpadid",
-//       step_number: currentStep.step_number,
-//       approved_at: new Date().toISOString(),
-//     };
-
-//     console.log("Approving step:", {
-//       currentStep: currentStep.step_number,
-//       previousStep: getPreviousApprovedStep.value?.step_number,
-//       isLastStep: isLastStep.value,
-//     });
-
-//     const success = await approvalStepStore.submitApproval(documentId, payload);
-//     if (success) {
-//       isApproveModalVisible.value = false;
-//       if (isLastStep.value) {
-//         router.push({
-//           name: 'doc-type-select',
-//           query: {
-//             purchase_request_id: requestDetail.value.getId()
-//           }
-//         });
-//       }
-//     }
-//   } catch (err) {
-//     console.error("Error in handleApprove:", err);
-//     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
-//   }
-// };
-
-const handleApprove = async (otpCode?: string) => {
-  if (!approvedStatusId.value || !requestDetail.value) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນທີ່ຈຳເປັນ");
+/*********************Logic OTP*********************** */
+// วางฟังก์ชันนี้ไว้ใกล้ๆ กับ handleApprove
+const handleOtpConfirm = async (otpCode: string) => {
+  // 1. ตรวจสอบข้อมูลพื้นฐาน
+  if (!otpCode) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
     return;
   }
 
@@ -207,63 +158,103 @@ const handleApprove = async (otpCode?: string) => {
     return;
   }
 
+  // 2. ดึง approval_id ที่ถูกต้องจาก Store (ที่ได้รับมาตอน sendOtp)
+  const approvalIdFromOtp = approvalStepStore.otpResponse?.approval_id;
+  if (!approvalIdFromOtp) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນอ้างອີງ OTP");
+    return;
+  }
+
   try {
     const documentId = route.params.id as string;
 
-    if (!otpCode && currentStep.is_otp === true) {
-      currentStepForApproval.value = currentStep;
-      isOtpModalVisible.value = true;
-      return;
-    }
-    const now = new Date();
-    const formattedDate = now.toISOString()
-      .replace('T', ' ')
-      .split('.')[0];
-
+    // 3. สร้าง Payload ที่ถูกต้องสำหรับการยืนยัน OTP
     const payload: SubmitApprovalStepInterface = {
       type: "pr",
       statusId: Number(approvedStatusId.value),
       remark: "Approved",
       approvalStepId: Number(currentStep.id),
-      step_number: currentStep.step_number,
-      approver_id: "phonpadid", // ใช้ค่า Current User's Login
-      approved_at: formattedDate, // ใช้ formatted date
-      approval_id: Number(currentStep.id),
-      is_otp: false,
-      files: [],
-      otp: otpCode || "",
+      approval_id: approvalIdFromOtp, // <-- ใช้ approval_id ที่ถูกต้อง
+      is_otp: true, // <-- ระบุว่าเป็น OTP
+      otp: otpCode,
     };
 
-    console.log("Sending payload Appove:", payload);
-
     const success = await approvalStepStore.submitApproval(documentId, payload);
-    console.log("Approval step submission result:", success);
 
+    // 4. จัดการผลลัพธ์ และ Redirect ถ้าเป็น Step สุดท้าย
     if (success) {
-      isApproveModalVisible.value = false;
       isOtpModalVisible.value = false;
-      otpValue.value = "";
-      currentStepForApproval.value = null;
+      await purchaseRequestStore.fetchById(documentId); // โหลดข้อมูลใหม่
 
       if (isLastStep.value) {
         router.push({
           name: "doc-type-select",
-          query: {
-            purchase_request_id: requestDetail.value.getId(),
-          },
+          query: { purchase_request_id: requestDetail.value?.getId() },
         });
       }
     }
   } catch (err) {
-    console.error("Error in handleApprove:", err);
+    console.error("Error in handleOtpConfirm:", err);
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
     isOtpModalVisible.value = false;
-    otpValue.value = "";
-    currentStepForApproval.value = null;
   }
 };
+// นำโค้ดนี้ไปแทนที่ handleApprove เดิมทั้งหมด
+const handleApprove = async () => {
+  isApproveModalVisible.value = false; // ปิด Modal ยืนยันก่อน
 
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep?.id) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ปัจจุบัน");
+    return;
+  }
 
+  const documentId = route.params.id as string;
+
+  // --- จุดตัดสินใจ ---
+  if (currentStep.is_otp === true) {
+    // ---- กรณีต้องใช้ OTP ----
+    try {
+      // เรียก Store ให้ยิง API /send-otp/{id}
+      const otpData = await approvalStepStore.sendOtp(currentStep.id);
+
+      // ถ้าสำเร็จ, ให้เปิด OTP Modal แล้วรอ...
+      if (otpData) {
+        isOtpModalVisible.value = true;
+      }
+    } catch (err) {
+      console.error("Error in handleApprove (OTP case):", err);
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
+    }
+  } else {
+    // ---- กรณีไม่ต้องใช้ OTP ----
+    try {
+      const payload: SubmitApprovalStepInterface = {
+        type: "pr",
+        statusId: Number(approvedStatusId.value),
+        remark: "Approved",
+        approvalStepId: Number(currentStep.id),
+        is_otp: false,
+      };
+
+      const success = await approvalStepStore.submitApproval(documentId, payload);
+
+      // จัดการผลลัพธ์ และ Redirect ถ้าเป็น Step สุดท้าย
+      if (success) {
+        await purchaseRequestStore.fetchById(documentId); // โหลดข้อมูลใหม่
+
+        if (isLastStep.value) {
+          router.push({
+            name: "doc-type-select",
+            query: { purchase_request_id: requestDetail.value?.getId() },
+          });
+        }
+      }
+    } catch (err) {
+      error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+    }
+  }
+};
 const handleReject = async () => {
   if (!rejectReason.value.trim()) {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາລະບຸເຫດຜົນໃນການປະຕິເສດ");
@@ -341,10 +332,19 @@ onMounted(async () => {
         :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
         document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
         document-number="0036/ພລ - ວັນທີ"
-        :document-date="new Date('2025-03-26')"
+        :document-date="'2025-03-26'"
         :action-buttons="customButtons"
       />
     </div>
+
+    <OtpModal
+      :visible="isOtpModalVisible"
+      :title="t('purchase-rq.otp-verification')"
+      :loading="confirmLoading"
+      @confirm="handleOtpConfirm"
+      @close="isOtpModalVisible = false"
+      @resend="handleApprove"
+    />
 
     <UiModal
       title="ອະນຸມັດ"
@@ -399,21 +399,23 @@ onMounted(async () => {
     <div v-if="loading" class="mt-[10rem] text-center">Loading...</div>
     <div v-else-if="requestDetail" class="bg-white rounded-lg shadow-sm p-6 mt-40">
       <!-- Requester Information -->
-      <div class="flex items-start gap-4 mb-2">
-        <img
-          :src="documentDetails.requester.avatar"
-          alt="Requester Avatar"
-          class="w-14 h-14 rounded-full mb-2"
-        />
-        <div>
-          <h3 class="text-lg font-semibold">{{ requesterInfo?.username }}</h3>
-          <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center gap-4">
+          <img
+            :src="documentDetails.requester.avatar"
+            alt="Requester Avatar"
+            class="w-14 h-14 rounded-full mb-2"
+          />
+          <div>
+            <h3 class="text-lg font-semibold">{{ requesterInfo?.username }}</h3>
+            <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
+          </div>
         </div>
+        <p class="text-gray-500">
+          <span>{{ t("purchase-rq.field.date_rq") }}<br /></span>
+          {{ formatDate(requestDetail.getExpiredDate()) }}
+        </p>
       </div>
-      <p class="text-gray-500">
-        <span>{{ t("purchase-rq.field.date_rq") }}<br /></span>
-        {{ formatDate(requestDetail.getExpiredDate()) }}
-      </p>
 
       <!-- Purpose -->
       <div class="mb-6">
@@ -431,6 +433,16 @@ onMounted(async () => {
           <template #total_price="{ record }">
             <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
           </template>
+          <template #image="{ record }">
+            <span v-if="!record.file_name_url">ບໍ່ມີ</span>
+            <a-image
+              v-else
+              :src="record.file_name_url"
+              alt="ຮູບພາບ"
+              style="max-width: 50px; max-height: 50px; border-radius: 6px"
+              :preview="true"
+            />
+          </template>
         </Table>
         <div>
           <p class="text-gray-500 mt-2 flex justify-end">
@@ -441,7 +453,7 @@ onMounted(async () => {
       </div>
 
       <!-- Attachments -->
-      <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
+      <!-- <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
         <h2 class="text-md font-semibold">{{ t("purchase-rq.field.img_example") }}</h2>
         <div class="flex flex-wrap gap-6">
           <a-image
@@ -455,7 +467,7 @@ onMounted(async () => {
             class="rounded-xl shadow-sm"
           />
         </div>
-      </div>
+      </div> -->
 
       <!-- Signatures -->
       <div class="signature shadow-sm py-4 px-6 rounded-md mb-[10rem]">

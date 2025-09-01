@@ -4,18 +4,18 @@ export function columns(t: (key: string) => string): Column[] {
   return [
     {
       title: t("purchase_orders.table.order_number"),
-      dataIndex: "orderNumber",
-      key: "orderNumber",
+      dataIndex: "po_number",
+      key: "po_number",
     },
     {
       title: t("purchase_orders.table.name"),
-      dataIndex: "vendorName",
-      key: "vendorName",
+      dataIndex: "requester",
+      key: "requester",
     },
     {
       title: t("purchase_orders.table.created_at"),
-      dataIndex: "orderDate",
-      key: "orderDate",
+      dataIndex: "created_at",
+      key: "created_at",
     },
     {
       title: t("purchase_orders.table.status"),

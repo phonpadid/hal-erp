@@ -3,6 +3,8 @@ import { ApprovalStepEntity } from '../entities/approval-step.entity';
 
 export interface ApprovalStepRepository {
   submit(documentId: string, step: ApprovalStepEntity): Promise<boolean>;
+
+  
    sendOtp(approvalStepId: number): Promise<{
     id: number;
     approval_id: number;

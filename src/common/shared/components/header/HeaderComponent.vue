@@ -53,7 +53,7 @@
       <div class="flex items-center gap-2">
         <span v-if="showDocumentPrefix" class="text-blue-600">{{ documentPrefix }}</span>
         <span v-if="showDocumentNumber">- {{ documentNumber }}</span>
-        <span v-if="showDocumentDate">- {{ formatDate(documentDate) }}</span>
+        <span v-if="showDocumentDate">- {{ documentDate }}</span>
         <span v-if="showDocumentStatus && documentStatus" :class="['ml-2', documentStatusClass]">
           {{ documentStatus }}
         </span>
@@ -76,7 +76,6 @@
 
 <script setup lang="ts">
 import { defineProps, computed } from "vue";
-import dayjs from "dayjs";
 import { Icon } from "@iconify/vue";
 
 // Define the allowed button types
@@ -96,7 +95,7 @@ interface Props {
   breadcrumbItems?: string[];
   documentPrefix?: string;
   documentNumber?: string;
-  documentDate?: Date;
+  documentDate?: string ;
   actionButtons?: ActionButton[];
   // Control visibility of components
   headerTitleColor?: string;
@@ -123,7 +122,7 @@ const props = withDefaults(defineProps<Props>(), {
   breadcrumbItems: () => ["ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ", "ອະນຸມັດ"],
   documentPrefix: "ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ",
   documentNumber: "0036/ພລ - ວັນທີ",
-  documentDate: () => new Date(),
+  documentDate: "2025-03-26",
   actionButtons: () => [],
   // Default visibility settings
   headerTitleColor: "",
@@ -155,8 +154,4 @@ const emit = defineEmits<{
   (e: "suffixIconClick"): void;
 }>();
 
-// Format date helper function
-const formatDate = (date: Date): string => {
-  return dayjs(date).format("DD MMM YYYY");
-};
 </script>
