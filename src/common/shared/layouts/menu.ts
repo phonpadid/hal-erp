@@ -243,7 +243,7 @@ export const menuItems = computed<ItemType[]>(() => [
                 key: "approval_department_panak",
                 label: t("menu-sidebar.purchasePanak"),
               },
-             
+
             ],
           },
         ],
@@ -272,17 +272,17 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
-      {
-        key: "review-money-list",
-        label: t("menu-sidebar.reviewMoney"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "solar:archive-check-broken",
-              class: "text-base",
-            }),
-          ]),
-      },
+      // {
+      //   key: "review-money-list",
+      //   label: t("menu-sidebar.reviewMoney"),
+      //   icon: () =>
+      //     h("div", {}, [
+      //       h(Icon, {
+      //         icon: "solar:archive-check-broken",
+      //         class: "text-base",
+      //       }),
+      //     ]),
+      // },
       {
         key: "document_typesList",
         label: t("menu-sidebar.document_type"),
@@ -317,62 +317,62 @@ export const menuItems = computed<ItemType[]>(() => [
             }),
           ]),
       },
-      {
-        key: "approval_workflows.index",
-        label: t("menu-sidebar.approval_workflow"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:docs-outline",
-              class: "text-base",
-            }),
-          ]),
-      },
+      // {
+      //   key: "approval_workflows.index",
+      //   label: t("menu-sidebar.approval_workflow"),
+      //   icon: () =>
+      //     h("div", {}, [
+      //       h(Icon, {
+      //         icon: "material-symbols:docs-outline",
+      //         class: "text-base",
+      //       }),
+      //     ]),
+      // },
       //disbursement
-      {
-        key: "accounting-department.index",
-        label: t("menu-sidebar.accounting_dpm"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:app-registration-outline",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "accounting-department-check.index",
-        label: t("menu-sidebar.accounting_dpm_check"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:app-registration-outline",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "financial-department-transfer.index",
-        label: t("menu-sidebar.financial_dpm_transfer"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:app-registration-outline",
-              class: "text-base",
-            }),
-          ]),
-      },
-      {
-        key: "approval-by-finance-department.index",
-        label: t("menu-sidebar.approval_finance_dpm"),
-        icon: () =>
-          h("div", {}, [
-            h(Icon, {
-              icon: "material-symbols:app-registration-outline",
-              class: "text-base",
-            }),
-          ]),
-      },
+      // {
+      //   key: "accounting-department.index",
+      //   label: t("menu-sidebar.accounting_dpm"),
+      //   icon: () =>
+      //     h("div", {}, [
+      //       h(Icon, {
+      //         icon: "material-symbols:app-registration-outline",
+      //         class: "text-base",
+      //       }),
+      //     ]),
+      // },
+      // {
+      //   key: "accounting-department-check.index",
+      //   label: t("menu-sidebar.accounting_dpm_check"),
+      //   icon: () =>
+      //     h("div", {}, [
+      //       h(Icon, {
+      //         icon: "material-symbols:app-registration-outline",
+      //         class: "text-base",
+      //       }),
+      //     ]),
+      // },
+      // {
+      //   key: "financial-department-transfer.index",
+      //   label: t("menu-sidebar.financial_dpm_transfer"),
+      //   icon: () =>
+      //     h("div", {}, [
+      //       h(Icon, {
+      //         icon: "material-symbols:app-registration-outline",
+      //         class: "text-base",
+      //       }),
+      //     ]),
+      // },
+      // {
+      //   key: "approval-by-finance-department.index",
+      //   label: t("menu-sidebar.approval_finance_dpm"),
+      //   icon: () =>
+      //     h("div", {}, [
+      //       h(Icon, {
+      //         icon: "material-symbols:app-registration-outline",
+      //         class: "text-base",
+      //       }),
+      //     ]),
+      // },
     ],
 
     type: "group",

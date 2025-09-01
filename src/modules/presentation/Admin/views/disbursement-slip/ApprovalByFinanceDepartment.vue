@@ -50,6 +50,9 @@ return [
 const details = (id: string) => {
   push({ name: "approval-by-finance-department-detail.index", params: { id: id } });
 };
+const detailsByaccount = (id: string) => {
+  push({ name: "approval-receipt-account-code.index", params: { id: id, code: 'true' } });
+};
 onMounted(async () => {
   await docTypeStore.fetchdocumentType({ page: 1, limit: 1000 });
 });
@@ -134,6 +137,13 @@ onMounted(async () => {
               @click="details(record.id)"
             >
               {{ t('purchase-rq.description') }}
+            </UiButton>
+            <UiButton
+              type="link"
+              color-class="flex items-center text-orange-500 hover:!text-orange-600"
+              @click="detailsByaccount(record.id)"
+            >
+              ລົງລະຫັດບັນຊີ
             </UiButton>
           </div>
         </template>
