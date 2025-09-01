@@ -219,6 +219,35 @@ export const menuItems = computed<ItemType[]>(() => [
         ],
         type: "group",
       },
+      // Receipt
+      {
+        label: "",
+        children: [
+          { type: "divider" },
+          {
+            key: "200",
+            label: t("menu-sidebar.receipt_manage"),
+            icon: () =>
+              h("div", {}, [
+                h(Icon, {
+                  icon: "material-symbols:receipt-long-outline",
+                  class: "text-base",
+                }),
+              ]),
+            children: [
+              {
+                key: "receipt.index",
+                label: t("menu-sidebar.receipt"),
+              },
+              {
+                key: "approval-receipt.index",
+                label: t("menu-sidebar.receipt_approved"),
+              },
+            ],
+          },
+        ],
+        type: "group",
+      },
       // PO
       {
         label: "",
