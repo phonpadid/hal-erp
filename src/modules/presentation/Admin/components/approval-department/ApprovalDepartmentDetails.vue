@@ -87,9 +87,6 @@
               <span>{{ index + 1 }}</span>
             </template>
             <template #title="{ record }">
-              {{ console.log("Record:", record) }}
-
-              {{ console.log("Items:", record.getPurchaseOrderItem()) }}
               <span
                 v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
               >
@@ -97,6 +94,42 @@
               </span>
               <span v-else> - </span>
             </template>
+            <template #remark="{ record }">
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                {{ record.getPurchaseOrderItem()[0].getRemark() }}
+              </span>
+              <span v-else> - </span>
+            </template>
+            <template #quantity="{ record }">
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                {{ record.getPurchaseOrderItem()[0].getQuantity() }}
+              </span>
+              <span v-else> - </span>
+            </template>
+            <template #price="{ record }">
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                {{ formatPrice(record.getPurchaseOrderItem()[0].getPrice()) }} ₭
+              </span>
+              <span v-else> - </span>
+            </template>
+            <!-- <template #image="{ record }">
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                <img
+                  :src="record.getImageUrl()"
+                  alt="Product Image"
+                  class="w-12 h-12 object-cover"
+                />
+              </span>
+              <span v-else> - </span>
+            </template> -->
           </Table>
           <div>
             <p class="text-gray-500 mt-2 flex justify-end">
