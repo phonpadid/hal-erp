@@ -7,7 +7,7 @@ import PurchaseForm from "./PurchaseForm.vue";
 import ConfirmModal from "./modal/OtpModal.vue";
 import type { Step1Data, Step2Data } from "./formstate";
 import CheckPurchaseRq from "./CheckPurchaseRqDetail.vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { Icon } from "@iconify/vue";
 import { useI18n } from "vue-i18n";
@@ -16,7 +16,6 @@ import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useDocumentStatusStore } from "../../stores/document-status.store";
 const { t } = useI18n();
 const { push } = useRouter();
-const route = useRoute();
 const currentStep = ref(0);
 const showModal = ref(false);
 const showOtpModal = ref(false); // เพิ่ม state สำหรับ OTP modal
@@ -64,7 +63,7 @@ const goToNextStep = (stepData?: Step1Data | Step2Data) => {
 /*************************OTP*********************** */
 const approvalStepStore = useApprovalStepStore();
 const documentStatusStore = useDocumentStatusStore();
-const { error, success } = useNotification();
+const { error } = useNotification();
 const confirmLoading = ref(false);
 const otpSending = ref(false);
 const newlyCreatedDocumentId = ref<string | null>(null);
@@ -74,10 +73,9 @@ const approvedStatusId = computed(() => {
   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
 });
 
-// ฟังก์ชันส่ง OTP
 const sendOtp = async () => {
   if (!currentApprovalStepId.value) {
-    error("เกิดข้อผิดพลาด", "ไม่พบข้อมูล Approval Step ID");
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ID");
     return;
   }
 
@@ -85,94 +83,78 @@ const sendOtp = async () => {
     otpSending.value = true;
     const otpResponse = await approvalStepStore.sendOtp(currentApprovalStepId.value);
     if (otpResponse) {
-      success("ສຳເລັດ", "OTPຖືກສົ່ງເຂົ້າເບີຂອງທ່ານແລ້ວ");
-      showOtpModal.value = true; // Open OTP modal
+      showOtpModal.value = true;
     } else {
-      error("เกิดข้อผิดพลาด", "ไม่สามารถส่งรหัส OTP ได้");
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງລະຫັດ OTP ໄດ້");
     }
   } catch (err) {
-    error("เกิดข้อผิดพลาด", (err as Error).message);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
   } finally {
     otpSending.value = false;
   }
 };
 
-// ຟັງຊັນຢືນຢັນ OTP
+// ฟังก์ชันสำหรับยืนยัน OTP และส่งข้อมูลการอนุมัติ
 const handleOtpConfirm = async (otpCode: string) => {
   if (!otpCode) {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
     return;
   }
 
+  // ตรวจสอบข้อมูลที่จำเป็น
   if (!newlyCreatedDocumentId.value || !currentApprovalStepId.value) {
-    error("เกิดข้อผิดพลาด", "ไม่พบข้อมูลเอกสารหรือขั้นตอนการอนุมัติ");
-    return;
-  }
-
-  if (!purchaseFormRef.value) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ form");
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານຫຼືຂະບວນການອະນຸມັດ");
     return;
   }
 
   const approvalIdFromOtp = approvalStepStore.otpResponse?.approval_id;
-  if (!approvalIdFromOtp) {
-    error("เกิดข้อผิดพลาด", "ไม่พบข้อมูลการอนุมัติหลังส่ง OTP");
-    return;
-  }
 
-  if (!approvalStepStore.otpResponse?.approval_id) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນການອະນຸມັດ");
+  if (!approvalIdFromOtp) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນການອະນຸມັດຫຼັງສົ່ງ OTP");
     return;
   }
 
   try {
     confirmLoading.value = true;
 
-    // This is the payload you described
+    // สร้าง payload ที่ถูกต้องสำหรับ API submit
     const payload = {
-      type: "pr" as const, // Or "po", adjust as needed
+      type: "pr" as const,
       statusId: Number(approvedStatusId.value),
       remark: "ຢືນຢັນສຳເລັດ",
       approvalStepId: currentApprovalStepId.value,
-      // approval_id: approvalIdFromOtp,
-      // otp: otpCode,
+      otp: otpCode,
       is_otp: true,
+      approval_id: approvalIdFromOtp,
     };
 
     const isSuccess = await approvalStepStore.submitApproval(newlyCreatedDocumentId.value, payload);
 
     if (isSuccess) {
-      success("สำเร็จ", "การยืนยันเอกสารสำเร็จ");
+
       showOtpModal.value = false;
-      // You can now move to the next step or push to another page
-      currentStep.value = 2; // Example: go to success/summary step
+      currentStep.value = 2;
     } else {
-      error("เกิดข้อผิดพลาด", "ไม่สามารถยืนยัน OTP ได้");
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດຢືນຢັນ OTP ດັ່ງກ່າວ");
     }
   } catch (err) {
-    error("เกิดข้อผิดพลาด", (err as Error).message);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
   } finally {
     confirmLoading.value = false;
   }
 };
-
 const handleLayoutConfirm = async () => {
   if (currentStep.value === 1 && purchaseFormRef.value) {
     try {
-      // newDocumentData คือ Object ที่มีโครงสร้างตาม JSON ของคุณ
       const newDocumentData = await purchaseFormRef.value.handleSave();
 
       if (newDocumentData) {
-        // --- ดึงค่าจาก Object ตามโครงสร้าง JSON จริง ---
-        const docId = newDocumentData.id; // หรือ newDocumentData.document_id, ต้องยืนยันกับ Backend
+        const docId = newDocumentData.id;
         const stepId = newDocumentData.user_approval?.approval_step?.[0]?.id;
 
         if (docId && stepId) {
-          // เก็บ ID ที่จำเป็นไว้ใน ref สำหรับใช้ในภายหลัง
           newlyCreatedDocumentId.value = docId;
           currentApprovalStepId.value = stepId;
-
-          // เริ่มกระบวนการส่ง OTP
           await sendOtp();
         } else {
           error("เกิดข้อผิดพลาด", "ไม่ได้รับข้อมูล ID ที่จำเป็นจาก API response");
@@ -183,11 +165,6 @@ const handleLayoutConfirm = async () => {
     }
   }
 };
-
-// ຟັງຊັນຢືນຢັນຈາກ modal (ກ່ອນສົ່ງ OTP)
-// const confirmNextStep = async () => {
-//   await sendOtp();
-// };
 
 const getStep0Data = () => stepsData[0] as FormState;
 
@@ -252,16 +229,6 @@ const handleDone = () => {
         </div>
       </div>
     </div>
-
-    <!-- Confirm Modal (ກ່ອນສົ່ງ OTP) -->
-    <!-- <ConfirmModal
-      :visible="showModal"
-      :title="t('purchase-rq.signature')"
-      :loading="otpSending"
-      @confirm="confirmNextStep"
-      @close="showModal = false"
-    /> -->
-
     <!-- OTP Modal (ສຳລັບປ້ອນ OTP) -->
     <ConfirmModal
       :visible="showOtpModal"

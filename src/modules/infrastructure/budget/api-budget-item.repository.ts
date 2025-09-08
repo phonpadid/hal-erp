@@ -71,6 +71,40 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
       this.handleApiError(error, `Failed to fetch budget items for account ID ${budgetAccountId}`);
     }
   }
+  // In the file api-budget-item.repository.ts
+
+  async budgetItemReport(params: {
+    limit?: number;
+    column?: string;
+    sort_order?: string;
+    budget_account_id?: string;
+    type?: string;
+    department_id?: string;
+  }): Promise<BudGetItemEntity> {
+    try {
+      const response = await api.get(`${this.baseUrl}/report`, {
+        params: {
+          limit: params.limit,
+          column: params.column,
+          sort_order: params.sort_order,
+          budget_account_id: params.budget_account_id,
+          type: params.type,
+          department_id: params.department_id,
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      this.handleApiError(error, `Failed to fetch budget item report for account ID`);
+    }
+  }
+  async budgetItemReportId(id: string): Promise<BudGetItemEntity> {
+    try {
+      const response = await api.get(`${this.baseUrl}/item/${id}`);
+      return response.data.data;
+    } catch (error) {
+      this.handleApiError(error, `Failed to fetch budget item report for account ID ${id}`);
+    }
+  }
 
   async findById(id: string): Promise<BudGetItemEntity | null> {
     try {
@@ -110,31 +144,39 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
     }
   }
   private toDomainModel(budGet: BudgetItemInterface): BudGetItemEntity {
+    // Ensure the data fields are correctly mapped
+    const usedAmount = budGet.used_amount ?? 0;
+    const balanceAmount = budGet.balance_amount ?? 0;
+    const description = budGet.description ?? null;
+
+    // Create a new instance of BudGetAccountsEntity if budget_account exists
+    const budgetAccountEntity = budGet.budget_account
+      ? new BudGetAccountsEntity(
+          budGet.budget_account.id.toString(),
+          budGet.budget_account.code,
+          budGet.budget_account.name,
+          budGet.budget_account.departmentId.toString(),
+          budGet.budget_account.fiscal_year.toString(),
+          budGet.budget_account.allocated_amount,
+          budGet.budget_account.type,
+          budGet.budget_account.created_at || "",
+          budGet.budget_account.updated_at || "",
+          budGet.budget_account.deleted_at || ""
+        )
+      : undefined;
+
     return new BudGetItemEntity(
       budGet.id.toString(),
       budGet.budget_account_id.toString(),
       budGet.name,
       budGet.allocated_amount,
-      null,
-      null,
-      budGet.description || null, // This should be use_amount, not description
-      budGet.created_at || "", // This should be balance_amount, not created_at
-      budGet.updated_at || "", // This should be description, not updated_at
+      usedAmount,
+      balanceAmount,
+      description,
+      budGet.created_at || "",
+      budGet.updated_at || "",
       budGet.deleted_at || null,
-      budGet.budget_account
-        ? new BudGetAccountsEntity(
-            budGet.budget_account.id.toString(),
-            budGet.budget_account.code,
-            budGet.budget_account.name,
-            budGet.budget_account.departmentId.toString(),
-            budGet.budget_account.fiscal_year.toString(),
-            budGet.budget_account.allocated_amount,
-            budGet.budget_account.type,
-            budGet.budget_account.created_at || "",
-            budGet.budget_account.updated_at || "",
-            budGet.budget_account.deleted_at || ""
-          )
-        : undefined
+      budgetAccountEntity
     );
   }
 

@@ -21,6 +21,7 @@ import type { Key } from "ant-design-vue/lib/table/interface";
 import { usePurchaseOrderStore } from "../../../stores/purchase_requests/purchase-order";
 import { Modal } from "ant-design-vue";
 import type { RowSelectionType } from "ant-design-vue/es/table/interface";
+import type { FormStateInterface,PurchaseItem } from "@/modules/interfaces/purchase-requests/purchase-orders.interface";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiTable from "@/common/shared/components/table/UiTable.vue";
 import PurchaseOrderShowDrawer from "./PurchaseOrderShowDrawer.vue";
@@ -69,31 +70,21 @@ const itemVendors = ref<{
     selected: boolean;
   };
 }>({});
-// ฟังก์ชันตรวจสอบว่าเลือกร้านค้าครบทุกรายการหรือไม่
 const isAllItemsHaveVendor = computed(() => {
   return purchaseItems.value.every((item) => {
     return item.id != null && itemVendors.value[item.id];
   });
 });
 const isSubmitting = ref(false);
-
-// ฟังก์ชันสร้าง Payload สำหรับส่งไปหลังบ้าน
-// ฟังก์ชันสร้าง Payload สำหรับส่งไปหลังบ้าน
 const createPurchaseOrderPayload = () => {
-  // ตรวจสอบว่ามี requestDetail หรือไม่
   if (!requestDetail.value) {
     throw new Error("ບໍ່ພົບຂໍ້ມູນການຮ້ອງຂໍ");
   }
-
-  // สร้างรายการสินค้า
   const items = purchaseItems.value.map((item) => {
     const vendorData = itemVendors.value[item.id?.toString() ?? ""];
-
-    // ตรวจสอบว่ามีข้อมูลร้านค้าหรือไม่
     if (!vendorData) {
       throw new Error(`ກະລຸນາເລືອກຮ້ານຄ້າສຳລັບລາຍການ ${item.title}`);
     }
-
     return {
       purchase_request_item_id: Number(item.id),
       price: Number(item.price),
@@ -103,68 +94,21 @@ const createPurchaseOrderPayload = () => {
           vendor_id: Number(vendorData.vendor_id),
           vendor_bank_account_id: Number(vendorData.vendor_bank_account_id),
           filename: vendorData.filename,
-          reason: vendorData.reason || "", // ใส่ค่าว่างถ้าไม่มี reason
-          selected: true, // ค่าเริ่มต้นคือ true
+          reason: vendorData.reason || "",
+          selected: true,
         },
       ],
     };
   });
-
-  // สร้าง Payload
   return {
     purchase_request_id: Number(requestDetail.value.getId()),
     document: {
-      description: form.value.descriptions || "", // ใส่ค่าว่างถ้าไม่มี descriptions
+      description: form.value.descriptions || "",
       documentTypeId: Number(route.query.document_type_id) || 2,
     },
     items,
   };
 };
-
-// const handleVendorModalSubmitted = (payload: {
-//   vendorId: string;
-//   fileNames: string[];
-//   fileUrl?: string;
-//   bankId?: string;
-//   bankName?: string;
-//   accountName?: string;
-//   accountNumber?: string;
-//   reason?: string;
-//   is_vat?: boolean;
-// }) => {
-//   console.log("ได้รับข้อมูลจาก Modal:", payload);
-
-//   const itemId = localStorage.getItem("currentSelectedItemId");
-//   console.log("itemId จาก localStorage:", itemId);
-//   if (!itemId) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບລາຍການທີ່ກຳລັງເລືອກ");
-//     return;
-//   }
-
-//   const selectedVendor = vendorStore.activeVendors.find((v) => v.getId() === payload.vendorId);
-//   if (!selectedVendor) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຮ້ານຄ້າທີ່ເລືອກ");
-//     return;
-//   }
-
-//   itemVendors.value[itemId] = {
-//     vendor_id: payload.vendorId,
-//     vendor_name: selectedVendor.getname(),
-//     vendor_bank_account_id: payload.bankId || "",
-//     bank_name: payload.bankName || "",
-//     account_number: payload.accountNumber || "",
-//     filename: payload.fileNames[0] || "",
-//     file_url: payload.fileUrl || "",
-//     reason: payload.reason || "",
-//     is_vat: payload.is_vat || false,
-//     selected: true,
-//   };
-
-//   console.log("บันทึกข้อมูลร้านค้าสำเร็จ:", itemVendors.value);
-//   success(`ເລືອກຮ້ານຄ້າ ${selectedVendor.getname()} ສຳເລັດແລ້ວ`);
-//   window.sessionStorage.removeItem("currentSelectedItemId");
-// };
-
 const handleVendorModalSubmitted = (payload: {
   vendorId: string;
   fileNames: string[];
@@ -176,16 +120,11 @@ const handleVendorModalSubmitted = (payload: {
   reason?: string;
   is_vat?: boolean;
 }) => {
-  console.log("ได้รับข้อมูลจาก Modal:", payload);
-
-  // ดึงข้อมูลร้านค้าที่เลือก
   const selectedVendor = vendorStore.activeVendors.find((v) => v.getId() === payload.vendorId);
   if (!selectedVendor) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຮ້ານຄ້າທີ່ເລືອກ");
     return;
   }
-
-  // เพิ่มข้อมูลร้านค้าให้กับทุกรายการที่เลือก
   selectedRowKeys.value.forEach((itemId) => {
     itemVendors.value[itemId.toString()] = {
       vendor_id: payload.vendorId,
@@ -200,12 +139,8 @@ const handleVendorModalSubmitted = (payload: {
       selected: true,
     };
   });
-
-  // รีเซ็ตการเลือกรายการ
   selectedRowKeys.value = [];
   selectedRows.value = [];
-
-  console.log("บันทึกข้อมูลร้านค้าสำเร็จ:", itemVendors.value);
   success(`ເລືອກຮ້ານຄ້າ ${selectedVendor.getname()} ສຳເລັດແລ້ວ`);
 };
 
@@ -227,14 +162,9 @@ const currentReasonData = ref<{
 });
 
 const openVendorReasonModal = (itemId: string | number, vendorId: string | number) => {
-  // ดึงข้อมูลร้านค้า
   const vendor = vendorStore.activeVendors.find((v) => v.getId() === vendorId);
   if (!vendor) return;
-
-  // ดึงข้อมูลที่มีอยู่แล้ว (ถ้ามี)
   const existingData = itemVendors.value[itemId.toString()];
-
-  // ตั้งค่าข้อมูลสำหรับ Modal
   currentReasonData.value = {
     item_id: itemId,
     vendor_id: vendorId,
@@ -243,19 +173,12 @@ const openVendorReasonModal = (itemId: string | number, vendorId: string | numbe
     reason: existingData?.reason || "",
     is_vat: existingData?.is_vat || false,
   };
-
-  // โหลดบัญชีธนาคารของร้านค้า
   loadVendorBankAccounts(vendorId);
-
-  // เปิด Modal
   vendorReasonModalVisible.value = true;
 };
 
 const vendorBankOptions = computed(() => {
-  // กรณีที่ยังไม่มีร้านค้าที่เลือก
   if (!currentReasonData.value.vendor_id) return [];
-
-  // ดึงบัญชีธนาคารของร้านค้าที่เลือก
   return bankAccount.activeBankAccounts
     .filter((account) => account.getvendor_id() === currentReasonData.value.vendor_id)
     .map((account) => ({
@@ -274,22 +197,16 @@ const loadVendorBankAccounts = async (vendorId: string | number) => {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫລດຂໍ້ມູນບັນຊີທະນາຄານໄດ້");
   }
 };
-
-// ฟังก์ชันปิด Modal
 const closeVendorReasonModal = () => {
   vendorReasonModalVisible.value = false;
 };
 
 const saveVendorReason = () => {
-  // ตรวจสอบข้อมูลที่จำเป็น
   if (!currentReasonData.value.vendor_bank_account_id) {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກບັນຊີທະນາຄານ");
     return;
   }
-
   const itemId = currentReasonData.value.item_id.toString();
-
-  // ดึงข้อมูลบัญชีธนาคารที่เลือก
   const selectedBank = bankAccount.activeBankAccounts.find(
     (account) => account.getId() === currentReasonData.value.vendor_bank_account_id
   );
@@ -298,8 +215,6 @@ const saveVendorReason = () => {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນບັນຊີທະນາຄານທີ່ເລືອກ");
     return;
   }
-
-  // อัพเดทข้อมูลในรายการสินค้า
   const updatedItemVendor = {
     ...itemVendors.value[itemId],
     vendor_bank_account_id: currentReasonData.value.vendor_bank_account_id,
@@ -309,29 +224,17 @@ const saveVendorReason = () => {
     is_vat: currentReasonData.value.is_vat,
     selected: true,
   };
-
-  // บันทึกข้อมูล
   itemVendors.value[itemId] = updatedItemVendor;
-
-  // ปิด Modal
   closeVendorReasonModal();
-
-  // แจ้งเตือนสำเร็จ
   success("ບັນທຶກຂໍ້ມູນສຳເລັດແລ້ວ");
 };
 
 const editVendorForItem = (itemId: string | number) => {
-  // ดึงข้อมูลที่มีอยู่แล้ว
   const itemData = itemVendors.value[itemId.toString()];
   if (!itemData) return;
-
-  // เปิด Modal กรอกเหตุผลและเลือกบัญชีธนาคาร
   openVendorReasonModal(itemId, itemData.vendor_id);
 };
-
-// ฟังก์ชันลบร้านค้าสำหรับรายการสินค้า
 const removeVendorForItem = (itemId: string | number) => {
-  // แสดง Modal ยืนยันการลบ
   Modal.confirm({
     title: "ຢືນຢັນການລຶບ",
     content: "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບຮ້ານຄ້ານີ້ອອກຈາກລາຍການ?",
@@ -339,7 +242,6 @@ const removeVendorForItem = (itemId: string | number) => {
     okType: "danger",
     cancelText: "ຍົກເລີກ",
     onOk() {
-      // ลบข้อมูลร้านค้าออกจากรายการสินค้า
       delete itemVendors.value[itemId.toString()];
       success("ລຶບຮ້ານຄ້າອອກຈາກລາຍການສຳເລັດແລ້ວ");
     },
@@ -347,38 +249,22 @@ const removeVendorForItem = (itemId: string | number) => {
 };
 
 /*****************State Purchase Order********************* */
-
 const submitPurchaseOrder = async () => {
   try {
-    // ตรวจสอบว่าเลือกร้านค้าครบทุกรายการหรือไม่
     if (!isAllItemsHaveVendor.value) {
       error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກຮ້ານຄ້າໃຫ້ຄົບທຸກລາຍການ");
       return null;
     }
-
-    // สร้าง Payload
     const payload = createPurchaseOrderPayload();
-
-    // แสดง Payload ในคอนโซล (สำหรับการพัฒนา)
-    console.log("Purchase Order Payload:", JSON.stringify(payload, null, 2));
-
-    // แสดงสถานะกำลังโหลด
     isSubmitting.value = true;
-
-    // ส่งข้อมูลไปหลังบ้านโดยใช้ store ที่สร้างไว้
     const result = await purchaseOrderStore.create(payload);
 
     if (result) {
-      // แสดงข้อความสำเร็จ
       success("ສ້າງໃບສັ່ງຊື້ສຳເລັດແລ້ວ");
-
-      // เปลี่ยนสถานะเป็นสำเร็จ
       currentStatus.value = "finish";
       currentStep.value = 2;
       customSteps.value[1].disabled = false;
       customSteps.value[2].disabled = false;
-
-      // จัดเก็บข้อมูลผลลัพธ์ไว้ใน stepsData
       stepsData[2] = { order: result };
 
       return result;
@@ -393,7 +279,6 @@ const submitPurchaseOrder = async () => {
     isSubmitting.value = false;
   }
 };
-
 /**********************logic Tabel Select *************************** */
 const selectedRowKeys = ref<Key[]>([]);
 const selectedRows = ref<any[]>([]);
@@ -409,20 +294,22 @@ const rowSelectionConfig = computed(() => ({
   },
 }));
 
-const purchaseItems = computed(() => {
-  if (!requestDetail.value) return [];
+// const purchaseItems = computed(() => {
+//   if (!requestDetail.value) return [];
 
-  return requestDetail.value.getItems().map((item) => ({
-    id: item.getId(),
-    title: item.getTitle(),
-    quantity: item.getQuantity(),
-    unit: item.getUnit(), // เป็น object ที่มี property name
-    price: item.getPrice(),
-    total_price: item.getTotalPrice(),
-    remark: item.getRemark(),
-    file_name_url: item.getFileNameUrl(),
-  }));
-});
+//   return requestDetail.value.getItems().map((item) => ({
+//     id: item.getId(),
+//     title: item.getTitle(),
+//     quantity: item.getQuantity(),
+//     unit: item.getUnit(),
+//     price: item.getPrice(),
+//     total_price: item.getTotalPrice(),
+//     remark: item.getRemark(),
+//     file_name_url: item.getFileNameUrl(),
+//   }));
+// });
+
+const purchaseItems = ref<PurchaseItem[]>([]);
 
 const imageModalVisible = ref(false);
 const selectedImage = ref("");
@@ -435,12 +322,8 @@ const showImageModal = (imageUrl: string) => {
 };
 
 /******************selection vendor********************* */
-
 /*****************Show Ui Drawer********************* */
-
 const requestDetail = ref<PurchaseRequestEntity | null>(null);
-
-// ใน onMounted ปรับการโหลดข้อมูล
 onMounted(async () => {
   const purchaseRequestId = route.params.id as string;
 
@@ -464,7 +347,6 @@ onMounted(async () => {
   }
 });
 /*****************Show Ui Drawer********************* */
-
 const showDrawer = () => {
   visible.value = true;
 };
@@ -519,18 +401,12 @@ onMounted(() => {
 
 const handleConfirm = async () => {
   try {
-    // ตรวจสอบว่าเลือกร้านค้าครบทุกรายการหรือไม่
     if (!isAllItemsHaveVendor.value) {
       error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກຮ້ານຄ້າໃຫ້ຄົບທຸກລາຍການ");
       return;
     }
-
-    // สร้าง Payload โดยรวมข้อมูลร้านค้าที่เลือก
     const payload = createPurchaseOrderPayload();
-
-    // ส่งข้อมูลไปยัง API
     const result = await purchaseOrderStore.create(payload);
-
     if (result) {
       success("ສ້າງໃບສັ່ງຊື້ສຳເລັດແລ້ວ");
       currentStatus.value = "finish";
@@ -577,7 +453,6 @@ const handleOtpKeydown = (event: KeyboardEvent, index: number) => {
       });
     }
   }
-  // อนุญาตเฉพาะปุ่มที่ต้องการ
   if (
     !/^\d$/.test(event.key) &&
     !["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight"].includes(event.key)
@@ -746,40 +621,7 @@ const handleButtonClick = (buttonData: any) => {
   console.log("Button clicked:", buttonData);
 };
 
-export interface Product {
-  key: number;
-  name: string;
-  quantity: number;
-  unitPrice: number;
-  total: number;
-  remark: string;
-}
-
-export interface FormState {
-  documentId: string;
-  date: Date | null;
-  name: string;
-  quantity: string;
-  summary: string;
-  sumTotal: string;
-  totalName: string;
-  price: string;
-  total_price: string;
-  invoiceType: string;
-  descriptions: string;
-  purposes: string;
-  title: string;
-  products: Product[];
-  bank: string;
-  accountName: string;
-  accountNumber: string;
-  bankName: string;
-  currencyCode: string;
-  vendorImage: string;
-  vendorType: string;
-  vendorId: string;
-}
-const form = ref<FormState>({
+const form = ref<FormStateInterface>({
   documentId: "",
   date: null,
   name: "",
@@ -883,6 +725,27 @@ watch(
   { immediate: true }
 );
 
+watch(
+  requestDetail,
+  (newValue) => {
+    if (newValue) {
+      purchaseItems.value = newValue.getItems().map((item) => ({
+        id: item.getId(),
+        title: item.getTitle(),
+        quantity: item.getQuantity(),
+        unit: item.getUnit(),
+        price: item.getPrice(),
+        total_price: item.getTotalPrice(),
+        remark: item.getRemark(),
+        file_name_url: item.getFileNameUrl(),
+      }));
+    } else {
+      purchaseItems.value = [];
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(async () => {
   const purchaseRequestId = route.params.id;
   const documentTypeId = route.query.document_type_id;
@@ -921,6 +784,15 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+
+const onPriceChange = (record: PurchaseItem, newPrice: number) => {
+  const item = purchaseItems.value.find((i) => i.id === record.id);
+  if (item) {
+    item.price = newPrice;
+    item.total_price = newPrice * item.quantity;
+  }
+};
 </script>
 
 <template>
@@ -1160,8 +1032,15 @@ onMounted(async () => {
                     />
                   </div>
                 </template>
+                <template v-if="column.dataIndex === 'price'">
+                  <a-input-number
+                    :value="record.price"
+                    @change="onPriceChange(record, $event)"
+                    :min="0"
+                    :step="1"
+                  />
+                </template>
 
-                <!-- แสดงร้านค้าที่เลือก -->
                 <template v-else-if="column.dataIndex === 'vendor'">
                   <div v-if="itemVendors[record.id]" class="flex items-center gap-2">
                     <a-image
@@ -1183,7 +1062,6 @@ onMounted(async () => {
                   <span v-else class="text-gray-400">ກະລຸນາເລືອກຮ້ານຄ້າ</span>
                 </template>
 
-                <!-- ปุ่มดำเนินการกับร้านค้า -->
                 <template v-else-if="column.dataIndex === 'action'">
                   <div v-if="itemVendors[record.id]" class="flex space-x-2">
                     <UiButton

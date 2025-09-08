@@ -36,37 +36,13 @@ const loading = ref(true);
 const isApproveModalVisible = ref(false);
 
 /*********************check show button to data ********************* */
-const approvalSteps = computed(() => requestDetail.value?.getUserApproval()?.approval_step ?? []);
 const currentApprovalStep = computed(() => {
-  return approvalSteps.value.find(
-    (step) =>
-      step.status_id === 1 && // PENDING
-      !step.approver &&
-      step.step_number === (getPreviousApprovedStep.value?.step_number ?? 0) + 1
-  );
+  return requestDetail.value
+    ?.getUserApproval()
+    ?.approval_step.find((step) => step.status_id === 1 && !step.approver);
 });
-
-const getPreviousApprovedStep = computed(() => {
-  return [...approvalSteps.value]
-    .filter((step) => step.status_id === 2) // APPROVED
-    .sort((a, b) => b.step_number - a.step_number)[0];
-});
-
 const canApprove = computed(() => {
-  const currentStep = currentApprovalStep.value;
-  const previousStep = getPreviousApprovedStep.value;
-
-  if (!currentStep) return false;
-
-  // ถ้าเป็น step แรก
-  if (currentStep.step_number === 1) return true;
-
-  // ตรวจสอบว่า step ก่อนหน้าได้รับการอนุมัติแล้ว
-  return (
-    previousStep &&
-    previousStep.status_id === 2 && // APPROVED
-    previousStep.step_number === currentStep.step_number - 1
-  );
+  return !!currentApprovalStep.value;
 });
 /****************************************** */
 
@@ -100,12 +76,12 @@ const requiresOtp = ref(false);
 const approvalId = ref<number | null>(null);
 
 const customButtons = computed(() => {
-  // if (!canApprove.value) {
-  //   return [];
-  // }
+  if (!canApprove.value) {
+    return [];
+  }
 
-  // const currentStep = currentApprovalStep.value;
-  // if (!currentStep) return [];
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep) return [];
 
   return [
     {
@@ -156,7 +132,7 @@ const customButtonSuccess = [
     icon: "ant-design:printer-outlined",
     class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
     type: "default" as ButtonType,
-    onClick: handlePrint, // Using the helper function
+    onClick: handlePrint,
   },
 ];
 
@@ -234,23 +210,19 @@ const handleOtpClose = () => {
 };
 
 const handleApprove = async () => {
+  const currentStep = currentApprovalStep.value;
+
   if (!approvedStatusId.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Approved' ໃນລະບົບ");
     return false;
   }
 
-  if (!requestDetail.value) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+  if (!currentStep) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ທີ່ຕ້ອງອະນຸມັດ");
     return false;
   }
 
   try {
-    const userApproval = requestDetail.value.getUserApproval();
-    if (!userApproval?.approval_step?.[0]) {
-      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
-      return false;
-    }
-    const currentStep = userApproval.approval_step[0];
     approvalStepId.value = currentStep.id;
     requiresOtp.value = currentStep.is_otp === true;
     modalAction.value = "approve";

@@ -28,7 +28,7 @@ const dates = reactive({
 });
 
 const handleDetailsDocument = (record: any) => {
-  console.log("Viewing details for document:", record);
+  // console.log("Viewing details for document:", record);
   router.push({ name: "approval_department_panak_detail", params: { id: record.id } });
 };
 
@@ -135,7 +135,7 @@ const handleTableChange = async (pagination: any) => {
 // Handle department selection change
 const handleDepartmentChange = (value: string | null) => {
   selectedDepartment.value = value;
-  console.log("Selected department:", value);
+  // console.log("Selected department:", value);
 };
 
 // Fetch all departments (no pagination)

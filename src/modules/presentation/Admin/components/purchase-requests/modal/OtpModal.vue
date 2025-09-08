@@ -38,10 +38,6 @@ const phoneNumber = computed(() => {
   }
   return "+856 20 502 221 02";
 });
-
-const currentDateTime = ref("2025-08-18 08:33:30");
-const currentUserLogin = ref("phonpadid");
-
 // Computed property to check if OTP is complete
 const isOtpComplete = computed(() => {
   return otpValue.value.every((digit) => digit !== "") && otpValue.value.length === 6;
@@ -264,13 +260,6 @@ const setOtpInputElement = (el: unknown, index: number) => {
         <p class="text-start text-sm text-gray-600 mb-4">
           {{ t("purchase-rq.message") }}
         </p>
-
-        <!-- Current date and user info -->
-        <div class="text-sm text-gray-600 mb-2">
-          <p>{{ t("purchase-rq.date_time") }}: {{ currentDateTime }}</p>
-          <p>{{ t("purchase-rq.user") }}: {{ currentUserLogin }}</p>
-        </div>
-
         <!-- Signature Display - Clickable -->
         <div
           class="flex justify-center gap-2 bg-gray-100 rounded-md ring-1 ring-gray-300 p-4 cursor-pointer hover:bg-gray-200 transition-colors"
