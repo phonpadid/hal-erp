@@ -4,7 +4,7 @@ import { ref } from "vue";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import type {
-  
+
   UpdatePurchaseOrderDTO,
 } from "@/modules/application/dtos/purchase-order/purchase-order.dto";
 import type { StatusSummary } from "@/modules/interfaces/purchase-requests/purchase-request.interface";
@@ -65,17 +65,22 @@ export const usePurchaseOrderStore = defineStore("purchaseOrders", () => {
     }
   }
   async function fetchById(id: number): Promise<PurchaseOrderEntity | null> {
-    loading.value = true;
-    error.value = null;
-    try {
-      return await repository.findById(id);
-    } catch (err: any) {
-      error.value = err.message || `Failed to fetch purchase order with id ${id}.`;
-      return null;
-    } finally {
-      loading.value = false;
+  loading.value = true;
+  error.value = null;
+  try {
+    const result = await repository.findById(id);
+    if (result) {
+      orders.value = [result]; // Update the state
+      return result;
     }
+    return null;
+  } catch (err: any) {
+    error.value = err.message || `Failed to fetch purchase order with id ${id}.`;
+    return null;
+  } finally {
+    loading.value = false;
   }
+}
 
   async function create(data: any): Promise<PurchaseOrderEntity | null> {
     loading.value = true;

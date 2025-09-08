@@ -82,12 +82,20 @@
         <!-- Items Table -->
         <div class="mb-6">
           <h4 class="text-base font-semibold mb-2">ລາຍການ</h4>
-          <Table :columns="columnsDetails(t)" :dataSource="getItemsForTable">
+          <Table :columns="columnsDetails(t)" :dataSource="purchaseOrderStore.orders">
             <template #index="{ index }">
               <span>{{ index + 1 }}</span>
             </template>
             <template #title="{ record }">
-              <span>{{ record.title }}</span>
+              {{ console.log("Record:", record) }}
+
+              {{ console.log("Items:", record.getPurchaseOrderItem()) }}
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                {{ record.getPurchaseOrderItem()[0].getTitle() }}
+              </span>
+              <span v-else> - </span>
             </template>
           </Table>
           <div>
@@ -511,8 +519,8 @@ const handleResendOtp = async () => {
       success("ສຳເລັດ", "ສົ່ງລະຫັດ OTP ໃໝ່ສຳເລັດ");
       otpValue.value = Array(6).fill("");
     }
-  } catch (err : unknown) {
-   console.error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງລະຫັດ OTP ໄດ້", err);
+  } catch (err: unknown) {
+    console.error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງລະຫັດ OTP ໄດ້", err);
   }
 };
 /*********************Check State OTP**************************** */
@@ -564,26 +572,26 @@ const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const isSuccessModalVisible = ref(false);
 const signatureData = ref("");
-const getItemsForTable = computed(() => {
-  if (
-    orderDetails.value &&
-    orderDetails.value.getPurchaseOrderItem &&
-    orderDetails.value.getPurchaseOrderItem().length > 0
-  ) {
-    return orderDetails.value.getPurchaseOrderItem().map((item) => ({
-      id: item.getId(),
-      title: item.getPurchaseRequestItem()?.getTitle(),
-      remark: item.getRemark(),
-      quantity: item.getQuantity(),
-      price: formatPrice(item.getPrice()),
-      total: item.getTotal(),
-      is_vat: item.getIsVat(),
-      vat_total: item.getVatTotal(),
-      total_with_vat: item.getTotalWithVat(),
-    }));
-  }
-  return orderDetails.value?.getItems() ?? [];
-});
+// const getItemsForTable = computed(() => {
+//   if (
+//     orderDetails.value &&
+//     orderDetails.value.getPurchaseOrderItem &&
+//     orderDetails.value.getPurchaseOrderItem().length > 0
+//   ) {
+//     return orderDetails.value.getPurchaseOrderItem().map((item) => ({
+//       id: item.getId(),
+//       title: item.getPurchaseRequestItem()?.getTitle(),
+//       remark: item.getRemark(),
+//       quantity: item.getQuantity(),
+//       price: formatPrice(item.getPrice()),
+//       total: item.getTotal(),
+//       is_vat: item.getIsVat(),
+//       vat_total: item.getVatTotal(),
+//       total_with_vat: item.getTotalWithVat(),
+//     }));
+//   }
+//   return orderDetails.value?.getItems() ?? [];
+// });
 const getTotalAmount = computed(() => {
   if (
     orderDetails.value &&

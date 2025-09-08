@@ -80,10 +80,12 @@ export class PurchaseOrderEntity {
     const purposes = data.purposes || data.purchase_request?.purposes || "N/A";
     const createdAt = data.created_at || "Invalid date";
     const updatedAt = data.updated_at || "Invalid date";
+
     let purchaseOrderItems: PurchaseOrderItemDataEntity[] = [];
     if (Array.isArray(data.purchase_order_item)) {
+      const purchaseRequestItems = data.purchase_request?.purchase_request_item || [];
       purchaseOrderItems = data.purchase_order_item.map(
-        (item: any) => new PurchaseOrderItemDataEntity(item)
+        (item: any) => new PurchaseOrderItemDataEntity(item, purchaseRequestItems)
       );
     }
     const documentData = data.document || data.purchase_request?.document;
