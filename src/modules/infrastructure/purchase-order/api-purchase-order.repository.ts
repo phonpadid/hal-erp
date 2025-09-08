@@ -148,6 +148,7 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
       id: data.id,
       poNumber: data.po_number,
       purchase_request_id: data.purchase_request_id,
+      
       document: {
         description: data.document?.description,
         documentTypeId: Number(data.document?.documentTypeId),

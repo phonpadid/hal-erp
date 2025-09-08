@@ -101,3 +101,48 @@ export interface PurchaseOrderApiModel {
   updated_at?: string;
   deleted_at?: string;
 }
+
+export interface Product {
+  key: number;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+  remark: string;
+}
+
+export interface FormStateInterface {
+  documentId: string;
+  date: Date | null;
+  name: string;
+  quantity: string;
+  summary: string;
+  sumTotal: string;
+  totalName: string;
+  price: string;
+  total_price: string;
+  invoiceType: string;
+  descriptions: string;
+  purposes: string;
+  title: string;
+  products: Product[];
+  bank: string;
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+  currencyCode: string;
+  vendorImage: string;
+  vendorType: string;
+  vendorId: string;
+}
+
+export interface PurchaseItem {
+  id: string | number | null;
+  title: string;
+  quantity: number;
+  unit: any;
+  price: number;
+  total_price: number;
+  remark: string | null;
+  file_name_url: string | null;
+}

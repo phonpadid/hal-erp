@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { Ref } from "vue";
@@ -16,6 +17,7 @@ const createBudgetItemService = () => {
   const budgetItemRepository = new ApiBudgetItemRepository();
   return new BudgetItemDetailsServiceImpl(budgetItemRepository);
 };
+const repository = new ApiBudgetItemRepository();
 
 export const useBudgetItemStore = defineStore("budgetItem", () => {
   // Service
@@ -116,7 +118,7 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
     try {
       const budgetItem = await budgetItemService.createBudgetItem({
         ...budgetItemData,
-        description: budgetItemData.description || '',
+        description: budgetItemData.description || "",
       });
       budgetItems.value = [budgetItem, ...budgetItems.value];
       return budgetItemEntityToInterface(budgetItem);
@@ -206,6 +208,42 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
     pagination.value.total = newPagination.total;
   };
 
+  // In your budget-item.store.ts file
+
+  async function getBudgetItemReport(params: {
+    limit?: number;
+    // column?: string;
+    // sort_order?: string;
+    // budget_account_id?: string;
+    // type?: string;
+    // department_id?: string;
+  }): Promise<BudGetItemEntity | null> {
+    loading.value = true;
+    error.value = null;
+    try {
+      // Pass the entire params object directly to the repository method
+      return await repository.budgetItemReport(params);
+    } catch (err: any) {
+      error.value = err.message || `Failed to fetch budget item report.`;
+      return null;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function getBudgetItemReportById(id: string): Promise<BudGetItemEntity | null> {
+    loading.value = true;
+    error.value = null;
+    try {
+      return await repository.budgetItemReportId(id);
+    } catch (err: any) {
+      error.value = err.message || `Failed to fetch budget item report by ID ${id}.`;
+      return null;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   return {
     // State
     budgetItems,
@@ -214,7 +252,8 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
     error,
     pagination,
     setPagination,
-
+    getBudgetItemReport,
+    getBudgetItemReportById,
     // Getters
     activeBudgetItems,
 

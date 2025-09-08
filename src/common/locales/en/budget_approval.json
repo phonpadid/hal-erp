@@ -4,8 +4,8 @@
     "code": "Code",
     "amount": "Amount",
     "quantity": "Quantity",
-    "name": "Name",
-    "id_name": "Id Name",
+    "remark": "Content",
+    "id_name": "Id Budget",
     "unit": "Unit",
     "price": "Price",
     "total": "Total"

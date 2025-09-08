@@ -6,6 +6,7 @@ export class PurchaseOrderItemDataEntity {
   private readonly purchase_request_item_id: number;
   private readonly budget_item_id: number;
   private readonly remark: string;
+  private readonly title: string;
   private readonly quantity: number;
   private readonly price: number;
   private readonly total: number;
@@ -16,22 +17,45 @@ export class PurchaseOrderItemDataEntity {
   private readonly updated_at: string;
   private readonly budget_item: any;
   private readonly selected_vendor: SelectedVendorEntity[];
+  private readonly purchase_request_item: any; // เพิ่มเพื่อเก็บข้อมูล purchase_request_item
 
-  constructor(data: any) {
+  constructor(data: any, purchaseRequestItems?: any[]) {
     this.id = data.id;
     this.purchase_order_id = data.purchase_order_id;
     this.purchase_request_item_id = data.purchase_request_item_id;
     this.budget_item_id = data.budget_item_id || 0;
-    this.remark = data.remark || '';
+    this.remark = data.remark || "";
+
+    // ลองหา title จาก purchase_request_item ก่อน
+    let itemTitle = data.title || "";
+    if (purchaseRequestItems && data.purchase_request_item_id) {
+      const matchedItem = purchaseRequestItems.find(
+        item => item.id === data.purchase_request_item_id
+      );
+      if (matchedItem && matchedItem.title) {
+        itemTitle = matchedItem.title;
+      }
+    }
+    this.title = itemTitle;
+
     this.quantity = data.quantity || 0;
     this.price = data.price || 0;
     this.total = data.total || 0;
     this.vat_total = data.vat_total || 0;
     this.total_with_vat = data.total_with_vat || 0;
     this.is_vat = data.is_vat || false;
-    this.created_at = data.created_at || '';
-    this.updated_at = data.updated_at || '';
+    this.created_at = data.created_at || "";
+    this.updated_at = data.updated_at || "";
     this.budget_item = data.budget_item;
+
+    // เก็บข้อมูล purchase_request_item สำหรับใช้ในการแสดงผล
+    if (purchaseRequestItems && data.purchase_request_item_id) {
+      this.purchase_request_item = purchaseRequestItems.find(
+        item => item.id === data.purchase_request_item_id
+      );
+    } else {
+      this.purchase_request_item = null;
+    }
 
     // แปลง selected_vendor เป็น array ของ SelectedVendorEntity
     this.selected_vendor = Array.isArray(data.selected_vendor)
@@ -58,6 +82,44 @@ export class PurchaseOrderItemDataEntity {
 
   public getRemark(): string {
     return this.remark;
+  }
+
+  public getTitle(): string {
+    return this.title;
+  }
+
+  // เพิ่ม method สำหรับดึงข้อมูลจาก purchase_request_item
+  public getPurchaseRequestItem(): any {
+    return this.purchase_request_item;
+  }
+
+  public getPurchaseRequestItemTitle(): string {
+    return this.purchase_request_item?.title || this.title || "N/A";
+  }
+
+  public getPurchaseRequestItemRemark(): string {
+    return this.purchase_request_item?.remark || "";
+  }
+
+  public getPurchaseRequestItemUnit(): any {
+    return this.purchase_request_item?.unit || null;
+  }
+
+  public getPurchaseRequestItemUnitName(): string {
+    const unit = this.getPurchaseRequestItemUnit();
+    return unit?.name || "N/A";
+  }
+
+  public getPurchaseRequestItemPrice(): number {
+    return this.purchase_request_item?.price || 0;
+  }
+
+  public getPurchaseRequestItemTotalPrice(): number {
+    return this.purchase_request_item?.total_price || 0;
+  }
+
+  public getPurchaseRequestItemFileUrl(): string {
+    return this.purchase_request_item?.file_name_url || "";
   }
 
   public getQuantity(): number {
@@ -103,7 +165,7 @@ export class PurchaseOrderItemDataEntity {
   public getSelectedVendor(): SelectedVendorEntity | null {
     if (this.selected_vendor && this.selected_vendor.length > 0) {
       // หาผู้ขายที่ถูกเลือก (selected = true)
-      const selectedVendor = this.selected_vendor.find(vendor => vendor.getSelected());
+      const selectedVendor = this.selected_vendor.find((vendor) => vendor.getSelected());
       return selectedVendor || this.selected_vendor[0];
     }
     return null;
@@ -117,12 +179,12 @@ export class PurchaseOrderItemDataEntity {
 
   public getVendorName(): string {
     const vendor = this.getSelectedVendor();
-    return vendor && vendor.getVendor() ? vendor.getVendor().name : 'N/A';
+    return vendor && vendor.getVendor() ? vendor.getVendor().name : "N/A";
   }
 
   public getVendorContactInfo(): string {
     const vendor = this.getSelectedVendor();
-    return vendor && vendor.getVendor() ? vendor.getVendor().contact_info : 'N/A';
+    return vendor && vendor.getVendor() ? vendor.getVendor().contact_info : "N/A";
   }
 
   public getBankAccount(): any {
@@ -132,12 +194,12 @@ export class PurchaseOrderItemDataEntity {
 
   public getAccountName(): string {
     const bankAccount = this.getBankAccount();
-    return bankAccount ? bankAccount.account_name : 'N/A';
+    return bankAccount ? bankAccount.account_name : "N/A";
   }
 
   public getAccountNumber(): string {
     const bankAccount = this.getBankAccount();
-    return bankAccount ? bankAccount.account_number : 'N/A';
+    return bankAccount ? bankAccount.account_number : "N/A";
   }
 
   public getBank(): any {
@@ -147,12 +209,12 @@ export class PurchaseOrderItemDataEntity {
 
   public getBankName(): string {
     const bank = this.getBank();
-    return bank ? bank.name : 'N/A';
+    return bank ? bank.name : "N/A";
   }
 
   public getBankShortName(): string {
     const bank = this.getBank();
-    return bank ? bank.short_name : 'N/A';
+    return bank ? bank.short_name : "N/A";
   }
 
   public getBankLogo(): string | null {
@@ -167,12 +229,12 @@ export class PurchaseOrderItemDataEntity {
 
   public getCurrencyCode(): string {
     const currency = this.getCurrency();
-    return currency ? currency.code : 'LAK';
+    return currency ? currency.code : "LAK";
   }
 
   public getCurrencyName(): string {
     const currency = this.getCurrency();
-    return currency ? currency.name : 'Lao Kip';
+    return currency ? currency.name : "Lao Kip";
   }
 }
 
@@ -181,6 +243,7 @@ class SelectedVendorEntity {
   private readonly purchase_order_item_id: number;
   private readonly vendor_id: number;
   private readonly vendor_bank_account_id: number;
+  private readonly title: string;
   private readonly filename: string;
   private readonly filename_url: string;
   private readonly reason: string;
@@ -195,12 +258,13 @@ class SelectedVendorEntity {
     this.purchase_order_item_id = data.purchase_order_item_id;
     this.vendor_id = data.vendor_id;
     this.vendor_bank_account_id = data.vendor_bank_account_id;
-    this.filename = data.filename || '';
-    this.filename_url = data.filename_url || '';
-    this.reason = data.reason || '';
+    this.title = data.title || "";
+    this.filename = data.filename || "";
+    this.filename_url = data.filename_url || "";
+    this.reason = data.reason || "";
     this.selected = data.selected || false;
-    this.created_at = data.created_at || '';
-    this.updated_at = data.updated_at || '';
+    this.created_at = data.created_at || "";
+    this.updated_at = data.updated_at || "";
     this.vendor = data.vendor || null;
     this.vendor_bank_account = data.vendor_bank_account || null;
   }
@@ -219,6 +283,10 @@ class SelectedVendorEntity {
 
   public getVendorBankAccountId(): number {
     return this.vendor_bank_account_id;
+  }
+
+  public getTitle(): string {
+    return this.title;
   }
 
   public getFilename(): string {

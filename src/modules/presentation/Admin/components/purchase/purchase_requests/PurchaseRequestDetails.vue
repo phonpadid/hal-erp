@@ -87,24 +87,20 @@ const isLastStep = computed(() => {
   return currentApprovalStep.value?.step_number === lastStep?.step_number;
 });
 
+const canApprove = computed(() => {
+  const currentStep = currentApprovalStep.value;
+  const previousStep = getPreviousApprovedStep.value;
 
-// const canApprove = computed(() => {
-//   const currentStep = currentApprovalStep.value;
-//   const previousStep = getPreviousApprovedStep.value;
+  if (!currentStep) return false;
 
+  if (currentStep.step_number === 1) return true;
 
-//   if (!currentStep) return false;
-
-
-//   if (currentStep.step_number === 1) return true;
-
-
-//   return (
-//     previousStep &&
-//     previousStep.status_id === 2 && // APPROVED
-//     previousStep.step_number === currentStep.step_number - 1
-//   );
-// });
+  return (
+    previousStep &&
+    previousStep.status_id === 2 && // APPROVED
+    previousStep.step_number === currentStep.step_number - 1
+  );
+});
 
 const documentDetails = {
   requester: {
@@ -114,12 +110,24 @@ const documentDetails = {
 
 const customButtons = computed(() => {
   // ถ้าไม่สามารถอนุมัติได้ ไม่ต้องแสดงปุ่ม
-  // if (!canApprove.value) {
-  //   return [];
-  // }
+  if (!canApprove.value) {
+    return [];
+  }
 
-  // const currentStep = currentApprovalStep.value;
-  // if (!currentStep) return [];
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep) return [];
+
+  if (currentStep.is_otp) {
+        return [
+            {
+                label: `ອະນຸມັດ`,
+                type: "primary" as ButtonType,
+                onClick: () => {
+                    handleApprove();
+                },
+            },
+        ];
+    }
 
   return [
     {
@@ -174,25 +182,23 @@ const handleOtpConfirm = async (otpCode: string) => {
       statusId: Number(approvedStatusId.value),
       remark: "Approved",
       approvalStepId: Number(currentStep.id),
-      approval_id: approvalIdFromOtp, // <-- ใช้ approval_id ที่ถูกต้อง
-      is_otp: true, // <-- ระบุว่าเป็น OTP
+      approval_id: approvalIdFromOtp,
+      is_otp: true,
       otp: otpCode,
     };
 
-    const success = await approvalStepStore.submitApproval(documentId, payload);
+    await approvalStepStore.submitApproval(documentId, payload);
+    isOtpModalVisible.value = false;
+    // if (success) {
+    //   await purchaseRequestStore.fetchById(documentId);
 
-    // 4. จัดการผลลัพธ์ และ Redirect ถ้าเป็น Step สุดท้าย
-    if (success) {
-      isOtpModalVisible.value = false;
-      await purchaseRequestStore.fetchById(documentId); // โหลดข้อมูลใหม่
-
-      if (isLastStep.value) {
-        router.push({
-          name: "doc-type-select",
-          query: { purchase_request_id: requestDetail.value?.getId() },
-        });
-      }
-    }
+    //   if (isLastStep.value) {
+    //     router.push({
+    //       name: "doc-type-select",
+    //       query: { purchase_request_id: requestDetail.value?.getId() },
+    //     });
+    //   }
+    // }
   } catch (err) {
     console.error("Error in handleOtpConfirm:", err);
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
@@ -255,6 +261,7 @@ const handleApprove = async () => {
     }
   }
 };
+
 const handleReject = async () => {
   if (!rejectReason.value.trim()) {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາລະບຸເຫດຜົນໃນການປະຕິເສດ");

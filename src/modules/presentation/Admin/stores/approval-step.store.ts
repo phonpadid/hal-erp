@@ -6,7 +6,10 @@ import { useRouter } from "vue-router";
 import { SubmitApprovalStepUseCase } from "@/modules/application/useCases/approval-step/submit-approval-step.use-case";
 import { SendOtpUseCase } from "@/modules/application/useCases/approval-step/submit-approval-step.use-case";
 import { ApiApprovalStepRepository } from "@/modules/infrastructure/api-approval-step.repository";
-import type { SubmitApprovalStepInterface,SubmitApprovalStepDepartment } from "@/modules/interfaces/approval-step.interface";
+import type {
+  SubmitApprovalStepInterface,
+  SubmitApprovalStepDepartment,
+} from "@/modules/interfaces/approval-step.interface";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 
 interface PurchaseOrderItem {
@@ -87,8 +90,8 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
 
       if (success) {
         showSuccess("ສຳເລັດ", "ອະນຸມັດສຳເລັດ");
-        router.push({ name: "purchaseRequestsList" });
       }
+      // router.push({ name: "purchaseRequestsList" });
       return success;
     } catch (err: unknown) {
       error.value = err as Error;
@@ -98,8 +101,11 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
       loading.value = false;
     }
   };
-  
-  const submitPurchaseDetails = async (documentId: string, payload: SubmitApprovalStepInterface) => {
+
+  const submitPurchaseDetails = async (
+    documentId: string,
+    payload: SubmitApprovalStepInterface
+  ) => {
     loading.value = true;
     error.value = null;
     try {
@@ -136,7 +142,10 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
     }
   };
 
-  const submitApprovalDepartMent = async (documentId: string, payload: SubmitApprovalStepDepartment) => {
+  const submitApprovalDepartMent = async (
+    documentId: string,
+    payload: SubmitApprovalStepDepartment
+  ) => {
     loading.value = true;
     error.value = null;
     try {
@@ -161,7 +170,7 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
 
       if (success) {
         showSuccess("ສຳເລັດ", "ອະນຸມັດສຳເລັດ");
-        router.push({ name: "approval_department_panak" });
+        // router.push({ name: "approval_department_panak" });
       }
       return success;
     } catch (err: unknown) {
@@ -219,11 +228,10 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
       const response = await sendOtpUseCase.execute(approvalStepId);
 
       if (response) {
-
         otpResponse.value = response;
 
         showSuccess("ສຳເລັດ", "ສົ່ງ OTP ສຳເລັດ");
-        console.log("OTP sent successfully. Received approval_id:", response.approval_id);
+        // console.log("OTP sent successfully. Received approval_id:", response.approval_id);
       }
 
       return response;
@@ -257,7 +265,6 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
         approval_id: otpResponse.value?.approval_id,
         purchase_order_items: purchaseOrderItems,
         files: [],
-
       };
 
       console.log("Submitting PO approval with payload:", payload);
@@ -289,6 +296,6 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
     submitPurchaseOrderApproval,
     sendOtp,
     submitApprovalDepartMent,
-    submitPurchaseDetails
+    submitPurchaseDetails,
   };
 });

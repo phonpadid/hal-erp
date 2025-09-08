@@ -11,7 +11,8 @@
     "total_price": "Total Price",
     "image": "Image",
     "remark": "Remark",
-    "action": "Action"
+    "action": "Action",
+    "vendor": "Vendor"
 
   }
 }
