@@ -1,10 +1,14 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
-import { nextTick, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 import { columnsApprovalDetails } from "../../views/budget/budget-approval/column/columnDetails";
 import { useI18n } from "vue-i18n";
-import { purchaseRequestData } from "@/modules/shared/utils/purchaseRequestDetails";
+import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-order";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
+import { useRoute } from "vue-router";
+import { Icon } from "@iconify/vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
@@ -13,12 +17,15 @@ import HeaderComponent from "@/common/shared/components/header/HeaderComponent.v
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderShowDrawer from "../purchase/purchase_orders/PurchaseOrderShowDrawer.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import { useNotification } from "@/modules/shared/utils/useNotification";
-import { Icon } from "@iconify/vue";
 import BudgetApprovalDrawer from "./BudgetApprovalDrawer.vue";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 /********************************************************* */
 const { t } = useI18n();
 const { success, error } = useNotification();
+const store = usePurchaseOrderStore();
+const route = useRoute();
+const orderDetails = ref<PurchaseOrderEntity | null>(null);
+const orderId = ref<number | null>(null);
 const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
@@ -29,7 +36,8 @@ const visibleBudget = ref(false);
 const showDrawer = () => {
   visible.value = true;
 };
-const showBudgetDrawer = () => {
+const showBudgetDrawer = (record: any) => {
+  activeItemRecord.value = record;
   visibleBudget.value = true;
 };
 const otpValue = ref<string[]>(Array(6).fill(""));
@@ -39,6 +47,28 @@ const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const isSuccessModalVisible = ref(false);
 const signatureData = ref("");
+
+const fetchOrderDetails = async () => {
+  const id = parseInt(route.params.id as string, 10);
+  if (isNaN(id)) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບລະຫັດເອກະສານ");
+    return;
+  }
+  orderId.value = id;
+  const result = await store.fetchById(id);
+  if (result) {
+    orderDetails.value = result;
+  } else {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດດຶງຂໍ້ມູນເອກະສານໄດ້");
+  }
+};
+/***************ດຶງຂໍ້ມູນ********************* */
+onMounted(fetchOrderDetails);
+/***************ດຶງຂໍ້ມູນ********************* */
+
+const getItemsForTable = computed(() => {
+  return orderDetails.value?.getPurchaseOrderItem() ?? [];
+});
 // Custom buttons for header
 const customButtons = [
   {
@@ -70,9 +100,12 @@ const customButtons = [
   },
 ];
 
-const handleBudgetConfirm = (data: { budgetType: string; budgetCode: string }) => {
-  console.log("Selected budget:", data);
-  visible.value = false;
+const handleBudgetConfirm = (data: any) => {
+  if (activeItemRecord.value) {
+    selectedBudgets.value[activeItemRecord.value.id] = data;
+    console.log("Selected budgets:", selectedBudgets.value);
+  }
+  visibleBudget.value = false;
 };
 const userInfo = {
   name: "ນາງ ປາກາລີ ລາຊະບູລີ",
@@ -119,20 +152,35 @@ const documentDetails = {
 };
 
 // Signatures
-const signatures = [
-  {
-    role: "ຜູ້ສະເໜີ",
-    name: "ພົມມະກອນ ຄວາມຄູ",
-    position: "ພະນັກງານພັດທະນາລະບົບ",
-    signature: "/public/2.png",
-  },
-  {
-    role: "ຜູ້ອານຸມັດ",
-    name: "ພອນປະດິດ ພົນສຸຄຳ",
-    position: "ພະນັກງານພັດທະນາລະບົບ",
-    signature: "/public/3.png",
-  },
-];
+const signatures = computed(() => {
+  const sigs = [];
+  const requester = orderDetails.value?.getRequester();
+  const userApproval = orderDetails.value?.getUserApproval();
+  const approvedStep = userApproval?.approval_step?.find((step: any) => step.status_id === 2); // APPROVED status id
+  const approver = approvedStep?.approver;
+
+  // ลายเซ็นของผู้เสนอ (Requester)
+  if (requester) {
+    sigs.push({
+      role: "ຜູ້ສະເໜີ",
+      name: requester.username,
+      position: orderDetails.value?.getPosition()?.[0]?.name,
+      signature_url: requester.user_signature?.signature_url || null,
+    });
+  }
+
+  // ลายเซ็นของผู้ที่อนุมัติ
+  if (approver) {
+    sigs.push({
+      role: "ຜູ້ອານຸມັດ",
+      name: approver.username,
+      position: "ຜູ້ຈັດການ", // สมมติว่า role นี้เป็นผู้จัดการ
+      signature_url: approver.user_signature?.signature_url || null,
+    });
+  }
+
+  return sigs;
+});
 // OTP
 const handleOtpInput = (value: string, index: number) => {
   const numericValue = value.replace(/[^0-9]/g, "");
@@ -186,7 +234,6 @@ const handlePaste = (event: ClipboardEvent) => {
         otpValue.value[index] = digit;
       }
     });
-    // โฟกัสที่ช่องถัดจากตัวเลขสุดท้ายที่วาง
     const nextIndex = Math.min(digits.length, 5);
     nextTick(() => {
       const nextInput = otpInputRefs.value[nextIndex];
@@ -257,6 +304,10 @@ const handleModalCancel = () => {
   otpValue.value = Array(6).fill("");
   signatureData.value = "";
 };
+
+/************************Drawer**************************** */
+const selectedBudgets = ref<Record<string, any>>({});
+const activeItemRecord = ref<any>(null);
 </script>
 
 <template>
@@ -267,12 +318,11 @@ const handleModalCancel = () => {
       :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
       document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
       document-number="0036/ພລ - ວັນທີ"
-      :document-date="('2025-03-26')"
+      :document-date="'2025-03-26'"
       :action-buttons="customButtons"
       document-status="ລໍຖ້າງົບປະມານກວດສອບ"
       document-status-class="text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"
     />
-    <UiButton @click="showBudgetDrawer">ເລືອກງົບປະມານ</UiButton>
     <!-- Action Buttons -->
     <UiModal
       title="ປະຕິເສດ"
@@ -470,8 +520,14 @@ const handleModalCancel = () => {
       />
     </UiDrawer>
 
+    <div v-if="store.loading" class="flex justify-center items-center h-48">
+      <p>ກຳລັງດຶງຂໍ້ມູນ...</p>
+    </div>
+    <div v-else-if="store.error">
+      <p>ເກີດຂໍ້ຜິດພາດ: {{ store.error }}</p>
+    </div>
     <!-- Main Content -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+    <div class="bg-white rounded-lg shadow-sm p-6 mt-6" v-else-if="orderDetails">
       <h2>ຂໍ້ມູນສ້າງໃບອານຸມັດຈັດຊື້ - ຈັດຈ້າງ</h2>
       <!-- Requester Information -->
       <div class="flex items-start gap-4 mb-2">
@@ -481,8 +537,10 @@ const handleModalCancel = () => {
           class="w-14 h-14 rounded-full mb-2"
         />
         <div>
-          <h4>{{ documentDetails.requester.name }}</h4>
-          <p class="text-gray-600">{{ documentDetails.requester.position }}</p>
+          <h4>{{ orderDetails?.getRequester()?.username }}</h4>
+          <p class="text-gray-600">
+            {{ orderDetails?.getDepartment()?.name }}, {{ orderDetails?.getPosition()?.[0]?.name }}
+          </p>
         </div>
       </div>
       <!-- ຂໍ້ມຸນຜູ້ສະເໜີ -->
@@ -491,19 +549,19 @@ const handleModalCancel = () => {
         <div class="grid grid-cols-4">
           <div class="grid grid-rows-2">
             <h5>ຂໍ້ສະເໜີເບີກງົບປະມານ</h5>
-            <span class="text-sm">ຈັດຊື້ຄອມພີວເຕີ</span>
+            <span class="text-sm">{{ orderDetails?.getPurposes() }}</span>
           </div>
           <div class="grid grid-rows-2">
             <h5>ຈຳນວນ</h5>
-            <span class="text-sm">1</span>
+            <span class="text-sm">{{ orderDetails?.getPurchaseOrderItem()?.length }}</span>
           </div>
           <div class="grid grid-rows-2">
             <h5>ພະແນກ</h5>
-            <span class="text-sm">ພັດທະນາທຸລະກິດ</span>
+            <span class="text-sm">{{ orderDetails?.getDepartment()?.name }}</span>
           </div>
           <div class="grid grid-rows-2">
             <h5>ໜ່ວຍງານ</h5>
-            <span class="text-sm">ພະນັກງານ</span>
+            <span class="text-sm"> {{ orderDetails?.getPosition()?.[0]?.name }}</span>
           </div>
         </div>
       </div>
@@ -511,20 +569,59 @@ const handleModalCancel = () => {
       <!-- Purpose -->
       <div class="mb-6">
         <h4 class="text-base font-semibold mb-2">ຈຸດປະສົງ ແລະ ລາຍການ</h4>
-        <p class="text-gray-600">{{ documentDetails.purpose }}</p>
+        <p class="text-gray-600">{{ orderDetails?.getDocument()?.description }}</p>
       </div>
 
       <!-- Items Table -->
       <div class="mb-6">
         <h4 class="text-base font-semibold mb-2">ລາຍການ</h4>
-        <Table :columns="columnsApprovalDetails(t)" :dataSource="purchaseRequestData">
+        <Table :columns="columnsApprovalDetails(t)" :dataSource="getItemsForTable">
+          <template #number="{ index }">
+            <span>{{ index + 1 }}</span>
+          </template>
+          <template #quantity="{ record }">
+            <span class="text-gray-600"
+              >{{ record.quantity }}
+              {{
+                orderDetails.getPurchaseRequest()?.purchase_request_item?.[0]?.unit?.name || "N/A"
+              }}</span
+            >
+          </template>
+          <template #id_name="{ record }">
+            <span class="text-gray-600">
+              <div v-if="selectedBudgets[record.id]">
+                <span class="font-semibold text-blue-700">
+                  {{ selectedBudgets[record.id].budgetCode }} -
+                  {{ selectedBudgets[record.id].budgetName }}
+                </span>
+                <UiButton @click="showBudgetDrawer(record)" type="link" class="p-0 text-blue-500">
+                  ແກ້ໄຂ
+                </UiButton>
+              </div>
+              <div v-else>
+                <UiButton
+                  @click="showBudgetDrawer(record)"
+                  type="default"
+                  class="w-full flex justify-between items-center text-blue-600 font-medium"
+                >
+                  <div class="flex-grow text-left">ເລືອກປະເພດງົບປະມານ</div>
+
+                  <Icon icon="mdi:chevron-right" class="text-xl" />
+                </UiButton>
+              </div>
+            </span>
+          </template>
           <template #price="{ record }">
-            <span class="text-gray-600">{{ record.unit }} {{ record.price.toLocaleString() }}</span>
+            <span class="text-gray-600">{{ record.price.toLocaleString() }}</span>
+          </template>
+          <template #total="{ record }">
+            <span class="text-gray-600">{{ record.total.toLocaleString() }}</span>
           </template>
         </Table>
         <div>
           <p class="text-gray-500 mt-2 flex justify-end">
-            {{ t("purchase_qequest.table.total") }}: <span class="font-semibold">25,936,000 ₭</span>
+            {{ t("purchase_qequest.table.total") }}:
+            <span class="font-semibold">{{ formatPrice(orderDetails?.getTotalWithVAT()) }}</span>
           </p>
         </div>
       </div>
@@ -533,7 +630,11 @@ const handleModalCancel = () => {
       <div class="mb-6">
         <h4 class="text-base font-semibold mb-2">ໃບສະເໜີລາຄາ</h4>
         <div class="border rounded-lg p-4">
-          <img src="/public/5.png" alt="MacBook Air" class="max-w-md rounded-lg" />
+          <img
+            :src="orderDetails?.getQuotationImageUrl() || 'ບໍ່ມີຂໍ້ມູນຮູບ'"
+            alt="MacBook Air"
+            class="max-w-md rounded-lg"
+          />
         </div>
       </div>
       <!-- ຂໍ້ມູນບັນຊີທະນາຄານ -->
@@ -542,17 +643,22 @@ const handleModalCancel = () => {
         <div class="grid grid-cols-2 mb-2">
           <span class="font-medium">ທະນາຄານ:</span>
           <span class="text-gray-600 flex items-center gap-2">
-            <img src="/public/bclone.png" class="w-8 h-8" alt="" />
-            <span>BCEL One ທະນາຄານການຄ້າຕ່າງປະເທດລາວ</span>
+            <img
+              :src="orderDetails.getBankLogo() || '/public/bclone.png'"
+              class="w-8 h-8"
+              alt="ໂລໂກ້ທະນາຄານ"
+            />
+
+            <span> {{ orderDetails?.getBankName() }}</span>
           </span>
         </div>
         <div class="grid grid-cols-2 mb-2">
           <span class="font-medium">ຊືບັນຊີ:</span>
-          <span class="text-gray-600">KHAMTHANOM MALAYSIN MR</span>
+          <span class="text-gray-600">{{ orderDetails.getAccountName() }}</span>
         </div>
         <div class="grid grid-cols-2">
-          <span class="font-medium">ເລກບັນຊີ LAK:</span>
-          <span class="text-gray-600">0302000410086756</span>
+          <span class="font-medium">ເລກບັນຊີ {{ orderDetails.getCurrencyCode() }}:</span>
+          <span class="text-gray-600">{{ orderDetails.getAccountNumber() }}</span>
         </div>
       </div>
       <!-- Signatures -->
@@ -560,7 +666,11 @@ const handleModalCancel = () => {
         <h4 class="text-base font-semibold mb-4 col-span-2">ລາຍເຊັ່ນ</h4>
         <div v-for="(sig, index) in signatures" :key="index">
           <p class="font-semibold mb-2">{{ sig.role }}</p>
-          <img :src="sig.signature" :alt="`${sig.role} signature`" class="h-16 mb-2" />
+          <img
+            :src="sig.signature_url || '/placeholder-signature.png'"
+            :alt="`${sig.role} signature`"
+            class="h-16 mb-2"
+          />
           <p class="font-semibold">{{ sig.name }}</p>
           <p class="text-gray-600">{{ sig.position }}</p>
         </div>

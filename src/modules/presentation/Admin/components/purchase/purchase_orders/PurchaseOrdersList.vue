@@ -36,7 +36,6 @@ const rejectedCount = computed(
 );
 
 const handleDetailsDocument = (record: any) => {
-  console.log("Viewing details for document:", record);
   router.push({ name: "purchaseOrdersDetails", params: { id: record.id } });
 };
 
@@ -208,7 +207,7 @@ onMounted(async () => {
         />
       </template>
       <template #po_number="{ record }">
-        <span class="font-semibold">{{ record.getPoNumber() }}</span>
+        <span class="font-semibold">{{ record.getPurchaseRequest()?.pr_number }}</span>
       </template>
 
       <template #requester="{ record }">

@@ -129,7 +129,7 @@ const actionButtons = computed<ActionButton[]>(() => {
           type: undefined,
         },
         {
-          label: t("purchase-rq.btn.submit"),
+          label: t("purchase-rq.btn.confirm"),
           onClick: async () => await handleDone(props.stepsData),
           show: true,
           disabled: false,

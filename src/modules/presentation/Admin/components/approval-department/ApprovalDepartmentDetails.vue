@@ -82,13 +82,54 @@
         <!-- Items Table -->
         <div class="mb-6">
           <h4 class="text-base font-semibold mb-2">ລາຍການ</h4>
-          <Table :columns="columnsDetails(t)" :dataSource="getItemsForTable">
+          <Table :columns="columnsDetails(t)" :dataSource="purchaseOrderStore.orders">
             <template #index="{ index }">
               <span>{{ index + 1 }}</span>
             </template>
             <template #title="{ record }">
-              <span>{{ record.title }}</span>
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                {{ record.getPurchaseOrderItem()[0].getTitle() }}
+              </span>
+              <span v-else> - </span>
             </template>
+            <template #remark="{ record }">
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                {{ record.getPurchaseOrderItem()[0].getRemark() }}
+              </span>
+              <span v-else> - </span>
+            </template>
+            <template #quantity="{ record }">
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                {{ record.getPurchaseOrderItem()[0].getQuantity() }}
+              </span>
+              <span v-else> - </span>
+            </template>
+            <template #price="{ record }">
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                {{ formatPrice(record.getPurchaseOrderItem()[0].getPrice()) }} ₭
+              </span>
+              <span v-else> - </span>
+            </template>
+            <!-- <template #image="{ record }">
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                <img
+                  :src="record.getImageUrl()"
+                  alt="Product Image"
+                  class="w-12 h-12 object-cover"
+                />
+              </span>
+              <span v-else> - </span>
+            </template> -->
           </Table>
           <div>
             <p class="text-gray-500 mt-2 flex justify-end">
@@ -336,7 +377,7 @@
     :visible="isSignatureModalVisible"
     :confirm-loading="confirmLoading"
     @update:visible="isSignatureModalVisible = $event"
-    @ok="handleSignatureConfirm"
+    @ok="handleSuccessConfirm"
     @cancel="handleModalCancel"
   >
     <div>
@@ -454,11 +495,12 @@ import { storeToRefs } from "pinia";
 import { useApprovalStepStore } from "../../stores/approval-step.store";
 import { useDocumentStatusStore } from "../../stores/document-status.store";
 import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
+// import OtpModal from "../purchase-requests/modal/OtpModal.vue";
 
 /********************************************************* */
 const purchaseOrderStore = usePurchaseOrderStore();
 const approvalStepStore = useApprovalStepStore();
-const approvalStepId = ref<number | null>(null);
+// const approvalStepId = ref<number | null>(null);
 const route = useRoute();
 const orderId = ref<number>(parseInt(route.params.id as string, 10));
 const { t } = useI18n();
@@ -481,9 +523,9 @@ const topbarStyle = computed(() => {
 
 /*********************Check State OTP**************************** */
 const documentStatusStore = useDocumentStatusStore();
-const requiresOtp = ref(false);
+// const requiresOtp = ref(false);
 const modalAction = ref("");
-const approvalId = ref<number | null>(null);
+// const approvalId = ref<number | null>(null);
 
 const approvedStatusId = computed(() => {
   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
@@ -508,11 +550,10 @@ const handleResendOtp = async () => {
     const result = await approvalStepStore.sendOtp(currentApprovalStep.value.id);
     if (result) {
       success("ສຳເລັດ", "ສົ່ງລະຫັດ OTP ໃໝ່ສຳເລັດ");
-      // รีเซ็ต OTP input
       otpValue.value = Array(6).fill("");
     }
-  } catch (err) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງລະຫັດ OTP ໄດ້");
+  } catch (err: unknown) {
+    console.error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງລະຫັດ OTP ໄດ້", err);
   }
 };
 /*********************Check State OTP**************************** */
@@ -560,31 +601,30 @@ const showApprovalSuccess = ref(false);
 const otpValue = ref<string[]>(Array(6).fill(""));
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const otpInputRefs = ref<any[]>([]);
-const currentStep = ref(0);
 const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const isSuccessModalVisible = ref(false);
 const signatureData = ref("");
-const getItemsForTable = computed(() => {
-  if (
-    orderDetails.value &&
-    orderDetails.value.getPurchaseOrderItem &&
-    orderDetails.value.getPurchaseOrderItem().length > 0
-  ) {
-    return orderDetails.value.getPurchaseOrderItem().map((item) => ({
-      id: item.getId(),
-      title: item.getRemark(),
-      remark: item.getRemark(),
-      quantity: item.getQuantity(),
-      price: formatPrice(item.getPrice()),
-      total: item.getTotal(),
-      is_vat: item.getIsVat(),
-      vat_total: item.getVatTotal(),
-      total_with_vat: item.getTotalWithVat(),
-    }));
-  }
-  return orderDetails.value?.getItems() ?? [];
-});
+// const getItemsForTable = computed(() => {
+//   if (
+//     orderDetails.value &&
+//     orderDetails.value.getPurchaseOrderItem &&
+//     orderDetails.value.getPurchaseOrderItem().length > 0
+//   ) {
+//     return orderDetails.value.getPurchaseOrderItem().map((item) => ({
+//       id: item.getId(),
+//       title: item.getPurchaseRequestItem()?.getTitle(),
+//       remark: item.getRemark(),
+//       quantity: item.getQuantity(),
+//       price: formatPrice(item.getPrice()),
+//       total: item.getTotal(),
+//       is_vat: item.getIsVat(),
+//       vat_total: item.getVatTotal(),
+//       total_with_vat: item.getTotalWithVat(),
+//     }));
+//   }
+//   return orderDetails.value?.getItems() ?? [];
+// });
 const getTotalAmount = computed(() => {
   if (
     orderDetails.value &&
@@ -709,169 +749,6 @@ const userInfo = {
   department: "ພະແນກໄອທີ, ພະບໍລິມາດ",
 };
 
-// Handle approve
-// const handleApprove = async () => {
-//   if (!orderDetails.value) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
-//     return false;
-//   }
-
-//   try {
-//     const userApproval = orderDetails.value.getUserApproval();
-//     if (!userApproval?.approval_step?.[0]) {
-//       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
-//       return false;
-//     }
-
-//     const currentStep = userApproval.approval_step[0];
-//     approvalStepId.value = currentStep.id;
-//     requiresOtp.value = currentStep.is_otp === true;
-//     modalAction.value = "approve";
-
-//     if (requiresOtp.value && approvalStepId.value) {
-//       const otpData = await approvalStepStore.sendOtp(approvalStepId.value);
-//       if (!otpData) {
-//         return false;
-//       }
-//       approvalId.value = otpData.approval_id;
-//       isApproveModalVisible.value = false;
-//       isOtpModalVisible.value = true;
-//       return true;
-//     } else {
-//       const documentId = route.params.id as string;
-
-//       const purchaseOrderItems = orderDetails.value.getPurchaseOrderItem().map(item => ({
-//         id: item.getId(),
-//         budget_item_id: item.getBudgetItemId()
-//       }));
-
-//       const payload = {
-//         type: "po" as const,
-//         statusId: Number(approvedStatusId.value),
-//         remark: "ຢືນຢັນສຳເລັດ",
-//         approvalStepId: Number(approvalStepId.value),
-//         is_otp: false,
-//         purchase_order_items: purchaseOrderItems,
-//         files: [], // เพิ่มถ้าจำเป็น
-//         account_code: "" // เพิ่มถ้าจำเป็น
-//       };
-
-//       const success = await approvalStepStore.submitApproval(documentId, payload);
-//       if (success) {
-//         isApproveModalVisible.value = false;
-//         isSuccessModalVisible.value = true;
-//         return true;
-//       }
-//     }
-//     return false;
-//   } catch (err) {
-//     console.error("Error in handleApprove:", err);
-//     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
-//     return false;
-//   }
-// };
-
-// const handleOtpConfirm = async (otpCode: string) => {
-//   if (!otpCode) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
-//     return;
-//   }
-
-//   if (!approvalStepId.value) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຂັ້ນຕອນການອະນຸມັດ");
-//     return;
-//   }
-
-//   try {
-//     confirmLoading.value = true;
-//     const approvalIdFromStore = approvalStepStore.otpResponse?.approval_id;
-
-//     if (!approvalIdFromStore) {
-//       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນການອະນຸມັດ");
-//       return;
-//     }
-
-//     // สร้าง purchase_order_items จาก orderDetails
-//     const purchaseOrderItems = orderDetails.value?.getPurchaseOrderItem().map(item => ({
-//       id: item.getId(),
-//       budget_item_id: item.getBudgetItemId() // ต้องเพิ่มเมธอด getBudgetItemId() ใน entity
-//     })) || [];
-
-//     const documentId = route.params.id as string;
-//     const payload = {
-//       type: "po" as const,
-//       statusId: Number(approvedStatusId.value), // ต้องแน่ใจว่าไม่เป็น null
-//       remark: "ຢືນຢັນສຳເລັດ",
-//       approvalStepId: Number(approvalStepId.value),
-//       approval_id: approvalIdFromStore,
-//       is_otp: true,
-//       otp: otpCode,
-//       purchase_order_items: purchaseOrderItems,
-//       files: [], // เพิ่มถ้าจำเป็น
-//       account_code: "" // เพิ่มถ้าจำเป็น
-//     };
-
-//     const success = await approvalStepStore.submitApproval(documentId, payload);
-
-//     if (success) {
-//       isOtpModalVisible.value = false;
-//       setTimeout(() => {
-//         isSuccessModalVisible.value = true;
-//       }, 300);
-//     } else {
-//       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດຢືນຢັນ OTP ໄດ້");
-//     }
-//   } catch (err) {
-//     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
-//   } finally {
-//     confirmLoading.value = false;
-//   }
-// };
-// const handleOtpConfirm = async (otpCode: string) => {
-//   if (!orderDetails.value || !currentApprovalStep.value) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນທີ່ຈຳເປັນ");
-//     return;
-//   }
-
-//   if (!approvedStatusId.value) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບສະຖານະການອະນຸມັດ");
-//     return;
-//   }
-
-//   try {
-//     confirmLoading.value = true;
-//     const currentDate = new Date().toISOString().slice(0, 19).replace("T", " ");
-
-//     const payload = {
-//       type: "po" as const,
-//       statusId: Number(approvedStatusId.value), // ใช้ค่าจาก store
-//       remark: "ຢືນຢັນສຳເລັດ",
-//       approvalStepId: Number(currentApprovalStep.value.id),
-//       approval_id: Number(approvalStepStore.otpResponse?.approval_id),
-//       is_otp: true,
-//       otp: otpCode,
-//       purchase_order_items: [],
-//       files: [],
-//       approver_id: "phonpadid",
-//       approved_at: currentDate,
-//     };
-
-//     console.log("Sending payload:", JSON.stringify(payload, null, 2));
-
-//     const documentId = route.params.id as string;
-//     const success = await approvalStepStore.submitApproval(documentId, payload);
-
-//     if (success) {
-//       isOtpModalVisible.value = false;
-//       isSuccessModalVisible.value = true;
-//     }
-//   } catch (err) {
-//     console.error("Error in handleOtpConfirm:", err);
-//     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
-//   } finally {
-//     confirmLoading.value = false;
-//   }
-// };
 const handleOtpConfirm = async (otpCode: string) => {
   if (!orderDetails.value || !currentApprovalStep.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນທີ່ຈຳເປັນ");
@@ -921,15 +798,11 @@ const handleApprove = async () => {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບສະຖານະການອະນຸມັດ");
     return false;
   }
-
   try {
-    // ดึงข้อมูล purchase_order_item จาก entity
     const purchaseOrderItems = orderDetails.value.getPurchaseOrderItem().map((item) => ({
       id: Number(item.getId()),
       budget_item_id: Number(item.getBudgetItemId() || 1),
     }));
-
-    // ถ้าต้องใช้ OTP
     if (currentApprovalStep.value.is_otp) {
       const otpResult = await approvalStepStore.sendOtp(currentApprovalStep.value.id);
       if (otpResult) {
@@ -937,10 +810,6 @@ const handleApprove = async () => {
       }
       return false;
     }
-
-    const currentDate = new Date().toISOString().slice(0, 19).replace("T", " ");
-
-    // ถ้าไม่ต้องใช้ OTP
     const payload = {
       type: "po" as const,
       statusId: Number(approvedStatusId.value), // ใช้ค่าจาก store
@@ -949,12 +818,7 @@ const handleApprove = async () => {
       is_otp: false,
       purchase_order_items: purchaseOrderItems,
       files: [],
-      approver_id: "phonpadid",
-      approved_at: currentDate,
     };
-
-    console.log("Sending non-OTP payload:", JSON.stringify(payload, null, 2));
-
     const documentId = route.params.id as string;
     const success = await approvalStepStore.submitApprovalDepartMent(documentId, payload);
 
@@ -1077,65 +941,16 @@ const handlePaste = (event: ClipboardEvent) => {
 };
 
 /********************************************************** */
-// const handleOtpConfirm = async (otpCode: string) => {
-//   if (!otpCode) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
-//     return;
-//   }
-
-//   if (!approvalStepId.value) {
-//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຂັ້ນຕອນການອະນຸມັດ");
-//     return;
-//   }
-
-//   try {
-//     confirmLoading.value = true;
-//     const approvalId = approvalStepStore.otpResponse?.approval_id;
-
-//     if (!approvalId) {
-//       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນການອະນຸມັດ");
-//       return;
-//     }
-//     const documentId = route.params.id as string;
-//     const payload = {
-//       type: "po" as const,
-//       statusId: Number(approvedStatusId.value),
-//       remark: "Approved",
-//       approvalStepId: Number(approvalStepId.value),
-//       approval_id: approvalId,
-//       otp: otpCode,
-//       is_otp: true,
-//     };
-//     const { approval_id } = payload;
-
-//     const success = await approvalStepStore.submitApproval(documentId, {
-//       ...payload,
-//       approval_id,
-//     });
-
-//     if (success) {
-//       isOtpModalVisible.value = false;
-//       setTimeout(() => {
-//         isSuccessModalVisible.value = true;
-//       }, 300);
-//     } else {
-//       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດຢືນຢັນ OTP ໄດ້");
-//     }
-//   } catch (err) {
-//     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
-//   } finally {
-//     confirmLoading.value = false;
-//   }
-// };
-
-// Handle signature confirmation
 const handleSignatureConfirm = async () => {
   try {
     confirmLoading.value = true;
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    isSignatureModalVisible.value = false;
-    isSuccessModalVisible.value = true;
+    isSignatureModalVisible.value = false; // ปิด Modal ลายเซ็น
+    isSuccessModalVisible.value = true; // เปิด Modal สำเร็จ
     success("ການຢືນຢັນສຳເລັດ");
+  } catch (err) {
+    console.error(err);
+    error("ການຢືນຢັນລາຍເຊັນລົ້ມເຫລວ");
   } finally {
     confirmLoading.value = false;
   }
@@ -1147,7 +962,7 @@ const handleSuccessConfirm = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     isSuccessModalVisible.value = false;
     success("ການຢືນຢັນສຳເລັດ");
-    currentStep.value = 1;
+    // currentStep.value = 1;
     showApprovalSuccess.value = true;
   } catch (err) {
     console.error(err);

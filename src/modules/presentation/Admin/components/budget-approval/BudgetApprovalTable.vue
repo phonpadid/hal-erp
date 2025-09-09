@@ -1,10 +1,11 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { purchaseOrderData } from "@/modules/shared/utils/purchaseOrder";
 import { columnsApproval } from "../../views/budget/budget-approval/column/cloumn";
 import { useI18n } from "vue-i18n";
+import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-order";
+import { formatDate } from "@/modules/shared/formatdate";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -16,10 +17,25 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 const { t } = useI18n();
 const filterType = ref<string | null>(null);
 const router = useRouter();
+const store = usePurchaseOrderStore();
 const dates = reactive({
   startDate: null,
   endDate: null,
 });
+
+// Computed properties for status counts
+const pendingCount = computed(
+  () => store.statusSummary.find((s) => s.status === "PENDING")?.amount || 0
+);
+const completedCount = computed(
+  () => store.statusSummary.find((s) => s.status === "COMPLETED")?.amount || 0
+);
+const rejectedCount = computed(
+  () => store.statusSummary.find((s) => s.status === "REJECTED")?.amount || 0
+);
+const getDocumentStatus = (record: any) => {
+  return record.getUserApproval()?.document_status?.name || "N/A";
+};
 
 const handleDetailsDocument = (record: any) => {
   // console.log("Viewing details for document:", record);
@@ -33,12 +49,12 @@ const documentTypes = [
 ];
 
 const getStatusColor = (status: string) => {
-  switch (status) {
-    case "pending":
+  switch (status?.toUpperCase()) {
+    case "PENDING":
       return "warning";
-    case "completed":
+    case "COMPLETED":
       return "success";
-    case "rejected":
+    case "REJECTED":
       return "error";
     default:
       return "default";
@@ -46,12 +62,12 @@ const getStatusColor = (status: string) => {
 };
 
 const getStatusIcon = (status: string) => {
-  switch (status) {
-    case "pending":
+  switch (status?.toUpperCase()) {
+    case "PENDING":
       return "ant-design:clock-circle-outlined";
-    case "completed":
+    case "COMPLETED":
       return "ant-design:check-circle-outlined";
-    case "rejected":
+    case "REJECTED":
       return "ant-design:close-circle-outlined";
     default:
       return "";
@@ -59,29 +75,35 @@ const getStatusIcon = (status: string) => {
 };
 
 const getStatusText = (status: string) => {
-  switch (status) {
-    case "pending":
+  switch (status?.toUpperCase()) {
+    case "PENDING":
       return "ກຳລັງດຳເນີນການ";
-    case "completed":
+    case "COMPLETED":
       return "ສຳເລັດ";
-    case "rejected":
+    case "REJECTED":
       return "ປະຕິເສດ";
     default:
-      return status;
+      return status || "N/A";
   }
 };
 
-const handleSearch = () => {
-  console.log("Searching with:", {
-    type: filterType.value,
-    dateRange: dates,
+const handleSearch = async () => {
+  await store.fetchAll({
+    page: 1,
+    limit: 10,
   });
 };
 
-// Handle table change
-const handleTableChange = (pag: any, filters: any, sorter: any) => {
-  console.log("Table changed:", { pag, filters, sorter });
+const handleTableChange = async (pagination: any) => {
+  await store.fetchAll({
+    page: pagination.current,
+    limit: pagination.pageSize,
+  });
 };
+
+onMounted(async () => {
+  await store.fetchAll();
+});
 </script>
 
 <template>
@@ -114,9 +136,9 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
   </div>
   <div></div>
   <div class="grid grid-cols-3 mt-2">
-    <h1 class="text-xl font-semibold text-yellow-600">12 ໃບສະເໜີ</h1>
-    <h1 class="text-xl font-semibold text-green-600">12 ໃບສະເໜີ</h1>
-    <h1 class="text-xl font-semibold text-red-600">12 ໃບສະເໜີ</h1>
+    <h1 class="text-xl font-semibold text-yellow-600">{{ pendingCount }} ໃບສະເໜີ</h1>
+    <h1 class="text-xl font-semibold text-green-600">{{ completedCount }} ໃບສະເໜີ</h1>
+    <h1 class="text-xl font-semibold text-red-600">{{ rejectedCount }} ໃບສະເໜີ</h1>
   </div>
 
   <!-- Filters section -->
@@ -162,16 +184,29 @@ const handleTableChange = (pag: any, filters: any, sorter: any) => {
   <div class="bg-white rounded-lg shadow-sm">
     <Table
       :columns="columnsApproval(t)"
-      :data-source="purchaseOrderData"
+      :loading="store.loading"
+      :data-source="store.orders"
+      :pagination="store.pagination"
       @change="handleTableChange"
     >
       <!-- Custom cell rendering for actions column -->
       <template #status="{ record }">
         <UiTag
-          :color="getStatusColor(record.status)"
-          :icon="getStatusIcon(record.status)"
-          :text="getStatusText(record.status)"
+          :color="getStatusColor(getDocumentStatus(record))"
+          :icon="getStatusIcon(getDocumentStatus(record))"
+          :text="getStatusText(getDocumentStatus(record))"
         />
+      </template>
+      <template #orderNumber="{ record }">
+        <span class="font-semibold">{{ record.getPurchaseRequest()?.pr_number }}</span>
+      </template>
+
+      <template #vendorName="{ record }">
+        <span>{{ record.getRequester()?.username }}</span>
+      </template>
+
+      <template #orderDate="{ record }">
+        <span>{{ formatDate(record.getCreatedAt()) }}</span>
       </template>
       <template #action="{ record }">
         <UiButton

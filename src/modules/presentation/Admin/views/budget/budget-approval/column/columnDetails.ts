@@ -4,13 +4,13 @@ export function columnsApprovalDetails(t: (key: string) => string): Column[] {
   return [
     {
       title: t("budget_approval.table.number"),
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "number",
+      key: "number",
     },
     {
-      title: t("budget_approval.table.name"),
-      dataIndex: "name",
-      key: "name",
+      title: t("budget_approval.table.remark"),
+      dataIndex: "remark",
+      key: "remark",
     },
     {
       title: t("budget_approval.table.id_name"),
@@ -22,11 +22,6 @@ export function columnsApprovalDetails(t: (key: string) => string): Column[] {
       dataIndex: "quantity",
       key: "quantity",
     },
-    // {
-    //   title: t("purchase_approval.table.unit"),
-    //   dataIndex: "unit",
-    //   key: "unit",
-    // },
     {
       title: t("budget_approval.table.price"),
       dataIndex: "price",
