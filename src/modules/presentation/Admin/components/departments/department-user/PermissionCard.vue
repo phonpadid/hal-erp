@@ -17,7 +17,7 @@
           :checked="isGroupFullySelected(group)"
           :indeterminate="isGroupPartiallySelected(group)"
           @change="onGroupCheckboxChange($event, group)"
-          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          class="h-4 w-4 text-red-600 focus:ring-red-700 border-gray-300 rounded"
         />
         <h5 class="font-bold text-gray-800 m-0 leading-none">
           {{ group.display_name }}

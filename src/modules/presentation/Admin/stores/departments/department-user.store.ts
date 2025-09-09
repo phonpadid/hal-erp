@@ -18,10 +18,11 @@ export const dpmUserFormModel = reactive({
   password: "",
   tel: "",
   confirm_password: "",
-  position_id: "",
-  departmentId: "",
+  position_id: undefined as string | undefined,
+  departmentId: undefined as string | undefined,
   roleIds: [] as number[],
   permissionIds: [] as number[],
+  user_type: ["department"] as string[],
   signature_file: null as File | string | null,
 });
 // สร้าง unit service
@@ -187,6 +188,7 @@ export const departmenUsertStore = defineStore("department-user", () => {
             deletedDpmUser.getDepartmentId(),
             deletedDpmUser.getPermissionIds(),
             deletedDpmUser.getRoleIds(),
+            deletedDpmUser.getUserType(),
 
             deletedDpmUser.getDepartment(),
             deletedDpmUser.getPostion(),
@@ -234,6 +236,7 @@ export const departmenUsertStore = defineStore("department-user", () => {
     dpmUserFormModel.signature_file = null;
     dpmUserFormModel.permissionIds = [];
     dpmUserFormModel.roleIds = [];
+    dpmUserFormModel.user_type = ["department"];
   };
   return {
     // State

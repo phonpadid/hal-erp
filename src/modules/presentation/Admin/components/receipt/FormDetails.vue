@@ -1,24 +1,37 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
-import {  ref } from "vue";
+import { onMounted, ref } from "vue";
 import { columnsDetailsDirector } from "../../views/director/column/columnDetails";
 import { useI18n } from "vue-i18n";
-import { directorData } from "@/modules/shared/utils/dataDirector";
-import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import Table from "@/common/shared/components/table/Table.vue";
 
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderShowDrawer from "../purchase/purchase_orders/PurchaseOrderShowDrawer.vue";
-
+import SelectDocumentTypeModal from "./modal/SelectDocumentTypeModal.vue";
+import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-order";
+import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+const purchaseOrderStore = usePurchaseOrderStore();
+const orderDetails = ref<PurchaseOrderEntity | null>(null);
+  const { error } = useNotification();
 /********************************************************* */
 const { t } = useI18n();
-const router = useRouter();
+// const router = useRouter();
+const { params } = useRoute();
+const purchaseOrderId = params.id?.toString();
 const isRejectModalVisible = ref(false);
 const visible = ref(false);
 const showDrawer = () => {
   visible.value = true;
+};
+const open = ref<boolean>(false);
+const selectedData = ref<string | null>(null);
+const onChooseDocumentType = () => {
+  selectedData.value = purchaseOrderId
+  open.value = true;
 };
 // Custom buttons for header
 const customButtons = [
@@ -36,7 +49,7 @@ const customButtons = [
     label: "ສ້າງໃບເບີກຈ່າຍ",
     type: "primary" as ButtonType,
     onClick: () => {
-      router.push({ name: "review-money-create" });
+      onChooseDocumentType();
     },
   },
 ];
@@ -73,6 +86,26 @@ const signatures = [
     signature: "/public/2.png",
   },
 ];
+const fetchOrderDetails = async () => {
+  try {
+    const result = await purchaseOrderStore.fetchById(Number(purchaseOrderId));
+    if (result) {
+      orderDetails.value = result;
+
+      // if (result.getItems && result.getItems()) {
+      //   orderItems.value = result.getItems();
+      // }
+    } else {
+      error("ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+    }
+  } catch (err: any) {
+    error("ເກີດຂໍ້ຜິດພາດໃນການດຶງຂໍ້ມູນ", err);
+  }
+};
+
+onMounted(async () => {
+  await fetchOrderDetails();
+})
 </script>
 
 <template>
@@ -85,7 +118,7 @@ const signatures = [
         :breadcrumb-items="['ອະນຸມັດໃບສະເໜີ > ອະນຸມັດ']"
         document-prefix="ໃບອະນຸມັດຈັດຊື້ - ຈັດຈ້າງ"
         document-number="0036/ພລ - ວັນທີ"
-        :document-date="('2025-03-26')"
+        :document-date="'2025-03-26'"
         :action-buttons="customButtons"
         document-status="ລໍຖ້າໃບເບີກຈ່າຍ"
         document-status-class="text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"
@@ -102,7 +135,9 @@ const signatures = [
           />
           <div>
             <h4>{{ documentDetails.requester.name }}</h4>
-            <p class="text-gray-600">{{ documentDetails.requester.position }}</p>
+            <p class="text-gray-600">
+              {{ documentDetails.requester.position }}
+            </p>
           </div>
         </div>
         <!-- ຂໍ້ມຸນຜູ້ສະເໜີ -->
@@ -135,9 +170,13 @@ const signatures = [
         </div>
 
         <!-- Items Table -->
+         {{ orderDetails?.getPurchaseOrderItem() }}
         <div class="mb-6">
           <h4 class="text-base font-semibold mb-2">ລາຍການ</h4>
-          <Table :columns="columnsDetailsDirector(t)" :dataSource="directorData">
+          <Table
+            :columns="columnsDetailsDirector(t)"
+            :dataSource="orderDetails?.getPurchaseOrderItem() ?? []"
+          >
             <template #price="{ record }">
               <span class="text-gray-600"
                 >{{ record.unit }} {{ record.price.toLocaleString() }}</span
@@ -173,19 +212,27 @@ const signatures = [
             <div class="ml-4 flex flex-col space-y-2 text-gray-600">
               <div class="flex items-start gap-2">
                 <span class="text-sm">•</span>
-                <span class="text-sm">ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span>
+                <span class="text-sm"
+                  >ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span
+                >
               </div>
               <div class="flex items-start gap-2">
                 <span class="text-sm">•</span>
-                <span class="text-sm">ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span>
+                <span class="text-sm"
+                  >ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span
+                >
               </div>
               <div class="flex items-start gap-2">
                 <span class="text-sm">•</span>
-                <span class="text-sm">ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span>
+                <span class="text-sm"
+                  >ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span
+                >
               </div>
               <div class="flex items-start gap-2">
                 <span class="text-sm">•</span>
-                <span class="text-sm">ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span>
+                <span class="text-sm"
+                  >ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span
+                >
               </div>
             </div>
           </div>
@@ -195,7 +242,11 @@ const signatures = [
         <div class="mb-6">
           <h4 class="text-base font-semibold mb-2">ໃບສະເໜີລາຄາ</h4>
           <div class="border rounded-lg p-4">
-            <img src="/public/5.png" alt="MacBook Air" class="max-w-md rounded-lg" />
+            <img
+              src="/public/5.png"
+              alt="MacBook Air"
+              class="max-w-md rounded-lg"
+            />
           </div>
         </div>
         <!-- ຂໍ້ມູນບັນຊີທະນາຄານ -->
@@ -222,14 +273,20 @@ const signatures = [
         <div class="grid grid-cols-3 gap-2">
           <div v-for="(sig, index) in signatures" :key="index">
             <p class="font-semibold mb-2">{{ sig.role }}</p>
-            <img :src="sig.signature" :alt="`${sig.role} signature`" class="h-16 mb-2" />
+            <img
+              :src="sig.signature"
+              :alt="`${sig.role} signature`"
+              class="h-16 mb-2"
+            />
             <p class="font-semibold">{{ sig.name }}</p>
             <p class="text-gray-600">{{ sig.position }}</p>
           </div>
         </div>
         <div class="text-gray-600">
           <h4>ລະຫັດງົບປະມານ</h4>
-          <span class="text-sm">ພະແນກທຸລະກິດ / 1006 - ຄ່າຊື້ເຄື່ອງອີເລັກໂຕນິກ</span>
+          <span class="text-sm"
+            >ພະແນກທຸລະກິດ / 1006 - ຄ່າຊື້ເຄື່ອງອີເລັກໂຕນິກ</span
+          >
         </div>
         <div class="mt-4">
           <span>ເອກະສານທີຕິດຂັດ</span>
@@ -261,6 +318,11 @@ const signatures = [
   >
     <PurchaseOrderShowDrawer />
   </UiDrawer>
+  <SelectDocumentTypeModal
+      v-model:visible="open"
+      :isEdit="true"
+      :itemid="String(selectedData)"
+    />
 </template>
 
 <style scoped></style>

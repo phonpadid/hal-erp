@@ -9,8 +9,8 @@ export function columnsDetailsDirector(t: (key: string) => string): Column[] {
     },
     {
       title: t("director.table.name"),
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "title",
+      key: "title",
     },
     {
       title: t("director.table.code"),

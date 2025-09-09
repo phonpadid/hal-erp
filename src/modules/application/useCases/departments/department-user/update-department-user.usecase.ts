@@ -28,6 +28,7 @@ export class UpdateDepartmentUserUseCase {
       input.departmentId,
       input.permissionIds,
       input.roleIds,
+      input.user_type,
 
     );
 

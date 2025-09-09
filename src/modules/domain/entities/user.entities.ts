@@ -13,6 +13,7 @@ export class UserEntity {
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
+  private user_type?: string[] = [];
 
   constructor(
     id: string,
@@ -25,7 +26,8 @@ export class UserEntity {
     updated_at: string,
     deleted_at: string | null = null,
     password?: string,
-    tel?: string
+    tel?: string,
+    user_type?: string[] | [],
   ) {
     this.id = id;
     this.username = username;
@@ -35,6 +37,7 @@ export class UserEntity {
     this.permissionIds = permissionIds;
     this.password = password;
     this.tel = tel;
+    this.user_type = user_type;
     this.created_at = formatDate(created_at);
     this.updated_at = formatDate(updated_at);
     this.deleted_at = deleted_at === null ? null : formatDate(deleted_at);
@@ -61,6 +64,9 @@ export class UserEntity {
 
   public getRoles(): Role[] {
     return this.roles;
+  }
+  public getUserType(): string[] | undefined {
+    return this.user_type;
   }
   public getPassword(): string | undefined {
     return this.password;
@@ -146,7 +152,8 @@ export class UserEntity {
       now,
       null,
       password,
-      tel
+      tel,
+      [],
     );
   }
   public static fromAPI(data: UserAPIResponse): UserEntity {
@@ -161,7 +168,8 @@ export class UserEntity {
       data.updated_at,
       null,
       undefined,
-      data.tel
+      data.tel,
+      [],
     );
   }
 }

@@ -9,6 +9,7 @@ export interface UserInterface {
   roles: Role[];
   roleIds: number[];
   permissionIds: number[];
+  user_types?: string[];
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;

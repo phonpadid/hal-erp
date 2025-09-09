@@ -27,15 +27,17 @@ export class CreateDepartmentUserUseCase {
       dpmUserDTO.user.tel,
 
     );
-
+    // console.log('created:', dpmUserDTO);
     const dpmUser = DepartmentUserEntity.create(
       dpmUserDTO.position_id ?? '',
       userEntity,
       dpmUserDTO.signature_file ?? '',
       dpmUserDTO.departmentId,
       dpmUserDTO.permissionIds,
-      dpmUserDTO.roleIds
+      dpmUserDTO.roleIds,
+      dpmUserDTO.user_type
     );
+    // console.log('created:', dpmUser);
     return await this.dpmUserRepository.create(dpmUser);
   }
 }
