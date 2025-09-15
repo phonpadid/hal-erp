@@ -6,6 +6,19 @@
         "status": "Status",
         "manage": "Manage",
         "branch": "Branch",
-        "departmentt": "Department"
+        "departmentt": "Department",
+        "budget_code": "Budget Code",
+        "price": "Price",
+        "remark": "Remark",
+        "addition_pay": "Additional payment amount",
+        "doc_attachment": "Document attachment",
+        "detail": "detail"
+    },
+    "vendor": {
+        "title": "Store Info",
+        "name": "Store",
+        "bank": "Bank",
+        "account_name": "Account Name",
+        "account_number": "Account Number"
     }
 }

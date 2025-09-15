@@ -9,6 +9,7 @@ export interface CreateDepartmentUserDTO {
   departmentId: string,
   permissionIds: number[],
   roleIds: number[]
+  user_type: string[]
 }
 
 export interface UpdateDepartmentUserDTO {
@@ -19,6 +20,7 @@ export interface UpdateDepartmentUserDTO {
   departmentId: string,
   permissionIds: number[],
   roleIds: number[]
+  user_type: string[]
 }
 
 export interface DepartmentUserDTO {

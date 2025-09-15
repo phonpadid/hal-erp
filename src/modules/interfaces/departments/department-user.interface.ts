@@ -13,6 +13,7 @@ export interface DepartmentUserApiModel {
   department_id: number;
   permissionIds: number[];
   roleIds: number[];
+  user_type: string[];
   department?: DepartmentApiModel;
   position?: PositionApiModel;
   roles?: Roleinterface;

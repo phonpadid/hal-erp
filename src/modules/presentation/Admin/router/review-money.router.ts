@@ -1,8 +1,8 @@
 import type { RouteRecordRaw } from "vue-router";
 import ReviewMoneyView from "../views/review-money/views/ReviewMoneyView.vue";
-import FormDetails from "../components/review-money/FormDetails.vue";
-import FormCreate from "../components/review-money/FormCreate.vue";
-import FormSucess from "../components/review-money/FormSucess.vue";
+import FormSucess from "../components/receipt/FormSucess.vue";
+import FormCreate from "../components/receipt/FormCreate.vue";
+import FormDetails from "../components/receipt/FormDetails.vue";
 export const reviewMoneyRoutes: RouteRecordRaw[] = [
   {
     path: "/receipts",
@@ -13,6 +13,17 @@ export const reviewMoneyRoutes: RouteRecordRaw[] = [
       requiredAuth: true,
     },
   },
+  {
+    path: "/receipt/create/receipt_id=:id/document_type=:docid",
+    name: "create-receipt",
+    component: FormCreate,
+    meta: {
+      title: "Create Receipt",
+      requiredAuth: true,
+    },
+  },
+
+
   {
     path: "/review-money/success",
     name: "review-money-success",

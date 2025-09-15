@@ -58,6 +58,16 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
 
       formData.append("permissionIds", JSON.stringify(permissionIds));
       formData.append("roleIds", JSON.stringify(roleIds));
+      if (apiModel.user_type !== undefined && apiModel.user_type !== null) {
+        if (Array.isArray(apiModel.user_type)) {
+          apiModel.user_type.forEach((type, index) => {
+            formData.append(`user_type[${index}]`, type);
+          });
+        } else {
+          formData.append("user_type[0]", String(apiModel.user_type));
+        }
+      }
+
 
       const response = (await api.post("/department-users", formData, {
         headers: {
@@ -190,7 +200,15 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
 
       formData.append("permissionIds", JSON.stringify(permissionIds));
       formData.append("roleIds", JSON.stringify(roleIds));
-
+      if (apiModel.user_type !== undefined && apiModel.user_type !== null) {
+        if (Array.isArray(apiModel.user_type)) {
+          apiModel.user_type.forEach((type, index) => {
+            formData.append(`user_type[${index}]`, type);
+          });
+        } else {
+          formData.append("user_type[0]", String(apiModel.user_type));
+        }
+      }
       // Use the provided id parameter instead of extracting from input
       const response = (await api.put(`/department-users/${userId}`, formData, {
         headers: {
@@ -216,6 +234,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
   }
 
   private toApiModel(dpmUser: DepartmentUserEntity): DepartmentUserApiModel {
+    // console.log('create:', dpmUser);
+
     const user = dpmUser.getUser();
     return {
       user: user
@@ -228,12 +248,14 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
             roleIds: user.getRoleIds(),
             roles: user.getRoles(),
             permissionIds: user.getPermissionIds(),
+            user_types: user.getUserType() ?? []
           } as UserInterface)
         : undefined,
       position_id: dpmUser.getPosition_id(),
       signature_file: dpmUser.getSignature_file(),
       department_id: Number(dpmUser.getDepartmentId()),
       permissionIds: dpmUser.getPermissionIds(),
+      user_type: dpmUser.getUserType(),
       roleIds: dpmUser.getRoleIds(),
     };
   }
@@ -266,6 +288,7 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       departmentId,
       roleIds,
       permissionIds,
+      user.getUserType() || [] ,
       department,
       position,
       user, // This is now always UserEntity (never undefined)
@@ -293,7 +316,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       user.updated_at || "",
       user.deleted_at || null,
       user.password,
-      user.tel
+      user.tel,
+      user.user_types?.map((type) => type) ?? [],
     );
   }
 
@@ -310,7 +334,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       "", // updated_at
       null, // deleted_at
       undefined, // password
-      undefined // tel
+      undefined, // tel
+      [], // email
     );
   }
 

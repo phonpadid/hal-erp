@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { onMounted, ref, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import type { ButtonType } from "@/modules/shared/buttonType";
 // import { useI18n } from "vue-i18n";
 const selectType = ref<string>(''); // Single selection - empty string initially
@@ -11,11 +11,34 @@ import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderShowDrawer from "../purchase/purchase_orders/PurchaseOrderShowDrawer.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import Radio from "@/common/shared/components/Input/Radio.vue";
+import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-order";
+import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import { useReceiptStore } from "../../stores/receipt.store";
+const purchaseOrderStore = usePurchaseOrderStore();
+const orderDetails = ref<PurchaseOrderEntity | null>(null);
+const { error, success } = useNotification();
+const rStore = useReceiptStore()
+// Updated form state to match API payload structure
+const formState = ref({
+  purchase_order_id: undefined as number | undefined,
+  remark: '',
+  document: {
+    documentTypeId: 21 // Fixed documentTypeId based on your API payload
+  },
+  receipt_items: [] as Array<{
+    purchase_order_item_id: number;
+    payment_currency_id: number;
+    payment_type: string;
+    remark: string;
+  }>
+});
 
 /********************************************************* */
 // const { t } = useI18n();
 const router = useRouter();
-
+const { params } = useRoute();
+const purchaseOrderId = params.id?.toString();
 // State for Drawer
 const visible = ref(false);
 const showDrawer = () => {
@@ -23,24 +46,56 @@ const showDrawer = () => {
 };
 
 // --- Reactive State for Form Inputs ---
-const purpose = ref(
-  "ເພື່ອໃຫ້ແທດເໝາະ ໃຫ້ຮອງຮັບກັບການປະຕິບັດວຽກງານ ແລະ ເພື່ອອຳນວຍຄວາມສະດວກໃນການປະຕິບັດໜ້າທີ່ວຽກງານ"
-);
 const remark = ref("");
+
+// Computed property to build receipt_items array
+const buildReceiptItems = computed(() => {
+  if (!orderDetails.value || !selectType.value) return [];
+
+  return orderDetails.value.getPurchaseOrderItem().map(item => ({
+    purchase_order_item_id: String(item.getId()), // Assuming item has an id property
+    payment_currency_id: String(item?.getCurrency()?.id), // You might need to get this from the item or set it based on your logic
+    payment_type: selectType.value || "",
+    remark: remark.value || ''
+  }));
+});
+
+// Function to send data to API
+const submitPaymentRequest = async () => {
+  try {
+    if (!orderDetails.value) {
+      error("ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+      return;
+    }
+
+    if (!selectType.value) {
+      error("ກະລຸນາເລືອກປະເພດການຈ່າຍເງິນ");
+      return;
+    }
+
+    const payload = {
+      purchase_order_id: purchaseOrderId,
+      remark: formState.value.remark,
+      documentType_id: formState.value.document.documentTypeId.toString(),
+      receipt_items: buildReceiptItems.value
+    };
+    await rStore.created(payload)
+    success("ສ້າງໃບເບີກຈ່າຍສຳເລັດແລ້ວ");
+    router.push({ name: "review-money-success" });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    error("ເກີດຂໍ້ຜິດພາດໃນການສ້າງໃບເບີກຈ່າຍ", err);
+  }
+};
 
 // Header buttons based on the image
 const customButtons = [
   {
-    label: "ສ້າງໃບເບີກຈ່າຍ ແລະ ເຊັນອະນຸມັດ",
+    label: "ສ້າງໃບເບີກຈ່າຍ",
     type: "primary" as ButtonType,
     danger: true, // Making the button red as in the image
-    onClick: () => {
-      // Logic to create and sign
-      // console.log("Purpose:", purpose.value);
-      // console.log("Remark:", remark.value);
-      // console.log("Selected payment types:", selectType.value);
-      router.push({ name: "review-money-success" });
-    },
+    onClick: submitPaymentRequest
   },
   {
     label: "Print",
@@ -59,31 +114,12 @@ const requesterInfo = {
   position: "ພະແນກບໍລິຫານ, ພະນັກງານ",
 };
 
-const shopInfo = {
-  name: "ຮ້ານ ຄອມຄອມ COMCOM",
-  bankName: "BCEL One ທະນາຄານການຄ້າຕ່າງປະເທດລາວ",
-  accountName: "KHAMTHANOM MALAYSIN MR",
-  accountNumber: "0302000410086756",
-  bankIcon: "/public/bclone.png", // Assuming this path is correct
-};
-
-// Table data and columns based on the image
-const items = ref([
-  {
-    key: "1",
-    id: 1,
-    description: "ຄອມພິວເຕີ MacBook Air M3 (16GB/512GB)",
-    budgetCode: "1001 - ຄ່າຈັດຊື້ຄອມພິວເຕີ",
-    total: 22980000,
-  },
-]);
-
-const grandTotal = ref(25939000); // Grand total from image
 const typeOption = [
   { label: "ເງິນສົດ (Cash)", value: "cash" },
   { label: "ໂອນເງິນ (Transfer)", value: "transfer" },
   { label: "ເຊັກ (Cheque)", value: "cheque" },
 ];
+
 const columns = [
   {
     title: "ລຳດັບ",
@@ -94,8 +130,8 @@ const columns = [
   },
   {
     title: "ເນື້ອໃນລາຍການ",
-    dataIndex: "description",
-    key: "description",
+    dataIndex: "title",
+    key: "title",
   },
   {
     title: "ລະຫັດງົບປະມານ",
@@ -109,6 +145,27 @@ const columns = [
     align: "right",
   },
 ];
+
+const fetchOrderDetails = async () => {
+  try {
+    const result = await purchaseOrderStore.fetchById(Number(purchaseOrderId));
+    if (result) {
+      orderDetails.value = result;
+      // Set the purchase_order_id in formState
+      formState.value.purchase_order_id = Number(purchaseOrderId);
+    } else {
+      error("ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+    }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    error("ເກີດຂໍ້ຜິດພາດໃນການດຶງຂໍ້ມູນ", err);
+  }
+};
+
+onMounted(async () => {
+  await fetchOrderDetails();
+  console.log('Order details:', orderDetails.value);
+});
 </script>
 
 <template>
@@ -137,8 +194,8 @@ const columns = [
       <div class="mb-6">
         <h3 class="text-base font-semibold mb-2">ຈຸດປະສົງ</h3>
         <UiInput
-          v-model="purpose"
-          placeholder="ເພື່ອໃຫ້ໄດ້ອຸປະກອນທີ່ທັນສະໄໝ ແລະ ມີປະສິດທິພາບ..."
+          v-model="formState.remark"
+          placeholder="ປ້ອນຈຸດປະສົງ"
           className="bg-gray-50"
         />
       </div>
@@ -148,22 +205,22 @@ const columns = [
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div class="flex">
             <span class="font-medium w-28">ຊື່ຮ້ານຄ້າ</span>
-            <span class="text-gray-700">{{ shopInfo.name }}</span>
+            <span class="text-gray-700">{{ orderDetails?.getPurchaseOrderItem()[0].getSelectedVendor()?.getVendor().name }}</span>
           </div>
           <div class="flex">
             <span class="font-medium w-28">ທະນາຄານ</span>
             <span class="text-gray-700 flex items-center gap-2">
-              <img :src="shopInfo.bankIcon" class="w-6 h-6" alt="Bank Icon" />
-              {{ shopInfo.bankName }}
+              <img :src="orderDetails?.getBankLogo() ?? ''" class="w-6 h-6" alt="Bank Icon" />
+              {{ orderDetails?.getBankName() }}
             </span>
           </div>
           <div class="flex">
             <span class="font-medium w-28">ຊື່ບັນຊີ</span>
-            <span class="text-gray-700">{{ shopInfo.accountName }}</span>
+            <span class="text-gray-700">{{ orderDetails?.getAccountName() }}</span>
           </div>
           <div class="flex">
             <span class="font-medium w-28">ເລກບັນຊີ LAK</span>
-            <span class="text-gray-700">{{ shopInfo.accountNumber }}</span>
+            <span class="text-gray-700">{{ orderDetails?.getAccountNumber() }}</span>
           </div>
         </div>
       </div>
@@ -181,17 +238,20 @@ const columns = [
 
       <div class="mb-6">
         <h3 class="text-base font-semibold mb-2">ລາຍການ</h3>
-        <Table :columns="columns" :dataSource="items">
+        <Table :columns="columns" :dataSource="orderDetails?.getPurchaseOrderItem() ?? []">
+          <template #id="{ index }">
+            <span class="font-medium">{{ index + 1 }}</span>
+          </template>
           <template #total="{ record }">
             <span class="font-medium"> {{ record.total.toLocaleString() }} ₭ </span>
           </template>
         </Table>
         <div class="flex justify-end mt-4">
           <div class="w-1/3">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-center gap-2 items-center">
               <span class="font-semibold text-gray-700">ມູນຄ່າລວມທັງໝົດ:</span>
               <span class="font-bold text-lg text-red-600">
-                {{ grandTotal.toLocaleString() }} ₭
+                {{ orderDetails?.getPurchaseRequest().total.toLocaleString() }} ₭
               </span>
             </div>
           </div>
@@ -242,6 +302,18 @@ const columns = [
           />
         </div>
       </div>
+
+      <!-- Debug info (remove in production) -->
+      <!-- <div class="mt-6 p-4 bg-gray-100 rounded">
+        <h4 class="font-semibold mb-2">Debug Info:</h4>
+        <pre class="text-xs">{{ JSON.stringify({
+          purchase_order_id: Number(purchaseOrderId),
+          remark: formState.remark,
+          document: formState.document,
+          receipt_items: buildReceiptItems,
+          selectType: selectType
+        }, null, 2) }}</pre>
+      </div> -->
     </div>
   </div>
 

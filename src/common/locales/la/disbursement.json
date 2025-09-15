@@ -1,11 +1,24 @@
 {
     "field": {
-        "no": "ເລກທີ",
-        "created_by": "ຜູ້ສ້າງ",
-        "created_at": "ສ້າງເມື່ອ",
+        "no": "ລຳດັບ",
+        "created_by": "ສ້າງໂດຍ",
+        "created_at": "ວັນທີສ້າງ",
         "status": "ສະຖານະ",
         "manage": "ຈັດການ",
         "branch": "ສາຂາ",
-        "departmentt": "ພະແນກ"
+        "departmentt": "ພະແນກ",
+        "budget_code": "ລະຫັດງົບປະມານ",
+        "price": "ລາຄາ",
+        "remark": "ໝາຍເຫດ",
+        "addition_pay": "ຈຳນວນເງິນຈ່າຍເພີ່ມ",
+        "doc_attachment": "ເອກະສານຕິດຂັດ",
+        "detail": "ລາຍລະອຽດ"
+    },
+    "vendor": {
+        "title": "ຂໍ້ມູນຮ້ານ",
+        "name": "ຮ້ານ",
+        "bank": "ທະນາຄານ",
+        "account_name": "ຊື່ບັນຊີ",
+        "account_number": "ເລກບັນຊີ"
     }
 }

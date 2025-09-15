@@ -23,7 +23,8 @@ import PermissionCard from "./PermissionCard.vue";
 import { useRoleStore } from "../../../stores/role.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { updateDpmUserRules } from "../../../views/departments/deparment-user/validation/update-department-user.validate";
-
+// import Checkbox from "@/common/shared/components/Input/Checkbox.vue";
+// const selectedUserType = ref<string[]>([]);
 const roleStore = useRoleStore();
 const userStore = useUserStore();
 const positionStore = usePositionStore();
@@ -100,6 +101,8 @@ const loadDepartmentUser = async () => {
       loading.value = true;
       await dpmUserStore.fetchDepartmentUserById(departmentUserId.value);
       const departmentUser = dpmUserStore.currentDpmUser;
+      console.log('usereee:', departmentUser);
+
 
       const userData = departmentUser?.getUser();
       const positionData = departmentUser?.getPostion();
@@ -111,6 +114,7 @@ const loadDepartmentUser = async () => {
         dpmUserFormModel.tel = userData?.getTel?.() || "";
         dpmUserFormModel.position_id = positionData?.getId() || "";
         dpmUserFormModel.departmentId = departmentUser.getDepartmentId();
+        dpmUserFormModel.user_type = userData?.getUserType() || [];
         const signatureFileUrl = departmentUser.getSignature_file_url();
 
         // signature_file_url
@@ -164,11 +168,12 @@ const handleSubmit = async (): Promise<void> => {
         roleIds: [],
         permissionIds: []
       },
-      position_id: dpmUserFormModel.position_id,
+      position_id: dpmUserFormModel.position_id!,
       signature_file: existingSignatureUrl.value ? '' : dpmUserFormModel.signature_file,
-      departmentId: dpmUserFormModel.departmentId,
+      departmentId: dpmUserFormModel.departmentId!,
       permissionIds: dpmUserFormModel.permissionIds,
       roleIds: dpmUserFormModel.roleIds,
+      user_type: dpmUserFormModel.user_type,
     };
 
     if (isEditMode.value) {
@@ -179,7 +184,6 @@ const handleSubmit = async (): Promise<void> => {
       push({ name: "department_user.index" });
       dpmUserStore.resetForm();
       success(t("departments.notify.update"));
-      // console.log("update");
     } else {
       await dpmUserStore.createDepartmentUser(payload);
       push({ name: "department_user.index" });
@@ -225,7 +229,10 @@ onMounted(async () => {
     signatureFile.value = dpmUserFormModel.signature_file;
   }
 });
-
+const userTypeOption = computed(() => [
+  { label: t("departments.admin"), value: "admin" },
+  { label: t("departments.department"), value: "department" },
+]);
 onUnmounted(() => {
   dpmUserStore.resetForm();
   existingSignatureUrl.value = null;
@@ -351,6 +358,25 @@ onUnmounted(() => {
               />
             </UiFormItem>
           </div>
+          <!-- select user type  -->
+          <UiFormItem
+            class="flex-1"
+            :label="t('departments.user_type')"
+            name="user_type"
+            required
+          >
+            <a-checkbox-group v-model:value="dpmUserFormModel.user_type">
+              <a-checkbox
+                v-for="option in userTypeOption"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </a-checkbox>
+            </a-checkbox-group>
+          </UiFormItem>
+
+          <!-- *******  -->
           <div class="flex flex-col md:flex-row md:gap-4">
             <UiFormItem
               v-if="!isEditMode"

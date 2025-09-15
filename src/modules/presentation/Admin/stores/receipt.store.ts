@@ -4,8 +4,7 @@ import type { Ref } from "vue";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { ApiReceiptRepository } from "@/modules/infrastructure/api-receipt.repository";
 import { ReceiptServiceImpl } from "@/modules/application/services/receipt.service";
-import type { ReceiptEntity } from "@/modules/domain/entities/receipts/receipt.entity";
-import type { CreateReceiptDTO, UpdateReceiptDTO } from "@/modules/application/dtos/receipt.dto";
+import type { CreateReceiptDTO, IApprovalReceiptDto, ReciptQueryDto, UpdateReceiptDTO } from "@/modules/application/dtos/receipt.dto";
 
 
 const createReceiptService = () => {
@@ -18,8 +17,13 @@ export const useReceiptStore = defineStore("receipt-store", () => {
   const serice = createReceiptService();
 
   // State
-  const receipts: Ref<ReceiptEntity[]> = ref([]);
-  const currentReceipts: Ref<ReceiptEntity | null> = ref(null);
+  const receipts: Ref<ReciptQueryDto[]> = ref([]);
+  const status = ref([{
+    id: 0,
+    amount: 0,
+    status: ""
+  }])
+  const currentReceipts: Ref<ReciptQueryDto | null> = ref(null);
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
   const pagination = ref({
@@ -38,6 +42,11 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     try {
       const result = await serice.getAll(params);
       receipts.value = result.data;
+      status.value = result.status?.map((item) => ({
+        id: item.id,
+        amount: item.amount,
+        status: item.status
+      })) ?? []
       pagination.value = {
         page: result.page,
         limit: result.limit,
@@ -75,7 +84,7 @@ export const useReceiptStore = defineStore("receipt-store", () => {
 
     try {
       const res = await serice.create(input);
-      receipts.value = [res, ...receipts.value];
+      // receipts.value = [res, ...receipts.value];
       return res;
     } catch (err) {
       error.value = err as Error;
@@ -97,11 +106,26 @@ export const useReceiptStore = defineStore("receipt-store", () => {
         id,
         input
       );
-      const index = receipts.value.findIndex((v) => v.getId() === id);
-      if (index !== -1) {
-        receipts.value[index] = res;
-      }
+      return res;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+  const approvalReceipt = async (
+    id: number,
+    input: IApprovalReceiptDto
+  ) => {
+    loading.value = true;
+    error.value = null;
 
+    try {
+      const res = await serice.approval(
+        id,
+        input
+      );
       return res;
     } catch (err) {
       error.value = err as Error;
@@ -140,7 +164,7 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     error,
     pagination,
     setPagination,
-
+    approvalReceipt,
     // Getters
     // Actions
     fetchAll,
@@ -148,6 +172,7 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     created,
     updated,
     deleted,
+    status,
   };
 });
 

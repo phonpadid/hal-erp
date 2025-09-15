@@ -1,6 +1,6 @@
-import type { ReceiptEntity } from "@/modules/domain/entities/receipts/receipt.entity";
 import type { ReceiptRepository } from "@/modules/domain/repository/receipt.repository";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
+import type { ReciptQueryDto } from "../../dtos/receipt.dto";
 
 export class GetAllReceiptUseCase {
   constructor(private readonly repo: ReceiptRepository) {}
@@ -8,7 +8,7 @@ export class GetAllReceiptUseCase {
   async execute(
     params: PaginationParams = { page: 1, limit: 10 },
     includeDeleted: boolean = false
-  ): Promise<PaginatedResult<ReceiptEntity>> {
+  ): Promise<PaginatedResult<ReciptQueryDto>> {
     return await this.repo.findAll(params, includeDeleted);
   }
 }

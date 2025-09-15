@@ -19,6 +19,7 @@ export class DepartmentUserEntity {
   private user: UserEntity | null;
   private roles: Role | null;
   private permissions: Permission | null;
+  private user_type: string[];
 
   private created_at: string;
   private updated_at: string;
@@ -32,6 +33,7 @@ export class DepartmentUserEntity {
     department_id: string,
     permissionIds: number[],
     roleIds: number[],
+    user_type: string[],
     department: DepartmentEntity | null = null,
     position: PositionEntity | null = null,
     user: UserEntity,
@@ -48,6 +50,7 @@ export class DepartmentUserEntity {
     this.department_id = department_id;
     this.permissionIds = permissionIds;
     this.roleIds = roleIds;
+    this.user_type = user_type;
     this.department = department;
     this.position = position;
     this.user = user;
@@ -94,6 +97,9 @@ export class DepartmentUserEntity {
   public getPermissions(): Permission | null {
     return this.permissions;
   }
+  public getUserType(): string[] {
+    return this.user_type;
+  }
   public getCreatedAt(): string | null {
     return this.created_at;
   }
@@ -116,7 +122,8 @@ export class DepartmentUserEntity {
     signature_file: string | File,
     department_id: string,
     permissionIds: number[],
-    roleIds: number[]
+    roleIds: number[],
+    user_type: string[]
   ): void {
     // this.department_id = department_id
     this.user = user;
@@ -125,6 +132,7 @@ export class DepartmentUserEntity {
     this.department_id = department_id;
     this.permissionIds = permissionIds;
     this.roleIds = roleIds;
+    this.user_type = user_type;
     this.updated_at = formatDate(new Date());
   }
 
@@ -144,7 +152,8 @@ export class DepartmentUserEntity {
     signature_file: string | File,
     department_id: string,
     permissionIds: number[],
-    roleIds: number[]
+    roleIds: number[],
+    user_type: string[]
   ): DepartmentUserEntity {
     return new DepartmentUserEntity(
       null, // id
@@ -154,6 +163,7 @@ export class DepartmentUserEntity {
       department_id, // department_id
       permissionIds, // permissionIds
       roleIds, // roleIds
+      user_type, // roleIds
       null, // department
       null, // position
       user, // user
