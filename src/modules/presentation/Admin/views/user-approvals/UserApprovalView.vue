@@ -75,7 +75,7 @@ const loadDpm = async (): Promise<void> => {
           };
         }
       );
-      console.log("user_aproval data loaded:", user_aproval.value);
+      // console.log("user_aproval data loaded:", user_aproval.value);
     } catch (error) {
       console.error("Failed to fetch user_aproval from API:", error);
       user_aproval.value = [...dataUserApv.value];

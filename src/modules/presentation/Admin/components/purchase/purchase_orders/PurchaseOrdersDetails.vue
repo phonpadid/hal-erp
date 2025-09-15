@@ -21,7 +21,10 @@ import type { Key } from "ant-design-vue/lib/table/interface";
 import { usePurchaseOrderStore } from "../../../stores/purchase_requests/purchase-order";
 import { Modal } from "ant-design-vue";
 import type { RowSelectionType } from "ant-design-vue/es/table/interface";
-import type { FormStateInterface,PurchaseItem } from "@/modules/interfaces/purchase-requests/purchase-orders.interface";
+import type {
+  FormStateInterface,
+  PurchaseItem,
+} from "@/modules/interfaces/purchase-requests/purchase-orders.interface";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiTable from "@/common/shared/components/table/UiTable.vue";
 import PurchaseOrderShowDrawer from "./PurchaseOrderShowDrawer.vue";
@@ -77,11 +80,24 @@ const isAllItemsHaveVendor = computed(() => {
 });
 const isSubmitting = ref(false);
 const createPurchaseOrderPayload = () => {
+  // console.log("Route query in createPurchaseOrderPayload:", route.query);
+  // console.log("document_type_id:", route.query.document_type_id);
+  // console.log("document_type_id after Number conversion:", Number(route.query.document_type_id));
   if (!requestDetail.value) {
     throw new Error("ບໍ່ພົບຂໍ້ມູນການຮ້ອງຂໍ");
   }
+  const docTypeIdFromQuery = route.query.document_type_id;
+    let finalDocTypeId = 0;
+    if (docTypeIdFromQuery) {
+        finalDocTypeId = Number(docTypeIdFromQuery);
+    }
+    if (isNaN(finalDocTypeId) || finalDocTypeId === 0) {
+        finalDocTypeId = 19;
+    }
+  // console.log("Current purchaseItems:", purchaseItems.value);
   const items = purchaseItems.value.map((item) => {
     const vendorData = itemVendors.value[item.id?.toString() ?? ""];
+    // console.log("Item ID:", item.id, "Vendor Data:", vendorData);
     if (!vendorData) {
       throw new Error(`ກະລຸນາເລືອກຮ້ານຄ້າສຳລັບລາຍການ ${item.title}`);
     }
@@ -104,7 +120,7 @@ const createPurchaseOrderPayload = () => {
     purchase_request_id: Number(requestDetail.value.getId()),
     document: {
       description: form.value.descriptions || "",
-      documentTypeId: Number(route.query.document_type_id) || 2,
+      documentTypeId: finalDocTypeId,
     },
     items,
   };
@@ -256,6 +272,7 @@ const submitPurchaseOrder = async () => {
       return null;
     }
     const payload = createPurchaseOrderPayload();
+    // console.log("Purchase Order Payload:", payload);
     isSubmitting.value = true;
     const result = await purchaseOrderStore.create(payload);
 
@@ -289,25 +306,15 @@ const rowSelectionConfig = computed(() => ({
   onChange: (keysArr: Key[], rows: any[]) => {
     selectedRowKeys.value = keysArr;
     selectedRows.value = rows;
-    console.log("Selected keys:", keysArr);
-    console.log("Selected rows:", rows);
+
+    // โค้ดที่หายไป: บันทึก ID ลงใน localStorage
+    if (keysArr.length === 1) {
+      localStorage.setItem("currentSelectedItemId", keysArr[0].toString());
+    } else {
+      localStorage.removeItem("currentSelectedItemId");
+    }
   },
 }));
-
-// const purchaseItems = computed(() => {
-//   if (!requestDetail.value) return [];
-
-//   return requestDetail.value.getItems().map((item) => ({
-//     id: item.getId(),
-//     title: item.getTitle(),
-//     quantity: item.getQuantity(),
-//     unit: item.getUnit(),
-//     price: item.getPrice(),
-//     total_price: item.getTotalPrice(),
-//     remark: item.getRemark(),
-//     file_name_url: item.getFileNameUrl(),
-//   }));
-// });
 
 const purchaseItems = ref<PurchaseItem[]>([]);
 
@@ -398,8 +405,8 @@ onMounted(() => {
 
 /******************************************************* */
 // Update handleConfirm function for first confirmation
-
 const handleConfirm = async () => {
+  // console.log("Checking isAllItemsHaveVendor:", isAllItemsHaveVendor.value);
   try {
     if (!isAllItemsHaveVendor.value) {
       error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກຮ້ານຄ້າໃຫ້ຄົບທຸກລາຍການ");
@@ -739,6 +746,7 @@ watch(
         remark: item.getRemark(),
         file_name_url: item.getFileNameUrl(),
       }));
+      // console.log("purchaseItems after watch update:", purchaseItems.value);
     } else {
       purchaseItems.value = [];
     }
@@ -749,7 +757,10 @@ watch(
 onMounted(async () => {
   const purchaseRequestId = route.params.id;
   const documentTypeId = route.query.document_type_id;
-
+  // console.log("Route params:", route.params);
+  // console.log("Route query:", route.query);
+  // console.log("purchaseRequestId:", purchaseRequestId);
+  // console.log("documentTypeId:", documentTypeId);
   if (!purchaseRequestId || !documentTypeId) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນທີ່ຈຳເປັນ");
     router.push({ name: "doc-type-select" });
@@ -784,7 +795,6 @@ onMounted(async () => {
     loading.value = false;
   }
 });
-
 
 const onPriceChange = (record: PurchaseItem, newPrice: number) => {
   const item = purchaseItems.value.find((i) => i.id === record.id);

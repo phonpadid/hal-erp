@@ -10,6 +10,10 @@ export interface BudgetItemRepository {
     params: PaginationParams,
     includeDeleted?: boolean
   ): Promise<PaginatedResult<BudGetItemEntity>>;
+  getReport(
+    params: PaginationParams,
+    includeDeleted?: boolean
+  ): Promise<PaginatedResult<BudGetItemEntity>>;
   findById(id: string): Promise<BudGetItemEntity | null>;
   findByBudgetAccountId(
     budgetAccountId: string,

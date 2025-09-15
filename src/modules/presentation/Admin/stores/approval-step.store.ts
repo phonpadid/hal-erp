@@ -267,7 +267,7 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
         files: [],
       };
 
-      console.log("Submitting PO approval with payload:", payload);
+      // console.log("Submitting PO approval with payload:", payload);
 
       const success = await submitUseCase.execute(documentId, payload);
 

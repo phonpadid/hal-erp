@@ -60,10 +60,10 @@ export const useRoleStore = defineStore("roles", () => {
       // เก็บข้อมูลดิบจาก API ก่อนที่จะถูกแปลงเป็น Entity
       // เพิ่มบรรทัดนี้เพื่อเก็บข้อมูลดิบ
       rawRoles.value = JSON.parse(JSON.stringify(result.data));
-      console.log("Raw roles data:", rawRoles.value);
+      // console.log("Raw roles data:", rawRoles.value);
 
       roles.value = result.data;
-      console.log("Roles fetched successfully:", roles.value);
+      // console.log("Roles fetched successfully:", roles.value);
 
       pagination.value = {
         page: result.page,

@@ -1,7 +1,6 @@
 import type { Column } from "@/modules/shared/column/column";
 
 export function columnsTitle(t: (key: string) => string): Column[] {
-  console.log(t);
 
   return [
     {
@@ -28,8 +27,6 @@ export function columnsTitle(t: (key: string) => string): Column[] {
   ];
 }
 export function columnTitle(t: (key: string) => string): Column[] {
-  console.log(t);
-
   return [
     {
       title: "ລຳດັບ",

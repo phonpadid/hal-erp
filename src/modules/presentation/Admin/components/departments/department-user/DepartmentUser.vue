@@ -92,14 +92,6 @@ watch(
   }
 );
 
-// Watch selected permissions
-watch(
-  selectedPermissions,
-  (newValue) => {
-    console.log("Selected permissions:", newValue);
-  },
-  { deep: true }
-);
 
 // Load existing data for edit mode
 const loadDepartmentUser = async () => {
@@ -152,7 +144,7 @@ const handleSubmit = async (): Promise<void> => {
     // Validate form first
     const isValid = await formRef.value.validate();
     if (!isValid) {
-      console.log("Form validation failed");
+      // console.log("Form validation failed");
       return;
     }
 
@@ -187,7 +179,7 @@ const handleSubmit = async (): Promise<void> => {
       push({ name: "department_user.index" });
       dpmUserStore.resetForm();
       success(t("departments.notify.update"));
-      console.log("update");
+      // console.log("update");
     } else {
       await dpmUserStore.createDepartmentUser(payload);
       push({ name: "department_user.index" });

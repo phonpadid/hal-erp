@@ -28,6 +28,7 @@ export interface BudgetItemInterface {
   deleted_at: string | null;
   budget_account?: BudgetAccountInterface;
   used_amount?: number;
+  use_amount?: number;
   balance_amount?: number;
 }
 

@@ -1,5 +1,5 @@
 export class Permission {
-  private id: string;
+  private id: string | number;
   private name: string;
   private display_name: string;
   private type: string;
@@ -9,7 +9,7 @@ export class Permission {
   private deletedAt: Date | null;
 
   constructor(
-    id: string,
+    id: string | number,
     name: string,
     display_name: string,
     type: string = "all",
@@ -79,7 +79,7 @@ export class Permission {
     }
   }
 
-  public getId(): string {
+  public getId(): string | number {
     return this.id;
   }
 

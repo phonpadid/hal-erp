@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
-import { computed, nextTick, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { columnsApprovalDetails } from "../../views/budget/budget-approval/column/columnDetails";
 import { useI18n } from "vue-i18n";
 import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-order";
@@ -9,6 +9,10 @@ import { useNotification } from "@/modules/shared/utils/useNotification";
 import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import { useRoute } from "vue-router";
 import { Icon } from "@iconify/vue";
+import { useToggleStore } from "../../stores/storage.store";
+import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
+import { useApprovalStepStore } from "../../stores/approval-step.store";
+import { useDocumentStatusStore } from "../../stores/document-status.store";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
@@ -16,9 +20,10 @@ import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderShowDrawer from "../purchase/purchase_orders/PurchaseOrderShowDrawer.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import BudgetApprovalDrawer from "./BudgetApprovalDrawer.vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
+import { storeToRefs } from "pinia";
+import OtpModal from "../purchase-requests/modal/OtpModal.vue";
 /********************************************************* */
 const { t } = useI18n();
 const { success, error } = useNotification();
@@ -32,7 +37,6 @@ const rejectReason = ref("");
 const confirmLoading = ref(false);
 const visible = ref(false);
 const visibleBudget = ref(false);
-
 const showDrawer = () => {
   visible.value = true;
 };
@@ -41,222 +45,256 @@ const showBudgetDrawer = (record: any) => {
   visibleBudget.value = true;
 };
 const otpValue = ref<string[]>(Array(6).fill(""));
-const otpInputRefs = ref<any[]>([]);
+
 const currentStep = ref(0);
 const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const isSuccessModalVisible = ref(false);
 const signatureData = ref("");
 
-const fetchOrderDetails = async () => {
-  const id = parseInt(route.params.id as string, 10);
-  if (isNaN(id)) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບລະຫັດເອກະສານ");
+/*****************Header***************** */
+const toggleStore = useToggleStore();
+const { toggle } = storeToRefs(toggleStore);
+
+const topbarStyle = computed(() => {
+  return toggle.value ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
+});
+
+/*****************Header***************** */
+/*****************Logic OTP and Send***************** */
+const selectedBudgets = ref<Record<string, any>>({});
+const activeItemRecord = ref<any>(null);
+const approvalDetail = ref<PurchaseOrderEntity | null>(null);
+const approvalSteps = computed(() => orderDetails.value?.getUserApproval()?.approval_step ?? []);
+const approvedStatusId = computed(() => {
+  // console.log("🔍 Debug approvedStatusId:");
+  // console.log("document_Status:", documentStatusStore.document_Status);
+  return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
+});
+const rejectedStatusId = computed(() => {
+  // console.log("🔍 Debug rejectedStatusId:");
+  // console.log("document_Status:", documentStatusStore.document_Status);
+  const rejected = documentStatusStore.document_Status.find((s) => s.getName() === "REJECTED");
+  // console.log("Found rejected status:", rejected);
+  return rejected?.getId();
+});
+
+const loggedInUserId = ref<number>(12);
+const getPreviousApprovedStep = computed(() => {
+  // หาขั้นตอนที่ถูกอนุมัติล่าสุด
+  const approvedSteps = approvalSteps.value.filter((step) => step.status_id === 2);
+  if (approvedSteps.length > 0) {
+    // เรียงลำดับจากมากไปน้อยเพื่อหาขั้นตอนล่าสุด
+    return approvedSteps.sort((a, b) => b.step_number - a.step_number)[0];
+  }
+  return null;
+});
+
+const currentApprovalStep = computed(() => {
+  // console.log("🔥 Using NEW currentApprovalStep logic");
+
+  // หา step ที่เป็น PENDING ก่อน
+  const pendingSteps = approvalSteps.value.filter((step) => step.status_id === 1);
+
+  if (pendingSteps.length === 0) {
+    // console.log("No pending steps found");
+    return null;
+  }
+
+  // เรียงลำดับตาม step_number และเอา step แรก
+  const nextPendingStep = pendingSteps.sort((a, b) => a.step_number - b.step_number)[0];
+
+  // ตรวจสอบสิทธิ์ในการอนุมัติ
+  const canApprove =
+    nextPendingStep.approver_id === loggedInUserId.value || nextPendingStep.approver_id === 0;
+
+  // console.log("NEW currentApprovalStep result:", canApprove ? nextPendingStep : null);
+
+  return canApprove ? nextPendingStep : null;
+});
+
+const currentApprovalStepDebug = computed(() => {
+  // console.log("All approval steps:", approvalSteps.value);
+  // console.log("Logged in user ID:", loggedInUserId.value);
+
+  const pendingSteps = approvalSteps.value.filter((step) => step.status_id === 1);
+  // console.log("Pending steps:", pendingSteps);
+
+  if (pendingSteps.length === 0) {
+    // console.log("No pending steps found");
+    return null;
+  }
+
+  const nextPendingStep = pendingSteps.sort((a, b) => a.step_number - b.step_number)[0];
+  // console.log("Next pending step:", nextPendingStep);
+
+  const canApprove =
+    nextPendingStep.approver_id === loggedInUserId.value || nextPendingStep.approver_id === 0;
+
+  // console.log("Can approve:", canApprove);
+  // console.log("Step approver_id:", nextPendingStep.approver_id);
+
+  return canApprove ? nextPendingStep : null;
+});
+const findStepById = (stepId: number) => {
+  return approvalSteps.value.find((step) => step.id === stepId);
+};
+const step204 = computed(() => findStepById(204));
+watch(
+  [approvalSteps, currentApprovalStepDebug, step204],
+  () => {
+    // console.log("👀 Watching changes...");
+    // console.log("Steps:", approvalSteps.value);
+    // console.log("Current step debug result:", currentApprovalStepDebug.value);
+    // console.log("Step 204:", step204.value);
+  },
+  { immediate: true, deep: true }
+);
+const approvalStepStore = useApprovalStepStore();
+const documentStatusStore = useDocumentStatusStore();
+
+//************************************* */
+/********************************************************** */
+/********************************************************** */
+const handleOtpConfirm = async (otpCode: string) => {
+  if (!otpCode) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
     return;
   }
-  orderId.value = id;
-  const result = await store.fetchById(id);
-  if (result) {
-    orderDetails.value = result;
-  } else {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດດຶງຂໍ້ມູນເອກະສານໄດ້");
+
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep?.id) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
+    return;
+  }
+  const approvalIdFromOtp = approvalStepStore.otpResponse?.approval_id;
+  if (!approvalIdFromOtp) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນอ้างອີງ OTP");
+    return;
+  }
+
+  const purchaseOrderItemsPayload = Object.keys(selectedBudgets.value).map((itemId) => {
+    const budget = selectedBudgets.value[itemId];
+    return {
+      id: Number(itemId),
+      budget_item_id: budget.budgetId,
+    };
+  });
+
+  try {
+    const documentId = route.params.id as string;
+    const payload: SubmitApprovalStepInterface = {
+      type: "pr",
+      statusId: Number(approvedStatusId.value),
+      remark: "Approved",
+      approvalStepId: Number(currentStep.id),
+      approval_id: approvalIdFromOtp,
+      is_otp: true,
+      otp: otpCode,
+      purchase_order_items: purchaseOrderItemsPayload,
+    };
+
+    await approvalStepStore.submitApproval(documentId, payload);
+    isOtpModalVisible.value = false;
+  } catch (err) {
+    console.error("Error in handleOtpConfirm:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+    isOtpModalVisible.value = false;
   }
 };
-/***************ດຶງຂໍ້ມູນ********************* */
-onMounted(fetchOrderDetails);
-/***************ດຶງຂໍ້ມູນ********************* */
-
-const getItemsForTable = computed(() => {
-  return orderDetails.value?.getPurchaseOrderItem() ?? [];
-});
-// Custom buttons for header
-const customButtons = [
-  {
-    label: "print",
-    icon: "ant-design:printer-outlined",
-    class: "bg-white flex items-center gap-2 hover:bg-gray-100",
-    type: "default" as ButtonType,
-    onClick: () => {
-      isRejectModalVisible.value = true;
-    },
-  },
-  {
-    label: "ປະຕິເສດ",
-
-    class: "bg-white flex items-center gap-2 hover:bg-gray-100",
-    type: "default" as ButtonType,
-    onClick: () => {
-      isRejectModalVisible.value = true;
-    },
-  },
-  {
-    label: "ອະນຸມັດ",
-
-    class: "bg-red-500 flex items-center gap-2 hover:bg-red-800 text-white hover:!text-white",
-    type: "default" as ButtonType,
-    onClick: () => {
-      isApproveModalVisible.value = true;
-    },
-  },
-];
-
-const handleBudgetConfirm = (data: any) => {
-  if (activeItemRecord.value) {
-    selectedBudgets.value[activeItemRecord.value.id] = data;
-    console.log("Selected budgets:", selectedBudgets.value);
-  }
-  visibleBudget.value = false;
-};
-const userInfo = {
-  name: "ນາງ ປາກາລີ ລາຊະບູລີ",
-  department: "ພະແນກໄອທີ, ພະບໍລິມາດ",
-};
-// Handle approve
 const handleApprove = async () => {
-  try {
-    confirmLoading.value = true;
-    // Your approve logic here
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-    isApproveModalVisible.value = false;
-  } finally {
-    confirmLoading.value = false;
+  isApproveModalVisible.value = false;
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep?.id) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
+    return;
+  }
+
+  const documentId = route.params.id as string;
+
+  const purchaseOrderItemsPayload = Object.keys(selectedBudgets.value).map((itemId) => {
+    const budget = selectedBudgets.value[itemId];
+    return {
+      id: Number(itemId),
+      budget_item_id: budget.budgetId,
+    };
+  });
+
+  // --- จุดตัดสินใจ ---
+  if (currentStep.is_otp === true) {
+    // ---- กรณีต้องใช้ OTP ----
+    try {
+      const otpData = await approvalStepStore.sendOtp(currentStep.id, purchaseOrderItemsPayload);
+      if (otpData) {
+        isOtpModalVisible.value = true;
+      }
+    } catch (err) {
+      console.error("Error in handleApprove (OTP case):", err);
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
+    }
+  } else {
+    // ---- กรณีไม่ต้องใช้ OTP ----
+    try {
+      const payload: SubmitApprovalStepInterface = {
+        type: "po",
+        // statusId: Number(approvedStatusId.value),
+        statusId: 2,
+        remark: "Approved",
+        approvalStepId: Number(currentStep.id),
+        is_otp: false,
+        purchase_order_items: purchaseOrderItemsPayload,
+      };
+
+      await approvalStepStore.submitApproval(documentId, payload);
+    } catch (err) {
+      error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+    }
   }
 };
 
-// Handle reject
 const handleReject = async () => {
+  if (!rejectReason.value.trim()) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາລະບຸເຫດຜົນໃນການປະຕິເສດ");
+    return;
+  }
+
+  if (!rejectedStatusId.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Rejected' ໃນລະບົບ");
+    return;
+  }
+
+  if (!approvalDetail.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+    return;
+  }
+
   try {
-    if (!rejectReason.value.trim()) {
+    const userApproval = approvalDetail.value.getUserApproval();
+    if (!userApproval?.approval_step?.[0]?.id) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
       return;
     }
-    confirmLoading.value = true;
-    // Your reject logic here
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-    isRejectModalVisible.value = false;
-    rejectReason.value = "";
-  } finally {
-    confirmLoading.value = false;
-  }
-};
 
-// Document details
-const documentDetails = {
-  requester: {
-    name: "ທ່ານ ພົມມະກອນ ຄວາມຄູ",
-    position: "ພະນັກງານພັດທະນາລະບົບ, ຝ່າຍໄອທີ",
-    avatar: "/public/4.png",
-  },
-  requestDate: "30 ມີນາ 2025",
-  purpose:
-    "ເພື່ອໃຫ້ແທດເໝາະ ໃຫ້ຮອງຮັບກັບການປະຕິບັດວຽກງານ ແລະ ເພື່ອອຳນວຍຄວາມສະດວກໃນການປະຕິບັດໜ້າທີ່ວຽກງານ",
-};
+    const approvalStepId = userApproval.approval_step[0].id;
 
-// Signatures
-const signatures = computed(() => {
-  const sigs = [];
-  const requester = orderDetails.value?.getRequester();
-  const userApproval = orderDetails.value?.getUserApproval();
-  const approvedStep = userApproval?.approval_step?.find((step: any) => step.status_id === 2); // APPROVED status id
-  const approver = approvedStep?.approver;
+    const documentId = route.params.id as string;
+    const payload = {
+      type: "po" as const,
+      statusId: Number(rejectedStatusId.value),
+      remark: rejectReason.value,
+      approvalStepId: Number(approvalStepId),
+    };
 
-  // ลายเซ็นของผู้เสนอ (Requester)
-  if (requester) {
-    sigs.push({
-      role: "ຜູ້ສະເໜີ",
-      name: requester.username,
-      position: orderDetails.value?.getPosition()?.[0]?.name,
-      signature_url: requester.user_signature?.signature_url || null,
-    });
-  }
+    // console.log("Sending payload Reject:", payload);
 
-  // ลายเซ็นของผู้ที่อนุมัติ
-  if (approver) {
-    sigs.push({
-      role: "ຜູ້ອານຸມັດ",
-      name: approver.username,
-      position: "ຜູ້ຈັດການ", // สมมติว่า role นี้เป็นผู้จัดการ
-      signature_url: approver.user_signature?.signature_url || null,
-    });
-  }
-
-  return sigs;
-});
-// OTP
-const handleOtpInput = (value: string, index: number) => {
-  const numericValue = value.replace(/[^0-9]/g, "");
-  if (numericValue) {
-    otpValue.value[index] = numericValue[0];
-    if (index < 5) {
-      nextTick(() => {
-        const nextInput = otpInputRefs.value[index + 1];
-        if (nextInput) {
-          const inputElement = nextInput.$el.querySelector("input") || nextInput.$el;
-          inputElement?.focus();
-        }
-      });
+    const success = await approvalStepStore.submitApproval(documentId, payload);
+    if (success) {
+      isRejectModalVisible.value = false;
+      rejectReason.value = "";
     }
-  } else {
-    otpValue.value[index] = "";
-  }
-};
-//************************************* */
-const handleOtpKeydown = (event: KeyboardEvent, index: number) => {
-  if (event.key === "Backspace" && !otpValue.value[index]) {
-    event.preventDefault();
-    // ย้ายไป input ก่อนหน้า
-    if (index > 0) {
-      nextTick(() => {
-        const prevInput = otpInputRefs.value[index - 1];
-        if (prevInput) {
-          const inputElement = prevInput.$el.querySelector("input") || prevInput.$el;
-          inputElement?.focus();
-          // เคลียร์ค่าของ input ก่อนหน้า
-          otpValue.value[index - 1] = "";
-        }
-      });
-    }
-  }
-  if (
-    !/^\d$/.test(event.key) &&
-    !["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight"].includes(event.key)
-  ) {
-    event.preventDefault();
-  }
-};
-/********************************************************** */
-const handlePaste = (event: ClipboardEvent) => {
-  event.preventDefault();
-  const pastedData = event.clipboardData?.getData("text").replace(/[^0-9]/g, "");
-  if (pastedData) {
-    const digits = pastedData.split("").slice(0, 6);
-    digits.forEach((digit, index) => {
-      if (index < 6) {
-        otpValue.value[index] = digit;
-      }
-    });
-    const nextIndex = Math.min(digits.length, 5);
-    nextTick(() => {
-      const nextInput = otpInputRefs.value[nextIndex];
-      if (nextInput) {
-        const inputElement = nextInput.$el.querySelector("input") || nextInput.$el;
-        inputElement?.focus();
-      }
-    });
-  }
-};
-/********************************************************** */
-const handleOtpConfirm = async () => {
-  try {
-    confirmLoading.value = true;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    isOtpModalVisible.value = false;
-    isSignatureModalVisible.value = true;
   } catch (err) {
-    console.error(err);
-    error("ການຢືນຢັນ OTP ລົ້ມເຫລວ");
-  } finally {
-    confirmLoading.value = false;
-    otpValue.value = Array(6).fill("");
+    console.error("Error in handleReject:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
   }
 };
 
@@ -291,11 +329,6 @@ const handleSuccessConfirm = async () => {
   }
 };
 /******************************************************* */
-const setOtpInputRef = (el: any, index: number) => {
-  if (el) {
-    otpInputRefs.value[index] = el;
-  }
-};
 /********************************** */
 const handleModalCancel = () => {
   isOtpModalVisible.value = false;
@@ -305,24 +338,162 @@ const handleModalCancel = () => {
   signatureData.value = "";
 };
 
+/*****************Logic OTP***************** */
+
+/***************ດຶງຂໍ້ມູນ********************* */
+const fetchOrderDetails = async () => {
+  const id = parseInt(route.params.id as string, 10);
+  if (isNaN(id)) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບລະຫັດເອກະສານ");
+    return;
+  }
+  orderId.value = id;
+  const result = await store.fetchById(id);
+  if (result) {
+    orderDetails.value = result;
+    // console.log("Order Details after fetch:", orderDetails.value);
+  } else {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດດຶງຂໍ້ມູນເອກະສານໄດ້");
+  }
+};
+onMounted(fetchOrderDetails);
+/***************ດຶງຂໍ້ມູນ********************* */
+/***************Table********************* */
+const getItemsForTable = computed(() => {
+  return orderDetails.value?.getPurchaseOrderItem() ?? [];
+});
+/***************Table********************* */
+
+// Custom buttons for header
+
+const canApprove = computed(() => {
+  const currentStep = currentApprovalStep.value;
+  const previousStep = getPreviousApprovedStep.value;
+
+  if (!currentStep) return false;
+
+  if (currentStep.step_number === 1) return true;
+
+  return (
+    previousStep &&
+    previousStep.status_id === 2 && // APPROVED
+    previousStep.step_number === currentStep.step_number - 1
+  );
+});
+const customButtons = computed(() => {
+  if (!canApprove.value) {
+    return [];
+  }
+
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep) return [];
+
+  if (!canApprove.value) {
+        return [
+            {
+                label: `ອະນຸມັດ`,
+                type: "primary" as ButtonType,
+                onClick: () => {
+                    handleApprove();
+                },
+            },
+        ];
+    }
+
+  return [
+    {
+      label: "ປະຕິເສດ",
+      type: "default" as ButtonType,
+      onClick: () => {
+        isRejectModalVisible.value = true;
+      },
+    },
+    {
+      label: `ອະນຸມັດ`,
+      type: "primary" as ButtonType,
+      onClick: () => {
+        isApproveModalVisible.value = true;
+      },
+    },
+  ];
+});
+const handleBudgetConfirm = (data: any) => {
+  if (activeItemRecord.value) {
+    selectedBudgets.value[activeItemRecord.value.id] = data;
+    // console.log("Selected budgets:", selectedBudgets.value);
+  }
+  visibleBudget.value = false;
+};
+const userInfo = {
+  name: "ນາງ ປາກາລີ ລາຊະບູລີ",
+  department: "ພະແນກໄອທີ, ພະບໍລິມາດ",
+};
+
+// Document details
+const documentDetails = {
+  requester: {
+    name: "ທ່ານ ພົມມະກອນ ຄວາມຄູ",
+    position: "ພະນັກງານພັດທະນາລະບົບ, ຝ່າຍໄອທີ",
+    avatar: "/public/4.png",
+  },
+  requestDate: "30 ມີນາ 2025",
+  purpose:
+    "ເພື່ອໃຫ້ແທດເໝາະ ໃຫ້ຮອງຮັບກັບການປະຕິບັດວຽກງານ ແລະ ເພື່ອອຳນວຍຄວາມສະດວກໃນການປະຕິບັດໜ້າທີ່ວຽກງານ",
+};
+
+// Signatures
+const signatures = computed(() => {
+  const sigs = [];
+  const requester = orderDetails.value?.getRequester();
+  const userApproval = orderDetails.value?.getUserApproval();
+  const approvedStep = userApproval?.approval_step?.find((step: any) => step.status_id === 2); // APPROVED status id
+  const approver = approvedStep?.approver;
+
+  // ลายเซ็นของผู้เสนอ (Requester)
+  if (requester) {
+    sigs.push({
+      role: "ຜູ້ສະເໜີ",
+      name: requester.username,
+      position: orderDetails.value?.getPosition()?.[0]?.name,
+      signature_url: requester.user_signature?.signature_url || null,
+    });
+  }
+  if (approver) {
+    sigs.push({
+      role: "ຜູ້ອານຸມັດ",
+      name: approver.username,
+      position: "ຜູ້ຈັດການ",
+      signature_url: approver.user_signature?.signature_url || null,
+    });
+  }
+
+  return sigs;
+});
+
 /************************Drawer**************************** */
-const selectedBudgets = ref<Record<string, any>>({});
-const activeItemRecord = ref<any>(null);
+// const selectedBudgets = ref<Record<string, any>>({});
+// const activeItemRecord = ref<any>(null);
 </script>
 
 <template>
   <div class="mt-10">
     <!-- Header Component -->
-    <header-component
-      header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
-      :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
-      document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
-      document-number="0036/ພລ - ວັນທີ"
-      :document-date="'2025-03-26'"
-      :action-buttons="customButtons"
-      document-status="ລໍຖ້າງົບປະມານກວດສອບ"
-      document-status-class="text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"
-    />
+    <div
+      class="fixed px-6 py-4 top-0 z-40 h-auto bg-white shadow-sm transition-all duration-150 mt-[4rem]"
+      :class="topbarStyle"
+    >
+      <header-component
+        header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
+        :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
+        document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
+        document-number="0036/ພລ - ວັນທີ"
+        :document-date="'2025-03-26'"
+        :action-buttons="customButtons"
+        document-status="ລໍຖ້າງົບປະມານກວດສອບ"
+        document-status-class="text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"
+      />
+    </div>
+
     <!-- Action Buttons -->
     <UiModal
       title="ປະຕິເສດ"
@@ -338,7 +509,7 @@ const activeItemRecord = ref<any>(null);
             >ຍົກເລີກ</UiButton
           >
           <UiButton
-            @click="handleReject"
+            @click="handleApprove"
             type="primary"
             :loading="confirmLoading"
             color-class="w-full"
@@ -347,63 +518,14 @@ const activeItemRecord = ref<any>(null);
         </div>
       </template>
     </UiModal>
-    <!-- OTP -->
-    <UiModal
-      title="ລາຍເຊັນ"
-      title-icon="material-symbols-light:signature"
+    <OtpModal
       :visible="isOtpModalVisible"
-      :confirm-loading="confirmLoading"
-      @update:visible="isOtpModalVisible = $event"
-      @ok="handleOtpConfirm"
-      @cancel="handleModalCancel"
-    >
-      <div class="p-4">
-        <div>
-          <p>{{ userInfo.name }} {{ userInfo.department }}</p>
-        </div>
-        <div>
-          <p class="text-gray-950 text-xl">ກວດສອບຂໍ້ຄວາມ</p>
-          <p class="text-sm text-gray-500 mb-4">
-            ລະຫັດຢືນຢັນ 6 ຕົວ ໄດ້ສົ່ງໄປທີ່ເບີໂທລະສັບ +856 20 5555 5555
-          </p>
-          <!-- OTP Input -->
-          <div class="flex justify-center gap-2">
-            <template v-for="i in 6" :key="i">
-              <UiInput
-                :ref="(el) => setOtpInputRef(el, i - 1)"
-                v-model="otpValue[i - 1]"
-                class="w-12 h-12 text-center text-xl"
-                :maxlength="1"
-                type="text"
-                pattern="[0-9]*"
-                inputmode="numeric"
-                @input="(value) => handleOtpInput(value, i - 1)"
-                @keydown="(event) => handleOtpKeydown(event, i - 1)"
-                @paste="handlePaste"
-              />
-            </template>
-          </div>
-        </div>
-
-        <div class="text-center">
-          <p class="text-sm text-gray-500">
-            ບໍ່ໄດ້ຮັບລະຫັດ?
-            <a-button type="link" class="p-0">ສົ່ງອີກຄັ້ງ</a-button>
-          </p>
-        </div>
-      </div>
-      <template #footer>
-        <div class="flex">
-          <UiButton
-            @click="handleOtpConfirm"
-            type="primary"
-            :loading="confirmLoading"
-            color-class="w-full"
-            >ຢືນຢັນ</UiButton
-          >
-        </div>
-      </template>
-    </UiModal>
+      :title="t('purchase-rq.otp-verification')"
+      :loading="confirmLoading"
+      @confirm="handleOtpConfirm"
+      @close="isOtpModalVisible = false"
+      @resend="handleApprove"
+    />
     <!-- OTP -->
     <!-- Signature Modal -->
     <UiModal

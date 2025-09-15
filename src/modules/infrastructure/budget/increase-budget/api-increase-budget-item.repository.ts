@@ -125,7 +125,7 @@ export class ApiIncreaseBudgetItemRepository implements IncreaseBudgetItemReposi
       input.updated_at ?? ""
     );
 
-    console.log('toDomainModel result:', res);
+    // console.log('toDomainModel result:', res);
     return res;
   }
 

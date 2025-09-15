@@ -2,6 +2,7 @@
 import { PurchaseOrderItemEntity } from "./purchase-order-item.entity";
 // import { PurchaseOrderVendorEntity } from "./purchase-order-vendor.entity";
 import { PurchaseOrderItemDataEntity } from "./purchase-order-Item-data.entity";
+import { PurchaseOrderVendorEntity } from "./purchase-order-vendor.entity";
 
 interface PurchaseOrderDocument {
   description: string | null;
@@ -29,8 +30,24 @@ export class PurchaseOrderEntity {
   private document: PurchaseOrderDocument;
   private purposes: string;
   private purchaseRequest: any;
-  private userApproval: any;
-  private items: PurchaseOrderItemEntity[];
+  private user_approval: {
+    id: number;
+    document_id: number;
+    status_id: number;
+    approval_step: Array<{
+      approver: any;
+      id: number;
+      user_approval_id: number;
+      step_number: number;
+      approver_id: number;
+      status_id: number;
+      remark: string;
+      is_otp: boolean;
+      requires_file_upload: boolean;
+    }>;
+  } | null = null;
+  // private items: PurchaseOrderItemEntity[];
+  private items: any[];
   private purchase_order_item: PurchaseOrderItemDataEntity[];
   private readonly budget_item_detail_id: number;
   private createdBy: string;
@@ -54,7 +71,7 @@ export class PurchaseOrderEntity {
     updatedAt: string,
     deletedAt: string | null = null,
     purchaseRequest?: any,
-    userApproval?: any
+    user_approval: any = null
   ) {
     this.id = id;
     this.po_number = po_number;
@@ -65,58 +82,203 @@ export class PurchaseOrderEntity {
     this.purchase_order_item = purchase_order_item;
     this.budget_item_detail_id = budget_item_detail_id;
     this.purchaseRequest = purchaseRequest;
-    this.userApproval = userApproval;
+    this.user_approval = user_approval;
     this.createdBy = createdBy;
     this.createdAt = createdAt;
     this.updatedBy = updatedBy;
     this.updatedAt = updatedAt;
     this.deletedAt = deletedAt;
   }
-
   public static create(data: any): PurchaseOrderEntity {
-    const id = data.id || null;
-    const poNumber = data.po_number || null;
-    const purchaseRequestId = data.purchase_request_id || 0;
-    const purposes = data.purposes || data.purchase_request?.purposes || "N/A";
-    const createdAt = data.created_at || "Invalid date";
-    const updatedAt = data.updated_at || "Invalid date";
+  // console.log("=== Creating PurchaseOrderEntity ===");
+  // console.log("Input data:", data);
+  // console.log("Items from data:", data.items);
+  // console.log("Purchase order items:", data.purchase_order_item);
 
-    let purchaseOrderItems: PurchaseOrderItemDataEntity[] = [];
-    if (Array.isArray(data.purchase_order_item)) {
-      const purchaseRequestItems = data.purchase_request?.purchase_request_item || [];
-      purchaseOrderItems = data.purchase_order_item.map(
-        (item: any) => new PurchaseOrderItemDataEntity(item, purchaseRequestItems)
-      );
-    }
-    const documentData = data.document || data.purchase_request?.document;
-    const document: PurchaseOrderDocument = {
-      description: documentData?.description || null,
-      documentTypeId: documentData?.document_type_id || 0,
-      department: documentData?.department || null,
-      requester: documentData?.requester || null,
-      position: documentData?.position || [],
-      created_at: documentData?.created_at || "Invalid date",
-      updated_at: documentData?.updated_at || "Invalid date",
-    };
+  const id = data.id || null;
+  const poNumber = data.po_number || null;
+  const purchaseRequestId = data.purchase_request_id || 0;
+  const purposes = data.purposes || data.purchase_request?.purposes || "N/A";
+  const createdAt = data.created_at || "Invalid date";
+  const updatedAt = data.updated_at || "Invalid date";
+  const currentTimestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
+  const currentUser = "phonpadid";
 
-    return new PurchaseOrderEntity(
-      id,
-      poNumber,
-      purchaseRequestId,
-      document,
-      [],
-      purchaseOrderItems,
-      purposes,
-      data.budget_item_detail_id || 0,
-      data.created_by || "N/A",
-      createdAt,
-      data.updated_by || "N/A",
-      updatedAt,
-      data.deleted_at || null,
-      data.purchase_request,
-      data.user_approval
+  // แปลง items จาก data.items เป็น PurchaseOrderItemEntity[]
+  const items = Array.isArray(data.items)
+    ? data.items.map((item: any) => {
+        // สร้าง PurchaseOrderVendorEntity ก่อน
+        const vendorData = item.selected_vendor && item.selected_vendor[0]
+          ? item.selected_vendor[0]
+          : null;
+
+        if (!vendorData) {
+          console.warn(`No vendor data found for item: ${item.purchase_request_item_id}`);
+          return null;
+        }
+
+        const vendor = PurchaseOrderVendorEntity.create({
+          vendorId: Number(vendorData.vendor_id),
+          vendorBankAccountId: vendorData.vendor_bank_account_id ? Number(vendorData.vendor_bank_account_id) : null,
+          filename: vendorData.filename || null,
+          reason: vendorData.reason || null,
+          created_by: currentUser,
+          created_at: currentTimestamp
+        });
+
+        // สร้าง PurchaseOrderItemEntity ผ่าน static method create
+        return PurchaseOrderItemEntity.create({
+          purchaseRequestItemId: Number(item.purchase_request_item_id),
+          price: Number(item.price),
+          isVat: Boolean(item.is_vat),
+          selectedVendor: vendor,
+          created_by: currentUser,
+          created_at: currentTimestamp
+        });
+      })
+      .filter((item:any) => item !== null) // กรองค่า null ออกไป
+    : [];
+
+  // console.log("Processed items:", items);
+
+  let purchaseOrderItems: PurchaseOrderItemDataEntity[] = [];
+  if (Array.isArray(data.purchase_order_item)) {
+    const purchaseRequestItems = data.purchase_request?.purchase_request_item || [];
+    purchaseOrderItems = data.purchase_order_item.map(
+      (item: any) => new PurchaseOrderItemDataEntity(item, purchaseRequestItems)
     );
   }
+
+  const documentData = data.document || data.purchase_request?.document;
+  const document: PurchaseOrderDocument = {
+    description: documentData?.description || null,
+    documentTypeId: documentData?.document_type_id || 0,
+    department: documentData?.department || null,
+    requester: documentData?.requester || null,
+    position: documentData?.position || [],
+    created_at: documentData?.created_at || "Invalid date",
+    updated_at: documentData?.updated_at || "Invalid date",
+  };
+
+  return new PurchaseOrderEntity(
+    id,
+    poNumber,
+    purchaseRequestId,
+    document,
+    items, // ส่ง items ที่แปลงแล้ว
+    purchaseOrderItems,
+    purposes,
+    data.budget_item_detail_id || 0,
+    data.created_by || "N/A",
+    createdAt,
+    data.updated_by || "N/A",
+    updatedAt,
+    data.deleted_at || null,
+    data.purchase_request,
+    data.user_approval
+  );
+}
+
+//   public static create(data: any): PurchaseOrderEntity {
+//   // ✅ เพิ่ม logging
+//   console.log("=== Creating PurchaseOrderEntity ===");
+//   console.log("Input data:", data);
+//   console.log("Items from data:", data.items);
+//   console.log("Purchase order items:", data.purchase_order_item);
+
+//   const id = data.id || null;
+//   const poNumber = data.po_number || null;
+//   const purchaseRequestId = data.purchase_request_id || 0;
+//   const purposes = data.purposes || data.purchase_request?.purposes || "N/A";
+//   const createdAt = data.created_at || "Invalid date";
+//   const updatedAt = data.updated_at || "Invalid date";
+
+//   // ✅ แก้ไข: ใช้ items จาก parameter แทน
+//   const items = data.items || []; // เพิ่มบรรทัดนี้
+//   console.log("Processed items:", items);
+
+//   let purchaseOrderItems: PurchaseOrderItemDataEntity[] = [];
+//   if (Array.isArray(data.purchase_order_item)) {
+//     const purchaseRequestItems = data.purchase_request?.purchase_request_item || [];
+//     purchaseOrderItems = data.purchase_order_item.map(
+//       (item: any) => new PurchaseOrderItemDataEntity(item, purchaseRequestItems)
+//     );
+//   }
+
+//   const documentData = data.document || data.purchase_request?.document;
+//   const document: PurchaseOrderDocument = {
+//     description: documentData?.description || null,
+//     documentTypeId: documentData?.document_type_id || 0,
+//     department: documentData?.department || null,
+//     requester: documentData?.requester || null,
+//     position: documentData?.position || [],
+//     created_at: documentData?.created_at || "Invalid date",
+//     updated_at: documentData?.updated_at || "Invalid date",
+//   };
+
+//   return new PurchaseOrderEntity(
+//     id,
+//     poNumber,
+//     purchaseRequestId,
+//     document,
+//     items, // ✅ ส่ง items ที่ได้จาก parameter
+//     purchaseOrderItems,
+//     purposes,
+//     data.budget_item_detail_id || 0,
+//     data.created_by || "N/A",
+//     createdAt,
+//     data.updated_by || "N/A",
+//     updatedAt,
+//     data.deleted_at || null,
+//     data.purchase_request,
+//     data.user_approval
+//   );
+// }
+
+// public static create(data: any): PurchaseOrderEntity {
+//     const id = data.id || null;
+//     const poNumber = data.po_number || null;
+//     const purchaseRequestId = data.purchase_request_id || 0;
+//     const purposes = data.purposes || data.purchase_request?.purposes || "N/A";
+//     const createdAt = data.created_at || "Invalid date";
+//     const updatedAt = data.updated_at || "Invalid date";
+
+//     let purchaseOrderItems: PurchaseOrderItemDataEntity[] = [];
+//     if (Array.isArray(data.purchase_order_item)) {
+//       const purchaseRequestItems = data.purchase_request?.purchase_request_item || [];
+//       purchaseOrderItems = data.purchase_order_item.map(
+//         (item: any) => new PurchaseOrderItemDataEntity(item, purchaseRequestItems)
+//       );
+//     }
+//     const documentData = data.document || data.purchase_request?.document;
+//     const document: PurchaseOrderDocument = {
+//       description: documentData?.description || null,
+//       documentTypeId: documentData?.document_type_id || 0,
+//       department: documentData?.department || null,
+//       requester: documentData?.requester || null,
+//       position: documentData?.position || [],
+//       created_at: documentData?.created_at || "Invalid date",
+//       updated_at: documentData?.updated_at || "Invalid date",
+//     };
+
+//     return new PurchaseOrderEntity(
+//       id,
+//       poNumber,
+//       purchaseRequestId,
+//       document,
+//       [],
+//       purchaseOrderItems,
+//       purposes,
+//       data.budget_item_detail_id || 0,
+//       data.created_by || "N/A",
+//       createdAt,
+//       data.updated_by || "N/A",
+//       updatedAt,
+//       data.deleted_at || null,
+//       data.purchase_request,
+//       data.user_approval
+//     );
+//   }
 
   // เพิ่มเมธอด setPurchaseOrderItem
   public setPurchaseOrderItem(items: any[]): void {
@@ -152,8 +314,16 @@ export class PurchaseOrderEntity {
     return this.purchaseRequest;
   }
 
-  public getUserApproval(): any {
-    return this.userApproval;
+  public getUserApproval() {
+    if (
+      this.user_approval &&
+      typeof this.user_approval === "object" &&
+      "id" in this.user_approval &&
+      "approval_step" in this.user_approval
+    ) {
+      return this.user_approval;
+    }
+    return null;
   }
 
   public getDepartment(): any {

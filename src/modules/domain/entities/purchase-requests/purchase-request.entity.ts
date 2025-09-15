@@ -7,6 +7,7 @@ import type {
   Position,
   Requester,
   UserApproval,
+  UserSignature
 } from "@/modules/interfaces/purchase-requests/purchase-request.interface";
 
 export class PurchaseRequestEntity {
@@ -123,6 +124,13 @@ export class PurchaseRequestEntity {
 
   public getRequester(): Requester | null {
     return this.requester;
+  }
+
+  public getRequesterSignature(): UserSignature | null {
+    if (this.requester && this.requester.user_signature) {
+      return this.requester.user_signature;
+    }
+    return null;
   }
 
   public getPosition(): Position | null {

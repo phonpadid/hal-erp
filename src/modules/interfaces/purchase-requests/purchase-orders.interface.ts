@@ -93,7 +93,23 @@ export interface PurchaseOrderApiModel {
     updated_at?: string;
   };
   purchase_request?: any;
-  user_approval?: any;
+ user_approval?: {
+    id: number;
+    document_id: number;
+    status_id: number;
+    approval_step: Array<{
+      id: number;
+      user_approval_id: number;
+      step_number: number;
+      approver_id: number;
+      status_id: number;
+      remark: string;
+    }>;
+    document_status: {
+      id: number;
+      name: string;
+    };
+  };
   items: PurchaseOrderItemApiModel[];
   created_by?: string;
   created_at?: string;

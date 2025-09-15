@@ -4,7 +4,7 @@ import CheckboxGroup from "@/common/shared/components/Input/CheckboxGroup.vue";
 
 export interface Permission {
   id: number;
-  name: string;
+  display_name: string;
 }
 
 export interface PermissionGroup {
@@ -34,7 +34,7 @@ const checkboxOptions = computed(() => {
   props.permissionData.forEach((group) => {
     group.permissions?.forEach((perm) => {
       options.push({
-        label: perm.name,
+        label: perm.display_name,
         value: perm.id,
         group: group.display_name,
       });

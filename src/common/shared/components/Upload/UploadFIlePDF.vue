@@ -33,7 +33,7 @@ const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
     const selectedFile = target.files[0];
-    console.log("File selected:", selectedFile);
+    // console.log("File selected:", selectedFile);
 
     // ตรวจสอบว่าเป็น PDF เท่านั้น
     if (selectedFile.type !== "application/pdf") {

@@ -35,34 +35,26 @@ const isValid = computed(() => {
 
 // ฟังก์ชันสำหรับดึงข้อมูล
 const fetchData = async () => {
-  // สร้าง object สำหรับ query parameters
-  const params = {
-    limit: 10,
-    search: searchQuery.value,
-  };
-
   if (selectedValue.value === "1") {
-    await budgetItemStore.getBudgetItemReport(params);
+    await budgetItemStore.getAllReport();
   } else {
-    await budgetItemStore.getBudgetItemReport(params);
+    await budgetItemStore.getAllReport();
   }
 };
 
-// กรองข้อมูลจาก Store
-// ในไฟล์ BudgetApprovalDrawer.vue
-
 const filteredBudgetData = computed<any[]>(() => {
-    const query = searchQuery.value.toLowerCase();
-    const source = budgetItemStore.budgetItems;
+  const query = searchQuery.value.toLowerCase();
+  const source = budgetItemStore.budgetItems;
 
-    if (!query) return source;
+  // console.log("Raw data:", source);
 
-    return source.filter(
-        (item: any) =>
-            // 👇 แก้ไขตรงนี้ให้เข้าถึง code จาก budget_account
-            (item.name && item.name.toLowerCase().includes(query)) ||
-            (item.getBudgetAccount()?.getCode() && item.getBudgetAccount()?.getCode().toLowerCase().includes(query))
-    );
+  if (!query) return source;
+
+  return source.filter(
+    (item: any) =>
+      (item.name && item.name.toLowerCase().includes(query)) ||
+      (item.budget_account?.code && item.budget_account.code.toLowerCase().includes(query))
+  );
 });
 // Methods
 const formatPrice = (price: number) => {
@@ -71,15 +63,23 @@ const formatPrice = (price: number) => {
 const handleConfirm = () => {
   if (!selectedBudget.value) return;
   emit("confirm", {
-    budgetId: selectedBudget.value.id,
-    budgetType: selectedValue.value === "1" ? "expense" : "advance",
+     id: Number(selectedBudget.value.id),
+    budgetType: selectedValue.value === "1" ? "expenditure" : "advance",
     budgetCode: selectedBudget.value.code,
     budgetName: selectedBudget.value.name,
     budgetAmount: selectedBudget.value.amount,
   });
 };
+
 const handleRowClick = (record: TableRecord) => {
-  selectedBudget.value = record;
+  selectedBudget.value = {
+    ...record,
+    id: Number(record.id),
+    code: record.budget_account?.code,
+    amount: record.allocated_amount,
+    used: record.use_amount,
+    remaining: record.balance_amount,
+  };
 };
 
 // Watchers
@@ -89,21 +89,18 @@ watch(selectedValue, () => {
   fetchData();
 });
 watch(searchQuery, () => {
-
   fetchData();
 });
 
-// Lifecycle Hook
 onMounted(() => {
   fetchData();
 });
-
 // Emits
 const emit = defineEmits<{
   (
     e: "confirm",
     data: {
-      budgetId: string;
+      id: number;
       budgetType: string;
       budgetCode: string;
       budgetName: string;
@@ -176,16 +173,16 @@ const getRowClassName = (record: TableRecord) => {
       <Table
         v-else-if="selectedValue === '1'"
         :columns="columns(t)"
-        :data-source="filteredBudgetData"
+        :data-source="budgetItemStore.budgetItems"
         class="cursor-pointer"
         :rowClassName="getRowClassName"
         @row-click="handleRowClick"
       >
         <template #code="{ record }">
-          <span>{{ record?.getBudgetAccount()?.getCode() }} - {{ record.name }}</span>
+          <span>{{ record?.budget_account?.code }} - {{ record.name }}</span>
         </template>
         <template #amount="{ record }">
-          <span>{{ formatCurrency(record.amount) }}</span>
+          <span>{{ formatCurrency(record.allocated_amount) }}</span>
         </template>
       </Table>
       <Table

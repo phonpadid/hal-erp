@@ -85,7 +85,7 @@ const triggerFileInput = () => {
 // Upload - emit files to parent
 const handleUpload = () => {
   if (selectedFiles.value.length > 0) {
-    console.log('Emitting upload event with files:', selectedFiles.value);
+    // console.log('Emitting upload event with files:', selectedFiles.value);
     emit('upload', selectedFiles.value);
     // Clear after successful upload
     clearSelectedFiles();

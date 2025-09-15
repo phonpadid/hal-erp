@@ -9,7 +9,7 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("budget_approval.table.amount"),
-      dataIndex: "amount",
+      dataIndex: "allocated_amount",
       key: "amount",
       align: "right" as const,
     },
