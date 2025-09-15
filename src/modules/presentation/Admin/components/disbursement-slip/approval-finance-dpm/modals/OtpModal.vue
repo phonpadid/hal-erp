@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import { nextTick, ref, computed, watch, defineProps, defineEmits } from "vue";
+import { nextTick, ref, computed, watch, defineProps, defineEmits, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useApprovalStepStore } from "@/modules/presentation/Admin/stores/approval-step.store";
+import { userApv } from "@/modules/shared/utils/get-user.login";
+import { departmenUsertStore } from "@/modules/presentation/Admin/stores/departments/department-user.store";
+import { storeToRefs } from "pinia";
 
 const { t } = useI18n();
 const { error } = useNotification();
 const approvalStepStore = useApprovalStepStore();
+const dpmUserStore = departmenUsertStore()
+const { currentDpmUser } = storeToRefs(dpmUserStore)
+const dpmUser = currentDpmUser
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const otpInputRefs = ref<any[]>([]);
@@ -137,6 +143,7 @@ const confirmOtpStep = () => {
 };
 
 const finalConfirm = () => {
+  alert('erererere')
   const otp = otpValue.value.join("");
   emit("confirm", otp);
 };
@@ -174,6 +181,11 @@ const setOtpInputElement = (el: unknown, index: number) => {
     otpInputRefs.value[index] = el;
   }
 };
+onMounted(async () => {
+  await dpmUserStore.fetchDepartmentUserById(userApv.id)
+  console.log('tttou:', dpmUser);
+
+})
 </script>
 
 
@@ -187,7 +199,7 @@ const setOtpInputElement = (el: unknown, index: number) => {
     <div class="mt-4 px-2">
       <!-- User Info Header -->
       <div class="text-center text-sm flex items-center justify-start gap-2">
-        <p>{{ approvalStepStore.otpResponse?.approver?.name || "ສຸກີ້ ວົງພະຈັນ" }}</p> fff: {{ props.is_otp }}
+        <p>{{ userApv.username || "ສຸກີ້ ວົງພະຈັນ" }}</p>
         <span class="-mt-3 ml-1 text-bold">•</span>
         <p>ບໍລິຫານ</p>
       </div>
@@ -247,8 +259,9 @@ const setOtpInputElement = (el: unknown, index: number) => {
           @click="finalConfirm"
           title="Click to confirm signature"
         >
+        <!-- kkk {{ userApv.signature }} -->
           <img
-            src="/2.png"
+            :src="userApv?.signature ?? ''"
             alt="Digital Signature"
             class="max-w-[270px] max-h-[120px] object-contain pointer-events-none"
           />
