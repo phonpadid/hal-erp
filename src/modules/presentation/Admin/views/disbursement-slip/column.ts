@@ -4,12 +4,12 @@ export function columns(t: (key: string) => string): Column[] {
   return [
     {
       title: t("disbursement.field.no"),
-      dataIndex: "no",
-      key: "no",
+      dataIndex: "id",
+      key: "id",
     },
     {
       title: t("disbursement.field.created_by"),
-      dataIndex: "created_by",
+      dataIndex: "document.requester.username",
       key: "created_by",
     },
     {

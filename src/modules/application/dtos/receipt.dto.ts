@@ -1,5 +1,11 @@
+import type { DepartmentDTO } from "./departments/department.dto";
 import type { DocumentTypeDTO } from "./documenet-type.dto";
 import type { ReceiptItemQueryDto } from "./receipt-item.dto";
+import type { UserApprovalDTO } from "./user-approvals/user-approval.dto";
+import type { UserDTO } from "./user.dto";
+import type { UnitDTO } from "./unit.dto";
+import type { VendorDto } from "./vendors/vendor/vendor.dto";
+import type { VendorBankAccountDto } from "./vendors/vendor_bank_accounts/vendor-bank-accounts";
 
 export interface CreateReceiptDTO {
   purchase_order_id: string;
@@ -26,11 +32,102 @@ export interface UpdateReceiptDTO {
 export interface ReciptQueryDto {
   id: string;
   purchase_order_id: string;
-  documentType_id: string;
+  document_id: string;
+  receipt_number: string;
+  receipt_date: string;
+  received_by: number;
+  step: boolean;
+
+  currency_totals: ICurrencyTotal[];
+  document: IDocument;
+  user_approval: UserApprovalDTO;
+
+
   remark: string;
   document_type: DocumentTypeDTO | null;
-  receipt_items: ReceiptItemQueryDto[] | []
-  createdAt: string;
+  receipt_item: ReceiptItemQueryDto[] | [],
+
+  created_at: string;
   updatedAt: string;
   deletedAt: string | null;
+}
+
+
+
+export interface ICurrencyTotal {
+  id: number,
+  code: string,
+  name: string,
+  amount: number
+}
+
+export interface IDocument {
+  id: number;
+  title: string;
+  description: string;
+  total_amount: number;
+  department_id: number;
+  requester_id: number;
+  document_type_id: number;
+  department: DepartmentDTO;
+  document_type: DocumentTypeDTO;
+  requester: UserDTO;
+  position: { id: number; name: string }[],
+}
+
+
+export interface IApprovalReceiptDto {
+  type: string;
+  statusId: number;
+  remark?: string;
+  is_otp?: boolean;
+  approval_id?: number;
+  otp?: string;
+  files?: {
+    file_name: string
+  }[]
+}
+
+export interface IPurchaseOrderItem {
+  id: number;
+  purchase_order_id: number;
+  purchase_request_item_id: number;
+  budget_item_id: number;
+  remark: string;
+  quantity: number;
+  price: number;
+  total: number;
+  vat_total: number;
+  total_with_vat: number;
+  purchase_request_item: IPurchaseRequestItem;
+  selected_vendor: ISelectVendor[];
+}
+
+export interface IPurchaseRequestItem {
+  id: number;
+  purchase_request_id: number;
+  title: string;
+  file_name_url: string;
+  quantity: number;
+  price: number;
+  total_price: number;
+  remark: string;
+  unit: UnitDTO
+
+}
+
+export interface ISelectVendor {
+  id: number;
+  purchase_order_item_id: number;
+  vendor_id: number;
+  file_name_url: string;
+  reason: string;
+  vendor: VendorDto;
+  vendor_bank_account: VendorBankAccountDto
+
+
+  price: number;
+  total_price: number;
+  remark: string;
+  unit: UnitDTO
 }

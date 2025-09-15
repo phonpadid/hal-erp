@@ -64,37 +64,11 @@ const documentDetails = {
   purpose:
     "ເພື່ອໃຫ້ແທດເໝາະ ໃຫ້ຮອງຮັບກັບການປະຕິບັດວຽກງານ ແລະ ເພື່ອອຳນວຍຄວາມສະດວກໃນການປະຕິບັດໜ້າທີ່ວຽກງານ",
 };
-
-// Signatures
-const signatures = [
-  {
-    role: "ຜູ້ສະເໜີ",
-    name: "ພົມມະກອນ ຄວາມຄູ",
-    position: "ພະນັກງານພັດທະນາລະບົບ",
-    signature: "/public/2.png",
-  },
-  {
-    role: "ຜູ້ອະນຸມັດ",
-    name: "ໜອມ ຄວາມຄູ",
-    position: "ຫົວໜ້າພະແນກບໍລິຫານ",
-    signature: "/public/2.png",
-  },
-  {
-    role: "ງົບປະມານ",
-    name: "ທິບນະກອນ ລິວັນໄຊ",
-    position: "ພະນັກງານງົບປະມານ",
-    signature: "/public/2.png",
-  },
-];
 const fetchOrderDetails = async () => {
   try {
     const result = await purchaseOrderStore.fetchById(Number(purchaseOrderId));
     if (result) {
       orderDetails.value = result;
-
-      // if (result.getItems && result.getItems()) {
-      //   orderItems.value = result.getItems();
-      // }
     } else {
       error("ບໍ່ພົບຂໍ້ມູນເອກະສານ");
     }
@@ -143,22 +117,22 @@ onMounted(async () => {
         <!-- ຂໍ້ມຸນຜູ້ສະເໜີ -->
         <div>
           <h4>ສະເໜີ</h4>
-          <div class="grid grid-cols-4">
+          <div class="grid grid-cols-4" v-for="item in orderDetails?.getPurchaseOrderItem()" :key="item.getId()">
             <div class="grid grid-rows-2">
               <h5>ຂໍ້ສະເໜີເບີກງົບປະມານ</h5>
-              <span class="text-sm">ຈັດຊື້ຄອມພີວເຕີ</span>
+              <span class="text-sm">{{item.getTitle()}}</span>
             </div>
             <div class="grid grid-rows-2">
               <h5>ຈຳນວນ</h5>
-              <span class="text-sm">1</span>
+              <span class="text-sm">{{ item.getQuantity() }}</span>
             </div>
             <div class="grid grid-rows-2">
               <h5>ພະແນກ</h5>
-              <span class="text-sm">ພັດທະນາທຸລະກິດ</span>
+              <span class="text-sm">{{orderDetails?.getDocument().department?.name}}</span>
             </div>
             <div class="grid grid-rows-2">
               <h5>ໜ່ວຍງານ</h5>
-              <span class="text-sm">ພະນັກງານ</span>
+              <span class="text-sm">{{orderDetails?.getPosition()[0].name}}</span>
             </div>
           </div>
         </div>
@@ -166,51 +140,61 @@ onMounted(async () => {
         <!-- Purpose -->
         <div class="mb-6">
           <h4 class="text-base font-semibold mb-2">ຈຸດປະສົງ ແລະ ລາຍການ</h4>
-          <p class="text-gray-600">{{ documentDetails.purpose }}</p>
+          <p class="text-gray-600">{{ orderDetails?.getPurposes() }}</p>
         </div>
 
         <!-- Items Table -->
-         {{ orderDetails?.getPurchaseOrderItem() }}
         <div class="mb-6">
           <h4 class="text-base font-semibold mb-2">ລາຍການ</h4>
           <Table
             :columns="columnsDetailsDirector(t)"
             :dataSource="orderDetails?.getPurchaseOrderItem() ?? []"
           >
+            <template #id="{ index }">
+              <span class="text-gray-600"
+                >{{index + 1}}</span
+              >
+            </template>
             <template #price="{ record }">
               <span class="text-gray-600"
-                >{{ record.unit }} {{ record.price.toLocaleString() }}</span
+                >{{ record.purchase_request_item.price.toLocaleString() }}</span
               >
             </template>
             <template #total="{ record }">
               <span class="text-gray-600"
-                >{{ record.unit }} {{ record.price.toLocaleString() }}</span
+                >{{ record.purchase_request_item.total_price.toLocaleString() }}</span
               >
             </template>
           </Table>
           <div>
             <p class="text-gray-500 mt-2 flex justify-end">
               {{ t("director.table.sum") }}:
-              <span class="font-semibold">25,936,000 ₭</span>
+              <span class="font-semibold">₭ {{ orderDetails?.getPurchaseRequest().total.toLocaleString() }}</span>
             </p>
             <p class="text-gray-500 mt-2 flex justify-end">
               {{ t("director.table.kip") }}:
-              <span class="font-semibold">25,936,000 ₭</span>
+              <span class="font-semibold">₭ {{ orderDetails?.getPurchaseRequest().total.toLocaleString() }}</span>
             </p>
           </div>
         </div>
 
         <!-- ວິເຄາະການຈັດຊື້ -->
-        <div>
+        <div v-for="(item, index) in orderDetails?.getPurchaseOrderItem()" :key="index" >
           <h4>ວິເຄາະການຈັດຊື້</h4>
           <div class="text-gray-600 gap-4 grid grid-cols-6">
             <span>ຮ້ານທີເລືອກ</span>
-            <span>ຄອມຄອມ COMCOM</span>
+            <span>{{item.getSelectedVendor()?.getVendor().name}}</span>
           </div>
-          <div class="mt-4 space-y-2">
+          <div class="mt-4 space-y-2 mb-2">
             <span class="font-medium">ເຫດຜົນທີເລືອກ:</span>
             <div class="ml-4 flex flex-col space-y-2 text-gray-600">
               <div class="flex items-start gap-2">
+                <!-- <span class="text-sm">•</span> -->
+                <span class="text-sm"
+                  >{{item.getRemark()}}</span
+                >
+              </div>
+              <!-- <div class="flex items-start gap-2">
                 <span class="text-sm">•</span>
                 <span class="text-sm"
                   >ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span
@@ -227,70 +211,69 @@ onMounted(async () => {
                 <span class="text-sm"
                   >ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span
                 >
-              </div>
-              <div class="flex items-start gap-2">
-                <span class="text-sm">•</span>
-                <span class="text-sm"
-                  >ທາງຮ້ານແມ່ນໄດ້ສະເໜີລາຄາທີ່ຖືກທີ່ສຸດໃນສິນຄ້າຍີ່ຫໍ້ດຽວກັນ</span
-                >
-              </div>
+              </div> -->
             </div>
           </div>
-        </div>
-
-        <!-- Attachments -->
+          <!-- Attachments -->
         <div class="mb-6">
           <h4 class="text-base font-semibold mb-2">ໃບສະເໜີລາຄາ</h4>
           <div class="border rounded-lg p-4">
             <img
-              src="/public/5.png"
-              alt="MacBook Air"
+              :src="item.getQuotationImageUrl() ?? ''"
+              alt="image"
               class="max-w-md rounded-lg"
             />
           </div>
         </div>
+        </div>
+
+
         <!-- ຂໍ້ມູນບັນຊີທະນາຄານ -->
         <div class="mb-6">
           <h4 class="text-base font-semibold mb-4">ຂໍ້ມູນບັນຊີຮ້ານ</h4>
-          <div class="grid grid-cols-2 mb-2">
-            <span class="font-medium">ທະນາຄານ:</span>
+          <div class="grid grid-cols-4 mb-2">
+            <span class="">ທະນາຄານ:</span>
             <span class="text-gray-600 flex items-center gap-2">
-              <img src="/public/bclone.png" class="w-8 h-8" alt="" />
-              <span>BCEL One ທະນາຄານການຄ້າຕ່າງປະເທດລາວ</span>
+              <img :src="orderDetails?.getBankLogo() ?? ''" class="w-8 h-8" alt="" />
+              <span>{{orderDetails?.getBankName()}}</span>
             </span>
           </div>
-          <div class="grid grid-cols-2 mb-2">
-            <span class="font-medium">ຊືບັນຊີ:</span>
-            <span class="text-gray-600">KHAMTHANOM MALAYSIN MR</span>
+          <div class="grid grid-cols-4 mb-2">
+            <span class="">ຊືບັນຊີ:</span>
+            <span class="text-gray-600">{{orderDetails?.getAccountName()}}</span>
           </div>
-          <div class="grid grid-cols-2">
-            <span class="font-medium">ເລກບັນຊີ LAK:</span>
-            <span class="text-gray-600">0302000410086756</span>
+          <div class="grid grid-cols-4">
+            <span class="flex gap-1 items-center">
+              <p>ເລກບັນຊີ</p>
+              <p class="text-sm rounded-full py-1 w-14 flex justify-center items-center bg-gray-200/70">{{ orderDetails?.getCurrencyCode() }}</p>
+            </span>
+            <span class="text-gray-600">{{orderDetails?.getAccountNumber()}}</span>
           </div>
         </div>
         <!-- Signatures -->
         <h4 class="text-base font-semibold mb-4 col-span-2">ລາຍເຊັ່ນ</h4>
         <div class="grid grid-cols-3 gap-2">
-          <div v-for="(sig, index) in signatures" :key="index">
-            <p class="font-semibold mb-2">{{ sig.role }}</p>
+          <div>
+            <p class="mb-2">ຜູ້ສະເໜິ</p>
             <img
-              :src="sig.signature"
-              :alt="`${sig.role} signature`"
+              :src="orderDetails?.getDocument()?.requester.user_signature.signature_url"
+              :alt="`signature`"
               class="h-16 mb-2"
             />
-            <p class="font-semibold">{{ sig.name }}</p>
-            <p class="text-gray-600">{{ sig.position }}</p>
+            <p class="font-semibold">{{ orderDetails?.getDocument()?.requester.username }}</p>
+            <p class="text-gray-600">ຫົວໜ້າພະແນກ</p>
+            <!-- <p class="text-gray-600">{{ orderDetails?.getDocument()?.requester}}</p> -->
           </div>
         </div>
         <div class="text-gray-600">
-          <h4>ລະຫັດງົບປະມານ</h4>
+          <h4 class="font-semibold">ລະຫັດງົບປະມານ</h4>
           <span class="text-sm"
             >ພະແນກທຸລະກິດ / 1006 - ຄ່າຊື້ເຄື່ອງອີເລັກໂຕນິກ</span
           >
         </div>
         <div class="mt-4">
           <span>ເອກະສານທີຕິດຂັດ</span>
-          <HeaderComponent
+          <!-- <HeaderComponent
             header-title="ໃບສະເໜີຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ"
             header-title-color="blue-600"
             prefix-icon="mdi:file-document-outline"
@@ -302,9 +285,19 @@ onMounted(async () => {
             :show-document-number="false"
             :show-document-prefix="false"
             :show-breadcrumb="false"
-            class="cursor-pointer"
+            class="text-sky-500 hover:text-sky-600 p-2 bg-slate-50 flex items-center gap-2 cursor-pointer rounded-full"
             @click="showDrawer"
-          />
+          /> -->
+          <div
+          @click="showDrawer"
+            class="text-sky-500 w-[20rem] hover:text-sky-600 mt-1 mb-10 p-2 bg-slate-50 flex items-center gap-2 cursor-pointer rounded-full"
+          >
+            <Icon icon="material-symbols:docs-outline" />
+            <span class="text-sm"
+              >ໃບສະເໜີຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ</span
+            >
+            <Icon icon="mdi:arrow-top-right" />
+          </div>
         </div>
       </div>
     </div>

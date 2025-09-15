@@ -1,3 +1,6 @@
+import type { BankDTO } from "../../bank.dto";
+import type { CurrencyDTO } from "../../currency.dto";
+
 export interface VendorBankAccountDto {
   id: string;
   vendor_id: string;
@@ -6,6 +9,8 @@ export interface VendorBankAccountDto {
   account_name: string;
   account_number: string;
   is_selected: boolean;
+  currency?: CurrencyDTO;
+  bank?: BankDTO;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

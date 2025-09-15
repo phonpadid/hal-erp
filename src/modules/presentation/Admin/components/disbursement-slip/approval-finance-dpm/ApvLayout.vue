@@ -6,12 +6,26 @@ import { storeToRefs } from "pinia";
 import { useToggleStore } from "../../../stores/storage.store";
 import { useI18n } from "vue-i18n";
 import { printContent } from "../../purchase-requests/helpers/printer";
+import { getStatusText } from "@/modules/shared/utils/format-status.util";
+import OtpModal from "./modals/OtpModal.vue";
+
 const { t } = useI18n();
+
+const props = defineProps<{
+  dataHead: {
+    no?: string;
+    status?: string;
+    created_at?: string;
+    is_otp?: boolean;
+  };
+}>();
+
 // Modal states
 const isOtpModalVisible = ref(false);
 const modalAction = ref(""); // 'approve' or 'reject'
 const approval = ref(false);
 const isRejectModalVisible = ref(false);
+const otpLoading = ref(false);
 
 const customButtons = computed(() => {
   return [
@@ -20,7 +34,7 @@ const customButtons = computed(() => {
       icon: "ant-design:printer-outlined",
       class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
       type: "default" as ButtonType,
-      onClick: handlePrint, // Using the helper function
+      onClick: handlePrint,
     },
     {
       label: t("purchase-rq.card_title.refused"),
@@ -40,6 +54,7 @@ const customButtons = computed(() => {
     },
   ];
 });
+
 const handlePrint = async () => {
   try {
     await printContent({
@@ -62,16 +77,54 @@ const handlePrint = async () => {
   }
 };
 
+// OTP Modal handlers
+const handleOtpConfirm = async (otpValue: string) => {
+  try {
+    otpLoading.value = true;
+
+    if (modalAction.value === "approve") {
+      // Handle approval logic with OTP
+      console.log("Approving with OTP:", otpValue);
+      isOtpModalVisible.value = false;
+      // Add success notification here
+    }
+  } catch (error) {
+    console.error("OTP confirmation error:", error);
+  } finally {
+    otpLoading.value = false;
+  }
+};
+
+const handleOtpClose = () => {
+  isOtpModalVisible.value = false;
+  modalAction.value = "";
+};
+
+const handleOtpResend = async () => {
+  try {
+    // Add your resend OTP logic here
+    console.log("Resending OTP...");
+
+    // await otpService.resend(approvalStepId);
+
+    // Add success notification here
+  } catch (error) {
+    console.error("Resend OTP error:", error);
+    // Add error notification here
+  }
+};
+
 const toggleStore = useToggleStore();
 const { toggle } = storeToRefs(toggleStore);
 const topbarStyle = computed(() => {
   return toggle.value ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
 });
+
 watch(modalAction, (newVal) => {
   if (newVal === "") {
     approval.value = true;
   } else {
-    approval.value = false; // optional if you need to reset
+    approval.value = false;
   }
 });
 </script>
@@ -84,21 +137,36 @@ watch(modalAction, (newVal) => {
       :class="topbarStyle"
     >
       <header-component
-        :header-title="t('purchase-rq.approval_proposal')"
+        :header-title="t('menu-sidebar.receipt')"
         :breadcrumb-items="[
-          t('purchase-rq.approval_proposal'),
-          t('purchase-rq.btn.approval'),
+          t('menu-sidebar.receipt'),
+          t('disbursement.field.detail'),
         ]"
-        :document-prefix="t('purchase-rq.field.proposal')"
-        :document-number="`${t('purchase-rq.field.pr_number')} 0036/ພລ - ${t(
+        :document-prefix="t('menu-sidebar.receipt')"
+        :document-number="`${t('purchase-rq.field.pr_number')} ${props.dataHead?.no} - ${t(
           'purchase-rq.date'
         )}`"
-        :document-date="('2025-03-26')"
+        :document-date="(props.dataHead?.created_at)"
         :action-buttons="customButtons"
-        document-status="ລໍຖ້າຫົວໜ້າພະແນກພັດທະນາທຸລະກິດກວດສອບ"
+        :document-status="getStatusText(props.dataHead?.status ?? '')"
         document-status-class="text-orange-400 text-sm font-medium ml-2 ring-2 ring-orange-300 px-3 py-1 rounded-full"
       />
     </div>
+
+    <!-- OTP Modal -->
+    <OtpModal
+      :visible="isOtpModalVisible"
+      :title="t('purchase-rq.otp_verification')"
+      :loading="otpLoading"
+      :approval-step-id="1"
+      :is_otp="props.dataHead?.is_otp"
+      @confirm="handleOtpConfirm"
+      @close="handleOtpClose"
+      @resend="handleOtpResend"
+    />
+
+    <!-- Reject Modal (if you need one) -->
+    <!-- Add your reject modal component here if needed -->
   </div>
 </template>
 

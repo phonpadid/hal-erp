@@ -24,7 +24,7 @@ export function columnsDetailsDirector(t: (key: string) => string): Column[] {
     },
     {
       title: t("director.table.unit"),
-      dataIndex: "unit",
+      dataIndex: "purchase_request_item.unit.name",
       key: "unit",
     },
     {
