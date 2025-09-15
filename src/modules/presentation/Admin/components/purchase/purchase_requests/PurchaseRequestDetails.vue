@@ -17,7 +17,7 @@ import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 
-// ******************* การเปลี่ยนแปลงทั้งหมดจะอยู่ในนี้ *******************
+// **************************************
 import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
 import { useToggleStore } from "../../../stores/storage.store";
 import { useApprovalStepStore } from "../../../stores/approval-step.store";
@@ -154,7 +154,6 @@ const topbarStyle = computed(() => {
 /*********************Logic OTP*********************** */
 // วางฟังก์ชันนี้ไว้ใกล้ๆ กับ handleApprove
 const handleOtpConfirm = async (otpCode: string) => {
-  // 1. ตรวจสอบข้อมูลพื้นฐาน
   if (!otpCode) {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
     return;
@@ -165,8 +164,6 @@ const handleOtpConfirm = async (otpCode: string) => {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
     return;
   }
-
-  // 2. ดึง approval_id ที่ถูกต้องจาก Store (ที่ได้รับมาตอน sendOtp)
   const approvalIdFromOtp = approvalStepStore.otpResponse?.approval_id;
   if (!approvalIdFromOtp) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນอ้างອີງ OTP");
@@ -175,8 +172,6 @@ const handleOtpConfirm = async (otpCode: string) => {
 
   try {
     const documentId = route.params.id as string;
-
-    // 3. สร้าง Payload ที่ถูกต้องสำหรับการยืนยัน OTP
     const payload: SubmitApprovalStepInterface = {
       type: "pr",
       statusId: Number(approvedStatusId.value),
@@ -189,23 +184,12 @@ const handleOtpConfirm = async (otpCode: string) => {
 
     await approvalStepStore.submitApproval(documentId, payload);
     isOtpModalVisible.value = false;
-    // if (success) {
-    //   await purchaseRequestStore.fetchById(documentId);
-
-    //   if (isLastStep.value) {
-    //     router.push({
-    //       name: "doc-type-select",
-    //       query: { purchase_request_id: requestDetail.value?.getId() },
-    //     });
-    //   }
-    // }
   } catch (err) {
     console.error("Error in handleOtpConfirm:", err);
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
     isOtpModalVisible.value = false;
   }
 };
-// นำโค้ดนี้ไปแทนที่ handleApprove เดิมทั้งหมด
 const handleApprove = async () => {
   isApproveModalVisible.value = false; // ปิด Modal ยืนยันก่อน
 
@@ -248,6 +232,7 @@ const handleApprove = async () => {
       // จัดการผลลัพธ์ และ Redirect ถ้าเป็น Step สุดท้าย
       if (success) {
         await purchaseRequestStore.fetchById(documentId); // โหลดข้อมูลใหม่
+        // console.log("Reloaded requestDetail:", requestDetail.value);
 
         if (isLastStep.value) {
           router.push({
@@ -255,6 +240,7 @@ const handleApprove = async () => {
             query: { purchase_request_id: requestDetail.value?.getId() },
           });
         }
+        // console.log("Approval successful");
       }
     } catch (err) {
       error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
@@ -295,7 +281,7 @@ const handleReject = async () => {
       approvalStepId: Number(approvalStepId),
     };
 
-    console.log("Sending payload Reject:", payload);
+    // console.log("Sending payload Reject:", payload);
 
     const success = await approvalStepStore.submitApproval(documentId, payload);
     if (success) {

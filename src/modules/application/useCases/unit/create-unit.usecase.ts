@@ -10,7 +10,7 @@ export class CreateUnitUseCase {
     if (existing) {
       throw new Error(`Unit name "${unitData.name}" already exists`);
     }
-    console.log('Proceeding to create unit:', unitData);
+    // console.log('Proceeding to create unit:', unitData);
     return await this.unitRepository.create(unitData);
   }
 }

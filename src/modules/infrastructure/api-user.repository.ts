@@ -43,7 +43,7 @@ export class ApiUserRepository implements UserRepository {
   async findById(id: string): Promise<UserEntity | null> {
     try {
       const response = await api.get(`${this.baseUrl}/${id}`);
-      console.log("API Response:", response.data); // เพิ่ม log เพื่อตรวจสอบข้อมูล
+      // console.log("API Response:", response.data);
       return this.toDomainModel(response.data.data);
     } catch (error) {
       const axiosError = error as AxiosError;

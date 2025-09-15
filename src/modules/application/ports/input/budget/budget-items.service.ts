@@ -13,8 +13,10 @@ export interface BudgetItemService {
     params: PaginationParams,
     includeDeleted?: boolean
   ): Promise<PaginatedResult<BudGetItemEntity>>;
-
-  // เพิ่มเมธอดใหม่
+  getAllReportBudgetItem(
+    params: PaginationParams,
+    includeDeleted?: boolean
+  ): Promise<PaginatedResult<BudGetItemEntity>>;
   getBudgetItemsByAccountId(
     budgetAccountId: string,
     params: PaginationParams,

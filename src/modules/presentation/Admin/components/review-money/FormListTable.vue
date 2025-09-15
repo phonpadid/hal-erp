@@ -45,7 +45,7 @@ const tablePagination = computed(() => ({
 }));
 
 const handleDetailsDocument = (record: any) => {
-  console.log("Viewing details for document:", record);
+  // console.log("Viewing details for document:", record);
   router.push({ name: "review-money-details", params: { id: record.id } });
 };
 

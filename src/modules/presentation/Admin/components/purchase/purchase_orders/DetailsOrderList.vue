@@ -362,10 +362,6 @@ const getPurchaseOrderQuantity = computed(() => {
 
   return orderDetails.value?.getPurchaseRequest()?.purchase_request_item?.[0]?.quantity || 2;
 });
-
-const items = computed(() => orderDetails.value?.getItems() ?? []);
-console.log("Items:", items.value);
-
 /**********************Data Detials Order*************************** */
 const fetchOrderDetails = async () => {
   try {
@@ -382,8 +378,6 @@ const fetchOrderDetails = async () => {
         orderItems.value = result.getItems();
       }
 
-      console.log("Purchase order items:", result.getPurchaseOrderItem());
-      console.log("Order details fetched:", result);
     } else {
       error("ບໍ່ພົບຂໍ້ມູນເອກະສານ");
     }

@@ -36,10 +36,9 @@ const customButtons = [
     danger: true, // Making the button red as in the image
     onClick: () => {
       // Logic to create and sign
-      console.log("Purpose:", purpose.value);
-      console.log("Remark:", remark.value);
-      console.log("Selected payment types:", selectType.value); // Added this line
-
+      // console.log("Purpose:", purpose.value);
+      // console.log("Remark:", remark.value);
+      // console.log("Selected payment types:", selectType.value);
       router.push({ name: "review-money-success" });
     },
   },

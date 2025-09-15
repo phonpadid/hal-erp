@@ -18,6 +18,7 @@ export interface Department {
 export interface Requester {
   id: number;
   username: string;
+  user_signature: UserSignature | null;
 }
 
 export interface Position {
@@ -65,4 +66,15 @@ export interface UserApproval {
   updated_at: string;
   document_status: DocumentStatus;
   approval_step: ApprovalStep[];
+}
+
+export interface UserSignature {
+  id: number;
+  user_id: number;
+  file_name: string;
+  file_name_url: string;
+  signature_url: string;
+  created_at: string;
+  updated_at: string;
+
 }

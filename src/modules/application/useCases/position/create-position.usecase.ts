@@ -10,7 +10,7 @@ export class CreatePositionUseCase {
     if (existing) {
       throw new Error(`Position name "${positionData.name}" already exists`);
     }
-    console.log('Proceeding to create position:', positionData);
+    // console.log('Proceeding to create position:', positionData);
     return await this.positionRepository.create(positionData);
   }
 }

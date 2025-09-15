@@ -63,7 +63,7 @@ const goToFirstStep = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleConfirm = async (allData: Record<number, any>) => {
-  console.log("All steps data:", allData[0]);
+  // console.log("All steps data:", allData[0]);
   if (props.currentStep === 1) {
     try {
       emit("confirm-step", allData);

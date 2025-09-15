@@ -12,7 +12,7 @@ export const useToggleStore = defineStore('toggle', () => {
     localStorage.setItem('toggle', val ? 'true' : 'false');
   });
 
-  console.log('Initial toggle value:', toggle.value);
+  // console.log('Initial toggle value:', toggle.value);
 
   return { toggle };
 });

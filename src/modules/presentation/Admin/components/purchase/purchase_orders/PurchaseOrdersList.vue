@@ -29,7 +29,7 @@ const pendingCount = computed(
   () => store.statusSummary.find((s) => s.status === "PENDING")?.amount || 0
 );
 const completedCount = computed(
-  () => store.statusSummary.find((s) => s.status === "COMPLETED")?.amount || 0
+  () => store.statusSummary.find((s) => s.status === "APPROVED")?.amount || 0
 );
 const rejectedCount = computed(
   () => store.statusSummary.find((s) => s.status === "REJECTED")?.amount || 0
@@ -49,7 +49,7 @@ const getStatusColor = (status: string) => {
   switch (status?.toUpperCase()) {
     case "PENDING":
       return "warning";
-    case "COMPLETED":
+    case "APPROVED":
       return "success";
     case "REJECTED":
       return "error";
@@ -62,7 +62,7 @@ const getStatusIcon = (status: string) => {
   switch (status?.toUpperCase()) {
     case "PENDING":
       return "ant-design:clock-circle-outlined";
-    case "COMPLETED":
+    case "APPROVED":
       return "ant-design:check-circle-outlined";
     case "REJECTED":
       return "ant-design:close-circle-outlined";
@@ -75,7 +75,7 @@ const getStatusText = (status: string) => {
   switch (status?.toUpperCase()) {
     case "PENDING":
       return "ກຳລັງດຳເນີນການ";
-    case "COMPLETED":
+    case "APPROVED":
       return "ສຳເລັດ";
     case "REJECTED":
       return "ປະຕິເສດ";

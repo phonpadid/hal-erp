@@ -10,7 +10,7 @@ export class CreateCategoryUseCase {
     if (existing) {
       throw new Error(`Category name "${categoryData.name}" already exists`);
     }
-    console.log('Proceeding to create category:', categoryData);
+    // console.log('Proceeding to create category:', categoryData);
     return await this.categoryRepository.create(categoryData);
   }
 }

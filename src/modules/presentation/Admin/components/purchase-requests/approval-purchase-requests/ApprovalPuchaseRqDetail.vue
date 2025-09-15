@@ -30,8 +30,6 @@ const { error } = useNotification();
 const approvalStepStore = useApprovalStepStore();
 const route = useRoute();
 const profileImage = ref("/public/Profile-PNG-File.png");
-const userName = ref("ທ້າວສຸກີ້");
-const department = ref("ພະແນກການເງິນ");
 const loading = ref(true);
 const isApproveModalVisible = ref(false);
 
@@ -51,9 +49,42 @@ const departmentInfo = computed(() => requestDetail.value?.getDepartment());
 const positionInfo = computed(() => requestDetail.value?.getPosition());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
 const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
-// const imageList = computed(() => {
-//   return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
-// });
+// show image signature
+const requesterSignatureUrl = computed(() => {
+  return requestDetail.value?.getRequesterSignature()?.signature_url || "";
+});
+
+// Computed property to get the requester's name
+const requesterName = computed(() => {
+  return requestDetail.value?.getRequester()?.username || "";
+});
+
+// Computed property to get the requester's position
+const requesterPosition = computed(() => {
+  const position = requestDetail.value?.getPosition();
+  return position ? position.name : "";
+});
+const approverInfo = computed(() => {
+  const approvalSteps = requestDetail.value?.getUserApproval()?.approval_step;
+
+  if (!approvalSteps) {
+    return null;
+  }
+
+  const approvedStep = approvalSteps.find((step) => step.status_id === 2 && step.approver);
+
+  if (approvedStep) {
+    return {
+      name: approvedStep.approver?.username,
+      signatureUrl: approvedStep.approver?.user_signature?.signature_url,
+
+      position: approvedStep.approver?.position?.name || "ตำแหน่งที่ปรึกษา",
+    };
+  }
+
+  return null;
+});
+
 /****************************************** */
 const approvedStatusId = computed(() => {
   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
@@ -298,7 +329,7 @@ const handleReject = async () => {
         approvalStepId: Number(approvalStepId.value),
       };
 
-      console.log("Sending payload:", payload);
+      // console.log("Sending payload:", payload);
 
       const success = await approvalStepStore.submitApproval(documentId, payload);
       if (success) {
@@ -492,26 +523,6 @@ onMounted(async () => {
             </p>
           </div>
         </div>
-
-        <!-- Sample Images Section -->
-        <!-- <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
-          <h2 class="text-md font-semibold">
-            {{ t("purchase-rq.field.img_example") }}
-          </h2>
-          <div class="flex flex-wrap gap-6">
-            <a-image
-              v-for="(img, index) in imageList"
-              :key="index"
-              :src="img"
-              alt="example"
-              :width="280"
-              :height="150"
-              :preview="true"
-              class="rounded-xl shadow-sm"
-            />
-          </div>
-        </div> -->
-
         <!-- Signature Section -->
         <div
           class="signature flex items-center gap-[10rem] shadow-sm py-4 px-6 rounded-md mb-[10rem]"
@@ -525,29 +536,30 @@ onMounted(async () => {
             </p>
 
             <a-image
-              src="/public/2.png"
+              :src="requesterSignatureUrl"
               alt="signature"
               :width="120"
               :height="80"
               :preview="false"
             />
+
             <div class="info text-sm text-slate-600 -space-y-2 mt-4">
-              <p>{{ userName }}</p>
-              <p>{{ department }}</p>
+              <p>{{ requesterName }}</p>
+              <p>{{ requesterPosition }}</p>
             </div>
           </div>
-          <div v-if="approval" class="signature1">
+          <div v-if="approverInfo" class="signature1">
             <p class="text-slate-500 text-sm mt-10">{{ t("purchase-rq.approver") }}</p>
             <a-image
-              src="/public/2.png"
+              :src="approverInfo.signatureUrl"
               alt="signature"
               :width="120"
               :height="80"
               :preview="false"
             />
             <div class="info text-sm text-slate-600 -space-y-2 mt-4">
-              <p>ສຸພາພອນ ພະໄຊຍະວົງ</p>
-              <p>ຫົວໜ້າພະແນກທຸລະກິດ</p>
+              <p>{{ approverInfo.name }}</p>
+              <p>{{ approverInfo.position }}</p>
             </div>
           </div>
         </div>

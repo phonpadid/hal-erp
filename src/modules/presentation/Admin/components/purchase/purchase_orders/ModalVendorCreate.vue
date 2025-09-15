@@ -263,11 +263,6 @@ const handleOk = () => {
   }
   if (uploadLoading.value) return;
 
-  // ตรวจสอบ localStorage ก่อนส่งข้อมูล
-  const itemId = localStorage.getItem('currentSelectedItemId');
-  console.log("ใน handleOk - itemId จาก localStorage:", itemId);
-
-  // ส่งข้อมูลกลับไปยังไฟล์หลัก
   emit("submitted", {
     vendorId: selectedVendor.value,
     fileNames: uploadedFileNames.value,

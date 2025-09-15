@@ -11,15 +11,14 @@ export class ApiAuthRepository implements AuthRepository {
 
   async login(credentials: LoginDTO): Promise<AuthEntity> {
     try {
-      const response = await api.post(`${this.baseUrl}/login`, credentials) as { data: AuthResponseDTO };
+      const response = (await api.post(`${this.baseUrl}/login`, credentials)) as {
+        data: AuthResponseDTO;
+      };
 
       if (response.data.status_code !== 201) {
         throw new Error(response.data.message);
       }
-      localStorage.setItem(
-        "userType",
-        JSON.stringify(response?.data?.data?.user?.user_type ?? [])
-      );
+      localStorage.setItem("userType", JSON.stringify(response?.data?.data?.user?.user_type ?? []));
       return this.toEntity(response.data.data);
     } catch (error) {
       throw this.handleError(error as AxiosError, "Login failed");
@@ -34,13 +33,16 @@ export class ApiAuthRepository implements AuthRepository {
     }
   }
 
-  private toEntity(data: AuthResponseDTO['data']): AuthEntity {
+  private toEntity(data: AuthResponseDTO["data"]): AuthEntity {
     const { user, access_token } = data;
     return new AuthEntity(
       user.id,
       user.username,
       user.email,
       user.tel,
+      user.roles,
+      user.permission,
+      user.user_type,
       user.created_at,
       user.updated_at,
       user.deleted_at,

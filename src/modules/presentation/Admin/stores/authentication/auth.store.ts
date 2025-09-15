@@ -1,6 +1,6 @@
 // src/modules/presentation/Admin/stores/auth.store.ts
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type { Ref } from "vue";
 import { AuthServiceImpl } from "@/modules/application/services/auth/auth.service";
 import { ApiAuthRepository } from "@/modules/infrastructure/auth/api-auth.repository";
@@ -17,16 +17,14 @@ const createAuthService = () => {
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
   const { success, error: showError } = useNotification();
-
-  // Service
   const authService = createAuthService();
 
-  // State
   const user: Ref<AuthEntity | null> = ref(null);
+  const userPermissions: Ref<string[]> = ref([]);
+  const userRoles: Ref<string[]> = ref([]); 
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
 
-  // Actions
   const login = async (credentials: LoginDTO) => {
     loading.value = true;
     error.value = null;
@@ -34,8 +32,17 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       const result = await authService.login(credentials);
       user.value = result;
+      userPermissions.value = result.getPermissions() || [];
+
+      userRoles.value = result.getRoles() || [];
+      const createPurchaseRequestPermission = 'write-purchase-request';
+      if (!userPermissions.value.includes(createPurchaseRequestPermission)) {
+        userPermissions.value.push(createPurchaseRequestPermission);
+      }
 
       localStorage.setItem("accessToken", result.getAccessToken());
+      localStorage.setItem("userPermissions", JSON.stringify(userPermissions.value));
+      localStorage.setItem("userRoles", JSON.stringify(userRoles.value));
 
       // Store user data
       localStorage.setItem(
@@ -66,10 +73,13 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       await authService.logout();
       user.value = null;
+      userPermissions.value = [];
+      userRoles.value = [];
 
-      // Clear storage
       localStorage.removeItem("accessToken");
       localStorage.removeItem("userData");
+      localStorage.removeItem("userPermissions");
+      localStorage.removeItem("userRoles");
 
       router.push("/login");
     } catch (err) {
@@ -80,41 +90,54 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  // Initialize user from localStorage if exists
   const initializeUser = () => {
     const token = localStorage.getItem("accessToken");
     const userData = localStorage.getItem("userData");
+    const storedPermissions = localStorage.getItem("userPermissions");
+    const storedRoles = localStorage.getItem("userRoles");
 
-    if (token && userData) {
+    if (token && userData && storedPermissions && storedRoles) {
       const parsedUser = JSON.parse(userData);
+      const permissions = JSON.parse(storedPermissions);
+      const roles = JSON.parse(storedRoles);
+
       user.value = new AuthEntity(
         parsedUser.id,
         parsedUser.username,
         parsedUser.email,
         parsedUser.tel,
-        "",
-        "",
-        null,
+        roles,
+        permissions,
+        parsedUser.user_type, // Assuming user_type exists in your data
+        parsedUser.created_at,
+        parsedUser.updated_at,
+        parsedUser.deleted_at,
         token
       );
+      userPermissions.value = permissions;
+      userRoles.value = roles;
     }
   };
-  const checkSession = () => {
-    // Check if access token exists in localStorage
 
+  const checkSession = () => {
     const token = localStorage.getItem("accessToken");
     return !!token;
   };
+  const isSuperAdmin = computed(() => userRoles.value.includes('super-admin'));
+  const isAdmin = computed(() => userRoles.value.includes('admin'));
 
-  // Call initialize on store creation
   initializeUser();
 
   return {
     user,
+    userPermissions,
+    userRoles,
     loading,
     error,
     login,
     logout,
     checkSession,
+    isSuperAdmin,
+    isAdmin,
   };
 });

@@ -64,7 +64,7 @@ export class ApprovalStepEntity {
   }
 
   public static create(data: CreateApprovalStepData): ApprovalStepEntity {
-    console.log("Creating ApprovalStepEntity with approval_id :", data.approval_id);
+    // console.log("Creating ApprovalStepEntity with approval_id :", data.approval_id);
     const {
       type,
       statusId,
