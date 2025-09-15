@@ -5,8 +5,10 @@ export class AuthEntity {
     private username: string,
     private email: string,
     private tel: string,
-    private roles: string[] | null, 
-    private permission: string[], 
+    private roles: string[] | null,
+    private permission: string[],
+    private department_name: string ,
+    private signature: string,
     private user_type: string[],
     private created_at: string,
     private updated_at: string,
@@ -17,6 +19,14 @@ export class AuthEntity {
   // Getters
   getId(): number {
     return this.id;
+  }
+
+  getDepartmentName(): string | null {
+    return this.department_name;
+  }
+
+  getSignature(): string {
+    return this.signature;
   }
 
   getUsername(): string {

@@ -9,6 +9,8 @@ export interface UserDTO {
   username: string;
   email: string;
   tel: string;
+  department_name: string
+  signature: string;
   roles: string[];
   permission: string[];
   user_type: string[];

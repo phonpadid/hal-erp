@@ -21,7 +21,7 @@ export const useAuthStore = defineStore("auth", () => {
 
   const user: Ref<AuthEntity | null> = ref(null);
   const userPermissions: Ref<string[]> = ref([]);
-  const userRoles: Ref<string[]> = ref([]); 
+  const userRoles: Ref<string[]> = ref([]);
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
 
@@ -52,6 +52,8 @@ export const useAuthStore = defineStore("auth", () => {
           username: result.getUsername(),
           email: result.getEmail(),
           tel: result.getTel(),
+          department_name: result.getDepartmentName(),
+          signature: result.getSignature(),
         })
       );
 
@@ -106,6 +108,8 @@ export const useAuthStore = defineStore("auth", () => {
         parsedUser.username,
         parsedUser.email,
         parsedUser.tel,
+        parsedUser.department_name,
+        parsedUser.signature,
         roles,
         permissions,
         parsedUser.user_type, // Assuming user_type exists in your data
