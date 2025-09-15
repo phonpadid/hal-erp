@@ -42,6 +42,8 @@ export class ApiAuthRepository implements AuthRepository {
       user.tel,
       user.roles,
       user.permission,
+      user.department_name,
+      user.signature,
       user.user_type,
       user.created_at,
       user.updated_at,

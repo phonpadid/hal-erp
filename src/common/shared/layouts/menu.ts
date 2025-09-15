@@ -497,7 +497,8 @@ export const menuItems = computed<ItemType[]>(() => {
             class: "text-base",
           }),
         ]),
-      permission: "read-budget-approval",
+      permission: "read-budget-approval-rule",
+      // permission: "read-budget-approval",
     },
   ].filter((item) => hasPermission(item.permission));
 
@@ -569,7 +570,9 @@ export const menuItems = computed<ItemType[]>(() => {
     {
       key: "approval_department_panak",
       label: t("menu-sidebar.purchasePanak"),
-      permission: "read-approval-department",
+      permission: "read-purchase-order",
+
+      // permission: "read-approval-department",
     },
   ].filter((item) => hasPermission(item.permission));
 

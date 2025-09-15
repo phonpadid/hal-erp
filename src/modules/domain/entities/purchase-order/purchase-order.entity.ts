@@ -152,7 +152,7 @@ export class PurchaseOrderEntity {
   const documentData = data.document || data.purchase_request?.document;
   const document: PurchaseOrderDocument = {
     description: documentData?.description || null,
-    documentTypeId: documentData?.document_type_id || 0,
+    documentTypeId: documentData?.document_type_id || 19,
     department: documentData?.department || null,
     requester: documentData?.requester || null,
     position: documentData?.position || [],
@@ -165,7 +165,7 @@ export class PurchaseOrderEntity {
     poNumber,
     purchaseRequestId,
     document,
-    items, // ส่ง items ที่แปลงแล้ว
+    items,
     purchaseOrderItems,
     purposes,
     data.budget_item_detail_id || 0,
