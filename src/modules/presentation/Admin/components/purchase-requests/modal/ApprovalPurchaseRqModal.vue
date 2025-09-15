@@ -128,7 +128,7 @@ const resendOtp = () => {
     }
   });
   // Here you would typically call an API to resend OTP
-  console.log("Resending OTP...");
+  // console.log("Resending OTP...");
 };
 const setOtpInputElement = (el: unknown, index: number) => {
   if (el) {

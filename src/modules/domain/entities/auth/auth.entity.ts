@@ -5,6 +5,9 @@ export class AuthEntity {
     private username: string,
     private email: string,
     private tel: string,
+    private roles: string[] | null, 
+    private permission: string[], 
+    private user_type: string[],
     private created_at: string,
     private updated_at: string,
     private deleted_at: string | null,
@@ -18,6 +21,15 @@ export class AuthEntity {
 
   getUsername(): string {
     return this.username;
+  }
+
+  // ✅ แก้ไข getter ให้ตรงกับชื่อ property
+  getPermissions(): string[] {
+    return this.permission;
+  }
+
+  getRoles(): string[] | null {
+    return this.roles;
   }
 
   getEmail(): string {

@@ -13,7 +13,7 @@ import { userApprovalRoutes } from "@/modules/presentation/Admin/router/user-app
 import { documentTypesRoutes } from "@/modules/presentation/Admin/router/documentTypeRoutes";
 import { vendorsRoutes } from "@/modules/presentation/Admin/router/vendors/vendorRoutes";
 import { vendorsBanksRoutes } from "@/modules/presentation/Admin/router/vendors/vendorBankAccountRoutes";
-import { authGuard } from "@/modules/presentation/Admin/router/guards/auth.guard";
+// import { authGuard } from "@/modules/presentation/Admin/router/guards/auth.guard";
 import { currencyRoutes } from "@/modules/presentation/Admin/router/currencies.routers";
 import { budgetApvRuleRoutes } from "@/modules/presentation/Admin/router/budget-apv-rule.routers";
 import { authRoutes } from "@/modules/presentation/Admin/router/loginRoutes";
@@ -37,6 +37,9 @@ import { disbursementRoutes } from "@/modules/presentation/Admin/router/disburse
 import { banksRoutes } from "@/modules/presentation/Admin/router/bankRoutes";
 import { vatRoutes } from "@/modules/presentation/Admin/router/vatRoutes";
 import { exchangeRateRoutes } from "@/modules/presentation/Admin/router/exchange-rate.routers";
+
+import { authGuard } from "@/modules/presentation/Admin/router/guards/auth.guard";
+import { permissionGuard } from "../guards/permission.guard";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -103,7 +106,10 @@ const router = createRouter({
   routes: routes,
 });
 // Add navigation guard
+// router.beforeEach(authGuard);
 router.beforeEach(authGuard);
+router.beforeEach(permissionGuard);
+
 
 // Add title setting
 router.afterEach((to) => {

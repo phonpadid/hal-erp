@@ -10,7 +10,7 @@ export class UpdateDepartmentApproverAdminUseCase {
     }
 
     dpmUser.updatedByAdmin( String(input.department_id ?? ''), String(input.user_id ?? ''),);
-    console.log('textKKK:', dpmUser);
+    // console.log('textKKK:', dpmUser);
     return await this.dpmAproverRepository.updateByAdmin(id, dpmUser);
   }
 }

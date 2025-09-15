@@ -6,6 +6,7 @@ import { DeleteBudgetItemUseCase } from "../../useCases/budget/budget_item/delet
 import { GetBudgetItemByIdUseCase } from "../../useCases/budget/budget_item/get-one.usecase";
 import { GetAllBudGetItemUseCase } from "../../useCases/budget/budget_item/get-all.usecase";
 import { GetBudgetItemsByAccountIdUseCase } from "../../useCases/budget/budget_item/get-items-by-account.usecase";
+import { GetReportBudgetItemUseCase } from "../../useCases/budget/budget_item/get-report.usecase";
 import type { BudgetItemRepository } from "@/modules/domain/repository/budget/budget-item.repository";
 import type { CreateBudgetItemDTO, UpdateBudgetItemDTO } from "../../dtos/budget/budget-items.dto";
 import type { BudGetItemEntity } from "@/modules/domain/entities/budget/budget-items.entities";
@@ -17,6 +18,7 @@ export class BudgetItemDetailsServiceImpl implements BudgetItemService {
   private readonly getOneUseCase: GetBudgetItemByIdUseCase;
   private readonly getAllUseCase: GetAllBudGetItemUseCase;
   private readonly getByAccountIdUseCase: GetBudgetItemsByAccountIdUseCase;
+  private readonly getReportUseCase: GetReportBudgetItemUseCase;
 
   constructor(budgetItemRepository: BudgetItemRepository) {
     this.createUseCase = new CreateBudgetItemUseCase(budgetItemRepository);
@@ -25,6 +27,7 @@ export class BudgetItemDetailsServiceImpl implements BudgetItemService {
     this.getOneUseCase = new GetBudgetItemByIdUseCase(budgetItemRepository);
     this.getAllUseCase = new GetAllBudGetItemUseCase(budgetItemRepository);
     this.getByAccountIdUseCase = new GetBudgetItemsByAccountIdUseCase(budgetItemRepository);
+    this.getReportUseCase = new GetReportBudgetItemUseCase(budgetItemRepository);
   }
 
   async createBudgetItem(input: CreateBudgetItemDTO): Promise<BudGetItemEntity> {
@@ -41,8 +44,13 @@ export class BudgetItemDetailsServiceImpl implements BudgetItemService {
   ): Promise<PaginatedResult<BudGetItemEntity>> {
     return await this.getAllUseCase.execute(params, includeDeleted);
   }
+  async getAllReportBudgetItem(
+    params: PaginationParams,
+    includeDeleted: boolean = false
+  ): Promise<PaginatedResult<BudGetItemEntity>> {
+    return await this.getReportUseCase.report(params, includeDeleted);
+  }
 
-  // เพิ่มเมธอดใหม่
   async getBudgetItemsByAccountId(
     budgetAccountId: string,
     params: PaginationParams,

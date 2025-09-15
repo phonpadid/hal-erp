@@ -1,45 +1,52 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
-import { columnsApproval } from "../../views/budget/budget-approval/column/cloumn";
+import { columnsDirecter } from "../../views/director/column/column";
 import { useI18n } from "vue-i18n";
-import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-order";
-import { formatDate } from "@/modules/shared/formatdate";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import DatePicker from "@/common/shared/components/Datepicker/DatePicker.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 
 /******************************************************** */
 const { t } = useI18n();
 const filterType = ref<string | null>(null);
 const router = useRouter();
-const store = usePurchaseOrderStore();
 const dates = reactive({
   startDate: null,
   endDate: null,
 });
-
-// Computed properties for status counts
-const pendingCount = computed(
-  () => store.statusSummary.find((s) => s.status === "PENDING")?.amount || 0
-);
-const completedCount = computed(
-  () => store.statusSummary.find((s) => s.status === "APPROVED")?.amount || 0
-);
-const rejectedCount = computed(
-  () => store.statusSummary.find((s) => s.status === "REJECTED")?.amount || 0
-);
-const getDocumentStatus = (record: any) => {
-  return record.getUserApproval()?.document_status?.name || "N/A";
+const currentPage = ref(1);
+const pageSize = ref(10);
+const loading = ref(false);
+const purchaseRequestStore = usePurchaseRequestsStore();
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    const apiParams: any = {
+      page: currentPage.value,
+      limit: pageSize.value,
+    };
+    await purchaseRequestStore.fetchAll(apiParams);
+  } finally {
+    loading.value = false;
+  }
 };
+
+const tablePagination = computed(() => ({
+  current: purchaseRequestStore.pagination.page,
+  pageSize: purchaseRequestStore.pagination.limit,
+  total: purchaseRequestStore.pagination.total,
+  showSizeChanger: true,
+}));
 
 const handleDetailsDocument = (record: any) => {
   // console.log("Viewing details for document:", record);
-  router.push({ name: "budget-approval-detail", params: { id: record.id } });
+  router.push({ name: "review-money-details", params: { id: record.id } });
 };
 
 const documentTypes = [
@@ -49,12 +56,12 @@ const documentTypes = [
 ];
 
 const getStatusColor = (status: string) => {
-  switch (status?.toUpperCase()) {
-    case "PENDING":
+  switch (status) {
+    case "pending":
       return "warning";
-    case "APPROVED":
+    case "completed":
       return "success";
-    case "REJECTED":
+    case "rejected":
       return "error";
     default:
       return "default";
@@ -62,12 +69,12 @@ const getStatusColor = (status: string) => {
 };
 
 const getStatusIcon = (status: string) => {
-  switch (status?.toUpperCase()) {
-    case "PENDING":
+  switch (status) {
+    case "pending":
       return "ant-design:clock-circle-outlined";
-    case "APPROVED":
+    case "completed":
       return "ant-design:check-circle-outlined";
-    case "REJECTED":
+    case "rejected":
       return "ant-design:close-circle-outlined";
     default:
       return "";
@@ -75,35 +82,32 @@ const getStatusIcon = (status: string) => {
 };
 
 const getStatusText = (status: string) => {
-  switch (status?.toUpperCase()) {
-    case "PENDING":
+  switch (status) {
+    case "pending":
       return "ກຳລັງດຳເນີນການ";
-    case "APPROVED":
+    case "completed":
       return "ສຳເລັດ";
-    case "REJECTED":
+    case "rejected":
       return "ປະຕິເສດ";
     default:
-      return status || "N/A";
+      return status;
   }
 };
 
-const handleSearch = async () => {
-  await store.fetchAll({
-    page: 1,
-    limit: 10,
+const handleSearch = () => {
+  console.log("Searching with:", {
+    type: filterType.value,
+    dateRange: dates,
   });
 };
 
-const handleTableChange = async (pagination: any) => {
-  await store.fetchAll({
-    page: pagination.current,
-    limit: pagination.pageSize,
-  });
+// Handle table change
+const handleTableChange = (pag: any, filters: any, sorter: any) => {
+  console.log("Table changed:", { pag, filters, sorter });
 };
-
 onMounted(async () => {
-  await store.fetchAll();
-});
+  await fetchData()
+})
 </script>
 
 <template>
@@ -136,9 +140,9 @@ onMounted(async () => {
   </div>
   <div></div>
   <div class="grid grid-cols-3 mt-2">
-    <h1 class="text-xl font-semibold text-yellow-600">{{ pendingCount }} ໃບສະເໜີ</h1>
-    <h1 class="text-xl font-semibold text-green-600">{{ completedCount }} ໃບສະເໜີ</h1>
-    <h1 class="text-xl font-semibold text-red-600">{{ rejectedCount }} ໃບສະເໜີ</h1>
+    <h1 class="text-xl font-semibold text-yellow-600">12 ໃບສະເໜີ</h1>
+    <h1 class="text-xl font-semibold text-green-600">12 ໃບສະເໜີ</h1>
+    <h1 class="text-xl font-semibold text-red-600">12 ໃບສະເໜີ</h1>
   </div>
 
   <!-- Filters section -->
@@ -183,30 +187,22 @@ onMounted(async () => {
   <!-- Table section -->
   <div class="bg-white rounded-lg shadow-sm">
     <Table
-      :columns="columnsApproval(t)"
-      :loading="store.loading"
-      :data-source="store.orders"
-      :pagination="store.pagination"
+      :columns="columnsDirecter(t)"
+      :data-source="purchaseRequestStore.requests"
+      :pagination="tablePagination"
       @change="handleTableChange"
+      :loading="loading"
     >
+    <template #user="{ record }">
+        <span class="text-gray-600">{{ record.getRequester()?.username }}</span>
+      </template>
       <!-- Custom cell rendering for actions column -->
       <template #status="{ record }">
         <UiTag
-          :color="getStatusColor(getDocumentStatus(record))"
-          :icon="getStatusIcon(getDocumentStatus(record))"
-          :text="getStatusText(getDocumentStatus(record))"
+          :color="getStatusColor(record.status)"
+          :icon="getStatusIcon(record.status)"
+          :text="getStatusText(record.status)"
         />
-      </template>
-      <template #orderNumber="{ record }">
-        <span class="font-semibold">{{ record.getPurchaseRequest()?.pr_number }}</span>
-      </template>
-
-      <template #vendorName="{ record }">
-        <span>{{ record.getRequester()?.username }}</span>
-      </template>
-
-      <template #orderDate="{ record }">
-        <span>{{ formatDate(record.getCreatedAt()) }}</span>
       </template>
       <template #action="{ record }">
         <UiButton

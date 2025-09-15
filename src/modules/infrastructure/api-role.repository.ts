@@ -22,7 +22,7 @@ export class ApiRoleRepository implements RoleRepository {
         },
       })) as { data: ApiListResponse<Roleinterface> };
 
-      console.log("API Response - findAll:", response.data);
+      // console.log("API Response - findAll:", response.data);
 
       return {
         data: response.data.data.map((item) => this.toDomainModel(item)),
@@ -39,13 +39,13 @@ export class ApiRoleRepository implements RoleRepository {
 
   async findById(id: string): Promise<Role | null> {
     try {
-      console.log("API Request - findById:", {
-        url: `/role/${id}`,
-      });
+      // console.log("API Request - findById:", {
+      //   url: `/role/${id}`,
+      // });
 
       const response = (await api.get(`/roles/${id}`)) as { data: ApiResponse<Roleinterface> };
 
-      console.log("API Response - findById:", response.data);
+      // console.log("API Response - findById:", response.data);
 
       return this.toDomainModel(response.data.data);
     } catch (error) {
@@ -61,16 +61,16 @@ export class ApiRoleRepository implements RoleRepository {
 
   async findByName(name: string): Promise<Role | null> {
     try {
-      console.log("API Request - findByName:", {
-        url: "/role",
-        params: { name },
-      });
+      // console.log("API Request - findByName:", {
+      //   url: "/role",
+      //   params: { name },
+      // });
 
       const response = (await api.get("/roles", {
         params: { name, limit: 1 },
       })) as { data: ApiListResponse<Roleinterface> };
 
-      console.log("API Response - findByName:", response.data);
+      // console.log("API Response - findByName:", response.data);
 
       if (response.data.data.length === 0) {
         return null;
@@ -89,7 +89,7 @@ export class ApiRoleRepository implements RoleRepository {
         data: ApiResponse<Roleinterface>;
       };
 
-      console.log("API Response - create:", response.data);
+      // console.log("API Response - create:", response.data);
 
       return this.toDomainModel(response.data.data);
     } catch (error) {
@@ -105,16 +105,16 @@ export class ApiRoleRepository implements RoleRepository {
         display_name: role.getDisplayname(),
       };
 
-      console.log("API Request - update:", {
-        url: `/role/${id}`,
-        data: payload,
-      });
+      // console.log("API Request - update:", {
+      //   url: `/role/${id}`,
+      //   data: payload,
+      // });
 
       const response = (await api.put(`/roles/${id}`, payload)) as {
         data: ApiResponse<Roleinterface>;
       };
 
-      console.log("API Response - update:", response.data);
+      // console.log("API Response - update:", response.data);
 
       return this.toDomainModel(response.data.data);
     } catch (error) {

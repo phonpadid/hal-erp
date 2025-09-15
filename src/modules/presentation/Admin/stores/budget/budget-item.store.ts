@@ -12,7 +12,6 @@ import type { PaginationParams } from "@/modules/shared/pagination";
 import { BudgetItemDetailsServiceImpl } from "@/modules/application/services/budget/budget-item.service";
 import { ApiBudgetItemRepository } from "@/modules/infrastructure/budget/api-budget-item.repository";
 
-// Create budget item service instance
 const createBudgetItemService = () => {
   const budgetItemRepository = new ApiBudgetItemRepository();
   return new BudgetItemDetailsServiceImpl(budgetItemRepository);
@@ -208,28 +207,38 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
     pagination.value.total = newPagination.total;
   };
 
-  // In your budget-item.store.ts file
-
-  async function getBudgetItemReport(params: {
-    limit?: number;
-    // column?: string;
-    // sort_order?: string;
-    // budget_account_id?: string;
-    // type?: string;
-    // department_id?: string;
-  }): Promise<BudGetItemEntity | null> {
+  const getAllReport = async (params: PaginationParams = { page: 1, limit: 10 }) => {
     loading.value = true;
     error.value = null;
+
     try {
-      // Pass the entire params object directly to the repository method
-      return await repository.budgetItemReport(params);
-    } catch (err: any) {
-      error.value = err.message || `Failed to fetch budget item report.`;
-      return null;
+      const result = await budgetItemService.getAllReportBudgetItem(params);
+
+      if (result && Array.isArray(result.data)) {
+        budgetItems.value = result.data;
+        pagination.value = {
+          page: result.page || 1,
+          limit: result.limit || 10,
+          total: result.total || 0,
+          totalPages: result.totalPages || 1,
+        };
+      } else {
+        // กรณีที่ข้อมูลไม่ใช่ array
+        budgetItems.value = [];
+        pagination.value = { page: 1, limit: 10, total: 0, totalPages: 0 };
+        console.warn("Budget items data is not an array:", result);
+      }
+
+      // console.log("Budget Items after Report Fetch:", budgetItems.value);
+    } catch (err) {
+      error.value = err as Error;
+      budgetItems.value = [];
+      pagination.value = { page: 1, limit: 10, total: 0, totalPages: 0 };
+      console.error("Error in getAllReport:", err);
     } finally {
       loading.value = false;
     }
-  }
+  };
 
   async function getBudgetItemReportById(id: string): Promise<BudGetItemEntity | null> {
     loading.value = true;
@@ -252,7 +261,7 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
     error,
     pagination,
     setPagination,
-    getBudgetItemReport,
+    getAllReport,
     getBudgetItemReportById,
     // Getters
     activeBudgetItems,

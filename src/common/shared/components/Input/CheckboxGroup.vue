@@ -83,7 +83,7 @@ const toggleOption = (value: string | number) => {
     currentValues.splice(index, 1);
   }
 
-  console.log("After toggle, values:", currentValues);
+  // console.log("After toggle, values:", currentValues);
   emit("update:modelValue", currentValues);
 };
 

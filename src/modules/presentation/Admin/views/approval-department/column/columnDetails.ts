@@ -8,7 +8,7 @@ export function columnsDetails(t: (key: string) => string): Column[] {
       key: "index",
     },
     {
-      title: t("purchase_qequest.table.number"),
+      title: t("purchase_qequest.table.image"),
       dataIndex: "image",
       key: "image",
     },

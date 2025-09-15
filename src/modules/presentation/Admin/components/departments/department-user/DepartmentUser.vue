@@ -93,14 +93,6 @@ watch(
   }
 );
 
-// Watch selected permissions
-watch(
-  selectedPermissions,
-  (newValue) => {
-    console.log("Selected permissions:", newValue);
-  },
-  { deep: true }
-);
 
 // Load existing data for edit mode
 const loadDepartmentUser = async () => {

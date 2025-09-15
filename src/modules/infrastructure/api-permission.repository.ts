@@ -21,7 +21,7 @@ export class ApiPermissionRepository implements PermissionRepository {
         },
       })) as { data: ApiListResponse<PermissionResponse> };
 
-      console.log("API Response - findAll:", response.data);
+      // console.log("API Response - findAll:", response.data);
 
       return {
         data: response.data.data.map((item) => this.toDomainModel(item)),

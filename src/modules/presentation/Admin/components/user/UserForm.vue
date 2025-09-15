@@ -23,7 +23,7 @@ onMounted(async () => {
       const userId = route.params.id as string;
       const userData = await userStore.fetchUserById(userId);
       user.value = userData;
-      console.log("Loaded user data:", userData);
+      // console.log("Loaded user data:", userData);
     } catch (err) {
       console.error("Error loading user:", err);
       showError(t("user.error.loadFailed"));

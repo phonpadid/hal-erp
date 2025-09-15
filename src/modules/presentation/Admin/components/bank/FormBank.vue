@@ -56,7 +56,7 @@ watch(
 );
 
 function handleFileChange(file: File) {
-  console.log("File selected:", file);
+  // console.log("File selected:", file);
   if (file) {
     existingLogoUrl.value = null;
     logoFile.value = file;

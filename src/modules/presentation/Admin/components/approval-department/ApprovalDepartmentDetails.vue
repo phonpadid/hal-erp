@@ -605,26 +605,7 @@ const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const isSuccessModalVisible = ref(false);
 const signatureData = ref("");
-// const getItemsForTable = computed(() => {
-//   if (
-//     orderDetails.value &&
-//     orderDetails.value.getPurchaseOrderItem &&
-//     orderDetails.value.getPurchaseOrderItem().length > 0
-//   ) {
-//     return orderDetails.value.getPurchaseOrderItem().map((item) => ({
-//       id: item.getId(),
-//       title: item.getPurchaseRequestItem()?.getTitle(),
-//       remark: item.getRemark(),
-//       quantity: item.getQuantity(),
-//       price: formatPrice(item.getPrice()),
-//       total: item.getTotal(),
-//       is_vat: item.getIsVat(),
-//       vat_total: item.getVatTotal(),
-//       total_with_vat: item.getTotalWithVat(),
-//     }));
-//   }
-//   return orderDetails.value?.getItems() ?? [];
-// });
+
 const getTotalAmount = computed(() => {
   if (
     orderDetails.value &&
@@ -670,7 +651,7 @@ const getPurchaseOrderQuantity = computed(() => {
 });
 
 const items = computed(() => orderDetails.value?.getItems() ?? []);
-console.log("Items:", items.value);
+// console.log("Items:", items.value);
 
 /**********************Data Detials Order*************************** */
 const fetchOrderDetails = async () => {
@@ -688,8 +669,8 @@ const fetchOrderDetails = async () => {
         orderItems.value = result.getItems();
       }
 
-      console.log("Purchase order items:", result.getPurchaseOrderItem());
-      console.log("Order details fetched:", result);
+      // console.log("Purchase order items:", result.getPurchaseOrderItem());
+      // console.log("Order details fetched:", result);
     } else {
       error("ບໍ່ພົບຂໍ້ມູນເອກະສານ");
     }

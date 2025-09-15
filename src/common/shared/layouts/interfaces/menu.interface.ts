@@ -4,6 +4,7 @@ export interface ItemType {
   label?: string;
   icon?: string | (() => VNode | Element | string);
   children?: ItemType[];
+  permission?: string;
   type?: string;
   role?: string[];
 }

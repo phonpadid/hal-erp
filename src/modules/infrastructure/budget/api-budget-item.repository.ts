@@ -72,31 +72,37 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
     }
   }
   // In the file api-budget-item.repository.ts
-
-  async budgetItemReport(params: {
-    limit?: number;
-    column?: string;
-    sort_order?: string;
-    budget_account_id?: string;
-    type?: string;
-    department_id?: string;
-  }): Promise<BudGetItemEntity> {
+  async getReport(
+    params: PaginationParams,
+    includeDeleted: boolean = false
+  ): Promise<PaginatedResult<BudGetItemEntity>> {
     try {
       const response = await api.get(`${this.baseUrl}/report`, {
         params: {
-          limit: params.limit,
-          column: params.column,
-          sort_order: params.sort_order,
-          budget_account_id: params.budget_account_id,
-          type: params.type,
-          department_id: params.department_id,
+          page: params.page || 1,
+          limit: params.limit || 10,
+          search: params.search || "",
+          sort_by: params.sortBy,
+          sort_direction: params.sortDirection,
+          include_deleted: includeDeleted,
         },
       });
-      return response.data.data;
+      return {
+        data: Array.isArray(response.data.data)
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            response.data.data.map((item: any) => this.toDomainModel(item))
+          : [],
+        total: response.data.pagination?.total || 0,
+        page: response.data.pagination?.page || 1,
+        limit: response.data.pagination?.limit || 10,
+        totalPages: response.data.pagination?.total_pages || 1,
+      };
     } catch (error) {
-      this.handleApiError(error, `Failed to fetch budget item report for account ID`);
+      console.error("API Error in getReport:", error);
+      this.handleApiError(error, "Failed to fetch budget item report.");
     }
   }
+
   async budgetItemReportId(id: string): Promise<BudGetItemEntity> {
     try {
       const response = await api.get(`${this.baseUrl}/item/${id}`);
@@ -144,38 +150,47 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
     }
   }
   private toDomainModel(budGet: BudgetItemInterface): BudGetItemEntity {
-    // Ensure the data fields are correctly mapped
-    const usedAmount = budGet.used_amount ?? 0;
-    const balanceAmount = budGet.balance_amount ?? 0;
-    const description = budGet.description ?? null;
-
-    // Create a new instance of BudGetAccountsEntity if budget_account exists
-    const budgetAccountEntity = budGet.budget_account
-      ? new BudGetAccountsEntity(
-          budGet.budget_account.id.toString(),
-          budGet.budget_account.code,
-          budGet.budget_account.name,
-          budGet.budget_account.departmentId.toString(),
-          budGet.budget_account.fiscal_year.toString(),
-          budGet.budget_account.allocated_amount,
-          budGet.budget_account.type,
-          budGet.budget_account.created_at || "",
-          budGet.budget_account.updated_at || "",
-          budGet.budget_account.deleted_at || ""
-        )
-      : undefined;
+    if (!budGet) {
+      return new BudGetItemEntity("", "", "", 0, 0, 0, "", "", "", null);
+    }
+    const id = budGet.id ? String(budGet.id) : "";
+    const budgetAccountId = budGet.budget_account_id ? String(budGet.budget_account_id) : "";
+    const name = budGet.name || "";
+    const allocatedAmount = Number(budGet.allocated_amount || 0);
+    const usedAmount = Number(budGet.use_amount || 0);
+    const balanceAmount = Number(budGet.balance_amount || 0);
+    const description = budGet.description || "";
+    const createdAt = budGet.created_at || "";
+    const updatedAt = budGet.updated_at || "";
+    const deletedAt = budGet.deleted_at || null;
+    let budgetAccountEntity = undefined;
+    if (budGet.budget_account) {
+      const ba = budGet.budget_account;
+      budgetAccountEntity = new BudGetAccountsEntity(
+        ba.id ? String(ba.id) : "",
+        ba.code || "",
+        ba.name || "",
+        ba.departmentId ? String(ba.departmentId) : "",
+        ba.fiscal_year ? String(ba.fiscal_year) : "",
+        Number(ba.allocated_amount || 0),
+        ba.type || "",
+        ba.created_at || "",
+        ba.updated_at || "",
+        ba.deleted_at || ""
+      );
+    }
 
     return new BudGetItemEntity(
-      budGet.id.toString(),
-      budGet.budget_account_id.toString(),
-      budGet.name,
-      budGet.allocated_amount,
+      id,
+      budgetAccountId,
+      name,
+      allocatedAmount,
       usedAmount,
       balanceAmount,
       description,
-      budGet.created_at || "",
-      budGet.updated_at || "",
-      budGet.deleted_at || null,
+      createdAt,
+      updatedAt,
+      deletedAt,
       budgetAccountEntity
     );
   }
@@ -184,15 +199,16 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
     const axiosError = error as AxiosError<{ message?: string }>;
 
     if (axiosError.response) {
-      const serverMessage = axiosError.response.data?.message || defaultMessage;
-
-      throw new Error(`${serverMessage}`);
+      // โค้ดที่อาจทำให้เกิดข้อผิดพลาดคือการเข้าถึง property ที่ไม่มีอยู่จริง
+      const serverMessage = axiosError.response.data?.message;
+      throw new Error(`${defaultMessage}: ${serverMessage || "Unknown server error."}`);
     } else if (axiosError.request) {
       throw new Error(
         `Network Error: The request was made but no response was received. Please check your connection.`
       );
     } else {
-      throw new Error(`${defaultMessage}: ${(error as Error).message || "Unknown error"}`);
+      const errorMessage = (error as Error).message;
+      throw new Error(`${defaultMessage}: ${errorMessage || "Unknown error."}`);
     }
   }
 }

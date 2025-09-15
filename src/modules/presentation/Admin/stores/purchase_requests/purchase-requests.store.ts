@@ -109,7 +109,7 @@ export const usePurchaseRequestsStore = defineStore("purchaseRequests", () => {
     loading.value = true;
     error.value = null;
     try {
-      console.log("Store is sending this payload to repository:", data);
+      // console.log("Store is sending this payload to repository:", data);
       return await repository.update(id, data);
     } catch (err: any) {
       error.value = err.message || "Failed to update purchase request.";

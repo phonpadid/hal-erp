@@ -27,12 +27,12 @@ export const usePurchaseOrderStore = defineStore("purchaseOrders", () => {
 
   // Actions
   async function fetchAll(params: PaginationParams = { page: 1, limit: 10 }) {
-    console.log('Fetching with params:', params);
+    // console.log('Fetching with params:', params);
     loading.value = true;
     error.value = null;
     try {
       const result = await repository.findAll(params);
-      console.log('Repository result:', result);
+      // console.log('Repository result:', result);
 
       if (result) {
 
@@ -46,12 +46,11 @@ export const usePurchaseOrderStore = defineStore("purchaseOrders", () => {
         };
         statusSummary.value = result.status || [];
 
-        // ตรวจสอบ state ทั้งหมด
-        console.log('Final store state:', {
-          orders: orders.value,
-          pagination: pagination.value,
-          statusSummary: statusSummary.value
-        });
+        // console.log('Final store state:', {
+        //   orders: orders.value,
+        //   pagination: pagination.value,
+        //   statusSummary: statusSummary.value
+        // });
 
         return result;
       } else {

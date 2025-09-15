@@ -43,7 +43,7 @@ export const usePermissionStore = defineStore("permission", () => {
 
   // Get All Permissions
   const fetchPermission = async (
-    params: PaginationParams = { page: 1, limit: 10 },
+    params: PaginationParams = { page: 1, limit: 1000 },
     includeDeleted: boolean = false
   ) => {
     loading.value = true;

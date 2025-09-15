@@ -27,7 +27,7 @@ export class ApiApprovalStepRepository implements ApprovalStepRepository {
 
       const apiModel = this.toApiModel(step);
 
-      console.log("Final API model being sent:", JSON.stringify(apiModel, null, 2));
+      // console.log("Final API model being sent:", JSON.stringify(apiModel, null, 2));
 
       await api.post(endpoint, apiModel);
 
