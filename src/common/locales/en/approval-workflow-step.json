@@ -44,7 +44,7 @@
     "step_name": "Step name",
     "step_number": "Step number",
     "step": "Step",
-    "type": "Approver Type",
+    "type": "Approve Level",
     "requires_file": "Requires file upload",
     "requires_upload": "Require file",
     "isOtp": "Require OTP",
