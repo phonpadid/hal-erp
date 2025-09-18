@@ -1,6 +1,5 @@
 import axios, { type AxiosRequestConfig, type AxiosRequestHeaders } from "axios";
-import { Modal, message } from "ant-design-vue";
-import { t } from "../i18n/i18n.config";
+import { Modal } from "ant-design-vue";
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
 const authAxios = axios.create({
   baseURL: BASE_API_URL,
@@ -36,29 +35,49 @@ authAxios.interceptors.request.use(
   }
 );
 
-// ✅ Interceptor จัดการ Response Error (คงเดิม)
 authAxios.interceptors.response.use(
   (response) => response,
   async (error) => {
     try {
       if (!error.response) {
+        console.error("Network Error:", error);
         return Promise.reject(error);
       }
 
-      const { status, data } = error.response;
+      const { status, data, config } = error.response;
+
+      // ✅ [DEBUG] แสดง Log ของทุก Error เพื่อการตรวจสอบ
+      console.error(`[AXIOS ERROR] Status: ${status} | URL: ${config.url}`, data);
+
+      // ✅ [เพิ่มใหม่] ตรวจสอบว่าเป็น Error จากหน้า Login หรือไม่
+      if (config.url.includes("/users/login") && (status === 400 || status === 401)) {
+        Modal.warning({
+          title: "ເຂົ້າສູ່ລະບົບບໍ່ສຳເລັດ", // "Login Failed"
+          content: "ອີເມວ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ! ກະລຸນາລອງໃໝ່ອີກຄັ້ງ.", // "Email or password incorrect! Please try again."
+          closable: true,
+          footer: null,
+        });
+        // คืนค่า reject เพื่อให้ catch block ใน login store ทำงานต่อได้ แต่ไม่ทำอย่างอื่นใน interceptor
+        return Promise.reject(error);
+      }
 
       switch (status) {
         case 400:
-          console.error("Bad Request:", data.message);
-          // Modal.warning({
-          //   title: t("messages.err"),
-          //   content: data.message,
-          //   closable: true,
-          //   footer: null,
-          // });
+          Modal.warning({
+            title: "ມີບາງຢ່າງຜິດພາດ!",
+            content: "ຂໍ້ມູນທີ່ສົ່ງໄປບໍ່ຖືກຕ້ອງ!",
+            closable: true,
+            footer: null,
+          });
           break;
         case 401:
-          console.warn("Unauthorized! Logging out...");
+          Modal.warning({
+            title: "ເຊສຊັນໝົດອາຍຸ!",
+            content: "ກະລຸນາເຂົ້າສູ່ລະບົບໃໝ່ອີກຄັ້ງ.", // "กรุณาเข้าสู่ระบบใหม่อีกครั้ง"
+            closable: true,
+            footer: null,
+          });
+          console.warn("Unauthorized (401)! Logging out...");
           localStorage.removeItem("access_token");
           window.location.href = "/login";
           break;

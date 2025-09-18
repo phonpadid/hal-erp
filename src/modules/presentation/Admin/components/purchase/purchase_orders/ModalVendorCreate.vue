@@ -156,25 +156,27 @@ const handleBankChange = (value: string) => {
     form.value.currencyCode = "";
   }
 };
-onMounted(async () => {
-  try {
-    await bankAccount.fetchBankAccounts(17);
-  } catch (err) {
-    console.error("Error fetching bank accounts:", err);
-    error("ເກີດຂໍ້ຜິດພາດໃນການໂຫລດຂໍ້ມູນທະນາຄານ");
-  }
-});
-
 /****************Bank account ************************** */
-
-// เลือกร้านค้า
-const handleVendorChange = (value: string) => {
+const handleVendorChange = async (value: string) => {
   selectedVendor.value = value;
+  form.value.bank = "";
+  if (value) {
+    try {
+      await bankAccount.fetchBankAccounts(Number(value));
+    } catch (err) {
+      console.error("Error fetching bank accounts for vendor:", err);
+      error("เกิดข้อผิดพลาดในการโหลดข้อมูลบัญชีธนาคารของผู้ขาย");
+    }
+  } else {
+    bankAccount.bankAccounts = [];
+  }
 };
+
+
+
 const beforeUpload = async (file: File) => {
   if (!selectedVendor.value) {
     message.warning("ກະລຸນາເລືອກຮ້ານຄ້າກ່ອນ");
-
     return Upload.LIST_IGNORE;
   }
   if (!file.type.startsWith("image/")) {
@@ -182,7 +184,6 @@ const beforeUpload = async (file: File) => {
 
     return Upload.LIST_IGNORE;
   }
-  // ไม่อัปโหลดผ่านกลไกของ Upload ให้เราจัดการเอง
   return false;
 };
 
@@ -193,10 +194,7 @@ const handleChange = async (info: { file: UploadFile; fileList: UploadFile[] }) 
 
   const first = latest[0];
   if (first?.originFileObj) {
-    // สร้าง URL สำหรับแสดงรูปภาพทันที
     previewUrl.value = URL.createObjectURL(first.originFileObj);
-
-    // อัพโหลดไป API
     try {
       uploadLoading.value = true;
       const fd = new FormData();
@@ -207,7 +205,6 @@ const handleChange = async (info: { file: UploadFile; fileList: UploadFile[] }) 
     } catch (err) {
       console.error("upload api error", err);
       message.error("ອັບໂຫລດລົ້ມເຫລວ");
-      // ล้างข้อมูลเมื่อเกิดข้อผิดพลาด
       fileList.value = [];
       previewUrl.value = "";
       uploadedFileNames.value = [];
@@ -218,8 +215,6 @@ const handleChange = async (info: { file: UploadFile; fileList: UploadFile[] }) 
     previewUrl.value = "";
   }
 };
-
-// เพิ่ม cleanup เมื่อ component ถูกทำลาย
 onBeforeUnmount(() => {
   if (previewUrl.value) {
     URL.revokeObjectURL(previewUrl.value);
@@ -246,8 +241,6 @@ const setSelectedType = (type: string) => {
   }
 };
 
-// ใน ModalVendorCreate.vue
-// ฟังก์ชัน handleOk ที่จะส่งข้อมูลกลับไปยังไฟล์หลัก
 const handleOk = () => {
   if (!selectedVendor.value) {
     message.warning("ກະລຸນາເລືອກຮ້ານຄ້າ");
