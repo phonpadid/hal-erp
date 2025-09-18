@@ -789,12 +789,12 @@ export const menuItems = computed<ItemType[]>(() => {
             ]
           : []),
         ...budgetApprovalMenuItems,
-        {
-          key: "director-list",
-          label: t("menu-sidebar.director"),
-          icon: () => h(Icon, { icon: "solar:archive-check-broken", class: "text-base" }),
-          permission: "read-director-list",
-        },
+        // {
+        //   key: "director-list",
+        //   label: t("menu-sidebar.director"),
+        //   icon: () => h(Icon, { icon: "solar:archive-check-broken", class: "text-base" }),
+        //   permission: "read-director-list",
+        // },
         ...userApprovalMenuItems,
         ...budgetApprovalRuleMenuItems,
       ],

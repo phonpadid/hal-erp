@@ -21,6 +21,7 @@ interface OtpResponse {
   expires_in: string;
   max_attempts: number;
   status: string;
+
   approver: {
     id: number;
     name: string;

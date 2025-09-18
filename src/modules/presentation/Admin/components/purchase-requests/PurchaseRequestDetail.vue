@@ -10,6 +10,7 @@ import { formatPrice } from "@/modules/shared/utils/format-price";
 import type { ButtonType } from "@/modules/shared/buttonType";
 import { useToggleStore } from "../../stores/storage.store";
 import { storeToRefs } from "pinia";
+import Table from "@/common/shared/components/table/Table.vue";
 // import { printContent } from "./helpers/printer";
 import { useRoute } from "vue-router";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
@@ -39,9 +40,9 @@ const items = computed(() => requestDetail.value?.getItems() ?? []);
 
 const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
 
-const imageList = computed(() => {
-  return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
-});
+// const imageList = computed(() => {
+//   return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
+// });
 // Print handler
 const handlePrint = async () => {
   /* ... no changes needed ... */
@@ -92,24 +93,27 @@ const handleToggle = () => {
     <div v-else-if="requestDetail" class="body mt-[10rem]">
       <div class="user-info shadow-sm py-2">
         <h2 class="text-md font-semibold px-6 mb-4">{{ t("purchase-rq.field.proposer") }}</h2>
-        <div class="info flex items-center px-6 gap-4 mb-4">
-          <a-image
-            src="/public/Profile-PNG-File.png"
-            alt="avatar"
-            class="w-20 h-20 rounded-full object-cover"
-            :width="80"
-            :height="80"
-            :preview="false"
-          />
-          <div class="detail -space-y-2">
-            <p class="font-medium">{{ requesterInfo?.username }}</p>
-            <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
+        <div class="flex justify-between">
+          <div class="info flex items-center px-6 gap-4 mb-4">
+            <a-image
+              src="/public/Profile-PNG-File.png"
+              alt="avatar"
+              class="w-20 h-20 rounded-full object-cover"
+              :width="80"
+              :height="80"
+              :preview="false"
+            />
+            <div class="detail -space-y-2">
+              <p class="font-medium">{{ requesterInfo?.username }}</p>
+              <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
+            </div>
+          </div>
+          <div class="want-date -space-y-0 px-6 mb-4">
+            <h2 class="text-md font-semibold">{{ t("purchase-rq.field.date_rq") }}</h2>
+            <p class="text-gray-600 text-sm">{{ requestDetail.getExpiredDate() }}</p>
           </div>
         </div>
-        <div class="want-date -space-y-0 px-6 mb-4">
-          <h2 class="text-md font-semibold">{{ t("purchase-rq.field.date_rq") }}</h2>
-          <p class="text-gray-600 text-sm">{{ requestDetail.getExpiredDate() }}</p>
-        </div>
+
         <div class="purposes -space-y-0 px-6 mb-4">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.field.purposes") }}</h2>
           <p class="text-gray-600 text-sm">{{ requestDetail.getPurposes() }}</p>
@@ -117,16 +121,24 @@ const handleToggle = () => {
 
         <div class="table -space-y-0 mb-2 w-full px-6 shadow-sm rounded-md">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.field.title") }}</h2>
-          <a-table :columns="columns(t)" :dataSource="items" :pagination="false" row-key="id">
-            <template #bodyCell="{ column, record, index }">
-              <template v-if="column.key === 'id'">
-                <span>{{ index + 1 }}</span>
-              </template>
-              <template v-if="column.key === 'total_price'">
-                <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
-              </template>
+          <Table :columns="columns(t)" :dataSource="items" :pagination="false" row-key="id">
+            <template #index="{ index }">
+              <span>{{ index + 1 }}</span>
             </template>
-          </a-table>
+            <template #total_price="{ record }">
+              <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span> </template
+            >
+            <template #image="{ record }">
+              <span v-if="!record.file_name_url">ບໍ່ມີ</span>
+              <a-image
+                v-else
+                :src="record.file_name_url"
+                alt="ຮູບພາບ"
+                style="max-width: 50px; max-height: 50px; border-radius: 6px"
+                :preview="true"
+              />
+            </template>
+          </Table>
           <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4">
             <p class="font-medium text-slate-600">{{ t("purchase-rq.field.amount") }}:</p>
             <p class="font-semibold md:text-lg text-sm text-slate-700">
@@ -135,7 +147,7 @@ const handleToggle = () => {
           </div>
         </div>
 
-        <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
+        <!-- <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.field.img_example") }}</h2>
           <div class="flex flex-wrap gap-6">
             <a-image
@@ -149,7 +161,7 @@ const handleToggle = () => {
               class="rounded-xl shadow-sm"
             />
           </div>
-        </div>
+        </div> -->
 
         <div class="signature shadow-sm py-4 px-6 rounded-md mb-[10rem]">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>

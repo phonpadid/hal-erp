@@ -86,6 +86,7 @@
             <template #index="{ index }">
               <span>{{ index + 1 }}</span>
             </template>
+
             <template #title="{ record }">
               <span
                 v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
@@ -118,13 +119,39 @@
               </span>
               <span v-else> - </span>
             </template>
+            <template #image="{ record }">
+              <span
+                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+              >
+                <img
+                  v-if="record.getPurchaseOrderItem()[0].getQuotationImageUrl()"
+                  :src="record.getPurchaseOrderItem()[0].getQuotationImageUrl() ?? undefined"
+                  alt="Product Image"
+                  class="w-12 h-12 object-cover"
+                />
+                <img
+                  v-else
+                  src="/public/5.png"
+                  alt="Default Image"
+                  class="w-12 h-12 object-cover"
+                />
+              </span>
+              <span v-else> - </span>
+            </template>
             <!-- <template #image="{ record }">
               <span
                 v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
               >
                 <img
-                  :src="record.getImageUrl()"
+                  v-if="record.getPurchaseOrderItem()[0].getQuotationImageUrl()"
+                  :src="record.getPurchaseOrderItem()[0].getQuotationImageUrl() ?? undefined"
                   alt="Product Image"
+                  class="w-12 h-12 object-cover"
+                />
+                <img
+                  v-else
+                  src="/public/5.png"
+                  alt="Default Image"
                   class="w-12 h-12 object-cover"
                 />
               </span>
@@ -650,7 +677,7 @@ const getPurchaseOrderQuantity = computed(() => {
   return orderDetails.value?.getPurchaseRequest()?.purchase_request_item?.[0]?.quantity || 2;
 });
 
-const items = computed(() => orderDetails.value?.getItems() ?? []);
+// const items = computed(() => orderDetails.value?.getItems() ?? []);
 // console.log("Items:", items.value);
 
 /**********************Data Detials Order*************************** */

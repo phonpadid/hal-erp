@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // stores/approval-step.store.ts
 import { defineStore } from "pinia";
 import { ref } from "vue";
@@ -212,17 +213,17 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
       loading.value = false;
     }
   };
-
-  // ปรับปรุงฟังก์ชันสำหรับส่ง OTP
-  const sendOtp = async (approvalStepId: number) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sendOtp = async (approvalStepId: number, purchaseOrderItemsPayload?: { id: number; budget_item_id: any; }[]) => {
     if (!approvalStepId) {
       showError("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຂັ້ນຕອນການອະນຸມັດ");
       return null;
     }
 
+
     sendingOtp.value = true;
     error.value = null;
-    console.log("Sending OTP request for step ID:", approvalStepId);
+    // console.log("Sending OTP request for step ID:", approvalStepId);
 
     try {
       const response = await sendOtpUseCase.execute(approvalStepId);
@@ -231,7 +232,7 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
         otpResponse.value = response;
 
         showSuccess("ສຳເລັດ", "ສົ່ງ OTP ສຳເລັດ");
-        // console.log("OTP sent successfully. Received approval_id:", response.approval_id);
+
       }
 
       return response;

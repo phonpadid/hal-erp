@@ -16,7 +16,7 @@ const createAuthService = () => {
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
-  const { success, error: showError } = useNotification();
+  const { success } = useNotification();
   const authService = createAuthService();
 
   const user: Ref<AuthEntity | null> = ref(null);
@@ -35,7 +35,7 @@ export const useAuthStore = defineStore("auth", () => {
       userPermissions.value = result.getPermissions() || [];
 
       userRoles.value = result.getRoles() || [];
-      const createPurchaseRequestPermission = 'write-purchase-request';
+      const createPurchaseRequestPermission = "write-purchase-request";
       if (!userPermissions.value.includes(createPurchaseRequestPermission)) {
         userPermissions.value.push(createPurchaseRequestPermission);
       }
@@ -61,7 +61,7 @@ export const useAuthStore = defineStore("auth", () => {
       router.push("/dashboard");
     } catch (err) {
       error.value = err as Error;
-      showError("ຜິດພາດ", (err as Error).message);
+      // showError("ຜິດພາດ", (err as Error).message);
       throw err;
     } finally {
       loading.value = false;
@@ -127,8 +127,8 @@ export const useAuthStore = defineStore("auth", () => {
     const token = localStorage.getItem("accessToken");
     return !!token;
   };
-  const isSuperAdmin = computed(() => userRoles.value.includes('super-admin'));
-  const isAdmin = computed(() => userRoles.value.includes('admin'));
+  const isSuperAdmin = computed(() => userRoles.value.includes("super-admin"));
+  const isAdmin = computed(() => userRoles.value.includes("admin"));
 
   initializeUser();
 
