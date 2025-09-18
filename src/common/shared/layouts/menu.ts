@@ -432,13 +432,13 @@ export const menuItems = computed<ItemType[]>(() => {
 
     { key: "vendors.index", label: t("menu-sidebar.vendor"), permission: "read-vendor" },
 
-    {
-      key: "user_approval.index",
+    // {
+    //   key: "user_approval.index",
 
-      label: t("menu-sidebar.user_approval"),
+    //   label: t("menu-sidebar.user_approval"),
 
-      permission: "read-user-approval",
-    },
+    //   permission: "read-user-approval",
+    // },
 
     {
       key: "approval_workflows.index",
