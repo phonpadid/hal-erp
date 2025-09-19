@@ -36,7 +36,7 @@ const dpmStore = departmentStore();
 const dpmUserStore = departmenUsertStore();
 const permissionStore = usePermissionStore();
 const loading = ref(false);
-const { success } = useNotification();
+const { success, warning } = useNotification();
 const selectedPermissions = computed({
   get: () => dpmUserFormModel.permissionIds,
   set: (value: number[]) => {
@@ -190,11 +190,8 @@ const handleSubmit = async (): Promise<void> => {
       dpmUserStore.resetForm();
       success(t("departments.notify.created"));
     }
-  } catch (error) {
-    console.error(
-      `${isEditMode.value ? "Update" : "Create"} department user failed:`,
-      error
-    );
+  } catch (error: unknown) {
+    warning(error as string)
   } finally {
     loading.value = false;
   }
@@ -214,6 +211,7 @@ const handlerCancel = () => {
   dpmUserStore.resetForm();
   existingSignatureUrl.value = null;
 };
+
 
 onMounted(async () => {
   await dpmStore.fetchDepartment({limit: 10000, page: 1});
