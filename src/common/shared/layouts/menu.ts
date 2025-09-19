@@ -432,13 +432,13 @@ export const menuItems = computed<ItemType[]>(() => {
 
     { key: "vendors.index", label: t("menu-sidebar.vendor"), permission: "read-vendor" },
 
-    {
-      key: "user_approval.index",
+    // {
+    //   key: "user_approval.index",
 
-      label: t("menu-sidebar.user_approval"),
+    //   label: t("menu-sidebar.user_approval"),
 
-      permission: "read-user-approval",
-    },
+    //   permission: "read-user-approval",
+    // },
 
     {
       key: "approval_workflows.index",
@@ -789,12 +789,12 @@ export const menuItems = computed<ItemType[]>(() => {
             ]
           : []),
         ...budgetApprovalMenuItems,
-        {
-          key: "director-list",
-          label: t("menu-sidebar.director"),
-          icon: () => h(Icon, { icon: "solar:archive-check-broken", class: "text-base" }),
-          permission: "read-director-list",
-        },
+        // {
+        //   key: "director-list",
+        //   label: t("menu-sidebar.director"),
+        //   icon: () => h(Icon, { icon: "solar:archive-check-broken", class: "text-base" }),
+        //   permission: "read-director-list",
+        // },
         ...userApprovalMenuItems,
         ...budgetApprovalRuleMenuItems,
       ],

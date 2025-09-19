@@ -82,7 +82,7 @@ const submitHandler = async () => {
                 size="large"
                 :loading="isLoading"
                 :disabled="isLoading"
-                colorClass="!bg-primary-700 hover:!bg-primary-900 text-white w-full"
+                colorClass="!bg-red-600 hover:!bg-red-800 text-white w-full"
                 @click="submitHandler"
               >
                 {{ isLoading ? "ກຳລັງເຂົ້າສູ່ລະບົບ..." : "ເຂົ້າສູ່ລະບົບ" }}

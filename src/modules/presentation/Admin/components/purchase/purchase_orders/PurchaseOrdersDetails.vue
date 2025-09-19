@@ -87,13 +87,13 @@ const createPurchaseOrderPayload = () => {
     throw new Error("ບໍ່ພົບຂໍ້ມູນການຮ້ອງຂໍ");
   }
   const docTypeIdFromQuery = route.query.document_type_id;
-    let finalDocTypeId = 0;
-    if (docTypeIdFromQuery) {
-        finalDocTypeId = Number(docTypeIdFromQuery);
-    }
-    if (isNaN(finalDocTypeId) || finalDocTypeId === 0) {
-        finalDocTypeId = 19;
-    }
+  let finalDocTypeId = 0;
+  if (docTypeIdFromQuery) {
+    finalDocTypeId = Number(docTypeIdFromQuery);
+  }
+  if (isNaN(finalDocTypeId) || finalDocTypeId === 0) {
+    finalDocTypeId = 19;
+  }
   // console.log("Current purchaseItems:", purchaseItems.value);
   const items = purchaseItems.value.map((item) => {
     const vendorData = itemVendors.value[item.id?.toString() ?? ""];
@@ -669,15 +669,6 @@ const handleBankChange = (value: string) => {
   }
 };
 
-onMounted(async () => {
-  try {
-    await bankAccount.fetchBankAccounts(17);
-  } catch (err) {
-    console.error("Error fetching bank accounts:", err);
-    error("ເກີດຂໍ້ຜິດພາດໃນການໂຫລດຂໍ້ມູນທະນາຄານ");
-  }
-});
-
 watch(
   () => form.value.bank,
   (newValue) => {
@@ -975,7 +966,7 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
                   requestDetail
                     ?.getItems()
                     ?.map((item) => item.getQuantity())
-                    .join(", ")
+                    .reduce((sum, quantity) => sum + quantity, 0)
                 }}
               </p>
             </div>

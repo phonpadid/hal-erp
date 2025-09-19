@@ -69,9 +69,9 @@ const otpSending = ref(false);
 const newlyCreatedDocumentId = ref<string | null>(null);
 const currentApprovalStepId = ref<number | null>(null);
 
-const approvedStatusId = computed(() => {
-  return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
-});
+// const approvedStatusId = computed(() => {
+//   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
+// });
 
 const sendOtp = async () => {
   if (!currentApprovalStepId.value) {
@@ -94,7 +94,6 @@ const sendOtp = async () => {
   }
 };
 
-// ฟังก์ชันสำหรับยืนยัน OTP และส่งข้อมูลการอนุมัติ
 const handleOtpConfirm = async (otpCode: string) => {
   if (!otpCode) {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
@@ -120,7 +119,8 @@ const handleOtpConfirm = async (otpCode: string) => {
     // สร้าง payload ที่ถูกต้องสำหรับ API submit
     const payload = {
       type: "pr" as const,
-      statusId: Number(approvedStatusId.value),
+      // statusId: Number(approvedStatusId.value),
+      statusId: 2,
       remark: "ຢືນຢັນສຳເລັດ",
       approvalStepId: currentApprovalStepId.value,
       otp: otpCode,
@@ -131,7 +131,6 @@ const handleOtpConfirm = async (otpCode: string) => {
     const isSuccess = await approvalStepStore.submitApproval(newlyCreatedDocumentId.value, payload);
 
     if (isSuccess) {
-
       showOtpModal.value = false;
       currentStep.value = 2;
     } else {
