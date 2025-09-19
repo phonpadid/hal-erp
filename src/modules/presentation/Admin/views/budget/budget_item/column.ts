@@ -9,13 +9,18 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("budget_items.field.allocated_amount"),
-      dataIndex: "format_allocated_amount",
+      dataIndex: "allocated_amount",
       key: "allocated_amount",
     },
     {
-      title: t("budget_items.field.budget_account"),
-      dataIndex: "budget_account",
-      key: "budget_account",
+      title: t("budget_items.field.use_amount"),
+      dataIndex: "use_amount",
+      key: "use_amount",
+    },
+    {
+      title: t("budget_items.field.balance_amount"),
+      dataIndex: "balance_amount",
+      key: "balance_amount",
     },
     {
       title: t("budget_items.field.created"),

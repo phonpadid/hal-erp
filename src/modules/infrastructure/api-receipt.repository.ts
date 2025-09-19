@@ -72,18 +72,27 @@ export class ApiReceiptRepository implements ReceiptRepository {
       this.handleApiError(error, "Failed to create budget account");
     }
   }
-  async approval(id: number ,input: IApprovalReceiptDto): Promise<IApprovalReceiptDto> {
+  async approval(id: number, input: IApprovalReceiptDto): Promise<IApprovalReceiptDto> {
     try {
-      const response = await api.post('approve-step/'+id, {
+      // Create payload object with all fields
+      const fullPayload = {
         type: input.type,
         statusId: input.statusId,
         is_otp: input.is_otp,
-        otp: input.otp ? input.otp : null,
-        approval_id: input.approval_id ? input.approval_id : null,
-        files: input.files ? input.files.map((file) => file) : null,
+        otp: input.otp,
+        approval_id: input.approval_id,
+        files: input.files && input.files.length > 0 ? input.files.map((file) => file) : undefined,
         remark: input.remark,
+      };
 
-      });
+      // Filter out null, undefined, and empty values
+      const payload = Object.fromEntries(
+        Object.entries(fullPayload).filter(([ value]) =>
+          value !== null && value !== undefined && value !== ''
+        )
+      );
+
+      const response = await api.post('approve-step/' + id, payload);
 
       return response.data.data;
     } catch (error) {

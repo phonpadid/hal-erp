@@ -6,29 +6,51 @@ import { storeToRefs } from "pinia";
 import { useToggleStore } from "../../../stores/storage.store";
 import { useI18n } from "vue-i18n";
 import { printContent } from "../../purchase-requests/helpers/printer";
-import { getStatusText } from "@/modules/shared/utils/format-status.util";
 import OtpModal from "./modals/OtpModal.vue";
-
+import SuccessModal from "../../purchase-requests/modal/SuccessModal.vue";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import { useApprovalStepStore } from "../../../stores/approval-step.store";
+const approvalStepStore = useApprovalStepStore();
+const { error } = useNotification();
+const otpSending = ref(false);
 const { t } = useI18n();
-
 const props = defineProps<{
   dataHead: {
+    rId: number;
     no?: string;
-    status?: string;
+    isApproved?: boolean;
+    status?: {id: number, name?: string}[];
+    data?: {
+      stepId?: number;
+      remark?: string;
+      type?: string;
+      files?: {file_name: string}[],
+      account_code?: string;
+    },
     created_at?: string;
     is_otp?: boolean;
+    approver_info?: {
+      status?: {
+        id: number,
+        name: string,
+        dpm?: {
+          id: number,
+          name?: string
+        }[]}[]
+    }[]
   };
 }>();
 
 // Modal states
 const isOtpModalVisible = ref(false);
+const isSuccessModalVisible = ref(false); // Add success modal state
 const modalAction = ref(""); // 'approve' or 'reject'
 const approval = ref(false);
 const isRejectModalVisible = ref(false);
 const otpLoading = ref(false);
 
 const customButtons = computed(() => {
-  return [
+  const buttons = [
     {
       label: "print",
       icon: "ant-design:printer-outlined",
@@ -36,23 +58,40 @@ const customButtons = computed(() => {
       type: "default" as ButtonType,
       onClick: handlePrint,
     },
-    {
-      label: t("purchase-rq.card_title.refused"),
-      type: "default" as ButtonType,
-      onClick: () => {
-        modalAction.value = "reject";
-        isRejectModalVisible.value = true;
-      },
-    },
-    {
-      label: t("purchase-rq.btn.approval"),
-      type: "primary" as ButtonType,
-      onClick: () => {
-        modalAction.value = "approve";
-        isOtpModalVisible.value = true;
-      },
-    },
   ];
+
+  if (props?.dataHead.isApproved) {
+    buttons.push(
+      {
+        label: t("purchase-rq.card_title.refused"),
+        icon: "",
+        class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+        type: "default" as ButtonType,
+        onClick: async () => {
+          modalAction.value = "reject";
+          isRejectModalVisible.value = true;
+        },
+      },
+      {
+        label: t("purchase-rq.btn.approval"),
+        icon: "",
+        class: "bg-primary text-white flex items-center gap-2 hover:bg-blue-600",
+        type: "primary" as ButtonType,
+        onClick: async () => {
+          modalAction.value = "approve";
+          if (props.dataHead?.is_otp) {
+      // 🔹 Call request OTP before showing modal
+      await requestOtp();
+    } else {
+      // 🔹 Skip OTP, just open modal directly
+      isOtpModalVisible.value = true;
+    }
+        },
+      }
+    );
+  }
+
+  return buttons;
 });
 
 const handlePrint = async () => {
@@ -62,7 +101,6 @@ const handlePrint = async () => {
       contentSelector: ".body",
       hideElements: [".fixed", ".ant-drawer", ".ant-modal"],
       customStyles: `
-        /* Add any custom Lao font or specific styling */
         body {
           font-family: 'Noto Sans Lao', sans-serif;
         }
@@ -86,10 +124,11 @@ const handleOtpConfirm = async (otpValue: string) => {
       // Handle approval logic with OTP
       console.log("Approving with OTP:", otpValue);
       isOtpModalVisible.value = false;
-      // Add success notification here
+      isSuccessModalVisible.value = true;
     }
   } catch (error) {
     console.error("OTP confirmation error:", error);
+    // Handle error - maybe show error modal instead
   } finally {
     otpLoading.value = false;
   }
@@ -102,16 +141,46 @@ const handleOtpClose = () => {
 
 const handleOtpResend = async () => {
   try {
-    // Add your resend OTP logic here
-    console.log("Resending OTP...");
-
-    // await otpService.resend(approvalStepId);
-
-    // Add success notification here
+    if (!props.dataHead?.data?.stepId) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ID");
+    return;
+  }
+    await approvalStepStore.sendOtp(props.dataHead.data.stepId);
   } catch (error) {
     console.error("Resend OTP error:", error);
-    // Add error notification here
   }
+};
+const requestOtp = async () => {
+  if (!props.dataHead?.data?.stepId) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ID");
+    return;
+  }
+
+  try {
+    otpSending.value = true;
+    const otpResponse = await approvalStepStore.sendOtp(props.dataHead.data.stepId);
+
+    if (otpResponse) {
+      // 🔹 Save response in store (already inside approvalStepStore.otpResponse)
+      isOtpModalVisible.value = true;
+    } else {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງລະຫັດ OTP ໄດ້");
+    }
+  } catch (err) {
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+  } finally {
+    otpSending.value = false;
+  }
+};
+// Success Modal handlers
+const handleSuccessConfirm = () => {
+  isSuccessModalVisible.value = false;
+  modalAction.value = "";
+};
+
+const handleSuccessCancel = () => {
+  isSuccessModalVisible.value = false;
+  modalAction.value = "";
 };
 
 const toggleStore = useToggleStore();
@@ -127,6 +196,41 @@ watch(modalAction, (newVal) => {
     approval.value = false;
   }
 });
+
+
+const documentStatus = computed(() => {
+  // ✅ Find departments where status.id = 1
+  const pendingDepartments =
+    props.dataHead?.approver_info?.flatMap((d) =>
+      d.status
+        ?.filter((s) => s.id === 1) // only pending
+        .flatMap((s) => s.dpm ?? []) ?? []
+    ) ?? [];
+
+  if (pendingDepartments.length > 0) {
+    return `ລໍຖ້າ ${pendingDepartments.map((d) => d.name).join(", ")} ອະນຸມັດ`;
+  }
+
+  if (props.dataHead?.status?.some((s) => s.id === 3)) {
+    return "ຖືກປະຕິເສດ";
+  }
+
+  return "ອະນຸມັດແລ້ວ";
+});
+
+
+const documentStatusClass = computed(() => {
+  const status = documentStatus.value;
+
+  if (status.includes("ລໍຖ້າ")) {
+    return "text-orange-500 text-sm font-medium ml-2 ring-2 ring-orange-300 px-3 py-1 rounded-full";
+  }
+  if (status.includes("ປະຕິເສດ")) {
+    return "text-red-500 text-sm font-medium ml-2 ring-2 ring-red-600 px-3 py-1 rounded-full";
+  }
+  return "text-green-600 text-sm font-medium ml-2 ring-1 ring-green-500 px-3 py-1 rounded-full";
+});
+
 </script>
 
 <template>
@@ -148,8 +252,8 @@ watch(modalAction, (newVal) => {
         )}`"
         :document-date="(props.dataHead?.created_at)"
         :action-buttons="customButtons"
-        :document-status="getStatusText(props.dataHead?.status ?? '')"
-        document-status-class="text-orange-400 text-sm font-medium ml-2 ring-2 ring-orange-300 px-3 py-1 rounded-full"
+        :document-status="documentStatus"
+        :document-status-class="documentStatusClass"
       />
     </div>
 
@@ -160,9 +264,25 @@ watch(modalAction, (newVal) => {
       :loading="otpLoading"
       :approval-step-id="1"
       :is_otp="props.dataHead?.is_otp"
+      :r-id="props.dataHead?.rId"
+      :data-head="props.dataHead?.data"
       @confirm="handleOtpConfirm"
       @close="handleOtpClose"
       @resend="handleOtpResend"
+    />
+
+    <!-- Success Modal -->
+    <SuccessModal
+      :visible="isSuccessModalVisible"
+      :title="''"
+      :message="t('purchase-rq.approval_success')"
+      :description="t('purchase-rq.approval_success_description')"
+      :button-text="t('purchase-rq.btn.confirm')"
+      icon-name="mdi:check-decagram"
+      icon-color="text-green-500"
+      @confirm="handleSuccessConfirm"
+      @cancel="handleSuccessCancel"
+      @update:visible="(value) => isSuccessModalVisible = value"
     />
 
     <!-- Reject Modal (if you need one) -->
@@ -171,7 +291,6 @@ watch(modalAction, (newVal) => {
 </template>
 
 <style scoped>
-/* Add any component-specific styles here if needed */
 .user-info {
   background: white;
   border-radius: 0.5rem;
@@ -189,12 +308,11 @@ watch(modalAction, (newVal) => {
   background: white;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .total {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: 1px;
   }
 
   .info {

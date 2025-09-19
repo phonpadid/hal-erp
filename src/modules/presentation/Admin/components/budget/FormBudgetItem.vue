@@ -15,7 +15,6 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiTextArea from "@/common/shared/components/Input/Textarea.vue";
 // import UiButton from "@/common/shared/components/button/UiButton.vue";
-import UiInputNumber from '@/common/shared/components/Input/InputNumber.vue';
 
 const { t } = useI18n();
 const budgetAccountStore = useBudgetAccountStore();
@@ -35,14 +34,7 @@ const emit = defineEmits<{
     data: {
       budget_accountId: number;
       name: string;
-      allocated_amount: number;
       description: string;
-      // budget_item_details: Array<{
-      //   name: string;
-      //   provinceId: number;
-      //   allocated_amount: number;
-      //   description: string;
-      // }>;
     }
   ): void;
   (e: "cancel"): void;
@@ -53,20 +45,8 @@ const formRef = ref();
 const formState = reactive({
   budget_account_id: "",
   name: "",
-  allocated_amount: 0,
   description: "",
 });
-
-
-// const itemDetails = ref([
-//   {
-//     name: "",
-//     province_id: "",
-//     allocated_amount: 0,
-//     description: "",
-//   },
-// ]);
-
 // Loading states
 const loadingBudgetAccounts = ref(false);
 const loadingProvinces = ref(false);
@@ -140,75 +120,20 @@ watch(
       Object.assign(formState, {
         budget_account_id: newBudgetItem.budget_account_id || "",
         name: newBudgetItem.name || "",
-        allocated_amount: newBudgetItem.allocated_amount || 0,
         description: newBudgetItem.description || "",
       });
     } else {
       Object.assign(formState, {
         budget_account_id: props.preselectedBudgetAccountId || "",
         name: "",
-        allocated_amount: 0,
         description: "",
       });
-
-      // itemDetails.value = [
-      //   {
-      //     name: "",
-      //     province_id: "",
-      //     allocated_amount: 0,
-      //     description: "",
-      //   },
-      // ];
     }
   },
   { immediate: true }
 );
 
-// const addDetailItem = () => {
-//   itemDetails.value.push({
-//     name: formState.name,
-//     province_id: "",
-//     allocated_amount: 0,
-//     description: "",
-//   });
 
-//   nextTick(() => {});
-// };
-
-// const removeDetailItem = (index: number) => {
-//   if (itemDetails.value.length > 1) {
-//     itemDetails.value.splice(index, 1);
-//     if (!props.isEditMode) {
-//       nextTick(() => {
-//         formRef.value?.validateFields();
-//       });
-//     }
-//   } else {
-//     itemDetails.value[0] = {
-//       name: formState.name,
-//       province_id: "",
-//       allocated_amount: 0,
-//       description: "",
-//     };
-
-//     // Only validate these fields if not in edit mode
-//     if (!props.isEditMode) {
-//       formRef.value?.validateFields([`province_0`, `allocatedAmount_0`]);
-//     }
-//   }
-// };
-
-
-// watch(
-//   () => formState.name,
-//   (newName) => {
-//     itemDetails.value.forEach((item) => {
-//       item.name = newName;
-//     });
-//   }
-// );
-
-// Validation rules
 const baseRules = createBudgetItemValidation(t);
 const formValidationError = ref<string | undefined>(undefined);
 
@@ -224,30 +149,8 @@ const rules = computed(() => {
   // In create mode, include all validations
   const allRules = { ...baseRules };
 
-  // itemDetails.value.forEach((_, index) => {
-  //   const detailRules = createItemDetailRules(t, index);
-  //   Object.assign(allRules, detailRules);
-  // });
-
   return allRules;
 });
-
-// const formatAllocatedAmount = (index: number) => {
-//   const value = itemDetails.value[index].allocated_amount;
-//   if (value) {
-//     try {
-//       // ลบอักขระที่ไม่ใช่ตัวเลขและจุดทศนิยม
-//       const cleanValue = value.toString().replace(/[^\d.]/g, "");
-//       const numValue = parseFloat(cleanValue);
-
-//       if (!isNaN(numValue)) {
-//         itemDetails.value[index].allocated_amount = parseFloat(numValue.toFixed(2));
-//       }
-//     } catch (err) {
-//       console.error("Error formatting amount:", err);
-//     }
-//   }
-// };
 
 const submitForm = async () => {
   try {
@@ -263,21 +166,10 @@ const submitForm = async () => {
       await formRef.value.validate();
     }
 
-    // const details = itemDetails.value.map((item) => ({
-    //   name: item.name || formState.name,
-    //   provinceId: parseInt(item.province_id) || 0, // Add fallback to prevent NaN
-    //   allocated_amount: typeof item.allocated_amount === 'string'
-    //     ? parseFloat(item.allocated_amount) || 0
-    //     : item.allocated_amount || 0, // Add fallback to prevent NaN
-    //   description: item.description || "",
-    // }));
-
     emit("submit", {
       budget_accountId: parseInt(formState.budget_account_id) || 0, // Add fallback
       name: formState.name,
-      allocated_amount: formState.allocated_amount || 0,
       description: formState.description || "",
-      // budget_item_details: details,
     });
   } catch (error) {
     console.error("Form validation failed:", error);
@@ -318,17 +210,6 @@ defineExpose({
         :disabled="loading"
       />
     </UiFormItem>
-
-    <UiFormItem :label="$t('budget_items.form.allocatedAmount')" name="allocated_amount" required>
-      <UiInputNumber
-        v-model="formState.allocated_amount"
-        :placeholder="$t('budget_accounts.form.allocatedAmountPlaceholder')"
-        :disabled="loading"
-        :formatter="(value: string | number) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-        :parser="(value: string) => value.replace(/\$\s?|(,*)/g, '')"
-      />
-    </UiFormItem>
-
     <UiFormItem :label="$t('budget_items.form.description')" name="description">
       <UiTextArea
         v-model="formState.description"
@@ -416,6 +297,5 @@ defineExpose({
         </UiButton>
       </div> -->
     <!-- </div> -->
-
   </UiForm>
 </template>

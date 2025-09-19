@@ -50,17 +50,17 @@ onMounted(async () => {
 
 <template>
   <UiModal
-    :title="t('purchase-rq.phd.doc_type')"
+    :title="t('receipt.title.select_r')"
     :visible="visible"
     @cancel="handleCancel"
   >
   <label class="block text-sm font-medium text-gray-700 mb-2">
-          {{ t("purchase-rq.field.doc_type") }}
+          {{ t("receipt.title.r_type") }}
         </label>
         <InputSelect
           v-model="document_type_id"
           :options="docItem"
-          :placeholder="t('purchase-rq.phd.doc_type')"
+          :placeholder="t('receipt.title.select_r')"
           class="min-w-[370px] w-auto"
         />
 
@@ -69,7 +69,7 @@ onMounted(async () => {
         <UiButton @click="handleCancel">
           {{ $t("button.cancel") }}
         </UiButton>
-        <UiButton type="primary" :loading="submitLoading" @click="submitForm">
+        <UiButton type="primary" :disabled="!document_type_id" :loading="submitLoading" @click="submitForm">
           {{ $t("button.next") }}
         </UiButton>
       </div>

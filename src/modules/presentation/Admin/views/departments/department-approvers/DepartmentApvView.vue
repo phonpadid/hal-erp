@@ -84,7 +84,6 @@ watch(
   }
 );
 
-
 // Load data on component mount
 onMounted(async () => {
   await dpmApproverList();
@@ -150,7 +149,7 @@ const handleCreate = async (): Promise<void> => {
   try {
     loading.value = true;
     await formRef.value.submitForm();
-    if (canAccessAll) {
+    if (canAccessAll()) {
       await store.createDepartmentApproverByAdmin({
         user_id: Number(formModel.user_id),
         department_id: Number(formModel.department_id),
@@ -183,18 +182,18 @@ const handleEdit = async (): Promise<void> => {
 
     if (selectedDpm.value) {
       const id = selectedDpm.value.id.toString();
-      if(canAccessAll) {
+      if(canAccessAll()) {
         await store.updateDepartmentApproverByAdmin({
         id,
-        user_id: formModel.user_id,
-        department_id: formModel.department_id,
+        user_id: formModel.user_id ?? '',
+        department_id: formModel.department_id ?? '',
       });
       success(t("departments.notify.update"));
       await dpmApproverList();
       }else{
         await store.updateDepartmentApprover({
         id,
-        user_id: formModel.user_id,
+        user_id: formModel.user_id ?? '',
       });
       success(t("departments.notify.update"));
       await dpmApproverList();
@@ -239,8 +238,8 @@ const handleTableChange = async (pagination: TablePaginationType) => {
 const handleModalCancel = async () => {
   modalVisible.value = false;
   // Reset form state
-  formModel.user_id = "";
-  formModel.department_id = "";
+  formModel.user_id = null as string | null;
+  formModel.department_id = null as string | null;
   userStore.departmentUserByDpm = [];
   selectedDpm.value = null;
 };
@@ -346,7 +345,7 @@ watch(search, async (newValue) => {
           :label="t('departments.dpm_user.field.department')"
           name="department_id"
           required
-          v-if="canAccessAll"
+          v-if="canAccessAll()"
         >
           <InputSelect
             v-model="formModel.department_id"

@@ -91,20 +91,22 @@ export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
     }
   }
 
-  private toDomainModel(budgetAccount: BudgetAccountInterface): BudGetAccountsEntity {
-    return new BudGetAccountsEntity(
-      budgetAccount.id.toString(),
-      budgetAccount.code,
-      budgetAccount.name,
-      budgetAccount.fiscal_year,
-      budgetAccount.allocated_amount,
-      budgetAccount.department_id?.toString(),
-      budgetAccount.created_at || "",
-      budgetAccount.updated_at || "",
-      budgetAccount.deleted_at || "",
-      budgetAccount.department_id?.toString()
-    );
-  }
+private toDomainModel(budgetAccount: BudgetAccountInterface): BudGetAccountsEntity {
+  return new BudGetAccountsEntity(
+    budgetAccount.id.toString(),
+    budgetAccount.code,
+    budgetAccount.name,
+    budgetAccount.fiscal_year,
+    budgetAccount.allocated_amount, // This now correctly maps to the 'allocated_amount' parameter
+    budgetAccount.department_id, // This maps to the 'department_id' parameter
+    null, // type
+    null, // description
+    budgetAccount.created_at || "",
+    budgetAccount.updated_at || "",
+    budgetAccount.deleted_at || "",
+    budgetAccount.department // This now correctly maps to the 'department' parameter
+  );
+}
 
   private handleApiError(error: unknown, defaultMessage: string): never {
     const axiosError = error as AxiosError<{ message?: string }>;

@@ -2,6 +2,9 @@ import type { DepartmentApiModel } from "@/modules/interfaces/departments/depart
 import { formatDate } from "@/modules/shared/formatdate";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 
+
+
+
 export class BudGetAccountsEntity {
   private id: string;
   private code: string;

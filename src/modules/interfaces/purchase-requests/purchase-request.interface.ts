@@ -1,3 +1,5 @@
+import type { UserDTO } from "@/modules/application/dtos/user.dto";
+
 export interface IDocumentTypeId {
   document_type_id?: string;
 }
@@ -56,6 +58,12 @@ export interface ApprovalStep {
   updated_at: string;
   document_status: DocumentStatus;
   approver: Requester | null;
+  position?: Position | null;
+
+  doc_approver?: {
+    user? : UserDTO
+    department?: Department | null;
+  }[]
 }
 
 export interface UserApproval {
