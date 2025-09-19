@@ -35,7 +35,7 @@ export interface BudgetItemInterface {
 export interface CreateBudgetItemInterface {
   budget_accountId: number;
   name: string;
-  allocated_amount: number;
+  // allocated_amount: number;
   description: string | null;
   // budget_item_details: Array<{
   //   name: string;

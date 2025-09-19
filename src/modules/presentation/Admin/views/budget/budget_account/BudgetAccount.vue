@@ -13,7 +13,7 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FormBudgetAccount from "@/modules/presentation/Admin/components/budget/FormBudgetAccount.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
-import UiInputSelect from '@/common/shared/components/Input/InputSelect.vue';
+import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { useRouter } from "vue-router";
 const { push } = useRouter();
 const departStore = departmentStore();
@@ -60,13 +60,12 @@ const loadBudgetAccounts = async () => {
 };
 
 // Handle pagination and sorting
-const handleTableChange = (
-  pagination: TablePaginationType) => {
+const handleTableChange = (pagination: TablePaginationType) => {
   budgetAccountStore.setPagination({
     page: pagination.current || 1,
     limit: pagination.pageSize || 10,
     total: pagination.total ?? 0,
-  })
+  });
 
   loadBudgetAccounts();
 };
@@ -80,16 +79,16 @@ const handleSearch = async () => {
   });
 };
 
-watch(searchKeyword, async(newVal: string) => {
-  if(newVal === '') {
+watch(searchKeyword, async (newVal: string) => {
+  if (newVal === "") {
     budgetAccountStore.setPagination({
       page: 1,
       limit: budgetAccountStore.pagination.limit,
       total: budgetAccountStore.pagination.total,
-    })
-    await loadBudgetAccounts()
+    });
+    await loadBudgetAccounts();
   }
-})
+});
 
 // Modal handlers
 const showCreateModal = () => {
@@ -191,8 +190,8 @@ const loadDepartments = async () => {
   }
 };
 const increaseBudgetView = () => {
-  push({name: 'increase_budget', params: { }})
-}
+  push({ name: "increase_budget", params: {} });
+};
 onMounted(async () => {
   await Promise.all([loadBudgetAccounts(), loadDepartments()]);
 });
@@ -212,7 +211,7 @@ onMounted(async () => {
           :placeholder="t('currency.placeholder.search')"
         />
         <UiInputSelect
-          v-model:value="departmentId"
+          v-model:modelValue="departmentId"
           :options="departmentOptions"
           :placeholder="$t('budget_accounts.form.departmentPlaceholder')"
           :disabled="loading"
@@ -245,13 +244,9 @@ onMounted(async () => {
       row-key="id"
       @change="handleTableChange"
     >
-      <!-- <template #department="{ record }">
-        <span v-if="record && record.getDepartment()">
-          {{ record.getDepartment().name }}
-        </span>
-        <span v-else>...</span>
-      </template> -->
-
+      <template #department="{ record }">
+        <span>{{ record.getDepartment()?.name }}</span>
+      </template>
       <!-- Actions column -->
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">

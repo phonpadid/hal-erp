@@ -19,7 +19,7 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("budget_accounts.list.department"),
-      dataIndex: "department.name",
+      dataIndex: "department",
       key: "department",
     },
     {
