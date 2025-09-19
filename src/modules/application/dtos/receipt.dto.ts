@@ -50,6 +50,10 @@ export interface ReciptQueryDto {
   created_at: string;
   updatedAt: string;
   deletedAt: string | null;
+  document_attachment?: {
+    id: number;
+    file_name_url?: string;
+  }[]
 }
 
 

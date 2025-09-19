@@ -2,7 +2,7 @@ import type { UserInterface } from "../user.interface";
 import type { DepartmentApiModel } from "./department.interface";
 
 export interface DepartmentApproverApiModel {
-  department_id: string;
+  department_id: string | number;
   id: number;
   user_id: number;
 

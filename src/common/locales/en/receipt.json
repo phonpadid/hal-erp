@@ -1,6 +1,7 @@
 {
     "title": {
-        "detail": "ລາຍລະອຽດ"
-        
+        "detail": "ລາຍລະອຽດ",
+        "select_r": "Select Receipt Type",
+        "r_type": "Receipt Type"
     }
 }

@@ -1,25 +1,23 @@
 <script setup lang="ts">
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import { nextTick, ref, computed, watch, defineProps, defineEmits, onMounted } from "vue";
+import { nextTick, ref, computed, watch, defineProps, defineEmits } from "vue";
 import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useApprovalStepStore } from "@/modules/presentation/Admin/stores/approval-step.store";
-import { userApv } from "@/modules/shared/utils/get-user.login";
-import { departmenUsertStore } from "@/modules/presentation/Admin/stores/departments/department-user.store";
-import { storeToRefs } from "pinia";
+import { getUserApv } from "@/modules/shared/utils/get-user.login";
+import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
 
+const user = computed(() => getUserApv());
 const { t } = useI18n();
 const { error } = useNotification();
 const approvalStepStore = useApprovalStepStore();
-const dpmUserStore = departmenUsertStore()
-const { currentDpmUser } = storeToRefs(dpmUserStore)
-const dpmUser = currentDpmUser
-
+const { approvalReceipt } = useReceiptStore()
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const otpInputRefs = ref<any[]>([]);
+const rStore = useReceiptStore();
 const otpValue = ref<string[]>(Array(6).fill(""));
-const confirmOTP = ref(false); // controls if we are on signature step
+const confirmOTP = ref(false);
 const resendLoading = ref(false);
 const resendCooldown = ref(false);
 const cooldownTime = ref(60);
@@ -29,7 +27,15 @@ const props = defineProps<{
   title: string;
   approvalStepId?: number | null;
   loading?: boolean;
-  is_otp?: boolean; // <-- added prop
+  is_otp?: boolean;
+  rId: number;
+  dataHead?: {
+    stepId?: number;
+    remark?: string;
+    type?: string;
+    files?: {file_name: string}[];
+    account_code?: string;
+  };
 }>();
 
 const emit = defineEmits<{
@@ -50,7 +56,6 @@ const isOtpComplete = computed(() => {
   return otpValue.value.every((digit) => digit !== "") && otpValue.value.length === 6;
 });
 
-// When modal opens, decide whether to skip OTP step
 watch(
   () => props.visible,
   (newVisible) => {
@@ -75,7 +80,6 @@ watch(
     }
   }
 );
-
 const handleOtpInputEvent = async (value: string, index: number) => {
   const numericValue = value.replace(/[^0-9]/g, "");
   if (numericValue) {
@@ -142,10 +146,32 @@ const confirmOtpStep = () => {
   }
 };
 
-const finalConfirm = () => {
-  alert('erererere')
-  const otp = otpValue.value.join("");
-  emit("confirm", otp);
+const finalConfirm = async () => {
+  try {
+    const otp = otpValue.value.join("");
+
+    // Send dataHead to store before emitting confirm
+    if (props.dataHead) {
+      // Example: Call your store action to save the data
+      await approvalReceipt(props.dataHead.stepId!, {
+        type: props.dataHead.type || "r",
+        statusId: 2,
+        remark: props.dataHead.remark || "",
+        is_otp: props.is_otp,
+        // account_code: props.dataHead.account_code || "",
+        files: props.dataHead.files || [],
+        otp: otp,
+        approval_id: approvalStepStore.otpResponse?.approval_id,
+      });
+      await rStore.fetchById(String(props.rId));
+    }
+
+    // Then emit the confirm event
+    emit("confirm", otp);
+  } catch (error) {
+    console.error("Error in finalConfirm:", error);
+    // Handle error appropriately
+  }
 };
 
 const closeModal = () => {
@@ -181,13 +207,7 @@ const setOtpInputElement = (el: unknown, index: number) => {
     otpInputRefs.value[index] = el;
   }
 };
-onMounted(async () => {
-  await dpmUserStore.fetchDepartmentUserById(userApv.id)
-  console.log('tttou:', dpmUser);
-
-})
 </script>
-
 
 <template>
   <UiModal
@@ -199,9 +219,9 @@ onMounted(async () => {
     <div class="mt-4 px-2">
       <!-- User Info Header -->
       <div class="text-center text-sm flex items-center justify-start gap-2">
-        <p>{{ userApv.username || "ສຸກີ້ ວົງພະຈັນ" }}</p>
+        <p>{{ user?.username || "ສຸກີ້ ວົງພະຈັນ" }}</p>
         <span class="-mt-3 ml-1 text-bold">•</span>
-        <p>ບໍລິຫານ</p>
+        <p>{{user?.department_name}}</p>
       </div>
 
       <!-- OTP Input Step -->
@@ -259,9 +279,8 @@ onMounted(async () => {
           @click="finalConfirm"
           title="Click to confirm signature"
         >
-        <!-- kkk {{ userApv.signature }} -->
           <img
-            :src="userApv?.signature ?? ''"
+            :src="user?.signature ?? ''"
             alt="Digital Signature"
             class="max-w-[270px] max-h-[120px] object-contain pointer-events-none"
           />

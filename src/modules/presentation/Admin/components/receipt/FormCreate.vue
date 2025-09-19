@@ -19,20 +19,6 @@ const purchaseOrderStore = usePurchaseOrderStore();
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
 const { error, success } = useNotification();
 const rStore = useReceiptStore()
-// Updated form state to match API payload structure
-const formState = ref({
-  purchase_order_id: undefined as number | undefined,
-  remark: '',
-  document: {
-    documentTypeId: 21 // Fixed documentTypeId based on your API payload
-  },
-  receipt_items: [] as Array<{
-    purchase_order_item_id: number;
-    payment_currency_id: number;
-    payment_type: string;
-    remark: string;
-  }>
-});
 
 /********************************************************* */
 // const { t } = useI18n();
@@ -47,6 +33,21 @@ const showDrawer = () => {
 
 // --- Reactive State for Form Inputs ---
 const remark = ref("");
+const document_type = params.docid as string; // Fixed documentTypeId based on your API payload
+// Updated form state to match API payload structure
+const formState = ref({
+  purchase_order_id: undefined as number | undefined,
+  remark: '',
+  document: {
+    documentTypeId: document_type // Fixed documentTypeId based on your API payload
+  },
+  receipt_items: [] as Array<{
+    purchase_order_item_id: number;
+    payment_currency_id: number;
+    payment_type: string;
+    remark: string;
+  }>
+});
 
 // Computed property to build receipt_items array
 const buildReceiptItems = computed(() => {
@@ -178,7 +179,6 @@ onMounted(async () => {
       document-prefix="ສ້າງໃບເບີກຈ່າຍ"
       :action-buttons="customButtons"
     />
-
     <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
       <div class="mb-6">
         <h3 class="text-base font-semibold mb-2">ຈາກໜ່ວຍງານ</h3>
