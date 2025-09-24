@@ -66,8 +66,7 @@ export class ApiReceiptRepository implements ReceiptRepository {
             remark: item.remark
         }))
       });
-
-      return this.toDomainModel(response.data.data);
+      return response.data.data;
     } catch (error) {
       this.handleApiError(error, "Failed to create budget account");
     }
@@ -81,6 +80,7 @@ export class ApiReceiptRepository implements ReceiptRepository {
         is_otp: input.is_otp,
         otp: input.otp,
         approval_id: input.approval_id,
+        account_code: input.account_code,
         files: input.files && input.files.length > 0 ? input.files.map((file) => file) : undefined,
         remark: input.remark,
       };

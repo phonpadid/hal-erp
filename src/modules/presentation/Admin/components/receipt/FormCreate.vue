@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import type { ButtonType } from "@/modules/shared/buttonType";
 // import { useI18n } from "vue-i18n";
-const selectType = ref<string>(''); // Single selection - empty string initially
+const selectType = ref<string>(""); // Single selection - empty string initially
 // Components
 import Table from "@/common/shared/components/table/Table.vue";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
@@ -15,14 +15,23 @@ import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-o
 import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useReceiptStore } from "../../stores/receipt.store";
+import { getUserApv } from "@/modules/shared/utils/get-user.login";
+import { useI18n } from "vue-i18n";
+import { useApprovalStepStore } from "../../stores/approval-step.store";
+import OtpModal from "../disbursement-slip/approval-finance-dpm/modals/OtpModal.vue";
 const purchaseOrderStore = usePurchaseOrderStore();
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
-const { error, success } = useNotification();
-const rStore = useReceiptStore()
-
+const { error } = useNotification();
+const rStore = useReceiptStore();
+const user = computed(() => getUserApv());
+const {t} = useI18n();
 /********************************************************* */
+const isOtpModalVisible = ref(false);
+const otpLoading = ref(false);
+const modalAction = ref("");
+const otpSending = ref(false);
+const approvalStepStore = useApprovalStepStore();
 // const { t } = useI18n();
-const router = useRouter();
 const { params } = useRoute();
 const purchaseOrderId = params.id?.toString();
 // State for Drawer
@@ -37,27 +46,27 @@ const document_type = params.docid as string; // Fixed documentTypeId based on y
 // Updated form state to match API payload structure
 const formState = ref({
   purchase_order_id: undefined as number | undefined,
-  remark: '',
+  remark: "",
   document: {
-    documentTypeId: document_type // Fixed documentTypeId based on your API payload
+    documentTypeId: document_type, // Fixed documentTypeId based on your API payload
   },
   receipt_items: [] as Array<{
     purchase_order_item_id: number;
     payment_currency_id: number;
     payment_type: string;
     remark: string;
-  }>
+  }>,
 });
 
 // Computed property to build receipt_items array
 const buildReceiptItems = computed(() => {
   if (!orderDetails.value || !selectType.value) return [];
 
-  return orderDetails.value.getPurchaseOrderItem().map(item => ({
+  return orderDetails.value.getPurchaseOrderItem().map((item) => ({
     purchase_order_item_id: String(item.getId()), // Assuming item has an id property
     payment_currency_id: String(item?.getCurrency()?.id), // You might need to get this from the item or set it based on your logic
     payment_type: selectType.value || "",
-    remark: remark.value || ''
+    remark: remark.value || "",
   }));
 });
 
@@ -78,17 +87,75 @@ const submitPaymentRequest = async () => {
       purchase_order_id: purchaseOrderId,
       remark: formState.value.remark,
       documentType_id: formState.value.document.documentTypeId.toString(),
-      receipt_items: buildReceiptItems.value
+      receipt_items: buildReceiptItems.value,
     };
-    await rStore.created(payload)
-    success("ສ້າງໃບເບີກຈ່າຍສຳເລັດແລ້ວ");
-    router.push({ name: "review-money-success" });
+    await rStore.created(payload);
+    console.log("dataHead:", dataHead.value);
+    console.log("rStore.currentReceipts:", rStore.currentReceipts);
+    modalAction.value = "approve";
+    if (dataHead.value?.is_otp) {
+      // 🔹 Call request OTP before showing modal
+      await requestOtp();
+    } else {
+      // 🔹 Skip OTP, just open modal directly
+      isOtpModalVisible.value = true;
+    }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     error("ເກີດຂໍ້ຜິດພາດໃນການສ້າງໃບເບີກຈ່າຍ", err);
   }
 };
+
+const userNextApprove = computed(() =>
+      rStore.currentReceipts?.user_approval?.approval_step?.map((step) => ({
+        status: [
+          {
+            id: step.status_id,
+            name: step.document_status.name,
+            ...(step.doc_approver &&
+              step.doc_approver.length > 0 && {
+                dpm: step.doc_approver.map((approver) => ({
+                  id: approver.department?.id || 0,
+                  name: approver.department?.name,
+                })),
+                user: step.doc_approver.map((userData) => ({
+                  id: userData.user?.id,
+                  username: userData.user?.username,
+                })),
+              }),
+          },
+        ],
+      }))
+    );
+const dataHead = computed(() => ({
+      rId: Number(rStore.currentReceipts?.id) || 0,
+      no: rStore.currentReceipts?.receipt_number,
+      data: {
+        isStep_on: true,
+        stepId: rStore.currentReceipts?.user_approval?.approval_step?.find(
+          (step) =>
+            step.status_id === 1 && // only steps with status_id === 1
+            step.doc_approver?.some((doc) => doc.user?.id === user.value?.id)
+        )?.id,
+        remark: rStore.currentReceipts?.remark,
+        type: "r",
+        files: [],
+        account_code: "",
+      },
+      status: rStore.currentReceipts?.user_approval?.approval_step?.map(
+        (step) => ({
+          id: step.status_id,
+          name: step.document_status.name,
+        })
+      ),
+      created_at: rStore.currentReceipts?.created_at,
+      is_otp: rStore.currentReceipts?.user_approval?.approval_step?.some(
+        (step) => step.status_id === 1 && step.is_otp
+      ),
+      approver_info: userNextApprove.value,
+    }));
+
 
 // Header buttons based on the image
 const customButtons = [
@@ -96,7 +163,7 @@ const customButtons = [
     label: "ສ້າງໃບເບີກຈ່າຍ",
     type: "primary" as ButtonType,
     danger: true, // Making the button red as in the image
-    onClick: submitPaymentRequest
+    onClick: submitPaymentRequest,
   },
   {
     label: "Print",
@@ -108,12 +175,6 @@ const customButtons = [
     },
   },
 ];
-
-// Static data from the image
-const requesterInfo = {
-  name: "ນາງ ປະກາຍແສງ ດາລາວົງ",
-  position: "ພະແນກບໍລິຫານ, ພະນັກງານ",
-};
 
 const typeOption = [
   { label: "ເງິນສົດ (Cash)", value: "cash" },
@@ -146,7 +207,60 @@ const columns = [
     align: "right",
   },
 ];
+// OTP Modal handlers
+const handleOtpConfirm = async (otpValue: string) => {
+  try {
+    otpLoading.value = true;
 
+    if (modalAction.value === "approve") {
+      // Handle approval logic with OTP
+      console.log("Approving with OTP:", otpValue);
+      isOtpModalVisible.value = false;
+    }
+  } catch (error) {
+    console.error("OTP confirmation error:", error);
+    // Handle error - maybe show error modal instead
+  } finally {
+    otpLoading.value = false;
+  }
+};
+
+const handleOtpClose = () => {
+  isOtpModalVisible.value = false;
+  modalAction.value = "";
+};
+
+const handleOtpResend = async () => {
+  try {
+    if (!dataHead.value?.data?.stepId) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ID");
+    return;
+  }
+    await approvalStepStore.sendOtp(dataHead.value.data.stepId);
+  } catch (error) {
+    console.error("Resend OTP error:", error);
+  }
+};
+const requestOtp = async () => {
+  if (!dataHead.value?.data?.stepId) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ID");
+    return;
+  }
+
+  try {
+    otpSending.value = true;
+    const otpResponse = await approvalStepStore.sendOtp(dataHead.value?.data.stepId);
+    if (otpResponse) {
+      isOtpModalVisible.value = true;
+    } else {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງລະຫັດ OTP ໄດ້");
+    }
+  } catch (err) {
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+  } finally {
+    otpSending.value = false;
+  }
+};
 const fetchOrderDetails = async () => {
   try {
     const result = await purchaseOrderStore.fetchById(Number(purchaseOrderId));
@@ -157,7 +271,7 @@ const fetchOrderDetails = async () => {
     } else {
       error("ບໍ່ພົບຂໍ້ມູນເອກະສານ");
     }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     error("ເກີດຂໍ້ຜິດພາດໃນການດຶງຂໍ້ມູນ", err);
   }
@@ -165,7 +279,6 @@ const fetchOrderDetails = async () => {
 
 onMounted(async () => {
   await fetchOrderDetails();
-  console.log('Order details:', orderDetails.value);
 });
 </script>
 
@@ -185,8 +298,8 @@ onMounted(async () => {
         <div class="flex items-center gap-3">
           <a-avatar size="large" :src="'/public/4.png'" />
           <div>
-            <p class="font-medium">{{ requesterInfo.name }}</p>
-            <p class="text-gray-500 text-sm">{{ requesterInfo.position }}</p>
+            <p class="font-medium">{{ orderDetails?.getRequester().username }}</p>
+            <p class="text-gray-500 text-sm">{{ orderDetails?.getPosition()[0].name }}</p>
           </div>
         </div>
       </div>
@@ -205,22 +318,35 @@ onMounted(async () => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div class="flex">
             <span class="font-medium w-28">ຊື່ຮ້ານຄ້າ</span>
-            <span class="text-gray-700">{{ orderDetails?.getPurchaseOrderItem()[0].getSelectedVendor()?.getVendor().name }}</span>
+            <span class="text-gray-700">{{
+              orderDetails
+                ?.getPurchaseOrderItem()[0]
+                .getSelectedVendor()
+                ?.getVendor().name
+            }}</span>
           </div>
           <div class="flex">
             <span class="font-medium w-28">ທະນາຄານ</span>
             <span class="text-gray-700 flex items-center gap-2">
-              <img :src="orderDetails?.getBankLogo() ?? ''" class="w-6 h-6" alt="Bank Icon" />
+              <img
+                :src="orderDetails?.getBankLogo() ?? ''"
+                class="w-6 h-6"
+                alt="Bank Icon"
+              />
               {{ orderDetails?.getBankName() }}
             </span>
           </div>
           <div class="flex">
             <span class="font-medium w-28">ຊື່ບັນຊີ</span>
-            <span class="text-gray-700">{{ orderDetails?.getAccountName() }}</span>
+            <span class="text-gray-700">{{
+              orderDetails?.getAccountName()
+            }}</span>
           </div>
           <div class="flex">
             <span class="font-medium w-28">ເລກບັນຊີ LAK</span>
-            <span class="text-gray-700">{{ orderDetails?.getAccountNumber() }}</span>
+            <span class="text-gray-700">{{
+              orderDetails?.getAccountNumber()
+            }}</span>
           </div>
         </div>
       </div>
@@ -229,21 +355,23 @@ onMounted(async () => {
       <div class="select-type mb-6">
         <h3 class="text-base font-semibold mb-4">ປະເພດການຈ່າຍເງິນ</h3>
         <div class="space-y-2">
-          <Radio
-            v-model="selectType"
-            :options="typeOption"
-          />
+          <Radio v-model="selectType" :options="typeOption" />
         </div>
       </div>
 
       <div class="mb-6">
         <h3 class="text-base font-semibold mb-2">ລາຍການ</h3>
-        <Table :columns="columns" :dataSource="orderDetails?.getPurchaseOrderItem() ?? []">
+        <Table
+          :columns="columns"
+          :dataSource="orderDetails?.getPurchaseOrderItem() ?? []"
+        >
           <template #id="{ index }">
             <span class="font-medium">{{ index + 1 }}</span>
           </template>
           <template #total="{ record }">
-            <span class="font-medium"> {{ record.total.toLocaleString() }} ₭ </span>
+            <span class="font-medium">
+              {{ record.total.toLocaleString() }} ₭
+            </span>
           </template>
         </Table>
         <div class="flex justify-end mt-4">
@@ -251,7 +379,8 @@ onMounted(async () => {
             <div class="flex justify-center gap-2 items-center">
               <span class="font-semibold text-gray-700">ມູນຄ່າລວມທັງໝົດ:</span>
               <span class="font-bold text-lg text-red-600">
-                {{ orderDetails?.getPurchaseRequest().total.toLocaleString() }} ₭
+                {{ orderDetails?.getPurchaseRequest().total.toLocaleString() }}
+                ₭
               </span>
             </div>
           </div>
@@ -302,20 +431,21 @@ onMounted(async () => {
           />
         </div>
       </div>
-
-      <!-- Debug info (remove in production) -->
-      <!-- <div class="mt-6 p-4 bg-gray-100 rounded">
-        <h4 class="font-semibold mb-2">Debug Info:</h4>
-        <pre class="text-xs">{{ JSON.stringify({
-          purchase_order_id: Number(purchaseOrderId),
-          remark: formState.remark,
-          document: formState.document,
-          receipt_items: buildReceiptItems,
-          selectType: selectType
-        }, null, 2) }}</pre>
-      </div> -->
     </div>
   </div>
+  <OtpModal
+      :visible="isOtpModalVisible"
+      :title="t('purchase-rq.otp_verification')"
+      :loading="otpLoading"
+      :approval-step-id="1"
+      :is_otp="dataHead?.is_otp"
+      :r-id="dataHead?.rId"
+      :data-head="dataHead?.data"
+      @confirm="handleOtpConfirm"
+      @close="handleOtpClose"
+      @resend="handleOtpResend"
+
+    />
 
   <UiDrawer
     v-model:open="visible"

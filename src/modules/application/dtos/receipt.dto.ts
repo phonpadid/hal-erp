@@ -37,7 +37,7 @@ export interface ReciptQueryDto {
   receipt_date: string;
   received_by: number;
   step: boolean;
-
+  account_code?: string;
   currency_totals: ICurrencyTotal[];
   document: IDocument;
   user_approval: UserApprovalDTO;
@@ -86,6 +86,7 @@ export interface IApprovalReceiptDto {
   remark?: string;
   is_otp?: boolean;
   approval_id?: number;
+  account_code?: string;
   otp?: string;
   files?: {
     file_name: string

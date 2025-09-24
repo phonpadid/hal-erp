@@ -10,34 +10,50 @@ import OtpModal from "./modals/OtpModal.vue";
 import SuccessModal from "../../purchase-requests/modal/SuccessModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useApprovalStepStore } from "../../../stores/approval-step.store";
+import UiModal from "@/common/shared/components/Modal/UiModal.vue";
+import Textarea from "@/common/shared/components/Input/Textarea.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
+import UiForm from "@/common/shared/components/Form/UiForm.vue";
+import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
+import { rejectRule } from "./modals/rejected.schema";
 const approvalStepStore = useApprovalStepStore();
 const { error } = useNotification();
 const otpSending = ref(false);
+const confirmLoading = ref(false);
+const formModel = ref({
+  remark: "",
+});
 const { t } = useI18n();
 const props = defineProps<{
   dataHead: {
+    role?: boolean;
     rId: number;
     no?: string;
     isApproved?: boolean;
-    status?: {id: number, name?: string}[];
+    status?: { id: number; name?: string }[];
     data?: {
       stepId?: number;
       remark?: string;
       type?: string;
-      files?: {file_name: string}[],
+      files?: { file_name: string }[];
       account_code?: string;
-    },
+      uploadCompleted?: boolean;
+      formState?: { files: { file_name: string }[]};
+      uploadedImages?: string[]
+    };
     created_at?: string;
     is_otp?: boolean;
+    is_upload?: boolean;
     approver_info?: {
       status?: {
-        id: number,
-        name: string,
+        id: number;
+        name: string;
         dpm?: {
-          id: number,
-          name?: string
-        }[]}[]
-    }[]
+          id: number;
+          name?: string;
+        }[];
+      }[];
+    }[];
   };
 }>();
 
@@ -75,17 +91,29 @@ const customButtons = computed(() => {
       {
         label: t("purchase-rq.btn.approval"),
         icon: "",
-        class: "bg-primary text-white flex items-center gap-2 hover:bg-blue-600",
+        class:
+          "bg-primary text-white flex items-center gap-2 hover:bg-blue-600",
         type: "primary" as ButtonType,
         onClick: async () => {
           modalAction.value = "approve";
+          if(props.dataHead?.role){
+            if (props.dataHead?.data?.account_code === undefined || props.dataHead?.data?.account_code === "") {
+              error("ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດບັນຊີ");
+              return;
+            }
+          }
+          if(props.dataHead?.is_upload){
+            if(!props.dataHead?.data?.files || props.dataHead?.data?.files.length === 0){
+              error("ຜິດພາດ", "ກະລຸນາອັບໂຫລດເອກະສານ");
+              return;
+            }
+          }
           if (props.dataHead?.is_otp) {
-      // 🔹 Call request OTP before showing modal
-      await requestOtp();
-    } else {
-      // 🔹 Skip OTP, just open modal directly
-      isOtpModalVisible.value = true;
-    }
+            await requestOtp();
+          } else {
+            // 🔹 Skip OTP, just open modal directly
+            isOtpModalVisible.value = true;
+          }
         },
       }
     );
@@ -114,7 +142,6 @@ const handlePrint = async () => {
     console.error("Print error:", error);
   }
 };
-
 // OTP Modal handlers
 const handleOtpConfirm = async (otpValue: string) => {
   try {
@@ -128,7 +155,6 @@ const handleOtpConfirm = async (otpValue: string) => {
     }
   } catch (error) {
     console.error("OTP confirmation error:", error);
-    // Handle error - maybe show error modal instead
   } finally {
     otpLoading.value = false;
   }
@@ -142,9 +168,9 @@ const handleOtpClose = () => {
 const handleOtpResend = async () => {
   try {
     if (!props.dataHead?.data?.stepId) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ID");
-    return;
-  }
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ID");
+      return;
+    }
     await approvalStepStore.sendOtp(props.dataHead.data.stepId);
   } catch (error) {
     console.error("Resend OTP error:", error);
@@ -158,7 +184,9 @@ const requestOtp = async () => {
 
   try {
     otpSending.value = true;
-    const otpResponse = await approvalStepStore.sendOtp(props.dataHead.data.stepId);
+    const otpResponse = await approvalStepStore.sendOtp(
+      props.dataHead.data.stepId
+    );
 
     if (otpResponse) {
       // 🔹 Save response in store (already inside approvalStepStore.otpResponse)
@@ -197,14 +225,14 @@ watch(modalAction, (newVal) => {
   }
 });
 
-
 const documentStatus = computed(() => {
   // ✅ Find departments where status.id = 1
   const pendingDepartments =
-    props.dataHead?.approver_info?.flatMap((d) =>
-      d.status
-        ?.filter((s) => s.id === 1) // only pending
-        .flatMap((s) => s.dpm ?? []) ?? []
+    props.dataHead?.approver_info?.flatMap(
+      (d) =>
+        d.status
+          ?.filter((s) => s.id === 1) // only pending
+          .flatMap((s) => s.dpm ?? []) ?? []
     ) ?? [];
 
   if (pendingDepartments.length > 0) {
@@ -218,7 +246,6 @@ const documentStatus = computed(() => {
   return "ອະນຸມັດແລ້ວ";
 });
 
-
 const documentStatusClass = computed(() => {
   const status = documentStatus.value;
 
@@ -230,7 +257,43 @@ const documentStatusClass = computed(() => {
   }
   return "text-green-600 text-sm font-medium ml-2 ring-1 ring-green-500 px-3 py-1 rounded-full";
 });
-
+const formRef = ref();
+const handleReject = async (): Promise<void> => {
+  await formRef.value.submitForm();
+  props.dataHead.data!.remark = formModel.value.remark;
+  if (modalAction.value === "reject") {
+    if (props.dataHead?.is_otp) {
+            await requestOtp();
+          } else {
+            // 🔹 Skip OTP, just open modal directly
+            isOtpModalVisible.value = true;
+          }
+    // try {
+    //   confirmLoading.value = true;
+    //   if (!props.dataHead?.rId) {
+    //     error("Error", "Missing Request ID");
+    //     return;
+    //   }
+    //   const stepId = props.dataHead.data?.stepId;
+    //   if (!stepId) {
+    //     throw new Error("Step ID is missing");
+    //   }
+    //   await rStore.approvalReceipt(stepId, {
+    //     type: "r",
+    //     statusId: 3,
+    //     is_otp: false,
+    //     remark: formModel.value.remark,
+    //   });
+    //   await rStore.fetchById(String(props.dataHead.rId));
+    //   isRejectModalVisible.value = false;
+    //   isSuccessModalVisible.value = true; // Show success modal on reject as well
+    // } catch (err) {
+    //   error("Error", (err as Error).message);
+    // } finally {
+    //   confirmLoading.value = false;
+    // }
+  }
+};
 </script>
 
 <template>
@@ -247,10 +310,10 @@ const documentStatusClass = computed(() => {
           t('disbursement.field.detail'),
         ]"
         :document-prefix="t('menu-sidebar.receipt')"
-        :document-number="`${t('purchase-rq.field.pr_number')} ${props.dataHead?.no} - ${t(
-          'purchase-rq.date'
-        )}`"
-        :document-date="(props.dataHead?.created_at)"
+        :document-number="`${t('purchase-rq.field.pr_number')} ${
+          props.dataHead?.no
+        } - ${t('purchase-rq.date')}`"
+        :document-date="props.dataHead?.created_at"
         :action-buttons="customButtons"
         :document-status="documentStatus"
         :document-status-class="documentStatusClass"
@@ -263,6 +326,7 @@ const documentStatusClass = computed(() => {
       :title="t('purchase-rq.otp_verification')"
       :loading="otpLoading"
       :approval-step-id="1"
+      :is_reject="modalAction === 'reject'"
       :is_otp="props.dataHead?.is_otp"
       :r-id="props.dataHead?.rId"
       :data-head="props.dataHead?.data"
@@ -282,10 +346,43 @@ const documentStatusClass = computed(() => {
       icon-color="text-green-500"
       @confirm="handleSuccessConfirm"
       @cancel="handleSuccessCancel"
-      @update:visible="(value) => isSuccessModalVisible = value"
+      @update:visible="(value) => (isSuccessModalVisible = value)"
     />
 
     <!-- Reject Modal (if you need one) -->
+    <!-- Reject Modal -->
+    <UiModal
+      :title="t('purchase-rq.card_title.refused')"
+      :visible="isRejectModalVisible"
+      :confirm-loading="confirmLoading"
+      @update:visible="isRejectModalVisible = false"
+      @ok="handleReject"
+    >
+      <div class="space-y-4">
+        <p>{{ t("modal.description") }}</p>
+        <div>
+          <UiForm ref="formRef" :model="formModel" :rules="rejectRule(t)">
+            <UiFormItem :label="t('modal.reason')" name="remark" required>
+              <Textarea
+                v-model:model-value="formModel.remark"
+                :placeholder="t('modal.enter_reason')"
+                :rows="4"
+                required
+              />
+            </UiFormItem>
+          </UiForm>
+        </div>
+      </div>
+      <template #footer>
+        <UiButton
+          @click="handleReject"
+          type="primary"
+          :loading="confirmLoading"
+          color-class="w-full"
+          >{{ t("purchase-rq.btn.confirm") }}</UiButton
+        >
+      </template>
+    </UiModal>
     <!-- Add your reject modal component here if needed -->
   </div>
 </template>
