@@ -10,8 +10,8 @@ export function columnsTitle(t: (key: string) => string): Column[] {
     },
     {
       title: "ຈຳນວນ",
-      dataIndex: "qty",
-      key: "qty",
+      dataIndex: "quantity",
+      key: "quantity",
     },
     {
       title: "ພະແນກ",
@@ -35,13 +35,13 @@ export function columnTitle(t: (key: string) => string): Column[] {
     },
     {
       title: "ເນື້ອໃນລາຍການ",
-      dataIndex: "content",
-      key: "content",
+      dataIndex: "title",
+      key: "title",
     },
     {
       title: "ຈຳນວນ",
-      dataIndex: "qty",
-      key: "qty",
+      dataIndex: "quantity",
+      key: "quantity",
     },
     {
       title: "ຫົວໜ່ວຍ",
@@ -60,8 +60,8 @@ export function columnTitle(t: (key: string) => string): Column[] {
     },
     {
       title: "ຈຳນວນເງິນ (ຕົວໜັງສື)",
-      dataIndex: "work",
-      key: "work",
+      dataIndex: "price_in_words",
+      key: "price_in_words",
     },
 
   ];
