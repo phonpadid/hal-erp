@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive } from "vue";
+import { computed, onMounted, reactive, watch } from "vue";
 import { useDocumentTypeStore } from "../../../stores/document-type.store";
 import { useRoute, useRouter } from "vue-router";
 import { t } from "@/common/config/i18n/i18n.config";
@@ -13,15 +13,27 @@ const router = useRouter();
 const formState = reactive({
   document_type_id: "",
 });
-
+export type FormState = typeof formState;
+interface Props {
+  initialData?: FormState | null;
+}
+const props = defineProps<Props>();
 const store = useDocumentTypeStore();
-
 // options สำหรับ select
 const docItem = computed(() =>
   store.documentTypes.map((item: DocumentTypeEntity) => ({
     value: item.getId(),
     label: item.getname(),
   }))
+);
+watch(
+  () => props.initialData,
+  (newData) => {
+    if (newData && newData.document_type_id) {
+      formState.document_type_id = newData.document_type_id;
+    }
+  },
+  { immediate: true }
 );
 
 // เมื่อกดปุ่มยืนยัน

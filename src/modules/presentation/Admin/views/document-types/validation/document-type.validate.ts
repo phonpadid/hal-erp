@@ -31,9 +31,6 @@ export const createDocumentTypeValidation = (
 
         if (state.isEditMode) return Promise.resolve();
 
-        if (!/^[\u0E00-\u0E7Fa-zA-Z0-9-_ ]+$/.test(value)) {
-          return Promise.reject(t("documentType.validation.namePattern"));
-        }
         return Promise.resolve();
       },
       trigger: "blur",

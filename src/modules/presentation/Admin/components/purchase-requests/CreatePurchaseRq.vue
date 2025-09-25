@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import {  reactive, ref } from "vue";
 import DocTypeSelect, { type FormState } from "./DocTypeSelect.vue";
 import PuchaseRqLayout from "./PuchaseRqLayout.vue";
 import PurchaseForm from "./PurchaseForm.vue";

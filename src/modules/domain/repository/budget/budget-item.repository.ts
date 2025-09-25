@@ -8,12 +8,9 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 export interface BudgetItemRepository {
   findAll(
     params: PaginationParams,
-    includeDeleted?: boolean
+    budget_account_id?: number | string,
   ): Promise<PaginatedResult<BudGetItemEntity>>;
-  getReport(
-    params: PaginationParams,
-    includeDeleted?: boolean
-  ): Promise<PaginatedResult<BudGetItemEntity>>;
+  getReport(params: PaginationParams, budgetType: string,): Promise<PaginatedResult<BudGetItemEntity>>;
   findById(id: string): Promise<BudGetItemEntity | null>;
   findByBudgetAccountId(
     budgetAccountId: string,

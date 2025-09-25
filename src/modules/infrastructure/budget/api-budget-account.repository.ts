@@ -14,7 +14,7 @@ export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
 
   async findAll(
     params: PaginationParams,
-    includeDeleted: boolean = false
+    budget_account_id: number,
   ): Promise<PaginatedResult<BudGetAccountsEntity>> {
     try {
       const response = await api.get(this.baseUrl, {
@@ -24,7 +24,7 @@ export class ApiBudgetAccountsRepository implements BudgetAccountsRepository {
           search: params.search || "",
           sort_by: params.sortBy,
           sortDirection: params.sortDirection,
-          include_deleted: includeDeleted,
+          budget_account_id: budget_account_id,
         },
       });
 

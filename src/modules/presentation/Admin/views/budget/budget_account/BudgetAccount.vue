@@ -14,8 +14,11 @@ import FormBudgetAccount from "@/modules/presentation/Admin/components/budget/Fo
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+
+
 const { push } = useRouter();
+const route = useRoute();
 const departStore = departmentStore();
 
 const { t } = useI18n();
@@ -45,12 +48,18 @@ const tablePagination = computed(() => ({
 const loadBudgetAccounts = async () => {
   loading.value = true;
 
+  // ดึงค่า ID จาก URL
+  const budgetId = route.params.id ? Number(route.params.id) : undefined;
+
   try {
-    await budgetAccountStore.fetchBudgetAccounts({
-      page: budgetAccountStore.pagination.page,
-      limit: budgetAccountStore.pagination.limit,
-      search: searchKeyword.value,
-    });
+    await budgetAccountStore.fetchBudgetAccounts(
+      {
+        page: budgetAccountStore.pagination.page,
+        limit: budgetAccountStore.pagination.limit,
+        search: searchKeyword.value,
+      },
+      budgetId
+    );
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     error(t("budget_accounts.error.loadFailed"), String(errorMessage));
@@ -68,6 +77,11 @@ const handleTableChange = (pagination: TablePaginationType) => {
   });
 
   loadBudgetAccounts();
+};
+
+const addBudgetItem = (record: any) => {
+  // console.log("Viewing details for document:", record);
+  push({ name: "budget-accounts-id-add", params: { id: record.id } });
 };
 
 const handleSearch = async () => {
@@ -250,6 +264,13 @@ onMounted(async () => {
       <!-- Actions column -->
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
+          <UiButton
+            type=""
+            icon="material-symbols:add-box-outline"
+            size="small"
+            @click="addBudgetItem(record)"
+            colorClass="flex items-center justify-center text-blue-600"
+          />
           <UiButton
             type=""
             icon="ant-design:edit-outlined"

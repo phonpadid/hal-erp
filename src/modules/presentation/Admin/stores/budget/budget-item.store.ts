@@ -39,60 +39,41 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
     budgetItems.value.filter((item) => !item.getDeletedAt())
   );
 
-  // Actions
-  const fetchBudgetItems = async (params: PaginationParams = { page: 1, limit: 10 }) => {
-    loading.value = true;
-    error.value = null;
+ const fetchBudgetItems = async (
+  params: PaginationParams = { page: 1, limit: 10 },
+  budget_account_id?: number | string,
+) => {
+  loading.value = true;
+  error.value = null;
 
-    try {
-      const result = await budgetItemService.getAllBudgetItem(params);
-      budgetItems.value = result.data;
-      pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
+  try {
+    const result = await budgetItemService.getAllBudgetItem(params, budget_account_id);
+    budgetItems.value = result.data;
+    pagination.value = {
+      page: result.page,
+      limit: result.limit,
+      total: result.total,
+      totalPages: result.totalPages,
+    };
+  } catch (err) {
+    error.value = err as Error;
+    throw err;
+  } finally {
+    loading.value = false;
+  }
+};
 
-  // Fetch budget items by budget account ID
-  const fetchBudgetItemsByAccountId = async (
-    accountId: string,
-    params: PaginationParams = { page: 1, limit: 10 }
-  ) => {
-    loading.value = true;
-    error.value = null;
+// ใช้ function เดียวกันแทนการมี 2 functions
+const fetchBudgetItemsByAccountId = async (
+  accountId: string | number,
+  params: PaginationParams = { page: 1, limit: 10 }
+) => {
+  // แปลง string เป็น number
+  const budget_account_id = typeof accountId === 'string' ? Number(accountId) : accountId;
 
-    try {
-      // เรียกใช้ service ที่แก้ไขแล้ว
-      const result = await budgetItemService.getBudgetItemsByAccountId(accountId, params);
-      budgetItems.value = result.data;
-      pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
-      return {
-        data: result.data.map(budgetItemEntityToInterface),
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
+  // เรียกใช้ function เดิม
+  return await fetchBudgetItems(params, budget_account_id);
+};
 
   const fetchBudgetItemById = async (id: string) => {
     loading.value = true;
@@ -207,12 +188,12 @@ export const useBudgetItemStore = defineStore("budgetItem", () => {
     pagination.value.total = newPagination.total;
   };
 
-  const getAllReport = async (params: PaginationParams = { page: 1, limit: 10 }) => {
+  const getAllReport = async (params: PaginationParams = { page: 1, limit: 10 } ,budgetType: string,) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const result = await budgetItemService.getAllReportBudgetItem(params);
+      const result = await budgetItemService.getAllReportBudgetItem(params, budgetType);
 
       if (result && Array.isArray(result.data)) {
         budgetItems.value = result.data;

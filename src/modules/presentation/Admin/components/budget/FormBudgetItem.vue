@@ -184,10 +184,8 @@ defineExpose({
   },
 });
 </script>
-
 <template>
   <UiForm ref="formRef" :model="formState" :rules="rules">
-    <!-- ฟอร์มหลัก -->
     <UiFormItem
       :label="$t('budget_items.form.budgetAccount')"
       name="budget_account_id"
@@ -200,7 +198,7 @@ defineExpose({
         :placeholder="$t('budget_items.form.budgetAccountPlaceholder')"
         :loading="loadingBudgetAccounts"
         :disabled="loading || !!props.preselectedBudgetAccountId"
-      />
+        />
     </UiFormItem>
 
     <UiFormItem :label="$t('budget_items.form.name')" name="name" required>

@@ -80,27 +80,34 @@ const isAllItemsHaveVendor = computed(() => {
 });
 const isSubmitting = ref(false);
 const createPurchaseOrderPayload = () => {
-  // console.log("Route query in createPurchaseOrderPayload:", route.query);
-  // console.log("document_type_id:", route.query.document_type_id);
-  // console.log("document_type_id after Number conversion:", Number(route.query.document_type_id));
+  // console.log("=== DEBUG PAYLOAD ===");
+  // console.log("Route query:", route.query);
+  // console.log("document_type_id from query:", route.query.document_type_id);
+
   if (!requestDetail.value) {
     throw new Error("ບໍ່ພົບຂໍ້ມູນການຮ້ອງຂໍ");
   }
+
   const docTypeIdFromQuery = route.query.document_type_id;
   let finalDocTypeId = 0;
+
   if (docTypeIdFromQuery) {
     finalDocTypeId = Number(docTypeIdFromQuery);
   }
+
   if (isNaN(finalDocTypeId) || finalDocTypeId === 0) {
     finalDocTypeId = 19;
   }
-  // console.log("Current purchaseItems:", purchaseItems.value);
+
+  // console.log("Final document_type_id:", finalDocTypeId);
+
   const items = purchaseItems.value.map((item) => {
     const vendorData = itemVendors.value[item.id?.toString() ?? ""];
-    // console.log("Item ID:", item.id, "Vendor Data:", vendorData);
+
     if (!vendorData) {
       throw new Error(`ກະລຸນາເລືອກຮ້ານຄ້າສຳລັບລາຍການ ${item.title}`);
     }
+
     return {
       purchase_request_item_id: Number(item.id),
       price: Number(item.price),
@@ -116,7 +123,8 @@ const createPurchaseOrderPayload = () => {
       ],
     };
   });
-  return {
+
+  const payload = {
     purchase_request_id: Number(requestDetail.value.getId()),
     document: {
       description: form.value.descriptions || "",
@@ -124,6 +132,13 @@ const createPurchaseOrderPayload = () => {
     },
     items,
   };
+
+  // console.log("=== FINAL PAYLOAD ===");
+  // console.log("Full payload:", JSON.stringify(payload, null, 2));
+  // console.log("Document object:", payload.document);
+  // console.log("DocumentTypeId:", payload.document.documentTypeId);
+
+  return payload;
 };
 const handleVendorModalSubmitted = (payload: {
   vendorId: string;

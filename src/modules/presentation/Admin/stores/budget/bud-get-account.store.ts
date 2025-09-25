@@ -39,12 +39,12 @@ export const useBudgetAccountStore = defineStore("budgetAccount", () => {
   );
 
   // Actions
-  const fetchBudgetAccounts = async (params: PaginationParams = { page: 1, limit: 10 }) => {
+  const fetchBudgetAccounts = async (params: PaginationParams = { page: 1, limit: 10 }, budget_account_id?: number) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const result = await budgetAccountService.getAllBudgetAccounts(params);
+      const result = await budgetAccountService.getAllBudgetAccounts(params, budget_account_id);
       budgetAccounts.value = result.data;
       pagination.value = {
         page: result.page,

@@ -3,7 +3,7 @@ import type { DepartmentEntity } from "./department.entity";
 
 export class DepartmentApproverEntity {
   private id: string | null;
-  private user_id: string;
+  private user_id: string[];
   private department_id: string | null;
   private user: UserEntity | null;
   private department: DepartmentEntity | null;
@@ -13,7 +13,7 @@ export class DepartmentApproverEntity {
 
   constructor(
     id: string | null = null,
-    user_id: string,
+    user_id: string[] = [],
     department_id: string | null = null,
     user: UserEntity | null = null,
     department: DepartmentEntity | null = null,
@@ -35,7 +35,7 @@ export class DepartmentApproverEntity {
     return this.id;
   }
 
-  public getUser_id(): string {
+  public getUser_id(): string[] {
     return this.user_id;
   }
   public getDepartmentId(): string | null {
@@ -64,10 +64,10 @@ export class DepartmentApproverEntity {
     return this.deletedAt !== null;
   }
 
-  public updated(user_id: string): void {
+  public updated(user_id: string[]): void {
     this.user_id = user_id;
   }
-  public updatedByAdmin(department_id: string, user_id: string): void {
+  public updatedByAdmin(department_id: string, user_id: string[]): void {
     this.department_id = department_id;
     this.user_id = user_id;
   }
@@ -80,10 +80,10 @@ export class DepartmentApproverEntity {
     this.deletedAt = null;
   }
 
-  public static createByAdmin(department_id: string, user_id: string): DepartmentApproverEntity {
-    return new DepartmentApproverEntity(null, department_id, user_id, null, null);
+  public static createByAdmin(department_id: string, user_id: string[]): DepartmentApproverEntity {
+    return new DepartmentApproverEntity(null,user_id, department_id, null, null);
   }
-  public static create(user_id: string): DepartmentApproverEntity {
+  public static create(user_id: string[]): DepartmentApproverEntity {
     return new DepartmentApproverEntity(null, user_id, null, null);
   }
 }

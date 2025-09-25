@@ -9,14 +9,6 @@ import Radio from "@/common/shared/components/Input/Radio.vue";
 import Table, { type TableRecord } from "@/common/shared/components/table/Table.vue";
 import { useBudgetItemStore } from "../../stores/budget/budget-item.store";
 
-// Props
-interface Props {
-  itemName: string;
-  itemPrice: number;
-}
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const props = defineProps<Props>();
-
 // State
 const budgetItemStore = useBudgetItemStore();
 const selectedValue = ref<string>("1");
@@ -33,13 +25,9 @@ const isValid = computed(() => {
   return selectedBudget.value !== null;
 });
 
-// ฟังก์ชันสำหรับดึงข้อมูล
 const fetchData = async () => {
-  if (selectedValue.value === "1") {
-    await budgetItemStore.getAllReport();
-  } else {
-    await budgetItemStore.getAllReport();
-  }
+  const budgetType = selectedValue.value === "1" ? "expenditure" : "advance";
+  await budgetItemStore.getAllReport({ page: 1, limit: 10 }, budgetType);
 };
 
 const filteredBudgetData = computed<any[]>(() => {
@@ -63,7 +51,7 @@ const formatPrice = (price: number) => {
 const handleConfirm = () => {
   if (!selectedBudget.value) return;
   emit("confirm", {
-     id: Number(selectedBudget.value.id),
+    id: Number(selectedBudget.value.id),
     budgetType: selectedValue.value === "1" ? "expenditure" : "advance",
     budgetCode: selectedBudget.value.code,
     budgetName: selectedBudget.value.name,
@@ -80,6 +68,7 @@ const handleRowClick = (record: TableRecord) => {
     used: record.use_amount,
     remaining: record.balance_amount,
   };
+  console.log("ข้อมูลรายการที่ถูกเลือก:", selectedBudget.value);
 };
 
 // Watchers
@@ -120,10 +109,14 @@ const getRowClassName = (record: TableRecord) => {
     <div class="header-section">
       <div class="item-details">
         <h3>ລາຍການ</h3>
-        <div class="grid grid-rows-2 gap-2">
+        <div class="grid grid-rows-2 gap-2" v-if="selectedBudget">
+          <span>{{ selectedBudget.name }}</span>
+          <span class="text-red-500 font-semibold">{{ formatPrice(selectedBudget.amount) }}</span>
+        </div>
+        <!-- <div v-else>
           <span>{{ itemName }}</span>
           <span class="text-red-500 font-semibold">{{ formatPrice(itemPrice) }}</span>
-        </div>
+        </div> -->
       </div>
     </div>
     <div class="budget-type-section mb-6 mt-4">
