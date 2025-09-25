@@ -14,7 +14,12 @@ import { columns } from "./column";
 import { DatePicker } from "ant-design-vue";
 const loading = ref<boolean>(false);
 import { useReceiptStore } from "../../stores/receipt.store";
-import { getDocumentStatus, getStatusColor, getStatusIcon, getStatusText } from "@/modules/shared/utils/format-status.util";
+import {
+  getDocumentStatus,
+  getStatusColor,
+  getStatusIcon,
+  getStatusText,
+} from "@/modules/shared/utils/format-status.util";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 const { t } = useI18n();
 const { push } = useRouter();
@@ -28,7 +33,10 @@ const docItem = computed(() => [
   })),
 ]);
 const statusCards = computed(() => {
-  const map: Record<string, { label: string; icon: string; textColor: string }> = {
+  const map: Record<
+    string,
+    { label: string; icon: string; textColor: string }
+  > = {
     PENDING: {
       label: t("purchase-rq.card_title.padding"),
       icon: "solar:document-text-bold",
@@ -39,7 +47,7 @@ const statusCards = computed(() => {
       icon: "solar:clipboard-check-bold",
       textColor: "text-green-600",
     },
-    REFUSED: {
+    REJECTED: {
       label: t("purchase-rq.card_title.refused"),
       icon: "solar:clipboard-remove-bold",
       textColor: "text-red-600",
@@ -59,17 +67,10 @@ const statusCards = computed(() => {
   }));
 });
 
-
 const details = (id: string) => {
   push({
     name: "approval-by-finance-department-detail.index",
     params: { id: id },
-  });
-};
-const detailsByaccount = (id: string) => {
-  push({
-    name: "approval-receipt-account-code.index",
-    params: { id: id, code: "true" },
   });
 };
 const loadReceipt = async (): Promise<void> => {
@@ -80,7 +81,7 @@ const loadReceipt = async (): Promise<void> => {
       page: rStore.pagination.page,
       limit: rStore.pagination.limit,
     });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.log(error);
   } finally {
@@ -184,10 +185,11 @@ onMounted(async () => {
         <template #status="{ record }">
           <!-- {{ record.user_approval.document_status.name }} -->
           <UiTag
-          :color="getStatusColor(getDocumentStatus(record))"
-          :icon="getStatusIcon(getDocumentStatus(record))"
-          :text="getStatusText(getDocumentStatus(record))"
-        />
+            class="inline-flex justify-start items-center w-auto rounded-full"
+            :color="getStatusColor(getDocumentStatus(record))"
+            :icon="getStatusIcon(getDocumentStatus(record))"
+            :text="getStatusText(getDocumentStatus(record))"
+          />
         </template>
         <template #actions="{ record }">
           <div class="flex items-center justify-center gap-2">
@@ -198,13 +200,6 @@ onMounted(async () => {
               @click="details(record.id)"
             >
               {{ t("purchase-rq.description") }}
-            </UiButton>
-            <UiButton
-              type="link"
-              color-class="flex items-center text-orange-500 hover:!text-orange-600"
-              @click="detailsByaccount(record.id)"
-            >
-              ລົງລະຫັດບັນຊີ
             </UiButton>
           </div>
         </template>

@@ -18,6 +18,7 @@ export const useReceiptStore = defineStore("receipt-store", () => {
 
   // State
   const receipts: Ref<ReciptQueryDto[]> = ref([]);
+  const receiptsData = ref<ReciptQueryDto | null>(null);
   const status = ref([{
     id: 0,
     amount: 0,
@@ -84,7 +85,9 @@ export const useReceiptStore = defineStore("receipt-store", () => {
 
     try {
       const res = await serice.create(input);
-      // receipts.value = [res, ...receipts.value];
+      console.log('insert:',res);
+
+      currentReceipts.value = { ...currentReceipts.value, ...res } as ReciptQueryDto;
       return res;
     } catch (err) {
       error.value = err as Error;
@@ -173,6 +176,7 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     updated,
     deleted,
     status,
+    receiptsData
   };
 });
 

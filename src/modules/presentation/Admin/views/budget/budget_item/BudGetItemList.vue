@@ -12,6 +12,7 @@ import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FormBudgetItem from "@/modules/presentation/Admin/components/budget/FormBudgetItem.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import type { PaginationParams } from "@/modules/shared/pagination";
 
 const { t } = useI18n();
 const budgetItemStore = useBudgetItemStore();
@@ -20,7 +21,7 @@ const { success, error } = useNotification();
 
 // Props for filtered view
 const props = defineProps<{
-  budgetAccountId?: string; // Optional: when provided, only shows items for this budget account
+  budgetAccountId?: string;
 }>();
 
 // State
@@ -56,15 +57,48 @@ onMounted(async () => {
   await loadBudgetItems();
 });
 
+// const loadBudgetItems = async () => {
+//   loading.value = true;
+
+//   try {
+//     await budgetItemStore.fetchBudgetItems({
+//       page: budgetItemStore.pagination.page,
+//       limit: budgetItemStore.pagination.limit,
+//       search: searchKeyword.value,
+//     });
+//   } catch (err: unknown) {
+//     const errorMessage = err instanceof Error ? err.message : String(err);
+//     error(t("budget_items.error.loadFailed"), errorMessage);
+//   } finally {
+//     loading.value = false;
+//   }
+// };
+
 const loadBudgetItems = async () => {
   loading.value = true;
 
   try {
-    await budgetItemStore.fetchBudgetItems({
+    const params: PaginationParams = {
       page: budgetItemStore.pagination.page,
       limit: budgetItemStore.pagination.limit,
-      search: searchKeyword.value,
-    });
+    };
+
+    // เพิ่ม search เมื่อมีค่าเท่านั้น
+    if (searchKeyword.value && searchKeyword.value.trim() !== "") {
+      params.search = searchKeyword.value.trim();
+    }
+
+    // ใช้ function เดียวกัน แต่ส่ง budget_account_id เป็น parameter ที่ 2
+    if (props.budgetAccountId) {
+      const budget_account_id =
+        typeof props.budgetAccountId === "string"
+          ? Number(props.budgetAccountId)
+          : props.budgetAccountId;
+
+      await budgetItemStore.fetchBudgetItems(params, budget_account_id);
+    } else {
+      await budgetItemStore.fetchBudgetItems(params);
+    }
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     error(t("budget_items.error.loadFailed"), errorMessage);

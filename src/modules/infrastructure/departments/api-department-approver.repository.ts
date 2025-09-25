@@ -26,7 +26,10 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
   async createByAdmin(input: DepartmentApproverEntity): Promise<DepartmentApproverEntity> {
     try {
       // Convert to API model first
-      const response = (await api.post("/department-approvers/by/user", this.toApiModel(input))) as {
+      const response = (await api.post(
+        "/department-approvers/by/user",
+        this.toApiModel(input)
+      )) as {
         data: ApiResponse<DepartmentApproverApiModel>;
       };
       return this.toDomainModel(response.data.data);
@@ -118,9 +121,13 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
   }
 
   private toApiModel(dpmApv: DepartmentApproverEntity): DepartmentApproverApiModel {
+    const userIds = Array.isArray(dpmApv.getUser_id())
+      ? dpmApv.getUser_id().map((id) => Number(id))
+      : [Number(dpmApv.getUser_id())];
+
     const res = {
       id: Number(dpmApv.getId()),
-      user_id: Number(dpmApv.getUser_id()),
+      user_id: userIds,
       department_id: Number(dpmApv.getDepartmentId()),
       created_at: dpmApv.getCreatedAt() ?? "",
       updated_at: dpmApv.getUpdatedAt() ?? "",
@@ -131,9 +138,11 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
   private toDomainModel(data: DepartmentApproverApiModel): DepartmentApproverEntity {
     const department = data.department ? this.toDepartmentEntity(data.department) : undefined;
     const user = data.user ? this.toUserEntity(data.user) : this.createPlaceholderUser();
+
+    const userIds = [data.user_id?.toString() ?? ""];
     return new DepartmentApproverEntity(
       data.id.toString(),
-      data.user_id.toString(),
+      userIds,
       data.department_id.toString() ?? "",
       user,
       department,

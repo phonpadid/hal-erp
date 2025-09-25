@@ -13,6 +13,18 @@ export function columns(t: (key: string) => string): Column[] {
       key: "title",
     },
     {
+      title: t("receipt.title.budget_code"),
+      dataIndex: "budget_code",
+      key: "budget_code",
+    },
+    {
+      title: t("receipt.title.account_number"),
+      dataIndex: "account_code",
+      key: "account_code",
+      width: 200,
+    },
+
+    {
       title: t("purchase-rq.field.price"),
       dataIndex: "price",
       key: "price",

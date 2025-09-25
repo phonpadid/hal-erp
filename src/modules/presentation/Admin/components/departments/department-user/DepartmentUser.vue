@@ -228,7 +228,7 @@ onMounted(async () => {
   }
 });
 const userTypeOption = computed(() => [
-  { label: t("departments.admin"), value: "admin" },
+  // { label: t("departments.admin"), value: "admin" },
   { label: t("departments.department"), value: "department" },
 ]);
 onUnmounted(() => {
@@ -236,7 +236,6 @@ onUnmounted(() => {
   existingSignatureUrl.value = null;
   formRef.value?.resetFields?.();
 })
-
 </script>
 
 <template>

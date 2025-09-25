@@ -12,7 +12,7 @@ export interface BudgetAccountsService {
   getBudgetAccountsById(id: string): Promise<BudGetAccountsEntity | null>;
   getAllBudgetAccounts(
     params: PaginationParams,
-    includeDeleted?: boolean
+    budget_account_id: number
   ): Promise<PaginatedResult<BudGetAccountsEntity>>;
   updateBudgetAccounts(
     id: string,

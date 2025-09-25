@@ -4,6 +4,8 @@ export const getStatusColor = (status: string) => {
       return "warning";
     case "COMPLETED":
       return "success";
+    case "APPROVED":
+      return "success";
     case "REJECTED":
       return "error";
     default:
@@ -17,6 +19,8 @@ export const getStatusIcon = (status: string) => {
       return "ant-design:clock-circle-outlined";
     case "COMPLETED":
       return "ant-design:check-circle-outlined";
+    case "APPROVED":
+      return "ant-design:check-circle-outlined";
     case "REJECTED":
       return "ant-design:close-circle-outlined";
     default:
@@ -29,6 +33,8 @@ export const getStatusText = (status: string) => {
     case "PENDING":
       return "ກຳລັງດຳເນີນການ";
     case "COMPLETED":
+      return "ສຳເລັດ";
+    case "APPROVED":
       return "ສຳເລັດ";
     case "REJECTED":
       return "ປະຕິເສດ";

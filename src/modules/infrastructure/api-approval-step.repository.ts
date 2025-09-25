@@ -11,7 +11,7 @@ interface ApprovalStepApiModel {
   approval_id?: number;
   purchase_order_items?: Array<{
     id: number;
-    budget_item_detail_id: number;
+    budget_item_id: number;
   }>;
   account_code?: string;
   otp?: string;
@@ -79,7 +79,7 @@ export class ApiApprovalStepRepository implements ApprovalStepRepository {
         purchaseOrderItems.length > 0
           ? purchaseOrderItems.map((item) => ({
               id: item.id,
-              budget_item_detail_id: item.budgetItemId,
+              budget_item_id: item.budgetItemId,
             }))
           : [],
       account_code: entity.getAccountCode() ?? undefined,

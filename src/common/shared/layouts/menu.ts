@@ -474,11 +474,11 @@ export const menuItems = computed<ItemType[]>(() => {
       label: t("menu-sidebar.budget_account"),
       permission: "read-budget-account",
     },
-    {
-      key: "budget-items",
-      label: t("menu-sidebar.budget_item"),
-      permission: "read-budget-item",
-    },
+    // {
+    //   key: "budget-items",
+    //   label: t("menu-sidebar.budget_item"),
+    //   permission: "read-budget-item",
+    // },
     {
       key: "budget_apv_rule.index",
       label: t("menu-sidebar.budget_apv_rule"),

@@ -3,9 +3,7 @@ import { ref, onMounted, computed, watch } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import Table, {
-  type TablePaginationType,
-} from "@/common/shared/components/table/Table.vue";
+import Table, { type TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import { useI18n } from "vue-i18n";
@@ -40,9 +38,17 @@ const userItem = computed(() =>
     return {
       value: user?.getId() ?? "", // convert to string
       label: user?.getUsername?.() ?? "",
-    };
+    }
   })
 );
+
+const filteredUserItem = computed(() => {
+  const selectedUserIds = new Set(formModel.user_id);
+  return userItem.value.filter(
+    (item) => !selectedUserIds.has(item.value)
+  );
+});
+
 const dpmOption = computed(() =>
   dpmStore.departments.map((item) => {
     return {
@@ -75,11 +81,11 @@ watch(
       userStore.departmentUserByDpm = [];
       await userStore.fetchDepartmentUserByDpm(newDpmId);
       if (!isEditMode.value) {
-        formModel.user_id = "";
+        formModel.user_id = [];
       }
     } else {
       userStore.departmentUserByDpm = [];
-      formModel.user_id = "";
+      formModel.user_id = [];
     }
   }
 );
@@ -87,7 +93,7 @@ watch(
 // Load data on component mount
 onMounted(async () => {
   await dpmApproverList();
-  await dpmStore.fetchDepartment({limit: 1000, page: 1});
+  await dpmStore.fetchDepartment({ limit: 1000, page: 1 });
   // await refreshUsers();
 });
 
@@ -120,15 +126,43 @@ const handleSearch = async () => {
 const showCreateModal = (): void => {
   isEditMode.value = false;
   selectedDpm.value = null;
-  formModel.user_id = "";
+  store.resetForm();
+  // formModel.user_id = [];
   modalVisible.value = true;
 };
 
-const showEditModal = (record: DepartmentApproverApiModel): void => {
+// const showEditModal = (record: DepartmentApproverApiModel): void => {
+//   isEditMode.value = true;
+//   selectedDpm.value = record;
+//   formModel.department_id = String(record.department_id);
+//   formModel.user_id = [String(record.user_id)];
+//   modalVisible.value = true;
+// };
+// ในไฟล์ .vue
+const showEditModal = async (record: DepartmentApproverApiModel): Promise<void> => {
   isEditMode.value = true;
   selectedDpm.value = record;
+  store.resetForm();
+
+  // กำหนดค่า department_id
   formModel.department_id = String(record.department_id);
-  formModel.user_id = String(record.user_id);
+
+  // กำหนดค่า user_id ให้เป็น Array เสมอ
+  if (record.user_id) {
+    if (Array.isArray(record.user_id)) {
+      formModel.user_id = record.user_id.map(String);
+    } else {
+      formModel.user_id = [String(record.user_id)];
+    }
+  } else {
+    formModel.user_id = [];
+  }
+
+  // หลังจากตั้งค่า formModel ให้ fetch user ที่เกี่ยวข้อง
+  if (formModel.department_id) {
+    await userStore.fetchDepartmentUserByDpm(formModel.department_id);
+  }
+
   modalVisible.value = true;
 };
 
@@ -149,57 +183,21 @@ const handleCreate = async (): Promise<void> => {
   try {
     loading.value = true;
     await formRef.value.submitForm();
+
+    // สร้าง payload ใหม่จาก formModel
+    const payload = {
+      user_id: formModel.user_id.map((id) => Number(id)), // แปลงเป็น Array ของ number
+      department_id: Number(formModel.department_id),
+    };
+
     if (canAccessAll()) {
-      await store.createDepartmentApproverByAdmin({
-        user_id: Number(formModel.user_id),
-        department_id: Number(formModel.department_id),
-      });
-      success(t("departments.notify.created"));
-      await dpmApproverList();
-      modalVisible.value = false;
+      await store.createDepartmentApproverByAdmin(payload);
     } else {
-      await store.createDepartmentApprover({
-        user_id: Number(formModel.user_id),
-        // department_id: Number(formModel.department_id),
-      });
-      success(t("departments.notify.created"));
-      await dpmApproverList();
-      modalVisible.value = false;
-    }
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    warning(t("messages.error.title"), errorMessage);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleEdit = async (): Promise<void> => {
-
-  try {
-    loading.value = true;
-    await formRef.value.submitForm();
-
-    if (selectedDpm.value) {
-      const id = selectedDpm.value.id.toString();
-      if(canAccessAll()) {
-        await store.updateDepartmentApproverByAdmin({
-        id,
-        user_id: formModel.user_id ?? '',
-        department_id: formModel.department_id ?? '',
-      });
-      success(t("departments.notify.update"));
-      await dpmApproverList();
-      }else{
-        await store.updateDepartmentApprover({
-        id,
-        user_id: formModel.user_id ?? '',
-      });
-      success(t("departments.notify.update"));
-      await dpmApproverList();
-      }
+      await store.createDepartmentApprover(payload);
     }
 
+    success(t("departments.notify.created"));
+    await dpmApproverList();
     modalVisible.value = false;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -209,6 +207,36 @@ const handleEdit = async (): Promise<void> => {
   }
 };
 
+const handleEdit = async (): Promise<void> => {
+  try {
+    loading.value = true;
+    await formRef.value.submitForm();
+
+    if (selectedDpm.value) {
+      const id = selectedDpm.value.id.toString();
+      const payload = {
+        id: id,
+        user_id: formModel.user_id.map((id) => Number(id)),
+        department_id: formModel.department_id ? Number(formModel.department_id) : null,
+      };
+
+      if (canAccessAll()) {
+        await store.updateDepartmentApproverByAdmin(payload);
+      } else {
+        await store.updateDepartmentApprover(payload);
+      }
+
+      success(t("departments.notify.update"));
+      await dpmApproverList();
+      modalVisible.value = false;
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(t("messages.error.title"), errorMessage);
+  } finally {
+    loading.value = false;
+  }
+};
 const handleDelete = async (): Promise<void> => {
   if (!selectedDpm.value) return;
   loading.value = true;
@@ -238,7 +266,7 @@ const handleTableChange = async (pagination: TablePaginationType) => {
 const handleModalCancel = async () => {
   modalVisible.value = false;
   // Reset form state
-  formModel.user_id = null as string | null;
+  formModel.user_id = [] as string[];
   formModel.department_id = null as string | null;
   userStore.departmentUserByDpm = [];
   selectedDpm.value = null;
@@ -353,14 +381,11 @@ watch(search, async (newValue) => {
             :placeholder="t('departments.dpm_user.placeholder.dpm')"
           />
         </UiFormItem>
-        <UiFormItem
-          :label="t('departments.dpm_user.field.user')"
-          name="user_id"
-          required
-        >
+        <UiFormItem :label="t('departments.dpm_user.field.user')" name="user_id" required>
           <InputSelect
             v-model="formModel.user_id"
-            :options="userItem"
+            :options="filteredUserItem"
+            mode="tags"
             :placeholder="t('departments.dpm_user.placeholder.user')"
           />
         </UiFormItem>
@@ -379,11 +404,7 @@ watch(search, async (newValue) => {
       :cancel-text="t('button.cancel')"
       okType="primary"
     >
-      <p>
-        {{ t("departments.alert.message") }}: "{{
-          selectedDpm?.user?.username
-        }}"?
-      </p>
+      <p>{{ t("departments.alert.message") }}: "{{ selectedDpm?.user?.username }}"?</p>
       <p class="text-red-500">
         {{ t("departments.alert.remark") }}
       </p>

@@ -10,10 +10,15 @@ import PropovalDrawer from "./drawers/PropovalDrawer.vue";
 import ApprovalDrawer from "./drawers/ApprovalDrawer.vue";
 import { useRoute } from "vue-router";
 import { useReceiptStore } from "../../../stores/receipt.store";
-import { getUserApv } from "@/modules/shared/utils/get-user.login";
+import {
+  getUserApv,
+  getUserRole,
+  UserRoleEnum,
+} from "@/modules/shared/utils/get-user.login";
 import UploadSlipModal from "./modals/UploadSlipModal.vue";
 import { uploadFile } from "@/modules/application/services/upload.service";
 import { message } from "ant-design-vue";
+import UiInput from "@/common/shared/components/Input/UiInput.vue";
 const openPropoval = ref(false);
 const openAppropoval = ref(false);
 const { t } = useI18n();
@@ -21,8 +26,21 @@ const { params } = useRoute();
 const receiptId = params.id as string;
 const rStore = useReceiptStore();
 const user = computed(() => getUserApv());
+const userRole = ref<string[]>(getUserRole() ?? []);
 const uploadLoading = ref<boolean>(false);
 const createModalVisible = ref(false);
+const formRef = ref();
+const selectedId = ref<number | null>(null);
+const formModel = ref({
+  account_code: "",
+});
+const isRole = computed(() =>
+  userRole.value.some(
+    (role) =>
+      role.includes(UserRoleEnum.ACCOUNT_ADMIN) ||
+      role.includes(UserRoleEnum.ACCOUNT_USER)
+  )
+);
 
 const formState = ref({
   files: [] as { file_name: string }[],
@@ -32,8 +50,6 @@ const uploadedImages = ref<string[]>([]); // keep previews only
 const uploadCompleted = ref(false); // <-- add this
 
 const handleImageUpload = async (files: File[]) => {
-  console.log("files:", files);
-
   if (!files.length) return;
 
   uploadLoading.value = true;
@@ -75,8 +91,11 @@ const handleImageUpload = async (files: File[]) => {
 const deleteImage = (index: number) => {
   uploadedImages.value.splice(index, 1);
   formState.value.files.splice(index, 1);
-  uploadCompleted.value = false; // allow re-upload
+  if (index === 0) {
+    uploadCompleted.value = false;
+  }
 };
+
 // end
 // i need check by user id on here
 const isUserPendingApprover = computed(() => {
@@ -130,6 +149,8 @@ const isAwaitingUser = computed(() =>
 );
 // map data to show on header tag ແລະ ກວດເງື່ອນໄຂການອະນຸມັດ
 const dataHead = computed(() => ({
+  form_ref: formRef.value,
+  role: isRole.value,
   rId: Number(receiptId),
   no: rStore.currentReceipts?.receipt_number,
   isApproved: isUserPendingApprover.value ?? false,
@@ -142,7 +163,10 @@ const dataHead = computed(() => ({
     remark: rStore.currentReceipts?.remark,
     type: "r",
     files: check.value ? formState.value.files : [],
-    account_code: "",
+    account_code: formModel.value.account_code || "",
+    uploadCompleted: uploadCompleted.value || false,
+    formState: formState.value || { files: [] },
+    uploadedImages: uploadedImages.value || [],
   },
   status: rStore.currentReceipts?.user_approval?.approval_step?.map((step) => ({
     id: step.status_id,
@@ -152,7 +176,10 @@ const dataHead = computed(() => ({
   created_at: rStore.currentReceipts?.created_at,
 
   is_otp: rStore.currentReceipts?.user_approval?.approval_step?.some(
-    (step) => step.is_otp
+    (step) => step.status_id === 1 && step.is_otp
+  ),
+  is_upload: rStore.currentReceipts?.user_approval?.approval_step?.some(
+    (step) => step.status_id === 1 && step.requires_file_upload
   ),
 
   approver_info: userNextApprove.value,
@@ -160,9 +187,11 @@ const dataHead = computed(() => ({
 const profileImage = ref("/public/Profile-PNG-File.png");
 
 const showPropoval = () => {
+  selectedId.value = Number(rStore.currentReceipts?.purchase_request_id) ?? null;
   openPropoval.value = true;
 };
 const showApproval = () => {
+  selectedId.value = Number(rStore.currentReceipts?.purchase_order_id ) ?? null;
   openAppropoval.value = true;
 };
 const vendor = computed(
@@ -289,6 +318,25 @@ onMounted(async () => {
                 record.purchase_order_item?.purchase_request_item?.title
               }}</span>
             </template>
+            <template v-if="column.key === 'account_code'">
+              <!-- <UiForm
+                ref="formRef"
+                :model="formModel"
+                :rules="accountCodeRule(t)"
+              > -->
+              <!-- <UiFormItem name="account_code" > -->
+              <UiInput
+                v-if="dataHead.isApproved && isRole"
+                v-model="formModel.account_code"
+                placeholder="ປ້ອນລະຫັດບັນຊີ"
+                size="middle"
+              ></UiInput>
+              <!-- </UiFormItem> -->
+              <!-- </UiForm> -->
+              <span v-if="rStore.currentReceipts?.account_code">{{
+                rStore.currentReceipts?.account_code
+              }}</span>
+            </template>
             <template v-if="column.key === 'price'">
               <span>₭ {{ formatPrice(record.price) }}</span>
             </template>
@@ -322,33 +370,50 @@ onMounted(async () => {
         <!-- Uploaded images preview -->
       </div>
       <!-- Uploaded images preview -->
+      <!-- <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto"> -->
       <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto">
-        <div
-          v-for="(img, index) in uploadedImages"
-          :key="index"
-          class="relative w-[200px] h-[350px] flex items-center justify-center overflow-hidden rounded-md"
-        >
-          <a-image :src="img" style="width: 160px; height: 320px" />
-          <button
-            @click="deleteImage(index)"
-            class="absolute top-4 right-5 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
+        <div class="flex flex-wrap items-center gap-0 mt-2">
+          <div
+            v-for="(img, index) in uploadedImages"
+            :key="index"
+            class="relative w-[200px] h-[350px] flex items-center justify-center overflow-hidden rounded-md"
           >
-            ×
-          </button>
+            <a-image :src="img" style="width: 160px; height: 320px" />
+            <button
+              @click="deleteImage(index)"
+              class="absolute top-4 right-5 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
+            >
+              ×
+            </button>
+          </div>
+          <div
+            @click="createModalVisible = true"
+            class="w-[3rem] h-[3rem] flex items-center justify-center border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
+          >
+            <Icon
+              icon="material-symbols:image-arrow-up-outline-rounded"
+              class="text-2xl text-gray-400 mb-1"
+            />
+          </div>
         </div>
       </div>
 
       <div v-else-if="attachments.length" class="mb-1 mt-4 w-full h-auto">
         <h2>ຫຼັກຖານການໂອນເງິນ</h2>
-        <div
-          v-for="(doc, index) in attachments"
-          :key="index"
-          class="w-[200px] h-[350px] flex items-center justify-center overflow-hidden rounded-md mb-2"
-        >
-          <a-image
-            :src="doc.file_name_url"
-            style="width: 160px; height: 320px"
-          />
+
+        <!-- Flex container for images -->
+        <div class="flex flex-wrap gap-0 mt-2">
+          <div
+            v-for="(doc, index) in attachments"
+            :key="index"
+            class="w-[200px] h-[350px] flex items-center justify-center overflow-hidden rounded-md"
+          >
+            <a-image
+              class="flex items-center justify-center"
+              :src="doc.file_name_url"
+              style="width: 160px; height: 320px"
+            />
+          </div>
         </div>
       </div>
 
@@ -375,7 +440,7 @@ onMounted(async () => {
             :src="step.approver.user_signature.signature_url"
             alt="signature"
             :width="120"
-            :height="80"
+            :height="60"
             :preview="false"
           />
           <div
@@ -403,7 +468,7 @@ onMounted(async () => {
           >
             <Icon icon="material-symbols:docs-outline" />
             <span class="text-sm"
-              >ໃບສະເໜີຂໍຈັດຊື້ - ເລກທີ 0049/ຈຊ/ຮລຕ/ນຄຫລ</span
+              >{{ rStore.currentReceipts?.pr_doc_type }} - ເລກທີ {{ rStore.currentReceipts?.pr_number }}</span
             >
             <Icon icon="mdi:arrow-top-right" />
           </div>
@@ -413,7 +478,7 @@ onMounted(async () => {
           >
             <Icon icon="material-symbols:docs-outline" />
             <span class="text-sm"
-              >ໃບອະນຸມັດຈັດຊື້ - ເລກທີ 0049/ຈຊ/ຮລຕ/ນຄຫລ</span
+              >{{ rStore.currentReceipts?.po_doc_type }} - ເລກທີ {{rStore.currentReceipts?.po_number}}</span
             >
             <Icon icon="mdi:arrow-top-right" />
           </div>
@@ -430,19 +495,20 @@ onMounted(async () => {
   />
   <UiDrawer
     v-model:open="openPropoval"
-    title="ໃບສະເໜີຂໍຈັດຊື້ - ເລກທີ 0044/ຈຊນ.ນວ/ບຫ - ວັນທີ 26 ມີນາ 2025"
+    :title="`${rStore.currentReceipts?.pr_doc_type} - ເລກທີ ${rStore.currentReceipts?.pr_number} - ວັນທີ 26 ມີນາ 2025`"
     placement="right"
     :width="1185"
   >
-    <PropovalDrawer />
+    <PropovalDrawer :id="selectedId" />
   </UiDrawer>
+
   <UiDrawer
     v-model:open="openAppropoval"
-    title="ໃບອະນຸມັດຈັດຊື້ - ເລກທີ 0044/ຈຊນ.ນວ/ບຫ - ວັນທີ 26 ມີນາ 2025"
+    :title="`${rStore.currentReceipts?.po_doc_type} - ເລກທີ ${rStore.currentReceipts?.po_number} - ວັນທີ 26 ມີນາ 2025`"
     placement="right"
     :width="1185"
   >
-    <ApprovalDrawer />
+    <ApprovalDrawer :id="selectedId" />
   </UiDrawer>
 </template>
 <style scoped>
