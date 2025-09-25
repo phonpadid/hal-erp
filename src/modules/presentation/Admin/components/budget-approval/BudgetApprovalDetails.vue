@@ -25,6 +25,7 @@ import BudgetApprovalDrawer from "./BudgetApprovalDrawer.vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { storeToRefs } from "pinia";
 import OtpModal from "../purchase-requests/modal/OtpModal.vue";
+import SelectDocumentTypeModal from "../receipt/modal/SelectDocumentTypeModal.vue";
 /********************************************************* */
 const { t } = useI18n();
 const { success, error } = useNotification();
@@ -205,6 +206,13 @@ const handleOtpConfirm = async (otpCode: string) => {
     isOtpModalVisible.value = false;
   }
 };
+const open = ref<boolean>(false);
+const selectedData = ref<string | null>(null);
+const purchaseOrderId = route.params.id as string
+const onChooseDocumentType = () => {
+  selectedData.value = purchaseOrderId
+  open.value = true;
+};
 const handleApprove = async () => {
   isApproveModalVisible.value = false;
   const currentStep = currentApprovalStep.value;
@@ -382,8 +390,19 @@ const canApprove = computed(() => {
   );
 });
 const customButtons = computed(() => {
+
   if (!canApprove.value) {
-    return [];
+    return [
+
+    {
+        label: `ສ້າງໃບເບີກຈ່າຍ`,
+        type: "primary" as ButtonType,
+        onClick: () => {
+          onChooseDocumentType();
+        },
+      },
+
+    ];
   }
 
   const currentStep = currentApprovalStep.value;
@@ -635,7 +654,7 @@ const signatures = computed(() => {
       :width="500"
     >
       <BudgetApprovalDrawer
-        
+
         @confirm="handleBudgetConfirm"
       />
     </UiDrawer>
@@ -847,6 +866,11 @@ const signatures = computed(() => {
       </div>
     </div>
   </div>
+  <SelectDocumentTypeModal
+      v-model:visible="open"
+      :isEdit="true"
+      :itemid="String(selectedData)"
+    />
 </template>
 
 <style scoped></style>
