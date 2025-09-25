@@ -11,7 +11,7 @@ import { useRouter } from "vue-router";
 
 const user = computed(() => getUserApv());
 const { t } = useI18n();
-const { error } = useNotification();
+const { error, success } = useNotification();
 const approvalStepStore = useApprovalStepStore();
 const { approvalReceipt } = useReceiptStore();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -159,56 +159,55 @@ const finalConfirm = async () => {
   try {
     const otp = otpValue.value.join("");
 
-    // Send dataHead to store before emitting confirm
-
     if (props.dataHead) {
-      // Example: Call your store action to save the data
-      if(props.is_reject) {
+      if (props.is_reject) {
         await approvalReceipt(props.dataHead.stepId!, {
-        type: props.dataHead.type || "r",
-        statusId: 3,
-        remark: props.dataHead.remark || "",
-        is_otp: props.is_otp,
-        otp: otp,
-        approval_id: approvalStepStore.otpResponse?.approval_id,
-      });
-    }else {
-      await approvalReceipt(props.dataHead.stepId!, {
-        type: props.dataHead.type || "r",
-        statusId: 2,
-        remark: props.dataHead.remark || "",
-        is_otp: props.is_otp,
-        account_code: props.dataHead.account_code || "",
-        files: props.dataHead.files || [],
-        otp: otp,
-        approval_id: approvalStepStore.otpResponse?.approval_id,
-      });
-
-      if (props.dataHead.isStep_on) {
-        push({
-          name: "approval-by-finance-department-detail.index",
-          params: { id: props.rId },
+          type: props.dataHead.type || "r",
+          statusId: 3,
+          remark: props.dataHead.remark || "",
+          is_otp: props.is_otp,
+          otp: otp,
+          approval_id: approvalStepStore.otpResponse?.approval_id,
         });
-      }
-      const localDataHead = ref({ ...props.dataHead });
+        success('ປະຕິເສດສຳເລັດ', 'ໄດ້ປະຕິເສດແລ້ວ');
+      } else {
+        await approvalReceipt(props.dataHead.stepId!, {
+          type: props.dataHead.type || "r",
+          statusId: 2,
+          remark: props.dataHead.remark || "",
+          is_otp: props.is_otp,
+          account_code: props.dataHead.account_code || "",
+          files: props.dataHead.files || [],
+          otp: otp,
+          approval_id: approvalStepStore.otpResponse?.approval_id,
+        });
 
-      // later when you need to reset:
-      if (localDataHead.value) {
-        localDataHead.value.uploadCompleted = false;
-        localDataHead.value.formState = { files: [] as { file_name: string }[] };
-        localDataHead.value.uploadedImages = [];
+        if (props.dataHead.isStep_on) {
+          push({
+            name: "approval-by-finance-department-detail.index",
+            params: { id: props.rId },
+          });
+        }
+
+        const localDataHead = ref({ ...props.dataHead });
+        if (localDataHead.value) {
+          localDataHead.value.uploadCompleted = false;
+          localDataHead.value.formState = { files: [] };
+          localDataHead.value.uploadedImages = [];
+        }
       }
-    }
+
       await rStore.fetchById(String(props.rId));
-    }
+      emit("confirm", otp);
 
-    // Then emit the confirm event
-    emit("confirm", otp);
+      // ✅ Always close modal after success
+      emit("close");
+    }
   } catch (error) {
     console.error("Error in finalConfirm:", error);
-    // Handle error appropriately
   }
 };
+
 
 const closeModal = () => {
   emit("close");

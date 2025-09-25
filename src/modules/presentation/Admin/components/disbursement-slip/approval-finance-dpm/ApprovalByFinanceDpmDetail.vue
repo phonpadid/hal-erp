@@ -30,6 +30,7 @@ const userRole = ref<string[]>(getUserRole() ?? []);
 const uploadLoading = ref<boolean>(false);
 const createModalVisible = ref(false);
 const formRef = ref();
+const selectedId = ref<number | null>(null);
 const formModel = ref({
   account_code: "",
 });
@@ -90,7 +91,7 @@ const handleImageUpload = async (files: File[]) => {
 const deleteImage = (index: number) => {
   uploadedImages.value.splice(index, 1);
   formState.value.files.splice(index, 1);
-  if(index === 0){
+  if (index === 0) {
     uploadCompleted.value = false;
   }
 };
@@ -186,9 +187,11 @@ const dataHead = computed(() => ({
 const profileImage = ref("/public/Profile-PNG-File.png");
 
 const showPropoval = () => {
+  selectedId.value = Number(rStore.currentReceipts?.purchase_request_id) ?? null;
   openPropoval.value = true;
 };
 const showApproval = () => {
+  selectedId.value = Number(rStore.currentReceipts?.purchase_order_id ) ?? null;
   openAppropoval.value = true;
 };
 const vendor = computed(
@@ -321,14 +324,14 @@ onMounted(async () => {
                 :model="formModel"
                 :rules="accountCodeRule(t)"
               > -->
-                <!-- <UiFormItem name="account_code" > -->
-                  <UiInput
-                    v-if="dataHead.isApproved && isRole"
-                    v-model="formModel.account_code"
-                    placeholder="ປ້ອນລະຫັດບັນຊີ"
-                    size="middle"
-                  ></UiInput>
-                <!-- </UiFormItem> -->
+              <!-- <UiFormItem name="account_code" > -->
+              <UiInput
+                v-if="dataHead.isApproved && isRole"
+                v-model="formModel.account_code"
+                placeholder="ປ້ອນລະຫັດບັນຊີ"
+                size="middle"
+              ></UiInput>
+              <!-- </UiFormItem> -->
               <!-- </UiForm> -->
               <span v-if="rStore.currentReceipts?.account_code">{{
                 rStore.currentReceipts?.account_code
@@ -370,23 +373,29 @@ onMounted(async () => {
       <!-- <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto"> -->
       <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto">
         <div class="flex flex-wrap items-center gap-0 mt-2">
-        <div
-          v-for="(img, index) in uploadedImages"
-          :key="index"
-          class="relative w-[200px] h-[350px] flex items-center justify-center overflow-hidden rounded-md"
-        >
-          <a-image :src="img" style="width: 160px; height: 320px" />
-          <button
-            @click="deleteImage(index)"
-            class="absolute top-4 right-5 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
+          <div
+            v-for="(img, index) in uploadedImages"
+            :key="index"
+            class="relative w-[200px] h-[350px] flex items-center justify-center overflow-hidden rounded-md"
           >
-            ×
-          </button>
+            <a-image :src="img" style="width: 160px; height: 320px" />
+            <button
+              @click="deleteImage(index)"
+              class="absolute top-4 right-5 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
+            >
+              ×
+            </button>
+          </div>
+          <div
+            @click="createModalVisible = true"
+            class="w-[3rem] h-[3rem] flex items-center justify-center border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
+          >
+            <Icon
+              icon="material-symbols:image-arrow-up-outline-rounded"
+              class="text-2xl text-gray-400 mb-1"
+            />
+          </div>
         </div>
-        <div @click="createModalVisible = true" class="w-[3rem] h-[3rem] flex items-center justify-center border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer">
-          <Icon icon="material-symbols:image-arrow-up-outline-rounded" class="text-2xl text-gray-400 mb-1" />
-        </div>
-      </div>
       </div>
 
       <div v-else-if="attachments.length" class="mb-1 mt-4 w-full h-auto">
@@ -431,7 +440,7 @@ onMounted(async () => {
             :src="step.approver.user_signature.signature_url"
             alt="signature"
             :width="120"
-            :height="80"
+            :height="60"
             :preview="false"
           />
           <div
@@ -459,7 +468,7 @@ onMounted(async () => {
           >
             <Icon icon="material-symbols:docs-outline" />
             <span class="text-sm"
-              >ໃບສະເໜີຂໍຈັດຊື້ - ເລກທີ 0049/ຈຊ/ຮລຕ/ນຄຫລ</span
+              >{{ rStore.currentReceipts?.pr_doc_type }} - ເລກທີ {{ rStore.currentReceipts?.pr_number }}</span
             >
             <Icon icon="mdi:arrow-top-right" />
           </div>
@@ -469,7 +478,7 @@ onMounted(async () => {
           >
             <Icon icon="material-symbols:docs-outline" />
             <span class="text-sm"
-              >ໃບອະນຸມັດຈັດຊື້ - ເລກທີ 0049/ຈຊ/ຮລຕ/ນຄຫລ</span
+              >{{ rStore.currentReceipts?.po_doc_type }} - ເລກທີ {{rStore.currentReceipts?.po_number}}</span
             >
             <Icon icon="mdi:arrow-top-right" />
           </div>
@@ -486,19 +495,20 @@ onMounted(async () => {
   />
   <UiDrawer
     v-model:open="openPropoval"
-    title="ໃບສະເໜີຂໍຈັດຊື້ - ເລກທີ 0044/ຈຊນ.ນວ/ບຫ - ວັນທີ 26 ມີນາ 2025"
+    :title="`${rStore.currentReceipts?.pr_doc_type} - ເລກທີ ${rStore.currentReceipts?.pr_number} - ວັນທີ 26 ມີນາ 2025`"
     placement="right"
     :width="1185"
   >
-    <PropovalDrawer />
+    <PropovalDrawer :id="selectedId" />
   </UiDrawer>
+
   <UiDrawer
     v-model:open="openAppropoval"
-    title="ໃບອະນຸມັດຈັດຊື້ - ເລກທີ 0044/ຈຊນ.ນວ/ບຫ - ວັນທີ 26 ມີນາ 2025"
+    :title="`${rStore.currentReceipts?.po_doc_type} - ເລກທີ ${rStore.currentReceipts?.po_number} - ວັນທີ 26 ມີນາ 2025`"
     placement="right"
     :width="1185"
   >
-    <ApprovalDrawer />
+    <ApprovalDrawer :id="selectedId" />
   </UiDrawer>
 </template>
 <style scoped>

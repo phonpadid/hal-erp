@@ -32,6 +32,13 @@ export interface UpdateReceiptDTO {
 export interface ReciptQueryDto {
   id: string;
   purchase_order_id: string;
+  purchase_request_id?: string;
+
+  po_number?: string;
+  pr_number?: string;
+  po_doc_type?: string;
+  pr_doc_type?: string;
+
   document_id: string;
   receipt_number: string;
   receipt_date: string;

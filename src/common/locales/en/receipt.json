@@ -2,6 +2,8 @@
     "title": {
         "detail": "ລາຍລະອຽດ",
         "select_r": "Select Receipt Type",
-        "r_type": "Receipt Type"
+        "r_type": "Receipt Type",
+        "budget_code": "Budget Code",
+        "account_number": "Account Number"
     }
 }

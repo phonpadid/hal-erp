@@ -264,9 +264,11 @@ const handleReject = async (): Promise<void> => {
   if (modalAction.value === "reject") {
     if (props.dataHead?.is_otp) {
             await requestOtp();
+            isRejectModalVisible.value = false;
           } else {
             // 🔹 Skip OTP, just open modal directly
             isOtpModalVisible.value = true;
+            isRejectModalVisible.value = false;
           }
     // try {
     //   confirmLoading.value = true;

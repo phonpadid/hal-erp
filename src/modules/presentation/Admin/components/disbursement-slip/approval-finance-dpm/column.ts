@@ -13,12 +13,12 @@ export function columns(t: (key: string) => string): Column[] {
       key: "title",
     },
     {
-      title: "ລະຫັດງົບປະມານ",
+      title: t("receipt.title.budget_code"),
       dataIndex: "budget_code",
       key: "budget_code",
     },
     {
-      title: "ເລກບັນຊີ",
+      title: t("receipt.title.account_number"),
       dataIndex: "account_code",
       key: "account_code",
       width: 200,
