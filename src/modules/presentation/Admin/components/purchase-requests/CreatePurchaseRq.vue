@@ -142,6 +142,28 @@ const handleOtpConfirm = async (otpCode: string) => {
     confirmLoading.value = false;
   }
 };
+// const handleLayoutConfirm = async () => {
+//   if (currentStep.value === 1 && purchaseFormRef.value) {
+//     try {
+//       const newDocumentData = await purchaseFormRef.value.handleSave();
+
+//       if (newDocumentData) {
+//         const docId = newDocumentData.id;
+//         const stepId = newDocumentData.user_approval?.approval_step?.[0]?.id;
+
+//         if (docId && stepId) {
+//           newlyCreatedDocumentId.value = docId;
+//           currentApprovalStepId.value = stepId;
+//           await sendOtp();
+//         } else {
+//           error("เกิดข้อผิดพลาด", "ไม่ได้รับข้อมูล ID ที่จำเป็นจาก API response");
+//         }
+//       }
+//     } catch (err) {
+//       error("เกิดข้อผิดพลาด", (err as Error).message);
+//     }
+//   }
+// };
 const handleLayoutConfirm = async () => {
   if (currentStep.value === 1 && purchaseFormRef.value) {
     try {
@@ -152,15 +174,18 @@ const handleLayoutConfirm = async () => {
         const stepId = newDocumentData.user_approval?.approval_step?.[0]?.id;
 
         if (docId && stepId) {
+          stepsData[1] = pendingStepData.value;
+          pendingStepData.value = null; 
+
           newlyCreatedDocumentId.value = docId;
           currentApprovalStepId.value = stepId;
           await sendOtp();
         } else {
-          error("เกิดข้อผิดพลาด", "ไม่ได้รับข้อมูล ID ที่จำเป็นจาก API response");
+          error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ໄດ້ຮັບຂໍ້ມູນ ID ທີ່ຈໍາເປັນຈາກ API response");
         }
       }
     } catch (err) {
-      error("เกิดข้อผิดพลาด", (err as Error).message);
+      error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
     }
   }
 };
