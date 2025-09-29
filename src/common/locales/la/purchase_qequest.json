@@ -13,6 +13,9 @@
     "title":"ຫົວຂໍ້",
     "action": "ຈັດການ",
     "vendor": "ຜູ້ຂາຍ"
-
+  },
+  "error":{
+    "document_type_required":"ປະເພດເອກະສານບໍ່ຄວນວ່າງ",
+    "images_required":"ຮູບພາບບໍ່ຄວນຫວ່າງ"
   }
 }

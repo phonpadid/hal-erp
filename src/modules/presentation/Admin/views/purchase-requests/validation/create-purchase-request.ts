@@ -6,14 +6,14 @@ export const CreatePRValidate = (t: (key: string) => string) => {
     document_type_id: [
       {
         required: true,
-        message: t("purchase_request.error.document_type_required"),
+        message: t("purchase_qequest.error.document_type_required"),
         trigger: "blur",
       },
     ],
     purpose: [
       {
         required: true,
-        message: t("purchase_request.error.document_type_required"),
+        message: t("purchase_qequest.error.document_type_required"),
         trigger: "blur",
       },
     ],
@@ -68,13 +68,13 @@ export const CreatePRValidate = (t: (key: string) => string) => {
             trigger: "blur",
           },
           {
-            type: 'number',
+            type: "number",
             min: 1,
             message: t("purchase-rq.error.min_price"),
             trigger: "blur",
           },
           {
-            type: 'number',
+            type: "number",
             max: 999999999999,
             message: t("purchase-rq.error.max_price"),
             trigger: "blur",

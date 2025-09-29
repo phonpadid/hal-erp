@@ -35,14 +35,14 @@ type StepsData = {
   0: Step1Data | null;
   1: Step2Data | null;
   2: null;
-  3: null;
+  // 3: null;
 };
 
 const stepsData = reactive<StepsData>({
   0: null,
   1: null,
   2: null,
-  3: null,
+  // 3: null,
 });
 
 // Step 0: save and go to next directly
@@ -115,8 +115,6 @@ const handleOtpConfirm = async (otpCode: string) => {
 
   try {
     confirmLoading.value = true;
-
-    // สร้าง payload ที่ถูกต้องสำหรับ API submit
     const payload = {
       type: "pr" as const,
       // statusId: Number(approvedStatusId.value),
@@ -142,28 +140,6 @@ const handleOtpConfirm = async (otpCode: string) => {
     confirmLoading.value = false;
   }
 };
-// const handleLayoutConfirm = async () => {
-//   if (currentStep.value === 1 && purchaseFormRef.value) {
-//     try {
-//       const newDocumentData = await purchaseFormRef.value.handleSave();
-
-//       if (newDocumentData) {
-//         const docId = newDocumentData.id;
-//         const stepId = newDocumentData.user_approval?.approval_step?.[0]?.id;
-
-//         if (docId && stepId) {
-//           newlyCreatedDocumentId.value = docId;
-//           currentApprovalStepId.value = stepId;
-//           await sendOtp();
-//         } else {
-//           error("เกิดข้อผิดพลาด", "ไม่ได้รับข้อมูล ID ที่จำเป็นจาก API response");
-//         }
-//       }
-//     } catch (err) {
-//       error("เกิดข้อผิดพลาด", (err as Error).message);
-//     }
-//   }
-// };
 const handleLayoutConfirm = async () => {
   if (currentStep.value === 1 && purchaseFormRef.value) {
     try {
@@ -175,7 +151,7 @@ const handleLayoutConfirm = async () => {
 
         if (docId && stepId) {
           stepsData[1] = pendingStepData.value;
-          pendingStepData.value = null; 
+          pendingStepData.value = null;
 
           newlyCreatedDocumentId.value = docId;
           currentApprovalStepId.value = stepId;
@@ -230,12 +206,12 @@ const handleDone = () => {
       </div>
 
       <!-- Step 2 -->
-      <div v-else-if="currentStep === 2" class="step-3-content">
+      <!-- <div v-else-if="currentStep === 2" class="step-3-content">
         <CheckPurchaseRq :steps-data="getAllStepsData()" @next-step="goToNextStep" />
-      </div>
+      </div> -->
 
       <!-- Step 3 -->
-      <div v-else-if="currentStep === 3" class="step-4-content">
+      <div v-else-if="currentStep === 2" class="step-4-content">
         <Icon icon="mdi:check-decagram" class="text-green-500 text-5xl mx-auto" />
         <div class="w-full flex-col flex justify-center items-center text-center -space-y-1">
           <h3 class="text-gray-500 text-md">{{ t("purchase-rq.proposal") }}</h3>

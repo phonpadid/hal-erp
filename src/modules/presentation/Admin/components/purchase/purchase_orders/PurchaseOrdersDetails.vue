@@ -724,7 +724,7 @@ const handlePendingCancel = () => {
   handlePrevious();
 };
 const handleListOrder = () => {
-  router.push({ name: "purchaseOrdersList" });
+  router.push({ name: "approval_department_panak" });
 };
 const totalAmount = computed(() => {
   return requestDetail.value?.getItems().reduce((sum, item) => sum + item.getTotalPrice(), 0) || 0;
