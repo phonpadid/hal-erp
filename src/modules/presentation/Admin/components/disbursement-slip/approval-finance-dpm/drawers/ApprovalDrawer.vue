@@ -84,7 +84,10 @@ onMounted( async () => {
             :pagination="false"
             row-key="id"
           >
-            <template #bodyCell="{ column, record }">
+            <template #bodyCell="{ column, record, index }">
+              <template v-if="column.key === 'id'">
+                <span>{{ index + 1}}</span>
+              </template>
               <template v-if="column.key === 'unit'">
                 <span>{{ record.purchase_request_item.unit.name }}</span>
               </template>

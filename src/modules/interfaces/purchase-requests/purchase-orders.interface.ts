@@ -80,6 +80,11 @@ export interface PurchaseOrderApiModel {
     description: string | null;
     documentTypeId: number;
     department?: string;
+    document_type?: {
+      id: number;
+      name: string;
+      code: string;
+    } | null;
     requester?: string;
     position?: Array<{
       id: number;
