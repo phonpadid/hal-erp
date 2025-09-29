@@ -40,24 +40,32 @@ export class BudgetItemDetailsServiceImpl implements BudgetItemService {
 
   async getAllBudgetItem(
     params: PaginationParams,
-    includeDeleted: boolean = false
+    budget_account_id?: number | string
   ): Promise<PaginatedResult<BudGetItemEntity>> {
-    return await this.getAllUseCase.execute(params, includeDeleted);
-  }
-  async getAllReportBudgetItem(
-    params: PaginationParams,
-    includeDeleted: boolean = false
-  ): Promise<PaginatedResult<BudGetItemEntity>> {
-    return await this.getReportUseCase.report(params, includeDeleted);
+    return await this.getAllUseCase.execute(params, budget_account_id);
   }
 
+  async getAllReportBudgetItem(
+    params: PaginationParams,
+    budgetType: string
+  ): Promise<PaginatedResult<BudGetItemEntity>> {
+    return await this.getReportUseCase.report(params, budgetType);
+  }
   async getBudgetItemsByAccountId(
     budgetAccountId: string,
-    params: PaginationParams,
-    includeDeleted: boolean = false
+    params: PaginationParams
   ): Promise<PaginatedResult<BudGetItemEntity>> {
-    return await this.getByAccountIdUseCase.execute(budgetAccountId, params, includeDeleted);
+    // เรียกใช้ UseCase เดิม แต่ส่ง ID เข้าไปเป็นพารามิเตอร์ตัวที่สอง
+    return await this.getAllUseCase.execute(params, Number(budgetAccountId));
   }
+
+  // async getBudgetItemsByAccountId(
+  //   budgetAccountId: string,
+  //   params: PaginationParams,
+  //   includeDeleted: boolean = false
+  // ): Promise<PaginatedResult<BudGetItemEntity>> {
+  //   return await this.getByAccountIdUseCase.execute(budgetAccountId, params, includeDeleted);
+  // }
 
   async updateBudgetItem(id: string, input: UpdateBudgetItemDTO): Promise<BudGetItemEntity> {
     return await this.updateUseCase.execute(id, input);

@@ -274,7 +274,7 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
 
       if (success) {
         showSuccess("ສຳເລັດ", "ອະນຸມັດສຳເລັດ");
-        router.push({ name: "purchaseOrdersList" });
+        // router.push({ name: "purchaseOrdersList" });
       }
       return success;
     } catch (err: unknown) {

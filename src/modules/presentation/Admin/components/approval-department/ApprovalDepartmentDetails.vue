@@ -1,11 +1,11 @@
 <template>
   <div class="mt-10">
     <!-- Document Details -->
-    <div v-if="showApprovalSuccess">
+    <!-- <div v-if="showApprovalSuccess">
       <ApprovalsuccessDetails />
-    </div>
+    </div> -->
     <!-- Header Component -->
-    <div v-else>
+    <div>
       <!-- Header component -->
       <div
         class="fixed px-6 py-4 top-0 z-40 h-auto bg-white shadow-sm transition-all duration-150 mt-[4rem]"
@@ -514,7 +514,6 @@ import HeaderComponent from "@/common/shared/components/header/HeaderComponent.v
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderShowDrawer from "../purchase/purchase_orders/PurchaseOrderShowDrawer.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import ApprovalsuccessDetails from "./ApprovalsuccessDetails.vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { formatDate } from "@/modules/shared/formatdate";
 import { useToggleStore } from "../../stores/storage.store";
@@ -540,6 +539,7 @@ const visible = ref(false);
 const showDrawer = () => {
   visible.value = true;
 };
+const isApproved = ref(false);
 /**************control header****************** */
 const toggleStore = useToggleStore();
 const { toggle } = storeToRefs(toggleStore);
@@ -712,8 +712,26 @@ onMounted(async () => {
   await fetchOrderDetails();
 });
 
+const handlePrint = () => {
+  window.print();
+};
+
 // Custom buttons for header
 const customButtons = computed(() => {
+  if (isApproved.value) {
+    // ถ้าอนุมัติแล้ว แสดงเฉพาะปุ่ม print
+    return [
+      {
+        label: "print",
+        icon: "ant-design:printer-outlined",
+        class: "bg-white flex items-center gap-2 hover:bg-gray-100",
+        type: "default" as ButtonType,
+        onClick: () => {
+          handlePrint();
+        },
+      },
+    ];
+  }
   if (!canApprove.value) {
     return [];
   }
@@ -757,6 +775,44 @@ const userInfo = {
   department: "ພະແນກໄອທີ, ພະບໍລິມາດ",
 };
 
+// const handleOtpConfirm = async (otpCode: string) => {
+//   if (!orderDetails.value || !currentApprovalStep.value) {
+//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນທີ່ຈຳເປັນ");
+//     return;
+//   }
+
+//   if (!approvedStatusId.value) {
+//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບສະຖານະການອະນຸມັດ");
+//     return;
+//   }
+
+//   try {
+//     confirmLoading.value = true;
+//     const payload: SubmitApprovalStepInterface = {
+//       type: "po",
+//       statusId: Number(approvedStatusId.value),
+//       remark: "ຢືນຢັນສຳເລັດ",
+//       approvalStepId: Number(currentApprovalStep.value.id),
+//       approval_id: Number(approvalStepStore.otpResponse?.approval_id),
+//       is_otp: true,
+//       otp: otpCode,
+//       purchase_order_items: [],
+//       files: [],
+//     };
+//     const documentId = route.params.id as string;
+//     const success = await approvalStepStore.submitApprovalDepartMent(documentId, payload);
+
+//     if (success) {
+//       isOtpModalVisible.value = false;
+//       isSuccessModalVisible.value = true;
+//     }
+//   } catch (err) {
+//     console.error("Error in handleOtpConfirm:", err);
+//     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+//   } finally {
+//     confirmLoading.value = false;
+//   }
+// };
 const handleOtpConfirm = async (otpCode: string) => {
   if (!orderDetails.value || !currentApprovalStep.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນທີ່ຈຳເປັນ");
@@ -787,6 +843,7 @@ const handleOtpConfirm = async (otpCode: string) => {
     if (success) {
       isOtpModalVisible.value = false;
       isSuccessModalVisible.value = true;
+      isApproved.value = true; // อัพเดทสถานะการอนุมัติ
     }
   } catch (err) {
     console.error("Error in handleOtpConfirm:", err);
@@ -796,6 +853,54 @@ const handleOtpConfirm = async (otpCode: string) => {
   }
 };
 
+// const handleApprove = async () => {
+//   if (!orderDetails.value || !currentApprovalStep.value) {
+//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+//     return false;
+//   }
+
+//   if (!approvedStatusId.value) {
+//     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບສະຖານະການອະນຸມັດ");
+//     return false;
+//   }
+//   try {
+//     const purchaseOrderItems = orderDetails.value.getPurchaseOrderItem().map((item) => ({
+//       id: Number(item.getId()),
+//       budget_item_id: Number(item.getBudgetItemId() || 1),
+//     }));
+//     if (currentApprovalStep.value.is_otp) {
+//       const otpResult = await approvalStepStore.sendOtp(currentApprovalStep.value.id);
+//       if (otpResult) {
+//         isOtpModalVisible.value = true;
+//       }
+//       return false;
+//     }
+//     const payload = {
+//       type: "po" as const,
+//       statusId: Number(approvedStatusId.value),
+//       remark: "ຢືນຢັນສຳເລັດ",
+//       approvalStepId: Number(currentApprovalStep.value.id),
+//       is_otp: false,
+//       purchase_order_items: purchaseOrderItems,
+//       files: [],
+//     };
+//     const documentId = route.params.id as string;
+//     const success = await approvalStepStore.submitApprovalDepartMent(documentId, payload);
+
+//     if (success) {
+//       isApproveModalVisible.value = false;
+//       isSuccessModalVisible.value = true;
+//       return true;
+//     }
+//     return false;
+//   } catch (err) {
+//     console.error("Error in handleApprove:", err);
+//     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+//     return false;
+//   }
+// };
+
+// Handle reject
 const handleApprove = async () => {
   if (!orderDetails.value || !currentApprovalStep.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
@@ -806,34 +911,42 @@ const handleApprove = async () => {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບສະຖານະການອະນຸມັດ");
     return false;
   }
+
   try {
     const purchaseOrderItems = orderDetails.value.getPurchaseOrderItem().map((item) => ({
       id: Number(item.getId()),
       budget_item_id: Number(item.getBudgetItemId() || 1),
     }));
+
+    // ตรวจสอบว่าต้องใช้ OTP หรือไม่
     if (currentApprovalStep.value.is_otp) {
+      // กรณีต้องใช้ OTP ทำงานแบบเดิม
       const otpResult = await approvalStepStore.sendOtp(currentApprovalStep.value.id);
       if (otpResult) {
         isOtpModalVisible.value = true;
       }
       return false;
-    }
-    const payload = {
-      type: "po" as const,
-      statusId: Number(approvedStatusId.value), // ใช้ค่าจาก store
-      remark: "ຢືນຢັນສຳເລັດ",
-      approvalStepId: Number(currentApprovalStep.value.id),
-      is_otp: false,
-      purchase_order_items: purchaseOrderItems,
-      files: [],
-    };
-    const documentId = route.params.id as string;
-    const success = await approvalStepStore.submitApprovalDepartMent(documentId, payload);
+    } else {
+      // กรณีไม่ต้องใช้ OTP ส่งข้อมูลทันที
+      const payload = {
+        type: "po" as const,
+        statusId: Number(approvedStatusId.value),
+        remark: "ຢືນຢັນສຳເລັດ",
+        approvalStepId: Number(currentApprovalStep.value.id),
+        is_otp: false,
+        purchase_order_items: purchaseOrderItems,
+        files: [],
+      };
 
-    if (success) {
-      isApproveModalVisible.value = false;
-      isSuccessModalVisible.value = true;
-      return true;
+      const documentId = route.params.id as string;
+      const success = await approvalStepStore.submitApprovalDepartMent(documentId, payload);
+
+      if (success) {
+        isApproveModalVisible.value = false;
+        isSuccessModalVisible.value = true;
+        isApproved.value = true; // อัพเดทสถานะการอนุมัติ
+        return true;
+      }
     }
     return false;
   } catch (err) {
@@ -842,8 +955,6 @@ const handleApprove = async () => {
     return false;
   }
 };
-
-// Handle reject
 const handleReject = async () => {
   try {
     if (!rejectReason.value.trim()) {
@@ -953,8 +1064,8 @@ const handleSignatureConfirm = async () => {
   try {
     confirmLoading.value = true;
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    isSignatureModalVisible.value = false; // ปิด Modal ลายเซ็น
-    isSuccessModalVisible.value = true; // เปิด Modal สำเร็จ
+    isSignatureModalVisible.value = false;
+    isSuccessModalVisible.value = true;
     success("ການຢືນຢັນສຳເລັດ");
   } catch (err) {
     console.error(err);
@@ -969,6 +1080,7 @@ const handleSuccessConfirm = async () => {
     confirmLoading.value = true;
     await new Promise((resolve) => setTimeout(resolve, 1000));
     isSuccessModalVisible.value = false;
+    isApproved.value = true;
     success("ການຢືນຢັນສຳເລັດ");
     // currentStep.value = 1;
     showApprovalSuccess.value = true;

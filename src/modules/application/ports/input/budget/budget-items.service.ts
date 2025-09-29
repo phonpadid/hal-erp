@@ -11,11 +11,11 @@ export interface BudgetItemService {
 
   getAllBudgetItem(
     params: PaginationParams,
-    includeDeleted?: boolean
+    budget_account_id?: number,
   ): Promise<PaginatedResult<BudGetItemEntity>>;
   getAllReportBudgetItem(
     params: PaginationParams,
-    includeDeleted?: boolean
+    budgetType: string
   ): Promise<PaginatedResult<BudGetItemEntity>>;
   getBudgetItemsByAccountId(
     budgetAccountId: string,

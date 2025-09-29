@@ -1,406 +1,3 @@
-// import { computed, h } from "vue";
-// import type { ItemType } from "./interfaces/menu.interface";
-// import { Icon } from "@iconify/vue";
-// import { t } from "@/common/config/i18n/i18n.config";
-// import { usePermissions } from "../store/usePermissions";
-
-// export const fullMenuItems: ItemType[] = [
-//   {
-//     label: t("menu-sidebar.menu"),
-//     children: [
-//       {
-//         key: "dashboard",
-//         label: t("menu-sidebar.dashboard"),
-//         icon: () =>
-//           h("div", {}, [
-//             h(Icon, {
-//               icon: "ic:baseline-pie-chart",
-//               class: "text-base",
-//             }),
-//           ]),
-//       },
-
-//       /** ຈັດການຂໍ້ມູນຫຼັກ */
-//       {
-//         label: "",
-//         children: [
-//           { type: "divider" },
-//           {
-//             key: "1",
-//             label: t("menu-sidebar.manage"),
-//             icon: () =>
-//               h("div", {}, [
-//                 h(Icon, {
-//                   icon: "material-symbols:auto-transmission-outline",
-//                   class: "text-base",
-//                 }),
-//               ]),
-//             children: [
-//               {
-//                 key: "position.index",
-//                 label: t("menu-sidebar.position"),
-//                 permission: "read-position",
-//               },
-//               {
-//                 key: "currencies.index",
-//                 label: t("menu-sidebar.currency"),
-//                 permission: "read-currency",
-//               },
-//               {
-//                 key: "unit.index",
-//                 label: t("menu-sidebar.unit"),
-//                 permission: "read-unit",
-//               },
-//               {
-//                 key: "category.index",
-//                 label: t("menu-sidebar.category"),
-//                 permission: "read-category",
-//               },
-//               {
-//                 key: "vat.index",
-//                 label: t("menu-sidebar.vats"),
-//                 permission: "read-vat",
-//               },
-//               {
-//                 key: "bank.index",
-//                 label: t("menu-sidebar.bank"),
-//                 permission: "read-bank",
-//               },
-//               {
-//                 key: "document.type.index",
-//                 label: t("menu-sidebar.document_type"),
-//                 permission: "read-document-type",
-//               },
-//               {
-//                 key: "vendors.index",
-//                 label: t("menu-sidebar.vendor"),
-//                 permission: "read-vendor",
-//               },
-//               {
-//                 key: "user_approval.index",
-//                 label: t("menu-sidebar.user_approval"),
-//                 permission: "read-user-approval",
-//               },
-//               {
-//                 key: "approval_workflows.index",
-//                 label: t("menu-sidebar.approval_workflow"),
-//                 permission: "read-approval-workflow",
-//               },
-//               {
-//                 key: "exchange-rate.index",
-//                 label: t("menu-sidebar.exchange_rate"),
-//                 permission: "read-exchange-rate",
-//               },
-//             ],
-//           },
-//         ],
-//         type: "group",
-//       },
-
-//       //department group
-//       {
-//         label: "",
-//         children: [
-//           { type: "divider" },
-//           {
-//             key: "2",
-//             label: t("menu-sidebar.department_manage"),
-//             icon: () =>
-//               h("div", {}, [
-//                 h(Icon, {
-//                   icon: "material-symbols:auto-transmission-outline",
-//                   class: "text-base",
-//                 }),
-//               ]),
-//             children: [
-//               {
-//                 key: "department.index",
-//                 label: t("menu-sidebar.department"),
-//                 permission: "read-department",
-//               },
-//               {
-//                 key: "department_approver.index",
-//                 label: t("menu-sidebar.department_approver"),
-//                 permission: "read-department-approver",
-//               },
-//               {
-//                 key: "department_user.index",
-//                 label: t("menu-sidebar.department_user"),
-//                 permission: "read-department-user",
-//               },
-//             ],
-//           },
-//         ],
-//         type: "group",
-//       },
-
-//       /** Budget */
-//       {
-//         label: "",
-//         children: [
-//           { type: "divider" },
-//           {
-//             key: "3",
-//             label: t("menu-sidebar.budget_manage"),
-//             icon: () =>
-//               h("div", {}, [
-//                 h(Icon, {
-//                   icon: "material-symbols:folder-managed-outline",
-//                   class: "text-base",
-//                 }),
-//               ]),
-//             children: [
-//               {
-//                 key: "budget-accounts",
-//                 label: t("menu-sidebar.budget_account"),
-//                 permission: "read-budget-account",
-//               },
-//               {
-//                 key: "budget-items",
-//                 label: t("menu-sidebar.budget_item"),
-//                 permission: "read-budget-item",
-//               },
-//               {
-//                 key: "budget_apv_rule.index",
-//                 label: t("menu-sidebar.budget_apv_rule"),
-//                 permission: "read-budget-apv-rule",
-//               },
-//             ],
-//           },
-//         ],
-//         type: "group",
-//       },
-
-//       /** User */
-//       {
-//         label: "",
-//         children: [
-//           { type: "divider" },
-//           {
-//             key: "5",
-//             label: t("menu-sidebar.user_manage"),
-//             icon: () =>
-//               h("div", {}, [
-//                 h(Icon, {
-//                   icon: "mdi:user",
-//                   class: "text-base",
-//                 }),
-//               ]),
-//             children: [
-//               { key: "userList", label: t("menu-sidebar.user"), permission: "read-user" },
-//               { key: "roleList", label: t("menu-sidebar.role"), permission: "read-role" },
-//               {
-//                 key: "permissionsList",
-//                 label: t("menu-sidebar.permission"),
-//                 permission: "read-permission",
-//               },
-//             ],
-//           },
-//         ],
-//         type: "group",
-//       },
-//       // PR
-//       {
-//         label: "",
-//         children: [
-//           { type: "divider" },
-//           {
-//             key: "6",
-//             label: t("menu-sidebar.pr_manage"),
-//             icon: () =>
-//               h("div", {}, [
-//                 h(Icon, {
-//                   icon: "mdi:file-document-box-outline",
-//                   class: "text-base",
-//                 }),
-//               ]),
-//             children: [
-//               {
-//                 key: "purchaseRequestsList",
-//                 label: t("menu-sidebar.purchaseRequests"),
-//                 permission: "read-purchase-request",
-//               },
-//               {
-//                 key: "purchase_request.index",
-//                 label: t("menu-sidebar.purchase_rq"),
-//                 permission: "write-purchase-request",
-//               },
-//               {
-//                 key: "apv_purchase_request.index",
-//                 label: t("menu-sidebar.apv_purchase_rq"),
-//                 permission: "read-apv-purchase-request",
-//               },
-//             ],
-//           },
-//         ],
-//         type: "group",
-//       },
-//       // Receipt
-//       {
-//         label: "",
-//         children: [
-//           { type: "divider" },
-//           {
-//             key: "200",
-//             label: t("menu-sidebar.receipt_manage"),
-//             icon: () =>
-//               h("div", {}, [
-//                 h(Icon, {
-//                   icon: "material-symbols:receipt-long-outline",
-//                   class: "text-base",
-//                 }),
-//               ]),
-//             children: [
-//               {
-//                 key: "receipt.index",
-//                 label: t("menu-sidebar.receipt"),
-//               },
-//               {
-//                 key: "approval-receipt.index",
-//                 label: t("menu-sidebar.receipt_approved"),
-//               },
-//             ],
-//           },
-//         ],
-//         type: "group",
-//       },
-//       // PO
-//       {
-//         label: "",
-//         children: [
-//           { type: "divider" },
-//           {
-//             key: "7",
-//             label: t("menu-sidebar.po_manage"),
-//             icon: () =>
-//               h("div", {}, [
-//                 h(Icon, {
-//                   icon: "solar:archive-check-broken",
-//                   class: "text-base",
-//                 }),
-//               ]),
-//             children: [
-//               {
-//                 key: "purchaseOrdersList",
-//                 label: t("menu-sidebar.purchaseOrders"),
-//                 permission: "read-purchase-order",
-//               },
-//               {
-//                 key: "approval_department_panak",
-//                 label: t("menu-sidebar.purchasePanak"),
-//                 permission: "read-approval-department",
-//               },
-//             ],
-//           },
-//         ],
-//         type: "group",
-//       },
-//       // Budget Approval
-//       {
-//         key: "budget-approval",
-//         label: t("menu-sidebar.budgetApproval"),
-//         icon: () =>
-//           h("div", {}, [
-//             h(Icon, {
-//               icon: "solar:archive-check-broken",
-//               class: "text-base",
-//             }),
-//           ]),
-//         permission: "read-budget-approval",
-//       },
-//       {
-//         key: "director-list",
-//         label: t("menu-sidebar.director"),
-//         icon: () =>
-//           h("div", {}, [
-//             h(Icon, {
-//               icon: "solar:archive-check-broken",
-//               class: "text-base",
-//             }),
-//           ]),
-//         permission: "read-director-list",
-//       },
-//       {
-//         key: "document_typesList",
-//         label: t("menu-sidebar.document_type"),
-//         icon: () =>
-//           h("div", {}, [
-//             h(Icon, {
-//               icon: "material-symbols:edit-document-sharp",
-
-//               class: "text-base",
-//             }),
-//           ]),
-//         permission: "read-document-type",
-//       },
-//       {
-//         key: "user_approval.index",
-//         label: t("menu-sidebar.user_approval"),
-//         icon: () =>
-//           h("div", {}, [
-//             h(Icon, {
-//               icon: "ic:outline-imagesearch-roller",
-//               class: "text-base",
-//             }),
-//           ]),
-//         permission: "read-user-approval",
-//       },
-//       {
-//         key: "budget_apv_rule.index",
-//         label: t("menu-sidebar.budget_apv_rule"),
-//         icon: () =>
-//           h("div", {}, [
-//             h(Icon, {
-//               icon: "mdi:account-check",
-//               class: "text-base",
-//             }),
-//           ]),
-//         permission: "read-budget-apv-rule",
-//       },
-//     ],
-
-//     type: "group",
-//   },
-
-//   {
-//     label: t("menu-sidebar.report"),
-//     children: [
-//       {
-//         key: "payments",
-//         label: t("menu-sidebar.report"),
-//         icon: () =>
-//           h("div", {}, [
-//             h(Icon, {
-//               icon: "material-symbols:signal-cellular-alt-rounded",
-//               class: "text-base",
-//             }),
-//           ]),
-//         permission: "read-report",
-//       },
-//     ],
-//     type: "group",
-//   },
-// ];
-// // ✅ ฟังก์ชัน Recursive สำหรับกรองเมนู
-// const filterMenuItems = (items: ItemType[], hasPermission: (p: string) => boolean): ItemType[] => {
-//   return items.filter((item) => {
-//     // ถ้าเมนูมี permission และผู้ใช้ไม่มีสิทธิ์ ให้กรองออก
-//     if (item.permission && !hasPermission(item.permission)) {
-//       return false;
-//     }
-//     if (item.children) {
-//       item.children = filterMenuItems(item.children, hasPermission);
-//       return item.children.length > 0;
-//     }
-//     return true;
-//   });
-// };
-
-// export const menuItems = computed<ItemType[]>(() => {
-//   const { hasPermission } = usePermissions();
-//   const filteredMenu = filterMenuItems(fullMenuItems, hasPermission);
-//   return filteredMenu;
-// });
 import { computed, h } from "vue";
 import type { ItemType } from "./interfaces/menu.interface";
 import { Icon } from "@iconify/vue";
@@ -474,11 +71,11 @@ export const menuItems = computed<ItemType[]>(() => {
       label: t("menu-sidebar.budget_account"),
       permission: "read-budget-account",
     },
-    {
-      key: "budget-items",
-      label: t("menu-sidebar.budget_item"),
-      permission: "read-budget-item",
-    },
+    // {
+    //   key: "budget-items",
+    //   label: t("menu-sidebar.budget_item"),
+    //   permission: "read-budget-item",
+    // },
     {
       key: "budget_apv_rule.index",
       label: t("menu-sidebar.budget_apv_rule"),
@@ -514,6 +111,20 @@ export const menuItems = computed<ItemType[]>(() => {
           }),
         ]),
       permission: "read-budget-approval-rule",
+    },
+  ].filter((item) => hasPermission(item.permission));
+  const receiptsMenuItems = [
+    {
+      key: "approval-receipt.index",
+      label: t("menu-sidebar.receipt_approved"),
+      permission: "read-receipt",
+      icon: () =>
+        h("div", {}, [
+          h(Icon, {
+            icon: "material-symbols:receipt-long-outline",
+            class: "text-base",
+          }),
+        ]),
     },
   ].filter((item) => hasPermission(item.permission));
 
@@ -559,14 +170,13 @@ export const menuItems = computed<ItemType[]>(() => {
   ].filter((item) => hasPermission(item.permission));
 
   const poManageMenuItems = [
-    {
-      key: "purchaseOrdersList",
+    // {
+    //   key: "purchaseOrdersList",
 
-      label: t("menu-sidebar.purchaseOrders"),
+    //   label: t("menu-sidebar.purchaseOrders"),
 
-      permission: "read-purchase-order",
-    },
-
+    //   permission: "read-purchase-order",
+    // },
     {
       key: "approval_department_panak",
       label: t("menu-sidebar.purchasePanak"),
@@ -575,20 +185,6 @@ export const menuItems = computed<ItemType[]>(() => {
       // permission: "read-approval-department",
     },
   ].filter((item) => hasPermission(item.permission));
-
-  const receiptsMenuItems = [
-    {
-      key: "receipt.index",
-      label: t("menu-sidebar.receipt"),
-      permission: "read-receipt",
-    },
-    {
-      key: "approval-receipt.index",
-      label: t("menu-sidebar.receipt_approved"),
-      permission: "read-receipt",
-    },
-  ].filter((item) => hasPermission(item.permission));
-
   const menuStructure = [
     {
       label: t("menu-sidebar.menu"),
@@ -736,7 +332,6 @@ export const menuItems = computed<ItemType[]>(() => {
               },
             ]
           : []),
-
         ...(poManageMenuItems.length > 0
           ? [
               {
@@ -760,34 +355,7 @@ export const menuItems = computed<ItemType[]>(() => {
               },
             ]
           : []),
-        ...(receiptsMenuItems.length > 0
-          ? [
-              {
-                label: "",
-
-                children: [
-                  { type: "divider" },
-
-                  {
-                    key: "200",
-
-                    label: t("menu-sidebar.receipt_manage"),
-
-                    icon: () =>
-                      h(Icon, {
-                        icon: "material-symbols:receipt-long-outline",
-
-                        class: "text-base",
-                      }),
-
-                    children: receiptsMenuItems,
-                  },
-                ],
-
-                type: "group",
-              },
-            ]
-          : []),
+        ...receiptsMenuItems,
         ...budgetApprovalMenuItems,
         // {
         //   key: "director-list",

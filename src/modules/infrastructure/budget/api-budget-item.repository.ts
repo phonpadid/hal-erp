@@ -15,7 +15,7 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
 
   async findAll(
     params: PaginationParams,
-    includeDeleted: boolean = false
+    budget_account_id?: number
   ): Promise<PaginatedResult<BudGetItemEntity>> {
     try {
       const response = await api.get(this.baseUrl, {
@@ -25,7 +25,7 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
           search: params.search || "",
           sort_by: params.sortBy,
           sortDirection: params.sortDirection,
-          include_deleted: includeDeleted,
+          budget_account_id: budget_account_id
         },
       });
       return {
@@ -74,7 +74,7 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
   // In the file api-budget-item.repository.ts
   async getReport(
     params: PaginationParams,
-    includeDeleted: boolean = false
+    budgetType: string
   ): Promise<PaginatedResult<BudGetItemEntity>> {
     try {
       const response = await api.get(`${this.baseUrl}/report`, {
@@ -84,7 +84,8 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
           search: params.search || "",
           sort_by: params.sortBy,
           sort_direction: params.sortDirection,
-          include_deleted: includeDeleted,
+          ...(budgetType === "expenditure" && { expenditure: true }),
+          ...(budgetType === "advance" && { advance: true }),
         },
       });
       return {

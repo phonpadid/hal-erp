@@ -3,7 +3,7 @@ import { useI18n } from "vue-i18n";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -19,6 +19,7 @@ import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import { formatPrice, NumberOnly, parsePrice } from "@/modules/shared/utils/format-price";
 import { increaseBudgetRules } from "../../../views/budget/increase-budget/validation/increase-budget.validate";
 import axios from "@/common/config/axios/axios";
+
 const { success, warning } = useNotification();
 const { push } = useRouter();
 const { t } = useI18n();
@@ -44,10 +45,20 @@ const accountOption = computed(() =>
   }))
 );
 onMounted(async () => {
-  // resetForm()
-  await budgetItemStore.fetchBudgetItems({ limit: 1000, page: 1 });
   await budgetAccountStore.fetchBudgetAccounts({ limit: 1000, page: 1 });
 });
+
+watch(
+  () => formState.budget_account_id,
+  async (newBudgetId) => {
+    if (newBudgetId) {
+      await budgetItemStore.fetchBudgetItems({ limit: 1000, page: 1 }, newBudgetId);
+    } else {
+      budgetItemStore.budgetItems = [];
+    }
+  },
+  { immediate: true }
+);
 
 // File upload handler
 const handleFileUpload = () => {
@@ -169,12 +180,7 @@ const formattedPrice = (index: number) =>
             class="h-10 border border-gray-300 rounded-md px-3 flex items-center justify-between"
           >
             <div class="flex items-center gap-2 overflow-hidden">
-              <svg
-                width="18"
-                height="18"
-                fill="#1890ff"
-                viewBox="0 0 1024 1024"
-              >
+              <svg width="18" height="18" fill="#1890ff" viewBox="0 0 1024 1024">
                 <path
                   d="M854.6 288.6L639.4 73.4c-6-6-14.1-9.4-22.6-9.4H192c-17.7
           0-32 14.3-32 32v832c0 17.7 14.3
@@ -219,11 +225,7 @@ const formattedPrice = (index: number) =>
         </UiFormItem>
       </div>
 
-      <div
-        class="items"
-        v-for="(value, index) in formState.detail"
-        :key="index"
-      >
+      <div class="items" v-for="(value, index) in formState.detail" :key="index">
         <h1 class="md:text-lg text-md font-semibold flex md:gap-2 gap-1">
           {{ $t("increase-budget.add_item") }}
           <p class="text-md font-medium">({{ index + 1 }})</p>
@@ -249,11 +251,7 @@ const formattedPrice = (index: number) =>
             @keypress="NumberOnly"
             required
           >
-            <UiInput
-              v-model="formattedPrice(index).value"
-              placeholder="0.00"
-              class="w-full"
-            />
+            <UiInput v-model="formattedPrice(index).value" placeholder="0.00" class="w-full" />
           </UiFormItem>
         </div>
         <UiFormItem :label="t('approval-workflow.addMore')">
@@ -279,9 +277,7 @@ const formattedPrice = (index: number) =>
         <UiButton @click="push({ name: 'approval_workflows.index' })">{{
           t("button.cancel")
         }}</UiButton>
-        <UiButton @click="handleSubmit" type="primary">{{
-          t("button.save")
-        }}</UiButton>
+        <UiButton @click="handleSubmit" type="primary">{{ t("button.save") }}</UiButton>
       </div>
     </UiForm>
   </div>

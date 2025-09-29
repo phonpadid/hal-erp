@@ -5,25 +5,43 @@ import { nextTick, ref, computed, watch, defineProps, defineEmits } from "vue";
 import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useApprovalStepStore } from "@/modules/presentation/Admin/stores/approval-step.store";
+import { getUserApv } from "@/modules/shared/utils/get-user.login";
+import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
+import { useRouter } from "vue-router";
 
+const user = computed(() => getUserApv());
 const { t } = useI18n();
-const { error } = useNotification();
+const { error, success } = useNotification();
 const approvalStepStore = useApprovalStepStore();
-
+const { approvalReceipt } = useReceiptStore();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const otpInputRefs = ref<any[]>([]);
+const rStore = useReceiptStore();
 const otpValue = ref<string[]>(Array(6).fill(""));
-const confirmOTP = ref(false); // controls if we are on signature step
+const confirmOTP = ref(false);
 const resendLoading = ref(false);
 const resendCooldown = ref(false);
 const cooldownTime = ref(60);
-
+const { push } = useRouter();
 const props = defineProps<{
   visible: boolean;
   title: string;
+  is_reject?: boolean;
   approvalStepId?: number | null;
   loading?: boolean;
-  is_otp?: boolean; // <-- added prop
+  is_otp?: boolean;
+  rId: number;
+  dataHead?: {
+    isStep_on?: boolean;
+    stepId?: number;
+    remark?: string;
+    type?: string;
+    files?: { file_name: string }[];
+    account_code?: string;
+    uploadCompleted?: boolean;
+    formState?: { files: { file_name: string }[] };
+    uploadedImages?: string[];
+  };
 }>();
 
 const emit = defineEmits<{
@@ -41,10 +59,10 @@ const phoneNumber = computed(() => {
 });
 
 const isOtpComplete = computed(() => {
-  return otpValue.value.every((digit) => digit !== "") && otpValue.value.length === 6;
+  return (
+    otpValue.value.every((digit) => digit !== "") && otpValue.value.length === 6
+  );
 });
-
-// When modal opens, decide whether to skip OTP step
 watch(
   () => props.visible,
   (newVisible) => {
@@ -61,7 +79,8 @@ watch(
         nextTick(() => {
           const firstInput = otpInputRefs.value[0];
           if (firstInput) {
-            const inputElement = firstInput.$el.querySelector("input") || firstInput.$el;
+            const inputElement =
+              firstInput.$el.querySelector("input") || firstInput.$el;
             inputElement?.focus();
           }
         });
@@ -69,7 +88,6 @@ watch(
     }
   }
 );
-
 const handleOtpInputEvent = async (value: string, index: number) => {
   const numericValue = value.replace(/[^0-9]/g, "");
   if (numericValue) {
@@ -78,7 +96,8 @@ const handleOtpInputEvent = async (value: string, index: number) => {
       nextTick(() => {
         const nextInput = otpInputRefs.value[index + 1];
         if (nextInput) {
-          const inputElement = nextInput.$el.querySelector("input") || nextInput.$el;
+          const inputElement =
+            nextInput.$el.querySelector("input") || nextInput.$el;
           inputElement?.focus();
         }
       });
@@ -136,10 +155,59 @@ const confirmOtpStep = () => {
   }
 };
 
-const finalConfirm = () => {
-  const otp = otpValue.value.join("");
-  emit("confirm", otp);
+const finalConfirm = async () => {
+  try {
+    const otp = otpValue.value.join("");
+
+    if (props.dataHead) {
+      if (props.is_reject) {
+        await approvalReceipt(props.dataHead.stepId!, {
+          type: props.dataHead.type || "r",
+          statusId: 3,
+          remark: props.dataHead.remark || "",
+          is_otp: props.is_otp,
+          otp: otp,
+          approval_id: approvalStepStore.otpResponse?.approval_id,
+        });
+        success('ປະຕິເສດສຳເລັດ', 'ໄດ້ປະຕິເສດແລ້ວ');
+      } else {
+        await approvalReceipt(props.dataHead.stepId!, {
+          type: props.dataHead.type || "r",
+          statusId: 2,
+          remark: props.dataHead.remark || "",
+          is_otp: props.is_otp,
+          account_code: props.dataHead.account_code || "",
+          files: props.dataHead.files || [],
+          otp: otp,
+          approval_id: approvalStepStore.otpResponse?.approval_id,
+        });
+
+        if (props.dataHead.isStep_on) {
+          push({
+            name: "approval-by-finance-department-detail.index",
+            params: { id: props.rId },
+          });
+        }
+
+        const localDataHead = ref({ ...props.dataHead });
+        if (localDataHead.value) {
+          localDataHead.value.uploadCompleted = false;
+          localDataHead.value.formState = { files: [] };
+          localDataHead.value.uploadedImages = [];
+        }
+      }
+
+      await rStore.fetchById(String(props.rId));
+      emit("confirm", otp);
+
+      // ✅ Always close modal after success
+      emit("close");
+    }
+  } catch (error) {
+    console.error("Error in finalConfirm:", error);
+  }
 };
+
 
 const closeModal = () => {
   emit("close");
@@ -157,7 +225,8 @@ const resendOtp = async () => {
     nextTick(() => {
       const firstInput = otpInputRefs.value[0];
       if (firstInput) {
-        const antInput = firstInput.$el?.querySelector("input") || firstInput.$el;
+        const antInput =
+          firstInput.$el?.querySelector("input") || firstInput.$el;
         antInput?.focus();
       }
     });
@@ -176,7 +245,6 @@ const setOtpInputElement = (el: unknown, index: number) => {
 };
 </script>
 
-
 <template>
   <UiModal
     :title="confirmOTP ? t('purchase-rq.confirm_signature') : title"
@@ -187,14 +255,16 @@ const setOtpInputElement = (el: unknown, index: number) => {
     <div class="mt-4 px-2">
       <!-- User Info Header -->
       <div class="text-center text-sm flex items-center justify-start gap-2">
-        <p>{{ approvalStepStore.otpResponse?.approver?.name || "ສຸກີ້ ວົງພະຈັນ" }}</p> fff: {{ props.is_otp }}
+        <p>{{ user?.username || "ສຸກີ້ ວົງພະຈັນ" }}</p>
         <span class="-mt-3 ml-1 text-bold">•</span>
-        <p>ບໍລິຫານ</p>
+        <p>{{ user?.department_name }}</p>
       </div>
 
       <!-- OTP Input Step -->
       <div v-if="!confirmOTP" class="mb-6">
-        <p class="text-start mb-2 font-medium">{{ t("purchase-rq.check_message") }}</p>
+        <p class="text-start mb-2 font-medium">
+          {{ t("purchase-rq.check_message") }}
+        </p>
         <p class="text-start text-sm text-gray-600 mb-4">
           {{ t("purchase-rq.content") }} {{ phoneNumber }}
         </p>
@@ -228,7 +298,9 @@ const setOtpInputElement = (el: unknown, index: number) => {
               <span v-if="resendCooldown"
                 >{{ t("purchase-rq.send_again") }} ({{ cooldownTime }}s)</span
               >
-              <span v-else-if="resendLoading">{{ t("purchase-rq.sending") }}...</span>
+              <span v-else-if="resendLoading"
+                >{{ t("purchase-rq.sending") }}...</span
+              >
               <span v-else>{{ t("purchase-rq.send_again") }}</span>
             </button>
           </p>
@@ -237,7 +309,9 @@ const setOtpInputElement = (el: unknown, index: number) => {
 
       <!-- Signature Confirmation Step -->
       <div v-else class="mb-6">
-        <p class="text-start mb-2 font-bold">{{ t("purchase-rq.signature") }}</p>
+        <p class="text-start mb-2 font-bold">
+          {{ t("purchase-rq.signature") }}
+        </p>
         <p class="text-start text-sm text-gray-600 mb-4">
           {{ t("purchase-rq.message") }}
         </p>
@@ -248,7 +322,7 @@ const setOtpInputElement = (el: unknown, index: number) => {
           title="Click to confirm signature"
         >
           <img
-            src="/2.png"
+            :src="user?.signature ?? ''"
             alt="Digital Signature"
             class="max-w-[270px] max-h-[120px] object-contain pointer-events-none"
           />

@@ -7,12 +7,13 @@ import { useI18n } from "vue-i18n";
 import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-order";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { useToggleStore } from "../../stores/storage.store";
 import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
 import { useApprovalStepStore } from "../../stores/approval-step.store";
 import { useDocumentStatusStore } from "../../stores/document-status.store";
+import { useAuthStore } from "../../stores/authentication/auth.store";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
@@ -24,11 +25,15 @@ import BudgetApprovalDrawer from "./BudgetApprovalDrawer.vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { storeToRefs } from "pinia";
 import OtpModal from "../purchase-requests/modal/OtpModal.vue";
+import SelectDocumentTypeModal from "../receipt/modal/SelectDocumentTypeModal.vue";
 /********************************************************* */
 const { t } = useI18n();
 const { success, error } = useNotification();
 const store = usePurchaseOrderStore();
 const route = useRoute();
+const router = useRouter();
+const authStore = useAuthStore();
+const { userRoles } = storeToRefs(authStore);
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
 const orderId = ref<number | null>(null);
 const isApproveModalVisible = ref(false);
@@ -37,6 +42,12 @@ const rejectReason = ref("");
 const confirmLoading = ref(false);
 const visible = ref(false);
 const visibleBudget = ref(false);
+
+const canManageBudget = computed(() => {
+  return userRoles.value.includes("budget-admin") || userRoles.value.includes("budget-user");
+});
+const columns = computed(() => columnsApprovalDetails(t, userRoles.value));
+
 const showDrawer = () => {
   visible.value = true;
 };
@@ -81,10 +92,10 @@ const rejectedStatusId = computed(() => {
 
 const loggedInUserId = ref<number>(12);
 const getPreviousApprovedStep = computed(() => {
-  // หาขั้นตอนที่ถูกอนุมัติล่าสุด
+
   const approvedSteps = approvalSteps.value.filter((step) => step.status_id === 2);
   if (approvedSteps.length > 0) {
-    // เรียงลำดับจากมากไปน้อยเพื่อหาขั้นตอนล่าสุด
+
     return approvedSteps.sort((a, b) => b.step_number - a.step_number)[0];
   }
   return null;
@@ -92,19 +103,12 @@ const getPreviousApprovedStep = computed(() => {
 
 const currentApprovalStep = computed(() => {
   // console.log("🔥 Using NEW currentApprovalStep logic");
-
-  // หา step ที่เป็น PENDING ก่อน
   const pendingSteps = approvalSteps.value.filter((step) => step.status_id === 1);
 
   if (pendingSteps.length === 0) {
-    // console.log("No pending steps found");
     return null;
   }
-
-  // เรียงลำดับตาม step_number และเอา step แรก
   const nextPendingStep = pendingSteps.sort((a, b) => a.step_number - b.step_number)[0];
-
-  // ตรวจสอบสิทธิ์ในการอนุมัติ
   const canApprove =
     nextPendingStep.approver_id === loggedInUserId.value || nextPendingStep.approver_id === 0;
 
@@ -202,6 +206,13 @@ const handleOtpConfirm = async (otpCode: string) => {
     isOtpModalVisible.value = false;
   }
 };
+const open = ref<boolean>(false);
+const selectedData = ref<string | null>(null);
+const purchaseOrderId = route.params.id as string
+const onChooseDocumentType = () => {
+  selectedData.value = purchaseOrderId
+  open.value = true;
+};
 const handleApprove = async () => {
   isApproveModalVisible.value = false;
   const currentStep = currentApprovalStep.value;
@@ -209,20 +220,19 @@ const handleApprove = async () => {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
     return;
   }
-
   const documentId = route.params.id as string;
 
   const purchaseOrderItemsPayload = Object.keys(selectedBudgets.value).map((itemId) => {
-    const budget = selectedBudgets.value[itemId];
+    const budgetData = selectedBudgets.value[itemId];
     return {
-      id: Number(itemId),
-      budget_item_id: budget.budgetId,
+      id: Number(budgetData.purchaseOrderItemId),
+      budget_item_id: budgetData.budgetId,
     };
   });
 
-  // --- จุดตัดสินใจ ---
+  console.log("Payload for approval:", purchaseOrderItemsPayload);
   if (currentStep.is_otp === true) {
-    // ---- กรณีต้องใช้ OTP ----
+
     try {
       const otpData = await approvalStepStore.sendOtp(currentStep.id, purchaseOrderItemsPayload);
       if (otpData) {
@@ -233,7 +243,6 @@ const handleApprove = async () => {
       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
     }
   } else {
-    // ---- กรณีไม่ต้องใช้ OTP ----
     try {
       const payload: SubmitApprovalStepInterface = {
         type: "po",
@@ -244,8 +253,8 @@ const handleApprove = async () => {
         is_otp: false,
         purchase_order_items: purchaseOrderItemsPayload,
       };
-
       await approvalStepStore.submitApproval(documentId, payload);
+      router.push("/budget-approval");
     } catch (err) {
       error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
     }
@@ -381,24 +390,35 @@ const canApprove = computed(() => {
   );
 });
 const customButtons = computed(() => {
+
   if (!canApprove.value) {
-    return [];
+    return [
+
+    {
+        label: `ສ້າງໃບເບີກຈ່າຍ`,
+        type: "primary" as ButtonType,
+        onClick: () => {
+          onChooseDocumentType();
+        },
+      },
+
+    ];
   }
 
   const currentStep = currentApprovalStep.value;
   if (!currentStep) return [];
 
   if (!canApprove.value) {
-        return [
-            {
-                label: `ອະນຸມັດ`,
-                type: "primary" as ButtonType,
-                onClick: () => {
-                    handleApprove();
-                },
-            },
-        ];
-    }
+    return [
+      {
+        label: `ອະນຸມັດ`,
+        type: "primary" as ButtonType,
+        onClick: () => {
+          handleApprove();
+        },
+      },
+    ];
+  }
 
   return [
     {
@@ -419,11 +439,15 @@ const customButtons = computed(() => {
 });
 const handleBudgetConfirm = (data: any) => {
   if (activeItemRecord.value) {
-    selectedBudgets.value[activeItemRecord.value.id] = data;
-    // console.log("Selected budgets:", selectedBudgets.value);
+    selectedBudgets.value[activeItemRecord.value.id] = {
+      purchaseOrderItemId: activeItemRecord.value.id,
+      budgetId: data.id,
+    };
+    // console.log("Selected budgets after confirm:", selectedBudgets.value);
   }
   visibleBudget.value = false;
 };
+
 const userInfo = {
   name: "ນາງ ປາກາລີ ລາຊະບູລີ",
   department: "ພະແນກໄອທີ, ພະບໍລິມາດ",
@@ -448,8 +472,6 @@ const signatures = computed(() => {
   const userApproval = orderDetails.value?.getUserApproval();
   const approvedStep = userApproval?.approval_step?.find((step: any) => step.status_id === 2); // APPROVED status id
   const approver = approvedStep?.approver;
-
-  // ลายเซ็นของผู้เสนอ (Requester)
   if (requester) {
     sigs.push({
       role: "ຜູ້ສະເໜີ",
@@ -469,10 +491,6 @@ const signatures = computed(() => {
 
   return sigs;
 });
-
-/************************Drawer**************************** */
-// const selectedBudgets = ref<Record<string, any>>({});
-// const activeItemRecord = ref<any>(null);
 </script>
 
 <template>
@@ -636,8 +654,7 @@ const signatures = computed(() => {
       :width="500"
     >
       <BudgetApprovalDrawer
-        :item-name="'ຄອມພິວເຕີ MacBook Air M3 (16GB/512GB)'"
-        :item-price="24090000"
+
         @confirm="handleBudgetConfirm"
       />
     </UiDrawer>
@@ -697,7 +714,7 @@ const signatures = computed(() => {
       <!-- Items Table -->
       <div class="mb-6">
         <h4 class="text-base font-semibold mb-2">ລາຍການ</h4>
-        <Table :columns="columnsApprovalDetails(t)" :dataSource="getItemsForTable">
+        <Table :columns="columns" :dataSource="getItemsForTable">
           <template #number="{ index }">
             <span>{{ index + 1 }}</span>
           </template>
@@ -709,7 +726,7 @@ const signatures = computed(() => {
               }}</span
             >
           </template>
-          <template #id_name="{ record }">
+          <!-- <template #id_name="{ record }">
             <span class="text-gray-600">
               <div v-if="selectedBudgets[record.id]">
                 <span class="font-semibold text-blue-700">
@@ -730,6 +747,38 @@ const signatures = computed(() => {
 
                   <Icon icon="mdi:chevron-right" class="text-xl" />
                 </UiButton>
+              </div>
+            </span>
+          </template>
+           -->
+
+          <template #id_name="{ record }">
+            <span class="text-gray-600">
+              <div v-if="canManageBudget">
+                <div v-if="selectedBudgets[record.id]">
+                  <span class="font-semibold text-blue-700">
+                    {{ selectedBudgets[record.id].budgetCode }} -
+                    {{ selectedBudgets[record.id].budgetName }}
+                  </span>
+                  <UiButton @click="showBudgetDrawer(record)" type="link" class="p-0 text-blue-500">
+                    ແກ້ໄຂ
+                  </UiButton>
+                </div>
+                <div v-else>
+                  <UiButton
+                    @click="showBudgetDrawer(record)"
+                    type="default"
+                    class="w-full flex justify-between items-center text-blue-600 font-medium"
+                  >
+                    <div class="flex-grow text-left">ເລືອກປະເພດງົບປະມານ</div>
+                    <Icon icon="mdi:chevron-right" class="text-xl" />
+                  </UiButton>
+                </div>
+              </div>
+              <div v-else>
+                <span class="font-semibold text-gray-700">
+                  {{ selectedBudgets[record.id]?.budgetCode }}
+                </span>
               </div>
             </span>
           </template>
@@ -817,6 +866,11 @@ const signatures = computed(() => {
       </div>
     </div>
   </div>
+  <SelectDocumentTypeModal
+      v-model:visible="open"
+      :isEdit="true"
+      :itemid="String(selectedData)"
+    />
 </template>
 
 <style scoped></style>

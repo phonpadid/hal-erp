@@ -1,6 +1,11 @@
 {
     "title": {
-        "detail": "ລາຍລະອຽດ"
-        
+        "detail": "Detail",
+        "select_r": "Select Receipt Type",
+        "r_type": "Receipt Type",
+        "budget_code": "Budget Code",
+        "account_number": "Account Number",
+        "create": "Create Receipt",
+        "approval_proposal": "Approval Proposal"
     }
 }

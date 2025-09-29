@@ -226,10 +226,7 @@ const handleApprove = async () => {
         approvalStepId: Number(currentStep.id),
         is_otp: false,
       };
-
       const success = await approvalStepStore.submitApproval(documentId, payload);
-
-      // จัดการผลลัพธ์ และ Redirect ถ้าเป็น Step สุดท้าย
       if (success) {
         await purchaseRequestStore.fetchById(documentId); // โหลดข้อมูลใหม่
         // console.log("Reloaded requestDetail:", requestDetail.value);

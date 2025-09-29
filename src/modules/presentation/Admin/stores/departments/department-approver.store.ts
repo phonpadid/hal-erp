@@ -10,8 +10,8 @@ import type {
   UpdateDepartmentApproverDTO,
 } from "@/modules/application/dtos/departments/department-approver.dto";
 export const dpmApproverFormModel = reactive({
-  user_id: "",
-  department_id: "",
+  user_id: [] as string[],
+  department_id: null as string | null,
 });
 // สร้าง unit service
 const createDepartmentApproverService = () => {
@@ -215,7 +215,7 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
 
   // Reset state
   const resetForm = () => {
-    dpmApproverFormModel.user_id = "";
+    dpmApproverFormModel.user_id = [];
     dpmApproverFormModel.department_id = "";
   };
 
@@ -249,6 +249,6 @@ export const departmentApproverStore = defineStore("department-Approver", () => 
     deleteDepartmentApprover,
     resetForm,
     updateDepartmentApproverByAdmin,
-    createDepartmentApproverByAdmin
+    createDepartmentApproverByAdmin,
   };
 });

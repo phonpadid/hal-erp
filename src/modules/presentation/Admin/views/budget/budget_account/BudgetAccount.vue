@@ -13,9 +13,12 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FormBudgetAccount from "@/modules/presentation/Admin/components/budget/FormBudgetAccount.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
-import UiInputSelect from '@/common/shared/components/Input/InputSelect.vue';
-import { useRouter } from "vue-router";
+import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
+import { useRouter, useRoute } from "vue-router";
+
+
 const { push } = useRouter();
+const route = useRoute();
 const departStore = departmentStore();
 
 const { t } = useI18n();
@@ -45,12 +48,18 @@ const tablePagination = computed(() => ({
 const loadBudgetAccounts = async () => {
   loading.value = true;
 
+  // ดึงค่า ID จาก URL
+  const budgetId = route.params.id ? Number(route.params.id) : undefined;
+
   try {
-    await budgetAccountStore.fetchBudgetAccounts({
-      page: budgetAccountStore.pagination.page,
-      limit: budgetAccountStore.pagination.limit,
-      search: searchKeyword.value,
-    });
+    await budgetAccountStore.fetchBudgetAccounts(
+      {
+        page: budgetAccountStore.pagination.page,
+        limit: budgetAccountStore.pagination.limit,
+        search: searchKeyword.value,
+      },
+      budgetId
+    );
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     error(t("budget_accounts.error.loadFailed"), String(errorMessage));
@@ -60,15 +69,19 @@ const loadBudgetAccounts = async () => {
 };
 
 // Handle pagination and sorting
-const handleTableChange = (
-  pagination: TablePaginationType) => {
+const handleTableChange = (pagination: TablePaginationType) => {
   budgetAccountStore.setPagination({
     page: pagination.current || 1,
     limit: pagination.pageSize || 10,
     total: pagination.total ?? 0,
-  })
+  });
 
   loadBudgetAccounts();
+};
+
+const addBudgetItem = (record: any) => {
+  // console.log("Viewing details for document:", record);
+  push({ name: "budget-accounts-id-add", params: { id: record.id } });
 };
 
 const handleSearch = async () => {
@@ -80,16 +93,16 @@ const handleSearch = async () => {
   });
 };
 
-watch(searchKeyword, async(newVal: string) => {
-  if(newVal === '') {
+watch(searchKeyword, async (newVal: string) => {
+  if (newVal === "") {
     budgetAccountStore.setPagination({
       page: 1,
       limit: budgetAccountStore.pagination.limit,
       total: budgetAccountStore.pagination.total,
-    })
-    await loadBudgetAccounts()
+    });
+    await loadBudgetAccounts();
   }
-})
+});
 
 // Modal handlers
 const showCreateModal = () => {
@@ -191,8 +204,8 @@ const loadDepartments = async () => {
   }
 };
 const increaseBudgetView = () => {
-  push({name: 'increase_budget', params: { }})
-}
+  push({ name: "increase_budget", params: {} });
+};
 onMounted(async () => {
   await Promise.all([loadBudgetAccounts(), loadDepartments()]);
 });
@@ -212,7 +225,7 @@ onMounted(async () => {
           :placeholder="t('currency.placeholder.search')"
         />
         <UiInputSelect
-          v-model:value="departmentId"
+          v-model:modelValue="departmentId"
           :options="departmentOptions"
           :placeholder="$t('budget_accounts.form.departmentPlaceholder')"
           :disabled="loading"
@@ -245,16 +258,19 @@ onMounted(async () => {
       row-key="id"
       @change="handleTableChange"
     >
-      <!-- <template #department="{ record }">
-        <span v-if="record && record.getDepartment()">
-          {{ record.getDepartment().name }}
-        </span>
-        <span v-else>...</span>
-      </template> -->
-
+      <template #department="{ record }">
+        <span>{{ record.getDepartment()?.name }}</span>
+      </template>
       <!-- Actions column -->
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
+          <UiButton
+            type=""
+            icon="material-symbols:add-box-outline"
+            size="small"
+            @click="addBudgetItem(record)"
+            colorClass="flex items-center justify-center text-blue-600"
+          />
           <UiButton
             type=""
             icon="ant-design:edit-outlined"

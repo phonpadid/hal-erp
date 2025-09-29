@@ -8,7 +8,7 @@ export interface ApprovalStepInterface {
 }
 export interface Purchase_order_itemsInterface {
   id: number;
-  budget_item_detail_id: number;
+  budget_item_id: number;
 }
 export interface FileNameinterface {
   file_name: string | null;

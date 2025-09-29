@@ -19,7 +19,8 @@
     "remark": "Remark",
     "img_example": "Image example",
     "amount": "Total balance",
-    "purposes": "Purposes"
+    "purposes": "Purposes",
+    "unit":"Unit"
   },
   "created": "Create proposal",
   "search": "Search",
@@ -27,9 +28,10 @@
   "done": "Done",
   "description": "Detail",
   "edit": "Edit",
+  "otp-verification": "Patterns such as",
   "date": "Date",
   "all": "All",
-  "status":{
+  "status": {
     "pending": "Pending",
     "approved": "Approved",
     "rejected": "Rejected"
@@ -62,7 +64,8 @@
     "title": "Enter title",
     "qty": "Enter quantity",
     "price": "Enter price",
-    "remark": "Enter remark"
+    "remark": "Enter remark",
+    "unit":"Unit"
   },
   "error": {
     "rq_date": "Please select date",
@@ -73,7 +76,8 @@
     "max_qty": "Maximum quantity is 12",
     "min_price": "Minimum price is 1",
     "max_price": "Price cannot exceed 12 digits",
-    "max_title": "Title must be at most 255 characters"
+    "max_title": "Title must be at most 255 characters",
+     "images_required":"images not required"
   },
   "btn": {
     "add_title": "add",

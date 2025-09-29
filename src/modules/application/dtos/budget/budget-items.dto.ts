@@ -8,12 +8,13 @@ export interface BudgetItemtDTO {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
-  budget_item_details?: BudgetItemDetailForInterfaceType[]; // เพิ่มฟิลด์นี้
+  budget_item_details?: BudgetItemDetailForInterfaceType[];
 }
+
 export interface CreateBudgetItemDTO {
   budget_accountId: number;
   name: string;
-  allocated_amount: number;
+  // allocated_amount: number;
   description: string;
   // budget_item_details: Array<{
   //   name: string;

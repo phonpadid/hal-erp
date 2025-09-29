@@ -42,7 +42,10 @@
     "updated": "Updated At",
     "manage": "Manage",
     "itemDetails": "Item Details",
-    "noDetails": "No details available"
+    "noDetails": "No details available",
+    "balance_amount": "Balance Amount",
+    "use_amount": "Used Amount"
+    
   },
   "list": {
     "title": "Budget Items",

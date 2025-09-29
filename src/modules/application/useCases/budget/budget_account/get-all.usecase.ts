@@ -7,8 +7,8 @@ export class GetAllBudGetAccountsUseCase {
 
   async execute(
     params: PaginationParams,
-    includeDeleted: boolean = false
+    budget_account_id?: number
   ): Promise<PaginatedResult<BudGetAccountsEntity>> {
-    return await this.budGetRepository.findAll(params, includeDeleted);
+    return await this.budGetRepository.findAll(params, budget_account_id);
   }
 }

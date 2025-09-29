@@ -6,7 +6,7 @@ import type { PropType } from "vue";
 const props = defineProps({
   // เปลี่ยนให้รับค่า null ได้ และค่าเริ่มต้นคือ null
   modelValue: {
-    type: [String, Number, null] as PropType<string | number | null>,
+    type: [String, Number, null ] as PropType<string | number | null | string[]>,
     default: null,
   },
   options: {

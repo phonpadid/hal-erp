@@ -213,12 +213,13 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
 
     return PurchaseOrderEntity.create({
       id: data.id,
-      poNumber: data.po_number,
+      po_number: data.po_number,
       purchase_request_id: data.purchase_request_id,
       document: {
         description: data.document?.description,
         documentTypeId: Number(data.document?.documentTypeId),
         department: data.document?.department,
+        document_type: data.document?.document_type || null,
         requester: data.document?.requester,
         position: data.document?.position || [],
       },

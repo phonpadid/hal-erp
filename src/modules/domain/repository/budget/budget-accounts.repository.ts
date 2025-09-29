@@ -8,7 +8,7 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 export interface BudgetAccountsRepository {
   findAll(
     params: PaginationParams,
-    includeDeleted?: boolean
+   budget_account_id?: number
   ): Promise<PaginatedResult<BudGetAccountsEntity>>;
   findById(id: string): Promise<BudGetAccountsEntity | null>;
   create(budgetAccountData: CreateBudgetAccountInterface): Promise<BudGetAccountsEntity>;

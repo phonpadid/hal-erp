@@ -1,7 +1,44 @@
+// import type { Column } from "@/modules/shared/column/column";
+
+// export function columnsApprovalDetails(t: (key: string) => string): Column[] {
+//   return [
+//     {
+//       title: t("budget_approval.table.number"),
+//       dataIndex: "number",
+//       key: "number",
+//     },
+//     {
+//       title: t("budget_approval.table.remark"),
+//       dataIndex: "remark",
+//       key: "remark",
+//     },
+//     {
+//       title: t("budget_approval.table.id_name"),
+//       dataIndex: "id_name",
+//       key: "id_name",
+//     },
+//     {
+//       title: t("budget_approval.table.quantity"),
+//       dataIndex: "quantity",
+//       key: "quantity",
+//     },
+//     {
+//       title: t("budget_approval.table.price"),
+//       dataIndex: "price",
+//       key: "price",
+//     },
+//     {
+//       title: t("budget_approval.table.total"),
+//       dataIndex: "total",
+//       key: "total",
+//     },
+//   ];
+// }
 import type { Column } from "@/modules/shared/column/column";
 
-export function columnsApprovalDetails(t: (key: string) => string): Column[] {
-  return [
+export function columnsApprovalDetails(t: (key: string) => string, userRoles: string[]): Column[] {
+  // กำหนดคอลัมน์หลักทั้งหมดไว้ก่อน
+  const baseColumns: Column[] = [
     {
       title: t("budget_approval.table.number"),
       dataIndex: "number",
@@ -12,11 +49,7 @@ export function columnsApprovalDetails(t: (key: string) => string): Column[] {
       dataIndex: "remark",
       key: "remark",
     },
-    {
-      title: t("budget_approval.table.id_name"),
-      dataIndex: "id_name",
-      key: "id_name",
-    },
+    // เราจะเพิ่ม id_name เข้าไปตรงนี้ถ้ามีสิทธิ์
     {
       title: t("budget_approval.table.quantity"),
       dataIndex: "quantity",
@@ -33,4 +66,14 @@ export function columnsApprovalDetails(t: (key: string) => string): Column[] {
       key: "total",
     },
   ];
+
+  const hasBudgetRole = userRoles.includes("budget-admin") || userRoles.includes("budget-user");
+  if (hasBudgetRole) {
+    baseColumns.splice(2, 0, {
+      title: t("budget_approval.table.id_name"),
+      dataIndex: "id_name",
+      key: "id_name",
+    });
+  }
+  return baseColumns;
 }

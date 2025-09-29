@@ -36,9 +36,9 @@ export class BudgetAccountServiceImpl implements BudgetAccountsService {
 
   async getAllBudgetAccounts(
     params: PaginationParams,
-    includeDeleted: boolean = false
+    budget_account_id?: number
   ): Promise<PaginatedResult<BudGetAccountsEntity>> {
-    return await this.getAllUseCase.execute(params, includeDeleted);
+    return await this.getAllUseCase.execute(params, budget_account_id);
   }
 
   async updateBudgetAccounts(id: string, input: UpdateBudgetAccountDTO): Promise<BudGetAccountsEntity> {

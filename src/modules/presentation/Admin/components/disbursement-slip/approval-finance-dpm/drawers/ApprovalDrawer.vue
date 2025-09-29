@@ -3,23 +3,41 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { formatPrice } from "@/modules/shared/utils/format-price";
-import { ref } from "vue";
-import { columnsTitle, columnTitle, data, dataItem } from "./column";
+import { onMounted, ref } from "vue";
+import { columnsTitle, columnTitle } from "./column";
+import { usePurchaseOrderStore } from "../../../../stores/purchase_requests/purchase-order";
+import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import { numberToLaoWords } from "@/modules/shared/utils/read-number-lao";
 
 // Import the print helper
-
+const purchaseOrderStore = usePurchaseOrderStore();
+const orderDetails = ref<PurchaseOrderEntity | null>(null);
+  const { error } = useNotification();
 const { t } = useI18n();
 const profileImage = ref("/public/Profile-PNG-File.png");
 const userName = ref("ທ້າວສຸກີ້");
-const userPosition = ref("ພະແນກການເງິນ, ພະນັກງານ");
 const department = ref("ພະແນກການເງິນ");
-
+const props = defineProps<{
+  id: number | null;
+}>();
+const fetchOrderDetails = async () => {
+    const result = await purchaseOrderStore.fetchById(Number(props.id));
+    if (result) {
+      orderDetails.value = result;
+    } else {
+      error("ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+    }
+};
+onMounted( async () => {
+  await fetchOrderDetails();
+});
 </script>
 
 <template>
   <div class="container mx-auto py-0 px-0 -mt-2">
     <div class="user-info shadow-sm py-2">
-        <h2 class="text-md font-semibold px-6 mb-4">ຂໍ້ມູນສ້າງໃບອະນຸມັດຈັດຊື້</h2>
+        <h2 class="text-md font-semibold px-6 mb-4">ຂໍ້ມູນສ້າງໃບອະນຸມັດຈັດຊື້ {{ props.id }}</h2>
         <div class="info flex items-center px-6 gap-4 mb-4">
           <a-image
             :src="profileImage"
@@ -30,52 +48,70 @@ const department = ref("ພະແນກການເງິນ");
             :preview="false"
           />
           <div class="detail -space-y-2">
-            <p class="font-medium">{{ userName }}</p>
-            <p class="text-gray-600">{{ userPosition }}</p>
+            <p class="font-medium">{{ orderDetails?.getRequester().username }}</p>
+            <p class="text-gray-500 text-sm">{{ orderDetails?.getDepartment().name }}, {{ orderDetails?.getPosition()[0].name }}</p>
           </div>
         </div>
         <div class="title md:w-[40rem] -space-y-0 px-6 mb-4">
           <h2 class="text-md font-semibold">ສະເໜີ</h2>
           <a-table
           :columns="columnsTitle(t)"
-          :dataSource="data"
+          :dataSource="orderDetails?.getPurchaseOrderItem()"
           :pagination="false"
-          ></a-table>
+          >
+            <template #bodyCell="{ column }">
+              <template v-if="column.key === 'department'">
+                <span>{{ orderDetails?.getDepartment().name }}</span>
+              </template>
+              <template v-if="column.key === 'work'">
+                <span>{{ orderDetails?.getPosition()[0].name  }}</span>
+              </template>
+            </template>
+        </a-table>
         </div>
 
         <div class="purposes -space-y-0 px-6 mb-4">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.field.purposes") }}</h2>
           <p class="text-gray-600 text-sm pl-4">
-            ມີການຈັດຊື້ ເນື່ອງຈາກວ່າປະຈຸບັນນີ້ມີພະນັກງານເຂົ້າມາເພີ່ມໃໝ່ 5 ຄົນ
+            {{ orderDetails?.getPurposes() }}
           </p>
         </div>
         <div class="table -space-y-0 mb-2 w-full px-6 shadow-sm rounded-md">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.field.title") }}</h2>
           <a-table
             :columns="columnTitle(t)"
-            :dataSource="dataItem"
+            :dataSource="orderDetails?.getPurchaseOrderItem() ?? []"
             :pagination="false"
             row-key="id"
           >
-            <template #bodyCell="{ column, record }">
+            <template #bodyCell="{ column, record, index }">
+              <template v-if="column.key === 'id'">
+                <span>{{ index + 1}}</span>
+              </template>
+              <template v-if="column.key === 'unit'">
+                <span>{{ record.purchase_request_item.unit.name }}</span>
+              </template>
               <template v-if="column.key === 'price_per_unit'">
-                <span>₭ {{ formatPrice(record.price_per_unit) }}</span>
+                <span>₭ {{ formatPrice(record.price) }}</span>
               </template>
               <template v-if="column.key === 'amount'">
-                <span>₭ {{ formatPrice(record.amount) }}</span>
+                <span>₭ {{ formatPrice(record.total) }}</span>
+              </template>
+              <template v-if="column.key === 'price_in_words'">
+                <span>{{ numberToLaoWords(Number(record?.total)) }}</span>
               </template>
             </template>
           </a-table>
           <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4">
             <p class="font-medium text-slate-600">ມູນຄ່າລວມທັງໝົດ:</p>
             <p class="font-semibold md:text-lg text-sm text-slate-700">
-              {{ formatPrice(5000000) }} ₭
+              {{ formatPrice(orderDetails?.getPurchaseRequest().total || 0) }} ₭
             </p>
           </div>
           <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 gap-4">
             <p class="font-medium text-slate-600 -mt-3 ">ມູນຄ່າລວມທັງໝົດກີບ:</p>
             <p class="font-semibold md:text-lg text-sm -mt-3 text-slate-700">
-              {{ formatPrice(5000000) }} ₭
+              {{ formatPrice(orderDetails?.getPurchaseRequest().total || 0) }} ₭
             </p>
           </div>
         </div>

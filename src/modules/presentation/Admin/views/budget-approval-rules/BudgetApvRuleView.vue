@@ -57,7 +57,7 @@ const formModel = budgetApvRuleStore.formState;
 // Initialize
 onMounted(async () => {
   await loadDpm();
-  await dpmStore.fetchDepartment();
+  await dpmStore.fetchDepartment({ page:1, limit:1000});
   await userStore.fetchDepartmentUser({
     page: 1,
     limit: 1000,
@@ -281,7 +281,8 @@ const checkedRadio = ref("personal");
           v-if="budget_apv_rules.length > 0 && budget_apv_rules[0].department"
         >
           {{ budget_apv_rules[0].department?.name }}
-        </span></div>
+        </span>
+      </div>
       <!-- <div class="total-item mt-4 text-slate-700">
         <a-tag color="red"
           >{{
@@ -366,11 +367,7 @@ const checkedRadio = ref("personal");
             :placeholder="t('budget-apv-rule.placeholder.department')"
           />
         </UiFormItem>
-        <UiFormItem
-          :label="t('budget-apv-rule.field.user')"
-          name="approver_id"
-          required
-        >
+        <UiFormItem :label="t('budget-apv-rule.field.user')" name="approver_id" required>
           <InputSelect
             v-model="formModel.approver_id"
             :options="userItem"
@@ -386,16 +383,8 @@ const checkedRadio = ref("personal");
           <UiInput v-model="formattedMinAmount" placeholder="1xx.xxx.xxx" />
         </UiFormItem>
 
-        <UiFormItem
-          :label="t('budget-apv-rule.field.max')"
-          name="max_amount"
-          required
-        >
-          <UiInput
-            v-model="formattedMaxAmount"
-            placeholder="2xx.xxx.xxx"
-            @keypress="NumberOnly"
-          />
+        <UiFormItem :label="t('budget-apv-rule.field.max')" name="max_amount" required>
+          <UiInput v-model="formattedMaxAmount" placeholder="2xx.xxx.xxx" @keypress="NumberOnly" />
         </UiFormItem>
       </UiForm>
     </UiModal>
@@ -412,22 +401,14 @@ const checkedRadio = ref("personal");
       :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="budgetApvRuleRules(t)">
-        <UiFormItem
-          :label="t('budget-apv-rule.field.department')"
-          name="department_id"
-          :rules="[]"
-        >
+        <UiFormItem :label="t('budget-apv-rule.field.department')" name="department_id" :rules="[]">
           <InputSelect
             v-model="formModel.department_id"
             :options="departmentItem"
             :placeholder="t('budget-apv-rule.placeholder.department')"
           />
         </UiFormItem>
-        <UiFormItem
-          :label="t('budget-apv-rule.field.user')"
-          name="approver_id"
-          required
-        >
+        <UiFormItem :label="t('budget-apv-rule.field.user')" name="approver_id" required>
           <InputSelect
             v-model="formModel.approver_id"
             :options="userItem"
@@ -443,16 +424,8 @@ const checkedRadio = ref("personal");
           <UiInput v-model="formattedMinAmount" placeholder="1xx.xxx" />
         </UiFormItem>
 
-        <UiFormItem
-          :label="t('budget-apv-rule.field.max')"
-          name="max_amount"
-          required
-        >
-          <UiInput
-            v-model="formattedMaxAmount"
-            placeholder="2xx.xxx"
-            @keypress="NumberOnly"
-          />
+        <UiFormItem :label="t('budget-apv-rule.field.max')" name="max_amount" required>
+          <UiInput v-model="formattedMaxAmount" placeholder="2xx.xxx" @keypress="NumberOnly" />
         </UiFormItem>
       </UiForm>
     </UiModal>

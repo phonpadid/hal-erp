@@ -13,7 +13,7 @@ interface Step {
 }
 
 // Define the step types
-type StepType = "TWO_STEPS" | "THREE_STEPS" | "FOUR_STEPS";
+type StepType = "TWO_STEPS" | "THREE_STEPS" | "FOUR_STEPS" | "THREE_STEP";
 
 // Default steps configuration
 const defaultSteps: Record<StepType, Step[]> = {
@@ -34,6 +34,25 @@ const defaultSteps: Record<StepType, Step[]> = {
     {
       title: "ລາຍລະອຽດ",
       description: "ກະລຸນາຕື່ມຂໍ້ມູນ",
+      data: null,
+    },
+    {
+      title: "ກວດສອບ",
+      description: "ກວດສອບຂໍ້ມູນ",
+      data: null,
+      disabled: true,
+    },
+    {
+      title: "ສຳເລັດ",
+      description: "ດຳເນີນການສຳເລັດ",
+      data: null,
+      disabled: true,
+    },
+  ],
+  THREE_STEP: [
+    {
+      title: "ປະເພດໃບສະເໜີ",
+      description: "ເລືອກປະເພດໃບສະເໜີ",
       data: null,
     },
     {
