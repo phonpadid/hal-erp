@@ -130,41 +130,26 @@ const showCreateModal = (): void => {
   // formModel.user_id = [];
   modalVisible.value = true;
 };
-
-// const showEditModal = (record: DepartmentApproverApiModel): void => {
+// const showEditModal = async (record: DepartmentApproverApiModel): Promise<void> => {
 //   isEditMode.value = true;
 //   selectedDpm.value = record;
+//   store.resetForm();
 //   formModel.department_id = String(record.department_id);
-//   formModel.user_id = [String(record.user_id)];
+//   if (record.user_id) {
+//     if (Array.isArray(record.user_id)) {
+//       formModel.user_id = record.user_id.map(String);
+//     } else {
+//       formModel.user_id = [String(record.user_id)];
+//     }
+//   } else {
+//     formModel.user_id = [];
+//   }
+//   if (formModel.department_id) {
+//     await userStore.fetchDepartmentUserByDpm(formModel.department_id);
+//   }
+
 //   modalVisible.value = true;
 // };
-// ในไฟล์ .vue
-const showEditModal = async (record: DepartmentApproverApiModel): Promise<void> => {
-  isEditMode.value = true;
-  selectedDpm.value = record;
-  store.resetForm();
-
-  // กำหนดค่า department_id
-  formModel.department_id = String(record.department_id);
-
-  // กำหนดค่า user_id ให้เป็น Array เสมอ
-  if (record.user_id) {
-    if (Array.isArray(record.user_id)) {
-      formModel.user_id = record.user_id.map(String);
-    } else {
-      formModel.user_id = [String(record.user_id)];
-    }
-  } else {
-    formModel.user_id = [];
-  }
-
-  // หลังจากตั้งค่า formModel ให้ fetch user ที่เกี่ยวข้อง
-  if (formModel.department_id) {
-    await userStore.fetchDepartmentUserByDpm(formModel.department_id);
-  }
-
-  modalVisible.value = true;
-};
 
 const showDeleteModal = (record: DepartmentApproverApiModel): void => {
   selectedDpm.value = record;
@@ -183,10 +168,8 @@ const handleCreate = async (): Promise<void> => {
   try {
     loading.value = true;
     await formRef.value.submitForm();
-
-    // สร้าง payload ใหม่จาก formModel
     const payload = {
-      user_id: formModel.user_id.map((id) => Number(id)), // แปลงเป็น Array ของ number
+      user_id: formModel.user_id.map((id) => Number(id)),
       department_id: Number(formModel.department_id),
     };
 
@@ -195,7 +178,6 @@ const handleCreate = async (): Promise<void> => {
     } else {
       await store.createDepartmentApprover(payload);
     }
-
     success(t("departments.notify.created"));
     await dpmApproverList();
     modalVisible.value = false;
@@ -237,6 +219,7 @@ const handleEdit = async (): Promise<void> => {
     loading.value = false;
   }
 };
+
 const handleDelete = async (): Promise<void> => {
   if (!selectedDpm.value) return;
   loading.value = true;
@@ -244,7 +227,7 @@ const handleDelete = async (): Promise<void> => {
     // Use API to delete
     const id = selectedDpm.value.id.toString();
     await store.deleteDepartmentApprover(id);
-    await dpmApproverList(); // Refresh the list
+    await dpmApproverList();
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     warning(t("messages.error.title"), errorMessage);
@@ -265,7 +248,6 @@ const handleTableChange = async (pagination: TablePaginationType) => {
 
 const handleModalCancel = async () => {
   modalVisible.value = false;
-  // Reset form state
   formModel.user_id = [] as string[];
   formModel.department_id = null as string | null;
   userStore.departmentUserByDpm = [];
@@ -340,12 +322,12 @@ watch(search, async (newValue) => {
       <!-- Named slot: actions -->
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
-          <UiButton
+          <!-- <UiButton
             icon="ant-design:edit-outlined"
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
-          />
+          /> -->
           <UiButton
             icon="ant-design:delete-outlined"
             size="small"

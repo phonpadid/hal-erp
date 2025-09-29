@@ -13,6 +13,9 @@
     "remark": "Remark",
     "action": "Action",
     "vendor": "Vendor"
-
+  },
+  "error":{
+    "document_type_required":"document type not required"
+   
   }
 }

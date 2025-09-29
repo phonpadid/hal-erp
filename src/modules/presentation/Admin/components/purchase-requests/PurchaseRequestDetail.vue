@@ -39,11 +39,6 @@ const positionInfo = computed(() => requestDetail.value?.getPosition());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
 
 const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
-
-// const imageList = computed(() => {
-//   return items.value.map((item) => item.file_name_url).filter((url): url is string => !!url);
-// });
-// Print handler
 const handlePrint = async () => {
   /* ... no changes needed ... */
 };
@@ -146,23 +141,6 @@ const handleToggle = () => {
             </p>
           </div>
         </div>
-
-        <!-- <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
-          <h2 class="text-md font-semibold">{{ t("purchase-rq.field.img_example") }}</h2>
-          <div class="flex flex-wrap gap-6">
-            <a-image
-              v-for="(imgUrl, index) in imageList"
-              :key="index"
-              :src="imgUrl"
-              alt="example"
-              :width="280"
-              :height="150"
-              :preview="true"
-              class="rounded-xl shadow-sm"
-            />
-          </div>
-        </div> -->
-
         <div class="signature shadow-sm py-4 px-6 rounded-md mb-[10rem]">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
           <p class="text-slate-500 text-sm">{{ t("purchase-rq.proposer") }}</p>

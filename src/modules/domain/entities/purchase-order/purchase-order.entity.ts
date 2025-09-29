@@ -8,6 +8,7 @@ interface PurchaseOrderDocument {
   description: string | null;
   documentTypeId: number;
   department?: any;
+  document_type?: any;
   requester?: any;
   purposes?: string;
   position?: Array<{
@@ -96,7 +97,7 @@ export class PurchaseOrderEntity {
     // console.log("Document data:", data.document);
 
     const id = data.id || null;
-    const poNumber = data.po_number || null;
+    const po_number = data.po_number || null;
     const purchaseRequestId = data.purchase_request_id || 0;
     const purposes = data.purposes || data.purchase_request?.purposes || "N/A";
     const createdAt = data.created_at || "Invalid date";
@@ -153,18 +154,18 @@ export class PurchaseOrderEntity {
       description: documentData?.description || null,
       documentTypeId: documentData?.documentTypeId || documentData?.document_type_id || 0,
       department: documentData?.department || null,
+      document_type: documentData?.document_type || null,
       requester: documentData?.requester || null,
       position: documentData?.position || [],
       created_at: documentData?.created_at || "Invalid date",
       updated_at: documentData?.updated_at || "Invalid date",
     };
-
     // console.log("Final document object:", document);
     // console.log("documentTypeId value:", document.documentTypeId);
 
     return new PurchaseOrderEntity(
       id,
-      poNumber,
+      po_number,
       purchaseRequestId,
       document,
       items,

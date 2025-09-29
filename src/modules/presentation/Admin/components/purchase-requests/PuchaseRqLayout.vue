@@ -74,12 +74,24 @@ const handleConfirm = async (allData: Record<number, any>) => {
   }
 };
 
+// const handleDone = async (allData: Record<number, any>) => {
+//   console.log("All steps data:", allData);
+//   if (props.currentStep === 2) {
+//     try {
+//       emit("update:currentStep", 3);
+//     } catch (err) {
+//       console.error(err);
+//       error("ເກີດຂໍ້ຜິດພາດ");
+//     }
+//   }
+// };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleDone = async (allData: Record<number, any>) => {
   console.log("All steps data:", allData);
   if (props.currentStep === 2) {
+    // เปลี่ยนจาก 2 เป็น final step
     try {
-      emit("update:currentStep", 3);
+      emit("confirm-step", allData); // แทนที่จะ update step เป็น 3
     } catch (err) {
       console.error(err);
       error("ເກີດຂໍ້ຜິດພາດ");
@@ -90,35 +102,15 @@ const handleDone = async (allData: Record<number, any>) => {
 const cancel = () => {
   goToFirstStep();
 };
-
 const actionButtons = computed<ActionButton[]>(() => {
   if (currentStatus.value === "finish") {
     return [];
   }
 
   switch (props.currentStep) {
-    case 0:
+    case 0: // ขั้นตอนที่ 1
       return [];
-    case 1:
-      return [
-        {
-          label: t("purchase-rq.btn.cancel"),
-          onClick: async () => cancel(),
-          show: true,
-          disabled: false,
-          class: "button-hover",
-          type: undefined,
-        },
-        {
-          label: t("purchase-rq.btn.confirm"),
-          type: "primary" as ButtonType,
-          onClick: async () => await handleConfirm(props.stepsData),
-          show: true,
-          disabled: !isFormValid.value,
-          class: "button-hover",
-        },
-      ] as ActionButton[];
-    case 2:
+    case 1: // ขั้นตอนที่ 2
       return [
         {
           label: t("purchase-rq.btn.cancel"),
@@ -130,17 +122,88 @@ const actionButtons = computed<ActionButton[]>(() => {
         },
         {
           label: t("purchase-rq.btn.confirm"),
-          onClick: async () => await handleDone(props.stepsData),
+          onClick: async () => await handleConfirm(props.stepsData),
           show: true,
           disabled: false,
           class: "button-hover",
           type: "primary" as ButtonType,
         },
       ] as ActionButton[];
+    // case 2: // ขั้นตอนที่ 3 (สุดท้าย)
+    //   return [
+    //     {
+    //       label: t("purchase-rq.btn.cancel"),
+    //       onClick: async () => cancel(),
+    //       show: true,
+    //       disabled: false,
+    //       class: "button-hover",
+    //       type: undefined,
+    //     },
+    //     {
+    //       label: t("purchase-rq.btn.confirm"),
+    //       type: "primary" as ButtonType,
+    //       onClick: async () => await handleDone(props.stepsData),
+    //       show: true,
+    //       disabled: !isFormValid.value,
+    //       class: "button-hover",
+    //     },
+    //   ] as ActionButton[];
     default:
       return [];
   }
 });
+
+// const actionButtons = computed<ActionButton[]>(() => {
+//   if (currentStatus.value === "finish") {
+//     return [];
+//   }
+
+//   switch (props.currentStep) {
+//     case 0:
+//       return [];
+//     case 1:
+//       return [
+//         {
+//           label: t("purchase-rq.btn.cancel"),
+//           onClick: () => goBack(),
+//           show: true,
+//           disabled: false,
+//           class: "button-hover",
+//           type: undefined,
+//         },
+//         {
+//           label: t("purchase-rq.btn.confirm"),
+//           onClick: async () => await handleDone(props.stepsData),
+//           show: true,
+//           disabled: false,
+//           class: "button-hover",
+//           type: "primary" as ButtonType,
+//         },
+//       ] as ActionButton[];
+
+//     case 2:
+//       return [
+//         {
+//           label: t("purchase-rq.btn.cancel"),
+//           onClick: async () => cancel(),
+//           show: true,
+//           disabled: false,
+//           class: "button-hover",
+//           type: undefined,
+//         },
+//         {
+//           label: t("purchase-rq.btn.confirm"),
+//           type: "primary" as ButtonType,
+//           onClick: async () => await handleConfirm(props.stepsData),
+//           show: true,
+//           disabled: !isFormValid.value,
+//           class: "button-hover",
+//         },
+//       ] as ActionButton[];
+//     default:
+//       return [];
+//   }
+// });
 </script>
 
 <template>
@@ -160,7 +223,7 @@ const actionButtons = computed<ActionButton[]>(() => {
       class="mt-4"
       :current-step="props.currentStep"
       @update:current-step="handleStepChange"
-      step-type="FOUR_STEPS"
+      step-type="THREE_STEP"
       :custom-steps="getCustomSteps(t)"
       :custom-buttons="actionButtons"
       :show-user="true"
