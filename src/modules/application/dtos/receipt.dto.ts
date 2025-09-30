@@ -113,6 +113,7 @@ export interface IPurchaseOrderItem {
   total_with_vat: number;
   purchase_request_item: IPurchaseRequestItem;
   selected_vendor: ISelectVendor[];
+  budget_item: { id: number; name: string; budget_account: { id: number; code: string; name: string }}
 }
 
 export interface IPurchaseRequestItem {
@@ -142,4 +143,7 @@ export interface ISelectVendor {
   total_price: number;
   remark: string;
   unit: UnitDTO
+}
+export interface IReportReceiptCount {
+  amount: number;
 }

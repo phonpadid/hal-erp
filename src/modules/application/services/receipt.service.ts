@@ -6,9 +6,10 @@ import { UpdateReceiptUseCase } from "../useCases/receipts/update.use-case";
 import { DeleteReceiptUseCase } from "../useCases/receipts/delete.use-case";
 import { GetOneReceiptUseCase } from "../useCases/receipts/get-one.usecase";
 import { GetAllReceiptUseCase } from "../useCases/receipts/get-all.use-case";
-import type { CreateReceiptDTO, IApprovalReceiptDto, ReciptQueryDto, UpdateReceiptDTO } from "../dtos/receipt.dto";
+import type { CreateReceiptDTO, IApprovalReceiptDto, IReportReceiptCount, ReciptQueryDto, UpdateReceiptDTO } from "../dtos/receipt.dto";
 import type { ReceiptEntity } from "@/modules/domain/entities/receipts/receipt.entity";
 import { ApprovalReceiptUseCase } from "../useCases/receipts/approval.use-case";
+import { ReceiptReportMenuUseCase } from "../useCases/receipts/report-menu.use-case";
 
 export class ReceiptServiceImpl implements ReceiptService {
   private readonly createUseCase: CreateReceiptUseCase;
@@ -17,6 +18,7 @@ export class ReceiptServiceImpl implements ReceiptService {
   private readonly deleteUseCase: DeleteReceiptUseCase;
   private readonly getOneUseCase: GetOneReceiptUseCase;
   private readonly getAllUseCase: GetAllReceiptUseCase;
+  private readonly getReportMenu: ReceiptReportMenuUseCase;
 
   constructor(private readonly repo: ReceiptRepository) {
     this.createUseCase = new CreateReceiptUseCase(repo);
@@ -25,6 +27,7 @@ export class ReceiptServiceImpl implements ReceiptService {
     this.deleteUseCase = new DeleteReceiptUseCase(repo);
     this.getOneUseCase = new GetOneReceiptUseCase(repo);
     this.getAllUseCase = new GetAllReceiptUseCase(repo);
+    this.getReportMenu = new ReceiptReportMenuUseCase(repo);
   }
   async create(input: CreateReceiptDTO):Promise<ReceiptEntity> {
     return await this.createUseCase.execute(input);
@@ -48,6 +51,9 @@ export class ReceiptServiceImpl implements ReceiptService {
     return await this.updateUseCase.execute(id, input);
   }
 
+  async reportMenu(type: string): Promise<IReportReceiptCount> {
+    return await this.getReportMenu.execute(type);
+  }
   async delete(id: string): Promise<boolean> {
     return await this.deleteUseCase.execute(id);
   }

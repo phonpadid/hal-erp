@@ -2,6 +2,7 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { menuItems } from "./menu";
+import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
 
 defineProps<{ toggle: boolean }>();
 
@@ -23,6 +24,10 @@ onMounted(() => {
 
   selectedKeys.value.push(menuKey ? JSON.parse(menuKey) : "login");
   openKeys.value.push(subMenuKey ? JSON.parse(subMenuKey) : "");
+  const store = useReceiptStore();
+  store.reportMenu("r");
+  store.reportMenu("pr");
+  store.reportMenu("po");
 });
 </script>
 <template>

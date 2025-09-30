@@ -1,7 +1,7 @@
 import type{ VNode } from "vue";
 export interface ItemType {
   key?: string;
-  label?: string;
+  label?: string | VNode;
   icon?: string | (() => VNode | Element | string);
   children?: ItemType[];
   permission?: string;

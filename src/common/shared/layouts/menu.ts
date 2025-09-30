@@ -3,7 +3,8 @@ import type { ItemType } from "./interfaces/menu.interface";
 import { Icon } from "@iconify/vue";
 import { t } from "@/common/config/i18n/i18n.config";
 import { usePermissions } from "../store/usePermissions";
-
+import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
+const rStore = useReceiptStore();
 export const menuItems = computed<ItemType[]>(() => {
   const { hasPermission } = usePermissions();
   const manageMenuItems = [
@@ -116,7 +117,17 @@ export const menuItems = computed<ItemType[]>(() => {
   const receiptsMenuItems = [
     {
       key: "approval-receipt.index",
-      label: t("menu-sidebar.receipt_approved"),
+      label: h("div", { class: "flex items-center gap-2" }, [
+        h("span", t("menu-sidebar.receipt_approved")),
+        h(
+          "span",
+          {
+            class:
+              "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
+          },
+          rStore.counts.r?.toString() ?? "0"
+        ),
+      ]),
       permission: "read-receipt",
       icon: () =>
         h("div", {}, [
