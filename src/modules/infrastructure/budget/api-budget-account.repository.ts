@@ -97,7 +97,9 @@ private toDomainModel(budgetAccount: BudgetAccountInterface): BudGetAccountsEnti
     budgetAccount.code,
     budgetAccount.name,
     budgetAccount.fiscal_year,
-    budgetAccount.allocated_amount, // This now correctly maps to the 'allocated_amount' parameter
+    budgetAccount.allocated_amount,
+    budgetAccount.balance_amount,
+    budgetAccount.used_amount,
     budgetAccount.department_id, // This maps to the 'department_id' parameter
     null, // type
     null, // description

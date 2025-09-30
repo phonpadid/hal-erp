@@ -16,7 +16,6 @@ import { departmentStore } from "@/modules/presentation/Admin/stores/departments
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { useRouter, useRoute } from "vue-router";
 
-
 const { push } = useRouter();
 const route = useRoute();
 const departStore = departmentStore();
@@ -260,6 +259,15 @@ onMounted(async () => {
     >
       <template #department="{ record }">
         <span>{{ record.getDepartment()?.name }}</span>
+      </template>
+      <template #allocated_amount="{ record }">
+        <span class="text-orange-600">{{ record.allocated_amount }}</span>
+      </template>
+      <template #balance_amount="{ record }">
+        <span class="text-blue-600">{{ record.balance_amount }}</span>
+      </template>
+      <template #used_amount="{ record }">
+        <span class="text-red-600">{{ record.used_amount }}</span>
       </template>
       <!-- Actions column -->
       <template #actions="{ record }">

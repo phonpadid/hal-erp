@@ -3,7 +3,11 @@ import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 import { IcraseDetailEntity } from "@/modules/domain/entities/budget/increase/increase-detail.entity";
 import type { IncreaseBudgetItemRepository } from "@/modules/domain/repository/budget/increase-budget/increase-buget-item.repository";
-import type { IncreaseBudgetAccountDetailCreateDTO, IncreaseBudgetAccountDetailUpdateDTO, IncreaseDetailDTO } from "@/modules/application/dtos/budget/increase-budget/increase-detail.dto";
+import type {
+  IncreaseBudgetAccountDetailCreateDTO,
+  IncreaseBudgetAccountDetailUpdateDTO,
+  IncreaseDetailDTO,
+} from "@/modules/application/dtos/budget/increase-budget/increase-detail.dto";
 import { BudGetItemEntity } from "@/modules/domain/entities/budget/budget-items.entities";
 import { BudGetAccountsEntity } from "@/modules/domain/entities/budget/budget-accounts.entities";
 
@@ -16,7 +20,7 @@ export class ApiIncreaseBudgetItemRepository implements IncreaseBudgetItemReposi
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<IcraseDetailEntity>> {
     try {
-      const response = await api.get(this.baseUrl + '/' + id, {
+      const response = await api.get(this.baseUrl + "/" + id, {
         params: {
           page: params.page || 1,
           limit: params.limit || 10,
@@ -27,9 +31,7 @@ export class ApiIncreaseBudgetItemRepository implements IncreaseBudgetItemReposi
         },
       });
       return {
-        data: response.data.data.map((data: IncreaseDetailDTO) =>
-          this.toDomainModel(data)
-        ),
+        data: response.data.data.map((data: IncreaseDetailDTO) => this.toDomainModel(data)),
         total: response.data.pagination.total,
         page: response.data.pagination.page,
         limit: response.data.pagination.limit,
@@ -53,9 +55,12 @@ export class ApiIncreaseBudgetItemRepository implements IncreaseBudgetItemReposi
     }
   }
 
-  async create(id: number, input: IncreaseBudgetAccountDetailCreateDTO): Promise<IcraseDetailEntity> {
+  async create(
+    id: number,
+    input: IncreaseBudgetAccountDetailCreateDTO
+  ): Promise<IcraseDetailEntity> {
     try {
-      const response = await api.post(this.baseUrl +'/'+id, {
+      const response = await api.post(this.baseUrl + "/" + id, {
         ...input,
       });
 
@@ -96,31 +101,53 @@ export class ApiIncreaseBudgetItemRepository implements IncreaseBudgetItemReposi
       input.budget_item_id,
       input.allocated_amount,
       null, // increase_budget - keeping as null since not provided in input
-      input.budget_item ? new BudGetItemEntity(
-        input.budget_item.id.toString(),           // id
-        String(input.budget_item.butget_account_id),       // budget_account_id
-        input.budget_item.name ?? '',                    // name
-        Number(input.budget_item.allocated_amount),        // allocated_amount
-        Number(input.budget_item.use_amount),        // allocated_amount
-        Number(input.budget_item.balance_amount),        // allocated_amount
-        input.budget_item.description ?? '',             // description
-        input.budget_item.created_at ?? '',              // created_at
-        input.budget_item.updated_at ?? '',              // updated_at
-        null,                                      // deleted_at
-        // budget_account (last parameter) - Create BudGetAccountsEntity instance
-        (input.budget_account || input.budget_item?.budget_account) ? new BudGetAccountsEntity(
-          (input.budget_account?.id || input.budget_item?.budget_account?.id)?.toString() || "",
-          input.budget_account?.code || input.budget_item?.budget_account?.code || "",
-          input.budget_account?.name || input.budget_item?.budget_account?.name || "",
-          input.budget_account?.fiscal_year || input.budget_item?.budget_account?.fiscal_year,
-          input.budget_account?.allocated_amount || input.budget_item?.budget_account?.allocated_amount || 0,
-          input.budget_account?.departmentId || input.budget_item?.budget_account?.departmentId || "",
-          input.budget_account?.description || input.budget_item?.budget_account?.description || null,
-          input.budget_account?.created_at || input.budget_item?.budget_account?.created_at || "",
-          input.budget_account?.updated_at || input.budget_item?.budget_account?.updated_at || "",
-          '' // deleted_at
-        ) : undefined
-      ) : null,
+      input.budget_item
+        ? new BudGetItemEntity(
+            input.budget_item.id.toString(), // id
+            String(input.budget_item.butget_account_id), // budget_account_id
+            input.budget_item.name ?? "", // name
+            Number(input.budget_item.allocated_amount), // allocated_amount
+            Number(input.budget_item.use_amount), // allocated_amount
+            Number(input.budget_item.balance_amount), // allocated_amount
+            input.budget_item.description ?? "", // description
+            input.budget_item.created_at ?? "", // created_at
+            input.budget_item.updated_at ?? "", // updated_at
+            null, // deleted_at
+            // budget_account (last parameter) - Create BudGetAccountsEntity instance
+            input.budget_account || input.budget_item?.budget_account
+              ? new BudGetAccountsEntity(
+                  (input.budget_account?.id || input.budget_item?.budget_account?.id)?.toString() ||
+                    "",
+                  input.budget_account?.code || input.budget_item?.budget_account?.code || "",
+                  input.budget_account?.name || input.budget_item?.budget_account?.name || "",
+                  input.budget_account?.fiscal_year ||
+                    input.budget_item?.budget_account?.fiscal_year,
+                  input.budget_account?.allocated_amount ||
+                    input.budget_item?.budget_account?.allocated_amount ||
+                    0,
+                  input.budget_account?.balance_amount ||
+                    input.budget_item?.budget_account?.balance_amount ||
+                    0,
+                  input.budget_account?.used_amount ||
+                    input.budget_item?.budget_account?.used_amount ||
+                    0,
+                  input.budget_account?.departmentId ||
+                    input.budget_item?.budget_account?.departmentId ||
+                    "",
+                  input.budget_account?.description ||
+                    input.budget_item?.budget_account?.description ||
+                    null,
+                  input.budget_account?.created_at ||
+                    input.budget_item?.budget_account?.created_at ||
+                    "",
+                  input.budget_account?.updated_at ||
+                    input.budget_item?.budget_account?.updated_at ||
+                    "",
+                  "" // deleted_at
+                )
+              : undefined
+          )
+        : null,
       input.created_at ?? "",
       input.updated_at ?? ""
     );
@@ -128,7 +155,6 @@ export class ApiIncreaseBudgetItemRepository implements IncreaseBudgetItemReposi
     // console.log('toDomainModel result:', res);
     return res;
   }
-
 
   private handleApiError(error: unknown, defaultMessage: string): never {
     const axiosError = error as AxiosError<{ message?: string }>;

@@ -63,7 +63,10 @@
     "department": "Department",
     "createdAt": "Created At",
     "updatedAt": "Updated At",
-    "actions": "Actions"
+    "actions": "Actions",
+    "allocated_amount":"Allocated Amount",
+    "balance_amount":"Balance Amount",
+    "used_amount":"Used Amount"
   },
   "form": {
     "department": "Department",
