@@ -87,7 +87,17 @@ export const menuItems = computed<ItemType[]>(() => {
   const budgetApprovalMenuItems = [
     {
       key: "budget-approval",
-      label: t("menu-sidebar.budgetApproval"),
+      label: h("div", { class: "flex items-center gap-2" }, [
+        h("span", t("menu-sidebar.budgetApproval")),
+        h(
+          "span",
+          {
+            class:
+              "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
+          },
+          rStore.counts.po?.toString() ?? "0"
+        ),
+      ]),
       icon: () =>
         h("div", {}, [
           h(Icon, {
@@ -114,6 +124,7 @@ export const menuItems = computed<ItemType[]>(() => {
       permission: "read-budget-approval-rule",
     },
   ].filter((item) => hasPermission(item.permission));
+
   const receiptsMenuItems = [
     {
       key: "approval-receipt.index",
@@ -165,17 +176,48 @@ export const menuItems = computed<ItemType[]>(() => {
   const prManageMenuItems = [
     {
       key: "purchaseRequestsList",
-      label: t("menu-sidebar.purchaseRequests"),
+      label: h("div", { class: "flex items-center gap-2" }, [
+        h("span", t("menu-sidebar.purchaseRequests")),
+        h(
+          "span",
+          {
+            class:
+              "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
+          },
+          rStore.counts.pr?.toString() ?? "0"
+        ),
+      ]),
       permission: "read-purchase-request",
     },
     {
       key: "purchase_request.index",
-      label: t("menu-sidebar.purchase_rq"),
+      label: h("div", { class: "flex items-center gap-2" }, [
+        h("span", t("menu-sidebar.purchase_rq")),
+        h(
+          "span",
+          {
+            class:
+              "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
+          },
+          rStore.counts.pr?.toString() ?? "0"
+        ),
+      ]),
       permission: "write-purchase-request",
     },
     {
       key: "apv_purchase_request.index",
-      label: t("menu-sidebar.apv_purchase_rq"),
+
+      label: h("div", { class: "flex items-center gap-2" }, [
+        h("span", t("menu-sidebar.apv_purchase_rq")),
+        h(
+          "span",
+          {
+            class:
+              "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
+          },
+          rStore.counts.pr?.toString() ?? "0"
+        ),
+      ]),
       permission: "read-purchase-request",
     },
   ].filter((item) => hasPermission(item.permission));
@@ -190,7 +232,18 @@ export const menuItems = computed<ItemType[]>(() => {
     // },
     {
       key: "approval_department_panak",
-      label: t("menu-sidebar.purchasePanak"),
+
+      label: h("div", { class: "flex items-center gap-2" }, [
+        h("span", t("menu-sidebar.purchasePanak")),
+        h(
+          "span",
+          {
+            class:
+              "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
+          },
+          rStore.counts.po?.toString() ?? "0"
+        ),
+      ]),
       permission: "read-purchase-order",
 
       // permission: "read-approval-department",
