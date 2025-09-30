@@ -3,7 +3,7 @@ import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 import type { ReceiptRepository } from "../domain/repository/receipt.repository";
 import { ReceiptEntity } from "../domain/entities/receipts/receipt.entity";
-import type { CreateReceiptDTO, IApprovalReceiptDto, ReciptQueryDto, UpdateReceiptDTO } from "../application/dtos/receipt.dto";
+import type { CreateReceiptDTO, IApprovalReceiptDto, IReportReceiptCount, ReciptQueryDto, UpdateReceiptDTO } from "../application/dtos/receipt.dto";
 import { ReceiptItemEntity } from "../domain/entities/receipts/receipt-item.entity";
 
 export class ApiReceiptRepository implements ReceiptRepository {
@@ -121,6 +121,14 @@ export class ApiReceiptRepository implements ReceiptRepository {
       return true;
     } catch (error) {
       this.handleApiError(error, `Failed to delete budget account with id ${id}`);
+    }
+  }
+  async reportMenu(type: string): Promise<IReportReceiptCount> {
+    try {
+      const res = await api.get(`count?type=${type}`);
+      return res.data.data
+    } catch (error) {
+      this.handleApiError(error, `Failed to delete budget account with id ${type}`);
     }
   }
 

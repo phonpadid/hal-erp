@@ -6,7 +6,7 @@ import type { TablePaginationType } from "@/common/shared/components/table/Table
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useBudgetItemStore } from "../../../stores/budget/budget-item.store";
 import { columns } from "./column";
-// import { useRouter } from "vue-router";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -57,23 +57,6 @@ onMounted(async () => {
   await loadBudgetItems();
 });
 
-// const loadBudgetItems = async () => {
-//   loading.value = true;
-
-//   try {
-//     await budgetItemStore.fetchBudgetItems({
-//       page: budgetItemStore.pagination.page,
-//       limit: budgetItemStore.pagination.limit,
-//       search: searchKeyword.value,
-//     });
-//   } catch (err: unknown) {
-//     const errorMessage = err instanceof Error ? err.message : String(err);
-//     error(t("budget_items.error.loadFailed"), errorMessage);
-//   } finally {
-//     loading.value = false;
-//   }
-// };
-
 const loadBudgetItems = async () => {
   loading.value = true;
 
@@ -82,13 +65,9 @@ const loadBudgetItems = async () => {
       page: budgetItemStore.pagination.page,
       limit: budgetItemStore.pagination.limit,
     };
-
-    // เพิ่ม search เมื่อมีค่าเท่านั้น
     if (searchKeyword.value && searchKeyword.value.trim() !== "") {
       params.search = searchKeyword.value.trim();
     }
-
-    // ใช้ function เดียวกัน แต่ส่ง budget_account_id เป็น parameter ที่ 2
     if (props.budgetAccountId) {
       const budget_account_id =
         typeof props.budgetAccountId === "string"
@@ -216,7 +195,6 @@ const handleDeleteConfirm = async () => {
       <div>
         <h1 class="text-2xl font-semibold">{{ pageTitle }}</h1>
       </div>
-
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
         <InputSearch
           v-model:value="searchKeyword"
@@ -244,35 +222,14 @@ const handleDeleteConfirm = async () => {
       @change="handleTableChange"
     >
       <template #allocated_amount="{ record }">
-        <span :style="{ color: Number(record.allocated_amount) > 0 ? 'green' : 'red' }">
-          {{ record.balance_amount }}
-        </span>
+        <span class="text-lime-500">{{ formatPrice(record.allocated_amount) }}</span>
       </template>
-      <!-- <template #budget_account="{ record }">
-        <div v-if="record.budget_account">
-          <div class="flex flex-col">
-
-            <div class="text-xs text-gray-500 flex justify-between">
-              <span>{{ $t("budget_accounts.list.code") }}: {{ record.budget_account.code }}</span>
-            </div>
-            <div class="text-xs text-gray-500 flex justify-between">
-              <p>
-                {{ $t("budget_items.field.allocated_amount") }}:
-                <span class="text-green-700">
-                  {{ formatPrice(record.budget_account.allocated_amount) }}
-                </span>
-              </p>
-            </div>
-            <div class="text-xs text-gray-500 flex justify-between mt-[-10px]">
-              <p>
-                {{ $t("budget_accounts.list.department") }}:
-              </p>
-            </div>
-          </div>
-        </div>
-        <span v-else class="text-gray-500 italic">{{ t("budget_items.noDetails") }}</span>
-      </template> -->
-
+      <template #balance_amount="{ record }">
+        <span class="text-blue-600">{{ formatPrice(record.balance_amount) }}</span>
+      </template>
+      <template #use_amount="{ record }">
+        <span class="text-red-600">{{ formatPrice(record.use_amount) }}</span>
+      </template>
       <!-- Actions column -->
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
@@ -292,7 +249,6 @@ const handleDeleteConfirm = async () => {
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
           />
-
           <UiButton
             type=""
             danger
@@ -304,7 +260,6 @@ const handleDeleteConfirm = async () => {
         </div>
       </template>
     </Table>
-
     <!-- Create/Edit Budget Item Modal -->
     <UiModal
       :title="isEditMode ? t('budget_items.header_form.edit') : t('budget_items.header_form.add')"
@@ -325,7 +280,6 @@ const handleDeleteConfirm = async () => {
         @submit="handleFormSubmit"
       />
     </UiModal>
-
     <!-- Delete Confirmation Modal -->
     <UiModal
       :title="t('budget_items.alert.confirm')"
