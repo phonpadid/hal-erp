@@ -209,6 +209,11 @@ const account = computed(
     rStore.currentReceipts?.receipt_item[0].purchase_order_item
       .selected_vendor[0].vendor_bank_account
 );
+const budgetAcc = computed(
+  () =>
+    rStore.currentReceipts?.receipt_item[0].purchase_order_item
+      .budget_item.budget_account
+);
 const attachments = computed(
   () => rStore.currentReceipts?.document_attachment ?? []
 );
@@ -317,6 +322,9 @@ onMounted(async () => {
               <span>{{
                 record.purchase_order_item?.purchase_request_item?.title
               }}</span>
+            </template>
+            <template v-if="column.key === 'budget_code'">
+              <span>{{ budgetAcc?.code }} - {{ budgetAcc?.name }}</span>
             </template>
             <template v-if="column.key === 'account_code'">
               <!-- <UiForm

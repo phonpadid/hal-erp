@@ -199,7 +199,6 @@ const columns = [
     title: "ລາຄາລວມ",
     dataIndex: "total",
     key: "total",
-    align: "right",
   },
 ];
 // OTP Modal handlers
@@ -289,6 +288,10 @@ const showApproval = () => {
     ) ?? null;
   openAppropoval.value = true;
 };
+const budgetAcc = computed(
+  () =>
+    orderDetails.value?.getPurchaseOrderItem()[0]?.getBudgetItem()?.budget_account
+);
 </script>
 
 <template>
@@ -390,6 +393,9 @@ const showApproval = () => {
           <template #id="{ index }">
             <span class="font-medium">{{ index + 1 }}</span>
           </template>
+          <template #budgetCode>
+            <span class="font-medium">{{ budgetAcc.code }} - {{ budgetAcc.name }}</span>
+          </template>
           <template #total="{ record }">
             <span class="font-medium">
               {{ record.total.toLocaleString() }} ₭
@@ -419,40 +425,6 @@ const showApproval = () => {
       </div>
 
       <div>
-        <!-- test: {{ orderDetails?.getPurchaseRequest().id }}
-        <span>ເອກະສານທີຕິດຂັດ</span>
-        <div class="flex items-center gap-2 mt-2">
-          <HeaderComponent
-            :header-title="`${orderDetails?.getPurchaseRequest()?.document.document_type.name} - ເລກທີ ${orderDetails?.getPurchaseRequest().pr_number}`"
-            header-title-color="blue-600"
-            prefix-icon="mdi:file-document-outline"
-            suffix-icon="mdi:arrow-top-right"
-            prefix-icon-class="text-blue-500"
-            suffix-icon-class="text-blue-500"
-            :suffix-icon-clickable="true"
-            :show-document-date="false"
-            :show-document-number="false"
-            :show-document-prefix="false"
-            :show-breadcrumb="false"
-            class="cursor-pointer"
-            @click="showDrawer"
-          />
-          <HeaderComponent
-            :header-title="`${orderDetails?.getDocument()?.document_type?.name} - ເລກທີ ${orderDetails?.getPoNumber()}`"
-            header-title-color="blue-600"
-            prefix-icon="mdi:file-document-outline"
-            suffix-icon="mdi:arrow-top-right"
-            prefix-icon-class="text-blue-500"
-            suffix-icon-class="text-blue-500"
-            :suffix-icon-clickable="true"
-            :show-document-date="false"
-            :show-document-number="false"
-            :show-document-prefix="false"
-            :show-breadcrumb="false"
-            class="cursor-pointer"
-            @click="showDrawer"
-          />
-        </div> -->
         <div class="mt-4 shadow-sm p-4 px-2 bg-white rounded-md">
           <h2 class="text-md font-semibold mb-3">
             {{ $t("disbursement.field.doc_attachment") }}

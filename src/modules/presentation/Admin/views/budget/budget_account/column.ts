@@ -13,6 +13,21 @@ export function columns(t: (key: string) => string): Column[] {
       key: "name",
     },
     {
+      title: t("budget_accounts.list.allocated_amount"),
+      dataIndex: "allocated_amount",
+      key: "allocated_amount",
+    },
+    {
+      title: t("budget_accounts.list.balance_amount"),
+      dataIndex: "balance_amount",
+      key: "balance_amount",
+    },
+    {
+      title: t("budget_accounts.list.used_amount"),
+      dataIndex: "used_amount",
+      key: "used_amount",
+    },
+    {
       title: t("budget_accounts.list.fiscalYear"),
       dataIndex: "fiscal_year",
       key: "fiscal_year",

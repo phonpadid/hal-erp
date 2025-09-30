@@ -10,6 +10,7 @@ import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 import { BudGetAccountsEntity } from "@/modules/domain/entities/budget/budget-accounts.entities";
 
+
 export class ApiBudgetItemRepository implements BudgetItemRepository {
   private readonly baseUrl = "/budget-items";
 
@@ -174,6 +175,8 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
         ba.departmentId ? String(ba.departmentId) : "",
         ba.fiscal_year ? String(ba.fiscal_year) : "",
         Number(ba.allocated_amount || 0),
+        Number(ba.balance_amount || 0),
+        Number(ba.used_amount||0),
         ba.type || "",
         ba.created_at || "",
         ba.updated_at || "",

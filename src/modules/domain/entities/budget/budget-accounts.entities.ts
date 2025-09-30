@@ -2,15 +2,14 @@ import type { DepartmentApiModel } from "@/modules/interfaces/departments/depart
 import { formatDate } from "@/modules/shared/formatdate";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 
-
-
-
 export class BudGetAccountsEntity {
   private id: string;
   private code: string;
   private name: string;
   private fiscal_year?: number | string;
   private allocated_amount: string | number;
+  private balance_amount: number | string;
+  private used_amount: number | string;
   private format_allocated_amount?: string | number;
   private department_id?: string | number;
   private type: string | null;
@@ -26,6 +25,8 @@ export class BudGetAccountsEntity {
     name: string,
     fiscal_year: string | undefined | number,
     allocated_amount: string | number,
+    balance_amount: number | string,
+    used_amount: number | string,
     department_id: string | undefined | number,
     type: string | null = null,
     description: string | null = null,
@@ -38,7 +39,9 @@ export class BudGetAccountsEntity {
     this.code = code;
     this.name = name;
     this.fiscal_year = fiscal_year;
-    this.allocated_amount = allocated_amount;
+    this.allocated_amount = formatPrice(Number(allocated_amount));
+    this.balance_amount = formatPrice(Number(balance_amount));
+    this.used_amount = formatPrice(Number(used_amount));
     this.format_allocated_amount = formatPrice(Number(allocated_amount));
     this.department_id = department_id;
     this.type = type;
@@ -66,6 +69,14 @@ export class BudGetAccountsEntity {
   }
   public getAllocatedAmount(): string | number | undefined {
     return this.allocated_amount;
+  }
+
+  public getBalanceAmount(): string | number | undefined {
+    return this.balance_amount;
+  }
+
+  public getUseAmount(): string | number | undefined {
+    return this.used_amount;
   }
 
   public getFormattedAllocatedAmount(): string | number | undefined {
@@ -147,6 +158,8 @@ export class BudGetAccountsEntity {
     code: string,
     fiscal_year: string | undefined,
     allocated_amount: number,
+    balance_amount: number,
+    used_amount: number,
     department_id: string | undefined
   ): BudGetAccountsEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
@@ -156,6 +169,8 @@ export class BudGetAccountsEntity {
       code,
       fiscal_year,
       allocated_amount,
+      balance_amount,
+      used_amount,
       department_id,
       null,
       null,

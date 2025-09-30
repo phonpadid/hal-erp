@@ -63,7 +63,10 @@
     "department": "ພະແນກ",
     "createdAt": "ວັນທີສ້າງ",
     "updatedAt": "ວັນທີອັບເດດ",
-    "actions": "ຈັດການ"
+    "actions": "ຈັດການ",
+    "allocated_amount":"ຈຳນວນເງິນທີ່ຈັດສັນ",
+    "balance_amount":"ງົບທີຍັງເຫຼື່ອ",
+    "used_amount":"ໃຊ້ໄປແລ້ວ"
   },
   "form": {
     "department": "ພະແນກ",
