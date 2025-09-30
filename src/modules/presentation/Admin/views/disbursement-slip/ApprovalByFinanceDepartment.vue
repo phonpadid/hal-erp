@@ -170,7 +170,7 @@ onMounted(async () => {
             <label
               for=""
               class="block text-sm font-medium text-gray-700 mb-1"
-              >{{ t("purchase-rq.field.doc_type") }}</label
+              >{{ t("departments.dpm_user.field.department") }}</label
             >
             <InputSelect
               :options="dpmOption"
