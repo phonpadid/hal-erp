@@ -39,7 +39,10 @@ export const useBudgetAccountStore = defineStore("budgetAccount", () => {
   );
 
   // Actions
-  const fetchBudgetAccounts = async (params: PaginationParams = { page: 1, limit: 10 }, budget_account_id?: number) => {
+  const fetchBudgetAccounts = async (
+    params: PaginationParams = { page: 1, limit: 10 },
+    budget_account_id?: number
+  ) => {
     loading.value = true;
     error.value = null;
 
@@ -155,6 +158,8 @@ export const useBudgetAccountStore = defineStore("budgetAccount", () => {
       department_id: String(budgetAccount.getDepartmentId()) || "",
       fiscal_year: String(budgetAccount.getFiscalYear()) || "",
       allocated_amount: String(budgetAccount.getAllocatedAmount()) || "",
+      balance_amount: String(budgetAccount.getBalanceAmount()) || "",
+      used_amount: String(budgetAccount.getUseAmount()) || "",
       type: budgetAccount.getType() || "",
       created_at: budgetAccount.getCreatedAt() || "",
       updated_at: budgetAccount.getUpdatedAt() || "",
