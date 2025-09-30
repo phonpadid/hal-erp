@@ -33,7 +33,7 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     total: 0,
     totalPages: 0,
   });
-
+  const counts = ref<Record<string, number>>({});
   // Getters
   // Actions
   const fetchAll = async (params: PaginationParams = { page: 1, limit: 10 }) => {
@@ -138,6 +138,21 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     }
   };
 
+  const reportMenu = async (type: string) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const result = await serice.reportMenu(type);
+      counts.value[type] = result?.amount ?? 0;
+      return result;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
   const deleted = async (id: string) => {
     loading.value = true;
     error.value = null;
@@ -176,7 +191,9 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     updated,
     deleted,
     status,
-    receiptsData
+    receiptsData,
+    reportMenu,
+    counts
   };
 });
 

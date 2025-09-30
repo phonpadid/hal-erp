@@ -1,6 +1,6 @@
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import type { ReceiptEntity } from "../entities/receipts/receipt.entity";
-import type { CreateReceiptDTO, IApprovalReceiptDto, ReciptQueryDto, UpdateReceiptDTO } from "@/modules/application/dtos/receipt.dto";
+import type { CreateReceiptDTO, IApprovalReceiptDto, IReportReceiptCount, ReciptQueryDto, UpdateReceiptDTO } from "@/modules/application/dtos/receipt.dto";
 
 export interface ReceiptRepository {
   findAll(
@@ -11,5 +11,6 @@ export interface ReceiptRepository {
   create(data: CreateReceiptDTO): Promise<ReceiptEntity>;
   approval(id: number, data: IApprovalReceiptDto): Promise<IApprovalReceiptDto>;
   update(id: string, data: UpdateReceiptDTO[]): Promise<ReceiptEntity>;
+  reportMenu(type: string): Promise<IReportReceiptCount>;
   delete(id: string): Promise<boolean>;
 }
