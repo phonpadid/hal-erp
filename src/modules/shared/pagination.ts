@@ -5,6 +5,7 @@ export interface PaginationParams {
   search?: string;
   sortBy?: string;
   date?: string;
+  order_date?: string;
   sortDirection?: "asc" | "desc";
   type?: string;
   //search between
@@ -13,6 +14,7 @@ export interface PaginationParams {
     to_currency_id?: string;
     [key: string]: string | undefined; // Allow additional filter fields
   };
+  department_id?: string | number;
   document_type_id?: string | number;
   status_id?: string | number;
 }

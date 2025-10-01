@@ -20,6 +20,8 @@ export class ApiReceiptRepository implements ReceiptRepository {
           limit: params.limit || 10,
           search: params.search || "",
           sort_by: params.sortBy,
+          order_date: params.order_date || "",
+          department_id: params?.department_id || "",
           include_deleted: includeDeleted,
         },
       });

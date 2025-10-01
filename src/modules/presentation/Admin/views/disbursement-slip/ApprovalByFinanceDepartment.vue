@@ -6,9 +6,7 @@ import { useI18n } from "vue-i18n";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
-import { useDocumentTypeStore } from "../../stores/document-type.store";
-import { computed, onMounted, ref } from "vue";
-import { statusItem } from "@/modules/shared/utils/data-user-approval";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { columns } from "./column";
 import { DatePicker } from "ant-design-vue";
@@ -21,17 +19,21 @@ import {
   getStatusText,
 } from "@/modules/shared/utils/format-status.util";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
+import type { Dayjs } from "dayjs";
+import { departmentStore } from "../../stores/departments/department.store";
 const { t } = useI18n();
 const { push } = useRouter();
-const docTypeStore = useDocumentTypeStore();
+const dpmStore = departmentStore();
 const rStore = useReceiptStore();
-const docItem = computed(() => [
+const dpmOption = computed(() => [
   { value: "all", label: "ທັງໝົດ" }, // This is the "All" option
-  ...docTypeStore.documentTypes.map((item) => ({
+  ...dpmStore.departments.map((item) => ({
     value: item.getId(),
-    label: item.getname(),
+    label: item.getName(),
   })),
 ]);
+const filterDate = ref<Dayjs | undefined>(undefined);
+const filterDepartment = ref<string | undefined>("all");
 const statusCards = computed(() => {
   const map: Record<
     string,
@@ -88,6 +90,21 @@ const loadReceipt = async (): Promise<void> => {
     loading.value = false;
   }
 };
+const searchByDate = async () => {
+  loading.value = true;
+  try {
+    await rStore.fetchAll({
+      page: 1,
+      limit: rStore.pagination.limit,
+      order_date: filterDate.value ? filterDate.value.toISOString().split("T")[0] : undefined,
+    });
+    rStore.setPagination({ ...rStore.pagination, page: 1 });
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+  }
+};
 
 const handleTableChange = async (pagination: TablePaginationType) => {
   rStore.setPagination({
@@ -97,9 +114,30 @@ const handleTableChange = async (pagination: TablePaginationType) => {
   });
   await loadReceipt();
 };
+// Function to fetch receipts with filters
+const loadFilteredReceipts = async () => {
+  loading.value = true;
+  try {
+    await rStore.fetchAll({
+      page: 1,
+      limit: rStore.pagination.limit,
+      order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
+      department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
+    });
+    rStore.setPagination({ ...rStore.pagination, page: 1 });
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+  }
+};
+watch([filterDate, filterDepartment], () => {
+  loadFilteredReceipts();
+});
 onMounted(async () => {
   await loadReceipt();
-  await docTypeStore.fetchdocumentType({ page: 1, limit: 1000 });
+  await loadFilteredReceipts();
+  await dpmStore.fetchDepartment({ page: 1, limit: 1000 });
 });
 </script>
 
@@ -132,10 +170,11 @@ onMounted(async () => {
             <label
               for=""
               class="block text-sm font-medium text-gray-700 mb-1"
-              >{{ t("purchase-rq.field.doc_type") }}</label
+              >{{ t("departments.dpm_user.field.department") }}</label
             >
             <InputSelect
-              :options="docItem"
+              :options="dpmOption"
+              v-model="filterDepartment"
               placeholder="ເລືອກພະແນກ"
               class="w-full"
             />
@@ -147,7 +186,7 @@ onMounted(async () => {
               >{{ t("purchase-rq.field.rq_date") }}</label
             >
             <DatePicker
-              :options="statusItem"
+              v-model:value="filterDate"
               :placeholder="t('purchase-rq.phd.rq_date')"
               class="w-full"
             />
@@ -157,6 +196,7 @@ onMounted(async () => {
               icon="ant-design:search-outlined"
               color-class="flex items-center justify-center gap-2"
               class="w-full md:w-auto px-6"
+              @click="searchByDate"
             >
               <span>{{ t("purchase-rq.search") }}</span>
             </UiButton>
