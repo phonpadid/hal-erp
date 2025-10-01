@@ -26,6 +26,12 @@ export const createBudgetAccountValidation = (
         message: t("budget_accounts.validation.fiscalYearRequired"),
       },
     ],
+    type: [
+      {
+        required: true,
+        message: t("approval-workflow.error.type"),
+      },
+    ],
     allocated_amount: [
       {
         required: true,

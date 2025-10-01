@@ -13,7 +13,7 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FormBudgetAccount from "@/modules/presentation/Admin/components/budget/FormBudgetAccount.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
-import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
+// import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { useRouter, useRoute } from "vue-router";
 
 const { push } = useRouter();
@@ -134,17 +134,19 @@ const handleFormSubmit = async (formData: {
   fiscal_year: number;
   allocated_amount: number;
   departmentId: number;
+  type: string
 }) => {
   try {
     submitLoading.value = true;
 
-    if (isEditMode.value && selectedBudgetAccount.value) {
+    if (isEditMode.value&& selectedBudgetAccount.value) {
       const updateData = {
         id: selectedBudgetAccount.value.id,
         name: formData.name,
         fiscal_year: formData.fiscal_year,
         allocated_amount: formData.allocated_amount,
         departmentId: formData.departmentId,
+        type: formData.type,
       };
       await budgetAccountStore.updateBudgetAccount(
         String(selectedBudgetAccount.value.id),
@@ -183,13 +185,13 @@ const handleDeleteConfirm = async () => {
   }
 };
 
-const departmentId = ref<number | null>(null);
-const departmentOptions = computed(() =>
-  departStore.departments.map((dept: any) => ({
-    label: dept.name,
-    value: dept.id,
-  }))
-);
+// const departmentId = ref<number | null>(null);
+// const departmentOptions = computed(() =>
+//   departStore.departments.map((dept: any) => ({
+//     label: dept.name,
+//     value: dept.id,
+//   }))
+// );
 
 const loadDepartments = async () => {
   try {
@@ -221,15 +223,15 @@ onMounted(async () => {
         <InputSearch
           v-model:value="searchKeyword"
           @keyup.enter="handleSearch"
-          :placeholder="t('currency.placeholder.search')"
+          :placeholder="t('budget_accounts.placeholder.search')"
         />
-        <UiInputSelect
+        <!-- <UiInputSelect
           v-model:modelValue="departmentId"
           :options="departmentOptions"
           :placeholder="$t('budget_accounts.form.departmentPlaceholder')"
           :disabled="loading"
           @change="handleSearch"
-        />
+        /> -->
         <UiButton
           icon="ant-design:plus-outlined"
           @click="increaseBudgetView"
