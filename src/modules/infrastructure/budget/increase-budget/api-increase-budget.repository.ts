@@ -117,6 +117,7 @@ export class ApiIncreaseBudgetRepository implements IncreaseBudgetRepository {
             input.budget_account.allocated_amount ?? 0,
             input.budget_account.balance_amount ?? 0,
             input.budget_account.used_amount ?? 0,
+            input.budget_account.total_budget ?? 0,
             input.budget_account.departmentId ?? "",
             input.budget_account.description ?? "",
             input.budget_account.created_at ?? "",

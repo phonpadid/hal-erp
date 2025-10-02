@@ -1,12 +1,14 @@
 export interface CreateDepartmentDTO {
   name: string;
   code: string;
+  
 }
 
 export interface UpdateDepartmentDTO {
   id: string;
   name: string;
   code: string;
+  department_head_id:string | number | null
 }
 
 export interface DepartmentDTO {

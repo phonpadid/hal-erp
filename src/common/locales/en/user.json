@@ -35,7 +35,9 @@
     "roles": "Roles",
     "permissions": "Permissions",
     "basicInfo": "Basic Information",
-    "selected": "Selected"
+    "selected": "Selected",
+    "signatureUpload":"Upload Signature"
+   
   },
   "validation": {
     "usernameRequired": "Please enter username",

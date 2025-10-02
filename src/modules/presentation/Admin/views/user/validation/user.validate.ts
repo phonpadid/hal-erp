@@ -5,6 +5,7 @@ import type { ComputedRef } from "vue";
 interface ValidationState {
   password: string;
   isEditMode: boolean;
+  signature?: string | File | null; 
 }
 
 export const createUserValidation = (
@@ -19,6 +20,16 @@ export const createUserValidation = (
       }
       return Promise.resolve();
     };
+    const validateSignature = (_rule: RuleObject, value: string | File | null) => {
+      if (!value && !state.isEditMode) {
+        return Promise.reject(t('user.validation.signature.required'));
+      }
+      if (value instanceof File || (typeof value === 'string' && value.length > 0)) {
+        return Promise.resolve();
+      }
+      return Promise.reject(t('user.validation.signature.required'));
+    };
+
 
     return {
       username: [
@@ -66,6 +77,12 @@ export const createUserValidation = (
           trigger: "blur",
         },
       ],
+     signature: [
+        {
+          validator: validateSignature,
+          trigger: ['change', 'blur']
+        }
+      ]
     };
   });
 };

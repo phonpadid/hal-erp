@@ -26,15 +26,21 @@ export const createBudgetAccountValidation = (
         message: t("budget_accounts.validation.fiscalYearRequired"),
       },
     ],
+    type: [
+      {
+        required: true,
+        message: t("approval-workflow.error.type"),
+      },
+    ],
     allocated_amount: [
       {
         required: true,
         message: t("budget_accounts.validation.allocatedAmountRequired"),
       },
-      {
-        pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
-        message: t("budget_accounts.validation.allocatedAmountFormat"),
-      },
+      // {
+      //   pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+      //   message: t("budget_accounts.validation.allocatedAmountFormat"),
+      // },
     ],
   };
 };

@@ -6,6 +6,7 @@ import { useI18n } from "vue-i18n";
 import { createUserValidation } from "../../views/user/validation/user.validate";
 import { useRoleStore } from "../../stores/role.store";
 import { usePermissionStore } from "../../stores/permission.store";
+import { uploadFile } from "@/modules/application/services/upload.service";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
@@ -13,7 +14,8 @@ import UiInputPassword from "@/common/shared/components/Input/UiInputPassword.vu
 import UiSelect from "@/common/shared/components/Input/InputSelect.vue";
 import PermissionSelector from "@/modules/presentation/Admin/components/permission/PermissionSelector.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
-
+import UploadFile from "@/common/shared/components/Upload/UploadFile.vue";
+import { message } from "ant-design-vue";
 const { t } = useI18n();
 const roleStore = useRoleStore();
 const permissionStore = usePermissionStore();
@@ -34,6 +36,7 @@ const emit = defineEmits<{
       tel?: string;
       roleIds: number[];
       permissionIds: number[];
+      signature: string | File;
     }
   ): void;
   (e: "cancel"): void;
@@ -48,11 +51,30 @@ const formState = reactive({
   tel: "",
   roleIds: [] as number[],
   permissionIds: [] as (string | number)[],
+  signature: "" as string | File,
 });
+
+const signatureFile = ref<File | null>(null);
+// Add handler for signature file changes
+const handleFileChange = async (file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const result = await uploadFile(formData);
+    if (result.fileName) {
+      formState.signature = result.fileName;
+    } else {
+      throw new Error("Upload failed: No filename returned");
+    }
+  } catch (error) {
+    console.error("Error uploading signature:", error);
+    message.error(t("user.error.uploadFailed"));
+  }
+};
 
 const permissionData = ref<PermissionGroup[]>([]);
 const loadingPermissions = ref(false);
-
 // Load roles and permissions
 onMounted(async () => {
   try {
@@ -71,11 +93,11 @@ onMounted(async () => {
 const handlePermissionSelect = (values: (string | number)[]) => {
   formState.permissionIds = values;
 };
-
 // Create validation rules
 const validationState = reactive({
   password: formState.password,
   isEditMode: props.isEditMode,
+  signature: formState.signature,
 });
 
 // Watch for password changes
@@ -98,6 +120,7 @@ watch(
 const userRules = createUserValidation(t, validationState);
 
 // Watch for user changes
+// Update the watch for user changes
 watch(
   () => props.user,
   (newUser) => {
@@ -107,6 +130,11 @@ watch(
       formState.tel = newUser.tel || "";
       formState.roleIds = newUser.roleIds.map(Number);
       formState.permissionIds = newUser.permissionIds.map(Number);
+      // Update to handle signature_url from user_signature object
+      // if (newUser.user_signature?.signature_url) {
+      //   formState.signature = newUser.user_signature.signature_url;
+      // }
+      console.log(formState.signature,"jjj")
     }
   },
   { immediate: true }
@@ -121,6 +149,7 @@ const submitForm = async () => {
       tel: formState.tel || undefined,
       roleIds: formState.roleIds.map((id) => Number(id)),
       permissionIds: formState.permissionIds.map((id) => Number(id)),
+      signature: formState.signature,
     } as UserCreatePayload;
 
     if (formState.password) {
@@ -144,12 +173,29 @@ const roleOptions = computed(() => {
     label: role.display_name || role.name,
   }));
 });
+
+watch(
+  () => formState.signature,
+  (newValue) => {
+    validationState.signature = newValue;
+  }
+);
 </script>
 
 <template>
   <div class="user-form">
     <UiForm ref="formRef" :model="formState" :rules="userRules" layout="vertical">
       <!-- Basic Information -->
+      <UiFormItem :label="t('user.form.signatureUpload')" name="signature" required>
+    <UploadFile
+        v-model="signatureFile"
+        :width="'100%'"
+        :height="'200px'"
+        :upload-text="t('user.form.signatureUpload')"
+        @onFileSelect="handleFileChange"
+        accept="image/*"
+        :defaultUrl="formState.signature"  />
+</UiFormItem>
       <div class="form-section">
         <h2 class="section-title">{{ t("user.form.basicInfo") }}</h2>
         <div class="form-grid">
@@ -179,7 +225,7 @@ const roleOptions = computed(() => {
           </UiFormItem>
         </div>
       </div>
-      <a-divider style="margin-bottom: 10px; margin-top: -10px;" v-if="!isEditMode"/>
+      <a-divider style="margin-bottom: 10px; margin-top: -10px" v-if="!isEditMode" />
 
       <!-- Password -->
       <div class="form-section" v-if="!isEditMode">
@@ -210,7 +256,7 @@ const roleOptions = computed(() => {
           </UiFormItem>
         </div>
       </div>
-      <a-divider style="margin-bottom: 10px; margin-top: -10px;" />
+      <a-divider style="margin-bottom: 10px; margin-top: -10px" />
 
       <!-- Roles -->
       <div class="form-section">
@@ -225,7 +271,7 @@ const roleOptions = computed(() => {
           />
         </UiFormItem>
       </div>
-      <a-divider style="margin-bottom: 10px; margin-top: -10px;" />
+      <a-divider style="margin-bottom: 10px; margin-top: -10px" />
 
       <!-- Permissions -->
       <div class="form-section">

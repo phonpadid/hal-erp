@@ -12,8 +12,8 @@ import type { CreateExchangeRateDTO, UpdateExchangeRateDTO } from "@/modules/app
 export const formState = reactive({
   addMore: [
     {
-      from_currency_id: "" as string | number,
-      to_currency_id: "" as string | number,
+      from_currency_id: undefined as string | number | undefined,
+      to_currency_id: null as string | number | null,
       rate: 0 as number | undefined,
       is_active: "",
     },

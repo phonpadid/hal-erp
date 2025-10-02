@@ -77,10 +77,6 @@ const typeEnum = computed(() => {
       label: t("approval-workflow-step.enum.specific_user"),
       value: "specific_user",
     },
-    {
-      label: t("approval-workflow-step.enum.line_manager"),
-      value: "line_manager",
-    },
     { label: t("approval-workflow-step.enum.condition"), value: "condition" },
   ];
 });

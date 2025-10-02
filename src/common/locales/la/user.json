@@ -35,7 +35,8 @@
     "roles": "ບົດບາດ",
     "permissions": "ສິດທິ",
     "basicInfo": "ຂໍ້ມູນພື້ນຖານຂອງຜູ້ໃຊ້",
-    "selected": "Selected"
+    "selected": "Selected",
+    "signatureUpload":"ອັບໂຫລດລາຍເຊັນ"
   },
   "validation": {
     "usernameRequired": "ກະລຸນາປ້ອນຊື່ຜູ້ໃຊ້ກ່ອນ",

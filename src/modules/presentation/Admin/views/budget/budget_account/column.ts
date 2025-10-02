@@ -28,6 +28,11 @@ export function columns(t: (key: string) => string): Column[] {
       key: "used_amount",
     },
     {
+      title: t("budget_approval.table.total_budget"),
+      dataIndex: "total_budget",
+      key: "total_budget",
+    },
+    {
       title: t("budget_accounts.list.fiscalYear"),
       dataIndex: "fiscal_year",
       key: "fiscal_year",

@@ -166,6 +166,7 @@ export class ApiUserRepository implements UserRepository {
     const roleIds = data.roles?.map((role: any) => role.id) || [];
     const roles = data.roles || [];
     const permissionIds = data.permissions?.map((perm: any) => perm.id) || [];
+    const userSignature = data.user_signature || null;
     return new UserEntity(
       data.id.toString(),
       data.username,
@@ -177,7 +178,9 @@ export class ApiUserRepository implements UserRepository {
       data.updated_at || "",
       data.deleted_at || null,
       data.password,
-      data.tel
+      data.tel,
+      [], 
+      userSignature, 
     );
   }
 

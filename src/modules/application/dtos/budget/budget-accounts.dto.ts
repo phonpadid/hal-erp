@@ -4,8 +4,9 @@ export interface BudgetAccountDTO {
   name: string;
   fiscal_year: string;
   allocated_amount: string;
-     balance_amount: number | string,
-    used_amount: number | string,
+  balance_amount: number | string,
+  used_amount: number | string,
+  total_budget?: number | string | null,
   departmentId: string;
   description?: string;
   type: string;

@@ -1,15 +1,16 @@
-import type { UserAPIResponse, Role } from "@/modules/interfaces/user.interface";
+import type { UserAPIResponse, Role, ShowSignature_url,  } from "@/modules/interfaces/user.interface";
 import { formatDate } from "@/modules/shared/formatdate";
 
 export class UserEntity {
   private id: string;
-  private username: string;
+  private username: string ;
   private email: string;
   private password?: string;
   private tel?: string;
   private roleIds: number[];
   private permissionIds: number[];
   private roles: Role[];
+  private user_signature?: ShowSignature_url | null;
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
@@ -28,6 +29,8 @@ export class UserEntity {
     password?: string,
     tel?: string,
     user_type?: string[] | [],
+    user_signature?: ShowSignature_url | null,
+
   ) {
     this.id = id;
     this.username = username;
@@ -35,6 +38,7 @@ export class UserEntity {
     this.roleIds = roleIds;
     this.roles = roles;
     this.permissionIds = permissionIds;
+    this.user_signature = user_signature;
     this.password = password;
     this.tel = tel;
     this.user_type = user_type;
@@ -60,6 +64,10 @@ export class UserEntity {
 
   public getPermissionIds(): number[] {
     return this.permissionIds;
+  }
+  public getUseSignature():ShowSignature_url| null | undefined{
+   return this.user_signature
+
   }
 
   public getRoles(): Role[] {
@@ -170,6 +178,7 @@ export class UserEntity {
       undefined,
       data.tel,
       [],
+      data.user_signature || null,
     );
   }
 }

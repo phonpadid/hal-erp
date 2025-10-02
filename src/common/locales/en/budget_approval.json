@@ -8,6 +8,7 @@
     "id_name": "Id Budget",
     "unit": "Unit",
     "price": "Price",
-    "total": "Total"
+    "total": "Total",
+    "total_budget": "Excess funds requested"
   }
 }

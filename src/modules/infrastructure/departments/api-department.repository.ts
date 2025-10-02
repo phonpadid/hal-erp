@@ -85,6 +85,7 @@ export class ApiDepartmentRepository implements DepartmentRepository {
       id: parseInt(input.getId(), 10),
       name: input.getName(),
       code: input.getCode(),
+      department_head_id: input.getDepartmentUser(),
       created_at: input.getCreatedAt(),
       updated_at: input.getUpdatedAt(),
     };
@@ -95,6 +96,7 @@ export class ApiDepartmentRepository implements DepartmentRepository {
       data.id.toString(),
       data.name,
       data.code || "",
+      data.department_head_id,
       data.created_at || "",
       data.updated_at || ""
     );

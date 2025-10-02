@@ -147,8 +147,8 @@ const formattedPrice = (index: number) =>
       return formatPrice(formState.addMore[index].rate);
     },
     set(value: string) {
-      const digitsOnly = value.replace(/\D/g, "");
-      formState.addMore[index].rate = parsePrice(digitsOnly);
+      // const digitsOnly = value.replace(/\D/g, "");
+      formState.addMore[index].rate = parsePrice(value);
     },
   });
 defineExpose({
