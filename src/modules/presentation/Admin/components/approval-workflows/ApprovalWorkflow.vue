@@ -58,10 +58,6 @@ const typeEnum = [
     label: t("approval-workflow-step.enum.specific_user"),
     value: "specific_user",
   },
-  {
-    label: t("approval-workflow-step.enum.line_manager"),
-    value: "line_manager",
-  },
   { label: t("approval-workflow-step.enum.condition"), value: "condition" },
 ];
 const typeOption = computed(() =>
@@ -178,6 +174,7 @@ watchEffect(() => {
               v-model="value.step_number"
               :placeholder="t('approval-workflow-step.placeholder.step_number')"
               class="w-full"
+              :disabled="true"
             />
           </UiFormItem>
 
@@ -252,18 +249,19 @@ watchEffect(() => {
       </div>
 
       <div class="flex gap-4 mt-8 justify-end">
-        <UiButton type="default" @click="push({ name: 'approval_workflows.index' })">
-          {{ t("button.cancel") }}
-        </UiButton>
-        <UiButton type="primary" @click="handleSubmit">
-          {{ t("button.save") }}
-        </UiButton>
         <UiButton
           type="primary"
           icon="ant-design:plus-outlined"
           @click="moreFunction"
-          class="flex items-center"
+      class="flex items-center bg-blue-500 hover:!bg-blue-700"
         />
+        <!-- <UiButton type="default" @click="push({ name: 'approval_workflows.index' })">
+          {{ t("button.cancel") }}
+        </UiButton> -->
+        <UiButton type="primary" @click="handleSubmit">
+          {{ t("button.save") }}
+        </UiButton>
+        
       </div>
     </UiForm>
   </div>

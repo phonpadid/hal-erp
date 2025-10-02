@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, computed } from "vue";
 import { columns } from "./column";
 import { departmentStore } from "../../../stores/departments/department.store";
+import {
+  departmenUsertStore,
+} from "../../../stores/departments/department-user.store";
 import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -11,16 +14,20 @@ import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { dpmRules } from "./validation/department.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import type { DepartmentUserEntity } from "@/modules/domain/entities/departments/department-user.entity";
 
 const search = ref<string>("");
 const { t } = useI18n();
 // Initialize the unit store
 const dpmStore = departmentStore();
+const dpmUserStore = departmenUsertStore()
 const { success, warning } = useNotification();
 // Form related
 const formRef = ref();
+const dpmUsers = ref<DepartmentUserEntity[]>([]);
 const createModalVisible = ref<boolean>(false);
 const editModalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
@@ -31,7 +38,28 @@ const selectedDpm = ref<DepartmentApiModel | null>(null);
 const formModel = reactive({
   name: "",
   code: "",
+  department_head_id: ""
 });
+
+const userOptions = computed(() => {
+  return dpmUsers.value.map(user => ({
+    label: user.getUser()?.getUsername() || '', 
+    value: user.getUser()?.getId() || '' 
+  }));
+});
+
+const loadDpmUsers = async (dpmId: string) => {
+  try {
+    loading.value = true;
+    const users = await dpmUserStore.fetchDepartmentUserByDpm(dpmId);
+    dpmUsers.value = users || [];
+  } catch (error) {
+    warning(t("departments.error.title"), String(error));
+  } finally {
+    loading.value = false;
+  }
+};
+
 
 // Load data on component mount
 onMounted(async () => {
@@ -77,10 +105,12 @@ const showCreateModal = (): void => {
   createModalVisible.value = true;
 };
 
-const showEditModal = (record: DepartmentApiModel): void => {
+const showEditModal = async(record: DepartmentApiModel):Promise <void >=> {
   selectedDpm.value = record;
   formModel.name = record.name;
   formModel.code = record.code || "";
+  formModel.department_head_id = record.department_head_id?.toString() || "";
+  await loadDpmUsers(record.id.toString());
   editModalVisible.value = true;
 };
 
@@ -122,6 +152,7 @@ const handleEdit = async (): Promise<void> => {
         id,
         name: formModel.name,
         code: formModel.code,
+        department_head_id: formModel.department_head_id ? Number(formModel.department_head_id) : null
       });
       success(t("departments.notify.update"));
       await loadDpm();
@@ -307,6 +338,17 @@ watch(search, async (newValue) => {
             :placeholder="t('departments.dpm.placeholder.name')"
           />
         </UiFormItem>
+        <UiFormItem
+        :label="t('departments.dpm.field.user')"
+        name="userId"
+      >
+        <InputSelect
+          v-model="formModel.department_head_id"
+          :options="userOptions"
+          :loading="dpmUserStore.loading"
+          :placeholder="t('departments.dpm.placeholder.selectUser')"
+        />
+      </UiFormItem>
       </UiForm>
     </UiModal>
 

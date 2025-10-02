@@ -29,10 +29,6 @@ export const createPositionValidation = (
         if (!value) return Promise.resolve();
 
         if (state.isEditMode) return Promise.resolve();
-
-        if (!/^[\u0E00-\u0E7Fa-zA-Z0-9-_ ]+$/.test(value)) {
-          return Promise.reject(t("positions.validation.namePattern"));
-        }
         return Promise.resolve();
       },
       trigger: "blur",

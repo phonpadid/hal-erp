@@ -45,7 +45,7 @@
   "validation": {
     "vendorRequired": "ກະລຸນາເລືອກຜູ້ສະໜອງ",
     "currencyRequired": "ກະລຸນາເລືອກສະກຸນເງິນ",
-    "bankNameRequired": "ກະລຸນາປ້ອນຊື່ທະນາຄານ",
+    "bankNameRequired": "ກະລຸນາເລືອກຊື່ທະນາຄານ",
     "bankNameMax": "ຊື່ທະນາຄານບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
     "accountNameRequired": "ກະລຸນາປ້ອນຊື່ບັນຊີ",
     "accountNameMax": "ຊື່ບັນຊີບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",

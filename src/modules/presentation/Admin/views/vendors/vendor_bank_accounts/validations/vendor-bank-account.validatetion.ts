@@ -20,11 +20,7 @@ export const createVendorBankAccountValidation = (
       {
         required: true,
         message: t("vendors_bank.validation.bankNameRequired"),
-      },
-      {
-        max: 100,
-        message: t("vendors_bank.validation.bankNameMax"),
-      },
+      }
     ],
     account_name: [
       {

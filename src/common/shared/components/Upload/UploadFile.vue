@@ -46,7 +46,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: File | null): void;
+  (e: "update:modelValue", value: File | null | string): void;
   (e: "onFileSelect", file: File): void;
 }>();
 
@@ -55,20 +55,29 @@ const previewImage = ref<string>("");
 const previewVisible = ref<boolean>(false);
 
 // --- Handle external v-model change (string URL from getOne)
+// --- Handle external v-model change (string URL from getOne)
 watch(
   () => props.modelValue,
   (val) => {
     if (typeof val === "string" && val !== "") {
-      fileList.value = [
-        {
-          uid: Date.now().toString(),
-          name: "uploaded-image",
-          status: "done",
-          url: val,
-        },
-      ];
-    } else if (val === null) {
+      // ตรวจสอบว่า URL นี้ไม่ใช่ชื่อไฟล์ที่เพิ่งอัปโหลดใหม่แต่เป็น URL เต็ม
+      // เพื่อป้องกันการสร้าง FileItem ซ้ำซ้อนเมื่อมีการอัปโหลดใหม่
+      if (!fileList.value.length || (fileList.value[0].url !== val && fileList.value[0].thumbUrl !== val)) {
+        fileList.value = [
+          {
+            uid: Date.now().toString(),
+            name: "uploaded-image",
+            status: "done",
+            url: val,
+            thumbUrl: val, // *** เพิ่ม thumbUrl เข้ามาด้วย ***
+          },
+        ];
+        // ตั้งค่า previewImage เพื่อใช้ใน a-modal ด้วย
+        previewImage.value = val; 
+      }
+    } else if (val === null || val === "") { // เคลียร์ fileList เมื่อ modelValue เป็น null หรือ string ว่าง
       fileList.value = [];
+      previewImage.value = "";
     }
   },
   { immediate: true }
@@ -103,16 +112,16 @@ const customUpload = (options: CustomRequestOptions): void => {
       fileList.value = [fileWithUrl];
       previewImage.value = objectUrl;
 
+      // Emit both the File object and its URL
       emit("onFileSelect", file);
       emit("update:modelValue", file);
 
-      onSuccess?.("ok");
+      onSuccess?.({ url: objectUrl });
     } else {
       onError?.(new Error("Upload failed"));
     }
   }, 500);
 };
-
 const handlePreview = (file: FileItem): void => {
   previewImage.value = file.url || file.thumbUrl || "";
   previewVisible.value = true;

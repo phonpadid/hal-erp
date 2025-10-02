@@ -12,7 +12,8 @@
   },
   "placeholder": {
     "name": "Please enter bank name",
-    "search": "Search by bank name"
+    "search": "Search by bank name",
+    "short_name":"Please Short Name"
   },
   
   "field": {

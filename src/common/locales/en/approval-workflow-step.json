@@ -58,7 +58,6 @@
     "department": "Department",
     "specific_user": "Specific user",
     "department_head": "Department head",
-    "line_manager": "Line manager",
     "condition": "Condition"
   }
 }

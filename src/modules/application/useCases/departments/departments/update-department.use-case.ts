@@ -9,7 +9,7 @@ export class UpdateDepartmentUseCase {
     if (!department) {
       throw new Error(`Unit with id ${id} not found`);
     }
-    department.updateDpm(input.name, input.code);
+    department.updateDpm(input.name, input.code, input.department_head_id);
     return await this.departmentRepository.update(id, department);
   }
 }
