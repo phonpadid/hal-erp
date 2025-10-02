@@ -13,8 +13,9 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FormBudgetAccount from "@/modules/presentation/Admin/components/budget/FormBudgetAccount.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
-import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
+// import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { useRouter, useRoute } from "vue-router";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 
 const { push } = useRouter();
 const route = useRoute();
@@ -134,17 +135,19 @@ const handleFormSubmit = async (formData: {
   fiscal_year: number;
   allocated_amount: number;
   departmentId: number;
+  type: string
 }) => {
   try {
     submitLoading.value = true;
 
-    if (isEditMode.value && selectedBudgetAccount.value) {
+    if (isEditMode.value&& selectedBudgetAccount.value) {
       const updateData = {
         id: selectedBudgetAccount.value.id,
         name: formData.name,
         fiscal_year: formData.fiscal_year,
         allocated_amount: formData.allocated_amount,
         departmentId: formData.departmentId,
+        type: formData.type,
       };
       await budgetAccountStore.updateBudgetAccount(
         String(selectedBudgetAccount.value.id),
@@ -183,13 +186,13 @@ const handleDeleteConfirm = async () => {
   }
 };
 
-const departmentId = ref<number | null>(null);
-const departmentOptions = computed(() =>
-  departStore.departments.map((dept: any) => ({
-    label: dept.name,
-    value: dept.id,
-  }))
-);
+// const departmentId = ref<number | null>(null);
+// const departmentOptions = computed(() =>
+//   departStore.departments.map((dept: any) => ({
+//     label: dept.name,
+//     value: dept.id,
+//   }))
+// );
 
 const loadDepartments = async () => {
   try {
@@ -221,15 +224,15 @@ onMounted(async () => {
         <InputSearch
           v-model:value="searchKeyword"
           @keyup.enter="handleSearch"
-          :placeholder="t('currency.placeholder.search')"
+          :placeholder="t('budget_accounts.placeholder.search')"
         />
-        <UiInputSelect
+        <!-- <UiInputSelect
           v-model:modelValue="departmentId"
           :options="departmentOptions"
           :placeholder="$t('budget_accounts.form.departmentPlaceholder')"
           :disabled="loading"
           @change="handleSearch"
-        />
+        /> -->
         <UiButton
           icon="ant-design:plus-outlined"
           @click="increaseBudgetView"
@@ -261,13 +264,16 @@ onMounted(async () => {
         <span>{{ record.getDepartment()?.name }}</span>
       </template>
       <template #allocated_amount="{ record }">
-        <span class="text-orange-600">{{ record.allocated_amount }}</span>
+        <span class="text-orange-600">{{ formatPrice(record?.allocated_amount) }}</span>
       </template>
       <template #balance_amount="{ record }">
         <span class="text-blue-600">{{ record.balance_amount }}</span>
       </template>
       <template #used_amount="{ record }">
         <span class="text-red-600">{{ record.used_amount }}</span>
+      </template>
+      <template #total_budget="{ record }">
+        <span class="text-red-600">{{ record.total_budget }}</span>
       </template>
       <!-- Actions column -->
       <template #actions="{ record }">

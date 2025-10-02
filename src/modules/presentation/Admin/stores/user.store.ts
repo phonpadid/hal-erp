@@ -175,12 +175,14 @@ export const useUserStore = defineStore("user", () => {
     }
   };
   const userEntityToInterface = (user: UserEntity): UserInterface => {
+     const signatureUrl = user.getUseSignature()?.signature_url; 
     return {
       id: parseInt(user.getId()),
       username: user.getUsername(),
       email: user.getEmail(),
       roleIds: user.getRoleIds(),
       permissionIds: user.getPermissionIds(),
+        signature: signatureUrl ?? "", 
       tel: user.getTel(),
       getId: () => user.getId(),
       roles: user.getRoles(),
@@ -188,6 +190,7 @@ export const useUserStore = defineStore("user", () => {
       created_at: user.getCreatedAt(),
       updated_at: user.getUpdatedAt(),
       deleted_at: user.getDeletedAt(),
+      
     };
   };
 

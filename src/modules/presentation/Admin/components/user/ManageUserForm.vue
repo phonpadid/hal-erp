@@ -131,9 +131,9 @@ watch(
       formState.roleIds = newUser.roleIds.map(Number);
       formState.permissionIds = newUser.permissionIds.map(Number);
       // Update to handle signature_url from user_signature object
-      if (newUser.user_signature?.signature_url) {
-        formState.signature = newUser.user_signature.signature_url;
-      }
+      // if (newUser.user_signature?.signature_url) {
+      //   formState.signature = newUser.user_signature.signature_url;
+      // }
       console.log(formState.signature,"jjj")
     }
   },

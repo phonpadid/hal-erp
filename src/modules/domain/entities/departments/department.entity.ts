@@ -59,8 +59,8 @@ export class DepartmentEntity {
   public hasValidDates(): boolean {
     return Boolean(this.createdAt && this.updatedAt);
   }
-  public static create(id: string, name: string, code: string, department_head_id:number | string | null): DepartmentEntity {
+  public static create(id: string, name: string, code: string): DepartmentEntity {
     const now = new Date().toString()
-    return new DepartmentEntity(id, name, code,department_head_id, now, now)
+    return new DepartmentEntity(id, name, code, null,now, now)
   }
 }

@@ -15,7 +15,7 @@ export interface UserInterface {
   deleted_at?: string | null;
   getRoles(): Role[];
   permissions?: Permission[];
-  user_signature?: ShowSignature_url | null;
+  user_signature?: ShowSignature_url | null | string |File;
   signature:string | File;
 
 }

@@ -3,7 +3,7 @@ import { formatDate } from "@/modules/shared/formatdate";
 
 export class UserEntity {
   private id: string;
-  private username: string | undefined;
+  private username: string ;
   private email: string;
   private password?: string;
   private tel?: string;
@@ -51,7 +51,7 @@ export class UserEntity {
     return this.id;
   }
 
-  public getUsername(): string | undefined{
+  public getUsername(): string {
     return this.username;
   }
 
