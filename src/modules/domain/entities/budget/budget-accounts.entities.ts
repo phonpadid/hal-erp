@@ -10,6 +10,7 @@ export class BudGetAccountsEntity {
   private allocated_amount: string | number;
   private balance_amount: number | string;
   private used_amount: number | string;
+  private total_budget?: number | string | null;
   private format_allocated_amount?: string | number;
   private department_id?: string | number;
   private type: string | null;
@@ -27,6 +28,7 @@ export class BudGetAccountsEntity {
     allocated_amount: string | number,
     balance_amount: number | string,
     used_amount: number | string,
+    total_budget: number | string | null = null,
     department_id: string | undefined | number,
     type: string | null = null,
     description: string | null = null,
@@ -42,6 +44,7 @@ export class BudGetAccountsEntity {
     this.allocated_amount = allocated_amount;
     this.balance_amount = formatPrice(Number(balance_amount));
     this.used_amount = formatPrice(Number(used_amount));
+    this.total_budget = formatPrice(Number(total_budget));
     this.format_allocated_amount = formatPrice(Number(allocated_amount));
     this.department_id = department_id;
     this.type = type;
@@ -77,6 +80,9 @@ export class BudGetAccountsEntity {
 
   public getUseAmount(): string | number | undefined {
     return this.used_amount;
+  }
+  public getTotalBudget(): string | number | null {
+    return this.total_budget ?? 0;
   }
 
   public getFormattedAllocatedAmount(): string | number | undefined {
@@ -171,6 +177,7 @@ export class BudGetAccountsEntity {
       allocated_amount,
       balance_amount,
       used_amount,
+      null,
       department_id,
       null,
       null,

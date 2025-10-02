@@ -272,6 +272,9 @@ onMounted(async () => {
       <template #used_amount="{ record }">
         <span class="text-red-600">{{ record.used_amount }}</span>
       </template>
+      <template #total_budget="{ record }">
+        <span class="text-red-600">{{ record.total_budget }}</span>
+      </template>
       <!-- Actions column -->
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
