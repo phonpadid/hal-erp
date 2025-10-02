@@ -15,6 +15,7 @@ import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
 // import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { useRouter, useRoute } from "vue-router";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 
 const { push } = useRouter();
 const route = useRoute();
@@ -263,7 +264,7 @@ onMounted(async () => {
         <span>{{ record.getDepartment()?.name }}</span>
       </template>
       <template #allocated_amount="{ record }">
-        <span class="text-orange-600">{{ record.allocated_amount }}</span>
+        <span class="text-orange-600">{{ formatPrice(record?.allocated_amount) }}</span>
       </template>
       <template #balance_amount="{ record }">
         <span class="text-blue-600">{{ record.balance_amount }}</span>

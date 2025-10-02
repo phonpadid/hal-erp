@@ -37,10 +37,10 @@ export const createBudgetAccountValidation = (
         required: true,
         message: t("budget_accounts.validation.allocatedAmountRequired"),
       },
-      {
-        pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
-        message: t("budget_accounts.validation.allocatedAmountFormat"),
-      },
+      // {
+      //   pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+      //   message: t("budget_accounts.validation.allocatedAmountFormat"),
+      // },
     ],
   };
 };

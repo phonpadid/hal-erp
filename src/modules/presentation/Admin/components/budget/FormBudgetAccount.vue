@@ -9,8 +9,8 @@ import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import UiInputNumber from "@/common/shared/components/Input/InputNumber.vue";
 import Radio from "@/common/shared/components/Input/Radio.vue";
+import { formatPrice, NumberOnly, parsePrice } from "@/modules/shared/utils/format-price";
 
 const { t } = useI18n();
 const departmentStoreInstance = departmentStore();
@@ -41,7 +41,7 @@ const formState = reactive({
   code: "",
   name: "",
   fiscal_year: "",
-  allocated_amount: 0,
+  allocated_amount: undefined as number | undefined,
   departmentId: undefined as string | undefined,
   type: ""
 });
@@ -119,7 +119,7 @@ watch(
         code: "",
         name: "",
         fiscal_year: new Date().getFullYear().toString(),
-        allocated_amount: 0,
+        allocated_amount: undefined as number | undefined,
         departmentId: "",
         type: ""
       });
@@ -137,7 +137,7 @@ const submitForm = async () => {
     emit("submit", {
       name: formState.name,
       fiscal_year: parseInt(formState.fiscal_year),
-      allocated_amount: formState.allocated_amount,
+      allocated_amount: formState.allocated_amount ?? 0,
       departmentId: parseInt(formState.departmentId!),
       type: formState.type
     });
@@ -154,6 +154,16 @@ const typeOptions = computed(() => [
   { label: t('approval-workflow.expenditure'), value: "expenditure" },
   { label: t('approval-workflow.advance'), value: "advance" },
 ]);
+const formattedPrice = computed<string>({
+  get() {
+    return formatPrice(formState.allocated_amount);
+  },
+  set(value: string) {
+    formState.allocated_amount = parsePrice(value);
+  },
+});
+
+
 </script>
 
 <template>
@@ -188,9 +198,10 @@ const typeOptions = computed(() => [
       :label="$t('budget_accounts.form.allocatedAmount')"
       name="allocated_amount"
       required
+      @keypress="NumberOnly"
     >
-      <UiInputNumber
-        v-model="formState.allocated_amount"
+      <UiInput
+        v-model="formattedPrice"
         :placeholder="$t('budget_accounts.form.allocatedAmountPlaceholder')"
         :disabled="loading"
       />

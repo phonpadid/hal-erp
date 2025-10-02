@@ -39,7 +39,7 @@ export class BudGetAccountsEntity {
     this.code = code;
     this.name = name;
     this.fiscal_year = fiscal_year;
-    this.allocated_amount = formatPrice(Number(allocated_amount));
+    this.allocated_amount = allocated_amount;
     this.balance_amount = formatPrice(Number(balance_amount));
     this.used_amount = formatPrice(Number(used_amount));
     this.format_allocated_amount = formatPrice(Number(allocated_amount));
