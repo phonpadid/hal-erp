@@ -20,7 +20,8 @@
       "placeholder": {
         "search": "Search for department information",
         "code": "Enter code",
-        "name": "Enter departments name"
+        "name": "Enter departments name",
+        "selectUser":"Please Select Department user"
       },
       "error": {
         "code": "Please enter code",
@@ -33,7 +34,8 @@
         "name": "Departments name",
         "created": "Created At",
         "updated": "Updated At",
-        "manege": "Manage"
+        "manege": "Manage",
+        "user":"Please select a user department"
       }
     },
     "dpm_user": {
