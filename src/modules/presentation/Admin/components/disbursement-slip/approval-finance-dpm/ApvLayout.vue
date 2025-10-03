@@ -27,6 +27,7 @@ const { t } = useI18n();
 const props = defineProps<{
   dataHead: {
     role?: boolean;
+    exist_access?: boolean;
     rId: number;
     no?: string;
     isApproved?: boolean;
@@ -97,7 +98,7 @@ const customButtons = computed(() => {
         onClick: async () => {
           modalAction.value = "approve";
           if(props.dataHead?.role){
-            if (props.dataHead?.data?.account_code === undefined || props.dataHead?.data?.account_code === "") {
+            if (props.dataHead?.data?.account_code === undefined || props.dataHead?.data?.account_code === "" && !props.dataHead?.exist_access) {
               error("ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດບັນຊີ");
               return;
             }

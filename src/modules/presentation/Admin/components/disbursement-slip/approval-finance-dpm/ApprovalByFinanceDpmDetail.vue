@@ -150,6 +150,7 @@ const isAwaitingUser = computed(() =>
 // map data to show on header tag ແລະ ກວດເງື່ອນໄຂການອະນຸມັດ
 const dataHead = computed(() => ({
   form_ref: formRef.value,
+  exist_access: rStore.currentReceipts?.account_code ? true : false,
   role: isRole.value,
   rId: Number(receiptId),
   no: rStore.currentReceipts?.receipt_number,
