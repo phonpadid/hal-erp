@@ -357,7 +357,7 @@ onMounted(async () => {
           </p>
         </div>
       </div>
-      <div v-if="check && isAwaitingUser && !uploadCompleted && !attachments" class="mb-4 mt-4">
+      <div v-if="check && isAwaitingUser && !uploadCompleted && !attachments.length" class="mb-4 mt-4">
         <h2>ອັບໂຫລດສະລິບໂອນເງິນ</h2>
 
         <!-- Trigger Upload Modal -->
