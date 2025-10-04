@@ -77,11 +77,9 @@ const selectedBudgets = ref<Record<string, any>>({});
 const activeItemRecord = ref<any>(null);
 const approvalDetail = ref<PurchaseOrderEntity | null>(null);
 const approvalSteps = computed(() => orderDetails.value?.getUserApproval()?.approval_step ?? []);
-const approvedStatusId = computed(() => {
-  // console.log("🔍 Debug approvedStatusId:");
-  // console.log("document_Status:", documentStatusStore.document_Status);
-  return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
-});
+// const approvedStatusId = computed(() => {
+//   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
+// });
 const rejectedStatusId = computed(() => {
   // console.log("🔍 Debug rejectedStatusId:");
   // console.log("document_Status:", documentStatusStore.document_Status);
@@ -189,7 +187,8 @@ const handleOtpConfirm = async (otpCode: string) => {
     const documentId = route.params.id as string;
     const payload: SubmitApprovalStepInterface = {
       type: "pr",
-      statusId: Number(approvedStatusId.value),
+      // statusId: Number(approvedStatusId.value),
+      statusId: 2,
       remark: "Approved",
       approvalStepId: Number(currentStep.id),
       approval_id: approvalIdFromOtp,
@@ -230,7 +229,7 @@ const handleApprove = async () => {
     };
   });
 
-  console.log("Payload for approval:", purchaseOrderItemsPayload);
+  // console.log("Payload for approval:", purchaseOrderItemsPayload);
   if (currentStep.is_otp === true) {
 
     try {
