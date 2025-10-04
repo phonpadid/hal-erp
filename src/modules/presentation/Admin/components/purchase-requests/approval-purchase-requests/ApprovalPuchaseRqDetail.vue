@@ -21,6 +21,7 @@ import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
+import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const purchaseRequestStore = usePurchaseRequestsStore();
@@ -29,7 +30,6 @@ const requestDetail = ref<PurchaseRequestEntity | null>(null);
 const { error } = useNotification();
 const approvalStepStore = useApprovalStepStore();
 const route = useRoute();
-const profileImage = ref("/public/Profile-PNG-File.png");
 const loading = ref(true);
 const isApproveModalVisible = ref(false);
 
@@ -77,8 +77,7 @@ const approverInfo = computed(() => {
     return {
       name: approvedStep.approver?.username,
       signatureUrl: approvedStep.approver?.user_signature?.signature_url,
-
-      position: approvedStep.approver?.position?.name || "ตำแหน่งที่ปรึกษา",
+      position: approvedStep.approver?.position?.name || "ບໍ່ມີພົບຂໍ້ມູນ",
     };
   }
 
@@ -458,14 +457,11 @@ onMounted(async () => {
         </h2>
         <div class="info flex items-center justify-between px-6 gap-4 mb-4">
           <div class="flex items-center gap-4">
-            <a-image
-              :src="profileImage"
-              alt="avatar"
-              class="w-20 h-20 rounded-full object-cover"
-              :width="80"
-              :height="80"
-              :preview="false"
-            />
+            <div
+              class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
+            >
+              <Icon icon="mdi:user" class="text-6xl" />
+            </div>
             <div class="detail -space-y-2">
               <p class="font-medium">{{ requesterInfo?.username }}</p>
               <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
@@ -524,42 +520,52 @@ onMounted(async () => {
           </div>
         </div>
         <!-- Signature Section -->
-        <div
-          class="signature flex items-center gap-[10rem] shadow-sm py-4 px-6 rounded-md mb-[10rem]"
-        >
-          <div class="signature1">
-            <h2 class="text-md font-semibold">
-              {{ t("purchase-rq.signature") }}
-            </h2>
-            <p class="text-slate-500 text-sm">
-              {{ t("purchase-rq.proposer") }}
-            </p>
+        <div class="signature shadow-sm py-4 px-6 rounded-md mb-[4rem]">
+          <h2 class="text-md font-semibold mb-6">
+            {{ t("purchase-rq.signature") }}
+          </h2>
 
-            <a-image
-              :src="requesterSignatureUrl"
-              alt="signature"
-              :width="120"
-              :height="80"
-              :preview="false"
-            />
+          <div class="flex justify-start gap-x-12">
+            <!-- ผู้เสนอ -->
+            <div class="text-center">
+              <p class="text-slate-500 text-sm mb-2">
+                {{ t("purchase-rq.proposer") }}
+              </p>
 
-            <div class="info text-sm text-slate-600 -space-y-2 mt-4">
-              <p>{{ requesterName }}</p>
-              <p>{{ requesterPosition }}</p>
+              <a-image
+                :src="requesterSignatureUrl"
+                alt="signature"
+                :width="120"
+                :height="80"
+                :preview="false"
+                class="block"
+              />
+
+              <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+                <p>{{ requesterName }}</p>
+                <p>{{ requesterPosition }}</p>
+              </div>
             </div>
-          </div>
-          <div v-if="approverInfo" class="signature1">
-            <p class="text-slate-500 text-sm mt-10">{{ t("purchase-rq.approver") }}</p>
-            <a-image
-              :src="approverInfo.signatureUrl"
-              alt="signature"
-              :width="120"
-              :height="80"
-              :preview="false"
-            />
-            <div class="info text-sm text-slate-600 -space-y-2 mt-4">
-              <p>{{ approverInfo.name }}</p>
-              <p>{{ approverInfo.position }}</p>
+
+            <!-- ผู้อนุมัติ -->
+            <div v-if="approverInfo" class="text-center">
+              <p class="text-slate-500 text-sm mb-2">
+                {{ t("purchase-rq.approver") }}
+              </p>
+
+              <a-image
+                :src="approverInfo.signatureUrl"
+                alt="signature"
+                :width="120"
+                :height="80"
+                :preview="false"
+                class="block"
+              />
+
+              <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+                <p>{{ approverInfo.name }}</p>
+                <p>{{ requesterPosition }}</p>
+              </div>
             </div>
           </div>
         </div>

@@ -9,7 +9,6 @@ import type {
   UserApproval,
   UserSignature
 } from "@/modules/interfaces/purchase-requests/purchase-request.interface";
-
 export class PurchaseRequestEntity {
   private readonly id: string | null;
   private documentTypeId: number;

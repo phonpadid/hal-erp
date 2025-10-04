@@ -28,11 +28,11 @@
         <h2>ຂໍ້ມູນສ້າງໃບອານຸມັດຈັດຊື້ - ຈັດຈ້າງ</h2>
         <!-- Requester Information -->
         <div class="flex items-start gap-4 mb-2">
-          <img
-            :src="documentDetails.requester.avatar"
-            alt="Requester Avatar"
-            class="w-14 h-14 rounded-full mb-2"
-          />
+          <div
+            class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
+          >
+            <Icon icon="mdi:user" class="text-6xl" />
+          </div>
           <div>
             <h4>{{ orderDetails?.getRequester()?.username || documentDetails.requester.name }}</h4>
             <p class="text-gray-600">
@@ -138,25 +138,6 @@
               </span>
               <span v-else> - </span>
             </template>
-            <!-- <template #image="{ record }">
-              <span
-                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
-              >
-                <img
-                  v-if="record.getPurchaseOrderItem()[0].getQuotationImageUrl()"
-                  :src="record.getPurchaseOrderItem()[0].getQuotationImageUrl() ?? undefined"
-                  alt="Product Image"
-                  class="w-12 h-12 object-cover"
-                />
-                <img
-                  v-else
-                  src="/public/5.png"
-                  alt="Default Image"
-                  class="w-12 h-12 object-cover"
-                />
-              </span>
-              <span v-else> - </span>
-            </template> -->
           </Table>
           <div>
             <p class="text-gray-500 mt-2 flex justify-end">
@@ -169,7 +150,7 @@
         <div class="mb-6">
           <h4 class="text-base font-semibold mb-2">ໃບສະເໜີລາຄາ</h4>
           <div class="border rounded-lg p-4">
-            <!-- แสดงข้อมูลใบเสนอราคา -->
+            <!-- show  -->
             <div
               v-if="
                 orderDetails &&
@@ -178,49 +159,52 @@
               "
             >
               <div v-for="(item, index) in orderDetails.getPurchaseOrderItem()" :key="index">
-                <!-- รูปภาพใบเสนอราคา -->
-                <img
-                  v-if="item.getQuotationImageUrl()"
-                  :src="item.getQuotationImageUrl() ?? undefined"
-                  alt="ໃບສະເໜີລາຄາ"
-                  class="max-w-md rounded-lg mb-4"
-                />
-                <img
-                  v-else
-                  src="/public/5.png"
-                  alt="ໃບສະເໜີລາຄາ"
-                  class="max-w-md rounded-lg mb-4"
-                />
+                <!-- photo -->
+                <div class="flex gap-6">
+                  
+                    <a-image
+                      v-if="item.getQuotationImageUrl()"
+                      :src="item.getQuotationImageUrl() ?? undefined"
+                      alt="ໃບສະເໜີລາຄາ"
+                      class="rounded-lg mb-4 w-10 h-10"
+                    />
+                    <img
+                      v-else
+                      src="/public/5.png"
+                      alt="ໃບສະເໜີລາຄາ"
+                      class="max-w-md rounded-lg mb-4"
+                    />
+                  
+                  <!-- details -->
+                  <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div class="font-medium">ລາຍການ:</div>
+                    <div class="text-gray-600">{{ item.getRemark() }}</div>
 
-                <!-- ข้อมูลรายละเอียด -->
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                  <div class="font-medium">ລາຍການ:</div>
-                  <div class="text-gray-600">{{ item.getRemark() }}</div>
+                    <div class="font-medium">ຈຳນວນ:</div>
+                    <div class="text-gray-600">{{ item.getQuantity() }} ລາຍການ</div>
 
-                  <div class="font-medium">ຈຳນວນ:</div>
-                  <div class="text-gray-600">{{ item.getQuantity() }} ລາຍການ</div>
+                    <div class="font-medium">ລາຄາຕໍ່ຫົວໜ່ວຍ:</div>
+                    <div class="text-gray-600">{{ formatPrice(item.getPrice()) }} ₭</div>
 
-                  <div class="font-medium">ລາຄາຕໍ່ຫົວໜ່ວຍ:</div>
-                  <div class="text-gray-600">{{ formatPrice(item.getPrice()) }} ₭</div>
+                    <div class="font-medium">ລາຄາລວມ:</div>
+                    <div class="text-gray-600">{{ formatPrice(item.getTotal()) }} ₭</div>
 
-                  <div class="font-medium">ລາຄາລວມ:</div>
-                  <div class="text-gray-600">{{ formatPrice(item.getTotal()) }} ₭</div>
+                    <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
+                    <div class="text-gray-600">
+                      {{ item.getIsVat() ? `${formatPrice(item.getVatTotal())} ₭` : "ບໍ່ມີ" }}
+                    </div>
 
-                  <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
-                  <div class="text-gray-600">
-                    {{ item.getIsVat() ? `${formatPrice(item.getVatTotal())} ₭` : "ບໍ່ມີ" }}
+                    <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
+                    <div class="text-gray-600 font-bold">
+                      {{ formatPrice(item.getTotalWithVat()) }} ₭
+                    </div>
+
+                    <div class="font-medium">ຜູ້ຂາຍ:</div>
+                    <div class="text-gray-600">{{ item.getVendorName() }}</div>
+
+                    <div class="font-medium">ຂໍ້ມູນຕິດຕໍ່:</div>
+                    <div class="text-gray-600">{{ item.getVendorContactInfo() }}</div>
                   </div>
-
-                  <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
-                  <div class="text-gray-600 font-bold">
-                    {{ formatPrice(item.getTotalWithVat()) }} ₭
-                  </div>
-
-                  <div class="font-medium">ຜູ້ຂາຍ:</div>
-                  <div class="text-gray-600">{{ item.getVendorName() }}</div>
-
-                  <div class="font-medium">ຂໍ້ມູນຕິດຕໍ່:</div>
-                  <div class="text-gray-600">{{ item.getVendorContactInfo() }}</div>
                 </div>
               </div>
             </div>
@@ -272,32 +256,37 @@
           </div>
           <div v-else>
             <!-- ข้อมูลธนาคารสำรอง -->
-            <div class="grid grid-cols-2 mb-2">
-              <span class="font-medium">ທະນາຄານ:</span>
-              <span class="text-gray-600 flex items-center gap-2">
-                <img src="/public/bclone.png" class="w-8 h-8" alt="ໂລໂກ້ທະນາຄານ" />
-                <span>BCEL One ທະນາຄານການຄ້າຕ່າງປະເທດລາວ</span>
-              </span>
-            </div>
-            <div class="grid grid-cols-2 mb-2">
-              <span class="font-medium">ຊື່ບັນຊີ:</span>
-              <span class="text-gray-600">KHAMTHANOM MALAYSIN MR</span>
-            </div>
-            <div class="grid grid-cols-2">
-              <span class="font-medium">ເລກບັນຊີ LAK:</span>
-              <span class="text-gray-600">0302000410086756</span>
-            </div>
+           <span>No data</span>
           </div>
         </div>
 
         <!-- Signatures -->
-        <div class="grid grid-cols-2 gap-6">
-          <h4 class="text-base font-semibold mb-4 col-span-2">ລາຍເຊັ່ນ</h4>
-          <div v-for="(sig, index) in signatures" :key="index">
-            <p class="font-semibold mb-2">{{ sig.role }}</p>
-            <img :src="sig.signature" :alt="`${sig.role} signature`" class="h-16 mb-2" />
-            <p class="font-semibold">{{ sig.name }}</p>
-            <p class="text-gray-600">{{ sig.position }}</p>
+        <div class="signature shadow-sm py-4 px-6 rounded-md mb-[4rem]">
+          <h2 class="text-md font-semibold mb-6">
+            {{ t("purchase-rq.signature") }}
+          </h2>
+
+          <div class="flex justify-start gap-x-12">
+            <!-- proposer -->
+            <div v-if="approverInfo" class="text-center">
+              <p class="text-slate-500 text-sm mb-2">
+               {{ t("purchase-rq.proposer") }}
+              </p>
+
+              <a-image
+                :src="approverInfo.signatureUrl"
+                alt="signature"
+                :width="120"
+                :height="80"
+                :preview="false"
+                class="block"
+              />
+
+              <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+                <p>{{ approverInfo.name }}</p>
+                <p>{{ requesterPosition }}</p>
+              </div>
+            </div>
           </div>
         </div>
         <div>
@@ -553,6 +542,30 @@ const documentStatusStore = useDocumentStatusStore();
 // const requiresOtp = ref(false);
 const modalAction = ref("");
 // const approvalId = ref<number | null>(null);
+const requesterPosition = computed(() => {
+  const position = orderDetails.value?.getPosition();
+  return position ? position.name : "";
+});
+
+const approverInfo = computed(() => {
+  const approvalSteps = orderDetails.value?.getUserApproval()?.approval_step;
+
+  if (!approvalSteps) {
+    return null;
+  }
+
+  const approvedStep = approvalSteps.find((step) => step.status_id === 2 && step.approver);
+
+  if (approvedStep) {
+    return {
+      name: approvedStep.approver?.username,
+      signatureUrl: approvedStep.approver?.user_signature?.signature_url,
+      position: approvedStep.approver?.position?.name || "ตำแหน่งที่ปรึกษา",
+    };
+  }
+
+  return null;
+});
 
 const approvedStatusId = computed(() => {
   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
@@ -891,17 +904,6 @@ const documentDetails = {
   purpose:
     "ເພື່ອໃຫ້ແທດເໝາະ ໃຫ້ຮອງຮັບກັບການປະຕິບັດວຽກງານ ແລະ ເພື່ອອຳນວຍຄວາມສະດວກໃນການປະຕິບັດໜ້າທີ່ວຽກງານ",
 };
-
-// Signatures
-const signatures = [
-  {
-    role: "ຜູ້ສະເໜີ",
-    name: "ພົມມະກອນ ຄວາມຄູ",
-    position: "ພະນັກງານພັດທະນາລະບົບ",
-    signature: "/public/2.png",
-  },
-];
-
 // OTP
 const handleOtpInput = (value: string, index: number) => {
   const numericValue = value.replace(/[^0-9]/g, "");

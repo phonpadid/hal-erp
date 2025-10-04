@@ -16,6 +16,7 @@ import { useRoute } from "vue-router";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 import { formatDate } from "@/modules/shared/formatdate";
+import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const route = useRoute(); // << 3. Get route instance
@@ -90,14 +91,12 @@ const handleToggle = () => {
         <h2 class="text-md font-semibold px-6 mb-4">{{ t("purchase-rq.field.proposer") }}</h2>
         <div class="flex justify-between">
           <div class="info flex items-center px-6 gap-4 mb-4">
-            <a-image
-              src="/public/Profile-PNG-File.png"
-              alt="avatar"
-              class="w-20 h-20 rounded-full object-cover"
-              :width="80"
-              :height="80"
-              :preview="false"
-            />
+            <div
+              class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
+            >
+              <Icon icon="mdi:user" class="text-4xl" />
+            </div>
+
             <div class="detail -space-y-2">
               <p class="font-medium">{{ requesterInfo?.username }}</p>
               <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
@@ -121,8 +120,8 @@ const handleToggle = () => {
               <span>{{ index + 1 }}</span>
             </template>
             <template #total_price="{ record }">
-              <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span> </template
-            >
+              <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
+            </template>
             <template #image="{ record }">
               <span v-if="!record.file_name_url">ບໍ່ມີ</span>
               <a-image
@@ -143,17 +142,24 @@ const handleToggle = () => {
         </div>
         <div class="signature shadow-sm py-4 px-6 rounded-md mb-[10rem]">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
-          <p class="text-slate-500 text-sm">{{ t("purchase-rq.proposer") }}</p>
-          <a-image
-            :src="(requesterInfo as any)?.user_signature?.signature_url ?? '/public/2.png'"
-            alt="signature"
-            :width="180"
-            :height="100"
-            :preview="false"
-          />
-          <div class="info text-sm text-slate-600 -space-y-2 mt-4">
-            <p>{{ requesterInfo?.username }}</p>
-            <p>{{ departmentInfo?.name }}</p>
+          <div class="flex justify-start gap-x-12">
+            <div class="text-center">
+              <p class="text-slate-500 text-sm">{{ t("purchase-rq.proposer") }}</p>
+              <div class="felx justify-start">
+                <a-image
+                  :src="(requesterInfo as any)?.user_signature?.signature_url ?? '/public/2.png'"
+                  alt="signature"
+                  :width="180"
+                  :height="100"
+                  :preview="false"
+                />
+              </div>
+
+              <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+                <p>{{ requesterInfo?.username }}</p>
+                <p>{{ departmentInfo?.name }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
