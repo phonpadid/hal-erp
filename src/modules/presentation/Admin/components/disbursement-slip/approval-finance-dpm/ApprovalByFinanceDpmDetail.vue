@@ -150,6 +150,7 @@ const isAwaitingUser = computed(() =>
 // map data to show on header tag ແລະ ກວດເງື່ອນໄຂການອະນຸມັດ
 const dataHead = computed(() => ({
   form_ref: formRef.value,
+  exist_access: rStore.currentReceipts?.account_code ? true : false,
   role: isRole.value,
   rId: Number(receiptId),
   no: rStore.currentReceipts?.receipt_number,
@@ -327,14 +328,8 @@ onMounted(async () => {
               <span>{{ budgetAcc?.code }} - {{ budgetAcc?.name }}</span>
             </template>
             <template v-if="column.key === 'account_code'">
-              <!-- <UiForm
-                ref="formRef"
-                :model="formModel"
-                :rules="accountCodeRule(t)"
-              > -->
-              <!-- <UiFormItem name="account_code" > -->
               <UiInput
-                v-if="dataHead.isApproved && isRole"
+                v-if="dataHead.isApproved && isRole && !rStore.currentReceipts?.account_code"
                 v-model="formModel.account_code"
                 placeholder="ປ້ອນລະຫັດບັນຊີ"
                 size="middle"
@@ -362,7 +357,7 @@ onMounted(async () => {
           </p>
         </div>
       </div>
-      <div v-if="check && isAwaitingUser && !uploadCompleted" class="mb-4 mt-4">
+      <div v-if="check && isAwaitingUser && !uploadCompleted && !attachments.length" class="mb-4 mt-4">
         <h2>ອັບໂຫລດສະລິບໂອນເງິນ</h2>
 
         <!-- Trigger Upload Modal -->
@@ -430,17 +425,17 @@ onMounted(async () => {
         {{ t("purchase-rq.signature") }}
       </h2>
       <div
-        class="signature flex items-center gap-[3rem] shadow-sm px-0 rounded-md pb-4"
+        class="signature flex flex-wrap items-center justif-start gap-[3rem] shadow-sm px-0 rounded-md pb-4"
       >
         <div
           v-for="(step, index) in [
             ...(rStore.currentReceipts?.user_approval?.approval_step || []),
           ].sort((a, b) => a.step_number - b.step_number)"
           :key="index"
-          class="signature-approver text-center"
+          class="signature-approver text-center "
         >
-          <p class="text-slate-500 text-sm">
-            {{ t("purchase-rq.approver") }} {{ step.step_number }}
+          <p class="text-slate-500 text-sm font-bold">
+            {{ t("purchase-rq.approver") }} {{ step.step_number + 1 }}
           </p>
 
           <a-image
