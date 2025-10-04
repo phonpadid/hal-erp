@@ -352,7 +352,7 @@ onMounted(async () => {
             {{ t("disbursement.field.addition_pay") }}:
           </p>
           <p class="font-semibold md:text-lg text-sm text-slate-700">
-            {{ formatPrice(rStore.currentReceipts?.currency_totals[0].amount) }}
+            {{ formatPrice(rStore.currentReceipts?.currency_totals[0]?.amount) }}
             ₭
           </p>
         </div>
@@ -413,7 +413,7 @@ onMounted(async () => {
           >
             <a-image
               class="flex items-center justify-center"
-              :src="doc.file_name_url"
+              :src="doc?.file_name_url"
               style="width: 160px; height: 320px"
             />
           </div>
@@ -440,7 +440,7 @@ onMounted(async () => {
 
           <a-image
             v-if="step.approver?.user_signature?.signature_url"
-            :src="step.approver.user_signature.signature_url"
+            :src="step.approver?.user_signature?.signature_url"
             alt="signature"
             :width="120"
             :height="60"
