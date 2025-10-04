@@ -10,11 +10,7 @@ import PropovalDrawer from "./drawers/PropovalDrawer.vue";
 import ApprovalDrawer from "./drawers/ApprovalDrawer.vue";
 import { useRoute } from "vue-router";
 import { useReceiptStore } from "../../../stores/receipt.store";
-import {
-  getUserApv,
-  getUserRole,
-  UserRoleEnum,
-} from "@/modules/shared/utils/get-user.login";
+import { getUserApv, getUserRole, UserRoleEnum } from "@/modules/shared/utils/get-user.login";
 import UploadSlipModal from "./modals/UploadSlipModal.vue";
 import { uploadFile } from "@/modules/application/services/upload.service";
 import { message } from "ant-design-vue";
@@ -36,9 +32,7 @@ const formModel = ref({
 });
 const isRole = computed(() =>
   userRole.value.some(
-    (role) =>
-      role.includes(UserRoleEnum.ACCOUNT_ADMIN) ||
-      role.includes(UserRoleEnum.ACCOUNT_USER)
+    (role) => role.includes(UserRoleEnum.ACCOUNT_ADMIN) || role.includes(UserRoleEnum.ACCOUNT_USER)
   )
 );
 
@@ -109,9 +103,7 @@ const isUserPendingApprover = computed(() => {
   );
 });
 const check = computed(() =>
-  rStore.currentReceipts?.user_approval?.approval_step?.some(
-    (step) => step.requires_file_upload
-  )
+  rStore.currentReceipts?.user_approval?.approval_step?.some((step) => step.requires_file_upload)
 );
 const userNextApprove = computed(() =>
   rStore.currentReceipts?.user_approval?.approval_step?.map((step) => ({
@@ -144,9 +136,7 @@ const checkUpload = computed(() => {
     ) ?? []
   );
 });
-const isAwaitingUser = computed(() =>
-  checkUpload.value.some((u) => u.id === user.value.id)
-);
+const isAwaitingUser = computed(() => checkUpload.value.some((u) => u.id === user.value.id));
 // map data to show on header tag ແລະ ກວດເງື່ອນໄຂການອະນຸມັດ
 const dataHead = computed(() => ({
   form_ref: formRef.value,
@@ -185,39 +175,31 @@ const dataHead = computed(() => ({
 
   approver_info: userNextApprove.value,
 }));
-const profileImage = ref("/public/Profile-PNG-File.png");
-
 const showPropoval = () => {
   selectedId.value = Number(rStore.currentReceipts?.purchase_request_id) ?? null;
   openPropoval.value = true;
 };
 const showApproval = () => {
-  selectedId.value = Number(rStore.currentReceipts?.purchase_order_id ) ?? null;
+  selectedId.value = Number(rStore.currentReceipts?.purchase_order_id) ?? null;
   openAppropoval.value = true;
 };
 const vendor = computed(
-  () =>
-    rStore.currentReceipts?.receipt_item[0].purchase_order_item
-      .selected_vendor[0].vendor
+  () => rStore.currentReceipts?.receipt_item[0].purchase_order_item.selected_vendor[0].vendor
 );
 const bank = computed(
   () =>
-    rStore.currentReceipts?.receipt_item[0].purchase_order_item
-      .selected_vendor[0].vendor_bank_account.bank
+    rStore.currentReceipts?.receipt_item[0].purchase_order_item.selected_vendor[0]
+      .vendor_bank_account.bank
 );
 const account = computed(
   () =>
-    rStore.currentReceipts?.receipt_item[0].purchase_order_item
-      .selected_vendor[0].vendor_bank_account
+    rStore.currentReceipts?.receipt_item[0].purchase_order_item.selected_vendor[0]
+      .vendor_bank_account
 );
 const budgetAcc = computed(
-  () =>
-    rStore.currentReceipts?.receipt_item[0].purchase_order_item
-      .budget_item.budget_account
+  () => rStore.currentReceipts?.receipt_item[0].purchase_order_item.budget_item.budget_account
 );
-const attachments = computed(
-  () => rStore.currentReceipts?.document_attachment ?? []
-);
+const attachments = computed(() => rStore.currentReceipts?.document_attachment ?? []);
 
 onMounted(async () => {
   await rStore.fetchById(receiptId);
@@ -236,14 +218,11 @@ onMounted(async () => {
         {{ t("purchase-rq.field.proposer") }}
       </h2>
       <div class="info flex items-center px-2 gap-4 mb-4">
-        <a-image
-          :src="profileImage"
-          alt="avatar"
-          class="w-20 h-20 rounded-full object-cover"
-          :width="80"
-          :height="80"
-          :preview="false"
-        />
+        <div
+          class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
+        >
+          <Icon icon="mdi:user" class="text-6xl" />
+        </div>
         <div class="detail -space-y-2">
           <p class="font-medium">
             {{ rStore.currentReceipts?.document.requester.username }}
@@ -269,27 +248,16 @@ onMounted(async () => {
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-sm">
           <div class="flex items-center gap-2">
-            <label class="w-40 text-gray-700"
-              >{{ t("disbursement.vendor.name") }} :</label
-            >
+            <label class="w-40 text-gray-700">{{ t("disbursement.vendor.name") }} :</label>
             <span class="text-gray-700">{{ vendor?.name }}</span>
           </div>
           <div class="flex items-center gap-2">
-            <label class="w-40 text-gray-700"
-              >{{ t("disbursement.vendor.bank") }} :</label
-            >
-            <img
-              :src="bank?.logoUrl"
-              alt="bank logo"
-              class="h-8 w-8"
-              srcset=""
-            />
+            <label class="w-40 text-gray-700">{{ t("disbursement.vendor.bank") }} :</label>
+            <img :src="bank?.logoUrl" alt="bank logo" class="h-8 w-8" srcset="" />
             <span class="text-gray-700">{{ bank?.name }}</span>
           </div>
           <div class="flex items-center gap-2">
-            <label class="w-40 text-gray-700"
-              >{{ t("disbursement.vendor.account_name") }}:</label
-            >
+            <label class="w-40 text-gray-700">{{ t("disbursement.vendor.account_name") }}:</label>
             <span class="text-gray-700">{{ account?.account_name }}</span>
           </div>
           <div class="flex items-center gap-2">
@@ -320,9 +288,7 @@ onMounted(async () => {
               <span>{{ index + 1 }}</span>
             </template>
             <template v-if="column.key === 'title'">
-              <span>{{
-                record.purchase_order_item?.purchase_request_item?.title
-              }}</span>
+              <span>{{ record.purchase_order_item?.purchase_request_item?.title }}</span>
             </template>
             <template v-if="column.key === 'budget_code'">
               <span>{{ budgetAcc?.code }} - {{ budgetAcc?.name }}</span>
@@ -345,19 +311,18 @@ onMounted(async () => {
             </template>
           </template>
         </a-table>
-        <div
-          class="total flex items-center md:justify-end justify-start md:px-2 px-1 pt-4 gap-4"
-        >
-          <p class="font-medium text-slate-600">
-            {{ t("disbursement.field.addition_pay") }}:
-          </p>
+        <div class="total flex items-center md:justify-end justify-start md:px-2 px-1 pt-4 gap-4">
+          <p class="font-medium text-slate-600">{{ t("disbursement.field.addition_pay") }}:</p>
           <p class="font-semibold md:text-lg text-sm text-slate-700">
             {{ formatPrice(rStore.currentReceipts?.currency_totals[0]?.amount) }}
             ₭
           </p>
         </div>
       </div>
-      <div v-if="check && isAwaitingUser && !uploadCompleted && !attachments.length" class="mb-4 mt-4">
+      <div
+        v-if="check && isAwaitingUser && !uploadCompleted && !attachments.length"
+        class="mb-4 mt-4"
+      >
         <h2>ອັບໂຫລດສະລິບໂອນເງິນ</h2>
 
         <!-- Trigger Upload Modal -->
@@ -432,7 +397,7 @@ onMounted(async () => {
             ...(rStore.currentReceipts?.user_approval?.approval_step || []),
           ].sort((a, b) => a.step_number - b.step_number)"
           :key="index"
-          class="signature-approver text-center "
+          class="signature-approver text-center"
         >
           <p class="text-slate-500 text-sm font-bold">
             {{ t("purchase-rq.approver") }} {{ step.step_number + 1 }}
@@ -471,7 +436,8 @@ onMounted(async () => {
           >
             <Icon icon="material-symbols:docs-outline" />
             <span class="text-sm"
-              >{{ rStore.currentReceipts?.pr_doc_type }} - ເລກທີ {{ rStore.currentReceipts?.pr_number }}</span
+              >{{ rStore.currentReceipts?.pr_doc_type }} - ເລກທີ
+              {{ rStore.currentReceipts?.pr_number }}</span
             >
             <Icon icon="mdi:arrow-top-right" />
           </div>
@@ -481,7 +447,8 @@ onMounted(async () => {
           >
             <Icon icon="material-symbols:docs-outline" />
             <span class="text-sm"
-              >{{ rStore.currentReceipts?.po_doc_type }} - ເລກທີ {{rStore.currentReceipts?.po_number}}</span
+              >{{ rStore.currentReceipts?.po_doc_type }} - ເລກທີ
+              {{ rStore.currentReceipts?.po_number }}</span
             >
             <Icon icon="mdi:arrow-top-right" />
           </div>

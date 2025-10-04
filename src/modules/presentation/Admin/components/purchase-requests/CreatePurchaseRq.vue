@@ -6,7 +6,6 @@ import PuchaseRqLayout from "./PuchaseRqLayout.vue";
 import PurchaseForm from "./PurchaseForm.vue";
 import ConfirmModal from "./modal/OtpModal.vue";
 import type { Step1Data, Step2Data } from "./formstate";
-import CheckPurchaseRq from "./CheckPurchaseRqDetail.vue";
 import { useRouter } from "vue-router";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { Icon } from "@iconify/vue";
@@ -18,7 +17,7 @@ const { t } = useI18n();
 const { push } = useRouter();
 const currentStep = ref(0);
 const showModal = ref(false);
-const showOtpModal = ref(false); // เพิ่ม state สำหรับ OTP modal
+const showOtpModal = ref(false); 
 const pendingStepData = ref<Step2Data | null>(null);
 const approvalStepId = ref<number | null>(null);
 // Add ref for PurchaseForm component
@@ -99,8 +98,6 @@ const handleOtpConfirm = async (otpCode: string) => {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
     return;
   }
-
-  // ตรวจสอบข้อมูลที่จำเป็น
   if (!newlyCreatedDocumentId.value || !currentApprovalStepId.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານຫຼືຂະບວນການອະນຸມັດ");
     return;
@@ -140,6 +137,7 @@ const handleOtpConfirm = async (otpCode: string) => {
     confirmLoading.value = false;
   }
 };
+
 const handleLayoutConfirm = async () => {
   if (currentStep.value === 1 && purchaseFormRef.value) {
     try {
@@ -167,13 +165,6 @@ const handleLayoutConfirm = async () => {
 };
 
 const getStep0Data = () => stepsData[0] as FormState;
-
-const getAllStepsData = () => {
-  return {
-    step1Data: stepsData[0],
-    step2Data: stepsData[1],
-  };
-};
 
 const handleDone = () => {
   push({ name: "purchase_request.index", params: {} });

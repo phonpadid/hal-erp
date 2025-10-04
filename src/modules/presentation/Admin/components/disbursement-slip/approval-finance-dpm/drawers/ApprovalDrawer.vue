@@ -9,13 +9,13 @@ import { usePurchaseOrderStore } from "../../../../stores/purchase_requests/purc
 import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { numberToLaoWords } from "@/modules/shared/utils/read-number-lao";
+import { Icon } from "@iconify/vue";
 
 // Import the print helper
 const purchaseOrderStore = usePurchaseOrderStore();
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
   const { error } = useNotification();
 const { t } = useI18n();
-const profileImage = ref("/public/Profile-PNG-File.png");
 const userName = ref("ທ້າວສຸກີ້");
 const department = ref("ພະແນກການເງິນ");
 const props = defineProps<{
@@ -39,14 +39,11 @@ onMounted( async () => {
     <div class="user-info shadow-sm py-2">
         <h2 class="text-md font-semibold px-6 mb-4">ຂໍ້ມູນສ້າງໃບອະນຸມັດຈັດຊື້ {{ props.id }}</h2>
         <div class="info flex items-center px-6 gap-4 mb-4">
-          <a-image
-            :src="profileImage"
-            alt="avatar"
-            class="w-20 h-20 rounded-full object-cover"
-            :width="80"
-            :height="80"
-            :preview="false"
-          />
+          <div
+              class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
+            >
+              <Icon icon="mdi:user" class="text-6xl" />
+            </div>
           <div class="detail -space-y-2">
             <p class="font-medium">{{ orderDetails?.getRequester().username }}</p>
             <p class="text-gray-500 text-sm">{{ orderDetails?.getDepartment().name }}, {{ orderDetails?.getPosition()[0].name }}</p>
@@ -143,7 +140,6 @@ onMounted( async () => {
         <div class="signature py-4 px-6 rounded-md mb-[2rem]">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
           <p class="text-slate-500 text-sm">{{t("purchase-rq.proposer")}}</p>
-
           <a-image
             src="/public/2.png"
             alt="example"
