@@ -24,6 +24,7 @@ import { useApprovalStepStore } from "../../../stores/approval-step.store";
 import { useDocumentStatusStore } from "../../../stores/document-status.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
+import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -81,7 +82,6 @@ const getPreviousApprovedStep = computed(() => {
     .sort((a, b) => b.step_number - a.step_number)[0];
 });
 
-// ตรวจสอบว่าเป็น step สุดท้ายหรือไม่
 const isLastStep = computed(() => {
   const lastStep = [...approvalSteps.value].sort((a, b) => b.step_number - a.step_number)[0];
   return currentApprovalStep.value?.step_number === lastStep?.step_number;
@@ -101,15 +101,8 @@ const canApprove = computed(() => {
     previousStep.step_number === currentStep.step_number - 1
   );
 });
-
-const documentDetails = {
-  requester: {
-    avatar: "/public/4.png",
-  },
-};
-
 const customButtons = computed(() => {
-  // ถ้าไม่สามารถอนุมัติได้ ไม่ต้องแสดงปุ่ม
+  // check button show
   if (!canApprove.value) {
     return [];
   }
@@ -118,16 +111,16 @@ const customButtons = computed(() => {
   if (!currentStep) return [];
 
   if (currentStep.is_otp) {
-        return [
-            {
-                label: `ອະນຸມັດ`,
-                type: "primary" as ButtonType,
-                onClick: () => {
-                    handleApprove();
-                },
-            },
-        ];
-    }
+    return [
+      {
+        label: `ອະນຸມັດ`,
+        type: "primary" as ButtonType,
+        onClick: () => {
+          handleApprove();
+        },
+      },
+    ];
+  }
 
   return [
     {
@@ -152,7 +145,6 @@ const topbarStyle = computed(() => {
 });
 
 /*********************Logic OTP*********************** */
-// วางฟังก์ชันนี้ไว้ใกล้ๆ กับ handleApprove
 const handleOtpConfirm = async (otpCode: string) => {
   if (!otpCode) {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
@@ -191,7 +183,7 @@ const handleOtpConfirm = async (otpCode: string) => {
   }
 };
 const handleApprove = async () => {
-  isApproveModalVisible.value = false; // ปิด Modal ยืนยันก่อน
+  isApproveModalVisible.value = false;
 
   const currentStep = currentApprovalStep.value;
   if (!currentStep?.id) {
@@ -201,14 +193,14 @@ const handleApprove = async () => {
 
   const documentId = route.params.id as string;
 
-  // --- จุดตัดสินใจ ---
+  // --- final ---
   if (currentStep.is_otp === true) {
-    // ---- กรณีต้องใช้ OTP ----
+    // ---- use OTP ----
     try {
-      // เรียก Store ให้ยิง API /send-otp/{id}
+      // use Store to API /send-otp/{id}
       const otpData = await approvalStepStore.sendOtp(currentStep.id);
 
-      // ถ้าสำเร็จ, ให้เปิด OTP Modal แล้วรอ...
+      // sucess, - OTP Modal wait...
       if (otpData) {
         isOtpModalVisible.value = true;
       }
@@ -217,7 +209,7 @@ const handleApprove = async () => {
       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
     }
   } else {
-    // ---- กรณีไม่ต้องใช้ OTP ----
+    // ---- No OTP ----
     try {
       const payload: SubmitApprovalStepInterface = {
         type: "pr",
@@ -228,7 +220,7 @@ const handleApprove = async () => {
       };
       const success = await approvalStepStore.submitApproval(documentId, payload);
       if (success) {
-        await purchaseRequestStore.fetchById(documentId); // โหลดข้อมูลใหม่
+        await purchaseRequestStore.fetchById(documentId);
         // console.log("Reloaded requestDetail:", requestDetail.value);
 
         if (isLastStep.value) {
@@ -391,11 +383,12 @@ onMounted(async () => {
       <!-- Requester Information -->
       <div class="flex justify-between items-center mb-6">
         <div class="flex items-center gap-4">
-          <img
-            :src="documentDetails.requester.avatar"
-            alt="Requester Avatar"
-            class="w-14 h-14 rounded-full mb-2"
-          />
+          <div
+            class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
+          >
+            <Icon icon="mdi:user" class="text-6xl" />
+          </div>
+
           <div>
             <h3 class="text-lg font-semibold">{{ requesterInfo?.username }}</h3>
             <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
@@ -441,59 +434,46 @@ onMounted(async () => {
           </p>
         </div>
       </div>
-
-      <!-- Attachments -->
-      <!-- <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
-        <h2 class="text-md font-semibold">{{ t("purchase-rq.field.img_example") }}</h2>
-        <div class="flex flex-wrap gap-6">
-          <a-image
-            v-for="(imgUrl, index) in imageList"
-            :key="index"
-            :src="imgUrl"
-            alt="example"
-            :width="280"
-            :height="150"
-            :preview="true"
-            class="rounded-xl shadow-sm"
-          />
-        </div>
-      </div> -->
-
       <!-- Signatures -->
       <div class="signature shadow-sm py-4 px-6 rounded-md mb-[10rem]">
         <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
-        <div class="grid grid-cols-2 gap-6">
-          <!-- Proposer Signature -->
-          <div>
+
+        <div class="flex justify-start gap-x-12">
+          <div class="text-center">
             <p class="text-slate-500 text-sm">{{ t("purchase-rq.proposer") }}</p>
-            <a-image
-              :src="(requesterInfo as any)?.user_signature?.signature_url ?? '/public/2.png'"
-              alt="signature"
-              :width="180"
-              :height="100"
-              :preview="false"
-            />
-            <div class="info text-sm text-slate-600 -space-y-2 mt-4">
-              <p>{{ requesterInfo?.username }}</p>
-              <p>{{ departmentInfo?.name }}</p>
+            <div class="flex justify-start">
+              <a-image
+                :src="(requesterInfo as any)?.user_signature?.signature_url ?? '/public/2.png'"
+                alt="signature"
+                :width="180"
+                :height="100"
+                :preview="false"
+              />
             </div>
-          </div>
-          <div>
-            <p class="text-slate-500 text-sm">{{ t("purchase-rq.approver") }}</p>
-            <a-image
-              :src="(requesterInfo as any)?.user_signature?.signature_url ?? '/public/2.png'"
-              alt="signature"
-              :width="180"
-              :height="100"
-              :preview="false"
-            />
+
             <div class="info text-sm text-slate-600 -space-y-2 mt-4">
               <p>{{ requesterInfo?.username }}</p>
               <p>{{ departmentInfo?.name }}</p>
             </div>
           </div>
 
-          <!-- Approver Signature -->
+          <div class="text-center">
+            <p class="text-slate-500 text-sm">{{ t("purchase-rq.approver") }}</p>
+            <div class="flex justify-start">
+              <a-image
+                :src="(requesterInfo as any)?.user_signature?.signature_url ?? '/public/2.png'"
+                alt="signature"
+                :width="180"
+                :height="100"
+                :preview="false"
+              />
+            </div>
+
+            <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+              <p>{{ requesterInfo?.username }}</p>
+              <p>{{ departmentInfo?.name }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

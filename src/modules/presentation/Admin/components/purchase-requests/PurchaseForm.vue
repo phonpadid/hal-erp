@@ -34,6 +34,7 @@ import { useUnitStore } from "../../stores/unit.store";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 import { departmenUsertStore } from "../../stores/departments/department-user.store";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
+import { Icon } from "@iconify/vue";
 
 // --- SCRIPT LOGIC ---
 const { t } = useI18n();
@@ -56,7 +57,6 @@ const userLocal = departmenUsertStore();
 
 const units: Ref<UnitEntity[]> = ref([]);
 
-const profileImage = ref("/public/Profile-PNG-File.png");
 const userPosition = ref("ພະແນກການເງິນ, ພະນັກງານ");
 const departmentUser = userLocal.currentDpmUser;
 
@@ -267,16 +267,14 @@ defineExpose({
         {{ t("purchase-rq.field.proposer", "ໃບສະເໜີ") }}
       </h2>
       <div class="info flex items-center px-0 gap-4 mb-4">
-        <a-image
-          :src="profileImage"
-          alt="avatar"
-          class="w-20 h-20 rounded-full object-cover"
-          :width="80"
-          :height="80"
-          :preview="false"
-        />
+        <div
+          class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
+        >
+          <Icon icon="mdi:user" class="text-4xl" />
+        </div>
+
         <div class="detail -space-y-2">
-          <p class="font-medium">{{ departmentUser?.getUser()?.getUsername() }}</p>
+          <p class="font-medium **text-lg**">{{ departmentUser?.getUser()?.getUsername() }}</p>
           <p class="text-gray-600">{{ userPosition }}</p>
         </div>
       </div>
