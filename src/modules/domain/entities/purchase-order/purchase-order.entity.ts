@@ -5,7 +5,7 @@ import { PurchaseOrderItemDataEntity } from "./purchase-order-Item-data.entity";
 import { PurchaseOrderVendorEntity } from "./purchase-order-vendor.entity";
 
 interface PurchaseOrderDocument {
-  description: string | null;
+  description: string;
   documentTypeId: number;
   department?: any;
   document_type?: any;
@@ -25,7 +25,7 @@ interface PurchaseOrderDocument {
 }
 
 export class PurchaseOrderEntity {
-  private id: number | null;
+  private id: number;
   private po_number: string | null;
   private purchaseRequestId: number;
   private document: PurchaseOrderDocument;
@@ -58,7 +58,7 @@ export class PurchaseOrderEntity {
   private deletedAt: string | null;
 
   private constructor(
-    id: number | null,
+    id: number,
     po_number: string | null,
     purchaseRequestId: number,
     document: PurchaseOrderDocument,
@@ -96,7 +96,7 @@ export class PurchaseOrderEntity {
     // console.log("Input data:", data);
     // console.log("Document data:", data.document);
 
-    const id = data.id || null;
+    const id = data.id;
     const po_number = data.po_number || null;
     const purchaseRequestId = data.purchase_request_id || 0;
     const purposes = data.purposes || data.purchase_request?.purposes || "N/A";
@@ -187,7 +187,7 @@ export class PurchaseOrderEntity {
   }
 
   // --- Getters ---
-  public getId(): number | null {
+  public getId(): number {
     return this.id;
   }
   public getPoNumber(): string | null {

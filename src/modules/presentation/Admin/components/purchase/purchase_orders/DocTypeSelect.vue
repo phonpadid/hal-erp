@@ -36,7 +36,6 @@ watch(
   { immediate: true }
 );
 
-// เมื่อกดปุ่มยืนยัน
 const nextStep = () => {
   if (formState.document_type_id) {
     const purchaseRequestId = route.query.purchase_request_id;

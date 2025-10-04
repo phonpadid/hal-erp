@@ -10,6 +10,7 @@ import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
+import Textarea from "@/common/shared/components/Input/Textarea.vue";
 
 const vendorStore = useVendorStore();
 const { error } = useNotification();
@@ -172,8 +173,6 @@ const handleVendorChange = async (value: string) => {
   }
 };
 
-
-
 const beforeUpload = async (file: File) => {
   if (!selectedVendor.value) {
     message.warning("ກະລຸນາເລືອກຮ້ານຄ້າກ່ອນ");
@@ -229,12 +228,8 @@ const handleRemove = () => {
 };
 
 const selectedType = ref<string>("");
-
-// เพิ่มฟังก์ชัน setSelectedType
 const setSelectedType = (type: string) => {
   selectedType.value = type;
-
-  // หากมีร้านค้าที่ตรงกับประเภทนี้ ให้เลือกไว้ล่วงหน้า
   const matchingVendor = vendorStore.activeVendors.find((v) => v.getId() === type);
   if (matchingVendor) {
     selectedVendor.value = matchingVendor.getId();
@@ -265,7 +260,7 @@ const handleOk = () => {
     accountName: form.value.accountName,
     accountNumber: form.value.accountNumber,
     reason: form.value.descriptions || "",
-    is_vat: isVat.value
+    is_vat: isVat.value,
   });
 
   close();
@@ -311,8 +306,12 @@ defineExpose({ open, close, reset, setSelectedType });
       <UiFormItem label="ເລືອກພາສີ">
         <a-checkbox v-model:checked="isVat"> ລວມພາສີມູນຄ່າເພີ່ມ (VAT) </a-checkbox>
       </UiFormItem>
+      <span class="font-medium">ເຫດຜົນທີເລືອກ</span>
+      <div class="flex items-start gap-4 mt-2">
+        <Textarea v-model="form.descriptions" placeholder="ປ້ອນເຫດຜົນ" class="w-full" :rows="4" />
+      </div>
 
-      <div class="text-gray-600">ອັບໂຫລດໃບສະເໜີເພື່ອປັບຮູບແບບຕາມເລືອກຮ້ານ</div>
+      <div class="text-gray-600">ອັບໂຫລດໃບສະເໜີລາຄາ</div>
       <Upload.Dragger
         v-model:file-list="fileList"
         :before-upload="beforeUpload"
@@ -342,8 +341,6 @@ defineExpose({ open, close, reset, setSelectedType });
           </div>
         </div>
       </Upload.Dragger>
-
-      <!-- ปุ่มยืนยันเต็มความกว้าง -->
       <div class="mt-4">
         <UiButton
           type="primary"
@@ -359,13 +356,6 @@ defineExpose({ open, close, reset, setSelectedType });
 </template>
 
 <style scoped>
-.upload-dragger {
-  border: 2px dashed #e5e7eb !important;
-  border-radius: 12px;
-  background: #fff;
-  min-height: 260px;
-  padding: 24px;
-}
 .uploader-body {
   position: relative;
   min-height: 220px;

@@ -452,18 +452,6 @@ const userInfo = {
   department: "ພະແນກໄອທີ, ພະບໍລິມາດ",
 };
 
-// Document details
-const documentDetails = {
-  requester: {
-    name: "ທ່ານ ພົມມະກອນ ຄວາມຄູ",
-    position: "ພະນັກງານພັດທະນາລະບົບ, ຝ່າຍໄອທີ",
-    avatar: "/public/4.png",
-  },
-  requestDate: "30 ມີນາ 2025",
-  purpose:
-    "ເພື່ອໃຫ້ແທດເໝາະ ໃຫ້ຮອງຮັບກັບການປະຕິບັດວຽກງານ ແລະ ເພື່ອອຳນວຍຄວາມສະດວກໃນການປະຕິບັດໜ້າທີ່ວຽກງານ",
-};
-
 // Signatures
 const signatures = computed(() => {
   const sigs = [];
@@ -665,15 +653,15 @@ const signatures = computed(() => {
       <p>ເກີດຂໍ້ຜິດພາດ: {{ store.error }}</p>
     </div>
     <!-- Main Content -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mt-6" v-else-if="orderDetails">
+    <div class="bg-white rounded-lg shadow-sm p-6 mt-36" v-else-if="orderDetails">
       <h2>ຂໍ້ມູນສ້າງໃບອານຸມັດຈັດຊື້ - ຈັດຈ້າງ</h2>
       <!-- Requester Information -->
       <div class="flex items-start gap-4 mb-2">
-        <img
-          :src="documentDetails.requester.avatar"
-          alt="Requester Avatar"
-          class="w-14 h-14 rounded-full mb-2"
-        />
+       <div
+          class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
+        >
+          <Icon icon="mdi:user" class="text-6xl" />
+        </div>
         <div>
           <h4>{{ orderDetails?.getRequester()?.username }}</h4>
           <p class="text-gray-600">
