@@ -282,6 +282,7 @@ const handleReject = async () => {
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
   }
 };
+
 onMounted(async () => {
   const requestId = route.params.id as string;
   if (requestId) {
