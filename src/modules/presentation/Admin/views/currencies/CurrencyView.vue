@@ -272,6 +272,7 @@ watch(search, async(newVal) => {
           <UiButton
             type=""
             icon="ant-design:edit-outlined"
+            shape="circle" 
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
@@ -281,6 +282,7 @@ watch(search, async(newVal) => {
             type=""
             danger
             icon="ant-design:delete-outlined"
+            shape="circle" 
             colorClass="flex items-center justify-center text-red-700"
             size="small"
             @click="showDeleteModal(record)"
