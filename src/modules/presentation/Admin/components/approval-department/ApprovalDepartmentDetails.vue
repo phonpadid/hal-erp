@@ -455,26 +455,31 @@
   </UiModal>
 
   <!-- Reject Modal -->
-  <UiModal
-    title="ປະຕິເສດ"
-    :visible="isRejectModalVisible"
-    :confirm-loading="confirmLoading"
-    @update:visible="isRejectModalVisible = false"
-    @ok="handleReject"
-  >
-    <div class="space-y-4">
-      <p>ໃສ່ເຫດຜົນໃນການປະຕິເສດ</p>
-      <div>
-        <p class="mb-2 font-semibold">ເຫດຜົນ</p>
-        <Textarea :modelValue="rejectReason" placeholder="ປ້ອນເຫດຜົນ" :rows="4" />
+ <UiModal
+      title="ປະຕິເສດ"
+      :visible="isRejectModalVisible"
+      :confirm-loading="confirmLoading"
+      @update:visible="isRejectModalVisible = false"
+    >
+      <div class="space-y-4">
+        <p>ໃສ່ເຫດຜົນໃນການປະຕິເສດ</p>
+        <div>
+          <p class="mb-2 font-semibold">ເຫດຜົນ</p>
+          <Textarea v-model="rejectReason" placeholder="ປ້ອນເຫດຜົນ" :rows="4" />
+        </div>
       </div>
-    </div>
-    <template #footer>
-      <UiButton @click="handleReject" type="primary" :loading="confirmLoading" color-class="w-full"
-        >ຢືນຢັນ</UiButton
-      >
-    </template>
-  </UiModal>
+      <template #footer>
+        <div class="flex gap-x-2">
+          <UiButton
+            @click="handleReject"
+            type="primary"
+            :loading="confirmLoading"
+            color-class="w-full"
+            >ຢືນຢັນ</UiButton
+          >
+        </div>
+      </template>
+    </UiModal>
 
   <UiDrawer
     v-model:open="visible"
@@ -494,7 +499,7 @@ import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Icon } from "@iconify/vue";
 import { usePurchaseOrderStore } from "@/modules/presentation/Admin/stores/purchase_requests/purchase-order";
-import { useRoute } from "vue-router";
+import { useRoute,useRouter} from "vue-router";
 import { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import DrawerPr from "../drawer-pr-and-po/DrawerPr.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -519,6 +524,7 @@ const purchaseOrderStore = usePurchaseOrderStore();
 const approvalStepStore = useApprovalStepStore();
 // const approvalStepId = ref<number | null>(null);
 const route = useRoute();
+const router = useRouter()
 const orderId = ref<number>(parseInt(route.params.id as string, 10));
 const { t } = useI18n();
 const { success, error } = useNotification();
@@ -573,6 +579,9 @@ const approverInfo = computed(() => {
 
 const approvedStatusId = computed(() => {
   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
+});
+const rejectedStatusId = computed(() => {
+  return documentStatusStore.document_Status.find((s) => s.getName() === "REJECTED")?.getId();
 });
 
 const submitOtp = async () => {
@@ -886,19 +895,52 @@ const handleApprove = async () => {
   }
 };
 const handleReject = async () => {
+  if (!rejectReason.value.trim()) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາລະບຸເຫດຜົນໃນການປະຕິເສດ");
+    return;
+  }
+
+  if (!rejectedStatusId.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Rejected' ໃນລະບົບ");
+    return;
+  }
+
+  if (!orderDetails.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+    return;
+  }
+
   try {
-    if (!rejectReason.value.trim()) {
+    const userApproval = orderDetails.value.getUserApproval();
+    if (!userApproval?.approval_step?.[1]?.id) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
       return;
     }
-    confirmLoading.value = true;
-    // Your reject logic here
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-    isRejectModalVisible.value = false;
-    rejectReason.value = "";
-  } finally {
-    confirmLoading.value = false;
+
+    const approvalStepId = userApproval.approval_step[1].id;
+
+    const documentId = route.params.id as string;
+    const payload = {
+      type: "po" as const,
+      statusId: Number(rejectedStatusId.value),
+      remark: rejectReason.value,
+      approvalStepId: Number(approvalStepId),
+    };
+
+    // console.log("Sending payload Reject:", payload);
+
+    const success = await approvalStepStore.submitApproval(documentId, payload);
+    router.push({ name: "approval-department-panak" })
+    if (success) {
+      isRejectModalVisible.value = false;
+      rejectReason.value = "";
+    }
+  } catch (err) {
+    console.error("Error in handleReject:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
   }
 };
+
 
 // Document details
 const documentDetails = {
