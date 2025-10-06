@@ -186,7 +186,7 @@ const handleOtpConfirm = async (otpCode: string) => {
   try {
     const documentId = route.params.id as string;
     const payload: SubmitApprovalStepInterface = {
-      type: "pr",
+      type: "po",
       // statusId: Number(approvedStatusId.value),
       statusId: 2,
       remark: "Approved",
