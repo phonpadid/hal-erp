@@ -30,6 +30,7 @@ export class PurchaseRequestEntity {
     status_id: number;
     approval_step: Array<{
       approver: any;
+      position?: any;
       id: number;
       user_approval_id: number;
       step_number: number;

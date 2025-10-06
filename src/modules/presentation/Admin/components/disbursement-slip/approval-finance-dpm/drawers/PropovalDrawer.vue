@@ -27,6 +27,7 @@ onMounted(async () => {
   }
 });
 const requesterInfo = computed(() => requestDetail.value?.getRequester());
+const approvalSignature = computed(() => requestDetail.value?.getUserApproval()?.approval_step);
 const departmentInfo = computed(() => requestDetail.value?.getDepartment());
 const positionInfo = computed(() => requestDetail.value?.getPosition());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
@@ -78,7 +79,7 @@ const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
             <span>{{ index + 1 }}</span>
           </template>
           <template #total_price="{ record }">
-            <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
+            <span>₭ {{ formatPrice(record.getPrice()) }}</span>
           </template>
           <template #image="{ record }">
             <a-image
@@ -103,15 +104,25 @@ const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
       <div class="signature py-4 px-6 rounded-md mb-[2rem] flex flex-col items-start">
         <!-- Title -->
         <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
-        <p class="text-slate-500 text-sm ml-8">
-          {{ t("purchase-rq.proposer") }}
-        </p>
 
         <!-- Signature Image -->
-        <div class="flex items-center justify-center">
+        <div
+        class="signature flex flex-wrap items-center justif-start gap-[3rem] shadow-sm px-0 rounded-md pb-4"
+      >
+        <div
+          v-for="(step, index) in [
+            ...(approvalSignature || []),
+          ].sort((a, b) => a.step_number - b.step_number)"
+          :key="index"
+          class="signature-approver text-center"
+        >
+          <p class="text-slate-500 text-sm font-bold">
+            {{ t("purchase-rq.approver") }} {{ step.step_number + 1 }}
+          </p>
+
           <a-image
-            v-if="requesterInfo?.user_signature?.signature_url"
-            :src="requesterInfo.user_signature.signature_url"
+            v-if="step.approver?.user_signature?.signature_url"
+            :src="step.approver?.user_signature?.signature_url"
             alt="signature"
             :width="120"
             :height="60"
@@ -119,17 +130,17 @@ const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
           />
           <div
             v-else
-            class="w-[120px] h-[80px] border border-gray-200 flex items-center justify-center text-xs text-slate-400"
+            class="w-[120px] h-[80px] border border-slate-100 flex items-center justify-center text-xs text-slate-400"
           >
-            {{ t("purchase-rq.no_signature") }}
+            <!-- No Signature -->
+          </div>
+
+          <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+            <p>{{ step.approver?.username || "-" }}</p>
+            <p>{{ step.position?.name || "-" }}</p>
           </div>
         </div>
-
-        <!-- Info Footer -->
-        <div class="info text-sm text-slate-600 flex flex-col items-center -space-y-1">
-          <p>{{ requesterInfo?.username || "-" }}</p>
-          <p class="ml-4">{{ departmentInfo?.name || "-" }}</p>
-        </div>
+      </div>
       </div>
     </div>
   </div>

@@ -25,10 +25,16 @@ export function columns(t: (key: string) => string): Column[] {
     },
 
     {
+      title: t("purchase-rq.field.qty"),
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+    {
       title: t("purchase-rq.field.price"),
       dataIndex: "price",
       key: "price",
     },
+
     {
       title: t("purchase-rq.field.remark"),
       dataIndex: "remark",

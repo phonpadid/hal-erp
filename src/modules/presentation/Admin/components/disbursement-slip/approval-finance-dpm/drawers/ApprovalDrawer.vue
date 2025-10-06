@@ -4,7 +4,7 @@
 import { useI18n } from "vue-i18n";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { onMounted, ref } from "vue";
-import { columnsTitle, columnTitle } from "./column";
+import { columnTitle } from "./column";
 import { usePurchaseOrderStore } from "../../../../stores/purchase_requests/purchase-order";
 import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -16,8 +16,6 @@ const purchaseOrderStore = usePurchaseOrderStore();
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
   const { error } = useNotification();
 const { t } = useI18n();
-const userName = ref("ທ້າວສຸກີ້");
-const department = ref("ພະແນກການເງິນ");
 const props = defineProps<{
   id: number | null;
 }>();
@@ -49,7 +47,7 @@ onMounted( async () => {
             <p class="text-gray-500 text-sm">{{ orderDetails?.getDepartment().name }}, {{ orderDetails?.getPosition()[0].name }}</p>
           </div>
         </div>
-        <div class="title md:w-[40rem] -space-y-0 px-6 mb-4">
+        <!-- <div class="title md:w-[40rem] -space-y-0 px-6 mb-4">
           <h2 class="text-md font-semibold">ສະເໜີ</h2>
           <a-table
           :columns="columnsTitle(t)"
@@ -65,7 +63,7 @@ onMounted( async () => {
               </template>
             </template>
         </a-table>
-        </div>
+        </div> -->
 
         <div class="purposes -space-y-0 px-6 mb-4">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.field.purposes") }}</h2>
@@ -113,45 +111,69 @@ onMounted( async () => {
           </div>
         </div>
         <!-- image and signature  -->
-        <div class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
+        <div v-for="(vendor , index) in orderDetails?.getPurchaseOrderItem()" :key="index" class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
           <h2 class="text-md font-semibold">ວິເຄາະການຈັດຊື້</h2>
           <div class="grid grid-cols-1 md:grid-cols-1 gap-2 text-sm">
           <div class="flex items-center gap-2">
             <label class="w-40 text-gray-700">ຮ້ານທີ່ເລືອກ:</label>
-            <span class="text-gray-700">ຮ້ານ ຄອມຄອມ (COMCOM)</span>
+            <span class="text-gray-700">{{ vendor.getSelectedVendor()?.getVendor()?.name }}</span>
           </div>
           <div class="flex items-center gap-2">
             <label class="w-40 text-gray-700">ທະນາຄານ:</label>
             <span class="text-gray-700"
-              >Bcel One ທະນາຄານການຄ້າຕ່າງປະເທດລາວ</span
+              >{{vendor.getSelectedVendor()?.getVendorBankAccount()?.bank?.name}}</span
             >
           </div>
           <div class="flex items-center gap-2">
             <label class="w-40 text-gray-700">ຊື່ບັນຊີ:</label>
-            <span class="text-gray-700">KISIMSOUPHA MR</span>
+            <span class="text-gray-700">{{vendor.getSelectedVendor()?.getVendorBankAccount()?.account_name}}</span>
           </div>
           <div class="flex items-center gap-2">
-            <label class="w-40 text-gray-700">ເລກບັນຊີ (LAK):</label>
-            <span class="text-gray-700">11100 11100 2111</span>
+            <label class="w-40 text-gray-700">ເລກບັນຊີ ({{vendor.getSelectedVendor()?.getVendorBankAccount()?.currency?.code}}):</label>
+            <span class="text-gray-700">{{vendor.getSelectedVendor()?.getVendorBankAccount()?.account_number}}</span>
           </div>
         </div>
         </div>
 
-        <div class="signature py-4 px-6 rounded-md mb-[2rem]">
-          <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
-          <p class="text-slate-500 text-sm">{{t("purchase-rq.proposer")}}</p>
+         <!-- Signature Section -->
+      <h2 class="text-md ml-3 mt-4 font-semibold">
+        {{ t("purchase-rq.signature") }}
+      </h2>
+      <div
+        class="signature flex flex-wrap items-center justif-start gap-[3rem] shadow-sm px-0 rounded-md pb-4"
+      >
+        <div
+          v-for="(step, index) in [
+            ...(orderDetails?.getUserApproval()?.approval_step || []),
+          ].sort((a, b) => a.step_number - b.step_number)"
+          :key="index"
+          class="signature-approver text-center"
+        >
+          <p class="text-slate-500 text-sm font-bold">
+            {{ t("purchase-rq.approver") }} {{ step.step_number + 1 }}
+          </p>
+
           <a-image
-            src="/public/2.png"
-            alt="example"
-            :width="180"
-            :height="100"
+            v-if="step.approver?.user_signature?.signature_url"
+            :src="step.approver?.user_signature?.signature_url"
+            alt="signature"
+            :width="120"
+            :height="60"
             :preview="false"
           />
+          <div
+            v-else
+            class="w-[120px] h-[80px] border border-slate-100 flex items-center justify-center text-xs text-slate-400"
+          >
+            <!-- No Signature -->
+          </div>
+
           <div class="info text-sm text-slate-600 -space-y-2 mt-4">
-            <p>{{ userName }}</p>
-            <p>{{ department }}</p>
+            <p>{{ step.approver?.username || "-" }}</p>
+            <p>{{ step.position?.name || "-" }}</p>
           </div>
         </div>
+      </div>
       </div>
   </div>
 </template>

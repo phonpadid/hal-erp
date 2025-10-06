@@ -306,6 +306,9 @@ onMounted(async () => {
                 rStore.currentReceipts?.account_code
               }}</span>
             </template>
+            <!-- <template v-if="column.key === 'qty'">
+              <span>₭ {{ formatPrice(record.price) }}</span>
+            </template> -->
             <template v-if="column.key === 'price'">
               <span>₭ {{ formatPrice(record.price) }}</span>
             </template>
