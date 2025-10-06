@@ -277,31 +277,32 @@ onMounted(async () => {
       </template>
       <!-- Actions column -->
       <template #actions="{ record }">
-        <div class="flex items-center justify-center gap-2">
-          <UiButton
-            type=""
-            icon="material-symbols:add-box-outline"
-            size="small"
-            @click="addBudgetItem(record)"
-            colorClass="flex items-center justify-center text-blue-600"
-          />
-          <UiButton
-            type=""
-            icon="ant-design:edit-outlined"
-            size="small"
-            @click="showEditModal(record)"
-            colorClass="flex items-center justify-center text-orange-400"
-          />
-          <UiButton
-            type=""
-            danger
-            icon="ant-design:delete-outlined"
-            colorClass="flex items-center justify-center text-red-700"
-            size="small"
-            @click="showDeleteModal(record)"
-          />
-        </div>
-      </template>
+  <div class="flex items-center justify-center gap-2">
+    <UiButton 
+      icon="material-symbols:add-box-outline"
+      size="small"
+      shape="circle"
+      @click="addBudgetItem(record)"
+      colorClass="text-blue-600 flex items-center justify-center"
+    />
+    <UiButton
+      icon="ant-design:edit-outlined"
+      size="small"
+      shape="circle" 
+      @click="showEditModal(record)"
+      colorClass="text-orange-400 flex items-center justify-center"
+    />
+    <UiButton
+      danger
+      icon="ant-design:delete-outlined"
+      colorClass="text-red-700 flex items-center justify-center"
+      size="small"
+      shape="circle" 
+      @click="showDeleteModal(record)"
+      
+    />
+  </div>
+</template>
     </Table>
 
     <!-- Create/Edit Budget Account Modal -->

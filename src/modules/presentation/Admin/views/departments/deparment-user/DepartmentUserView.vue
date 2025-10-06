@@ -165,12 +165,14 @@ watch(search, async(load) => {
           <UiButton
             icon="ant-design:edit-outlined"
             size="small"
+            shape="circle" 
             @click="update(record)"
             colorClass="flex items-center justify-center text-orange-400"
           />
           <UiButton
             icon="ant-design:delete-outlined"
             size="small"
+            shape="circle" 
             danger
             @click="showDeleteModal(record)"
             colorClass="flex items-center justify-center text-red-700"

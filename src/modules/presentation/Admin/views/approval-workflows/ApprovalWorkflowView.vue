@@ -211,6 +211,7 @@ onMounted(async () => {
             type=""
             icon="ant-design:info-circle-outlined"
             size="small"
+            shape="circle" 
             @click="info(record.id)"
             colorClass="flex items-center justify-center text-sky-500"
           >
@@ -219,6 +220,7 @@ onMounted(async () => {
           <UiButton
             icon="ant-design:edit-outlined"
             size="small"
+            shape="circle" 
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
           >
@@ -227,6 +229,7 @@ onMounted(async () => {
           <UiButton
             danger
             icon="ant-design:delete-outlined"
+            shape="circle" 
             colorClass="flex items-center justify-center text-red-700"
             size="small"
             @click="showDeleteModal(record)"

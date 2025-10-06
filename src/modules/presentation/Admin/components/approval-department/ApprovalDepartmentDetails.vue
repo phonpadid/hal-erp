@@ -475,6 +475,7 @@
       >
     </template>
   </UiModal>
+
   <UiDrawer
     v-model:open="visible"
     title="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ - ເລກທີ 0044/ຈຊນ.ນວ/ບຫ - ວັນທີ 26 ມີນາ 2025"
@@ -495,6 +496,7 @@ import { Icon } from "@iconify/vue";
 import { usePurchaseOrderStore } from "@/modules/presentation/Admin/stores/purchase_requests/purchase-order";
 import { useRoute } from "vue-router";
 import { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
+import DrawerPr from "../drawer-pr-and-po/DrawerPr.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
@@ -535,6 +537,8 @@ const { toggle } = storeToRefs(toggleStore);
 const topbarStyle = computed(() => {
   return toggle.value ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
 });
+
+
 /**************control header****************** */
 
 /*********************Check State OTP**************************** */
@@ -621,8 +625,6 @@ const canApprove = computed(() => {
   const previousStep = getPreviousApprovedStep.value;
 
   if (!currentStep) return false;
-
-  // ถ้าเป็น step แรก
   if (currentStep.step_number === 1) return true;
 
   return (
@@ -645,6 +647,11 @@ const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const isSuccessModalVisible = ref(false);
 const signatureData = ref("");
+const selectedId = ref<number | null>(null);
+// const showPropoval = () => {
+//   selectedId.value = Number(purchaseOrderStore.orders?.purchaseRequestId) ?? null;
+//   visible.value = true;
+// };
 
 const getTotalAmount = computed(() => {
   if (

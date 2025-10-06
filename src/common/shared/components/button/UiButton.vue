@@ -1,5 +1,5 @@
 <template>
-  <a-button :type="type" :size="size" :block="block" :disabled="disabled" :class="customClass">
+  <a-button :type="type" :size="size" :block="block" :disabled="disabled" :class="customClass" :shape="shape" >
     <Icon v-if="icon" :icon="icon" />
     <slot></slot>
     <Icon v-if="iconRight" :icon="iconRight" class="ml-2" />
@@ -38,6 +38,10 @@ const props = defineProps({
   iconRight: {
     type: String,
     default: "", // Icon that will appear at the right side of the button
+  },
+   shape: {
+    type: String, // เช่น 'circle' หรือ 'round'
+    default: "",
   },
 });
 
