@@ -339,6 +339,7 @@ const changeValue = () => {
             type=""
             icon="ant-design:edit-outlined"
             size="small"
+            shape="circle" 
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
@@ -350,6 +351,7 @@ const changeValue = () => {
             icon="ant-design:delete-outlined"
             colorClass="flex items-center justify-center text-red-700"
             size="small"
+            shape="circle" 
             @click="showDeleteModal(record)"
           />
         </div>

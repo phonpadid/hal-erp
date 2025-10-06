@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { computed, onMounted, watch, ref, onUnmounted } from "vue";
+import { onMounted, watch, ref, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { useBankStore } from "@/modules/presentation/Admin/stores/bank.store";
@@ -129,6 +129,7 @@ const handleFormSubmit = async (formData: {
           <UiButton
             type=""
             icon="ant-design:edit-outlined"
+            shape="circle" 
             size="small"
             @click="bankStore.showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
@@ -138,6 +139,7 @@ const handleFormSubmit = async (formData: {
             type=""
             danger
             icon="ant-design:delete-outlined"
+            shape="circle" 
             colorClass="flex items-center justify-center text-red-700"
             size="small"
             @click="bankStore.showDeleteModal(record)"

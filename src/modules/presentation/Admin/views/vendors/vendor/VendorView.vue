@@ -195,6 +195,7 @@ const viewDetail = (id: number) => {
             type=""
             icon="ant-design:edit-outlined"
             size="small"
+            shape="circle" 
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
@@ -203,6 +204,7 @@ const viewDetail = (id: number) => {
           <UiButton
             type=""
             danger
+            shape="circle" 
             icon="ant-design:delete-outlined"
             colorClass="flex items-center justify-center text-red-700"
             size="small"

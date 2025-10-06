@@ -199,6 +199,7 @@ const handleDeleteConfirm = async () => {
           <UiButton
             type=""
             icon="ant-design:edit-outlined"
+            shape="circle" 
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
@@ -209,6 +210,7 @@ const handleDeleteConfirm = async () => {
             type=""
             danger
             icon="ant-design:delete-outlined"
+            shape="circle" 
             colorClass="flex items-center justify-center text-red-700"
             size="small"
             @click="showDeleteModal(record)"
