@@ -17,12 +17,12 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "budget_code",
       key: "budget_code",
     },
-    {
-      title: t("receipt.title.account_number"),
-      dataIndex: "account_code",
-      key: "account_code",
-      width: 200,
-    },
+    // {
+    //   title: t("receipt.title.account_number"),
+    //   dataIndex: "account_code",
+    //   key: "account_code",
+    //   width: 200,
+    // },
 
     {
       title: t("purchase-rq.field.qty"),
@@ -39,6 +39,11 @@ export function columns(t: (key: string) => string): Column[] {
       title: t("purchase-rq.field.remark"),
       dataIndex: "remark",
       key: "remark",
+    },
+    {
+      title: 'ຂໍ້ມູນຮ້ານ',
+      dataIndex: "vendor",
+      key: "vendor",
     },
 
   ];

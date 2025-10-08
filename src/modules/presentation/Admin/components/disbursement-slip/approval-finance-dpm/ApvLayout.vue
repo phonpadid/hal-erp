@@ -342,17 +342,15 @@ const handleReject = async (): Promise<void> => {
     <SuccessModal
       :visible="isSuccessModalVisible"
       :title="''"
-      :message="t('purchase-rq.approval_success')"
-      :description="t('purchase-rq.approval_success_description')"
-      :button-text="t('purchase-rq.btn.confirm')"
+      :message="t('receipt.title.approved')"
+      :description="t('receipt.title.description')"
+      :button-text="t('success')"
       icon-name="mdi:check-decagram"
       icon-color="text-green-500"
       @confirm="handleSuccessConfirm"
       @cancel="handleSuccessCancel"
       @update:visible="(value) => (isSuccessModalVisible = value)"
     />
-
-    <!-- Reject Modal (if you need one) -->
     <!-- Reject Modal -->
     <UiModal
       :title="t('purchase-rq.card_title.refused')"

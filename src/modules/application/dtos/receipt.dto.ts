@@ -53,7 +53,9 @@ export interface ReciptQueryDto {
   remark: string;
   document_type: DocumentTypeDTO | null;
   receipt_item: ReceiptItemQueryDto[] | [],
-
+  sub_total?: number;
+  vat?: number;
+  total?: number;
   created_at: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -133,7 +135,7 @@ export interface ISelectVendor {
   id: number;
   purchase_order_item_id: number;
   vendor_id: number;
-  file_name_url: string;
+  filename_url: string;
   reason: string;
   vendor: VendorDto;
   vendor_bank_account: VendorBankAccountDto
