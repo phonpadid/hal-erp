@@ -20,6 +20,9 @@ import OtpModal from "../disbursement-slip/approval-finance-dpm/modals/OtpModal.
 import PropovalDrawer from "../disbursement-slip/approval-finance-dpm/drawers/PropovalDrawer.vue";
 import ApprovalDrawer from "../disbursement-slip/approval-finance-dpm/drawers/ApprovalDrawer.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
+import VendorDrawer from "../disbursement-slip/approval-finance-dpm/drawers/VendorDrawer.vue";
+import type { ISelectVendor } from "@/modules/application/dtos/receipt.dto";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 const purchaseOrderStore = usePurchaseOrderStore();
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
 const { error } = useNotification();
@@ -40,6 +43,8 @@ const { params } = useRoute();
 const purchaseOrderId = params.id?.toString();
 // --- Reactive State for Form Inputs ---
 const remark = ref("");
+const openVendor = ref(false);
+const dataVendor = ref<ISelectVendor | null>(null);
 const document_type = params.docid as string; // Fixed documentTypeId based on your API payload
 // Updated form state to match API payload structure
 const formState = ref({
@@ -200,6 +205,11 @@ const columns = [
     dataIndex: "total",
     key: "total",
   },
+  {
+    title: "ຮ້ານຄ້າ",
+    dataIndex: "vendor",
+    key: "vendor",
+  },
 ];
 // OTP Modal handlers
 const handleOtpConfirm = async (otpValue: string) => {
@@ -292,6 +302,10 @@ const budgetAcc = computed(
   () =>
     orderDetails.value?.getPurchaseOrderItem()[0]?.getBudgetItem()?.budget_account
 );
+const vendorInfo = (data: ISelectVendor) => {
+  dataVendor.value = data;
+  openVendor.value = true;
+};
 </script>
 
 <template>
@@ -305,7 +319,7 @@ const budgetAcc = computed(
       :action-buttons="customButtons"
     />
     <div class="bg-white rounded-lg shadow-sm p-2 mt-4">
-      <div class="mb-6">
+      <div class="mb-0">
         <h3 class="text-base font-semibold mb-2">ຈາກໜ່ວຍງານ</h3>
         <div class="flex items-center gap-3">
           <a-avatar size="large" :src="'/public/4.png'" />
@@ -329,7 +343,7 @@ const budgetAcc = computed(
         />
       </div>
 
-      <div class="mb-6 border rounded-lg p-4">
+      <!-- <div class="mb-6 border rounded-lg p-4">
         <h3 class="text-base font-semibold mb-4">{{ t("disbursement.vendor.title") }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div class="flex">
@@ -358,12 +372,12 @@ const budgetAcc = computed(
               orderDetails?.getAccountName()
             }}</span>
           </div>
-          <!-- <div class="flex">
+          <div class="flex">
             <span class="font-medium w-28">ເລກບັນຊີ LAK</span>
             <span class="text-gray-700">{{
               orderDetails?.getAccountNumber()
             }}</span>
-          </div> -->
+          </div>
           <div class="flex items-center gap-2">
             <label class="w-40 text-gray-700 flex items-center gap-1"
               >{{ t("disbursement.vendor.account_number") }}
@@ -375,7 +389,7 @@ const budgetAcc = computed(
             <span class="text-gray-700">{{ orderDetails?.getAccountNumber() }}</span>
           </div>
         </div>
-      </div>
+      </div> -->
       <!-- FIXED CHECKBOX SECTION - SINGLE SELECTION -->
       <div class="select-type mb-6">
         <h3 class="text-base font-semibold mb-4">ປະເພດການຈ່າຍເງິນ</h3>
@@ -384,7 +398,7 @@ const budgetAcc = computed(
         </div>
       </div>
 
-      <div class="mb-6">
+      <div class="mb-0">
         <h3 class="text-base font-semibold mb-2">ລາຍການ</h3>
         <Table
           :columns="columns"
@@ -401,8 +415,31 @@ const budgetAcc = computed(
               {{ record.total.toLocaleString() }} ₭
             </span>
           </template>
+          <template #vendor="{record}">
+            <span @click="vendorInfo(record.selected_vendor[0])" class="font-medium cursor-pointer text-red-600 hover:text-red-800">ເບິ່ງຮ້ານ</span>
+          </template>
         </Table>
-        <div class="flex justify-end mt-4">
+
+
+        <div class="total flex justify-end gap-1 mr-10 text-gray-700">
+          <div class="lable flex flex-col items-end mt-8 font-medium">
+            <!-- <p>{{t('receipt.total.sub_total')}}</p>
+            <p class="-mt-4">{{t('receipt.total.vat')}}</p> -->
+            <p class="-mt-4">{{t('receipt.total.total')}}</p>
+          </div>
+          <div class="lable mt-4">
+            <!-- <p>:</p>
+            <p class="-mt-4">:</p> -->
+            <p class="-mt-0">:</p>
+          </div>
+          <div class="lable mt-8">
+            <!-- <p>₭ {{ formatPrice(orderDetails?.sub_total ?? 0) }}</p>
+            <p class="-mt-4"> ₭ {{ formatPrice(orderDetails?.vat ?? 0) }}</p> -->
+            <p class="-mt-4">₭ {{ formatPrice(orderDetails?.getPurchaseRequest().total) }}</p>
+          </div>
+        </div>
+
+        <!-- <div class="flex justify-end mt-4">
           <div class="w-1/3">
             <div class="flex justify-center gap-2 items-center">
               <span class="font-semibold text-gray-700">ມູນຄ່າລວມທັງໝົດ:</span>
@@ -412,7 +449,7 @@ const budgetAcc = computed(
               </span>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <div class="mb-6">
@@ -472,7 +509,14 @@ const budgetAcc = computed(
     @close="handleOtpClose"
     @resend="handleOtpResend"
   />
-
+  <UiDrawer
+    v-model:open="openVendor"
+    :title="`ຂໍ້ມູນຮ້ານຄ້າ`"
+    placement="right"
+    :width="470"
+  >
+    <VendorDrawer :data="dataVendor" />
+  </UiDrawer>
   <UiDrawer
     v-model:open="openPropoval"
     :title="`${

@@ -10,13 +10,20 @@ import PropovalDrawer from "./drawers/PropovalDrawer.vue";
 import ApprovalDrawer from "./drawers/ApprovalDrawer.vue";
 import { useRoute } from "vue-router";
 import { useReceiptStore } from "../../../stores/receipt.store";
-import { getUserApv, getUserRole, UserRoleEnum } from "@/modules/shared/utils/get-user.login";
+import {
+  getUserApv,
+  getUserRole,
+  UserRoleEnum,
+} from "@/modules/shared/utils/get-user.login";
 import UploadSlipModal from "./modals/UploadSlipModal.vue";
 import { uploadFile } from "@/modules/application/services/upload.service";
 import { message } from "ant-design-vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
+import type { ISelectVendor } from "@/modules/application/dtos/receipt.dto";
+import VendorDrawer from "./drawers/VendorDrawer.vue";
 const openPropoval = ref(false);
 const openAppropoval = ref(false);
+const openVendor = ref(false);
 const { t } = useI18n();
 const { params } = useRoute();
 const receiptId = params.id as string;
@@ -27,12 +34,15 @@ const uploadLoading = ref<boolean>(false);
 const createModalVisible = ref(false);
 const formRef = ref();
 const selectedId = ref<number | null>(null);
+const dataVendor = ref<ISelectVendor | null>(null);
 const formModel = ref({
   account_code: "",
 });
 const isRole = computed(() =>
   userRole.value.some(
-    (role) => role.includes(UserRoleEnum.ACCOUNT_ADMIN) || role.includes(UserRoleEnum.ACCOUNT_USER)
+    (role) =>
+      role.includes(UserRoleEnum.ACCOUNT_ADMIN) ||
+      role.includes(UserRoleEnum.ACCOUNT_USER)
   )
 );
 
@@ -103,7 +113,9 @@ const isUserPendingApprover = computed(() => {
   );
 });
 const check = computed(() =>
-  rStore.currentReceipts?.user_approval?.approval_step?.some((step) => step.requires_file_upload)
+  rStore.currentReceipts?.user_approval?.approval_step?.some(
+    (step) => step.requires_file_upload
+  )
 );
 const userNextApprove = computed(() =>
   rStore.currentReceipts?.user_approval?.approval_step?.map((step) => ({
@@ -136,7 +148,9 @@ const checkUpload = computed(() => {
     ) ?? []
   );
 });
-const isAwaitingUser = computed(() => checkUpload.value.some((u) => u.id === user.value.id));
+const isAwaitingUser = computed(() =>
+  checkUpload.value.some((u) => u.id === user.value.id)
+);
 // map data to show on header tag ແລະ ກວດເງື່ອນໄຂການອະນຸມັດ
 const dataHead = computed(() => ({
   form_ref: formRef.value,
@@ -176,31 +190,39 @@ const dataHead = computed(() => ({
   approver_info: userNextApprove.value,
 }));
 const showPropoval = () => {
-  selectedId.value = Number(rStore.currentReceipts?.purchase_request_id) ?? null;
+  selectedId.value =
+    Number(rStore.currentReceipts?.purchase_request_id) ?? null;
   openPropoval.value = true;
 };
 const showApproval = () => {
   selectedId.value = Number(rStore.currentReceipts?.purchase_order_id) ?? null;
   openAppropoval.value = true;
 };
-const vendor = computed(
-  () => rStore.currentReceipts?.receipt_item[0].purchase_order_item.selected_vendor[0].vendor
-);
-const bank = computed(
-  () =>
-    rStore.currentReceipts?.receipt_item[0].purchase_order_item.selected_vendor[0]
-      .vendor_bank_account.bank
-);
-const account = computed(
-  () =>
-    rStore.currentReceipts?.receipt_item[0].purchase_order_item.selected_vendor[0]
-      .vendor_bank_account
-);
+// const vendor = computed(
+//   () => rStore.currentReceipts?.receipt_item[0].purchase_order_item.selected_vendor[0].vendor
+// );
+// const bank = computed(
+//   () =>
+//     rStore.currentReceipts?.receipt_item[0].purchase_order_item.selected_vendor[0]
+//       .vendor_bank_account.bank
+// );
+// const account = computed(
+//   () =>
+//     rStore.currentReceipts?.receipt_item[0].purchase_order_item.selected_vendor[0]
+//       .vendor_bank_account
+// );
 const budgetAcc = computed(
-  () => rStore.currentReceipts?.receipt_item[0].purchase_order_item.budget_item.budget_account
+  () =>
+    rStore.currentReceipts?.receipt_item[0].purchase_order_item.budget_item
+      .budget_account
 );
-const attachments = computed(() => rStore.currentReceipts?.document_attachment ?? []);
-
+const attachments = computed(
+  () => rStore.currentReceipts?.document_attachment ?? []
+);
+const vendorInfo = (data: ISelectVendor) => {
+  dataVendor.value = data;
+  openVendor.value = true;
+};
 onMounted(async () => {
   await rStore.fetchById(receiptId);
   uploadedImages.value.forEach((url) => {
@@ -214,35 +236,59 @@ onMounted(async () => {
   <ApvLayout :dataHead="dataHead"></ApvLayout>
   <div class="mt-[10rem] mb-[5rem]">
     <div class="user-info">
-      <h2 class="text-md font-semibold px-2 mb-4">
-        {{ t("purchase-rq.field.proposer") }}
-      </h2>
-      <div class="info flex items-center px-2 gap-4 mb-4">
-        <div
-          class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
-        >
-          <Icon icon="mdi:user" class="text-6xl" />
+      <div class="flex gap-[4rem]">
+        <div class="u w-full">
+          <h2 class="text-md font-semibold px-2 mb-4">
+            {{ t("purchase-rq.field.proposer") }}
+          </h2>
+          <div class="info flex items-center px-2 gap-4 mb-4">
+            <div
+              class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
+            >
+              <Icon icon="mdi:user" class="text-6xl" />
+            </div>
+            <div class="detail -space-y-2">
+              <p class="font-medium">
+                {{ rStore.currentReceipts?.document.requester.username }}
+              </p>
+              <p class="text-gray-600">
+                {{ rStore.currentReceipts?.document?.position[0].name }}
+              </p>
+            </div>
+          </div>
         </div>
-        <div class="detail -space-y-2">
-          <p class="font-medium">
-            {{ rStore.currentReceipts?.document.requester.username }}
+        <!-- Purpose Section -->
+        <div class="purposes space-y-1 px-2 mb-4 w-full">
+          <h2 class="text-md font-semibold">
+            {{ t("purchase-rq.field.purposes") }}
+          </h2>
+          <p class="text-gray-600 text-md">
+            {{ rStore.currentReceipts?.remark || "----" }}
           </p>
-          <p class="text-gray-600">
-            {{ rStore.currentReceipts?.document?.position[0].name }}
-          </p>
+
+          <div class="account_number">
+            <h3>{{ t("receipt.title.account_number") }}</h3>
+            <UiInput
+              v-if="
+                dataHead.isApproved &&
+                isRole &&
+                !rStore.currentReceipts?.account_code
+              "
+              v-model="formModel.account_code"
+              placeholder="ປ້ອນລະຫັດບັນຊີ"
+              size="middle"
+              class="md:w-[15rem] w-full"
+            ></UiInput>
+            <span
+              class="text-[16px] text-gray-700"
+              v-if="rStore.currentReceipts?.account_code"
+              >{{ rStore.currentReceipts?.account_code }}</span
+            >
+          </div>
         </div>
-      </div>
-      <!-- Purpose Section -->
-      <div class="purposes -space-y-0 px-2 mb-4">
-        <h2 class="text-md font-semibold">
-          {{ t("purchase-rq.field.purposes") }}
-        </h2>
-        <p class="text-gray-600 text-sm">
-          {{ rStore.currentReceipts?.remark || "----" }}
-        </p>
       </div>
       <!-- restaurant info Section -->
-      <div class="purposes space-y-2 px-2 mb-4">
+      <!-- <div class="purposes space-y-2 px-2 mb-4">
         <h2 class="text-md font-semibold">
           {{ t("disbursement.vendor.title") }}
         </h2>
@@ -271,7 +317,7 @@ onMounted(async () => {
             <span class="text-gray-700">{{ account?.account_number }}</span>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div class="table -space-y-0 mb-2 w-full px-2 shadow-sm rounded-md">
         <h2 class="text-md font-semibold">
@@ -288,49 +334,62 @@ onMounted(async () => {
               <span>{{ index + 1 }}</span>
             </template>
             <template v-if="column.key === 'title'">
-              <span>{{ record.purchase_order_item?.purchase_request_item?.title }}</span>
+              <span>{{
+                record.purchase_order_item?.purchase_request_item?.title
+              }}</span>
             </template>
             <template v-if="column.key === 'budget_code'">
               <span>{{ budgetAcc?.code }} - {{ budgetAcc?.name }}</span>
             </template>
-            <template v-if="column.key === 'account_code'">
-              <UiInput
-                v-if="dataHead.isApproved && isRole && !rStore.currentReceipts?.account_code"
-                v-model="formModel.account_code"
-                placeholder="ປ້ອນລະຫັດບັນຊີ"
-                size="middle"
-              ></UiInput>
-              <!-- </UiFormItem> -->
-              <!-- </UiForm> -->
-              <span v-if="rStore.currentReceipts?.account_code">{{
-                rStore.currentReceipts?.account_code
-              }}</span>
-            </template>
+            <!-- <template v-if="column.key === 'account_code'">
+
+            </template> -->
             <!-- <template v-if="column.key === 'qty'">
               <span>₭ {{ formatPrice(record.price) }}</span>
             </template> -->
             <template v-if="column.key === 'price'">
               <span>₭ {{ formatPrice(record.price) }}</span>
             </template>
+            <template v-if="column.key === 'vendor'">
+              <span
+                @click="
+                  vendorInfo(record.purchase_order_item.selected_vendor[0])
+                "
+                class="cursor-pointer text-red-600 hover:text-red-800"
+                >ເບິ່ງຮ້ານຄ້າ</span
+              >
+            </template>
           </template>
         </a-table>
-        <div class="total flex items-center md:justify-end justify-start md:px-2 px-1 pt-4 gap-4">
-          <p class="font-medium text-slate-600">{{ t("disbursement.field.addition_pay") }}:</p>
-          <p class="font-semibold md:text-lg text-sm text-slate-700">
-            {{ formatPrice(rStore.currentReceipts?.currency_totals[0]?.amount) }}
-            ₭
-          </p>
+        <div class="total flex justify-end gap-1 mr-10 text-gray-700">
+          <div class="lable flex flex-col items-end mt-4 font-medium">
+            <p>{{t('receipt.total.sub_total')}}</p>
+            <p class="-mt-4">{{t('receipt.total.vat')}}</p>
+            <p class="-mt-4">{{t('receipt.total.total')}}</p>
+          </div>
+          <div class="lable mt-4">
+            <p>:</p>
+            <p class="-mt-4">:</p>
+            <p class="-mt-4">:</p>
+          </div>
+          <div class="lable mt-4">
+            <p>₭ {{ formatPrice(rStore.currentReceipts?.sub_total) }}</p>
+            <p class="-mt-4"> ₭ {{ formatPrice(rStore.currentReceipts?.vat) }}</p>
+            <p class="-mt-4">₭ {{ formatPrice(rStore.currentReceipts?.total) }}</p>
+          </div>
         </div>
       </div>
       <div
-        v-if="check && isAwaitingUser && !uploadCompleted && !attachments.length"
+        v-if="
+          check && isAwaitingUser && !uploadCompleted && !attachments.length
+        "
         class="mb-4 mt-4"
       >
         <h2>ອັບໂຫລດສະລິບໂອນເງິນ</h2>
 
         <!-- Trigger Upload Modal -->
         <div
-          class="flex flex-col items-center justify-center w-[250px] h-[150px] border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
+          class="flex flex-col items-center justify-center w-[190px] h-[120px] border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
           @click="createModalVisible = true"
         >
           <Icon icon="mdi:upload" class="text-2xl text-gray-400 mb-1" />
@@ -343,16 +402,16 @@ onMounted(async () => {
       <!-- Uploaded images preview -->
       <!-- <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto"> -->
       <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto">
-        <div class="flex flex-wrap items-center gap-0 mt-2">
+        <div class="flex flex-wrap items-center gap-2 mt-2">
           <div
             v-for="(img, index) in uploadedImages"
             :key="index"
-            class="relative w-[200px] h-[350px] flex items-center justify-center overflow-hidden rounded-md"
+            class="relative w-[100px] h-[130px] flex items-center justify-center overflow-hidden rounded-md"
           >
             <a-image :src="img" style="width: 160px; height: 320px" />
             <button
               @click="deleteImage(index)"
-              class="absolute top-4 right-5 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
+              class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
             >
               ×
             </button>
@@ -373,11 +432,11 @@ onMounted(async () => {
         <h2>ຫຼັກຖານການໂອນເງິນ</h2>
 
         <!-- Flex container for images -->
-        <div class="flex flex-wrap gap-0 mt-2">
+        <div class="flex flex-wrap gap-4 mt-2">
           <div
             v-for="(doc, index) in attachments"
             :key="index"
-            class="w-[200px] h-[350px] flex items-center justify-center overflow-hidden rounded-md"
+            class="w-[90px] h-[130px] flex items-center justify-center overflow-hidden rounded-md"
           >
             <a-image
               class="flex items-center justify-center"
@@ -466,6 +525,14 @@ onMounted(async () => {
     @update:visible="createModalVisible = $event"
     @upload="handleImageUpload"
   />
+  <UiDrawer
+    v-model:open="openVendor"
+    :title="`ຂໍ້ມູນຮ້ານຄ້າ`"
+    placement="right"
+    :width="470"
+  >
+    <VendorDrawer :data="dataVendor" />
+  </UiDrawer>
   <UiDrawer
     v-model:open="openPropoval"
     :title="`${rStore.currentReceipts?.pr_doc_type} - ເລກທີ ${rStore.currentReceipts?.pr_number} - ວັນທີ 26 ມີນາ 2025`"

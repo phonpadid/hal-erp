@@ -169,7 +169,7 @@ const finalConfirm = async () => {
           otp: otp,
           approval_id: approvalStepStore.otpResponse?.approval_id,
         });
-        success('ປະຕິເສດສຳເລັດ', 'ໄດ້ປະຕິເສດແລ້ວ');
+        success("ປະຕິເສດສຳເລັດ", "ໄດ້ປະຕິເສດແລ້ວ");
       } else {
         await approvalReceipt(props.dataHead.stepId!, {
           type: props.dataHead.type || "r",
@@ -188,13 +188,16 @@ const finalConfirm = async () => {
             params: { id: props.rId },
           });
         }
-
         const localDataHead = ref({ ...props.dataHead });
-        if (localDataHead.value) {
-          localDataHead.value.uploadCompleted = false;
-          localDataHead.value.formState = { files: [] };
-          localDataHead.value.uploadedImages = [];
-        }
+        const resetLocalDataHead = () => {
+          localDataHead.value = {
+            uploadCompleted: false,
+            formState: { files: [] },
+            uploadedImages: [],
+          };
+        };
+
+        resetLocalDataHead();
       }
 
       await rStore.fetchById(String(props.rId));
@@ -207,7 +210,6 @@ const finalConfirm = async () => {
     console.error("Error in finalConfirm:", error);
   }
 };
-
 
 const closeModal = () => {
   emit("close");

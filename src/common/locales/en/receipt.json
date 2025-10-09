@@ -6,6 +6,14 @@
         "budget_code": "Budget Code",
         "account_number": "Account Number",
         "create": "Create Receipt",
-        "approval_proposal": "Approval Proposal"
+        "approval_proposal": "Approval Proposal",
+        "approved": "Approved",
+        "description": "Payment voucher approved successfully",
+        "success": "Success"
+    },
+    "total": {
+        "sub_total": "Subtotal",
+        "vat": "Additional payment amount",
+        "total": "Total amount"
     }
 }
