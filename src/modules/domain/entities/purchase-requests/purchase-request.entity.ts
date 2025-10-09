@@ -39,6 +39,15 @@ export class PurchaseRequestEntity {
       remark: string;
       is_otp: boolean;
       requires_file_upload: boolean;
+      approved_at?: string | null;
+      doc_approver?: Array<{    
+        user: {
+          username: string;
+        };
+        department?: {
+          name: string;
+        };
+      }>;
     }>;
   } | null = null;
 
@@ -62,7 +71,8 @@ export class PurchaseRequestEntity {
     user_approval: any = null,
     createdAt: string | null = null,
     updatedAt: string | null = null,
-    deletedAt: string | null = null
+    deletedAt: string | null = null,
+    total: number = 0 
   ) {
     this.id = id;
     this.documentTypeId = documentTypeId;
@@ -77,7 +87,7 @@ export class PurchaseRequestEntity {
     this.requester = requester;
     this.position = position;
     this.user_approval = user_approval;
-    this.total = 0;
+    this.total = total;
     this.items = [];
     this.createdAt = createdAt || this.getCurrentTimestamp();
     this.updatedAt = updatedAt || this.getCurrentTimestamp();
@@ -235,6 +245,7 @@ export class PurchaseRequestEntity {
       expired_date,
       purposes,
       "PENDING",
+   
       null,
       null,
       null,

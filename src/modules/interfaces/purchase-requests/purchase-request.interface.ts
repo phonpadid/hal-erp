@@ -1,4 +1,3 @@
-import type { UserDTO } from "@/modules/application/dtos/user.dto";
 
 export interface IDocumentTypeId {
   document_type_id?: string;
@@ -10,6 +9,7 @@ export interface PurchaseRequestItemParams {
   quantity: number;
   unitId: number;
   price: number;
+  total: number;
   remark?: string;
 }
 export interface Department {
@@ -49,7 +49,14 @@ export interface ApprovalStep {
   user_approval_id: number;
   step_number: number;
   approver_id: number;
-  approved_at: string | null;
+  approved_at?: string | null;
+  doc_approver?: Array<{    
+        user: {
+          id: string;
+          username: string;
+        };
+        department?: Department;
+      }>;
   status_id: number;
   remark: string;
   is_otp: boolean;
@@ -59,11 +66,10 @@ export interface ApprovalStep {
   document_status: DocumentStatus;
   approver: Requester | null;
   position?: Position | null;
-
-  doc_approver?: {
-    user? : UserDTO
-    department?: Department | null;
-  }[]
+  // doc_approver?: {
+  //   user? : UserDTO
+  //   department?: Department | null;
+  // }[]
 }
 
 export interface UserApproval {

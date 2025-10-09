@@ -46,6 +46,15 @@ export class PurchaseOrderEntity {
       remark: string;
       is_otp: boolean;
       requires_file_upload: boolean;
+      approved_at?: string | null;
+      doc_approver?: Array<{    
+        user: {
+          username: string;
+          department?: { name: string } ;
+        };
+        department?: { name: string };
+      }>;
+      
     }>;
   } | null = null;
   // private items: PurchaseOrderItemEntity[];

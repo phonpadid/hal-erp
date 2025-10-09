@@ -13,7 +13,6 @@ import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UploadModal from "./modal/UploadModal.vue";
-import { UploadOutlined } from "@ant-design/icons-vue";
 
 // --- HELPERS, STATE, & VALIDATION ---
 import { formatPrice, NumberOnly, parsePrice } from "@/modules/shared/utils/format-price";
@@ -43,8 +42,6 @@ const loading = ref<boolean>(false);
 const uploadLoading = ref<boolean>(false);
 const createModalVisible = ref(false);
 const currentUploadIndex = ref<number>(0);
-const newApprovalStepId = ref<number | null>(null);
-
 const props = defineProps<{
   documentTypeId?: number | string;
   isEditing?: boolean;
@@ -123,7 +120,7 @@ const handleImageUpload = async (files: File[]) => {
       currentItem.file_name = filename;
       const url = URL.createObjectURL(file);
       currentItem.images.push(url);
-      message.success("ອັບໂຫລດຮູບພາບສຳເລັດ");
+      // message.success("ອັບໂຫລດຮູບພາບສຳເລັດ");
       createModalVisible.value = false;
     } else {
       throw new Error("Filename not found in API response.");
@@ -219,7 +216,7 @@ async function handleSave(): Promise<any | null> {
     }
 
     if (result) {
-      message.success(props.isEditing ? "ອັບເດດສຳເລັດ!" : "ສ້າງສຳເລັດ!");
+      // message.success(props.isEditing ? "ອັບເດດສຳເລັດ!" : "ສ້າງສຳເລັດ!");
       return result;
     } else {
       message.error(purchaseRequestStore.error || "ເກີດຂໍ້ຜິດພາດ");
@@ -260,183 +257,197 @@ defineExpose({
 });
 </script>
 
-<template>
-  <div class="px-0 mb-[20rem]">
-    <div>
-      <h2 class="text-md font-semibold px-0 mb-4">
-        {{ t("purchase-rq.field.proposer", "ໃບສະເໜີ") }}
-      </h2>
-      <div class="info flex items-center px-0 gap-4 mb-4">
-        <div
-          class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
-        >
-          <Icon icon="mdi:user" class="text-4xl" />
-        </div>
 
-        <div class="detail -space-y-2">
-          <p class="font-medium **text-lg**">{{ departmentUser?.getUser()?.getUsername() }}</p>
-          <p class="text-gray-600">{{ userPosition }}</p>
+<template>
+  <div class="px-4 mb-[4rem] max-w-7xl mx-auto">
+    <!-- Header section -->
+    <UiForm ref="formRef" :model="formState" :rules="CreatePRValidate(t)" class="bg-white rounded-lg shadow-sm p-4">
+       <div class="flex justify-between items-center mb-2 bg-white p-4 rounded-lg shadow-sm">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100">
+          <Icon icon="mdi:user" class="text-4xl text-blue-600" />
+        </div>
+        <div class="info">
+          <h2 class="text-xl font-semibold mb-1">
+            {{ t("purchase-rq.field.proposer", "ໃບສະເໜີ") }}
+          </h2>
+          <div class="flex items-center gap-2 text-gray-600">
+            <span>{{ departmentUser?.getUser()?.getUsername() }}</span>
+            <span>•</span>
+            <span>{{ userPosition }}</span>
+          </div>
         </div>
       </div>
+      
+      <UiFormItem
+        :label="t('purchase-rq.field.date_rq', 'ເລືອກວັນທີ')"
+        name="expired_date"
+        required
+        class="w-[300px]"
+      >
+        <DatePicker
+          v-model:value="formState.expired_date"
+          class="w-full"
+          :placeholder="t('purchase-rq.phd.rq_date', 'ເລືອກວັນທີ')"
+        />
+      </UiFormItem>
+    </div>
+    <!-- Main Form -->
 
-      <UiForm ref="formRef" :model="formState" :rules="CreatePRValidate(t)">
-        <div class="date md:flex flex-row w-full gap-8 mt-4">
-          <UiFormItem
-            :label="t('purchase-rq.field.date_rq', 'ເລືອກວັນທີ')"
-            name="expired_date"
-            required
-          >
-            <DatePicker
-              v-model:value="formState.expired_date"
-              class="md:w-[557px] w-full"
-              :placeholder="t('purchase-rq.phd.rq_date', 'ເລືອກວັນທີ')"
-            />
-          </UiFormItem>
-        </div>
+      <!-- Purpose section -->
+      <div class="mb-4">
+        <h3 class="text-lg font-medium mb-4">
+          {{ t("purchase-rq.field.proposal", "ວັດຖຸປະສົງ") }}
+        </h3>
+        <Textarea
+          v-model="formState.purpose"
+          :placeholder="t('purchase-rq.phd.purpose', 'ລະບຸວັດຖຸປະສົງໃນການຂໍຊື້')"
+          class="w-full min-h-[100px]"
+        />
+      </div>
 
-        <div class="purposes mt-4">
-          <p>{{ t("purchase-rq.field.proposal", "ວັດຖຸປະສົງ") }}</p>
-          <Textarea
-            v-model="formState.purpose"
-            :placeholder="t('purchase-rq.phd.purpose', 'ລະບຸວັດຖຸປະສົງໃນການຂໍຊື້')"
-            class="md:w-[557px] w-full"
-          />
-        </div>
-
-        <div
-          class="item border-t border-gray-200 mt-6 pt-4"
-          v-for="(item, index) in formState.addMore"
-          :key="index"
-        >
-          <div class="request mt-4">
-            <p class="font-semibold text-lg">
-              {{ t("purchase-rq.card_title.title", "ລາຍການ") }} ({{ index + 1 }})
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
-              <UiFormItem
-                :label="t('purchase-rq.field.title', 'ຊື່ລາຍການ')"
-                :name="['addMore', index.toString(), 'title']"
-                required
-              >
-                <UiInput
-                  v-model="item.title"
-                  :placeholder="t('purchase-rq.phd.title', 'ເຊັ່ນ Computer')"
-                />
-              </UiFormItem>
-
-              <UiFormItem
-                :label="t('purchase-rq.field.qty', 'ຈຳນວນ')"
-                :name="['addMore', index.toString(), 'count']"
-                required
-              >
-                <UiInput
-                  v-model="item.count"
-                  :placeholder="t('purchase-rq.phd.qty', 'ເຊັ່ນ 5')"
-                  @keypress="NumberOnly"
-                />
-              </UiFormItem>
-
-              <UiFormItem
-                :label="t('purchase-rq.field.unit', 'ຫົວໜ່ວຍ')"
-                :name="['addMore', index.toString(), 'unit_id']"
-                required
-              >
-                <ASelect
-                  v-model:value="item.unit_id"
-                  :placeholder="t('purchase-rq.phd.unit', 'ເລືອກຫົວໜ່ວຍ')"
-                  :options="units.map((unit) => ({ value: unit.getId(), label: unit.getName() }))"
-                />
-              </UiFormItem>
-
-              <UiFormItem
-                :label="t('purchase-rq.field.price', 'ລາຄາ')"
-                :name="['addMore', index.toString(), 'price']"
-                required
-              >
-                <UiInput
-                  v-model="formattedPrice(index).value"
-                  :placeholder="t('purchase-rq.phd.price', 'ເຊັ່ນ 25,000,000')"
-                  @keypress="NumberOnly"
-                />
-              </UiFormItem>
-
-              <UiFormItem
-                class="md:col-span-2 lg:col-span-4"
-                :label="t('purchase-rq.field.remark', 'ໝາຍເຫດ')"
-                :name="['addMore', index.toString(), 'remark']"
-              >
-                <UiInput
-                  v-model="item.remark"
-                  :placeholder="t('purchase-rq.phd.remark', 'ລາຍລະອຽດເພີ່ມເຕີມ (ຖ້າມີ)')"
-                />
-              </UiFormItem>
-            </div>
-          </div>
-
-          <div class="image-view mt-4">
-            <p>{{ t("purchase-rq.field.img_example", "ຮູບຕົວຢ່າງ") }}</p>
-            <div class="flex flex-wrap gap-2 mt-2">
-              <div
-                v-for="(image, imageIndex) in item.images"
-                :key="imageIndex"
-                class="w-[250px] h-[150px] rounded-md shadow-sm ring-1 ring-slate-300 overflow-hidden relative group"
-              >
-                <a-image
-                  :src="image"
-                  :width="250"
-                  :height="150"
-                  class="w-full h-full object-cover rounded-md"
-                />
-                <button
-                  class="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-400 text-white rounded-full text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center shadow-lg"
-                  @click="deleteImage(index, imageIndex)"
-                  title="Delete image"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div
-                v-if="item.images.length === 0"
-                class="w-[250px] h-[150px] flex flex-col justify-center items-center text-center rounded-md shadow-sm ring-1 ring-slate-300 bg-slate-50 text-slate-500 cursor-pointer hover:bg-slate-100 transition"
-                @click="modalUpload(index)"
-              >
-                <p class="text-2xl"><UploadOutlined /></p>
-                <p class="text-sm font-medium">ອັບໂຫລດຮູບພາບ</p>
-                <p class="text-xs text-gray-400">ຮູບຕົວຢ່າງຂອງສິນຄ້າ (ຖ້າມີ)</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="add-more mt-6 flex gap-2">
+      <!-- Items section -->
+      <div v-for="(item, index) in formState.addMore" :key="index" class="mb-8">
+        <div class="flex justify-between items-center mb-6 bg-gray-50 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold flex items-center gap-2">
+            <Icon icon="mdi:shopping-outline" class="text-blue-600" />
+            {{ t("purchase-rq.card_title.title", "ລາຍການ") }} #{{ index + 1 }}
+          </h3>
+          <div class="flex gap-2">
             <UiButton
               type="primary"
-              size="small"
-              icon="ant-design:plus-outlined"
+              size="middle"
+              class="flex items-center gap-1 px-4"
               @click="moreFunction"
-              colorClass="flex items-center"
             >
+              <Icon icon="mdi:plus" />
               {{ t("purchase-rq.btn.add_title", "ເພີ່ມລາຍການ") }}
             </UiButton>
             <UiButton
               danger
-              size="small"
-              icon="ant-design:minus-outlined"
+              size="middle"
+              class="flex items-center gap-1 px-4"
               :disabled="formState.addMore.length <= 1"
               @click="removeMore(index)"
-              colorClass="flex items-center"
             >
+              <Icon icon="mdi:trash-can-outline" />
               {{ t("purchase-rq.btn.dl_title", "ລົບລາຍການນີ້") }}
             </UiButton>
           </div>
         </div>
-      </UiForm>
 
-      <div class="total flex justify-end items-center mt-8 text-xl gap-4 border-t pt-4">
-        <p class="font-semibold">{{ t("purchase-rq.field.amount", "ຍອດລວມສຸດທິ") }}:</p>
-        <p class="text-red-600 font-bold text-2xl">{{ formatPrice(totalPrice) }} LAK</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Image upload section -->
+          <div class="h-full">
+            <p class="text-sm font-medium mb-3 text-gray-700">
+              {{ t("purchase-rq.field.img_example", "ຮູບຕົວຢ່າງ") }}
+            </p>
+            <div class="aspect-video relative rounded-lg overflow-hidden group">
+              <template v-if="item.images.length > 0">
+                <a-image
+                  :src="item.images[0]"
+                  class="w-full h-full object-cover"
+                />
+                <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
+                  <button
+                    class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                    @click="modalUpload(index)"
+                    title="Change image"
+                  >
+                    <Icon icon="mdi:camera" class="text-xl text-gray-700" />
+                  </button>
+                  <button
+                    class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                    @click="deleteImage(index, 0)"
+                    title="Delete image"
+                  >
+                    <Icon icon="mdi:trash-can" class="text-xl text-red-600" />
+                  </button>
+                </div>
+              </template>
+              <div
+                v-else
+                class="w-full h-full flex flex-col justify-center items-center text-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                @click="modalUpload(index)"
+              >
+                <Icon icon="mdi:cloud-upload" class="text-4xl text-blue-600 mb-2" />
+                <p class="text-sm font-medium">ອັບໂຫລດຮູບພາບ</p>
+                <p class="text-xs text-gray-500">ຮູບຕົວຢ່າງຂອງສິນຄ້າ (ຖ້າມີ)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form fields -->
+          <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <UiFormItem
+              :label="t('purchase-rq.field.title', 'ຊື່ລາຍການ')"
+              :name="['addMore', index.toString(), 'title']"
+              required
+            >
+              <UiInput
+                v-model="item.title"
+                :placeholder="t('purchase-rq.phd.title', 'ເຊັ່ນ Computer')"
+              />
+            </UiFormItem>
+
+            <UiFormItem
+              :label="t('purchase-rq.field.qty', 'ຈຳນວນ')"
+              :name="['addMore', index.toString(), 'count']"
+              required
+            >
+              <UiInput
+                v-model="item.count"
+                :placeholder="t('purchase-rq.phd.qty', 'ເຊັ່ນ 5')"
+                @keypress="NumberOnly"
+              />
+            </UiFormItem>
+
+            <UiFormItem
+              :label="t('purchase-rq.field.unit', 'ຫົວໜ່ວຍ')"
+              :name="['addMore', index.toString(), 'unit_id']"
+              required
+            >
+              <ASelect
+                v-model:value="item.unit_id"
+                :placeholder="t('purchase-rq.phd.unit', 'ເລືອກຫົວໜ່ວຍ')"
+                :options="units.map((unit) => ({ value: unit.getId(), label: unit.getName() }))"
+              />
+            </UiFormItem>
+
+            <UiFormItem
+              :label="t('purchase-rq.field.price', 'ລາຄາ')"
+              :name="['addMore', index.toString(), 'price']"
+              required
+            >
+              <UiInput
+                v-model="formattedPrice(index).value"
+                :placeholder="t('purchase-rq.phd.price', 'ເຊັ່ນ 25,000,000')"
+                @keypress="NumberOnly"
+              />
+            </UiFormItem>
+
+            <UiFormItem
+              class="col-span-2"
+              :label="t('purchase-rq.field.remark', 'ໝາຍເຫດ')"
+              :name="['addMore', index.toString(), 'remark']"
+            >
+              <UiInput
+                v-model="item.remark"
+                :placeholder="t('purchase-rq.phd.remark', 'ລາຍລະອຽດເພີ່ມເຕີມ (ຖ້າມີ)')"
+              />
+            </UiFormItem>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <!-- Total section -->
+      <div class="flex justify-end items-center mt-8 pt-4 border-t">
+        <div class="bg-gray-50 px-6 py-4 rounded-lg">
+          <p class="text-gray-600 mb-1">{{ t("purchase-rq.field.amount", "ຍອດລວມສຸດທິ") }}</p>
+          <p class="text-red-600 font-bold text-2xl">{{ formatPrice(totalPrice) }} LAK</p>
+        </div>
+      </div>
+    </UiForm>
   </div>
 
   <UploadModal

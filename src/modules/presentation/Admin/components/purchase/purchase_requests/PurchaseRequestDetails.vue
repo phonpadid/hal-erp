@@ -30,8 +30,6 @@ const { t } = useI18n();
 const route = useRoute();
 const { error } = useNotification();
 const router = useRouter();
-
-// 2. สร้าง Instance ของ Store ทั้งหมดที่ต้องใช้
 const toggleStore = useToggleStore();
 const purchaseRequestStore = usePurchaseRequestsStore();
 const approvalStepStore = useApprovalStepStore();
@@ -75,6 +73,11 @@ const currentApprovalStep = computed(() => {
       step.step_number === (getPreviousApprovedStep.value?.step_number ?? 0) + 1
   );
 });
+const isLastStep = computed(() => {
+  const lastStep = [...approvalSteps.value].sort((a, b) => b.step_number - a.step_number)[0];
+  return currentApprovalStep.value?.step_number === lastStep?.step_number;
+});
+
 
 const getPreviousApprovedStep = computed(() => {
   return [...approvalSteps.value]
@@ -82,10 +85,6 @@ const getPreviousApprovedStep = computed(() => {
     .sort((a, b) => b.step_number - a.step_number)[0];
 });
 
-const isLastStep = computed(() => {
-  const lastStep = [...approvalSteps.value].sort((a, b) => b.step_number - a.step_number)[0];
-  return currentApprovalStep.value?.step_number === lastStep?.step_number;
-});
 
 const canApprove = computed(() => {
   const currentStep = currentApprovalStep.value;

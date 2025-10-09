@@ -12,7 +12,8 @@
     "remark": "ໝາຍເຫດ",
     "title":"ຫົວຂໍ້",
     "action": "ຈັດການ",
-    "vendor": "ຜູ້ຂາຍ"
+    "vendor": "ຜູ້ຂາຍ",
+    "Shop": "ຂໍ້ມູນຮ້ານຄ້າ"
   },
   "error":{
     "document_type_required":"ປະເພດເອກະສານບໍ່ຄວນວ່າງ",
