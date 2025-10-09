@@ -36,6 +36,7 @@ export const usePurchaseRequestsStore = defineStore("purchaseRequests", () => {
       unitId: dto.unit_id,
       price: dto.price,
       remark: dto.remark,
+      total: dto.quantity * dto.price
     };
   }
 

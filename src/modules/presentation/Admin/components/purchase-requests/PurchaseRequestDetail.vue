@@ -38,8 +38,39 @@ const requesterInfo = computed(() => requestDetail.value?.getRequester());
 const departmentInfo = computed(() => requestDetail.value?.getDepartment());
 const positionInfo = computed(() => requestDetail.value?.getPosition());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
-
 const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
+const documentStatus = computed(() => {
+  const rejectedStep = requestDetail.value
+    ?.getUserApproval()
+    ?.approval_step?.find((step) => step.status_id === 3);
+
+  if (rejectedStep) {
+    return {
+      status: `ຖືກປະຕິເສດ`,
+      // ໂດຍ ${rejectedStep.approver?.username || ''} ${rejectedStep.position?.name || ''
+      statusClass: "text-red-500 font-medium ml-2 bg-red-50 px-3 py-1 rounded-full",
+    };
+  }
+  const pendingStep = requestDetail.value
+    ?.getUserApproval()
+    ?.approval_step?.find((step) => step.status_id === 1);
+
+  if (!pendingStep) {
+    return {
+      status: "ອະນຸມັດສຳເລັດ",
+      statusClass: "text-green-500 font-medium ml-2 bg-green-50 px-3 py-1 rounded-full",
+    };
+  }
+  // const nextApprover = pendingStep.doc_approver?.[0]?.user?.username;
+  const nextDepartment = pendingStep.doc_approver?.[0]?.department?.name;
+
+  return {
+    status: `ລໍຖ້າ ${nextDepartment || ""} ກວດສອບ`,
+    // ${nextApprover || ''}
+    statusClass: "text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full",
+  };
+});
+
 const handlePrint = async () => {
   /* ... no changes needed ... */
 };
@@ -80,14 +111,13 @@ const handleToggle = () => {
         }`"
         :document-date="formatDate(requestDetail?.getRequestedDate() ?? new Date())"
         :action-buttons="getCustomButtons()"
-        :document-status="requestDetail?.getStatus()"
-        document-status-class="text-orange-400 text-sm font-medium ml-2 ring-2 ring-orange-300 px-3 py-1 rounded-full"
+        :document-status="documentStatus.status"
+        :document-status-class="documentStatus.statusClass"
       />
     </div>
-
     <div v-if="loading" class="mt-[10rem] text-center">Loading...</div>
     <div v-else-if="requestDetail" class="body mt-[10rem]">
-      <div class="user-info shadow-sm py-2">
+      <div class="user-info shadow-sm">
         <h2 class="text-md font-semibold px-6 mb-4">{{ t("purchase-rq.field.proposer") }}</h2>
         <div class="flex justify-between">
           <div class="info flex items-center px-6 gap-4 mb-4">
@@ -96,19 +126,18 @@ const handleToggle = () => {
             >
               <Icon icon="mdi:user" class="text-4xl" />
             </div>
-
             <div class="detail -space-y-2">
               <p class="font-medium">{{ requesterInfo?.username }}</p>
               <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
             </div>
           </div>
-          <div class="want-date -space-y-0 px-6 mb-4">
+          <div class="want-date -space-y-0 px-6">
             <h2 class="text-md font-semibold">{{ t("purchase-rq.field.date_rq") }}</h2>
             <p class="text-gray-600 text-sm">{{ requestDetail.getExpiredDate() }}</p>
           </div>
         </div>
 
-        <div class="purposes -space-y-0 px-6 mb-4">
+        <div class="purposes -space-y-0 px-6">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.field.purposes") }}</h2>
           <p class="text-gray-600 text-sm">{{ requestDetail.getPurposes() }}</p>
         </div>
@@ -118,6 +147,9 @@ const handleToggle = () => {
           <Table :columns="columns(t)" :dataSource="items" :pagination="false" row-key="id">
             <template #index="{ index }">
               <span>{{ index + 1 }}</span>
+            </template>
+            <template #price="{ record }">
+              <span>₭ {{ formatPrice(record.getPrice()) }}</span>
             </template>
             <template #total_price="{ record }">
               <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
@@ -133,14 +165,14 @@ const handleToggle = () => {
               />
             </template>
           </Table>
-          <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4">
+          <div class="total flex items-center md:justify-end justify-start gap-4">
             <p class="font-medium text-slate-600">{{ t("purchase-rq.field.amount") }}:</p>
             <p class="font-semibold md:text-lg text-sm text-slate-700">
               {{ formatPrice(totalAmount) }} ₭
             </p>
           </div>
         </div>
-        <div class="signature shadow-sm py-4 px-6 rounded-md mb-[10rem]">
+        <div class="shadow-sm">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
           <div class="flex justify-start gap-x-12">
             <div class="text-center">
@@ -149,13 +181,12 @@ const handleToggle = () => {
                 <a-image
                   :src="(requesterInfo as any)?.user_signature?.signature_url ?? '/public/2.png'"
                   alt="signature"
-                  :width="180"
-                  :height="100"
+                  :width="60"
+                  :height="50"
                   :preview="false"
                 />
               </div>
-
-              <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+              <div class="info text-sm text-slate-600 -space-y-2">
                 <p>{{ requesterInfo?.username }}</p>
                 <p>{{ departmentInfo?.name }}</p>
               </div>

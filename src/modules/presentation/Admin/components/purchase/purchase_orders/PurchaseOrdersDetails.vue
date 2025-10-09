@@ -488,8 +488,6 @@ const handleConfirm = async () => {
            
             newlyCreatedDocumentId.value = docId;
             currentApprovalStepId.value = stepId;
-            
-            success("ສ້າງໃບສັ່ງຊື້ສຳເລັດແລ້ວ. ກະລຸນາຢືນຢັນ OTP.");
             await sendOtp(); 
         } else {
         

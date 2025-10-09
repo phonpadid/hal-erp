@@ -28,6 +28,11 @@ export function columnsDetails(t: (key: string) => string): Column[] {
       key: "price",
     },
     {
+      title: t("purchase_qequest.table.Shop"),
+      dataIndex: "Shop",
+      key: "Shop",
+    },
+    {
       title: t("purchase_qequest.table.note"),
       dataIndex: "remark",
       key: "remark",
