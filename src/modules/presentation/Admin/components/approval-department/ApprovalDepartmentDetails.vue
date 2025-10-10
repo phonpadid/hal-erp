@@ -1,10 +1,5 @@
 <template>
   <div class="mt-10">
-    <!-- Document Details -->
-    <!-- <div v-if="showApprovalSuccess">
-      <ApprovalsuccessDetails />
-    </div> -->
-    <!-- Header Component -->
     <div>
       <!-- Header component -->
       <div
@@ -15,17 +10,16 @@
           header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
           :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
           document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
-          :document-number="orderDetails?.getPoNumber() || 'PO-13B786'"
-          :document-date="formatDate(orderDetails?.getCreatedAt() || '2025-03-26')"
+          :document-number="orderDetails?.getPoNumber() || 'no data'"
+          :document-date="formatDate(orderDetails?.getCreatedAt() ?? new Date())"
           :action-buttons="customButtons"
-          document-status="ລໍຖ້າຫົວໜ້າພະແນກບໍລິຫານກວດສອບ"
-          document-status-class="text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"
+          :document-status="documentStatus.status"
+          :document-status-class="documentStatus.statusClass"
         />
       </div>
-
       <!-- Main Content -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mt-40">
-        <h2>ຂໍ້ມູນສ້າງໃບອານຸມັດຈັດຊື້ - ຈັດຈ້າງ</h2>
+      <div class="bg-white rounded-lg shadow-sm p-6 mt-36">
+        <h2>{{ t("purchase_orders.p_orders") }}</h2>
         <!-- Requester Information -->
         <div class="flex items-start gap-4 mb-2">
           <div
@@ -43,91 +37,82 @@
         </div>
         <!-- ຂໍ້ມຸນຜູ້ສະເໜີ -->
         <div>
-          <h4>ສະເໜີ</h4>
+          <h4>{{ t("purchase_orders.Proposal") }}</h4>
           <div class="grid grid-cols-4">
             <div class="grid grid-rows-2">
-              <h5>ຂໍ້ສະເໜີເບີກງົບປະມານ</h5>
-              <span class="text-sm">{{
-                orderDetails?.getPurchaseRequest()?.purchase_request_item[0]?.title ||
-                "ສະເໜີຊື້ອຸປະກອນຄອມພິວເຕີ"
-              }}</span>
-            </div>
-            <div class="grid grid-rows-2">
-              <h5>ຈຳນວນ</h5>
+              <h5>{{ t("purchase_orders.quantity") }}</h5>
               <span class="text-sm">
-                {{ getPurchaseOrderQuantity || 2 }}
+                {{ getPurchaseOrderQuantity }}
               </span>
             </div>
             <div class="grid grid-rows-2">
-              <h5>ພະແນກ</h5>
+              <h5>{{ t("purchase_orders.department") }}</h5>
               <span class="text-sm">{{ orderDetails?.getDepartment()?.name || "ພະແນກໄອທີ" }}</span>
             </div>
             <div class="grid grid-rows-2">
-              <h5>ໜ່ວຍງານ</h5>
+              <h5>{{ t("purchase_orders.agency") }}</h5>
               <span class="text-sm">{{
                 orderDetails?.getPosition()?.[0]?.name || "ຝ່າຍພັດທະນາລະບົບ"
               }}</span>
             </div>
+            <div class="grid grid-rows-2">
+              <h4 class="text-base font-semibold mb-2">
+                {{ t("purchase_orders.Objectivesanditems") }}
+              </h4>
+              <span class="text-gray-600">
+                {{ getPurchaseOrderRemark }}
+              </span>
+            </div>
           </div>
         </div>
 
-        <!-- Purpose -->
-        <div class="mb-6">
-          <h4 class="text-base font-semibold mb-2">ຈຸດປະສົງ ແລະ ລາຍການ</h4>
-          <p class="text-gray-600">
-            {{ getPurchaseOrderRemark || "ທົດລອງລະບົບບັນທຶກ" }}
-          </p>
-        </div>
-
         <!-- Items Table -->
-        <div class="mb-6">
-          <h4 class="text-base font-semibold mb-2">ລາຍການ</h4>
-          <Table :columns="columnsDetails(t)" :dataSource="purchaseOrderStore.orders">
+        <div>
+          <h4 class="text-base font-semibold mb-2">{{ t("purchase_orders.list") }}</h4>
+          <Table
+            :columns="columnsDetails(t)"
+            :dataSource="orderDetails?.getPurchaseOrderItem() || []"
+          >
             <template #index="{ index }">
               <span>{{ index + 1 }}</span>
             </template>
 
             <template #title="{ record }">
-              <span
-                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
-              >
-                {{ record.getPurchaseOrderItem()[0].getTitle() }}
-              </span>
-              <span v-else> - </span>
+              <span>{{ record.getTitle() }}</span>
             </template>
+
             <template #remark="{ record }">
-              <span
-                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
-              >
-                {{ record.getPurchaseOrderItem()[0].getRemark() }}
-              </span>
-              <span v-else> - </span>
+              <span>{{ record.getRemark() }}</span>
             </template>
+
             <template #quantity="{ record }">
-              <span
-                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
-              >
-                {{ record.getPurchaseOrderItem()[0].getQuantity() }}
-              </span>
-              <span v-else> - </span>
+              <span>{{ record.getQuantity() }}</span>
             </template>
+
             <template #price="{ record }">
-              <span
-                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
-              >
-                {{ formatPrice(record.getPurchaseOrderItem()[0].getPrice()) }} ₭
-              </span>
-              <span v-else> - </span>
+              <span>{{ formatPrice(record.getPrice()) }} ₭</span>
             </template>
-            <template #image="{ record }">
-              <span
-                v-if="record.getPurchaseOrderItem() && record.getPurchaseOrderItem().length > 0"
+
+            <template #Shop="{ record }">
+              <UiButton
+                type="link"
+                icon="ant-design:eye-outlined"
+                color-class="flex items-center text-red-500 hover:!text-red-900"
+                @click="() => showShopDetails(record)"
               >
-                <img
-                  v-if="record.getPurchaseOrderItem()[0].getQuotationImageUrl()"
-                  :src="record.getPurchaseOrderItem()[0].getQuotationImageUrl() ?? undefined"
+                ລາຍລະອຽດຮ້ານຄ້າ
+              </UiButton>
+            </template>
+
+            <template #image="{ record }">
+              <span>
+                <a-image
+                  v-if="record.getQuotationImageUrl()"
+                  :src="record.getQuotationImageUrl()"
                   alt="Product Image"
-                  class="w-12 h-12 object-cover"
+                  :width="50"
+                  :height="50"
+                  :preview="true"
                 />
                 <img
                   v-else
@@ -136,161 +121,77 @@
                   class="w-12 h-12 object-cover"
                 />
               </span>
-              <span v-else> - </span>
             </template>
           </Table>
           <div>
-            <p class="text-gray-500 mt-2 flex justify-end">
-              {{ t("purchase_qequest.table.total") }}:
-              <span class="font-semibold"> {{ formatPrice(getTotalAmount) }} ₭ </span>
-            </p>
-          </div>
-        </div>
-
-        <div class="mb-6">
-          <h4 class="text-base font-semibold mb-2">ໃບສະເໜີລາຄາ</h4>
-          <div class="border rounded-lg p-4">
-            <!-- show  -->
-            <div
-              v-if="
-                orderDetails &&
-                orderDetails.getPurchaseOrderItem() &&
-                orderDetails.getPurchaseOrderItem().length > 0
-              "
-            >
-              <div v-for="(item, index) in orderDetails.getPurchaseOrderItem()" :key="index">
-                <!-- photo -->
-                <div class="flex gap-6">
-                  
-                    <a-image
-                      v-if="item.getQuotationImageUrl()"
-                      :src="item.getQuotationImageUrl() ?? undefined"
-                      alt="ໃບສະເໜີລາຄາ"
-                      class="rounded-lg mb-4 w-10 h-10"
-                    />
-                    <img
-                      v-else
-                      src="/public/5.png"
-                      alt="ໃບສະເໜີລາຄາ"
-                      class="max-w-md rounded-lg mb-4"
-                    />
-                  
-                  <!-- details -->
-                  <div class="grid grid-cols-2 gap-2 mb-4">
-                    <div class="font-medium">ລາຍການ:</div>
-                    <div class="text-gray-600">{{ item.getRemark() }}</div>
-
-                    <div class="font-medium">ຈຳນວນ:</div>
-                    <div class="text-gray-600">{{ item.getQuantity() }} ລາຍການ</div>
-
-                    <div class="font-medium">ລາຄາຕໍ່ຫົວໜ່ວຍ:</div>
-                    <div class="text-gray-600">{{ formatPrice(item.getPrice()) }} ₭</div>
-
-                    <div class="font-medium">ລາຄາລວມ:</div>
-                    <div class="text-gray-600">{{ formatPrice(item.getTotal()) }} ₭</div>
-
-                    <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
-                    <div class="text-gray-600">
-                      {{ item.getIsVat() ? `${formatPrice(item.getVatTotal())} ₭` : "ບໍ່ມີ" }}
-                    </div>
-
-                    <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
-                    <div class="text-gray-600 font-bold">
-                      {{ formatPrice(item.getTotalWithVat()) }} ₭
-                    </div>
-
-                    <div class="font-medium">ຜູ້ຂາຍ:</div>
-                    <div class="text-gray-600">{{ item.getVendorName() }}</div>
-
-                    <div class="font-medium">ຂໍ້ມູນຕິດຕໍ່:</div>
-                    <div class="text-gray-600">{{ item.getVendorContactInfo() }}</div>
-                  </div>
+            <div v-if="orderDetails">
+              <span class="text-gray-500 mt-2 flex justify-end">
+                <div class="font-medium">ລາຄາລວມ:</div>
+                <div class="text-gray-600">{{ formatPrice(getTotalAmount) }} ₭</div>
+              </span>
+              <span class="text-gray-500 mt-2 flex justify-end">
+                <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
+                <div class="text-gray-600">
+                  {{ hasVat ? `${formatPrice(getTotalVat)} ₭` : "ບໍ່ມີ" }}
                 </div>
-              </div>
-            </div>
-            <div v-else>
-              <img src="/public/5.png" alt="ໃບສະເໜີລາຄາ" class="max-w-md rounded-lg" />
-              <p class="text-gray-500 mt-2">ບໍ່ມີໃບສະເໜີລາຄາ</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ຂໍ້ມູນບັນຊີທະນາຄານ -->
-        <div class="mb-6">
-          <h4 class="text-base font-semibold mb-4">ຂໍ້ມູນບັນຊີຮ້ານ</h4>
-          <div
-            v-if="
-              orderDetails &&
-              orderDetails.getPurchaseOrderItem() &&
-              orderDetails.getPurchaseOrderItem().length > 0
-            "
-          >
-            <!-- ข้อมูลธนาคารจาก API -->
-            <div class="grid grid-cols-2 mb-2">
-              <span class="font-medium">ທະນາຄານ:</span>
-              <span class="text-gray-600 flex items-center gap-2">
-                <img
-                  :src="
-                    orderDetails.getPurchaseOrderItem()[0].getBankLogo() || '/public/bclone.png'
-                  "
-                  class="w-8 h-8"
-                  alt="ໂລໂກ້ທະນາຄານ"
-                />
-                <span>{{ orderDetails.getPurchaseOrderItem()[0].getBankName() }}</span>
+              </span>
+              <span class="text-gray-500 mt-2 flex justify-end">
+                <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
+                <div class="text-gray-600 font-bold">{{ formatPrice(getTotalWithVat) }} ₭</div>
               </span>
             </div>
-            <div class="grid grid-cols-2 mb-2">
-              <span class="font-medium">ຊື່ບັນຊີ:</span>
-              <span class="text-gray-600">{{
-                orderDetails.getPurchaseOrderItem()[0].getAccountName()
-              }}</span>
-            </div>
-            <div class="grid grid-cols-2">
-              <span class="font-medium"
-                >ເລກບັນຊີ {{ orderDetails.getPurchaseOrderItem()[0].getCurrencyCode() }}:</span
-              >
-              <span class="text-gray-600">{{
-                orderDetails.getPurchaseOrderItem()[0].getAccountNumber()
-              }}</span>
-            </div>
-          </div>
-          <div v-else>
-            <!-- ข้อมูลธนาคารสำรอง -->
-           <span>No data</span>
           </div>
         </div>
-
         <!-- Signatures -->
-        <div class="signature shadow-sm py-4 px-6 rounded-md mb-[4rem]">
-          <h2 class="text-md font-semibold mb-6">
-            {{ t("purchase-rq.signature") }}
-          </h2>
-
-          <div class="flex justify-start gap-x-12">
-            <!-- proposer -->
-            <div v-if="approverInfo" class="text-center">
+        <div class="flex flex-wrap gap-4">
+          <!-- Approval Steps -->
+          <template v-for="(step, index) in approvalSteps" :key="step.id">
+            <div>
+              <!-- Step Title -->
               <p class="text-slate-500 text-sm mb-2">
-               {{ t("purchase-rq.proposer") }}
+                {{ getStepTitle(index, step) }}
               </p>
 
-              <a-image
-                :src="approverInfo.signatureUrl"
-                alt="signature"
-                :width="120"
-                :height="80"
-                :preview="false"
-                class="block"
-              />
+              <!-- Signature Display -->
+              <div class="signature-box w-[80px] h-[80px] border rounded-md overflow-hidden">
+                <template v-if="step.status_id === 2 && step.approver?.user_signature">
+                  <!-- Approved signature -->
+                  <a-image
+                    :src="step.approver.user_signature.signature_url"
+                    alt="signature"
+                    :width="80"
+                    :height="80"
+                    :preview="false"
+                    class="block"
+                  />
+                </template>
+                <template v-else-if="step.status_id === 1">
+                  <!-- Pending signature -->
+                  <div class="h-full flex items-center justify-center bg-gray-50">
+                    <span class="text-gray-400 text-center">{{ t("purchase-rq.pending") }}</span>
+                  </div>
+                </template>
+              </div>
 
-              <div class="info text-sm text-slate-600 -space-y-2 mt-4">
-                <p>{{ approverInfo.name }}</p>
-                <p>{{ requesterPosition }}</p>
+              <!-- Approver Info -->
+              <div class="info text-sm text-slate-600 -space-y-1">
+                <template v-if="step.approver">
+                  <p class="font-medium">{{ step.approver.username }}</p>
+                  <p class="text-xs">{{ step.position?.name || "-" }}</p>
+                  <p class="text-xs" v-if="step.approved_at">
+                    {{ formatDate(step.approved_at) }}
+                  </p>
+                </template>
+                <template v-else-if="step.doc_approver?.[0]?.user">
+                  <p class="font-medium">{{ step.doc_approver[0].user.username }}</p>
+                  <p class="text-xs">{{ t("purchase-rq.pending") }}</p>
+                </template>
               </div>
             </div>
-          </div>
+          </template>
         </div>
         <div>
-          <span>ເອກະສານທີຕິດຂັດ</span>
+          <span class="font-medium">{{ $t("disbursement.field.doc_attachment") }}</span>
           <HeaderComponent
             header-title="ໃບສະເໜີຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ"
             header-title-color="blue-600"
@@ -453,42 +354,41 @@
       </div>
     </template>
   </UiModal>
-
   <!-- Reject Modal -->
- <UiModal
-      title="ປະຕິເສດ"
-      :visible="isRejectModalVisible"
-      :confirm-loading="confirmLoading"
-      @update:visible="isRejectModalVisible = false"
-    >
-      <div class="space-y-4">
-        <p>ໃສ່ເຫດຜົນໃນການປະຕິເສດ</p>
-        <div>
-          <p class="mb-2 font-semibold">ເຫດຜົນ</p>
-          <Textarea v-model="rejectReason" placeholder="ປ້ອນເຫດຜົນ" :rows="4" />
-        </div>
+  <UiModal
+    title="ປະຕິເສດ"
+    :visible="isRejectModalVisible"
+    :confirm-loading="confirmLoading"
+    @update:visible="isRejectModalVisible = false"
+  >
+    <div class="space-y-4">
+      <p>ໃສ່ເຫດຜົນໃນການປະຕິເສດ</p>
+      <div>
+        <p class="mb-2 font-semibold">ເຫດຜົນ</p>
+        <Textarea v-model="rejectReason" placeholder="ປ້ອນເຫດຜົນ" :rows="4" />
       </div>
-      <template #footer>
-        <div class="flex gap-x-2">
-          <UiButton
-            @click="handleReject"
-            type="primary"
-            :loading="confirmLoading"
-            color-class="w-full"
-            >ຢືນຢັນ</UiButton
-          >
-        </div>
-      </template>
-    </UiModal>
-
+    </div>
+    <template #footer>
+      <div class="flex gap-x-2">
+        <UiButton
+          @click="handleReject"
+          type="primary"
+          :loading="confirmLoading"
+          color-class="w-full"
+          >ຢືນຢັນ</UiButton
+        >
+      </div>
+    </template>
+  </UiModal>
   <UiDrawer
     v-model:open="visible"
     title="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ - ເລກທີ 0044/ຈຊນ.ນວ/ບຫ - ວັນທີ 26 ມີນາ 2025"
     placement="right"
     :width="1050"
   >
-    <PurchaseOrderShowDrawer />
+    <DrawerPr :id="selectedPrId" />
   </UiDrawer>
+  <ShowShop v-model:open="isShopDrawerVisible" :shop-id="selectedShopId" />
 </template>
 
 <script setup lang="ts">
@@ -499,7 +399,7 @@ import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Icon } from "@iconify/vue";
 import { usePurchaseOrderStore } from "@/modules/presentation/Admin/stores/purchase_requests/purchase-order";
-import { useRoute,useRouter} from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import DrawerPr from "../drawer-pr-and-po/DrawerPr.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -508,8 +408,8 @@ import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
-import PurchaseOrderShowDrawer from "../purchase/purchase_orders/PurchaseOrderShowDrawer.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
+import ShowShop from "./ShowShop.vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { formatDate } from "@/modules/shared/formatdate";
 import { useToggleStore } from "../../stores/storage.store";
@@ -524,7 +424,7 @@ const purchaseOrderStore = usePurchaseOrderStore();
 const approvalStepStore = useApprovalStepStore();
 // const approvalStepId = ref<number | null>(null);
 const route = useRoute();
-const router = useRouter()
+const router = useRouter();
 const orderId = ref<number>(parseInt(route.params.id as string, 10));
 const { t } = useI18n();
 const { success, error } = useNotification();
@@ -533,9 +433,59 @@ const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
 const confirmLoading = ref(false);
 const visible = ref(false);
+const selectedPrId = ref<number | null>(null);
+
 const showDrawer = () => {
+  // Get the PR ID from your order details
+  selectedPrId.value = orderDetails.value?.getPurchaseRequest()?.id ?? null;
   visible.value = true;
 };
+
+const isShopDrawerVisible = ref(false);
+const selectedShopId = ref<number | undefined>(undefined);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const showShopDetails = (record: any) => {
+  // เพิ่ม console.log เพื่อดูค่า
+  console.log("Record:", record);
+  selectedShopId.value = record.getId();
+  isShopDrawerVisible.value = true;
+};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getStepTitle = (index: number, step: any) => {
+  if (index === 0) {
+    return t("purchase-rq.proposer");
+  }
+  return `${t("purchase-rq.approver")} ${index}`;
+};
+
+// ລາຄາ
+const getTotalAmount = computed(() => {
+  if (!orderDetails.value?.getPurchaseOrderItem()) return 0;
+  return orderDetails.value.getPurchaseOrderItem().reduce((sum, item) => {
+    return sum + item.getTotal();
+  }, 0);
+});
+
+const getTotalVat = computed(() => {
+  if (!orderDetails.value?.getPurchaseOrderItem()) return 0;
+  return orderDetails.value.getPurchaseOrderItem().reduce((sum, item) => {
+    return sum + (item.getIsVat() ? item.getVatTotal() : 0);
+  }, 0);
+});
+
+const getTotalWithVat = computed(() => {
+  if (!orderDetails.value?.getPurchaseOrderItem()) return 0;
+  return orderDetails.value.getPurchaseOrderItem().reduce((sum, item) => {
+    return sum + item.getTotalWithVat();
+  }, 0);
+});
+
+const hasVat = computed(() => {
+  if (!orderDetails.value?.getPurchaseOrderItem()) return false;
+  return orderDetails.value.getPurchaseOrderItem().some((item) => item.getIsVat());
+});
+
 const isApproved = ref(false);
 /**************control header****************** */
 const toggleStore = useToggleStore();
@@ -544,44 +494,49 @@ const topbarStyle = computed(() => {
   return toggle.value ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
 });
 
-
-/**************control header****************** */
-
 /*********************Check State OTP**************************** */
 const documentStatusStore = useDocumentStatusStore();
 // const requiresOtp = ref(false);
 const modalAction = ref("");
 // const approvalId = ref<number | null>(null);
-const requesterPosition = computed(() => {
-  const position = orderDetails.value?.getPosition();
-  return position ? position.name : "";
-});
-
-const approverInfo = computed(() => {
-  const approvalSteps = orderDetails.value?.getUserApproval()?.approval_step;
-
-  if (!approvalSteps) {
-    return null;
-  }
-
-  const approvedStep = approvalSteps.find((step) => step.status_id === 2 && step.approver);
-
-  if (approvedStep) {
-    return {
-      name: approvedStep.approver?.username,
-      signatureUrl: approvedStep.approver?.user_signature?.signature_url,
-      position: approvedStep.approver?.position?.name || "ตำแหน่งที่ปรึกษา",
-    };
-  }
-
-  return null;
-});
-
 const approvedStatusId = computed(() => {
   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
 });
 const rejectedStatusId = computed(() => {
   return documentStatusStore.document_Status.find((s) => s.getName() === "REJECTED")?.getId();
+});
+// Status check to header
+const documentStatus = computed(() => {
+ 
+  const rejectedStep = orderDetails.value
+    ?.getUserApproval()
+    ?.approval_step?.find(step => step.status_id === 3); 
+
+  if (rejectedStep) {
+    return {
+      status: `ຖືກປະຕິເສດ`,
+      // ໂດຍ ${rejectedStep.approver?.username || ''} ${rejectedStep.position?.name || ''
+      statusClass: "text-red-500 font-medium ml-2 bg-red-50 px-3 py-1 rounded-full"
+    };
+  }
+  const pendingStep = orderDetails.value
+    ?.getUserApproval()
+    ?.approval_step?.find(step => step.status_id === 1);
+
+  if (!pendingStep) {
+    return {
+      status: "ອະນຸມັດສຳເລັດ",
+      statusClass: "text-green-500 font-medium ml-2 bg-green-50 px-3 py-1 rounded-full"
+    };
+  }
+  // const nextApprover = pendingStep.doc_approver?.[0]?.user?.username;
+  const nextDepartment = pendingStep.doc_approver?.[0]?.department?.name;
+
+  return {
+    status: `ລໍຖ້າ ${nextDepartment || ''} ກວດສອບ`,
+    // ${nextApprover || ''} 
+    statusClass: "text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"
+  };
 });
 
 const submitOtp = async () => {
@@ -656,29 +611,6 @@ const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const isSuccessModalVisible = ref(false);
 const signatureData = ref("");
-const selectedId = ref<number | null>(null);
-// const showPropoval = () => {
-//   selectedId.value = Number(purchaseOrderStore.orders?.purchaseRequestId) ?? null;
-//   visible.value = true;
-// };
-
-const getTotalAmount = computed(() => {
-  if (
-    orderDetails.value &&
-    orderDetails.value.getPurchaseOrderItem &&
-    orderDetails.value.getPurchaseOrderItem().length > 0
-  ) {
-    return orderDetails.value.getPurchaseOrderItem().reduce((total, item) => {
-      return total + item.getTotalWithVat();
-    }, 0);
-  }
-  return (
-    orderDetails.value?.getPurchaseRequest()?.purchase_request_item?.[0]?.total_price ||
-    orderDetails.value?.getTotalWithVAT() ||
-    22000000
-  );
-});
-
 const getPurchaseOrderRemark = computed(() => {
   if (
     orderDetails.value &&
@@ -912,12 +844,12 @@ const handleReject = async () => {
 
   try {
     const userApproval = orderDetails.value.getUserApproval();
-    if (!userApproval?.approval_step?.[1]?.id) {
+    if (!userApproval?.approval_step?.[0]?.id) {
       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
       return;
     }
 
-    const approvalStepId = userApproval.approval_step[1].id;
+    const approvalStepId = userApproval.approval_step[0].id;
 
     const documentId = route.params.id as string;
     const payload = {
@@ -930,7 +862,7 @@ const handleReject = async () => {
     // console.log("Sending payload Reject:", payload);
 
     const success = await approvalStepStore.submitApproval(documentId, payload);
-    router.push({ name: "approval-department-panak" })
+    router.push({ name: "approval-department-panak" });
     if (success) {
       isRejectModalVisible.value = false;
       rejectReason.value = "";
@@ -940,7 +872,6 @@ const handleReject = async () => {
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
   }
 };
-
 
 // Document details
 const documentDetails = {

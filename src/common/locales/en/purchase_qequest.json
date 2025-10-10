@@ -12,7 +12,8 @@
     "image": "Image",
     "remark": "Remark",
     "action": "Action",
-    "vendor": "Vendor"
+    "vendor": "Vendor",
+    "Shop": "Shop"
   },
   "error":{
     "document_type_required":"document type not required"

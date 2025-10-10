@@ -15,10 +15,12 @@
     "content": "Content",
     "qty": "Quantity",
     "title": "Title",
+    "total_price":"Total Price",
     "price": "Prices",
     "remark": "Remark",
     "img_example": "Image example",
     "amount": "Total balance",
+    "amounts": "Total amounts",
     "purposes": "Purposes",
     "unit":"Unit"
   },
@@ -57,6 +59,7 @@
   "proposer_list": "Purposes and Items",
   "approver": "Approver",
   "approval_proposal": "Approve the proposal",
+  "pending":"Pending approval",
   "phd": {
     "doc_type": "Select a proposal type",
     "rq_date": "yyyy - mm - dd",

@@ -15,6 +15,7 @@ const props = defineProps<{
   iconColor?: string;
   buttonText?: string;
   loading?: boolean;
+  hideConfirmButton?: boolean; 
 }>();
 
 const emit = defineEmits<{
@@ -75,7 +76,7 @@ const handleVisibilityUpdate = (value: boolean) => {
     </div>
 
     <template #footer>
-      <div class="flex justify-center w-full">
+      <div v-if="!props.hideConfirmButton" class="flex justify-center w-full">
         <UiButton
           @click="handleSuccessConfirm"
           type="primary"

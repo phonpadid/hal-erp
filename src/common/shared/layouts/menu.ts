@@ -188,21 +188,21 @@ export const menuItems = computed<ItemType[]>(() => {
   ].filter((item) => hasPermission(item.permission));
 
   const prManageMenuItems = [
-    {
-      key: "purchaseRequestsList",
-      label: h("div", { class: "flex items-center gap-2" }, [
-        h("span", t("menu-sidebar.purchaseRequests")),
-        h(
-          "span",
-          {
-            class:
-              "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
-          },
-          rStore.counts.pr?.toString() ?? "0"
-        ),
-      ]),
-      permission: "read-purchase-request",
-    },
+    // {
+    //   key: "purchaseRequestsList",
+    //   label: h("div", { class: "flex items-center gap-2" }, [
+    //     h("span", t("menu-sidebar.purchaseRequests")),
+    //     h(
+    //       "span",
+    //       {
+    //         class:
+    //           "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
+    //       },
+    //       rStore.counts.pr?.toString() ?? "0"
+    //     ),
+    //   ]),
+    //   permission: "read-purchase-request",
+    // },
     {
       key: "purchase_request.index",
       label: h("div", { class: "flex items-center gap-2" }, [

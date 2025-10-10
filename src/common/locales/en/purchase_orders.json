@@ -5,5 +5,13 @@
     "created_at": "Created At",
     "status": "Status",
     "action": "Action"
-  }
+  },
+  "agency":"Agency",
+  "quantity":"Quantity",
+  "department":"Department",
+  "Objectivesanditems":"Objectives and items",
+  "Proposal":"Proposal",
+  "p_orders":"Information about creating procurement approvals",
+  "list":"Item List"
+
 }

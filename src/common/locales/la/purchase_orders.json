@@ -5,5 +5,12 @@
     "created_at": "ວັນທີສະເໜີ",
     "status": "ສະຖານະ",
     "action": "ຈັດການ"
-  }
+  },
+  "agency":"ໜ່ວຍງານ",
+  "quantity":"ຈຳນວນ",
+  "department":"ພະແນກ",
+  "Objectivesanditems":"ຈຸດປະສົງແລະລາຍການ",
+  "Proposal":"ສະເໜີ",
+  "p_orders":"ຂໍ້ມູນສ້າງໃບອານຸມັດຈັດຊື້ - ຈັດຈ້າງ",
+  "list":"ລາຍການ"
 }

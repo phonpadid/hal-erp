@@ -48,14 +48,29 @@ const filteredBudgetData = computed<any[]>(() => {
 const formatPrice = (price: number) => {
   return `${price.toLocaleString()} LAK`;
 };
+// const handleConfirm = () => {
+//   if (!selectedBudget.value) return;
+//   emit("confirm", {
+//     id: Number(selectedBudget.value.id),
+//     budgetType: selectedValue.value === "1" ? "expenditure" : "advance",
+//     budgetCode: selectedBudget.value.code,
+//     budgetName: selectedBudget.value.name,
+//     budgetAmount: selectedBudget.value.amount,
+//   });
+// };
 const handleConfirm = () => {
   if (!selectedBudget.value) return;
+  
+  // เพิ่ม console.log เพื่อตรวจสอบข้อมูลที่จะส่ง
+  console.log("Selected budget data:", selectedBudget.value);
+  
   emit("confirm", {
     id: Number(selectedBudget.value.id),
     budgetType: selectedValue.value === "1" ? "expenditure" : "advance",
-    budgetCode: selectedBudget.value.code,
-    budgetName: selectedBudget.value.name,
-    budgetAmount: selectedBudget.value.amount,
+    budgetCode: selectedBudget.value.budget_account?.code || selectedBudget.value.code,
+    budgetName: selectedBudget.value.budget_account?.name || selectedBudget.value.name,
+    budgetAmount: selectedBudget.value.allocated_amount || selectedBudget.value.amount,
+    budget_account: selectedBudget.value.budget_account
   });
 };
 
@@ -64,6 +79,7 @@ const handleRowClick = (record: TableRecord) => {
     ...record,
     id: Number(record.id),
     code: record.budget_account?.code,
+    name: record.name,
     amount: record.allocated_amount,
     used: record.use_amount,
     remaining: record.balance_amount,
@@ -94,6 +110,7 @@ const emit = defineEmits<{
       budgetCode: string;
       budgetName: string;
       budgetAmount: number;
+      budget_account: any;
     }
   ): void;
 }>();

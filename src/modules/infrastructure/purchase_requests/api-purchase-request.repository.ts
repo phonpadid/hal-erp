@@ -56,7 +56,7 @@ interface PurchaseRequestApiModel {
       name: string;
     };
   };
-  total?: number;
+  total: number;
 }
 
 export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
@@ -140,6 +140,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       },
       expired_date: input.getExpiredDate(),
       purposes: input.getPurposes(),
+      total: input.getTotal(),
       purchase_request_items:
         input.getItems()?.map((item) => ({
           title: item.getTitle(),
@@ -158,7 +159,6 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
         ? data.document.position[0]
         : null;
 
-    // แก้ไขตรงนี้: ส่ง user_approval เข้าไปใน constructor
     const purchaseRequest = new PurchaseRequestEntity(
       data.id || null,
       data.document?.documentTypeId ?? 0,
@@ -172,13 +172,16 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       data.document?.department,
       data.document?.requester,
       positionData,
-      data.user_approval, // ส่ง user_approval object ทั้งก้อน
+      data.user_approval, 
       data.created_at || null,
       data.updated_at || null,
-      data.deleted_at || null
+      data.deleted_at || null,
+      data.total
+      
     );
 
     if (data.purchase_request_item) {
+      console.log('API item data:', data.purchase_request_item);
       const items = data.purchase_request_item.map((item: any) => {
         return new PurchaseRequestItemEntity(
           item.id,

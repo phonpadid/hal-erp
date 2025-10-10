@@ -17,7 +17,8 @@ export class CreatePurchaseRequestUseCase {
         quantity: item.quantity,
         unitId: item.unit_id,
         price: item.price,
-        remark: item.remark
+        remark: item.remark,
+        total: item.quantity * item.price
       }))
     );
 
