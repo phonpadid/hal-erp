@@ -103,13 +103,12 @@ const statusCards = computed(() => {
     ...cards,
   ];
 });
-
 // 🔹 Load data with filters applied
 const loadFilteredReceipts = async () => {
   loading.value = true;
   try {
     const params = {
-      page: 1,
+      page: rStore.pagination.page,
       limit: rStore.pagination.limit,
       department_id:
         filterDepartment.value !== "all" ? filterDepartment.value : "",
@@ -122,7 +121,6 @@ const loadFilteredReceipts = async () => {
         : "",
     };
     await rStore.reportPr(params);
-    rStore.setPagination({ ...rStore.pagination, page: 1 });
   } catch (error) {
     console.error(error);
   } finally {
@@ -135,7 +133,7 @@ const handleTableChange = async (pagination: TablePaginationType) => {
   rStore.setPagination({
     page: pagination.current || 1,
     limit: pagination.pageSize || 10,
-    total: pagination.total || 0,
+    total: pagination.total ?? 0,
   });
   await loadFilteredReceipts();
 };

@@ -47,11 +47,11 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "created_at",
       key: "created_at",
     },
-    // {
-    //   title: t("disbursement.field.status"),
-    //   dataIndex: "status",
-    //   key: "status",
-    // },
+    {
+      title: t("disbursement.field.status"),
+      dataIndex: "status",
+      key: "status",
+    },
 
     {
       title: t("disbursement.field.manage"),
