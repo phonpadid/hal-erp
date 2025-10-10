@@ -124,6 +124,20 @@ export const menuItems = computed<ItemType[]>(() => {
       permission: "read-budget-approval-rule",
     },
   ].filter((item) => hasPermission(item.permission));
+  const reportMenu = [
+    {
+      key: "report_pr",
+      label: t("menu-sidebar.report"),
+      icon: () =>
+        h("div", {}, [
+          h(Icon, {
+            icon: "material-symbols:monitoring-sharp",
+            class: "text-base",
+          }),
+        ]),
+      permission: "read-budget-approval-rule",
+    },
+  ].filter((item) => hasPermission(item.permission));
 
   const receiptsMenuItems = [
     {
@@ -429,6 +443,7 @@ export const menuItems = computed<ItemType[]>(() => {
         // },
         ...userApprovalMenuItems,
         ...budgetApprovalRuleMenuItems,
+        ...reportMenu
       ],
       type: "group",
     },
