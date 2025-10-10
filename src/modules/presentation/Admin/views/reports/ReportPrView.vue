@@ -170,16 +170,19 @@ watch([filterDepartment, filterStatus, filterDateRange], async () => {
           :key="index"
           class="relative overflow-hidden p-4 rounded-md ring-1 ring-gray-100/90 transition hover:scale-[1.01]"
         >
+        <!-- :class="card.bgGradient" -->
           <div
-            class="absolute inset-0 opacity-20 blur-2xl"
+            class="absolute inset-0 opacity-10 blur-0"
             :class="card.bgGradient"
-          ></div>
+          >
+          <img src="/public/watermark.jpeg" alt="" srcset="">
+          </div>
           <div class="relative z-10">
             <div class="flex items-center gap-2">
               <UiAvatar
-                size="small"
+                size="default"
                 :icon="card.icon"
-                class="text-3xl"
+                class="text-3xl flex items-center"
                 :class="card.textColor"
               />
               <span class="font-medium text-gray-700">{{ card.label }}</span>
