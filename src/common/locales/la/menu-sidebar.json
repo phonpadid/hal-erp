@@ -52,5 +52,7 @@
   "manage": "ຈັດການຂໍ້ມູນຫຼັກ",
   "receipt_manage": "ຈັດການໃບເບີກຈ່າຍ",
   "receipt": "ໃບເບີກຈ່າຍ",
-  "receipt_approved": "ອະນຸມັດໃບເບີກຈ່າຍ"
+  "receipt_approved": "ອະນຸມັດໃບເບີກຈ່າຍ",
+  "report_receipt": "ລາຍງານໃບເບີກຈ່າຍ",
+  "report_pr": "ລາຍງານໃບສະເໜີຈັດຊື້"
 }

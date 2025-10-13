@@ -2,13 +2,21 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 import type { ReportPurchaseRequestRepository } from "@/modules/domain/repository/reports/report-purchase-request";
-import type { IReportMoney, IReportPurchaseRequestDto } from "@/modules/application/dtos/report/report-pr.dto";
+import type { IReportMoney, IReportPurchaseRequestDto, IReportReceiptMoney } from "@/modules/application/dtos/report/report-pr.dto";
 
 export class ApiReportPurchaseRequestRepository implements ReportPurchaseRequestRepository {
   private readonly baseUrl = "/reports/purchase-requests";
   async reportMoney(): Promise<IReportMoney> {
     try {
       const response = await api.get(this.baseUrl + '/money')
+      return response.data.data
+    } catch (error) {
+      this.handleApiError(error, "Failed");
+    }
+  }
+  async reportReceiptMoney(): Promise<IReportReceiptMoney> {
+    try {
+      const response = await api.get('/reports/receipts/money')
       return response.data.data
     } catch (error) {
       this.handleApiError(error, "Failed");

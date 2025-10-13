@@ -20,3 +20,11 @@ export interface IReportMoney {
   status: string;
   total: number;
 }
+export interface IReportReceiptMoney {
+  status: string;
+  total: number;
+  currency_code: string;
+  currency_name: string;
+  payment_total: number;
+  total_vat: number;
+}
