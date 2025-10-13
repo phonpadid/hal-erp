@@ -127,14 +127,12 @@ export const menuItems = computed<ItemType[]>(() => {
   const reportMenu = [
     {
       key: "report_pr",
-      label: t("menu-sidebar.report"),
-      icon: () =>
-        h("div", {}, [
-          h(Icon, {
-            icon: "material-symbols:monitoring-sharp",
-            class: "text-base",
-          }),
-        ]),
+      label: t("menu-sidebar.report_pr"),
+      permission: "read-budget-approval-rule",
+    },
+    {
+      key: "report_receipt",
+      label: t("menu-sidebar.report_receipt"),
       permission: "read-budget-approval-rule",
     },
   ].filter((item) => hasPermission(item.permission));
@@ -443,9 +441,38 @@ export const menuItems = computed<ItemType[]>(() => {
         // },
         ...userApprovalMenuItems,
         ...budgetApprovalRuleMenuItems,
-        ...reportMenu
+        // ...reportMenu,
+        ...(reportMenu.length > 0
+          ? [
+              {
+                label: "",
+
+                children: [
+                  { type: "divider" },
+
+                  {
+                    key: "2",
+
+                    label: t("menu-sidebar.report"),
+
+                    icon: () =>
+                      h(Icon, {
+                        icon: "material-symbols:monitoring-sharp",
+
+                        class: "text-base",
+                      }),
+
+                    children: reportMenu,
+                  },
+                ],
+
+                type: "group",
+              },
+            ]
+          : []),
       ],
       type: "group",
+      
     },
   ];
 

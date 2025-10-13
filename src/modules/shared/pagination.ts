@@ -19,6 +19,8 @@ export interface PaginationParams {
   status_id?: string | number;
   requested_date_start?: string;
   requested_date_end?: string;
+  start_date?: string;
+  end_date?: string;
 }
 
 export interface APIResponse<T> {

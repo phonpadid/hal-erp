@@ -12,11 +12,11 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "pr_number",
       key: "pr_number",
     },
-    {
-      title: t("purchase-rq.field.qty"),
-      dataIndex: "itemCount",
-      key: "qty",
-    },
+    // {
+    //   title: t("purchase-rq.field.qty"),
+    //   dataIndex: "itemCount",
+    //   key: "qty",
+    // },
     {
       title: t("purchase-rq.field.price"),
       dataIndex: "total",
@@ -29,8 +29,8 @@ export function columns(t: (key: string) => string): Column[] {
     },
     // {
     //   title: t("purchase-rq.description"),
-    //   dataIndex: "purposes",
-    //   key: "purposes",
+    //   dataIndex: "remark",
+    //   key: "remark",
     // },
     {
       title: t("disbursement.field.created_by"),
@@ -39,7 +39,7 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("purchase-rq.field.date_rq"),
-      dataIndex: "requested_date",
+      dataIndex: "receipt_date",
       key: "date_rq",
     },
     {

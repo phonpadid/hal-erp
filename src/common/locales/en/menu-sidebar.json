@@ -52,5 +52,7 @@
   "manage": "Manage",
   "receipt_manage": "Receipt Manage",
   "receipt": "Receipt",
-  "receipt_approved": "Approved Receipt"
+  "receipt_approved": "Approved Receipt",
+  "report_receipt": "Report receipt",
+  "report_pr": "Report purchase request"
 }

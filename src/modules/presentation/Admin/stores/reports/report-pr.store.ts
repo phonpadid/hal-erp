@@ -27,6 +27,14 @@ export const useReportPrStore = defineStore("report-pr-store", () => {
     status: '',
     total: 0
   }])
+  const report_receipt_money = ref([{
+    status: '',
+    total: 0,
+    currency_code: '',
+    currency_name: '',
+    payment_total: 0,
+    total_vat: 0,
+  }])
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
   const pagination = ref({
@@ -80,6 +88,23 @@ export const useReportPrStore = defineStore("report-pr-store", () => {
       loading.value = false;
     }
   };
+  const reportReceiptMoney = async () => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      // ✅ Fix typo: 'serice' → 'service'
+      const result = await serice.reportReceiptMoney();
+
+      // ✅ If API returns an array of report money
+      report_receipt_money.value = Array.isArray(result) ? result : [result];
+    } catch (err) {
+      error.value = err as Error;
+      console.error("Failed to fetch report money:", err);
+    } finally {
+      loading.value = false;
+    }
+  };
 
 
 
@@ -102,14 +127,16 @@ export const useReportPrStore = defineStore("report-pr-store", () => {
     status,
     counts,
     reportMoney,
-    report_money
+    report_money,
+    reportReceiptMoney,
+    report_receipt_money
   };
 });
 
 export const formState = reactive({
   budget_account_id: null as number | null,
   description: "",
-  file_name: "" ,
+  file_name: "",
   detail: [
     {
       budget_item_id: null as string | null,
