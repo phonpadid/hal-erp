@@ -1,6 +1,6 @@
 export interface PurchaseRequestItemDTO {
   id?: number | string | null;
-   file_name_url?: string | null; 
+  file_name_url?: string | null; 
   title: string;
   file_name: string;
   quantity: number;
