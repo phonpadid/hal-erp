@@ -209,7 +209,7 @@ onMounted(async () => {
         <div class="flex items-center justify-center gap-2">
           <UiButton
             type=""
-            icon="ant-design:info-circle-outlined"
+            icon="ant-design:eye-outlined"
             size="small"
             shape="circle" 
             @click="info(record.id)"

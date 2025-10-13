@@ -23,10 +23,10 @@ export function column(t: (key: string) => string): Column[] {
       dataIndex: "updated_at",
       key: "updated_at",
     },
-    // {
-    //   title: t("role.list.actions"),
-    //   dataIndex: "actions",
-    //   key: "actions",
-    // },
+    {
+      title: t("role.list.actions"),
+      dataIndex: "actions",
+      key: "actions",
+    },
   ];
 }

@@ -248,7 +248,7 @@ const handleTableChange = async (pagination: TablePaginationType) => {
 
 const handleModalCancel = async () => {
   modalVisible.value = false;
-  formModel.user_id = [] as string[];
+  formModel.user_id = [] as string[] ;
   formModel.department_id = null as string | null;
   userStore.departmentUserByDpm = [];
   selectedDpm.value = null;

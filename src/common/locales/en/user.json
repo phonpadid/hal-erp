@@ -9,7 +9,9 @@
     "status": "Status",
     "createdAt": "Created At",
     "updatedAt": "Updated At",
-    "actions": "Actions"
+    "actions": "Actions",
+    "btn":"Add Role"
+    
   },
   "status": {
     "active": "Active",

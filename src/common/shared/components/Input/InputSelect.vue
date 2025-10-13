@@ -4,9 +4,8 @@ import type { PropType } from "vue";
 
 // --- Props Definition ---
 const props = defineProps({
-  // เปลี่ยนให้รับค่า null ได้ และค่าเริ่มต้นคือ null
   modelValue: {
-    type: [String, Number, null ] as PropType<string | number | null | string[]>,
+    type: [String, Number, Array, null] as PropType<string | number | number[] | string[] | null>,
     default: null,
   },
   options: {
