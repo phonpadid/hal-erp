@@ -40,6 +40,7 @@ import { exchangeRateRoutes } from "@/modules/presentation/Admin/router/exchange
 
 import { authGuard } from "@/modules/presentation/Admin/router/guards/auth.guard";
 import { permissionGuard } from "../guards/permission.guard";
+import { reportRoutes } from "@/modules/presentation/Admin/router/reports/report-pr";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -85,6 +86,7 @@ const routes: RouteRecordRaw[] = [
       ...banksRoutes,
       ...vatRoutes,
       ...exchangeRateRoutes,
+      ...reportRoutes
     ],
   },
   ...authRoutes,
