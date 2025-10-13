@@ -2,6 +2,9 @@ export class Role {
   private id: string;
   private name: string;
   private display_name: string;
+  private department_id: number;
+  private department_name: string;
+  private permissions: number[];
   private created_at: Date;
   private updated_at: Date;
   private deletedAt: Date | null;
@@ -10,6 +13,9 @@ export class Role {
     id: string,
     name: string,
     display_name: string,
+    department_id: number,
+    department_name: string,
+    permissions: number[],
     created_at: Date | string,
     updated_at: Date | string,
     deletedAt: Date | string | null = null
@@ -17,6 +23,9 @@ export class Role {
     this.id = id;
     this.name = name;
     this.display_name = display_name;
+    this.department_id = department_id;
+    this.department_name = department_name;
+    this.permissions = permissions;
     this.created_at = this.parseDate(created_at);
     this.updated_at = this.parseDate(updated_at);
     this.deletedAt = deletedAt ? this.parseDate(deletedAt) : null;
@@ -84,6 +93,15 @@ export class Role {
   public getDisplayname(): string {
     return this.display_name;
   }
+  public getDepartmentId(): number {
+    return this.department_id;
+  }
+  public getDepartmentName(): string {
+    return this.department_name;
+  }
+  public getPermissions(): number[] {
+    return this.permissions;
+  }
 
   public getCreatedAt(): Date {
     return this.created_at;
@@ -121,16 +139,18 @@ export class Role {
     this.updated_at = new Date();
   }
 
-  public static create(id: string, name: string, display_name: string): Role {
+  public static create(id: string, name: string, display_name: string, department_id: number, department_name: string, permissions: number[]): Role {
     const now = new Date();
-    return new Role(id, name, display_name, now, now);
+    return new Role(id, name, display_name, department_id, department_name, permissions, now, now);
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static fromApiResponse(data: any): Role {
     return new Role(
       String(data.id),
       data.name,
-      data.display_name || data.name, 
+      data.display_name || data.name,
+      data.department_id,
+      data.permissions,
       data.created_at,
       data.updated_at,
       data.deleted_at || null

@@ -9,6 +9,7 @@
     "unit": "Unit",
     "price": "Price",
     "total": "Total",
-    "total_budget": "Excess funds requested"
+    "total_budget": "Excess funds requested",
+    "shop": "Shop"
   }
 }

@@ -6,58 +6,36 @@
     :width="800"
     @update:open="handleOpenChange"
   >
-    <div v-if="isLoading" class="flex justify-center items-center p-8">
-      loading...
-    </div>
-
-    <div v-else-if="orderDetails" class="p-6">
-
+    <div v-if="shopDetails" class="p-6">
       <!-- ข้อมูลบัญชีธนาคาร -->
       <div class="mb-6">
         <h4 class="text-base font-semibold mb-4">ຂໍ້ມູນບັນຊີຮ້ານ</h4>
-        <div
-          v-if="
-            orderDetails &&
-            orderDetails.getPurchaseOrderItem() &&
-            orderDetails.getPurchaseOrderItem().length > 0
-          "
-        >
-          <div class="grid grid-cols-2 mb-2">
-            <span class="font-medium">ທະນາຄານ:</span>
-            <span class="text-gray-600 flex items-center gap-2">
-              <img
-                :src="orderDetails.getPurchaseOrderItem()[0].getBankLogo() || '/public/bclone.png'"
-                class="w-8 h-8"
-                alt="ໂລໂກ້ທະນາຄານ"
-              />
-              <span>{{ orderDetails.getPurchaseOrderItem()[0].getBankName() }}</span>
-            </span>
-          </div>
-          <div class="grid grid-cols-2 mb-2">
-            <span class="font-medium">ຊື່ບັນຊີ:</span>
-            <span class="text-gray-600">
-              {{ orderDetails.getPurchaseOrderItem()[0].getAccountName() }}
-            </span>
-          </div>
-          <div class="grid grid-cols-2 mb-2">
-            <span class="font-medium">
-              ເລກບັນຊີ {{ orderDetails.getPurchaseOrderItem()[0].getCurrencyCode() }}:
-            </span>
-            <span class="text-gray-600">
-              {{ orderDetails.getPurchaseOrderItem()[0].getAccountNumber() }}
-            </span>
-          </div>
-          <div class="grid grid-cols-2 mb-2">
-            <span class="font-medium">ຜູ້ຂາຍ:</span>
-            <span class="text-gray-600">{{ orderDetails.getPurchaseOrderItem()[0].getVendorName() }}</span>
-          </div>
-          <div class="grid grid-cols-2">
-            <span class="font-medium">ຂໍ້ມູນຕິດຕໍ່:</span>
-            <span class="text-gray-600">{{ orderDetails.getPurchaseOrderItem()[0].getVendorContactInfo() }}</span>
-          </div>
+        <div class="grid grid-cols-2 mb-2">
+          <span class="font-medium">ທະນາຄານ:</span>
+          <span class="text-gray-600 flex items-center gap-2">
+            <img
+              :src="shopDetails.getBankLogo() || '/public/bclone.png'"
+              class="w-8 h-8"
+              alt="ໂລໂກ້ທະນາຄານ"
+            />
+            <span>{{ shopDetails.getBankName() }}</span>
+          </span>
         </div>
-        <div v-else>
-          <span>ບໍ່ມີຂໍ້ມູນບັນຊີ</span>
+        <div class="grid grid-cols-2 mb-2">
+          <span class="font-medium">ຊື່ບັນຊີ:</span>
+          <span class="text-gray-600">{{ shopDetails.getAccountName() }}</span>
+        </div>
+        <div class="grid grid-cols-2 mb-2">
+          <span class="font-medium">ເລກບັນຊີ {{ shopDetails.getCurrencyCode() }}:</span>
+          <span class="text-gray-600">{{ shopDetails.getAccountNumber() }}</span>
+        </div>
+        <div class="grid grid-cols-2 mb-2">
+          <span class="font-medium">ຜູ້ຂາຍ:</span>
+          <span class="text-gray-600">{{ shopDetails.getVendorName() }}</span>
+        </div>
+        <div class="grid grid-cols-2">
+          <span class="font-medium">ຂໍ້ມູນຕິດຕໍ່:</span>
+          <span class="text-gray-600">{{ shopDetails.getVendorContactInfo() }}</span>
         </div>
       </div>
     </div>
@@ -70,22 +48,17 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import UiDrawer from '@/common/shared/components/Darwer/UiDrawer.vue';
-
-import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-order";
-
-const purchaseOrderStore = usePurchaseOrderStore();
 
 // Props
 interface Props {
   open: boolean;
-  shopId?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  shopDetails: any; 
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  open: false,
-  shopId: undefined
+  open: false
 });
 
 const emit = defineEmits<{
@@ -94,57 +67,15 @@ const emit = defineEmits<{
 
 // State
 const isOpen = ref(props.open);
-const isLoading = ref(false);
-const orderDetails = ref<PurchaseOrderEntity | null>(null);
 
 // Methods
 const handleOpenChange = (value: boolean) => {
   isOpen.value = value;
   emit('update:open', value);
-  if (!value) {
-    orderDetails.value = null;
-    isLoading.value = false;
-  }
-};
-
-const fetchOrderDetails = async (id: number) => {
-  try {
-   
-    if (!isOpen.value) return;
-
-    isLoading.value = true;
-    const result = await purchaseOrderStore.fetchById(id);
-    if (isOpen.value && result) {
-      orderDetails.value = result;
-    }
-  } catch (error) {
-    console.error('Error fetching shop details:', error);
-  } finally {
-    isLoading.value = false;
-  }
 };
 
 // Watchers
-watch(
-  [() => props.shopId, () => props.open],
-  async ([newShopId, newOpenState]) => {
-    console.log('Watch triggered:', { newShopId, newOpenState }); // debug log
-    
-    // อัพเดท isOpen state
-    isOpen.value = newOpenState;
-    
-    // ถ้า drawer ปิด ให้ reset ค่า
-    if (!newOpenState) {
-      orderDetails.value = null;
-      isLoading.value = false;
-      return;
-    }
-    
-    // ถ้า drawer เปิดและมี shopId ให้โหลดข้อมูล
-    if (newOpenState && newShopId !== undefined) {
-      await fetchOrderDetails(newShopId);
-    }
-  },
-  { immediate: true }
-);
+watch(() => props.open, (newValue) => {
+  isOpen.value = newValue;
+});
 </script>

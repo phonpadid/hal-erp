@@ -145,7 +145,7 @@
         <!-- Signatures -->
         <div class="flex flex-wrap gap-4">
           <!-- Approval Steps -->
-          <template v-for="(step, index) in approvalSteps" :key="step.id">
+          <template v-for="(step, index) in approvalStep" :key="step.id">
             <div>
               <!-- Step Title -->
               <p class="text-slate-500 text-sm mb-2">
@@ -388,7 +388,7 @@
   >
     <DrawerPr :id="selectedPrId" />
   </UiDrawer>
-  <ShowShop v-model:open="isShopDrawerVisible" :shop-id="selectedShopId" />
+  <ShowShop v-model:open="isShopDrawerVisible" :shop-details="selectedShopDetails" />
 </template>
 
 <script setup lang="ts">
@@ -444,10 +444,14 @@ const showDrawer = () => {
 const isShopDrawerVisible = ref(false);
 const selectedShopId = ref<number | undefined>(undefined);
 
+const selectedShopDetails = computed(() => {
+  if (!selectedShopId.value || !orderDetails.value) return null;
+  return orderDetails.value
+    .getPurchaseOrderItem()
+    .find((item) => item.getId() === selectedShopId.value);
+});
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const showShopDetails = (record: any) => {
-  // เพิ่ม console.log เพื่อดูค่า
-  console.log("Record:", record);
   selectedShopId.value = record.getId();
   isShopDrawerVisible.value = true;
 };
@@ -507,35 +511,34 @@ const rejectedStatusId = computed(() => {
 });
 // Status check to header
 const documentStatus = computed(() => {
- 
   const rejectedStep = orderDetails.value
     ?.getUserApproval()
-    ?.approval_step?.find(step => step.status_id === 3); 
+    ?.approval_step?.find((step) => step.status_id === 3);
 
   if (rejectedStep) {
     return {
       status: `ຖືກປະຕິເສດ`,
       // ໂດຍ ${rejectedStep.approver?.username || ''} ${rejectedStep.position?.name || ''
-      statusClass: "text-red-500 font-medium ml-2 bg-red-50 px-3 py-1 rounded-full"
+      statusClass: "text-red-500 font-medium ml-2 bg-red-50 px-3 py-1 rounded-full",
     };
   }
   const pendingStep = orderDetails.value
     ?.getUserApproval()
-    ?.approval_step?.find(step => step.status_id === 1);
+    ?.approval_step?.find((step) => step.status_id === 1);
 
   if (!pendingStep) {
     return {
       status: "ອະນຸມັດສຳເລັດ",
-      statusClass: "text-green-500 font-medium ml-2 bg-green-50 px-3 py-1 rounded-full"
+      statusClass: "text-green-500 font-medium ml-2 bg-green-50 px-3 py-1 rounded-full",
     };
   }
   // const nextApprover = pendingStep.doc_approver?.[0]?.user?.username;
   const nextDepartment = pendingStep.doc_approver?.[0]?.department?.name;
 
   return {
-    status: `ລໍຖ້າ ${nextDepartment || ''} ກວດສອບ`,
-    // ${nextApprover || ''} 
-    statusClass: "text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"
+    status: `ລໍຖ້າ ${nextDepartment || ""} ກວດສອບ`,
+    // ${nextApprover || ''}
+    statusClass: "text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full",
   };
 });
 
@@ -568,6 +571,11 @@ const handleResendOtp = async () => {
 
 /*********************check show button to data ********************* */
 const approvalSteps = computed(() => orderDetails.value?.getUserApproval()?.approval_step ?? []);
+const approvalStep = computed(() => {
+  const steps = orderDetails.value?.getUserApproval()?.approval_step ?? [];
+  return [...steps].sort((a, b) => (a.step_number ?? 0) - (b.step_number ?? 0));
+});
+
 const currentApprovalStep = computed(() => {
   return approvalSteps.value.find(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -597,7 +605,59 @@ const canApprove = computed(() => {
     previousStep.step_number === currentStep.step_number - 1
   );
 });
+// Custom buttons for header
+const customButtons = computed(() => {
+  if (isApproved.value) {
+    // ถ้าอนุมัติแล้ว แสดงเฉพาะปุ่ม print
+    return [
+      {
+        label: "print",
+        icon: "ant-design:printer-outlined",
+        class: "bg-white flex items-center gap-2 hover:bg-gray-100",
+        type: "default" as ButtonType,
+        onClick: () => {
+          handlePrint();
+        },
+      },
+    ];
+  }
+  if (!canApprove.value) {
+    return [];
+  }
 
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep) return [];
+  return [
+    {
+      label: "print",
+      icon: "ant-design:printer-outlined",
+      class: "bg-white flex items-center gap-2 hover:bg-gray-100",
+      type: "default" as ButtonType,
+      onClick: () => {
+        isRejectModalVisible.value = true;
+      },
+    },
+    {
+      label: t("purchase-rq.card_title.refused"),
+      type: "default" as ButtonType,
+      onClick: () => {
+        modalAction.value = "reject";
+        isRejectModalVisible.value = true;
+      },
+    },
+    {
+      label: t("purchase-rq.btn.approval"),
+      type: "primary" as ButtonType,
+      onClick: async () => {
+        modalAction.value = "approve";
+        const success = await handleApprove();
+        if (!success) {
+          modalAction.value = "";
+        }
+      },
+    },
+  ];
+});
 /*******************************************/
 
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
@@ -676,60 +736,6 @@ onMounted(async () => {
 const handlePrint = () => {
   window.print();
 };
-
-// Custom buttons for header
-const customButtons = computed(() => {
-  if (isApproved.value) {
-    // ถ้าอนุมัติแล้ว แสดงเฉพาะปุ่ม print
-    return [
-      {
-        label: "print",
-        icon: "ant-design:printer-outlined",
-        class: "bg-white flex items-center gap-2 hover:bg-gray-100",
-        type: "default" as ButtonType,
-        onClick: () => {
-          handlePrint();
-        },
-      },
-    ];
-  }
-  if (!canApprove.value) {
-    return [];
-  }
-
-  const currentStep = currentApprovalStep.value;
-  if (!currentStep) return [];
-  return [
-    {
-      label: "print",
-      icon: "ant-design:printer-outlined",
-      class: "bg-white flex items-center gap-2 hover:bg-gray-100",
-      type: "default" as ButtonType,
-      onClick: () => {
-        isRejectModalVisible.value = true;
-      },
-    },
-    {
-      label: t("purchase-rq.card_title.refused"),
-      type: "default" as ButtonType,
-      onClick: () => {
-        modalAction.value = "reject";
-        isRejectModalVisible.value = true;
-      },
-    },
-    {
-      label: t("purchase-rq.btn.approval"),
-      type: "primary" as ButtonType,
-      onClick: async () => {
-        modalAction.value = "approve";
-        const success = await handleApprove();
-        if (!success) {
-          modalAction.value = "";
-        }
-      },
-    },
-  ];
-});
 
 const userInfo = {
   name: "ນາງ ປາກາລີ ລາຊະບູລີ",
@@ -939,7 +945,6 @@ const handlePaste = (event: ClipboardEvent) => {
         otpValue.value[index] = digit;
       }
     });
-    // โฟกัสที่ช่องถัดจากตัวเลขสุดท้ายที่วาง
     const nextIndex = Math.min(digits.length, 5);
     nextTick(() => {
       const nextInput = otpInputRefs.value[nextIndex];

@@ -364,6 +364,9 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       role.id.toString(),
       role.name,
       role.display_name,
+      role.department_id,
+      role.department_name || "",
+      role.permissions,
       role.created_at ?? "",
       role.updated_at ?? ""
     );

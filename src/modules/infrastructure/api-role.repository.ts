@@ -1,6 +1,6 @@
 import type { ApiListResponse } from "../shared/repondata";
 import type { ApiResponse } from "../shared/messageApi";
-import type { Roleinterface } from "../interfaces/role.interface";
+import type { Roleinterface,CreateRole,UpdateRole } from "../interfaces/role.interface";
 import { Role } from "../domain/entities/role.entities";
 import type { RoleRepository } from "../domain/repository/role.repository";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
@@ -61,11 +61,6 @@ export class ApiRoleRepository implements RoleRepository {
 
   async findByName(name: string): Promise<Role | null> {
     try {
-      // console.log("API Request - findByName:", {
-      //   url: "/role",
-      //   params: { name },
-      // });
-
       const response = (await api.get("/roles", {
         params: { name, limit: 1 },
       })) as { data: ApiListResponse<Roleinterface> };
@@ -83,7 +78,7 @@ export class ApiRoleRepository implements RoleRepository {
     }
   }
 
-  async create(data: { name: string; display_name: string }): Promise<Role> {
+  async create(data: CreateRole): Promise<Role> {
     try {
       const response = (await api.post("/roles", data)) as {
         data: ApiResponse<Roleinterface>;
@@ -98,18 +93,13 @@ export class ApiRoleRepository implements RoleRepository {
     }
   }
 
-  async update(id: string, role: Role): Promise<Role> {
+  async update(id: string, data: UpdateRole): Promise<Role> {
     try {
       const payload = {
-        name: role.getName(),
-        display_name: role.getDisplayname(),
+        department_id: data.department_id,
+        name: data.name,
+        permissions: data.permissions,
       };
-
-      // console.log("API Request - update:", {
-      //   url: `/role/${id}`,
-      //   data: payload,
-      // });
-
       const response = (await api.put(`/roles/${id}`, payload)) as {
         data: ApiResponse<Roleinterface>;
       };
@@ -138,6 +128,9 @@ export class ApiRoleRepository implements RoleRepository {
       data.id.toString(),
       data.name,
       data.display_name,
+      data.department_id,
+      data.department_name || "",
+      data.permissions,
       data.created_at,
       data.updated_at
     );

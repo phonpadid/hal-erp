@@ -27,6 +27,7 @@ import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import BudgetApprovalDrawer from "./BudgetApprovalDrawer.vue";
 import OtpModal from "../purchase-requests/modal/OtpModal.vue";
 import SelectDocumentTypeModal from "../receipt/modal/SelectDocumentTypeModal.vue";
+import ShowShop from "../approval-department/ShowShop.vue";
 /********************************************************* */
 const { t } = useI18n();
 const { success, error } = useNotification();
@@ -121,6 +122,22 @@ const documentStatus = computed(() => {
     statusClass: "text-gray-500 font-medium ml-2 bg-gray-50 px-3 py-1 rounded-full",
   };
 });
+// Show Shop Drawer
+const isShopDrawerVisible = ref(false);
+const selectedShopId = ref<number | undefined>(undefined);
+
+const selectedShopDetails = computed(() => {
+  if (!selectedShopId.value || !orderDetails.value) return null;
+  return orderDetails.value
+    .getPurchaseOrderItem()
+    .find((item) => item.getId() === selectedShopId.value);
+});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const showShopDetails = (record: any) => {
+  selectedShopId.value = record.getId();
+  isShopDrawerVisible.value = true;
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getStepTitle = (index: number, step: any) => {
   if (index === 0) {
@@ -719,12 +736,12 @@ const userInfo = {
           </div>
           <div class="grid grid-rows-2">
             <h4 class="text-base font-semibold">ຈຸດປະສົງ ແລະ ລາຍການ</h4>
-        <p class="text-gray-600">{{ orderDetails?.getDocument()?.description ?? "ບໍ່ມີ"}}</p>
+            <p class="text-gray-600">{{ orderDetails?.getDocument()?.description ?? "ບໍ່ມີ" }}</p>
           </div>
         </div>
       </div>
       <!-- Items Table -->
-      <div class="mb-6">
+      <div>
         <h4 class="text-base font-semibold mb-2">ລາຍການ</h4>
         <Table :columns="columns" :dataSource="getItemsForTable">
           <template #number="{ index }">
@@ -738,6 +755,16 @@ const userInfo = {
               }}</span
             >
           </template>
+           <template #shop="{ record }">
+              <UiButton
+                type="link"
+                icon="ant-design:eye-outlined"
+                color-class="flex items-center text-red-500 hover:!text-red-900"
+                @click="() => showShopDetails(record)"
+              >
+                ລາຍລະອຽດຮ້ານຄ້າ
+              </UiButton>
+            </template>
 
           <template #id_name="{ record }">
             <span class="text-gray-600">
@@ -777,58 +804,34 @@ const userInfo = {
           </template>
         </Table>
         <div>
-            <div v-if="orderDetails">
-              <span class="text-gray-500 mt-2 flex justify-end">
-                <div class="font-medium">ລາຄາລວມ:</div>
-                <div class="text-gray-600">{{ formatPrice(getTotalAmount) }} ₭</div>
-              </span>
-              <span class="text-gray-500 mt-2 flex justify-end">
-                <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
-                <div class="text-gray-600">
-                  {{ hasVat ? `${formatPrice(getTotalVat)} ₭` : "ບໍ່ມີ" }}
-                </div>
-              </span>
-              <span class="text-gray-500 mt-2 flex justify-end">
-                <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
-                <div class="text-gray-600 font-bold">{{ formatPrice(getTotalWithVat) }} ₭</div>
-              </span>
-            </div>
+          <div v-if="orderDetails">
+            <span class="text-gray-500 mt-2 flex justify-end">
+              <div class="font-medium">ລາຄາລວມ:</div>
+              <div class="text-gray-600">{{ formatPrice(getTotalAmount) }} ₭</div>
+            </span>
+            <span class="text-gray-500 mt-2 flex justify-end">
+              <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
+              <div class="text-gray-600">
+                {{ hasVat ? `${formatPrice(getTotalVat)} ₭` : "ບໍ່ມີ" }}
+              </div>
+            </span>
+            <span class="text-gray-500 flex justify-end">
+              <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
+              <div class="text-gray-600 font-bold">{{ formatPrice(getTotalWithVat) }} ₭</div>
+            </span>
           </div>
+        </div>
       </div>
-
       <!-- Attachments -->
-      <div class="mb-6">
-        <h4 class="text-base font-semibold mb-2">ໃບສະເໜີລາຄາ</h4>
+      <div class="mb-2">
+        <h4 class="text-base font-semibold">ໃບສະເໜີລາຄາ</h4>
         <div class="border rounded-lg p-4">
-          <img
+          <a-image
             :src="orderDetails?.getQuotationImageUrl() || 'ບໍ່ມີຂໍ້ມູນຮູບ'"
             alt="MacBook Air"
-            class="max-w-md rounded-lg"
+            :width="150"
+            :height="150"
           />
-        </div>
-      </div>
-      <!-- ຂໍ້ມູນບັນຊີທະນາຄານ -->
-      <div class="mb-6">
-        <h4 class="text-base font-semibold mb-4">ຂໍ້ມູນບັນຊີຮ້ານ</h4>
-        <div class="grid grid-cols-2 mb-2">
-          <span class="font-medium">ທະນາຄານ:</span>
-          <span class="text-gray-600 flex items-center gap-2">
-            <img
-              :src="orderDetails.getBankLogo() || '/public/bclone.png'"
-              class="w-8 h-8"
-              alt="ໂລໂກ້ທະນາຄານ"
-            />
-
-            <span> {{ orderDetails?.getBankName() }}</span>
-          </span>
-        </div>
-        <div class="grid grid-cols-2 mb-2">
-          <span class="font-medium">ຊືບັນຊີ:</span>
-          <span class="text-gray-600">{{ orderDetails.getAccountName() }}</span>
-        </div>
-        <div class="grid grid-cols-2">
-          <span class="font-medium">ເລກບັນຊີ {{ orderDetails.getCurrencyCode() }}:</span>
-          <span class="text-gray-600">{{ orderDetails.getAccountNumber() }}</span>
         </div>
       </div>
       <!-- Signatures -->
@@ -908,6 +911,7 @@ const userInfo = {
     <DrawerPr :id="selectedPrId" />
   </UiDrawer>
   <SelectDocumentTypeModal v-model:visible="open" :isEdit="true" :itemid="String(selectedData)" />
+  <ShowShop v-model:open="isShopDrawerVisible" :shop-details="selectedShopDetails" />
 </template>
 
 <style scoped></style>
