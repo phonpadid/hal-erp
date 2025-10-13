@@ -37,7 +37,6 @@
 import type { Column } from "@/modules/shared/column/column";
 
 export function columnsApprovalDetails(t: (key: string) => string, userRoles: string[]): Column[] {
-  // กำหนดคอลัมน์หลักทั้งหมดไว้ก่อน
   const baseColumns: Column[] = [
     {
       title: t("budget_approval.table.number"),
@@ -49,7 +48,6 @@ export function columnsApprovalDetails(t: (key: string) => string, userRoles: st
       dataIndex: "remark",
       key: "remark",
     },
-    // เราจะเพิ่ม id_name เข้าไปตรงนี้ถ้ามีสิทธิ์
     {
       title: t("budget_approval.table.quantity"),
       dataIndex: "quantity",
@@ -64,6 +62,11 @@ export function columnsApprovalDetails(t: (key: string) => string, userRoles: st
       title: t("budget_approval.table.total"),
       dataIndex: "total",
       key: "total",
+    },
+    {
+      title: t("budget_approval.table.shop"),
+      dataIndex: "shop",
+      key: "shop",
     },
   ];
 

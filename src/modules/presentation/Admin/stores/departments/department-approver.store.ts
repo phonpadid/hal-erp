@@ -10,7 +10,7 @@ import type {
   UpdateDepartmentApproverDTO,
 } from "@/modules/application/dtos/departments/department-approver.dto";
 export const dpmApproverFormModel = reactive({
-  user_id: [] as string[],
+  user_id: [] as string[] ,
   department_id: null as string | null,
 });
 // สร้าง unit service

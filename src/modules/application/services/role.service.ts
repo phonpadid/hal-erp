@@ -7,6 +7,7 @@ import { GetRoleByIdUseCase } from "../useCases/role/get-role-by-id.usecase";
 import { CreateRoleUseCase } from "../useCases/role/create-role.usecase";
 import { UpdateRoleUseCase } from "../useCases/role/update-role.usecase";
 import { DeleteRoleUseCase } from "../useCases/role/delete-role.usecase";
+import type { CreateRole, UpdateRole } from "@/modules/interfaces/role.interface";
 
 export class RoleServiceImpl implements RoleService {
   private readonly getAllRolesUseCase: GetAllRolesUseCase;
@@ -34,11 +35,11 @@ export class RoleServiceImpl implements RoleService {
     return await this.getRoleByIdUseCase.execute(id);
   }
 
-  async createRole(data: { name: string; display_name: string }): Promise<Role> {
+  async createRole(data: CreateRole): Promise<Role> {
     return await this.createRoleUseCase.execute(data);
   }
 
-  async updateRole(id: string, data: { name?: string; display_name?: string }): Promise<Role> {
+  async updateRole(id: string, data: UpdateRole): Promise<Role> {
     return await this.updateRoleUseCase.execute(id, data);
   }
 

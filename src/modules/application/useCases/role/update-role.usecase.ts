@@ -1,10 +1,11 @@
 import type { Role } from "@/modules/domain/entities/role.entities";
 import type { RoleRepository } from "@/modules/domain/repository/role.repository";
+import type{ UpdateRole } from "@/modules/interfaces/role.interface";
 
 export class UpdateRoleUseCase {
   constructor(private readonly roleRepository: RoleRepository) {}
 
-  async execute(id: string, data: { name?: string; display_name?: string }): Promise<Role> {
+  async execute(id: string, data: UpdateRole): Promise<Role> {
     const role = await this.roleRepository.findById(id);
     if (!role) {
       throw new Error(`Role with id ${id} not found`);
@@ -16,9 +17,7 @@ export class UpdateRoleUseCase {
       }
       role.updateName(data.name);
     }
-    if (data.display_name && data.display_name !== role.getDisplayname()) {
-      role.updateDisplayName(data.display_name);
-    }
-    return await this.roleRepository.update(id, role);
+    
+    return await this.roleRepository.update(id, data);
   }
 }

@@ -8,7 +8,8 @@
     "createdAt": "ວັນທີສ້າງ",
     "updatedAt": "ວັນທີແກ້ໄຂ",
     "actions": "ຈັດການ",
-    "status": "ສະຖານະ"
+    "status": "ສະຖານະ",
+    "btn":"ເພີ່ມບົດບາດ"
   },
   "status": {
     "active": "ໃຊ້ງານຢູ່",
@@ -22,7 +23,10 @@
     "description": "ຄຳອະທິບາຍ",
     "descriptionPlaceholder": "ປ້ອນຄຳອະທິບາຍ (ຖ້າມີ)",
     "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
-    "confirmPasswordPlaceholder": "ຢືນຢັນລະຫັດຜ່ານໃໝ່"
+    "confirmPasswordPlaceholder": "ຢືນຢັນລະຫັດຜ່ານໃໝ່",
+    "create": "ເພີ່ມບົດບາດ",
+    "update": "ແກ້ໄຂຂໍ້ມູນບົດບາດ",
+    "department": "ພະແນກ"
   },
   "validation": {
     "nameRequired": "ກະລຸນາປ້ອນຊື່ບົດບາດກ່ອນ",

@@ -2,11 +2,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import type { RoleResponse } from "@/modules/interfaces/role.interface";
+import type { RoleResponse, Roleinterface } from "@/modules/interfaces/role.interface";
 import { column } from "./column";
 import { useRoleStore } from "../../stores/role.store";
 import { formatDate } from "@/modules/shared/formatdate";
+import { useRouter } from "vue-router";
 import Table from "@/common/shared/components/table/Table.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
 
 const { t } = useI18n();
 
@@ -14,7 +16,15 @@ const { t } = useI18n();
 const rolesStore = useRoleStore();
 const roles = ref<RoleResponse[]>([]);
 const loading = ref<boolean>(false);
-// ຟັງຊັນໂຫລດຂໍ້ມູນຈາກ API
+const router = useRouter();
+
+const addRole = (): void => {
+  router.push({ name: "roleCreate" });
+};
+const editRole = (role: Roleinterface): void => {
+  router.push({ name: "roleEdit",  params: { id: role.id.toString() } });
+};
+
 const loadRoles = async (): Promise<void> => {
   try {
     loading.value = true;
@@ -55,6 +65,14 @@ onMounted(async () => {
       <div>
         <h1 class="text-2xl font-semibold">{{ t("role.list.title") }}</h1>
       </div>
+      <UiButton
+          type="primary"
+          icon="material-symbols:add"
+          @click="addRole"
+          colorClass="flex items-center"
+        >
+          {{ t("role.list.btn") }}
+        </UiButton>
     </div>
     <!-- ຕາຕະລາງຂໍ້ມູນບົດບາດ -->
     <Table
@@ -64,6 +82,20 @@ onMounted(async () => {
       row-key="id"
       :loading="rolesStore.loading"
     >
+     <template #actions="{ record }">
+        <div class="flex items-center justify-center">
+          <UiButton
+            type=""
+            icon="ant-design:edit-outlined"
+            size="small"
+            shape="circle" 
+            @click="editRole(record)"
+            colorClass="flex items-center justify-center text-orange-400"
+            :disabled="!!record.deleted_at"
+          />
+          
+        </div>
+      </template>
       <template #empty>
         <div class="text-center py-4">
           <p>{{ t("messages.noData") }}</p>

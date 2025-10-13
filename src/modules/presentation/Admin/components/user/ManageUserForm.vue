@@ -130,11 +130,6 @@ watch(
       formState.tel = newUser.tel || "";
       formState.roleIds = newUser.roleIds.map(Number);
       formState.permissionIds = newUser.permissionIds.map(Number);
-      // Update to handle signature_url from user_signature object
-      // if (newUser.user_signature?.signature_url) {
-      //   formState.signature = newUser.user_signature.signature_url;
-      // }
-      console.log(formState.signature,"jjj")
     }
   },
   { immediate: true }
@@ -187,15 +182,16 @@ watch(
     <UiForm ref="formRef" :model="formState" :rules="userRules" layout="vertical">
       <!-- Basic Information -->
       <UiFormItem :label="t('user.form.signatureUpload')" name="signature" required>
-    <UploadFile
-        v-model="signatureFile"
-        :width="'100%'"
-        :height="'200px'"
-        :upload-text="t('user.form.signatureUpload')"
-        @onFileSelect="handleFileChange"
-        accept="image/*"
-        :defaultUrl="formState.signature"  />
-</UiFormItem>
+        <UploadFile
+          v-model="signatureFile"
+          :width="'100%'"
+          :height="'200px'"
+          :upload-text="t('user.form.signatureUpload')"
+          @onFileSelect="handleFileChange"
+          accept="image/*"
+          :defaultUrl="formState.signature"
+        />
+      </UiFormItem>
       <div class="form-section">
         <h2 class="section-title">{{ t("user.form.basicInfo") }}</h2>
         <div class="form-grid">
