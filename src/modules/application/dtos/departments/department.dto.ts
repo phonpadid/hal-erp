@@ -1,6 +1,7 @@
 export interface CreateDepartmentDTO {
   name: string;
   code: string;
+  type: 'in_the_office' | 'outside_the_office';
   
 }
 
@@ -9,6 +10,7 @@ export interface UpdateDepartmentDTO {
   name: string;
   code: string;
   department_head_id:string | number | null
+  type: 'in_the_office' | 'outside_the_office';
 }
 
 export interface DepartmentDTO {

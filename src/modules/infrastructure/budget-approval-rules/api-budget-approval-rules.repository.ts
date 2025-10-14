@@ -139,6 +139,7 @@ export class ApiBudgetApprovalRuleRepository implements BudgetApprovalRuleReposi
       departmentData.name,
       departmentData.code ?? "",
       departmentData.department_head_id,
+      departmentData.type,
       departmentData.created_at ?? "",
       departmentData.updated_at ?? ""
     );

@@ -50,6 +50,7 @@ onMounted(() => {
         mode="inline"
         :items="menuItems"
         @click="handleClick"
+        class="pb-6"
       />
     </div>
   </nav>

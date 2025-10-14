@@ -135,6 +135,7 @@ export const departmentStore = defineStore("department", () => {
           dpm.getName(),
           dpm.getCode(),
           dpm.getCreatedAt(),
+          dpm.getType(),
           new Date().toISOString(),
           new Date().toISOString()
         );
