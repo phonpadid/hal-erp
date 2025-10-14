@@ -7,7 +7,7 @@ export class CreateDepartmentUseCase {
   constructor(private readonly departmentRepository: DepartmentRepository) {}
 
   async execute(input: CreateDepartmentDTO): Promise<DepartmentEntity> {
-    const department = DepartmentEntity.create(uuidv4(), input.name, input.code);
+    const department = DepartmentEntity.create(uuidv4(), input.name, input.code,input.type );
     return await this.departmentRepository.create(department);
   }
 }

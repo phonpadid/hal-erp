@@ -86,6 +86,7 @@ export class ApiDepartmentRepository implements DepartmentRepository {
       name: input.getName(),
       code: input.getCode(),
       department_head_id: input.getDepartmentUser(),
+      type: input.getType(),
       created_at: input.getCreatedAt(),
       updated_at: input.getUpdatedAt(),
     };
@@ -97,6 +98,7 @@ export class ApiDepartmentRepository implements DepartmentRepository {
       data.name,
       data.code || "",
       data.department_head_id,
+      data.type,
       data.created_at || "",
       data.updated_at || ""
     );

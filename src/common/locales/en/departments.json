@@ -21,7 +21,8 @@
         "search": "Search for department information",
         "code": "Enter code",
         "name": "Enter departments name",
-        "selectUser":"Please Select Department user"
+        "selectUser":"Please Select Department user",
+        "branch_name": "Enter branch name"
       },
       "error": {
         "code": "Please enter code",
@@ -35,7 +36,8 @@
         "created": "Created At",
         "updated": "Updated At",
         "manege": "Manage",
-        "user":"Please select a user department"
+        "user":"Please select a user department",
+        "branch_name":"District name"
       }
     },
     "dpm_user": {
@@ -47,7 +49,7 @@
         "edit": "Departments user update form"
       },
       "field": {
-        "department": "Departments",
+        "department": "Departments / Districts",
         "user": "Username",
         "tel": "Tel",
         "email": "Email",
@@ -60,7 +62,7 @@
         "search": "Search information",
         "user": "Select a user",
         "position": "Select a position",
-        "dpm": "Select a department"
+        "dpm": "Select a department / district"
       },
       "error": {
         "signature": "Please choose a signature file",

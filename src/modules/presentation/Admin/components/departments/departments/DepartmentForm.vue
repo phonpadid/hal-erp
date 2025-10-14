@@ -95,13 +95,10 @@ const validateName = async () => {
     return false;
   }
 
-  // ตรวจสอบว่าชื่อยาวเกินไปหรือไม่
   if (form.value.name.trim().length > 50) {
     nameError.value = "Unit name must be less than 50 characters";
     return false;
   }
-
-  // ตรวจสอบว่าชื่อซ้ำหรือไม่ (เฉพาะกรณีสร้างใหม่หรือชื่อเปลี่ยน)
   if (!isEdit.value || (props.department && form.value.name !== props.department.getName())) {
     const exists = await props.nameExists(form.value.name);
     if (exists) {
@@ -116,7 +113,7 @@ const validateName = async () => {
 
 const onSubmit = async () => {
   if (await validateName()) {
-    emit("submit", { name: form.value.name.trim(), code: form.value.code.trim() });
+    emit("submit", { name: form.value.name.trim(), code: form.value.code.trim(), type: 'in_the_office' } );
   }
 };
 </script>

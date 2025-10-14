@@ -3,7 +3,7 @@ import type { ReportPurchaseQuestService } from "../../ports/input/reports/repor
 import type { IReportMoney, IReportPurchaseRequestDto, IReportReceiptMoney } from "../../dtos/report/report-pr.dto";
 import type { ReportPurchaseRequestRepository } from "@/modules/domain/repository/reports/report-purchase-request";
 import { ReportPurchaseRequestUseCase } from "../../useCases/reports/report-purchase-request.use-case";
-import { ReportMoneyUseCase } from "../../useCases/reports/report-money.use-case copy";
+import { ReportMoneyUseCase } from "../../useCases/reports/report-money.use-case";
 import { ReportReceiptMoneyUseCase } from "../../useCases/reports/report-receipt-money.use-case";
 
 export class ReportPurchaseRequestImpl implements ReportPurchaseQuestService {
@@ -29,5 +29,4 @@ export class ReportPurchaseRequestImpl implements ReportPurchaseQuestService {
   async reportReceiptMoney(): Promise<IReportReceiptMoney> {
     return await this.reportReceiptMoneyUsecase.execute();
   }
-
 }

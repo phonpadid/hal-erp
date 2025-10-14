@@ -296,6 +296,8 @@ const handleApprove = async () => {
       if (otpData) {
         isOtpModalVisible.value = true;
       }
+      router.push("/budget-approval");
+
     } catch (err) {
       console.error("Error in handleApprove (OTP case):", err);
       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");

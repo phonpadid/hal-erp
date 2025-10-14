@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
@@ -67,11 +68,9 @@ const roleItem = computed(() =>
   }))
 );
 
-
 // Get permission groups from store
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const permissionGroups = computed(() => permissionStore.permission as any || []);
-
+const permissionGroups = computed(() => (permissionStore.permission as any) || []);
 
 // Add reactive reference for signature file to ensure proper binding
 const signatureFile = ref(dpmUserFormModel.signature_file || null);
@@ -93,6 +92,31 @@ watch(
   }
 );
 
+// Watch for role changes to update permissions
+watch(
+  () => dpmUserFormModel.roleIds,
+  (newRoleIds) => {
+    if (newRoleIds && newRoleIds.length > 0) {
+      const allPermissions: number[] = [];
+      
+      newRoleIds.forEach((roleId) => {
+        const role = roleStore.roles.find(r => Number(r.getId()) === roleId);
+        if (role) {
+          const permissions = role.getPermissions?.() || [];
+          permissions.forEach((permission:any) => {
+            if (permission.id && !allPermissions.includes(permission.id)) {
+              allPermissions.push(permission.id);
+            }
+          });
+        }
+      });
+      selectedPermissions.value = allPermissions;
+    } else {
+      selectedPermissions.value = [];
+    }
+  },
+  { immediate: true }
+);
 
 // Load existing data for edit mode
 const loadDepartmentUser = async () => {
@@ -101,8 +125,7 @@ const loadDepartmentUser = async () => {
       loading.value = true;
       await dpmUserStore.fetchDepartmentUserById(departmentUserId.value);
       const departmentUser = dpmUserStore.currentDpmUser;
-      console.log('usereee:', departmentUser);
-
+      console.log("usereee:", departmentUser);
 
       const userData = departmentUser?.getUser();
       const positionData = departmentUser?.getPostion();
@@ -128,8 +151,7 @@ const loadDepartmentUser = async () => {
 
         // Load existing permissions
         selectedPermissions.value = departmentUser.getUser()?.getPermissionIds() || [];
-        const existingRoleIds =
-        departmentUser.getRoleIds?.() || departmentUser.getRoleIds() || [];
+        const existingRoleIds = departmentUser.getRoleIds?.() || departmentUser.getRoleIds() || [];
         dpmUserFormModel.roleIds = existingRoleIds;
       } else {
         console.error("Department user not found");
@@ -166,10 +188,10 @@ const handleSubmit = async (): Promise<void> => {
         password: dpmUserFormModel.password,
         tel: dpmUserFormModel.tel,
         roleIds: [],
-        permissionIds: []
+        permissionIds: [],
       },
       position_id: dpmUserFormModel.position_id!,
-      signature_file: existingSignatureUrl.value ? '' : dpmUserFormModel.signature_file,
+      signature_file: existingSignatureUrl.value ? "" : dpmUserFormModel.signature_file,
       departmentId: dpmUserFormModel.departmentId!,
       permissionIds: dpmUserFormModel.permissionIds,
       roleIds: dpmUserFormModel.roleIds,
@@ -191,7 +213,7 @@ const handleSubmit = async (): Promise<void> => {
       success(t("departments.notify.created"));
     }
   } catch (error: unknown) {
-    warning(error as string)
+    warning(error as string);
   } finally {
     loading.value = false;
   }
@@ -212,13 +234,12 @@ const handlerCancel = () => {
   existingSignatureUrl.value = null;
 };
 
-
 onMounted(async () => {
-  await dpmStore.fetchDepartment({limit: 10000, page: 1});
-  await userStore.fetchUsers({limit: 10000, page: 1});
-  await positionStore.fetchPositions({limit: 10000, page: 1});
-  await permissionStore.fetchPermission({limit: 10000, page: 1});
-  await roleStore.fetchRoles({limit: 10000, page: 1});
+  await dpmStore.fetchDepartment({ limit: 10000, page: 1 });
+  await userStore.fetchUsers({ limit: 10000, page: 1 });
+  await positionStore.fetchPositions({ limit: 10000, page: 1 });
+  await permissionStore.fetchPermission({ limit: 10000, page: 1 });
+  await roleStore.fetchRoles({ limit: 10000, page: 1 });
   // Load existing data if in edit mode
   await loadDepartmentUser();
 
@@ -235,7 +256,7 @@ onUnmounted(() => {
   dpmUserStore.resetForm();
   existingSignatureUrl.value = null;
   formRef.value?.resetFields?.();
-})
+});
 </script>
 
 <template>
@@ -274,46 +295,38 @@ onUnmounted(() => {
 
           <!-- Username + Email -->
           <div class="flex flex-col md:flex-row md:gap-4">
-            <UiFormItem
-              class="flex-1"
-              :label="t('user.form.username')"
-              name="username"
-              required
-            >
-              <UiInput
-                v-model="dpmUserFormModel.username"
-                placeholder="Enter Username"
-              />
+            <UiFormItem class="flex-1" :label="t('user.form.username')" name="username" required>
+              <UiInput v-model="dpmUserFormModel.username" placeholder="Enter Username" />
             </UiFormItem>
 
-            <UiFormItem
-              class="flex-1"
-              :label="t('user.form.email')"
-              name="email"
-              required
-            >
-              <UiInput
-                v-model="dpmUserFormModel.email"
-                placeholder="example@gmail.com"
-              />
+            <UiFormItem class="flex-1" :label="t('user.form.email')" name="email" required>
+              <UiInput v-model="dpmUserFormModel.email" placeholder="example@gmail.com" />
             </UiFormItem>
           </div>
 
           <!-- Telephone -->
           <div class="flex flex-col md:flex-row md:gap-4">
-            <UiFormItem
-              class="flex-1"
-              :label="t('user.form.tel')"
-              name="tel"
-              required
-            >
+            <UiFormItem class="flex-1" :label="t('user.form.tel')" name="tel" required>
               <UiInput
                 @keypress="NumberOnly"
                 v-model="dpmUserFormModel.tel"
                 placeholder="20xx xxx xxx"
               />
             </UiFormItem>
-
+            <UiFormItem
+              class="flex-1"
+              :label="t('departments.dpm_user.field.department')"
+              name="departmentId"
+              required
+            >
+              <InputSelect
+                v-model="dpmUserFormModel.departmentId"
+                :options="departmentItem"
+                :placeholder="t('departments.dpm_user.placeholder.dpm')"
+              />
+            </UiFormItem>
+          </div>
+          <div class="flex flex-col md:flex-row md:gap-4">
             <UiFormItem
               class="flex-1"
               :label="t('departments.dpm_user.field.role')"
@@ -325,20 +338,6 @@ onUnmounted(() => {
                 v-model:value="dpmUserFormModel.roleIds"
                 :options="roleItem"
                 :placeholder="t('departments.dpm_user.field.role')"
-              />
-            </UiFormItem>
-          </div>
-          <div class="flex flex-col md:flex-row md:gap-4">
-            <UiFormItem
-              class="flex-1"
-              :label="t('departments.dpm_user.field.department')"
-              name="departmentId"
-              required
-            >
-              <InputSelect
-                v-model="dpmUserFormModel.departmentId"
-                :options="departmentItem"
-                :placeholder="t('departments.dpm_user.placeholder.dpm')"
               />
             </UiFormItem>
 
@@ -356,12 +355,7 @@ onUnmounted(() => {
             </UiFormItem>
           </div>
           <!-- select user type  -->
-          <UiFormItem
-            class="flex-1"
-            :label="t('departments.user_type')"
-            name="user_type"
-            required
-          >
+          <UiFormItem class="flex-1" :label="t('departments.user_type')" name="user_type" required>
             <a-checkbox-group v-model:value="dpmUserFormModel.user_type">
               <a-checkbox
                 v-for="option in userTypeOption"
@@ -382,10 +376,7 @@ onUnmounted(() => {
               name="password"
               required
             >
-              <UiInputPassword
-                v-model="dpmUserFormModel.password"
-                placeholder="*************"
-              />
+              <UiInputPassword v-model="dpmUserFormModel.password" placeholder="*************" />
             </UiFormItem>
 
             <UiFormItem
@@ -402,10 +393,7 @@ onUnmounted(() => {
             </UiFormItem>
           </div>
           <div class="flex-1 mt-6 lg:mt-0">
-            <PermissionCard
-              :permission-groups="permissionGroups"
-              v-model="selectedPermissions"
-            />
+            <PermissionCard :permission-groups="permissionGroups" v-model="selectedPermissions" />
           </div>
         </div>
       </div>

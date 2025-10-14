@@ -2,9 +2,7 @@
 import { ref, reactive, onMounted, watch, computed } from "vue";
 import { columns } from "./column";
 import { departmentStore } from "../../../stores/departments/department.store";
-import {
-  departmenUsertStore,
-} from "../../../stores/departments/department-user.store";
+import { departmenUsertStore } from "../../../stores/departments/department-user.store";
 import type { DepartmentApiModel } from "@/modules/interfaces/departments/department.interface";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -12,6 +10,7 @@ import Table, { type TablePaginationType } from "@/common/shared/components/tabl
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
+import UiRadio from "@/common/shared/components/Radio/UiRadio.vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
@@ -23,7 +22,7 @@ const search = ref<string>("");
 const { t } = useI18n();
 // Initialize the unit store
 const dpmStore = departmentStore();
-const dpmUserStore = departmenUsertStore()
+const dpmUserStore = departmenUsertStore();
 const { success, warning } = useNotification();
 // Form related
 const formRef = ref();
@@ -38,13 +37,19 @@ const selectedDpm = ref<DepartmentApiModel | null>(null);
 const formModel = reactive({
   name: "",
   code: "",
-  department_head_id: ""
+  department_head_id: "",
+  type: "in_the_office",
+});
+const departmentLabel = computed(() => {
+  return formModel.type === "in_the_office"
+    ? t("departments.dpm.field.name")
+    : t("departments.dpm.field.branch_name");
 });
 
 const userOptions = computed(() => {
-  return dpmUsers.value.map(user => ({
-    label: user.getUser()?.getUsername() || '', 
-    value: user.getUser()?.getId() || '' 
+  return dpmUsers.value.map((user) => ({
+    label: user.getUser()?.getUsername() || "",
+    value: user.getUser()?.getId() || "",
   }));
 });
 
@@ -59,7 +64,6 @@ const loadDpmUsers = async (dpmId: string) => {
     loading.value = false;
   }
 };
-
 
 // Load data on component mount
 onMounted(async () => {
@@ -105,13 +109,19 @@ const showCreateModal = (): void => {
   createModalVisible.value = true;
 };
 
-const showEditModal = async(record: DepartmentApiModel):Promise <void >=> {
-  selectedDpm.value = record;
-  formModel.name = record.name;
-  formModel.code = record.code || "";
-  formModel.department_head_id = record.department_head_id?.toString() || "";
-  await loadDpmUsers(record.id.toString());
-  editModalVisible.value = true;
+const showEditModal = async (record: DepartmentApiModel): Promise<void> => {
+  try {
+    selectedDpm.value = record;
+    formModel.name = record.name;
+    formModel.code = record.code || "";
+    formModel.department_head_id = record.department_head_id?.toString() || "";
+    formModel.type = record.type || "in_the_office"; 
+    await loadDpmUsers(record.id.toString());
+    editModalVisible.value = true;
+  } catch (error) {
+    console.error('Error in showEditModal:', error);
+    warning(t("departments.error.title"), String(error));
+  }
 };
 
 const showDeleteModal = (record: DepartmentApiModel): void => {
@@ -127,6 +137,7 @@ const handleCreate = async (): Promise<void> => {
     await dpmStore.createDepartment({
       name: formModel.name,
       code: formModel.code,
+      type: formModel.type as "in_the_office" | "outside_the_office",
     });
     success(t("departments.notify.created"));
     await loadDpm(); // Refresh the list
@@ -152,7 +163,10 @@ const handleEdit = async (): Promise<void> => {
         id,
         name: formModel.name,
         code: formModel.code,
-        department_head_id: formModel.department_head_id ? Number(formModel.department_head_id) : null
+        department_head_id: formModel.department_head_id
+          ? Number(formModel.department_head_id)
+          : null,
+        type: formModel.type as "in_the_office" | "outside_the_office",
       });
       success(t("departments.notify.update"));
       await loadDpm();
@@ -195,7 +209,7 @@ const handleTableChange = async (pagination: TablePaginationType) => {
   await loadDpm();
 };
 watch(search, async (newValue) => {
-  if (newValue === '') {
+  if (newValue === "") {
     await loadDpm();
   }
 });
@@ -254,7 +268,7 @@ watch(search, async (newValue) => {
             type=""
             icon="ant-design:edit-outlined"
             size="small"
-            shape="circle" 
+            shape="circle"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
           >
@@ -262,7 +276,7 @@ watch(search, async (newValue) => {
           <UiButton
             type=""
             danger
-            shape="circle" 
+            shape="circle"
             icon="ant-design:delete-outlined"
             colorClass="flex items-center justify-center text-red-700"
             size="small"
@@ -285,29 +299,32 @@ watch(search, async (newValue) => {
       :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
-        <UiFormItem
-          :label="t('departments.dpm.field.code')"
-          name="code"
-          required
-        >
-          <UiInput
-            v-model="formModel.code"
-            :placeholder="t('departments.dpm.placeholder.code')"
+        <UiFormItem :label="t('departments.dpm.field.type')" name="type">
+          <UiRadio
+            v-model="formModel.type"
+            :options="[
+              { label: 'ສຳນັກງານໃຫຍ່', value: 'in_the_office' },
+              { label: 'ລະດັບແຂວງ', value: 'outside_the_office' },
+            ]"
+            :buttonStyle="true"
           />
         </UiFormItem>
-        <UiFormItem
-          :label="t('departments.dpm.field.name')"
-          name="name"
-          required
-        >
+        <UiFormItem :label="t('departments.dpm.field.code')" name="code" required>
+          <UiInput v-model="formModel.code" :placeholder="t('departments.dpm.placeholder.code')" />
+        </UiFormItem>
+
+        <UiFormItem :label="departmentLabel" name="name" required>
           <UiInput
             v-model="formModel.name"
-            :placeholder="t('departments.dpm.placeholder.name')"
+            :placeholder="
+              formModel.type === 'in_the_office'
+                ? t('departments.dpm.placeholder.name')
+                : t('departments.dpm.placeholder.branch_name')
+            "
           />
         </UiFormItem>
       </UiForm>
     </UiModal>
-
     <!-- Edit Modal -->
     <UiModal
       :title="t('departments.dpm.header_form.edit')"
@@ -320,37 +337,37 @@ watch(search, async (newValue) => {
       :cancelText="t('button.cancel')"
     >
       <UiForm ref="formRef" :model="formModel" :rules="dpmRules(t)">
-        <UiFormItem
-          :label="t('departments.dpm.field.code')"
-          name="code"
-          required
-        >
-          <UiInput
-            v-model="formModel.code"
-            :placeholder="t('departments.dpm.placeholder.code')"
+        <UiFormItem :label="t('departments.dpm.field.type')" name="type">
+          <UiRadio
+            v-model="formModel.type"
+            :options="[
+              { label: 'ສຳນັກງານໃຫຍ່', value: 'in_the_office' },
+              { label: 'ລະດັບແຂວງ', value: 'outside_the_office' },
+            ]"
+            :buttonStyle="true"
           />
         </UiFormItem>
-        <UiFormItem
-          :label="t('departments.dpm.field.name')"
-          name="name"
-          required
-        >
+        <UiFormItem :label="t('departments.dpm.field.code')" name="code" required>
+          <UiInput v-model="formModel.code" :placeholder="t('departments.dpm.placeholder.code')" />
+        </UiFormItem>
+        <UiFormItem :label="departmentLabel" name="name" required>
           <UiInput
             v-model="formModel.name"
-            :placeholder="t('departments.dpm.placeholder.name')"
+            :placeholder="
+              formModel.type === 'in_the_office'
+                ? t('departments.dpm.placeholder.name')
+                : t('departments.dpm.placeholder.branch_name')
+            "
           />
         </UiFormItem>
-        <UiFormItem
-        :label="t('departments.dpm.field.user')"
-        name="userId"
-      >
-        <InputSelect
-          v-model="formModel.department_head_id"
-          :options="userOptions"
-          :loading="dpmUserStore.loading"
-          :placeholder="t('departments.dpm.placeholder.selectUser')"
-        />
-      </UiFormItem>
+        <UiFormItem :label="t('departments.dpm.field.user')" name="userId">
+          <InputSelect
+            v-model="formModel.department_head_id"
+            :options="userOptions"
+            :loading="dpmUserStore.loading"
+            :placeholder="t('departments.dpm.placeholder.selectUser')"
+          />
+        </UiFormItem>
       </UiForm>
     </UiModal>
 
