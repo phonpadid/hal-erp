@@ -5,6 +5,7 @@ export interface ApprovalWorkflowApiModel {
   id: number;
   name: string;
   documentTypeId: number;
+  status?: string;
   document_type?: DoucmentTypeInterface,
   steps?: ApprovalWorkflowStepApiModel[]
   created_at?: string;

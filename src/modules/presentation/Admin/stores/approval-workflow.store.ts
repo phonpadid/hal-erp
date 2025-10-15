@@ -6,6 +6,7 @@ import { ApiApprovalWorkflowRepository } from "@/modules/infrastructure/api-appr
 import { ApprovalWorkflowServiceImpl } from "@/modules/application/services/approval-flow.service";
 import { ApprovalWorkflowEntity } from "@/modules/domain/entities/approval-workflows.entity";
 import type {
+  ApprovalStatusDto,
   CreateApprovalWorkflowDTO,
   UpdateApprovalWorkflowDTO,
 } from "@/modules/application/dtos/approval-workflow.dto";
@@ -119,6 +120,20 @@ export const approvalWorkflowStore = defineStore("approval-workflow", () => {
       loading.value = false;
     }
   };
+  const approvalStatus = async (id: number, data: ApprovalStatusDto) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const res = await apvWorkflowService.approvalStatus(id, data);
+      return res;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const remove = async (id: string) => {
     loading.value = true;
@@ -134,6 +149,7 @@ export const approvalWorkflowStore = defineStore("approval-workflow", () => {
           dpm.getId(),
           dpm.getName(),
           dpm.getDocumentTypeId(),
+          dpm.getStatus(),
           dpm.getDocumentType(),
           dpm.getSteps(),
           dpm.getCreatedAt(),
@@ -165,6 +181,7 @@ export const approvalWorkflowStore = defineStore("approval-workflow", () => {
     fetchById,
     update,
     remove,
+    approvalStatus
   };
 }
 );

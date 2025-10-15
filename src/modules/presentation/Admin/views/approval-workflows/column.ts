@@ -18,6 +18,11 @@ export function columns(t: (key: string) => string): Column[] {
       key: "document_type",
     },
     {
+      title: t("approval-workflow.field.status"),
+      dataIndex: "status",
+      key: "status",
+    },
+    {
       title: t("approval-workflow.field.created"),
       dataIndex: "createdAt",
       key: "createdAt",

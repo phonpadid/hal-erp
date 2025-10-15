@@ -8,6 +8,7 @@ import { ApprovalWorkflowEntity } from "../domain/entities/approval-workflows.en
 import type { ApprovalWorkflowApiModel } from "../interfaces/approval-workflow.interface";
 import type { DoucmentTypeInterface } from "../interfaces/documenet-type.interface";
 import { DocumentTypeEntity } from "../domain/entities/document-type.entities";
+import type { ApprovalStatusDto } from "../application/dtos/approval-workflow.dto";
 
 export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository {
   async create(input: ApprovalWorkflowEntity): Promise<ApprovalWorkflowEntity> {
@@ -85,6 +86,17 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
     }
   }
 
+  async approvalStatus(id: number, input: ApprovalStatusDto): Promise<ApprovalStatusDto> {
+      try {
+        const response = await api.put('/approval-workflows/approve/'+id, {
+          status: input.status
+        });
+        return response.data.data;
+      } catch (error) {
+        this.handleApiError(error, "Failed to create budget account");
+        throw error
+      }
+    }
 
   private toApiModel(input: ApprovalWorkflowEntity): ApprovalWorkflowApiModel {
     return {
@@ -111,6 +123,7 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
       data.id.toString(),
       data.name,
       String(data.documentTypeId),
+      data.status,
       data.document_type ? this.toDocumentTypeEntity(data.document_type) : undefined,
       [],
       data.created_at || "",
