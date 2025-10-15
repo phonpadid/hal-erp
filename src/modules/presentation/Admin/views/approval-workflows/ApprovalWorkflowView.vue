@@ -19,6 +19,7 @@ import type { ApprovalWorkflowApiModel } from "@/modules/interfaces/approval-wor
 import { approvalWorkflowStore } from "../../stores/approval-workflow.store";
 import { useRouter } from "vue-router";
 import { Modal } from "ant-design-vue";
+import { useAuthStore } from "../../stores/authentication/auth.store";
 const search = ref<string>("");
 const { t } = useI18n();
 // const useRealApi = ref<boolean>(true); // Toggle between mock and real API
@@ -43,7 +44,8 @@ const formModel = reactive({
   name: "",
   document_type_id: "",
 });
-
+const authStore = useAuthStore();
+const isSuperAdmin = computed(() => authStore.isSuperAdmin); // ✅ ดึง getter isSuperAdmin\
 
 const loadData = async (): Promise<void> => {
   // if (useRealApi.value) {
@@ -239,7 +241,7 @@ onMounted(async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <!-- <SettingOutlined /> -->
-          <UiButton icon="ant-design:safety-outlined" size="small" shape="circle" @click="verify(record)" :colorClass="[
+          <UiButton v-if="isSuperAdmin" icon="ant-design:safety-outlined" size="small" shape="circle" @click="verify(record)" :colorClass="[
             'flex items-center justify-center',
             record.status === 'approved'
               ? 'text-green-600'
