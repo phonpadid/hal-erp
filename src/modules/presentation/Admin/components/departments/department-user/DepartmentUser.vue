@@ -24,6 +24,7 @@ import PermissionCard from "./PermissionCard.vue";
 import { useRoleStore } from "../../../stores/role.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { updateDpmUserRules } from "../../../views/departments/deparment-user/validation/update-department-user.validate";
+import Radio from "@/common/shared/components/Input/Radio.vue";
 // import Checkbox from "@/common/shared/components/Input/Checkbox.vue";
 // const selectedUserType = ref<string[]>([]);
 const roleStore = useRoleStore();
@@ -44,6 +45,11 @@ const selectedPermissions = computed({
     dpmUserFormModel.permissionIds = value;
   },
 });
+const departmentType = ref("in_the_office");
+const departmentTypeOptions = [
+  { label: "ສຳນັກງານໃຫຍ່", value: "in_the_office" },
+  { label: "ລະດັບແຂວງ", value: "outside_the_office" },
+];
 const isEditMode = computed(() => !!route.params.id);
 const departmentUserId = computed(() => route.params.id as string);
 
@@ -55,12 +61,13 @@ const positionItem = computed(() =>
 );
 
 const departmentItem = computed(() =>
-  dpmStore.departments.map((item) => ({
-    value: item.getId(),
-    label: item.getName(),
-  }))
+  dpmStore.departments
+    .filter((item) => item.getType() === departmentType.value)
+    .map((item) => ({
+      value: item.getId(),
+      label: item.getName(),
+    }))
 );
-
 const roleItem = computed(() =>
   roleStore.roles.map((item) => ({
     value: Number(item.getId()),
@@ -98,12 +105,12 @@ watch(
   (newRoleIds) => {
     if (newRoleIds && newRoleIds.length > 0) {
       const allPermissions: number[] = [];
-      
+
       newRoleIds.forEach((roleId) => {
-        const role = roleStore.roles.find(r => Number(r.getId()) === roleId);
+        const role = roleStore.roles.find((r) => Number(r.getId()) === roleId);
         if (role) {
           const permissions = role.getPermissions?.() || [];
-          permissions.forEach((permission:any) => {
+          permissions.forEach((permission: any) => {
             if (permission.id && !allPermissions.includes(permission.id)) {
               allPermissions.push(permission.id);
             }
@@ -234,24 +241,51 @@ const handlerCancel = () => {
   existingSignatureUrl.value = null;
 };
 
+watch(
+  () => dpmUserFormModel.departmentId,
+  async (newDepartmentId) => {
+    if (newDepartmentId) {
+      loading.value = true;
+      try {
+        // Fetch roles with department filter
+        await roleStore.fetchRoles({
+          page: 1,
+          limit: 10000,
+          department_id: newDepartmentId,
+        });
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      } finally {
+        loading.value = false;
+      }
+    } else {
+      // Reset roles when no department is selected
+      roleStore.roles = [];
+    }
+  }
+);
+
 onMounted(async () => {
   await dpmStore.fetchDepartment({ limit: 10000, page: 1 });
   await userStore.fetchUsers({ limit: 10000, page: 1 });
   await positionStore.fetchPositions({ limit: 10000, page: 1 });
   await permissionStore.fetchPermission({ limit: 10000, page: 1 });
-  await roleStore.fetchRoles({ limit: 10000, page: 1 });
+  // await roleStore.fetchRoles({ limit: 10000, page: 1 });
   // Load existing data if in edit mode
   await loadDepartmentUser();
+   if (!isEditMode.value) {
+    dpmUserFormModel.user_type = ["department"];
+  }
 
   // Initialize signature file if it exists in form model
   if (dpmUserFormModel.signature_file) {
     signatureFile.value = dpmUserFormModel.signature_file;
   }
 });
-const userTypeOption = computed(() => [
-  // { label: t("departments.admin"), value: "admin" },
-  { label: t("departments.department"), value: "department" },
-]);
+// const userTypeOption = computed(() => [
+
+//   { label: t("departments.department"), value: "department" },
+// ]);
 onUnmounted(() => {
   dpmUserStore.resetForm();
   existingSignatureUrl.value = null;
@@ -260,8 +294,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="dpm-user-list-container p-6">
-    <div class="mb-8">
+  <div class="dpm-user-list-container mt-4">
+    <div class="mb-4">
       <h3>
         {{
           isEditMode
@@ -278,44 +312,36 @@ onUnmounted(() => {
     >
       <div class="flex flex-col lg:flex-row lg:gap-8">
         <!-- Left Column: User Info -->
-        <div class="flex-1 space-y-4">
+        <div class="flex-1 space-y-2">
           <UiFormItem
-            :label="t('departments.dpm_user.field.signature')"
-            name="signature_file"
-            required
+            class="flex-1"
+            :label="t('departments.dpm_user.field.type')"
+            name="department_type"
           >
-            <UploadFile
-              v-model="signatureFile"
-              :width="'100%'"
-              :height="'200px'"
-              :upload-text="isEditMode ? 'ອັບເດດລາຍເຊັນ' : 'ອັບໂຫລດລາຍເຊັນ'"
-              @onFileSelect="handleFileChange"
-            />
+            <Radio v-model="departmentType" :options="departmentTypeOptions" />
           </UiFormItem>
-
           <!-- Username + Email -->
-          <div class="flex flex-col md:flex-row md:gap-4">
+          <div class="flex flex-row md:flex-row md:gap-4">
+           
             <UiFormItem class="flex-1" :label="t('user.form.username')" name="username" required>
               <UiInput v-model="dpmUserFormModel.username" placeholder="Enter Username" />
             </UiFormItem>
-
             <UiFormItem class="flex-1" :label="t('user.form.email')" name="email" required>
               <UiInput v-model="dpmUserFormModel.email" placeholder="example@gmail.com" />
             </UiFormItem>
-          </div>
-
-          <!-- Telephone -->
-          <div class="flex flex-col md:flex-row md:gap-4">
             <UiFormItem class="flex-1" :label="t('user.form.tel')" name="tel" required>
               <UiInput
                 @keypress="NumberOnly"
                 v-model="dpmUserFormModel.tel"
                 placeholder="20xx xxx xxx"
               />
-            </UiFormItem>
+            </UiFormItem>  
+          </div>
+          <!-- Telephone -->
+          <div class="flex flex-col md:flex-row md:gap-4">
             <UiFormItem
               class="flex-1"
-              :label="t('departments.dpm_user.field.department')"
+              :label="departmentType === 'in_the_office' ? 'ສຳນັກງານໃຫຍ່' : 'ລະດັບແຂວງ'"
               name="departmentId"
               required
             >
@@ -325,8 +351,6 @@ onUnmounted(() => {
                 :placeholder="t('departments.dpm_user.placeholder.dpm')"
               />
             </UiFormItem>
-          </div>
-          <div class="flex flex-col md:flex-row md:gap-4">
             <UiFormItem
               class="flex-1"
               :label="t('departments.dpm_user.field.role')"
@@ -354,8 +378,9 @@ onUnmounted(() => {
               />
             </UiFormItem>
           </div>
+          
           <!-- select user type  -->
-          <UiFormItem class="flex-1" :label="t('departments.user_type')" name="user_type" required>
+          <!-- <UiFormItem class="flex-1" :label="t('departments.user_type')" name="user_type" required>
             <a-checkbox-group v-model:value="dpmUserFormModel.user_type">
               <a-checkbox
                 v-for="option in userTypeOption"
@@ -365,8 +390,7 @@ onUnmounted(() => {
                 {{ option.label }}
               </a-checkbox>
             </a-checkbox-group>
-          </UiFormItem>
-
+          </UiFormItem> -->
           <!-- *******  -->
           <div class="flex flex-col md:flex-row md:gap-4">
             <UiFormItem
@@ -378,7 +402,6 @@ onUnmounted(() => {
             >
               <UiInputPassword v-model="dpmUserFormModel.password" placeholder="*************" />
             </UiFormItem>
-
             <UiFormItem
               v-if="!isEditMode"
               class="flex-1"
@@ -392,12 +415,29 @@ onUnmounted(() => {
               />
             </UiFormItem>
           </div>
+           <UiFormItem
+              :label="t('departments.dpm_user.field.signature')"
+              name="signature_file"
+              required
+            >
+              <UploadFile
+                v-model="signatureFile"
+                :width="'100%'"
+                :height="'200px'"
+                :upload-text="isEditMode ? 'ອັບເດດລາຍເຊັນ' : 'ອັບໂຫລດລາຍເຊັນ'"
+                @onFileSelect="handleFileChange"
+              />
+            </UiFormItem>
           <div class="flex-1 mt-6 lg:mt-0">
-            <PermissionCard :permission-groups="permissionGroups" v-model="selectedPermissions" />
+            <PermissionCard
+              :permission-groups="permissionGroups"
+              v-model="selectedPermissions"
+              :selected-role-ids="dpmUserFormModel.roleIds"
+            />
           </div>
         </div>
       </div>
-      <div class="flex gap-2 pt-6">
+      <div class="flex gap-2 pt-2 pb-4">
         <UiButton
           @click="handlerCancel"
           colorClass="flex items-center justify-center text-orange-400"
@@ -417,9 +457,9 @@ onUnmounted(() => {
   </div>
 </template>
 <style scoped>
-.dpm-user-list-container {
+/* .dpm-user-list-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
+} */
 </style>

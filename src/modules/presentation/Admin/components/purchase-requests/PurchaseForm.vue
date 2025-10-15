@@ -297,7 +297,7 @@ defineExpose({
       <!-- Purpose section -->
       <div class="mb-4">
         <h3 class="text-lg font-medium mb-4">
-          {{ t("purchase-rq.field.proposal", "ວັດຖຸປະສົງ") }}
+          {{ t("purchase-rq.field.proposals", "ວັດຖຸປະສົງ") }}
         </h3>
         <Textarea
           v-model="formState.purpose"
@@ -307,8 +307,8 @@ defineExpose({
       </div>
 
       <!-- Items section -->
-      <div v-for="(item, index) in formState.addMore" :key="index" class="mb-8">
-        <div class="flex justify-between items-center mb-6 bg-gray-50 p-4 rounded-lg">
+      <div v-for="(item, index) in formState.addMore" :key="index" class="mb-6">
+        <div class="flex justify-between items-center mb-4 bg-gray-50 p-4 rounded-lg">
           <h3 class="text-lg font-semibold flex items-center gap-2">
             <Icon icon="mdi:shopping-outline" class="text-blue-600" />
             {{ t("purchase-rq.card_title.title", "ລາຍການ") }} #{{ index + 1 }}
@@ -336,7 +336,7 @@ defineExpose({
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Image upload section -->
           <div class="h-full">
             <p class="text-sm font-medium mb-3 text-gray-700">
@@ -378,7 +378,7 @@ defineExpose({
           </div>
 
           <!-- Form fields -->
-          <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <UiFormItem
               :label="t('purchase-rq.field.title', 'ຊື່ລາຍການ')"
               :name="['addMore', index.toString(), 'title']"
@@ -431,7 +431,7 @@ defineExpose({
               :label="t('purchase-rq.field.remark', 'ໝາຍເຫດ')"
               :name="['addMore', index.toString(), 'remark']"
             >
-              <UiInput
+              <UiInput 
                 v-model="item.remark"
                 :placeholder="t('purchase-rq.phd.remark', 'ລາຍລະອຽດເພີ່ມເຕີມ (ຖ້າມີ)')"
               />

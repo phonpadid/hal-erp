@@ -18,6 +18,7 @@ export class ApiRoleRepository implements RoleRepository {
           page: params.page,
           limit: params.limit,
           search: params.search || "",
+          department_id: params.department_id,
           status: includeDeleted ? undefined : "active",
         },
       })) as { data: ApiListResponse<Roleinterface> };

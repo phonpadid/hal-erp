@@ -47,14 +47,13 @@ export const useRoleStore = defineStore("roles", () => {
   // Get All Roles
   const fetchRoles = async (
     // fetchRoles
-    params: PaginationParams = { page: 1, limit: 10 },
-    includeDeleted: boolean = false
+    params: PaginationParams = { page: 1, limit: 10 , department_id: undefined },  
   ) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const result = await roleService.getAllRoles(params, includeDeleted);
+      const result = await roleService.getAllRoles(params);
       rawRoles.value = JSON.parse(JSON.stringify(result.data));
       roles.value = result.data;
       pagination.value = {

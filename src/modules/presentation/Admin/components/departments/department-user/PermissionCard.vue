@@ -51,8 +51,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-
+import { computed, watch } from "vue";
+import { useRoleStore } from "../../../stores/role.store";
+const roleStore = useRoleStore();
 interface Permission {
   id: number;
   name: string;
@@ -71,47 +72,58 @@ const props = defineProps<{
   permissionGroups?: PermissionGroup[];
   permissions?: Permission[]; // Alternative prop for flat permission list
   modelValue: number[];
+  selectedRoleIds?: number[];
 }>();
 
 const emit = defineEmits<{
   "update:modelValue": [value: number[]];
 }>();
 
-const selectedPermissions = computed({
-  get: () => props.modelValue || [],
-  set: (value: number[]) => emit("update:modelValue", value),
+// const selectedPermissions = computed({
+//   get: () => props.modelValue || [],
+//   set: (value: number[]) => emit("update:modelValue", value),
+// });
+
+const rolePermissions = computed(() => {
+  if (!props.selectedRoleIds?.length) return [];
+  
+  const permissionSet = new Set<number>();
+  
+  props.selectedRoleIds.forEach(roleId => {
+    const role = roleStore.roles.find(r => Number(r.getId()) === roleId);
+    if (role) {
+      const permissions = role.getPermissions?.() || [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      permissions.forEach((permission: any) => {
+        if (permission.id) {
+          permissionSet.add(permission.id);
+        }
+      });
+    }
+  });
+  
+  return Array.from(permissionSet);
 });
 
-// Process the data - handle both grouped and flat permission structures
+// Filter permission groups to only show permissions that exist in selected roles
 const processedGroups = computed(() => {
-  // If we have permissionGroups, use them directly
-  if (props.permissionGroups && props.permissionGroups.length > 0) {
-    return props.permissionGroups;
+  if (!props.permissionGroups?.length) return [];
+  
+  return props.permissionGroups.map(group => ({
+    ...group,
+    permissions: group.permissions.filter(permission => 
+      rolePermissions.value.includes(permission.id)
+    )
+  })).filter(group => group.permissions.length > 0); // Only show groups with permissions
+});
+
+const selectedPermissions = computed({
+  get: () => props.modelValue || [],
+  set: (value: number[]) => {
+    // Only allow selecting permissions that exist in roles
+    const filteredValue = value.filter(id => rolePermissions.value.includes(id));
+    emit("update:modelValue", filteredValue);
   }
-
-  // If we have flat permissions, group them
-  if (props.permissions && props.permissions.length > 0) {
-    const groups: Record<string, Permission[]> = {};
-
-    props.permissions.forEach((permission) => {
-      const groupName = permission.group || "Default";
-      if (!groups[groupName]) {
-        groups[groupName] = [];
-      }
-      groups[groupName].push(permission);
-    });
-
-    // Convert to PermissionGroup format
-    return Object.entries(groups).map(([groupName, permissions], index) => ({
-      id: index + 1,
-      name: groupName.toLowerCase().replace(/\s+/g, "_"),
-      display_name: groupName,
-      type: "group",
-      permissions: permissions,
-    }));
-  }
-
-  return [];
 });
 
 // Toggle individual permission
@@ -180,6 +192,17 @@ const formatPermissionName = (name: string): string => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
     .join(" "); // Join with spaces
 };
+// Watch for changes in role permissions and update selected permissions
+watch(rolePermissions, (newPermissions) => {
+  // Remove any selected permissions that are no longer available in roles
+  const validSelections = selectedPermissions.value.filter(id => 
+    newPermissions.includes(id)
+  );
+  if (validSelections.length !== selectedPermissions.value.length) {
+    selectedPermissions.value = validSelections;
+  }
+}, { immediate: true });
+
 </script>
 
 <style scoped>
