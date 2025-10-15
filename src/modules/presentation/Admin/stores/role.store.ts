@@ -172,6 +172,11 @@ export const useRoleStore = defineStore("roles", () => {
       totalPages: 0,
     };
   };
+  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+    pagination.value.page = newPagination.page || 1;
+    pagination.value.limit = newPagination.limit || 10;
+    pagination.value.total = newPagination.total;
+  };
 
   return {
     // State
@@ -186,6 +191,7 @@ export const useRoleStore = defineStore("roles", () => {
     createRole,
     updateRole,
     deleteRole,
+    setPagination,
 
     // Getters
     activeRoles,

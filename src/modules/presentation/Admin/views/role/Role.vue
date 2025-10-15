@@ -1,12 +1,13 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { RoleResponse, Roleinterface } from "@/modules/interfaces/role.interface";
 import { column } from "./column";
 import { useRoleStore } from "../../stores/role.store";
 import { formatDate } from "@/modules/shared/formatdate";
 import { useRouter } from "vue-router";
+import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 
@@ -22,13 +23,35 @@ const addRole = (): void => {
   router.push({ name: "roleCreate" });
 };
 const editRole = (role: Roleinterface): void => {
-  router.push({ name: "roleEdit",  params: { id: role.id.toString() } });
+  router.push({ name: "roleEdit", params: { id: role.id.toString() } });
+};
+
+// Table pagination
+const tablePagination = computed(() => ({
+  current: rolesStore.pagination.page,
+  pageSize: rolesStore.pagination.limit,
+  total: rolesStore.pagination.total,
+  showSizeChanger: true,
+}));
+// Handle pagination and sorting
+const handleTableChange = async (pagination: TablePaginationType): Promise<void> => {
+  rolesStore.setPagination({
+    page: pagination.current || 1,
+    limit: pagination.pageSize || 10,
+    total: rolesStore.pagination.total,
+  });
+
+  await loadRoles();
 };
 
 const loadRoles = async (): Promise<void> => {
   try {
     loading.value = true;
-    const result = await rolesStore.fetchRoles();
+    const result = await rolesStore.fetchRoles({
+      page: rolesStore.pagination.page,
+      limit: rolesStore.pagination.limit,
+      department_id: undefined,
+    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     roles.value = result.data.map((role: any) => {
       if (typeof role.getId === "function") {
@@ -66,34 +89,34 @@ onMounted(async () => {
         <h1 class="text-2xl font-semibold">{{ t("role.list.title") }}</h1>
       </div>
       <UiButton
-          type="primary"
-          icon="material-symbols:add"
-          @click="addRole"
-          colorClass="flex items-center"
-        >
-          {{ t("role.list.btn") }}
-        </UiButton>
+        type="primary"
+        icon="material-symbols:add"
+        @click="addRole"
+        colorClass="flex items-center"
+      >
+        {{ t("role.list.btn") }}
+      </UiButton>
     </div>
     <!-- ຕາຕະລາງຂໍ້ມູນບົດບາດ -->
     <Table
       :columns="column(t)"
       :dataSource="roles"
-      :pagination="{ pageSize: 10 }"
+      :pagination="tablePagination"
       row-key="id"
       :loading="rolesStore.loading"
+      @change="handleTableChange"
     >
-     <template #actions="{ record }">
+      <template #actions="{ record }">
         <div class="flex items-center justify-center">
           <UiButton
             type=""
             icon="ant-design:edit-outlined"
             size="small"
-            shape="circle" 
+            shape="circle"
             @click="editRole(record)"
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
           />
-          
         </div>
       </template>
       <template #empty>

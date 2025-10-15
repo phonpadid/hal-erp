@@ -38,7 +38,7 @@ const formattedInitialData = computed<DisplayFormData | undefined>(() => {
 onMounted(async () => {
   try {
     loading.value = true;
-    await dpmStore.fetchDepartment();
+    await dpmStore.fetchDepartment({ page: 1, limit: 10000 }, false);
     if (isEditMode.value) {
       const role = await roleStore.fetchRoleById(route.params.id as string);
       if (!role) {
@@ -101,8 +101,7 @@ const handleFormSubmit = async (formData: {
 <template>
   <div class="mt-4">
     <h1>{{ isEditMode ? 'ແກ້ໄຂ Role' : 'ຟອມສ້າງ Role' }}</h1>
-    
-    <div v-if="loading" class="text-center py-4">
+    <div v-if="loading" class="text-center py-2">
       <span class="loading loading-spinner loading-md"></span>
     </div>
     

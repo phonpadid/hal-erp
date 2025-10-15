@@ -100,9 +100,6 @@ watch(() => props.initialData, (newVal) => {
     formState.permissions = newVal.permissions || [];
   }
 }, { immediate: true });
-
-
-
 </script>
 
 <template>
