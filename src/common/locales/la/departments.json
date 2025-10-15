@@ -58,7 +58,8 @@
       "position": "ຕຳແໜ່ງ",
       "signature": "ລາຍເຊັນ",
       "role": "ເລືອກບົດບາດ",
-      "permission": "ເລືອກສິດທີ"
+      "permission": "ເລືອກສິດທີ",
+      "type": "ເລືອກລະດັບ"
     },
     "placeholder": {
       "search": "ຄົ້ນຫາຂໍ້ມູນ",

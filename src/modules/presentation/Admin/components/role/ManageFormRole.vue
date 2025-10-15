@@ -42,22 +42,22 @@ interface FormState {
   permissions: (string | number)[];
 }
 
-// แก้ไข formState
+//  formState
 const formState = reactive<FormState>({
   department_id: props.initialData?.department_id ? [Number(props.initialData.department_id)] : [],
   name: props.initialData?.name || "",
   permissions: props.initialData?.permissions || [],
 });
 
-// แก้ไข departmentOptions
+//  departmentOptions
 const departmentOptions = computed(() => {
   return departments.value.map(dept => ({
     label: dept.getName(),
-    value: Number(dept.getId()) // แปลงเป็น number ทันที
+    value: Number(dept.getId())
   }));
 });
 
-// แก้ไข watch
+// watch
 watch(() => props.initialData, (newVal) => {
   if (newVal) {
     formState.department_id = newVal.department_id ? [Number(newVal.department_id)] : [];
@@ -66,7 +66,7 @@ watch(() => props.initialData, (newVal) => {
   }
 }, { immediate: true });
 
-// แก้ไข onMounted
+//  onMounted
 onMounted(async () => {
   try {
     loadingPermissions.value = true;

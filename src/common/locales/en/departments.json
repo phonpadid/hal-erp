@@ -56,7 +56,8 @@
         "position": "Position",
         "signature": "Signature file",
         "role": "Select roles",
-        "permission": "Permissions"
+        "permission": "Permissions",
+        "type": "Select type"
       },
       "placeholder": {
         "search": "Search information",
