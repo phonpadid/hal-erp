@@ -131,6 +131,7 @@ export class ApiApprovalWorkflowStepRepository implements ApprovalWorkflowStepRe
       model.name,
       String(model.documentTypeId),
       undefined,
+      null,
       [],
       model.created_at ?? '',
       model.updated_at ?? ''

@@ -5,6 +5,7 @@ export class ApprovalWorkflowEntity {
   private id: string | null;
   private name: string;
   private document_type_id: string;
+  private status?: string | null;
   private document_type: DocumentTypeEntity | null;
   private steps: ApprovalWorkflowStepApiModel[];
 
@@ -16,6 +17,7 @@ export class ApprovalWorkflowEntity {
     id: string | null = null,
     name: string,
     document_type_id: string,
+    status: string | null = null,
     document_type: DocumentTypeEntity | null = null,
     steps: ApprovalWorkflowStepApiModel[] = [],
     createdAt: string | null = null,
@@ -25,6 +27,7 @@ export class ApprovalWorkflowEntity {
     this.id = id;
     this.name = name;
     this.document_type_id = document_type_id;
+    this.status = status;
     this.document_type = document_type;
     this.steps = steps;
     this.createdAt = createdAt;
@@ -43,7 +46,9 @@ export class ApprovalWorkflowEntity {
   public getDocumentTypeId(): string {
     return this.document_type_id;
   }
-
+  public getStatus(): string | null {
+    return this.status ?? '';
+  }
   public getDocumentType(): DocumentTypeEntity | null {
     return this.document_type;
   }
@@ -88,6 +93,6 @@ export class ApprovalWorkflowEntity {
     document_type_id: string,
     steps: ApprovalWorkflowStepApiModel[] = []
   ): ApprovalWorkflowEntity {
-    return new ApprovalWorkflowEntity(null, name, document_type_id, null, steps);
+    return new ApprovalWorkflowEntity(null, name, document_type_id, null, null, steps);
   }
 }

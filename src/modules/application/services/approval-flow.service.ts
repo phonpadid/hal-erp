@@ -7,10 +7,12 @@ import { GetAllApprovalWorkflowUseCase } from "../useCases/approval-flows/get-al
 import { UpdateApprovalWorkflowUseCase } from "../useCases/approval-flows/update-department.use-case";
 import type { ApprovalWorkflowRepository } from "@/modules/domain/repository/approval-workflow.repository";
 import type {
+  ApprovalStatusDto,
   CreateApprovalWorkflowDTO,
   UpdateApprovalWorkflowDTO,
 } from "../dtos/approval-workflow.dto";
 import type { ApprovalWorkflowEntity } from "@/modules/domain/entities/approval-workflows.entity";
+import { ApprovalStatusUseCase } from "../useCases/approval-flows/approval-status.use-case";
 
 export class ApprovalWorkflowServiceImpl implements ApprovalWorkflowService {
   private readonly createApprovalWorkflowUseCase: CreateApprovalWorkflowUseCase;
@@ -18,6 +20,7 @@ export class ApprovalWorkflowServiceImpl implements ApprovalWorkflowService {
   private readonly deleteApprovalWorkflowUseCase: DeleteApprovalWorkflowUseCase;
   private readonly getOneApprovalWorkflowUseCase: GetOneApprovalWorkflowUseCase;
   private readonly getAllApprovalWorkflowUseCase: GetAllApprovalWorkflowUseCase;
+  private readonly approvalStatusUseCase: ApprovalStatusUseCase;
 
   constructor(private readonly approvalFlowRepo: ApprovalWorkflowRepository) {
     this.createApprovalWorkflowUseCase = new CreateApprovalWorkflowUseCase(approvalFlowRepo);
@@ -25,6 +28,7 @@ export class ApprovalWorkflowServiceImpl implements ApprovalWorkflowService {
     this.deleteApprovalWorkflowUseCase = new DeleteApprovalWorkflowUseCase(approvalFlowRepo);
     this.getOneApprovalWorkflowUseCase = new GetOneApprovalWorkflowUseCase(approvalFlowRepo);
     this.getAllApprovalWorkflowUseCase = new GetAllApprovalWorkflowUseCase(approvalFlowRepo);
+    this.approvalStatusUseCase = new ApprovalStatusUseCase(approvalFlowRepo);
   }
   async create(input: CreateApprovalWorkflowDTO): Promise<ApprovalWorkflowEntity> {
     return await this.createApprovalWorkflowUseCase.execute(input);
@@ -43,6 +47,9 @@ export class ApprovalWorkflowServiceImpl implements ApprovalWorkflowService {
 
   async update(id: string, input: UpdateApprovalWorkflowDTO): Promise<ApprovalWorkflowEntity> {
     return await this.updateApprovalWorkflowUseCase.execute(id, input);
+  }
+  async approvalStatus(id: number, input: ApprovalStatusDto): Promise<ApprovalStatusDto> {
+    return await this.approvalStatusUseCase.execute(id, input);
   }
 
   async delete(id: string): Promise<boolean> {

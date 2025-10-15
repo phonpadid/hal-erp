@@ -31,3 +31,7 @@ export interface ApprovalWorkflowDTO {
   updatedAt: string;
   deletedAt: string | null;
 }
+
+export interface ApprovalStatusDto {
+  status: string;
+}

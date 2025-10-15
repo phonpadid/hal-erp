@@ -18,6 +18,8 @@ import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import type { ApprovalWorkflowApiModel } from "@/modules/interfaces/approval-workflow.interface";
 import { approvalWorkflowStore } from "../../stores/approval-workflow.store";
 import { useRouter } from "vue-router";
+import { Modal } from "ant-design-vue";
+import { useAuthStore } from "../../stores/authentication/auth.store";
 const search = ref<string>("");
 const { t } = useI18n();
 // const useRealApi = ref<boolean>(true); // Toggle between mock and real API
@@ -30,7 +32,7 @@ const loading = ref<boolean>(false);
 const selectedData = ref<ApprovalWorkflowApiModel | null>(null);
 const docTypeStore = useDocumentTypeStore();
 const store = approvalWorkflowStore();
-const {push} = useRouter()
+const { push } = useRouter()
 const docTypeItems = computed(() =>
   docTypeStore.documentTypes.map((item) => ({
     value: item.getId(),
@@ -42,12 +44,13 @@ const formModel = reactive({
   name: "",
   document_type_id: "",
 });
-
+const authStore = useAuthStore();
+const isSuperAdmin = computed(() => authStore.isSuperAdmin); // ✅ ดึง getter isSuperAdmin\
 
 const loadData = async (): Promise<void> => {
   // if (useRealApi.value) {
-    loading.value = true;
-    try {
+  loading.value = true;
+  try {
     await store.fetchApprovalWorkflows({
       page: store.pagination.page,
       limit: store.pagination.limit,
@@ -71,7 +74,7 @@ const handleSearch = async () => {
 };
 // CRUD operations
 const showCreateModal = (): void => {
-  push({name: 'create-approval-workflow'})
+  push({ name: 'create-approval-workflow' })
 };
 
 const showEditModal = (record: ApprovalWorkflowApiModel): void => {
@@ -81,8 +84,8 @@ const showEditModal = (record: ApprovalWorkflowApiModel): void => {
   formModel.document_type_id = id?.toString();
   editModalVisible.value = true;
 };
-const info = (id: string)  => {
-  push({name: 'approval_workflow_step.index', params: {id: id}})
+const info = (id: string) => {
+  push({ name: 'approval_workflow_step.index', params: { id: id } })
 };
 
 const showDeleteModal = (record: ApprovalWorkflowApiModel): void => {
@@ -149,11 +152,41 @@ const tablePagination = computed(() => ({
   total: store.pagination.total,
   showSizeChanger: true,
 }));
-watch(search , async(newValue) => {
-  if(newValue === '') {
+watch(search, async (newValue) => {
+  if (newValue === '') {
     await loadData()
   }
 })
+const verify = async (record: any) => {
+  Modal.confirm({
+    title: t("approval-workflow.confirm.title"),
+    content:
+      record.status === "approved"
+        ? t("approval-workflow.confirm.toPending")
+        : t("approval-workflow.confirm.toApproved"),
+    okText: t("button.confirm"),
+    cancelText: t("button.cancel"),
+    okType: "primary",
+    async onOk() {
+      try {
+        loading.value = true;
+        const payload = {
+          status: record.status === "approved" ? "pending" : "approved",
+        };
+        await store.approvalStatus(record.id, payload);
+
+        success(t("approval-workflow.notify.verifySuccess"));
+        await loadData();
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        warning(t("approval-workflow.error.verifyFailed"), errorMessage);
+      } finally {
+        loading.value = false;
+      }
+    },
+  });
+};
+
 onMounted(async () => {
   store.setPagination({
     page: 1,
@@ -173,119 +206,83 @@ onMounted(async () => {
       </h1>
       <div class="flex justify-between gap-20">
         <div class="w-[20rem]">
-          <InputSearch
-            v-model:value="search"
-            @keyup.enter="handleSearch"
-            :placeholder="t('approval-workflow.placeholder.search')"
-          />
+          <InputSearch v-model:value="search" @keyup.enter="handleSearch"
+            :placeholder="t('approval-workflow.placeholder.search')" />
         </div>
-        <UiButton
-          type="primary"
-          icon="ant-design:plus-outlined"
-          @click="showCreateModal"
-          colorClass="flex items-center"
-        >
+        <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal"
+          colorClass="flex items-center">
           {{ $t("approval-workflow.add") }}
         </UiButton>
       </div>
       <div class="total-item mt-4 text-slate-700">
-        <a-tag color="red"
-          >{{ t("approval-workflow.total") }}: {{ store.pagination.total }}
-          {{ t("approval-workflow.item") }}</a-tag
-        >
+        <a-tag color="red">{{ t("approval-workflow.total") }}: {{ store.pagination.total }}
+          {{ t("approval-workflow.item") }}</a-tag>
       </div>
     </div>
 
     <!--  Table -->
-    <Table
-      :columns="columns(t)"
-      :dataSource="store.approval_workflows"
-      :pagination="tablePagination"
-      row-key="id"
-      :loading="store.loading"
-      @change="handleTableChange"
-    >
+    <Table :columns="columns(t)" :dataSource="store.approval_workflows" :pagination="tablePagination" row-key="id"
+      :loading="store.loading" @change="handleTableChange">
+      <template #status="{ record }">
+        <span class="px-3 py-1 rounded-full text-xs font-medium" :class="{
+          'bg-green-100 text-green-700': record.status === 'approved',
+          'bg-yellow-100 text-yellow-700': record.status === 'pending',
+          'bg-gray-100 text-gray-700': !['approved', 'pending'].includes(record.status),
+        }">
+          {{
+            record.status === 'approved'
+              ? t('approval-workflow.status.approved')
+              : record.status === 'pending'
+                ? t('approval-workflow.status.pending')
+                : t('approval-workflow.status.unknown')
+          }}
+        </span>
+      </template>
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
-          <UiButton
-            type=""
-            icon="ant-design:eye-outlined"
-            size="small"
-            shape="circle" 
-            @click="info(record.id)"
-            colorClass="flex items-center justify-center text-sky-500"
-          >
+          <!-- <SettingOutlined /> -->
+          <UiButton v-if="isSuperAdmin" icon="ant-design:safety-outlined" size="small" shape="circle" @click="verify(record)" :colorClass="[
+            'flex items-center justify-center',
+            record.status === 'approved'
+              ? 'text-green-600'
+              : record.status === 'pending'
+                ? 'text-orange-600'
+                : 'text-gray-500'
+          ].join(' ')">
+          </UiButton>
+          <UiButton icon="ant-design:eye-outlined" size="small" shape="circle" @click="info(record.id)"
+            colorClass="flex items-center justify-center text-sky-500">
           </UiButton>
 
-          <UiButton
-            icon="ant-design:edit-outlined"
-            size="small"
-            shape="circle" 
-            @click="showEditModal(record)"
-            colorClass="flex items-center justify-center text-orange-400"
-          >
+          <UiButton icon="ant-design:edit-outlined" size="small" shape="circle" @click="showEditModal(record)"
+            colorClass="flex items-center justify-center text-orange-400">
           </UiButton>
 
-          <UiButton
-            danger
-            icon="ant-design:delete-outlined"
-            shape="circle" 
-            colorClass="flex items-center justify-center text-red-700"
-            size="small"
-            @click="showDeleteModal(record)"
-          >
+          <UiButton danger icon="ant-design:delete-outlined" shape="circle"
+            colorClass="flex items-center justify-center text-red-700" size="small" @click="showDeleteModal(record)">
           </UiButton>
         </div>
       </template>
     </Table>
     <!-- Edit Modal -->
-    <UiModal
-      :title="t('approval-workflow.header_form.edit')"
-      :visible="editModalVisible"
-      :confirm-loading="loading"
-      @update:visible="editModalVisible = $event"
-      @ok="handleEdit"
-      @cancel="editModalVisible = false"
-      :okText="t('button.edit')"
-      :cancelText="t('button.cancel')"
-    >
+    <UiModal :title="t('approval-workflow.header_form.edit')" :visible="editModalVisible" :confirm-loading="loading"
+      @update:visible="editModalVisible = $event" @ok="handleEdit" @cancel="editModalVisible = false"
+      :okText="t('button.edit')" :cancelText="t('button.cancel')">
       <UiForm ref="formRef" :model="formModel" :rules="apvStepRules(t)">
-        <UiFormItem
-          :label="t('approval-workflow.field.form_name')"
-          name="name"
-          required
-        >
-          <UiInput
-            v-model="formModel.name"
-            :placeholder="t('approval-workflow.placeholder.name')"
-          />
+        <UiFormItem :label="t('approval-workflow.field.form_name')" name="name" required>
+          <UiInput v-model="formModel.name" :placeholder="t('approval-workflow.placeholder.name')" />
         </UiFormItem>
-        <UiFormItem
-          :label="t('approval-workflow.field.doc_type')"
-          name="document_type_id"
-          required
-        >
-          <InputSelect
-            v-model="formModel.document_type_id"
-            :options="docTypeItems"
-            :placeholder="t('approval-workflow.placeholder.doc_type')"
-          />
+        <UiFormItem :label="t('approval-workflow.field.doc_type')" name="document_type_id" required>
+          <InputSelect v-model="formModel.document_type_id" :options="docTypeItems"
+            :placeholder="t('approval-workflow.placeholder.doc_type')" />
         </UiFormItem>
       </UiForm>
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
-    <UiModal
-      :title="t('departments.alert.confirm')"
-      :visible="deleteModalVisible"
-      :confirm-loading="loading"
-      @update:visible="deleteModalVisible = $event"
-      @ok="handleDelete"
-      @cancel="deleteModalVisible = false"
-      :okText="t('button.ok')"
-      :cancelText="t('button.cancel')"
-      okType="primary"
-    >
+    <UiModal :title="t('departments.alert.confirm')" :visible="deleteModalVisible" :confirm-loading="loading"
+      @update:visible="deleteModalVisible = $event" @ok="handleDelete" @cancel="deleteModalVisible = false"
+      :okText="t('button.ok')" :cancelText="t('button.cancel')" okType="primary">
       <p>{{ $t("departments.alert.message") }}: "{{ selectedData?.name }}"?</p>
       <p class="text-red-500">
         {{ t("departments.alert.remark") }}
@@ -296,11 +293,13 @@ onMounted(async () => {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Lao&display=swap");
+
 .unit-list-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
+
 .total-item .ant-tag {
   font-family: "Noto Sans Lao", sans-serif;
   font-size: 14px;
