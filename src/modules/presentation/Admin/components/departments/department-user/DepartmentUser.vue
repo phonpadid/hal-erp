@@ -130,39 +130,60 @@ const loadDepartmentUser = async () => {
   if (isEditMode.value && departmentUserId.value) {
     try {
       loading.value = true;
+      // 1. load department user
       await dpmUserStore.fetchDepartmentUserById(departmentUserId.value);
       const departmentUser = dpmUserStore.currentDpmUser;
-      console.log("usereee:", departmentUser);
 
-      const userData = departmentUser?.getUser();
-      const positionData = departmentUser?.getPostion();
-
-      if (departmentUser) {
-        dpmUserFormModel.userId = userData?.getId() || "";
-        dpmUserFormModel.username = userData?.getUsername() || "";
-        dpmUserFormModel.email = userData?.getEmail?.() || "";
-        dpmUserFormModel.tel = userData?.getTel?.() || "";
-        dpmUserFormModel.position_id = positionData?.getId() || "";
-        dpmUserFormModel.departmentId = departmentUser.getDepartmentId();
-        dpmUserFormModel.user_type = userData?.getUserType() || [];
-        const signatureFileUrl = departmentUser.getSignature_file_url();
-
-        // signature_file_url
-        if (signatureFileUrl) {
-          existingSignatureUrl.value = signatureFileUrl;
-          dpmUserFormModel.signature_file = signatureFileUrl;
-          signatureFile.value = signatureFileUrl;
-        } else {
-          console.log("No signature file found");
-        }
-
-        // Load existing permissions
-        selectedPermissions.value = departmentUser.getUser()?.getPermissionIds() || [];
-        const existingRoleIds = departmentUser.getRoleIds?.() || departmentUser.getRoleIds() || [];
-        dpmUserFormModel.roleIds = existingRoleIds;
-      } else {
+      if (!departmentUser) {
         console.error("Department user not found");
+        return;
       }
+
+      // 2. Setting department type
+      const userDepartment = dpmStore.departments.find(
+        dept => dept.getId() === departmentUser.getDepartmentId()
+      );
+      if (userDepartment) {
+        departmentType.value = userDepartment.getType();
+      }
+
+      // 3. get user and position data
+      const userData = departmentUser.getUser();
+      const positionData = departmentUser.getPostion();
+
+      // 4. update form model
+      dpmUserFormModel.userId = userData?.getId() || "";
+      dpmUserFormModel.username = userData?.getUsername() || "";
+      dpmUserFormModel.email = userData?.getEmail?.() || "";
+      dpmUserFormModel.tel = userData?.getTel?.() || "";
+      dpmUserFormModel.position_id = positionData?.getId() || "";
+      dpmUserFormModel.departmentId = departmentUser.getDepartmentId();
+      dpmUserFormModel.user_type = userData?.getUserType() || [];
+
+      // 5. signatureFileUrl
+      const signatureFileUrl = departmentUser.getSignature_file_url();
+      if (signatureFileUrl) {
+        existingSignatureUrl.value = signatureFileUrl;
+        dpmUserFormModel.signature_file = signatureFileUrl;
+        signatureFile.value = signatureFileUrl;
+      }
+
+      // 6. load roles and permissions
+      await roleStore.fetchRoles({
+        page: 1,
+        limit: 10000,
+        department_id: departmentUser.getDepartmentId()
+      });
+
+      // 7. update roles
+      const existingRoleIds = departmentUser.getRoleIds?.() || [];
+      dpmUserFormModel.roleIds = [...existingRoleIds];
+
+      // 8. update permissions
+      const userPermissions = userData?.getPermissionIds() || [];
+      dpmUserFormModel.permissionIds = [...userPermissions];
+      selectedPermissions.value = [...userPermissions];
+
     } catch (error) {
       console.error("Failed to load department user:", error);
     } finally {
@@ -170,7 +191,6 @@ const loadDepartmentUser = async () => {
     }
   }
 };
-
 const handleSubmit = async (): Promise<void> => {
   try {
     loading.value = true;

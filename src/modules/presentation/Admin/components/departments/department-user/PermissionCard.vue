@@ -202,6 +202,34 @@ watch(rolePermissions, (newPermissions) => {
     selectedPermissions.value = validSelections;
   }
 }, { immediate: true });
+// Add this watch in PermissionCard.vue
+watch(() => props.modelValue, (newValue) => {
+  if (newValue && newValue.length > 0) {
+    // Ensure we only select permissions that exist in roles
+    const validPermissions = newValue.filter(id => rolePermissions.value.includes(id));
+    if (validPermissions.length !== selectedPermissions.value.length) {
+      selectedPermissions.value = validPermissions;
+    }
+  }
+}, { immediate: true });
+
+// watch(
+//   () => dpmUserFormModel.roleIds,
+//   async (newRoleIds) => {
+//     if (newRoleIds && newRoleIds.length > 0) {
+     
+//       const currentPermissions = [...selectedPermissions.value];
+//       selectedPermissions.value = currentPermissions.filter(permId => {
+       
+//         return newRoleIds.some(roleId => {
+//           const role = roleStore.roles.find(r => Number(r.getId()) === roleId);
+//           return role?.getPermissions?.()?.some(p => p.id === permId);
+//         });
+//       });
+//     }
+//   },
+//   { deep: true }
+// );
 
 </script>
 
