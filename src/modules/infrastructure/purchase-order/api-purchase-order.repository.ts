@@ -214,6 +214,10 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
     return PurchaseOrderEntity.create({
       id: data.id,
       po_number: data.po_number,
+      sub_total: data.sub_total || 0,
+      vat: data.vat || 0,
+      total: data.total || 0,
+      purposes: data.purposes || data.purchase_request?.purposes || "N/A",
       purchase_request_id: data.purchase_request_id,
       document: {
         description: data.document?.description,

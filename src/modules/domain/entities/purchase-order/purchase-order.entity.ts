@@ -27,6 +27,9 @@ interface PurchaseOrderDocument {
 export class PurchaseOrderEntity {
   private id: number;
   private po_number: string | null;
+  private sub_total: number;
+  private vat: number;
+  private total: number;
   private purchaseRequestId: number;
   private document: PurchaseOrderDocument;
   private purposes: string;
@@ -70,6 +73,9 @@ export class PurchaseOrderEntity {
   private constructor(
     id: number,
     po_number: string | null,
+    sub_total: number,
+    vat: number,
+    total: number,
     purchaseRequestId: number,
     document: PurchaseOrderDocument,
     items: PurchaseOrderItemEntity[],
@@ -86,6 +92,9 @@ export class PurchaseOrderEntity {
   ) {
     this.id = id;
     this.po_number = po_number;
+    this.sub_total = sub_total;
+    this.vat = vat;
+    this.total = total;
     this.purchaseRequestId = purchaseRequestId;
     this.document = document;
     this.purposes = purposes;
@@ -108,6 +117,12 @@ export class PurchaseOrderEntity {
 
     const id = data.id;
     const po_number = data.po_number || null;
+    const sub_total = data.sub_total || 0;
+    const vat = data.vat || 0;
+    const total = data.total || 0;
+    // console.log("Sub Total:", sub_total, "VAT:", vat, "Total:", total);
+    // console.log("Purchase Request Data:", data.purchase_request);
+    // console.log("Purposes from Purchase Request:", data.purchase_request?.purposes);
     const purchaseRequestId = data.purchase_request_id || 0;
     const purposes = data.purposes || data.purchase_request?.purposes || "N/A";
     const createdAt = data.created_at || "Invalid date";
@@ -176,6 +191,9 @@ export class PurchaseOrderEntity {
     return new PurchaseOrderEntity(
       id,
       po_number,
+      sub_total,
+      vat,
+      total,
       purchaseRequestId,
       document,
       items,
@@ -202,6 +220,15 @@ export class PurchaseOrderEntity {
   }
   public getPoNumber(): string | null {
     return this.po_number;
+  }
+  public getSubTotal(): number {
+    return this.sub_total;
+  }
+  public getVat(): number {
+    return this.vat;
+  }
+  public getTotal(): number {
+    return this.total;
   }
   public getPurchaseRequestId(): number {
     return this.purchaseRequestId;
