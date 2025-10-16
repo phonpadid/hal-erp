@@ -103,7 +103,6 @@
                 ລາຍລະອຽດຮ້ານຄ້າ
               </UiButton>
             </template>
-
             <template #image="{ record }">
               <span>
                 <a-image
