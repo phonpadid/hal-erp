@@ -93,6 +93,9 @@ const getStepTitle = (index: number, step: any) => {
           <template #price="{ record }">
             <span>₭ {{ formatPrice(record.getPrice()) }}</span>
           </template>
+           <template #total="{ record }">
+              <span>₭ {{ formatPrice(record.total || record.price * record.quantity) }}</span>
+            </template>
           <template #image="{ record }">
             <a-image
               v-if="record.file_name_url"
@@ -126,12 +129,12 @@ const getStepTitle = (index: number, step: any) => {
           <template v-for="(step, index) in approvalSteps" :key="step.id">
             <div>
               <!-- Step Title -->
-              <p class="text-slate-500 text-sm mb-2">
+              <p class="text-slate-500 text-sm mb-2 text-center">
                 {{ getStepTitle(index, step) }}
               </p>
 
               <!-- Signature Display -->
-              <div class="signature-box w-[80px] h-[80px] border rounded-md overflow-hidden">
+              <div class=" w-[80px] h-[80px] text-center">
                 <template v-if="step.status_id === 2 && step.approver?.user_signature">
                   <!-- Approved signature -->
                   <a-image
@@ -152,13 +155,13 @@ const getStepTitle = (index: number, step: any) => {
               </div>
 
               <!-- Approver Info -->
-              <div class="info text-sm text-slate-600 -space-y-1">
+              <div class="info text-sm text-slate-600 -space-y-1 text-center">
                 <template v-if="step.approver">
                   <p class="font-medium">{{ step.approver.username }}</p>
                   <p class="text-xs">{{ step.position?.name || "-" }}</p>
-                  <p class="text-xs" v-if="step.approved_at">
+                  <!-- <p class="text-xs" v-if="step.approved_at">
                     {{ formatDate(step.approved_at) }}
-                  </p>
+                  </p> -->
                 </template>
                 <template v-else-if="step.doc_approver?.[0]?.user">
                   <p class="font-medium">{{ step.doc_approver[0].user.username }}</p>

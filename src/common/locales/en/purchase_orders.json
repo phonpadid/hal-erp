@@ -12,6 +12,16 @@
   "Objectivesanditems":"Objectives and items",
   "Proposal":"Proposal",
   "p_orders":"Information about creating procurement approvals",
-  "list":"Item List"
+  "list":"Item List",
+    "card_title": {
+    "title": "Procurement proposal title",
+    "padding": "In progress",
+    "success": "Success",
+    "refused": "Refused"
+  },
+  "field":{
+    "purchase_order":"Purchase Order",
+    "po_number":"PO Number"
+  }
 
 }
