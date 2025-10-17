@@ -131,10 +131,16 @@ export const menuItems = computed<ItemType[]>(() => {
       permission: "read-budget-approval-rule",
     },
     {
+      key: "report_po",
+      label: t("menu-sidebar.report_po"),
+      permission: "read-budget-approval-rule",
+    },
+    {
       key: "report_receipt",
       label: t("menu-sidebar.report_receipt"),
       permission: "read-budget-approval-rule",
     },
+   
   ].filter((item) => hasPermission(item.permission));
 
   const receiptsMenuItems = [

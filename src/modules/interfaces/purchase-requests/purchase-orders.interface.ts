@@ -74,6 +74,11 @@ export interface PurchaseOrderApiModel {
   }>;
   id?: number;
   po_number?: string;
+  sub_total?: number;
+  vat?: number;
+  total?: number;
+  purposes?: string;
+
   purchase_request_id: number;
   document: {
     id?: number;

@@ -103,7 +103,6 @@
                 ລາຍລະອຽດຮ້ານຄ້າ
               </UiButton>
             </template>
-
             <template #image="{ record }">
               <span>
                 <a-image
@@ -132,7 +131,7 @@
               <span class="text-gray-500 mt-2 flex justify-end">
                 <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
                 <div class="text-gray-600">
-                  {{ hasVat ? `${formatPrice(getTotalVat)} ₭` : "ບໍ່ມີ" }}
+                  {{ hasVat ? `${formatPrice(getTotalVat)} ₭` : "0" }}
                 </div>
               </span>
               <span class="text-gray-500 mt-2 flex justify-end">
@@ -148,19 +147,19 @@
           <template v-for="(step, index) in approvalStep" :key="step.id">
             <div>
               <!-- Step Title -->
-              <p class="text-slate-500 text-sm mb-2">
+              <p class="text-slate-500 text-sm mb-2 text-center">
                 {{ getStepTitle(index, step) }}
               </p>
 
               <!-- Signature Display -->
-              <div class="signature-box w-[80px] h-[80px] border rounded-md overflow-hidden">
+              <div class="w-[80px] h-[80px]">
                 <template v-if="step.status_id === 2 && step.approver?.user_signature">
                   <!-- Approved signature -->
                   <a-image
                     :src="step.approver.user_signature.signature_url"
                     alt="signature"
                     :width="80"
-                    :height="80"
+                    :height="60"
                     :preview="false"
                     class="block"
                   />
@@ -174,13 +173,13 @@
               </div>
 
               <!-- Approver Info -->
-              <div class="info text-sm text-slate-600 -space-y-1">
+              <div class="info text-sm text-slate-600 -space-y-1 text-center">
                 <template v-if="step.approver">
                   <p class="font-medium">{{ step.approver.username }}</p>
-                  <p class="text-xs">{{ step.position?.name || "-" }}</p>
-                  <p class="text-xs" v-if="step.approved_at">
+                  <!-- <p class="text-xs">{{ step.position?.name || "-" }}</p> -->
+                  <!-- <p class="text-xs" v-if="step.approved_at">
                     {{ formatDate(step.approved_at) }}
-                  </p>
+                  </p> -->
                 </template>
                 <template v-else-if="step.doc_approver?.[0]?.user">
                   <p class="font-medium">{{ step.doc_approver[0].user.username }}</p>
