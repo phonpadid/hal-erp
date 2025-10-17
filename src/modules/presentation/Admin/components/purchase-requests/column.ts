@@ -27,11 +27,11 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "price",
       key: "price",
     },
-    // {
-    //   title: t("purchase-rq.field.total_price"),
-    //   dataIndex: "total",
-    //   key: "total",
-    // },
+    {
+      title: t("purchase-rq.field.total_price"),
+      dataIndex: "total_price",
+      key: "total_price",
+    },
     {
       title: t("purchase-rq.field.remark"),
       dataIndex: "remark",

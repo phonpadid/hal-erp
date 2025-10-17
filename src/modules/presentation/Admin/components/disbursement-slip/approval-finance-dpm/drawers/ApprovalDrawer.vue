@@ -97,18 +97,23 @@ onMounted( async () => {
               </template>
             </template>
           </a-table>
-          <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4">
-            <p class="font-medium text-slate-600">ມູນຄ່າລວມທັງໝົດ:</p>
-            <p class="font-semibold md:text-lg text-sm text-slate-700">
-              {{ formatPrice(orderDetails?.getPurchaseRequest().total || 0) }} ₭
-            </p>
+          <div class="total flex justify-end gap-1 mr-10 text-gray-700">
+          <div class="lable flex flex-col items-end mt-4 font-medium">
+            <p>{{t('receipt.total.sub_total')}}</p>
+            <p class="-mt-4">{{t('receipt.total.vat')}}</p>
+            <p class="-mt-4">{{t('receipt.total.total')}}</p>
           </div>
-          <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 gap-4">
-            <p class="font-medium text-slate-600 -mt-3 ">ມູນຄ່າລວມທັງໝົດກີບ:</p>
-            <p class="font-semibold md:text-lg text-sm -mt-3 text-slate-700">
-              {{ formatPrice(orderDetails?.getPurchaseRequest().total || 0) }} ₭
-            </p>
+          <div class="lable mt-4">
+            <p>:</p>
+            <p class="-mt-4">:</p>
+            <p class="-mt-4">:</p>
           </div>
+          <div class="lable mt-4">
+            <p>₭ {{ formatPrice(orderDetails?.getPurchaseRequest().total || 0) }}</p>
+            <p class="-mt-4"> ₭ {{ formatPrice(0) }}</p>
+            <p class="-mt-4">₭ {{ formatPrice(0) }}</p>
+          </div>
+        </div>
         </div>
         <!-- image and signature  -->
         <div v-for="(vendor , index) in orderDetails?.getPurchaseOrderItem()" :key="index" class="image space-y-4 py-4 shadow-sm px-6 rounded-md">

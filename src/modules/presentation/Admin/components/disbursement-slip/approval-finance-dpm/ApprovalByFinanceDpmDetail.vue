@@ -408,7 +408,7 @@ onMounted(async () => {
             :key="index"
             class="relative w-[100px] h-[130px] flex items-center justify-center overflow-hidden rounded-md"
           >
-            <a-image :src="img" style="width: 160px; height: 320px" />
+            <a-image :src="img" style="max-width: 100%; max-height: 100%;" />
             <button
               @click="deleteImage(index)"
               class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
@@ -432,7 +432,7 @@ onMounted(async () => {
         <h2>ຫຼັກຖານການໂອນເງິນ</h2>
 
         <!-- Flex container for images -->
-        <div class="flex flex-wrap gap-4 mt-2">
+        <div class="flex flex-wrap gap-4 -mt-5">
           <div
             v-for="(doc, index) in attachments"
             :key="index"
@@ -441,14 +441,14 @@ onMounted(async () => {
             <a-image
               class="flex items-center justify-center"
               :src="doc?.file_name_url"
-              style="width: 160px; height: 320px"
+              style="max-width: 100%; max-height: 100%;"
             />
           </div>
         </div>
       </div>
 
       <!-- Signature Section -->
-      <h2 class="text-md ml-3 mt-4 font-semibold">
+      <h2 class="text-md ml-3 mt-0 font-semibold">
         {{ t("purchase-rq.signature") }}
       </h2>
       <div
