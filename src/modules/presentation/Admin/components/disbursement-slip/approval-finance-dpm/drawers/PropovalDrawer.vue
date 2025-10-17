@@ -120,7 +120,7 @@ const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
           class="signature-approver text-center"
         >
           <p class="text-slate-500 text-sm font-bold">
-            {{ t("purchase-rq.approver") }} {{ step.step_number + 1 }}
+            {{ index === 0 ? "ຜູ້ຮ້ອງຂໍ" : t("purchase-rq.approver") + ' ' + (step.step_number) }}
           </p>
 
           <a-image

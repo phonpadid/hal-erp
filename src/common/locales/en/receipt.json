@@ -13,7 +13,7 @@
     },
     "total": {
         "sub_total": "Subtotal",
-        "vat": "Additional payment amount",
+        "vat": "Vat",
         "total": "Total amount"
     }
 }

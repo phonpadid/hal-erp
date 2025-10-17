@@ -125,15 +125,15 @@ const userNextApprove = computed(() =>
         name: step.document_status.name,
         ...(step.doc_approver &&
           step.doc_approver.length > 0 && {
-            dpm: step.doc_approver.map((approver) => ({
-              id: approver.department?.id || 0,
-              name: approver.department?.name,
-            })),
-            user: step.doc_approver.map((userData) => ({
-              id: userData.user?.id,
-              username: userData.user?.username,
-            })),
-          }),
+          dpm: step.doc_approver.map((approver) => ({
+            id: approver.department?.id || 0,
+            name: approver.department?.name,
+          })),
+          user: step.doc_approver.map((userData) => ({
+            id: userData.user?.id,
+            username: userData.user?.username,
+          })),
+        }),
       },
     ],
   }))
@@ -242,9 +242,7 @@ onMounted(async () => {
             {{ t("purchase-rq.field.proposer") }}
           </h2>
           <div class="info flex items-center px-2 gap-4 mb-4">
-            <div
-              class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
-            >
+            <div class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**">
               <Icon icon="mdi:user" class="text-6xl" />
             </div>
             <div class="detail -space-y-2">
@@ -268,22 +266,14 @@ onMounted(async () => {
 
           <div class="account_number">
             <h3>{{ t("receipt.title.account_number") }}</h3>
-            <UiInput
-              v-if="
-                dataHead.isApproved &&
-                isRole &&
-                !rStore.currentReceipts?.account_code
-              "
-              v-model="formModel.account_code"
-              placeholder="ປ້ອນລະຫັດບັນຊີ"
-              size="middle"
-              class="md:w-[15rem] w-full"
-            ></UiInput>
-            <span
-              class="text-[16px] text-gray-700"
-              v-if="rStore.currentReceipts?.account_code"
-              >{{ rStore.currentReceipts?.account_code }}</span
-            >
+            <UiInput v-if="
+              dataHead.isApproved &&
+              isRole &&
+              !rStore.currentReceipts?.account_code
+            " v-model="formModel.account_code" placeholder="ປ້ອນລະຫັດບັນຊີ" size="middle"
+              class="md:w-[15rem] w-full"></UiInput>
+            <span class="text-[16px] text-gray-700" v-if="rStore.currentReceipts?.account_code">{{
+              rStore.currentReceipts?.account_code }}</span>
           </div>
         </div>
       </div>
@@ -323,12 +313,8 @@ onMounted(async () => {
         <h2 class="text-md font-semibold">
           {{ t("purchase-rq.field.title") }}
         </h2>
-        <a-table
-          :columns="columns(t)"
-          :dataSource="rStore.currentReceipts?.receipt_item"
-          :pagination="false"
-          row-key="id"
-        >
+        <a-table :columns="columns(t)" :dataSource="rStore.currentReceipts?.receipt_item" :pagination="false"
+          row-key="id">
           <template #bodyCell="{ column, record, index }">
             <template v-if="column.key === 'id'">
               <span>{{ index + 1 }}</span>
@@ -336,7 +322,7 @@ onMounted(async () => {
             <template v-if="column.key === 'title'">
               <span>{{
                 record.purchase_order_item?.purchase_request_item?.title
-              }}</span>
+                }}</span>
             </template>
             <template v-if="column.key === 'budget_code'">
               <span>{{ budgetAcc?.code }} - {{ budgetAcc?.name }}</span>
@@ -351,47 +337,40 @@ onMounted(async () => {
               <span>₭ {{ formatPrice(record.price) }}</span>
             </template>
             <template v-if="column.key === 'vendor'">
-              <span
-                @click="
-                  vendorInfo(record.purchase_order_item.selected_vendor[0])
-                "
-                class="cursor-pointer text-red-600 hover:text-red-800"
-                >ເບິ່ງຮ້ານຄ້າ</span
-              >
+              <span @click="
+                vendorInfo(record.purchase_order_item.selected_vendor[0])
+                " class="cursor-pointer text-red-600 hover:text-red-800">ເບິ່ງຮ້ານຄ້າ</span>
             </template>
           </template>
         </a-table>
-        <div class="total flex justify-end gap-1 mr-10 text-gray-700">
+        <div class="total flex justify-end gap-1 text-[14px] mr-10 text-gray-700">
           <div class="lable flex flex-col items-end mt-4 font-medium">
-            <p>{{t('receipt.total.sub_total')}}</p>
-            <p class="-mt-4">{{t('receipt.total.vat')}}</p>
-            <p class="-mt-4">{{t('receipt.total.total')}}</p>
+            <p class="text-sky-500">{{ t('receipt.total.sub_total') }}</p>
+            <p class="-mt-3 text-orange-500">{{ t('receipt.total.vat') }}</p>
+            <p class="-mt-3 text-red-500">{{ t('receipt.total.total') }}</p>
           </div>
           <div class="lable mt-4">
             <p>:</p>
-            <p class="-mt-4">:</p>
-            <p class="-mt-4">:</p>
+            <p class="-mt-3">:</p>
+            <p class="-mt-3">:</p>
           </div>
           <div class="lable mt-4">
-            <p>₭ {{ formatPrice(rStore.currentReceipts?.sub_total) }}</p>
-            <p class="-mt-4"> ₭ {{ formatPrice(rStore.currentReceipts?.vat) }}</p>
-            <p class="-mt-4">₭ {{ formatPrice(rStore.currentReceipts?.total) }}</p>
+            <!-- ₭ -->
+            <p class=" text-sky-500 "> {{ formatPrice(rStore.currentReceipts?.sub_total) }} LAK</p>
+            <p class="-mt-3 text-orange-500"> {{ formatPrice(rStore.currentReceipts?.vat) }} LAK</p>
+            <p class="-mt-3 text-red-500"> {{ formatPrice(rStore.currentReceipts?.total) }} LAK</p>
           </div>
         </div>
       </div>
-      <div
-        v-if="
-          check && isAwaitingUser && !uploadCompleted && !attachments.length
-        "
-        class="mb-4 mt-4"
-      >
+      <div v-if="
+        check && isAwaitingUser && !uploadCompleted && !attachments.length
+      " class="mb-4 mt-4">
         <h2>ອັບໂຫລດສະລິບໂອນເງິນ</h2>
 
         <!-- Trigger Upload Modal -->
         <div
           class="flex flex-col items-center justify-center w-[190px] h-[120px] border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
-          @click="createModalVisible = true"
-        >
+          @click="createModalVisible = true">
           <Icon icon="mdi:upload" class="text-2xl text-gray-400 mb-1" />
           <p class="text-gray-600 text-sm">Click to upload</p>
           <p class="text-gray-400 text-xs">SVG, PNG, JPG (MAX. 5MB)</p>
@@ -403,27 +382,17 @@ onMounted(async () => {
       <!-- <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto"> -->
       <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto">
         <div class="flex flex-wrap items-center gap-2 mt-2">
-          <div
-            v-for="(img, index) in uploadedImages"
-            :key="index"
-            class="relative w-[100px] h-[130px] flex items-center justify-center overflow-hidden rounded-md"
-          >
+          <div v-for="(img, index) in uploadedImages" :key="index"
+            class="relative w-[100px] h-[130px] flex items-center justify-center overflow-hidden rounded-md">
             <a-image :src="img" style="max-width: 100%; max-height: 100%;" />
-            <button
-              @click="deleteImage(index)"
-              class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
-            >
+            <button @click="deleteImage(index)"
+              class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-xs">
               ×
             </button>
           </div>
-          <div
-            @click="createModalVisible = true"
-            class="w-[3rem] h-[3rem] flex items-center justify-center border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
-          >
-            <Icon
-              icon="material-symbols:image-arrow-up-outline-rounded"
-              class="text-2xl text-gray-400 mb-1"
-            />
+          <div @click="createModalVisible = true"
+            class="w-[3rem] h-[3rem] flex items-center justify-center border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer">
+            <Icon icon="material-symbols:image-arrow-up-outline-rounded" class="text-2xl text-gray-400 mb-1" />
           </div>
         </div>
       </div>
@@ -432,17 +401,11 @@ onMounted(async () => {
         <h2>ຫຼັກຖານການໂອນເງິນ</h2>
 
         <!-- Flex container for images -->
-        <div class="flex flex-wrap gap-4 -mt-5">
-          <div
-            v-for="(doc, index) in attachments"
-            :key="index"
-            class="w-[90px] h-[130px] flex items-center justify-center overflow-hidden rounded-md"
-          >
-            <a-image
-              class="flex items-center justify-center"
-              :src="doc?.file_name_url"
-              style="max-width: 100%; max-height: 100%;"
-            />
+        <div class="flex flex-wrap gap-4 -mt-1">
+          <div v-for="(doc, index) in attachments" :key="index"
+            class="w-[90px] h-[130px] flex items-center justify-center overflow-hidden rounded-md">
+            <a-image class="flex items-center justify-center" :src="doc?.file_name_url"
+              style="max-width: 100%; max-height: 100%;" />
           </div>
         </div>
       </div>
@@ -451,36 +414,24 @@ onMounted(async () => {
       <h2 class="text-md ml-3 mt-0 font-semibold">
         {{ t("purchase-rq.signature") }}
       </h2>
-      <div
-        class="signature flex flex-wrap items-center justif-start gap-[3rem] shadow-sm px-0 rounded-md pb-4"
-      >
-        <div
-          v-for="(step, index) in [
-            ...(rStore.currentReceipts?.user_approval?.approval_step || []),
-          ].sort((a, b) => a.step_number - b.step_number)"
-          :key="index"
-          class="signature-approver text-center"
-        >
+      <div class="signature flex flex-wrap items-center justif-start gap-[3rem] shadow-sm px-0 rounded-md pb-4">
+        <div v-for="(step, index) in [
+          ...(rStore.currentReceipts?.user_approval?.approval_step || []),
+        ].sort((a, b) => a.step_number - b.step_number)" :key="index" class="signature-approver text-center">
           <p class="text-slate-500 text-sm font-bold">
-            {{ t("purchase-rq.approver") }} {{ step.step_number + 1 }}
+            {{ index === 0 ? "ຜູ້ສ້າງ" : t("purchase-rq.approver") + ' ' + (step.step_number) }}
           </p>
 
-          <a-image
-            v-if="step.approver?.user_signature?.signature_url"
-            :src="step.approver?.user_signature?.signature_url"
-            alt="signature"
-            :width="120"
-            :height="60"
-            :preview="false"
-          />
-          <div
-            v-else
-            class="w-[120px] h-[80px] border border-slate-100 flex items-center justify-center text-xs text-slate-400"
-          >
+          <a-image v-if="step.approver?.user_signature?.signature_url"
+          class=" -mt-2"
+            :src="step.approver?.user_signature?.signature_url" alt="signature" :width="120" :height="100"
+            :preview="false" />
+          <div v-else
+            class="w-[120px] h-[80px] border border-slate-100 flex items-center justify-center text-xs text-slate-400">
             <!-- No Signature -->
           </div>
 
-          <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+          <div class="info text-sm text-slate-600 -space-y-2">
             <p>{{ step.approver?.username || "-" }}</p>
             <p>{{ step.position?.name || "-" }}</p>
           </div>
@@ -492,26 +443,18 @@ onMounted(async () => {
           {{ $t("disbursement.field.doc_attachment") }}
         </h2>
         <div class="flex flex-wrap gap-4">
-          <div
-            @click="showPropoval"
-            class="text-sky-500 hover:text-sky-600 p-2 bg-slate-50 flex items-center gap-2 cursor-pointer rounded-full"
-          >
+          <div @click="showPropoval"
+            class="text-sky-500 hover:text-sky-600 p-2 bg-slate-50 flex items-center gap-2 cursor-pointer rounded-full">
             <Icon icon="material-symbols:docs-outline" />
-            <span class="text-sm"
-              >{{ rStore.currentReceipts?.pr_doc_type }} - ເລກທີ
-              {{ rStore.currentReceipts?.pr_number }}</span
-            >
+            <span class="text-sm">{{ rStore.currentReceipts?.pr_doc_type }} - ເລກທີ
+              {{ rStore.currentReceipts?.pr_number }}</span>
             <Icon icon="mdi:arrow-top-right" />
           </div>
-          <div
-            @click="showApproval"
-            class="text-sky-500 hover:text-sky-600 p-2 bg-slate-50 flex items-center gap-2 cursor-pointer rounded-full"
-          >
+          <div @click="showApproval"
+            class="text-sky-500 hover:text-sky-600 p-2 bg-slate-50 flex items-center gap-2 cursor-pointer rounded-full">
             <Icon icon="material-symbols:docs-outline" />
-            <span class="text-sm"
-              >{{ rStore.currentReceipts?.po_doc_type }} - ເລກທີ
-              {{ rStore.currentReceipts?.po_number }}</span
-            >
+            <span class="text-sm">{{ rStore.currentReceipts?.po_doc_type }} - ເລກທີ
+              {{ rStore.currentReceipts?.po_number }}</span>
             <Icon icon="mdi:arrow-top-right" />
           </div>
         </div>
@@ -519,35 +462,20 @@ onMounted(async () => {
     </div>
   </div>
   <!-- //upload modal  -->
-  <UploadSlipModal
-    :visible="createModalVisible"
-    :loading="uploadLoading"
-    @update:visible="createModalVisible = $event"
-    @upload="handleImageUpload"
-  />
-  <UiDrawer
-    v-model:open="openVendor"
-    :title="`ຂໍ້ມູນຮ້ານຄ້າ`"
-    placement="right"
-    :width="470"
-  >
+  <UploadSlipModal :visible="createModalVisible" :loading="uploadLoading" @update:visible="createModalVisible = $event"
+    @upload="handleImageUpload" />
+  <UiDrawer v-model:open="openVendor" :title="`ຂໍ້ມູນຮ້ານຄ້າ`" placement="right" :width="470">
     <VendorDrawer :data="dataVendor" />
   </UiDrawer>
-  <UiDrawer
-    v-model:open="openPropoval"
-    :title="`${rStore.currentReceipts?.pr_doc_type} - ເລກທີ ${rStore.currentReceipts?.pr_number} - ວັນທີ 26 ມີນາ 2025`"
-    placement="right"
-    :width="1185"
-  >
+  <UiDrawer v-model:open="openPropoval"
+    :title="`${rStore.currentReceipts?.pr_doc_type} - ເລກທີ ${rStore.currentReceipts?.pr_number} - ${rStore.currentReceipts?.receipt_item[0].purchase_order_item?.purchase_request_item?.created_at}`"
+    placement="right" :width="1185">
     <PropovalDrawer :id="selectedId" />
   </UiDrawer>
 
-  <UiDrawer
-    v-model:open="openAppropoval"
-    :title="`${rStore.currentReceipts?.po_doc_type} - ເລກທີ ${rStore.currentReceipts?.po_number} - ວັນທີ 26 ມີນາ 2025`"
-    placement="right"
-    :width="1185"
-  >
+  <UiDrawer v-model:open="openAppropoval"
+    :title="`${rStore.currentReceipts?.po_doc_type} - ເລກທີ ${rStore.currentReceipts?.po_number} - ${rStore.currentReceipts?.created_at}`"
+    placement="right" :width="1185">
     <ApprovalDrawer :id="selectedId" />
   </UiDrawer>
 </template>

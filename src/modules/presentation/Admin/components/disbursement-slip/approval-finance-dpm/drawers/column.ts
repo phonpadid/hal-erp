@@ -63,6 +63,11 @@ export function columnTitle(t: (key: string) => string): Column[] {
       dataIndex: "price_in_words",
       key: "price_in_words",
     },
+    {
+      title: 'ຂໍ້ມູນຮ້ານ',
+      dataIndex: "vendor",
+      key: "vendor",
+    },
 
   ];
 }
