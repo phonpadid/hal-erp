@@ -10,6 +10,7 @@
     "price": "Price",
     "total": "Total",
     "total_budget": "Excess funds requested",
-    "shop": "Shop"
+    "shop": "Shop",
+    "image": "Image"
   }
 }

@@ -50,10 +50,10 @@ export class ApiUserApprovaltRepository implements UserApprovalRepository {
       const { pagination } = response.data;
       return {
         data: response.data.data.map((item) => this.toDomainModel(item)),
-        total: pagination.total,
-        page: pagination.page,
-        limit: pagination.limit,
-        totalPages: pagination.total_pages,
+        total: pagination.total ?? 0,
+        page: pagination.page ?? 1,
+        limit: pagination.limit ?? params.limit ?? 0,
+        totalPages: pagination.total_pages ?? 0,
       };
     } catch (error) {
       return this.handleApiError(error, "Failed to fetch list");

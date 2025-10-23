@@ -69,10 +69,7 @@
         <!-- Items Table -->
         <div>
           <h4 class="text-base font-semibold mb-2">{{ t("purchase_orders.list") }}</h4>
-          <Table
-            :columns="columnsDetails(t)"
-            :dataSource="orderDetails?.getPurchaseOrderItem() || []"
-          >
+          <Table :columns="columns" :dataSource="orderDetails?.getPurchaseOrderItem() || []">
             <template #index="{ index }">
               <span>{{ index + 1 }}</span>
             </template>
@@ -92,7 +89,43 @@
             <template #price="{ record }">
               <span>{{ formatPrice(record.getPrice()) }} ₭</span>
             </template>
-
+            <template #total="{ record }">
+              <span>{{ formatPrice(record.getTotal()) }} ₭</span>
+            </template>
+            <template #id_name="{ record }">
+              <span class="text-gray-600">
+                <div v-if="canManageBudget">
+                  <div v-if="selectedBudgets[record.id]">
+                    <span class="font-semibold text-blue-700">
+                      {{ selectedBudgets[record.id]?.budgetCode }} -
+                      {{ selectedBudgets[record.id]?.budgetName }}
+                    </span>
+                    <UiButton
+                      @click="showBudgetDrawer(record)"
+                      type="link"
+                      class="p-0 text-blue-500"
+                    >
+                      ແກ້ໄຂ
+                    </UiButton>
+                  </div>
+                  <div v-else>
+                    <UiButton
+                      @click="showBudgetDrawer(record)"
+                      type="default"
+                      class="w-full flex justify-between items-center text-blue-600 font-medium"
+                    >
+                      <div class="flex-grow text-left">ເລືອກປະເພດງົບປະມານ</div>
+                      <Icon icon="mdi:chevron-right" class="text-xl" />
+                    </UiButton>
+                  </div>
+                </div>
+                <div v-else>
+                  <span class="font-semibold text-gray-700">
+                    {{ selectedBudgets[record.id]?.budgetCode || "No Budget Code" }}
+                  </span>
+                </div>
+              </span>
+            </template>
             <template #Shop="{ record }">
               <UiButton
                 type="link"
@@ -124,70 +157,82 @@
           </Table>
           <div>
             <div v-if="orderDetails">
-              <span class="text-gray-500 mt-2 flex justify-end">
+              <div class="grid grid-cols-[auto_130px] gap-2 text-right">
                 <div class="font-medium">ລາຄາລວມ:</div>
                 <div class="text-gray-600">{{ formatPrice(getTotalAmount) }} ₭</div>
-              </span>
-              <span class="text-gray-500 mt-2 flex justify-end">
+
                 <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
-                <div class="text-gray-600">
-                  {{ hasVat ? `${formatPrice(getTotalVat)} ₭` : "0" }}
-                </div>
-              </span>
-              <span class="text-gray-500 mt-2 flex justify-end">
+                <div class="text-gray-600">{{ formatPrice(orderDetails.getVat()) }} ₭</div>
+
                 <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
-                <div class="text-gray-600 font-bold">{{ formatPrice(getTotalWithVat) }} ₭</div>
-              </span>
+                <div class="text-gray-600 font-bold">
+                  {{ formatPrice(orderDetails.getTotal()) }} ₭
+                </div>
+              </div>
             </div>
           </div>
         </div>
         <!-- Signatures -->
-        <div class="flex flex-wrap gap-4">
-          <!-- Approval Steps -->
-          <template v-for="(step, index) in approvalStep" :key="step.id">
-            <div>
-              <!-- Step Title -->
-              <p class="text-slate-500 text-sm mb-2 text-center">
-                {{ getStepTitle(index, step) }}
-              </p>
+        <div class="shadow-sm rounded-md p-4">
+          <h2 class="text-md font-semibold mb-4">
+            {{ t("purchase-rq.signature") }}
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <!-- Approval Steps -->
+            <template v-for="(step, index) in approvalStep" :key="step.id">
+              <div class="flex flex-col items-center">
+                <!-- Step Title -->
+                <p class="text-slate-500 text-sm mb-2 text-center w-full">
+                  {{ getStepTitle(index, step) }}
+                </p>
 
-              <!-- Signature Display -->
-              <div class="w-[80px] h-[80px]">
-                <template v-if="step.status_id === 2 && step.approver?.user_signature">
-                  <!-- Approved signature -->
-                  <a-image
-                    :src="step.approver.user_signature.signature_url"
-                    alt="signature"
-                    :width="80"
-                    :height="60"
-                    :preview="false"
-                    class="block"
-                  />
-                </template>
-                <template v-else-if="step.status_id === 1">
-                  <!-- Pending signature -->
-                  <div class="h-full flex items-center justify-center bg-gray-50">
-                    <span class="text-gray-400 text-center">{{ t("purchase-rq.pending") }}</span>
+                <!-- Signature Display -->
+                <div class="w-[100px] h-[100px] rounded-lg overflow-hidden">
+                  <template v-if="step.status_id === 2 && step.approver?.user_signature">
+                    <!-- Approved signature -->
+                    <a-image
+                      :src="step.approver.user_signature.signature_url"
+                      alt="signature"
+                      :width="100"
+                      :height="100"
+                      :preview="false"
+                      class="object-contain w-full h-full"
+                    />
+                  </template>
+                  <template v-else-if="step.status_id === 1">
+                    <!-- Pending signature -->
+                    <div class="h-full flex items-center justify-center bg-gray-50">
+                      <span class="text-gray-400 text-center px-2">
+                        {{ t("purchase-rq.pending") }}
+                      </span>
+                    </div>
+                  </template>
+                </div>
+
+                <!-- Approver Info -->
+                <div class="w-full">
+                  <div class="text-center">
+                    <template v-if="step.approver">
+                      <p class="font-medium text-sm mb-1">
+                        {{ step.approver.username }}
+                      </p>
+                      <p class="text-xs text-gray-600">
+                        {{ step.position?.name || "-" }}
+                      </p>
+                    </template>
+                    <template v-else-if="step.doc_approver?.[0]?.user">
+                      <!-- <p class="font-medium text-sm truncate">
+                        {{ step.doc_approver[0].user.username }}
+                      </p> -->
+                      <p class="text-xs text-gray-500">
+                        {{ t("purchase-rq.pending") }}
+                      </p>
+                    </template>
                   </div>
-                </template>
+                </div>
               </div>
-
-              <!-- Approver Info -->
-              <div class="info text-sm text-slate-600 -space-y-1 text-center">
-                <template v-if="step.approver">
-                  <p class="font-medium">{{ step.approver.username }}</p>
-                  <!-- <p class="text-xs">{{ step.position?.name || "-" }}</p> -->
-                  <!-- <p class="text-xs" v-if="step.approved_at">
-                    {{ formatDate(step.approved_at) }}
-                  </p> -->
-                </template>
-                <template v-else-if="step.doc_approver?.[0]?.user">
-                  <p class="font-medium">{{ step.doc_approver[0].user.username }}</p>
-                  <p class="text-xs">{{ t("purchase-rq.pending") }}</p>
-                </template>
-              </div>
-            </div>
-          </template>
+            </template>
+          </div>
         </div>
         <div>
           <span class="font-medium">{{ $t("disbursement.field.doc_attachment") }}</span>
@@ -269,7 +314,6 @@
           </template>
         </div>
       </div>
-
       <div class="text-center mt-4">
         <p class="text-sm text-gray-500">
           ບໍ່ໄດ້ຮັບລະຫັດ?
@@ -388,12 +432,18 @@
     <DrawerPr :id="selectedPrId" />
   </UiDrawer>
   <ShowShop v-model:open="isShopDrawerVisible" :shop-details="selectedShopDetails" />
+  <SelectDocumentTypeModal v-model:visible="open" :isEdit="true" :itemid="String(selectedData)" />
+
+  <!-- Budget Selection Drawer -->
+  <UiDrawer v-model:open="visibleBudget" title="ເລືອກລະຫັດງົບປະມານ" placement="right" :width="500">
+    <BudgetApprovalDrawer @confirm="handleBudgetConfirm" />
+  </UiDrawer>
 </template>
 
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
 import { computed, nextTick, onMounted, ref } from "vue";
-import { columnsDetails } from "../../views/approval-department/column/columnDetails";
+import { columnsApprovalDetails } from "../../views/budget/budget-approval/column/columnDetails";
 import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Icon } from "@iconify/vue";
@@ -416,6 +466,10 @@ import { storeToRefs } from "pinia";
 import { useApprovalStepStore } from "../../stores/approval-step.store";
 import { useDocumentStatusStore } from "../../stores/document-status.store";
 import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
+import { useAuthStore } from "../../stores/authentication/auth.store";
+import BudgetApprovalDrawer from "../budget-approval/BudgetApprovalDrawer.vue";
+import SelectDocumentTypeModal from "../receipt/modal/SelectDocumentTypeModal.vue";
+
 // import OtpModal from "../purchase-requests/modal/OtpModal.vue";
 
 /********************************************************* */
@@ -433,6 +487,39 @@ const rejectReason = ref("");
 const confirmLoading = ref(false);
 const visible = ref(false);
 const selectedPrId = ref<number | null>(null);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const selectedBudgets = ref<Record<string, any>>({});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const activeItemRecord = ref<any>(null);
+const visibleBudget = ref(false);
+const authStore = useAuthStore();
+const { userRoles } = storeToRefs(authStore);
+const canManageBudget = computed(() => {
+  return userRoles.value.includes("budget-admin") || userRoles.value.includes("budget-user");
+});
+const columns = computed(() => columnsApprovalDetails(t, userRoles.value));
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const showBudgetDrawer = (record: any) => {
+  activeItemRecord.value = record;
+  visibleBudget.value = true;
+};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleBudgetConfirm = (data: any) => {
+  if (activeItemRecord.value) {
+    selectedBudgets.value[activeItemRecord.value.id] = {
+      purchaseOrderItemId: activeItemRecord.value.id,
+      budgetId: data.id,
+      budgetCode: data.budget_account?.code || "No Code",
+      budgetName: data.budget_account?.name,
+      budgetAmount: data.allocated_amount,
+      remainingAmount: data.balance_amount,
+      usedAmount: data.used || data.use_amount,
+    };
+    console.log("Selected budgets after confirm:", selectedBudgets.value);
+  }
+  visibleBudget.value = false;
+};
 
 const showDrawer = () => {
   // Get the PR ID from your order details
@@ -442,7 +529,6 @@ const showDrawer = () => {
 
 const isShopDrawerVisible = ref(false);
 const selectedShopId = ref<number | undefined>(undefined);
-
 const selectedShopDetails = computed(() => {
   if (!selectedShopId.value || !orderDetails.value) return null;
   return orderDetails.value
@@ -469,25 +555,23 @@ const getTotalAmount = computed(() => {
     return sum + item.getTotal();
   }, 0);
 });
-
-const getTotalVat = computed(() => {
-  if (!orderDetails.value?.getPurchaseOrderItem()) return 0;
-  return orderDetails.value.getPurchaseOrderItem().reduce((sum, item) => {
-    return sum + (item.getIsVat() ? item.getVatTotal() : 0);
-  }, 0);
-});
-
-const getTotalWithVat = computed(() => {
-  if (!orderDetails.value?.getPurchaseOrderItem()) return 0;
-  return orderDetails.value.getPurchaseOrderItem().reduce((sum, item) => {
-    return sum + item.getTotalWithVat();
-  }, 0);
-});
-
-const hasVat = computed(() => {
-  if (!orderDetails.value?.getPurchaseOrderItem()) return false;
-  return orderDetails.value.getPurchaseOrderItem().some((item) => item.getIsVat());
-});
+const loadInitialBudgets = () => {
+  if (orderDetails.value?.getPurchaseOrderItem()) {
+    orderDetails.value.getPurchaseOrderItem().forEach(item => {
+      if (item.getBudgetItem()) {
+        selectedBudgets.value[item.getId()] = {
+          purchaseOrderItemId: item.getId(),
+          budgetId: item.getBudgetItem().id,
+          budgetCode: item.getBudgetItem().budget_account?.code || 'No Code',
+          budgetName: item.getBudgetItem().budget_account?.name,
+          budgetAmount: item.getBudgetItem().allocated_amount,
+          remainingAmount: item.getBudgetItem().balance_amount,
+          usedAmount: item.getBudgetItem().used || item.getBudgetItem().use_amount,
+        };
+      }
+    });
+  }
+};
 
 const isApproved = ref(false);
 /**************control header****************** */
@@ -570,19 +654,71 @@ const handleResendOtp = async () => {
 
 /*********************check show button to data ********************* */
 const approvalSteps = computed(() => orderDetails.value?.getUserApproval()?.approval_step ?? []);
+
 const approvalStep = computed(() => {
   const steps = orderDetails.value?.getUserApproval()?.approval_step ?? [];
   return [...steps].sort((a, b) => (a.step_number ?? 0) - (b.step_number ?? 0));
 });
 
+// check button approve/reject
+
 const currentApprovalStep = computed(() => {
-  return approvalSteps.value.find(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (step: any) =>
+  if (!orderDetails.value || !approvalSteps.value.length) {
+    return null;
+  }
+
+  // ดึงข้อมูล user จาก localStorage
+  const userDataStr = localStorage.getItem("userData");
+  const userData = userDataStr ? JSON.parse(userDataStr) : null;
+
+  if (!userData) {
+    return null;
+  }
+
+  // หา step ที่มีสถานะ pending
+  const pendingStep = approvalSteps.value.find(
+    (step) =>
       step.status_id === 1 && // PENDING
-      !step.approver &&
       step.step_number === (getPreviousApprovedStep.value?.step_number ?? 0) + 1
   );
+
+  if (!pendingStep) {
+    return null;
+  }
+  const isAuthorized = pendingStep.doc_approver?.some((approver) => {
+    const userMatches = approver.user?.username === userData.username;
+    const departmentMatches = approver.department?.name === userData.department_name;
+    return userMatches && departmentMatches;
+  });
+
+  return isAuthorized ? pendingStep : null;
+});
+const canCreatePaymentDocument = computed(() => {
+  if (!orderDetails.value || !approvalSteps.value.length) {
+   
+    return false;
+  }
+
+  const userDataStr = localStorage.getItem("userData");
+  const userData = userDataStr ? JSON.parse(userDataStr) : null;
+
+  if (!userData) {
+    return false;
+  }
+
+  const allStepsApproved = approvalSteps.value.every((step) => step.status_id === 2);
+  if (!allStepsApproved) {
+    return false;
+  }
+  const lastStep = [...approvalSteps.value].sort((a, b) => b.step_number - a.step_number)[0];
+
+  const isAuthorized = lastStep.doc_approver?.some((approver) => {
+    const userMatches = approver.user?.username === userData.username;
+    const departmentMatches = approver.department?.name === userData.department_name;
+    return userMatches && departmentMatches;
+  });
+
+  return isAuthorized;
 });
 
 const getPreviousApprovedStep = computed(() => {
@@ -593,48 +729,65 @@ const getPreviousApprovedStep = computed(() => {
 
 const canApprove = computed(() => {
   const currentStep = currentApprovalStep.value;
+  if (!currentStep) {
+  
+    return false;
+  }
+  if (currentStep.step_number === 0) {
+    return true;
+  }
   const previousStep = getPreviousApprovedStep.value;
-
-  if (!currentStep) return false;
-  if (currentStep.step_number === 1) return true;
-
-  return (
+  const canApprove =
     previousStep &&
     previousStep.status_id === 2 &&
-    previousStep.step_number === currentStep.step_number - 1
-  );
+    previousStep.step_number === currentStep.step_number - 1;
+
+
+  return canApprove;
 });
-// Custom buttons for header
+
 const customButtons = computed(() => {
   if (isApproved.value) {
-    // ถ้าอนุมัติแล้ว แสดงเฉพาะปุ่ม print
     return [
       {
         label: "print",
         icon: "ant-design:printer-outlined",
         class: "bg-white flex items-center gap-2 hover:bg-gray-100",
         type: "default" as ButtonType,
+        onClick: handlePrint,
+      },
+    ];
+  }
+  if (canCreatePaymentDocument.value) {
+    return [
+      {
+        label: `ສ້າງໃບເບີກຈ່າຍ`,
+        type: "primary" as ButtonType,
         onClick: () => {
-          handlePrint();
+          onChooseDocumentType();
         },
       },
     ];
   }
+
   if (!canApprove.value) {
+    console.log("Cannot approve - no permissions");
     return [];
   }
 
   const currentStep = currentApprovalStep.value;
-  if (!currentStep) return [];
+  if (!currentStep) {
+    console.log("No current step available for buttons");
+    return [];
+  }
+
   return [
     {
       label: "print",
       icon: "ant-design:printer-outlined",
       class: "bg-white flex items-center gap-2 hover:bg-gray-100",
       type: "default" as ButtonType,
-      onClick: () => {
-        isRejectModalVisible.value = true;
-      },
+      onClick: handlePrint,
     },
     {
       label: t("purchase-rq.card_title.refused"),
@@ -670,6 +823,13 @@ const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const isSuccessModalVisible = ref(false);
 const signatureData = ref("");
+const open = ref<boolean>(false);
+const selectedData = ref<string | null>(null);
+const purchaseOrderId = route.params.id as string;
+const onChooseDocumentType = () => {
+  selectedData.value = purchaseOrderId;
+  open.value = true;
+};
 const getPurchaseOrderRemark = computed(() => {
   if (
     orderDetails.value &&
@@ -730,6 +890,7 @@ const fetchOrderDetails = async () => {
 onMounted(async () => {
   await documentStatusStore.fetctDocumentStatus();
   await fetchOrderDetails();
+   loadInitialBudgets();
 });
 
 const handlePrint = () => {
@@ -751,6 +912,13 @@ const handleOtpConfirm = async (otpCode: string) => {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບສະຖານະການອະນຸມັດ");
     return;
   }
+  const purchaseOrderItemsPayload = Object.keys(selectedBudgets.value).map((itemId) => {
+    const budget = selectedBudgets.value[itemId];
+    return {
+      id: Number(itemId),
+      budget_item_id: budget.budgetId,
+    };
+  });
 
   try {
     confirmLoading.value = true;
@@ -762,7 +930,7 @@ const handleOtpConfirm = async (otpCode: string) => {
       approval_id: Number(approvalStepStore.otpResponse?.approval_id),
       is_otp: true,
       otp: otpCode,
-      purchase_order_items: [],
+      purchase_order_items: purchaseOrderItemsPayload ?? [],
       files: [],
     };
     const documentId = route.params.id as string;
@@ -771,7 +939,7 @@ const handleOtpConfirm = async (otpCode: string) => {
     if (success) {
       isOtpModalVisible.value = false;
       isSuccessModalVisible.value = true;
-      isApproved.value = true; // อัพเดทสถานะการอนุมัติ
+      isApproved.value = true;
     }
   } catch (err) {
     console.error("Error in handleOtpConfirm:", err);
@@ -793,10 +961,13 @@ const handleApprove = async () => {
   }
 
   try {
-    const purchaseOrderItems = orderDetails.value.getPurchaseOrderItem().map((item) => ({
-      id: Number(item.getId()),
-      budget_item_id: Number(item.getBudgetItemId() || 1),
-    }));
+    const purchaseOrderItemsPayload = Object.keys(selectedBudgets.value).map((itemId) => {
+      const budgetData = selectedBudgets.value[itemId];
+      return {
+        id: Number(budgetData.purchaseOrderItemId),
+        budget_item_id: budgetData.budgetId,
+      };
+    });
     if (currentApprovalStep.value.is_otp) {
       const otpResult = await approvalStepStore.sendOtp(currentApprovalStep.value.id);
       if (otpResult) {
@@ -810,7 +981,7 @@ const handleApprove = async () => {
         remark: "ຢືນຢັນສຳເລັດ",
         approvalStepId: Number(currentApprovalStep.value.id),
         is_otp: false,
-        purchase_order_items: purchaseOrderItems,
+        purchase_order_items: purchaseOrderItemsPayload,
         files: [],
       };
 
@@ -867,7 +1038,7 @@ const handleReject = async () => {
     // console.log("Sending payload Reject:", payload);
 
     const success = await approvalStepStore.submitApproval(documentId, payload);
-    router.push({ name: "approval-department-panak" });
+    router.push({ name: "approval_department_panak" });
     if (success) {
       isRejectModalVisible.value = false;
       rejectReason.value = "";
@@ -977,7 +1148,8 @@ const handleSuccessConfirm = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     isSuccessModalVisible.value = false;
     isApproved.value = true;
-    success("ການຢືນຢັນສຳເລັດ");
+    // success("ການຢືນຢັນສຳເລັດ");
+    router.push({ name: "approval_department_panak" });
     // currentStep.value = 1;
     showApprovalSuccess.value = true;
   } catch (err) {

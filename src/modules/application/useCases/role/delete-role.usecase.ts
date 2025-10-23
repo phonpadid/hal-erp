@@ -3,7 +3,7 @@ import type { RoleRepository } from "@/modules/domain/repository/role.repository
 export class DeleteRoleUseCase {
   constructor(private readonly roleRepository: RoleRepository) {}
 
-  async execute(id: string): Promise<boolean> {
+  async execute(id: string | number): Promise<boolean> {
     const role = await this.roleRepository.findById(id);
     if (!role) {
       throw new Error(`Role with id ${id} not found`);

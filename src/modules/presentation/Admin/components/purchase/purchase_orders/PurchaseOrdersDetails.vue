@@ -14,6 +14,7 @@ import { formatDate } from "@/modules/shared/formatdate";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { convertToLaoWords } from "@/modules/shared/utils/formatLao-and-en";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
+import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import { columns } from "./column";
 import { useVendorStore } from "../../../stores/vendors/vendor.store";
 import { useI18n } from "vue-i18n";
@@ -27,7 +28,7 @@ import type {
 } from "@/modules/interfaces/purchase-requests/purchase-orders.interface";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiTable from "@/common/shared/components/table/UiTable.vue";
-import PurchaseOrderShowDrawer from "./PurchaseOrderShowDrawer.vue";
+import DrawerPr from "../../drawer-pr-and-po/DrawerPr.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PurchaseOrderPending from "./PurchaseOrderPending.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -55,6 +56,7 @@ const purchaseOrderStore = usePurchaseOrderStore();
 const vendorModalRef = ref<InstanceType<typeof ModalVendorCreate> | null>(null);
 const { t } = useI18n();
 const loading = ref(true);
+const orderDetails = ref<PurchaseOrderEntity | null>(null);
 /*****************State Purchase Order********************* */
 const itemVendors = ref<{
   [itemId: string]: {
@@ -77,6 +79,12 @@ const approvalStepId = ref<number | null>(null);
 const currentApprovalStepId = ref<number | null>(null);
 const otpSending = ref(false);
 const newlyCreatedDocumentId = ref<string | null>(null);
+const selectedPrId = ref<number | null>(null);
+
+const showDrawer = () => {
+  selectedPrId.value = orderDetails.value?.getPurchaseRequest()?.id ?? null;
+  visible.value = true;
+};
 
 
 const sendOtp = async () => {
@@ -409,10 +417,6 @@ onMounted(async () => {
     loading.value = false;
   }
 });
-/*****************Show Ui Drawer********************* */
-const showDrawer = () => {
-  visible.value = true;
-};
 /********************************* */
 interface VendorData {
   id: string;
@@ -461,7 +465,6 @@ onMounted(() => {
 
 /******************************************************* */
 // /******************************************************* */
-// // Update handleConfirm function for first confirmation
 const handleConfirm = async () => {
   try {
     if (!isAllItemsHaveVendor.value) {
@@ -510,9 +513,6 @@ const handleConfirm = async () => {
     }
   }
 };
-// /******************************************************* */
-// /******************************************************* */
-// /******************************************************* */
 /******************************************************* */
 
 const customSteps = ref([
@@ -687,7 +687,7 @@ const handlePendingCancel = () => {
   handlePrevious();
 };
 const handleListOrder = () => {
-  router.push({ name: "approval_department_panak" });
+  router.push({ name: "apv_purchase_request.index" });
 };
 const totalAmount = computed(() => {
   return requestDetail.value?.getItems().reduce((sum, item) => sum + item.getTotalPrice(), 0) || 0;
@@ -809,7 +809,7 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
       placement="right"
       :width="1050"
     >
-      <PurchaseOrderShowDrawer />
+      <DrawerPr :id="selectedPrId" />
     </UiDrawer>
     <!--  -->
     <ModalVendorCreate ref="vendorModalRef" @submitted="handleVendorModalSubmitted" />
@@ -1051,10 +1051,10 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
           </UiModal>
         </div>
         <!-- Payment Details -->
-        <div class="border rounded-lg p-4">
+        <div >
          
 
-          <div class="mt-6">
+          <!-- <div class="mt-6">
             <span class="block mb-2 text-sm sm:text-base">ເອກະສານທີຕິດຂັດ</span>
             <HeaderComponent
               header-title="ໃບສະເໜີຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ"
@@ -1071,7 +1071,7 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
               class="cursor-pointer w-full overflow-hidden"
               @click="showDrawer"
             />
-          </div>
+          </div> -->
         </div>
       </div>
     </div>

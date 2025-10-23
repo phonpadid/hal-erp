@@ -6,11 +6,10 @@
     :width="800"
     @update:open="handleOpenChange"
   >
-    <div v-if="shopDetails" class="p-6">
-      <!-- ข้อมูลบัญชีธนาคาร -->
-      <div class="mb-6">
+    <div v-if="shopDetails" class="p-2">
+      <div class="mb-4">
         <h4 class="text-base font-semibold mb-4">ຂໍ້ມູນບັນຊີຮ້ານ</h4>
-        <div class="grid grid-cols-2 mb-2">
+        <div class="grid grid-cols-[120px_1fr] gap-2 mb-2">
           <span class="font-medium">ທະນາຄານ:</span>
           <span class="text-gray-600 flex items-center gap-2">
             <img
@@ -21,31 +20,29 @@
             <span>{{ shopDetails.getBankName() }}</span>
           </span>
         </div>
-        <div class="grid grid-cols-2 mb-2">
+        <div class="grid grid-cols-[120px_1fr] gap-2 mb-2">
           <span class="font-medium">ຊື່ບັນຊີ:</span>
           <span class="text-gray-600">{{ shopDetails.getAccountName() }}</span>
         </div>
-        <div class="grid grid-cols-2 mb-2">
+        <div class="grid grid-cols-[120px_1fr] gap-2 mb-2">
           <span class="font-medium">ເລກບັນຊີ {{ shopDetails.getCurrencyCode() }}:</span>
           <span class="text-gray-600">{{ shopDetails.getAccountNumber() }}</span>
         </div>
-        <div class="grid grid-cols-2 mb-2">
+        <div class="grid grid-cols-[120px_1fr] gap-2 mb-2">
           <span class="font-medium">ຜູ້ຂາຍ:</span>
           <span class="text-gray-600">{{ shopDetails.getVendorName() }}</span>
         </div>
-        <div class="grid grid-cols-2">
+        <div class="grid grid-cols-[120px_1fr] gap-2">
           <span class="font-medium">ຂໍ້ມູນຕິດຕໍ່:</span>
           <span class="text-gray-600">{{ shopDetails.getVendorContactInfo() }}</span>
         </div>
       </div>
     </div>
-    
     <div v-else class="p-6 text-center text-gray-500">
       ບໍ່ພົບຂໍ້ມູນຮ້ານຄ້າ
     </div>
   </UiDrawer>
 </template>
-
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import UiDrawer from '@/common/shared/components/Darwer/UiDrawer.vue';

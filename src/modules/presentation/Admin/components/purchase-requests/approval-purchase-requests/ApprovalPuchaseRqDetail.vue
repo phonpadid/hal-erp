@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import type { ButtonType } from "@/modules/shared/buttonType";
@@ -18,6 +18,7 @@ import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useApprovalStepStore } from "../../../stores/approval-step.store";
 import { Icon } from "@iconify/vue";
 import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
+import { useAuthStore } from "../../../stores/authentication/auth.store";
 
 import OtpModal from "../modal/OtpModal.vue";
 import SuccessModal from "../modal/SuccessModal.vue";
@@ -36,18 +37,55 @@ const route = useRoute();
 const router = useRouter();
 const loading = ref(true);
 const isApproveModalVisible = ref(false);
+const authStore = useAuthStore();
 
 /*********************check show button to data ********************* */
-const currentApprovalStep = computed(() => {
-  return requestDetail.value
-    ?.getUserApproval()
-    ?.approval_step.find((step) => step.status_id === 1 && !step.approver);
-});
+// const currentApprovalStep = computed(() => {
+//   return requestDetail.value
+//     ?.getUserApproval()
+//     ?.approval_step.find((step) => step.status_id === 1 && !step.approver);
+// });
 const canApprove = computed(() => {
   return !!currentApprovalStep.value;
 });
-/****************************************** */
 
+const currentApprovalStep = computed(() => {
+  if (!requestDetail.value || !authStore.user) {
+    return null;
+  }
+
+  const userDataStr = localStorage.getItem("userData");
+  const userData = userDataStr ? JSON.parse(userDataStr) : null;
+  const userApproval = requestDetail.value.getUserApproval();
+  if (!userApproval?.approval_step) {
+  
+    return null;
+  }
+  const pendingStep = userApproval.approval_step.find((step) => step.status_id === 1);
+
+  if (!pendingStep?.doc_approver?.length) {
+    
+    return null;
+  }
+  const isAuthorized = pendingStep.doc_approver.some((approver) => {
+    const userMatches = approver.user?.username === userData?.username;
+    const departmentMatches = approver.department?.name === userData?.department_name;
+
+    return userMatches && departmentMatches;
+  });
+
+  return isAuthorized ? pendingStep : null;
+});
+watchEffect(() => {
+  const step = currentApprovalStep.value;
+  console.log("Step changed:", {
+    hasStep: !!step,
+    stepId: step?.id,
+    isAuthorized: !!step,
+  });
+});
+
+/****************************************** */
 const requesterInfo = computed(() => requestDetail.value?.getRequester());
 const departmentInfo = computed(() => requestDetail.value?.getDepartment());
 const positionInfo = computed(() => requestDetail.value?.getPosition());
@@ -111,6 +149,7 @@ const customButtons = computed(() => {
     },
   ];
 });
+
 /**********Check logic OTP and No OTP TO PO********** */
 const approvalSteps = computed(() => requestDetail.value?.getUserApproval()?.approval_step ?? []);
 const isLastStep = computed(() => {
@@ -516,7 +555,6 @@ onMounted(async () => {
             <template #total="{ record }">
               <span>₭ {{ formatPrice(record.total || record.price * record.quantity) }}</span>
             </template>
-
             <template #image="{ record }">
               <a-image
                 v-if="record.file_name_url"
@@ -530,70 +568,75 @@ onMounted(async () => {
               <span v-else class="text-gray-400 italic">No Image</span>
             </template>
           </Table>
-          <div class="total flex items-center justify-end px-6">
-            <span class="font-medium text-slate-600"
-              >{{ t("purchase-rq.field.total_price") }}:</span
-            >
-            <span class="font-semibold md:text-lg text-sm text-slate-700">
+          <div class="price-summary grid grid-cols-[auto_150px] gap-2 px-6 text-right">
+            <div class="font-medium text-slate-600">{{ t("purchase-rq.field.total_price") }}:</div>
+            <div class="font-semibold md:text-lg text-sm text-slate-700">
               {{ formatPrice(requestDetail?.getTotal()) }}₭
-            </span>
-          </div>
-          <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 gap-4">
-            <span class="font-medium text-slate-600">{{ t("purchase-rq.field.amounts") }}:</span>
-            <span class="font-semibold md:text-lg text-sm text-slate-700">
+            </div>
+
+            <div class="font-medium text-slate-600">{{ t("purchase-rq.field.amounts") }}:</div>
+            <div class="font-semibold md:text-lg text-sm text-slate-700">
               {{ formatPrice(totalAmount) }}₭
-            </span>
+            </div>
           </div>
         </div>
         <!-- Signature Section -->
-        <div class="shadow-sm rounded-md">
-          <h2 class="text-md font-semibold">
+        <div class="shadow-sm rounded-md p-4">
+          <h2 class="text-md font-semibold mb-4">
             {{ t("purchase-rq.signature") }}
           </h2>
-
-          <div class="flex flex-wrap gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             <!-- Approval Steps -->
             <template v-for="(step, index) in approvalStep" :key="step.id">
-              <div>
+              <div class="flex flex-col items-center">
                 <!-- Step Title -->
-                <p class="text-slate-500 text-sm mb-2 text-center">
+                <p class="text-slate-500 text-sm mb-2 text-center w-full">
                   {{ getStepTitle(index, step) }}
                 </p>
 
                 <!-- Signature Display -->
-                <div class="w-[80px] h-[80px]">
+                <div class="w-[100px] h-[100px] rounded-lg overflow-hidden">
                   <template v-if="step.status_id === 2 && step.approver?.user_signature">
                     <!-- Approved signature -->
                     <a-image
                       :src="step.approver.user_signature.signature_url"
                       alt="signature"
-                      :width="80"
-                      :height="80"
+                      :width="100"
+                      :height="100"
                       :preview="false"
-                      class="block"
+                      class="object-contain w-full h-full"
                     />
                   </template>
                   <template v-else-if="step.status_id === 1">
                     <!-- Pending signature -->
                     <div class="h-full flex items-center justify-center bg-gray-50">
-                      <span class="text-gray-400 text-center">{{ t("purchase-rq.pending") }}</span>
+                      <span class="text-gray-400 text-center px-2">
+                        {{ t("purchase-rq.pending") }}
+                      </span>
                     </div>
                   </template>
                 </div>
 
                 <!-- Approver Info -->
-                <div class="info text-sm text-slate-600 -space-y-1 text-center">
-                  <template v-if="step.approver">
-                    <p class="font-medium">{{ step.approver.username }}</p>
-                    <p class="text-xs">{{ step.position?.name || "-" }}</p>
-                    <!-- <p class="text-xs" v-if="step.approved_at">
-                      {{ formatDate(step.approved_at) }}
-                    </p> -->
-                  </template>
-                  <template v-else-if="step.doc_approver?.[0]?.user">
-                    <p class="font-medium">{{ step.doc_approver[0].user.username }}</p>
-                    <p class="text-xs">{{ t("purchase-rq.pending") }}</p>
-                  </template>
+                <div class="w-full">
+                  <div class="text-center">
+                    <template v-if="step.approver">
+                      <p class="font-medium text-sm mb-1">
+                        {{ step.approver.username }}
+                      </p>
+                      <p class="text-xs text-gray-600">
+                        {{ step.position?.name || "-" }}
+                      </p>
+                    </template>
+                    <template v-else-if="step.doc_approver?.[0]?.user">
+                      <!-- <p class="font-medium text-sm truncate">
+                        {{ step.doc_approver[0].user.username }}
+                      </p> -->
+                      <p class="text-xs text-gray-500">
+                        {{ t("purchase-rq.pending") }}
+                      </p>
+                    </template>
+                  </div>
                 </div>
               </div>
             </template>
@@ -656,6 +699,7 @@ onMounted(async () => {
 
 <style scoped>
 /* Add any component-specific styles here if needed */
+
 .user-info {
   background: white;
   border-radius: 0.5rem;

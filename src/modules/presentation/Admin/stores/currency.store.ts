@@ -85,10 +85,10 @@ export const currencyStore = defineStore("currency-store", () => {
       const result = await currenciesService.getAll(params, includeDeleted);
       currencies.value = result.data;
       pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
+        page: result.page ?? 1,
+        limit: result.limit ?? 10,
+        total: result.total ?? 0,
+        totalPages: result.totalPages ?? 0,
       };
       return result;
     } catch (err) {
@@ -181,10 +181,10 @@ export const currencyStore = defineStore("currency-store", () => {
 
       currencies.value = result.data;
       pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
+        page: result.page ?? 1,
+        limit: result.limit ?? 10,
+        total: result.total ?? 0,
+        totalPages: result.totalPages ?? 0,
       };
 
       return result;

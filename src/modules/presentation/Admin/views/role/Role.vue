@@ -7,23 +7,39 @@ import { column } from "./column";
 import { useRoleStore } from "../../stores/role.store";
 import { formatDate } from "@/modules/shared/formatdate";
 import { useRouter } from "vue-router";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import { Modal } from "ant-design-vue";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 
 const { t } = useI18n();
 
-// ສ້າງ role store
 const rolesStore = useRoleStore();
 const roles = ref<RoleResponse[]>([]);
-const loading = ref<boolean>(false);
 const router = useRouter();
+const { success } = useNotification();
 
 const addRole = (): void => {
   router.push({ name: "roleCreate" });
 };
+
 const editRole = (role: Roleinterface): void => {
   router.push({ name: "roleEdit", params: { id: role.id.toString() } });
+};
+const deleteRole = async (role: Roleinterface): Promise<void> => {
+Modal.confirm({
+    title: t("role.confirm.deleteTitle"),
+    content: t("role.confirm.deleteMessage"),
+    okText: t("role.buttons.confirm"),
+    okType: "danger",
+    cancelText: t("role.buttons.cancel"),
+    async onOk() {
+      await rolesStore.deleteRole(role.id);
+      success(("ລົບຂໍ້ມູນສຳເລັດ"));
+      await loadRoles();
+    },
+  });
 };
 
 // Table pagination
@@ -32,9 +48,12 @@ const tablePagination = computed(() => ({
   pageSize: rolesStore.pagination.limit,
   total: rolesStore.pagination.total,
   showSizeChanger: true,
+  pageSizeOptions: ['10', '20', '50', '100'],
 }));
+
 // Handle pagination and sorting
 const handleTableChange = async (pagination: TablePaginationType): Promise<void> => {
+  
   rolesStore.setPagination({
     page: pagination.current || 1,
     limit: pagination.pageSize || 10,
@@ -46,8 +65,7 @@ const handleTableChange = async (pagination: TablePaginationType): Promise<void>
 
 const loadRoles = async (): Promise<void> => {
   try {
-    loading.value = true;
-    const result = await rolesStore.fetchRoles({
+    const result = await rolesStore.fetchAllRoles({
       page: rolesStore.pagination.page,
       limit: rolesStore.pagination.limit,
       department_id: undefined,
@@ -72,8 +90,7 @@ const loadRoles = async (): Promise<void> => {
     });
   } catch (error) {
     console.error(t("role.error.loadFailed"), error);
-  } finally {
-    loading.value = false;
+    roles.value = [];
   }
 };
 
@@ -97,7 +114,7 @@ onMounted(async () => {
         {{ t("role.list.btn") }}
       </UiButton>
     </div>
-    <!-- ຕາຕະລາງຂໍ້ມູນບົດບາດ -->
+    
     <Table
       :columns="column(t)"
       :dataSource="roles"
@@ -116,6 +133,15 @@ onMounted(async () => {
             @click="editRole(record)"
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
+          />
+          <UiButton
+            type=""
+            icon="ant-design:delete-outlined"
+            size="small"
+            shape="circle"
+            @click="deleteRole(record)"
+            colorClass="flex items-center justify-center text-red-500"
+           
           />
         </div>
       </template>

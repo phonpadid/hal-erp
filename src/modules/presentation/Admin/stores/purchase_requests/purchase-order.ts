@@ -39,10 +39,10 @@ export const usePurchaseOrderStore = defineStore("purchaseOrders", () => {
         orders.value = result.data;
 
         pagination.value = {
-          page: result.page,
-          limit: result.limit,
-          total: result.total,
-          totalPages: result.totalPages,
+          page: result.page ?? 1,
+          limit: result.limit ?? 10,
+          total: result.total ?? 0,
+          totalPages: result.totalPages ?? 0,
         };
         statusSummary.value = result.status || [];
 

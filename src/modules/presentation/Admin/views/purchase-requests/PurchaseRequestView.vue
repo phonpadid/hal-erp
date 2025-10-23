@@ -74,7 +74,12 @@ const statusCounts = computed(() => {
     return acc;
   }, {} as Record<string, number>);
 });
-
+// New computed property to check if a request can be edited
+const canEdit = (status: string) => {
+  // check APPROVED, REJECTED or CANCELED 
+  const nonEditableStatuses = ['APPROVED', 'REJECTED', 'CANCELED'];
+  return !nonEditableStatuses.includes(status.toUpperCase());
+};
 const statusCards = computed(() => {
   return [
     {
@@ -246,13 +251,19 @@ onMounted(async () => {
         <template #actions="{ record }">
           <div class="flex items-center justify-center gap-2">
             <UiButton
-              type="link"
-              icon="material-symbols:edit-square"
-              color-class="flex items-center text-blue-500 hover:!text-blue-800"
-              @click="edit(record.getId())"
-            >
-              {{ t("purchase-rq.edit") }}
-            </UiButton>
+      type="link"
+      icon="material-symbols:edit-square"
+      color-class="flex items-center"
+      :class="[
+        canEdit(record.status) 
+          ? 'text-blue-500 hover:!text-blue-800' 
+          : 'text-gray-400 cursor-not-allowed'
+      ]"
+      :disabled="!canEdit(record.status)"
+      @click="canEdit(record.status) && edit(record.getId())"
+    >
+      {{ t("purchase-rq.edit") }}
+    </UiButton>
             <UiButton
               type="link"
               icon="ant-design:eye-outlined"

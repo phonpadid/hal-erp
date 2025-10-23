@@ -43,7 +43,7 @@ export class RoleServiceImpl implements RoleService {
     return await this.updateRoleUseCase.execute(id, data);
   }
 
-  async deleteRole(id: string): Promise<boolean> {
+  async deleteRole(id: string | number): Promise<boolean> {
     return await this.deleteRoleUseCase.execute(id);
   }
 }

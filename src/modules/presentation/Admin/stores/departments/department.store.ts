@@ -66,10 +66,10 @@ export const departmentStore = defineStore("department", () => {
       const result = await departmentService.getAllDepartments(params, includeDeleted);
       departments.value = result.data;
       pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
+        page: result.page ?? 1,
+        limit: result.limit ?? 10,
+        total: result.total ?? 0,
+        totalPages: result.totalPages ?? 0,
       };
     } catch (err) {
       error.value = err as Error;
@@ -165,10 +165,10 @@ export const departmentStore = defineStore("department", () => {
 
       departments.value = result.data;
       pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
+        page: result.page ?? 1,
+        limit: result.limit ?? 10,
+        total: result.total ?? 0,
+        totalPages: result.totalPages ?? 0,
       };
 
       return result;

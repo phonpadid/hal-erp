@@ -84,31 +84,31 @@ export const menuItems = computed<ItemType[]>(() => {
     },
   ].filter((item) => hasPermission(item.permission));
 
-  const budgetApprovalMenuItems = [
-    {
-      key: "budget-approval",
-      label: h("div", { class: "flex items-center gap-2" }, [
-        h("span", t("menu-sidebar.budgetApproval")),
-        h(
-          "span",
-          {
-            class:
-              "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
-          },
-          rStore.counts.po?.toString() ?? "0"
-        ),
-      ]),
-      icon: () =>
-        h("div", {}, [
-          h(Icon, {
-            icon: "solar:archive-check-broken",
-            class: "text-base",
-          }),
-        ]),
-      permission: "read-budget-approval-rule",
-      // permission: "read-budget-approval",
-    },
-  ].filter((item) => hasPermission(item.permission));
+  // const budgetApprovalMenuItems = [
+  //   {
+  //     key: "budget-approval",
+  //     label: h("div", { class: "flex items-center gap-2" }, [
+  //       h("span", t("menu-sidebar.budgetApproval")),
+  //       h(
+  //         "span",
+  //         {
+  //           class:
+  //             "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
+  //         },
+  //         rStore.counts.po?.toString() ?? "0"
+  //       ),
+  //     ]),
+  //     icon: () =>
+  //       h("div", {}, [
+  //         h(Icon, {
+  //           icon: "solar:archive-check-broken",
+  //           class: "text-base",
+  //         }),
+  //       ]),
+  //     permission: "read-budget-approval-rule",
+  //     // permission: "read-budget-approval",
+  //   },
+  // ].filter((item) => hasPermission(item.permission));
 
   const budgetApprovalRuleMenuItems = [
     {
@@ -438,7 +438,7 @@ export const menuItems = computed<ItemType[]>(() => {
             ]
           : []),
         ...receiptsMenuItems,
-        ...budgetApprovalMenuItems,
+        // ...budgetApprovalMenuItems,
         // {
         //   key: "director-list",
         //   label: t("menu-sidebar.director"),
