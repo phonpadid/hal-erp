@@ -169,7 +169,7 @@ const loadDepartmentUser = async () => {
       }
 
       // 6. load roles and permissions
-      await roleStore.fetchRoles({
+      await roleStore.fetchAllRoles({
         page: 1,
         limit: 10000,
         department_id: departmentUser.getDepartmentId()
@@ -268,7 +268,7 @@ watch(
       loading.value = true;
       try {
         // Fetch roles with department filter
-        await roleStore.fetchRoles({
+        await roleStore.fetchAllRoles({
           page: 1,
           limit: 10000,
           department_id: newDepartmentId,

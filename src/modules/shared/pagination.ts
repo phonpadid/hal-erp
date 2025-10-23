@@ -39,15 +39,15 @@ export interface APIResponse<T> {
 
 export interface PaginatedResult<T> {
   data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
   status?: any[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    total_pages: number;
-  };
+  // pagination?: {
+  //   page: number;
+  //   limit: number;
+  //   total: number;
+  //   total_pages: number;
+  // };
 }

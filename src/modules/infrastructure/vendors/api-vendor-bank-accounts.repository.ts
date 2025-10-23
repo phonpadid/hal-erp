@@ -33,6 +33,7 @@ export class ApiVendorsBankAccountsRepository implements VendorsBankAccountsRepo
         page: response.data.pagination.page,
         limit: response.data.pagination.limit,
         totalPages: response.data.pagination.total_pages,
+        // pagination: response.data.pagination,
       };
     } catch (error) {
       this.handleApiError(error, "Failed to fetch vendorss list");

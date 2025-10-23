@@ -37,12 +37,12 @@ export class ApiRoleRepository implements RoleRepository {
       page,
       limit,
       totalPages,
-      pagination: {
-        page,
-        limit,
-        total,
-        total_pages: totalPages,
-      },
+      // pagination: {
+      //   page,
+      //   limit,
+      //   total,
+      //   total_pages: totalPages,
+      // },
     };
   } catch (error) {
     console.error("API Error - findAll:", error);
