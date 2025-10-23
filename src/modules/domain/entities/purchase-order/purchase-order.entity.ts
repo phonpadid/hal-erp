@@ -285,8 +285,6 @@ export class PurchaseOrderEntity {
   public getPurposes(): string {
     return this.purposes;
   }
-
-  // เพิ่มเมธอดสำหรับดึงข้อมูลจาก purchase_order_item
   public getQuotationImageUrl(): string | null {
     if (this.purchase_order_item && this.purchase_order_item.length > 0) {
       return this.purchase_order_item[0].getQuotationImageUrl();
@@ -330,21 +328,14 @@ export class PurchaseOrderEntity {
   }
 
   // --- Business Logic Methods (ตัวอย่าง) ---
-
-  /**
-   * คำนวณยอดรวมของใบสั่งซื้อ
-   * @returns {number}
-   */
   public getTotalWithVAT(): number {
-    // ถ้ามีข้อมูลใน items ให้คำนวณจาก items
+   
     if (this.items && this.items.length > 0) {
       return this.items.reduce((total, item) => {
         const itemPrice = item.getPrice();
         return total + (item.getIsVat() ? itemPrice * 1.07 : itemPrice);
       }, 0);
     }
-
-    // ถ้าไม่มีข้อมูลใน items แต่มีข้อมูลใน purchase_order_item ให้คำนวณจาก purchase_order_item
     if (this.purchase_order_item && this.purchase_order_item.length > 0) {
       return this.purchase_order_item.reduce((total, item) => {
         return total + item.getTotalWithVat();

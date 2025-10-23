@@ -40,8 +40,13 @@ export function columnsApprovalDetails(t: (key: string) => string, userRoles: st
   const baseColumns: Column[] = [
     {
       title: t("budget_approval.table.number"),
-      dataIndex: "number",
-      key: "number",
+      dataIndex: "index",
+      key: "index",
+    },
+     {
+      title: t("budget_approval.table.image"),
+      dataIndex: "image",
+      key: "image",
     },
     {
       title: t("budget_approval.table.remark"),
@@ -65,8 +70,13 @@ export function columnsApprovalDetails(t: (key: string) => string, userRoles: st
     },
     {
       title: t("budget_approval.table.shop"),
-      dataIndex: "shop",
-      key: "shop",
+      dataIndex: "Shop",
+      key: "Shop",
+    },
+    {
+      title: t("purchase_qequest.table.note"),
+      dataIndex: "remark",
+      key: "remark",
     },
   ];
 

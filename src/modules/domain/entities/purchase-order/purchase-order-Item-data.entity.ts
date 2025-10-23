@@ -131,7 +131,7 @@ export class PurchaseOrderItemDataEntity {
   }
 
   public getTotal(): number {
-    return this.total;
+    return this.price * this.quantity;
   }
 
   public getVatTotal(): number {

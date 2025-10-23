@@ -8,8 +8,6 @@ import { computed, onMounted, ref } from "vue";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 import { Icon } from "@iconify/vue";
-import { formatDate } from "@/modules/shared/formatdate";
-
 import Table from "@/common/shared/components/table/Table.vue";
 
 // Import the print helper

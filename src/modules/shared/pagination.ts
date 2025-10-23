@@ -6,6 +6,7 @@ export interface PaginationParams {
   sortBy?: string;
   date?: string;
   order_date?: string;
+  
   sortDirection?: "asc" | "desc";
   type?: string;
   //search between
@@ -21,6 +22,7 @@ export interface PaginationParams {
   requested_date_end?: string;
   start_date?: string;
   end_date?: string;
+  
 }
 
 export interface APIResponse<T> {
@@ -42,4 +44,10 @@ export interface PaginatedResult<T> {
   limit: number;
   totalPages: number;
   status?: any[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+  };
 }

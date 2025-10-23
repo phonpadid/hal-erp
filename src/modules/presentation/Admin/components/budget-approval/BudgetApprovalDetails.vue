@@ -16,7 +16,6 @@ import { useDocumentStatusStore } from "../../stores/document-status.store";
 import { useAuthStore } from "../../stores/authentication/auth.store";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { storeToRefs } from "pinia";
-import { formatDate } from "@/modules/shared/formatdate";
 import DrawerPr from "../drawer-pr-and-po/DrawerPr.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -85,10 +84,9 @@ const approvalSteps = computed(() => orderDetails.value?.getUserApproval()?.appr
 //   return documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId();
 // });
 const rejectedStatusId = computed(() => {
-  // console.log("🔍 Debug rejectedStatusId:");
-  // console.log("document_Status:", documentStatusStore.document_Status);
+  
   const rejected = documentStatusStore.document_Status.find((s) => s.getName() === "REJECTED");
-  // console.log("Found rejected status:", rejected);
+
   return rejected?.getId();
 });
 const documentStatus = computed(() => {
@@ -160,43 +158,145 @@ const getPreviousApprovedStep = computed(() => {
 });
 
 const currentApprovalStep = computed(() => {
-  // console.log("🔥 Using NEW currentApprovalStep logic");
-  const pendingSteps = approvalSteps.value.filter((step) => step.status_id === 1);
-
-  if (pendingSteps.length === 0) {
+  if (!orderDetails.value || !approvalSteps.value.length) {
     return null;
   }
-  const nextPendingStep = pendingSteps.sort((a, b) => a.step_number - b.step_number)[0];
-  const canApprove =
-    nextPendingStep.approver_id === loggedInUserId.value || nextPendingStep.approver_id === 0;
 
-  // console.log("NEW currentApprovalStep result:", canApprove ? nextPendingStep : null);
+  // check user to localStorage
+  const userDataStr = localStorage.getItem('userData');
+  const userData = userDataStr ? JSON.parse(userDataStr) : null;
 
-  return canApprove ? nextPendingStep : null;
+  if (!userData) {
+   
+    return null;
+  }
+
+  //  pending
+  const pendingStep = approvalSteps.value.find(step => 
+    step.status_id === 1 && // PENDING
+    step.step_number === (getPreviousApprovedStep.value?.step_number ?? 0) + 1
+  );
+
+  if (!pendingStep) {
+   
+    return null;
+  }
+
+  // ตรวจสอบสิทธิ์
+  const isAuthorized = pendingStep.doc_approver?.some(approver => {
+    const userMatches = approver.user?.username === userData.username;
+    const departmentMatches = approver.department?.name === userData.department_name;
+    return userMatches && departmentMatches;
+  });
+
+  return isAuthorized ? pendingStep : null;
+});
+// computed property for canCreatePaymentDocument
+const canCreatePaymentDocument = computed(() => {
+  if (!orderDetails.value || !approvalSteps.value.length) {
+    console.log('No order details or approval steps');
+    return false;
+  }
+
+  
+  const userDataStr = localStorage.getItem('userData');
+  const userData = userDataStr ? JSON.parse(userDataStr) : null;
+
+  if (!userData) {
+    
+    return false;
+  }
+
+  
+  const allStepsApproved = approvalSteps.value.every(step => step.status_id === 2);
+  if (!allStepsApproved) {
+    
+    return false;
+  }
+  const lastStep = [...approvalSteps.value].sort((a, b) => b.step_number - a.step_number)[0];
+  
+  const isAuthorized = lastStep.doc_approver?.some(approver => {
+    const userMatches = approver.user?.username === userData.username;
+    const departmentMatches = approver.department?.name === userData.department_name;
+    return userMatches && departmentMatches;
+  });
+
+  return isAuthorized;
 });
 
 const currentApprovalStepDebug = computed(() => {
-  // console.log("All approval steps:", approvalSteps.value);
-  // console.log("Logged in user ID:", loggedInUserId.value);
-
   const pendingSteps = approvalSteps.value.filter((step) => step.status_id === 1);
-  // console.log("Pending steps:", pendingSteps);
-
   if (pendingSteps.length === 0) {
-    // console.log("No pending steps found");
     return null;
   }
 
   const nextPendingStep = pendingSteps.sort((a, b) => a.step_number - b.step_number)[0];
-  // console.log("Next pending step:", nextPendingStep);
 
   const canApprove =
     nextPendingStep.approver_id === loggedInUserId.value || nextPendingStep.approver_id === 0;
-
-  // console.log("Can approve:", canApprove);
-  // console.log("Step approver_id:", nextPendingStep.approver_id);
-
   return canApprove ? nextPendingStep : null;
+});
+
+const canApprove = computed(() => {
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep) {
+    console.log('No current step available');
+    return false;
+  }
+  if (currentStep.step_number === 0) {
+    return true;
+  }
+  const previousStep = getPreviousApprovedStep.value;
+  const canApprove = previousStep && 
+                     previousStep.status_id === 2 && 
+                     previousStep.step_number === currentStep.step_number - 1;
+  return canApprove;
+});
+
+const customButtons = computed(() => {
+  if (canCreatePaymentDocument.value) {
+    return [
+      {
+        label: `ສ້າງໃບເບີກຈ່າຍ`,
+        type: "primary" as ButtonType,
+        onClick: () => {
+          onChooseDocumentType();
+        },
+      },
+    ];
+  }
+
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep) return [];
+
+  if (!canApprove.value) {
+    return [
+      {
+        label: `ອະນຸມັດ`,
+        type: "primary" as ButtonType,
+        onClick: () => {
+          handleApprove();
+        },
+      },
+    ];
+  }
+
+  return [
+    {
+      label: "ປະຕິເສດ",
+      type: "default" as ButtonType,
+      onClick: () => {
+        isRejectModalVisible.value = true;
+      },
+    },
+    {
+      label: `ອະນຸມັດ`,
+      type: "primary" as ButtonType,
+      onClick: () => {
+        isApproveModalVisible.value = true;
+      },
+    },
+  ];
 });
 const findStepById = (stepId: number) => {
   return approvalSteps.value.find((step) => step.id === stepId);
@@ -205,10 +305,6 @@ const step204 = computed(() => findStepById(204));
 watch(
   [approvalSteps, currentApprovalStepDebug, step204],
   () => {
-    // console.log("👀 Watching changes...");
-    // console.log("Steps:", approvalSteps.value);
-    // console.log("Current step debug result:", currentApprovalStepDebug.value);
-    // console.log("Step 204:", step204.value);
   },
   { immediate: true, deep: true }
 );
@@ -438,88 +534,9 @@ const getTotalAmount = computed(() => {
     return sum + item.getTotal();
   }, 0);
 });
-
-const getTotalVat = computed(() => {
-  if (!orderDetails.value?.getPurchaseOrderItem()) return 0;
-  return orderDetails.value.getPurchaseOrderItem().reduce((sum, item) => {
-    return sum + (item.getIsVat() ? item.getVatTotal() : 0);
-  }, 0);
-});
-
-const getTotalWithVat = computed(() => {
-  if (!orderDetails.value?.getPurchaseOrderItem()) return 0;
-  return orderDetails.value.getPurchaseOrderItem().reduce((sum, item) => {
-    return sum + item.getTotalWithVat();
-  }, 0);
-});
-
-const hasVat = computed(() => {
-  if (!orderDetails.value?.getPurchaseOrderItem()) return false;
-  return orderDetails.value.getPurchaseOrderItem().some((item) => item.getIsVat());
-});
 /***************Table********************* */
 
-// Custom buttons for header
 
-const canApprove = computed(() => {
-  const currentStep = currentApprovalStep.value;
-  const previousStep = getPreviousApprovedStep.value;
-
-  if (!currentStep) return false;
-
-  if (currentStep.step_number === 1) return true;
-
-  return (
-    previousStep &&
-    previousStep.status_id === 2 && // APPROVED
-    previousStep.step_number === currentStep.step_number - 1
-  );
-});
-const customButtons = computed(() => {
-  if (!canApprove.value) {
-    return [
-      {
-        label: `ສ້າງໃບເບີກຈ່າຍ`,
-        type: "primary" as ButtonType,
-        onClick: () => {
-          onChooseDocumentType();
-        },
-      },
-    ];
-  }
-
-  const currentStep = currentApprovalStep.value;
-  if (!currentStep) return [];
-
-  if (!canApprove.value) {
-    return [
-      {
-        label: `ອະນຸມັດ`,
-        type: "primary" as ButtonType,
-        onClick: () => {
-          handleApprove();
-        },
-      },
-    ];
-  }
-
-  return [
-    {
-      label: "ປະຕິເສດ",
-      type: "default" as ButtonType,
-      onClick: () => {
-        isRejectModalVisible.value = true;
-      },
-    },
-    {
-      label: `ອະນຸມັດ`,
-      type: "primary" as ButtonType,
-      onClick: () => {
-        isApproveModalVisible.value = true;
-      },
-    },
-  ];
-});
 const handleBudgetConfirm = (data: any) => {
   if (activeItemRecord.value) {
     selectedBudgets.value[activeItemRecord.value.id] = {
@@ -749,6 +766,24 @@ const userInfo = {
           <template #number="{ index }">
             <span>{{ index + 1 }}</span>
           </template>
+          <template #image="{ record }">
+              <span>
+                <a-image
+                  v-if="record.getQuotationImageUrl()"
+                  :src="record.getQuotationImageUrl()"
+                  alt="Product Image"
+                  :width="50"
+                  :height="50"
+                  :preview="true"
+                />
+                <img
+                  v-else
+                  src="/public/5.png"
+                  alt="Default Image"
+                  class="w-12 h-12 object-cover"
+                />
+              </span>
+            </template>
           <template #quantity="{ record }">
             <span class="text-gray-600"
               >{{ record.quantity }}
@@ -806,35 +841,21 @@ const userInfo = {
           </template>
         </Table>
         <div>
-          <div v-if="orderDetails">
-            <span class="text-gray-500 mt-2 flex justify-end">
-              <div class="font-medium">ລາຄາລວມ:</div>
-              <div class="text-gray-600">{{ formatPrice(getTotalAmount) }} ₭</div>
-            </span>
-            <span class="text-gray-500 mt-2 flex justify-end">
-              <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
-              <div class="text-gray-600">
-                {{ hasVat ? `${formatPrice(getTotalVat)} ₭` : "0" }}
+            <div v-if="orderDetails">
+              <div class="grid grid-cols-[auto_130px] gap-2 text-right">
+                <div class="font-medium">ລາຄາລວມ:</div>
+                <div class="text-gray-600">{{ formatPrice(getTotalAmount) }} ₭</div>
+
+                <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
+                <div class="text-gray-600">{{ formatPrice(orderDetails.getVat()) }} ₭</div>
+
+                <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
+                <div class="text-gray-600 font-bold">
+                  {{ formatPrice(orderDetails.getTotal()) }} ₭
+                </div>
               </div>
-            </span>
-            <span class="text-gray-500 flex justify-end">
-              <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
-              <div class="text-gray-600 font-bold">{{ formatPrice(getTotalWithVat) }} ₭</div>
-            </span>
+            </div>
           </div>
-        </div>
-      </div>
-      <!-- Attachments -->
-      <div class="mb-2">
-        <h4 class="text-base font-semibold">ໃບສະເໜີລາຄາ</h4>
-        <div class="border rounded-lg p-4">
-          <a-image
-            :src="orderDetails?.getQuotationImageUrl() || 'ບໍ່ມີຂໍ້ມູນຮູບ'"
-            alt="MacBook Air"
-            :width="150"
-            :height="150"
-          />
-        </div>
       </div>
       <!-- Signatures -->
       <div class="flex flex-wrap gap-4">

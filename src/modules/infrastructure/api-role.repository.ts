@@ -9,34 +9,46 @@ import type { AxiosError } from "axios";
 
 export class ApiRoleRepository implements RoleRepository {
   async findAll(
-    params: PaginationParams,
-    includeDeleted: boolean = false
-  ): Promise<PaginatedResult<Role>> {
-    try {
-      const response = (await api.get("/roles", {
-        params: {
-          page: params.page,
-          limit: params.limit,
-          search: params.search || "",
-          department_id: params.department_id,
-          status: includeDeleted ? undefined : "active",
-        },
-      })) as { data: ApiListResponse<Roleinterface> };
+  params: PaginationParams,
+  includeDeleted: boolean = false
+): Promise<PaginatedResult<Role>> {
+  try {
+    const response = (await api.get("/roles", {
+      params: {
+        page: params.page,
+        limit: params.limit,
+        search: params.search || "",
+        department_id: params.department_id,
+        status: includeDeleted ? undefined : "active",
+      },
+    })) as { data: ApiListResponse<Roleinterface> };
 
-      // console.log("API Response - findAll:", response.data);
+    // console.log("API Response - findAll:", response.data);
+    const pagination = response.data.pagination || {};
 
-      return {
-        data: response.data.data.map((item) => this.toDomainModel(item)),
-        total: response.data.total,
-        page: response.data.page,
-        limit: response.data.limit,
-        totalPages: Math.ceil(response.data.total / response.data.limit),
-      };
-    } catch (error) {
-      console.error("API Error - findAll:", error);
-      this.handleApiError(error, "Failed to fetch roles list");
-    }
+    const total = pagination.total || 0;
+    const page = pagination.page || params.page || 1;
+    const limit = pagination.limit || params.limit || 10;
+    const totalPages = pagination.total_pages || Math.ceil(total / limit);
+
+    return {
+      data: response.data.data.map((item) => this.toDomainModel(item)),
+      total,
+      page,
+      limit,
+      totalPages,
+      pagination: {
+        page,
+        limit,
+        total,
+        total_pages: totalPages,
+      },
+    };
+  } catch (error) {
+    console.error("API Error - findAll:", error);
+    this.handleApiError(error, "Failed to fetch roles list");
   }
+}
 
   async findById(id: string): Promise<Role | null> {
     try {

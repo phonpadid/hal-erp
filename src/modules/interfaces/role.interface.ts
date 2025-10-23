@@ -1,5 +1,5 @@
 export interface Roleinterface {
-  id: number;
+  id: number | string;
   name: string;
   display_name: string;
   department_id: number;

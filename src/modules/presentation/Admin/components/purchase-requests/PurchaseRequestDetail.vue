@@ -151,7 +151,7 @@ const handleToggle = () => {
             <template #price="{ record }">
               <span>₭ {{ formatPrice(record.getPrice()) }}</span>
             </template>
-            <template #total_price="{ record }">
+            <template #total="{ record }">
               <span>₭ {{ formatPrice(record.getTotalPrice()) }}</span>
             </template>
             <template #image="{ record }">

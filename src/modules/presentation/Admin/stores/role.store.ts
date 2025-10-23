@@ -45,34 +45,84 @@ export const useRoleStore = defineStore("roles", () => {
   const totalDeletedRoles = computed(() => deletedRoles.value.length);
 
   // Get All Roles
-  const fetchRoles = async (
-    // fetchRoles
-    params: PaginationParams = { page: 1, limit: 10 , department_id: undefined },  
-  ) => {
-    loading.value = true;
-    error.value = null;
+ const fetchAllRoles = async (
+  params: PaginationParams = { page: 1, limit: 10 }
+) => {
+  loading.value = true;
+  error.value = null;
 
-    try {
-      const result = await roleService.getAllRoles(params);
-      rawRoles.value = JSON.parse(JSON.stringify(result.data));
-      roles.value = result.data;
-      pagination.value = {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        totalPages: result.totalPages,
-      };
-      return {
-        ...result,
-        raw_data: rawRoles.value,
-      };
-    } catch (err) {
-      error.value = err as Error;
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
+  try {
+    const result = await roleService.getAllRoles(params);
+    
+    // console.log('API Response from service:', result); 
+    
+    rawRoles.value = JSON.parse(JSON.stringify(result.data));
+    roles.value = result.data;
+    
+    // แก้ไข: อ่านจาก result โดยตรง (ไม่ใช่ result.pagination)
+    pagination.value = {
+      page: result.page || params.page || 1,
+      limit: result.limit || params.limit || 10,
+      total: result.total || 0,
+      totalPages: result.totalPages || Math.ceil((result.total || 0) / (result.limit || 10)),
+    };
+    
+    // console.log('Store pagination updated:', pagination.value); 
+    
+    return {
+      data: result.data,
+      page: pagination.value.page,
+      limit: pagination.value.limit,
+      total: pagination.value.total,
+      totalPages: pagination.value.totalPages,
+    };
+  } catch (err) {
+    error.value = err as Error;
+    throw err;
+  } finally {
+    loading.value = false;
+  }
+};
+
+//  const fetchRoles = async (
+//   params: PaginationParams = { page: 1, limit: 10, department_id: undefined },  
+// ) => {
+//   loading.value = true;
+//   error.value = null;
+
+//   try {
+//     const result = await roleService.getAllRoles(params);
+    
+//     console.log('API Response:', result);
+    
+//     rawRoles.value = JSON.parse(JSON.stringify(result.data));
+//     roles.value = result.data;
+    
+//     // แก้ไข: ดึงข้อมูล pagination จาก result.pagination
+//     const paginationData = result.pagination || {};
+//     pagination.value = {
+//       page: paginationData.page || params.page || 1,
+//       limit: paginationData.limit || params.limit || 10,
+//       total: paginationData.total || 0,
+//       totalPages: paginationData.total_pages || Math.ceil((paginationData.total || 0) / (paginationData.limit || 10)),
+//     };
+    
+//     return {
+//       data: result.data,
+//       page: pagination.value.page,
+//       limit: pagination.value.limit,
+//       total: pagination.value.total,
+//       totalPages: pagination.value.totalPages,
+//       raw_data: rawRoles.value,
+//     };
+//   } catch (err) {
+//     error.value = err as Error;
+//     throw err;
+//   } finally {
+//     loading.value = false;
+//   }
+// };
+
   const createRole = async (data: CreateRole): Promise<Role> => {
     loading.value = true;
     error.value = null;
@@ -134,7 +184,7 @@ export const useRoleStore = defineStore("roles", () => {
   };
 
   // Delete Role
-  const deleteRole = async (id: string): Promise<boolean> => {
+  const deleteRole = async (id: string | number): Promise<boolean> => {
     loading.value = true;
     error.value = null;
 
@@ -172,17 +222,18 @@ export const useRoleStore = defineStore("roles", () => {
       totalPages: 0,
     };
   };
-  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
-    pagination.value.page = newPagination.page || 1;
-    pagination.value.limit = newPagination.limit || 10;
-    pagination.value.total = newPagination.total;
-  };
+ const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
+  pagination.value.page = newPagination.page || 1;
+  pagination.value.limit = newPagination.limit || 10;
+  pagination.value.total = newPagination.total || 0;
+  pagination.value.totalPages = Math.ceil((newPagination.total || 0) / (newPagination.limit || 10));
+};
 
   return {
     // State
     roles,
     rawRoles, // เพิ่มการ export rawRoles
-    fetchRoles,
+    // fetchRoles,
     currentRole,
     loading,
     error,
@@ -192,6 +243,7 @@ export const useRoleStore = defineStore("roles", () => {
     updateRole,
     deleteRole,
     setPagination,
+    fetchAllRoles,
 
     // Getters
     activeRoles,

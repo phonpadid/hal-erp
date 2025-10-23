@@ -13,7 +13,8 @@
     "remark": "Remark",
     "action": "Action",
     "vendor": "Vendor",
-    "Shop": "Shop"
+    "Shop": "Shop",
+    "sub_total": "Sub Total"
   },
   "error":{
     "document_type_required":"document type not required"

@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue';
-import { storeToRefs } from 'pinia';
+import { computed, onMounted, reactive, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
 import type { PermissionGroup } from "@/modules/interfaces/permission.interface";
-import { departmentStore } from '../../stores/departments/department.store';
-import { useI18n } from 'vue-i18n';
+import { departmentStore } from "../../stores/departments/department.store";
+import { useI18n } from "vue-i18n";
 import { usePermissionStore } from "../../stores/permission.store";
-import UiInput from '@/common/shared/components/Input/UiInput.vue';
-import InputSelect from '@/common/shared/components/Input/InputSelect.vue';
-import PermissionSelector from '../permission/PermissionSelector.vue';
-import UiButton from '@/common/shared/components/button/UiButton.vue';
+import UiInput from "@/common/shared/components/Input/UiInput.vue";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
+import PermissionSelector from "../permission/PermissionSelector.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
 
 const props = defineProps<{
   initialData?: {
     department_id?: number;
-    department_name?: string; 
+    department_name?: string;
     name?: string;
     permissions?: number[];
   };
@@ -21,7 +21,7 @@ const props = defineProps<{
 }>();
 const { t } = useI18n();
 const emit = defineEmits<{
-  (event: 'submit', value: { department_id?: number; name: string; permissions: number[] }): void;
+  (event: "submit", value: { department_id?: number; name: string; permissions: number[] }): void;
 }>();
 
 // Initialize department store
@@ -33,8 +33,6 @@ const permissionStore = usePermissionStore();
 const handlePermissionSelect = (values: (string | number)[]) => {
   formState.permissions = values;
 };
-
-
 
 interface FormState {
   department_id: number[];
@@ -51,20 +49,24 @@ const formState = reactive<FormState>({
 
 //  departmentOptions
 const departmentOptions = computed(() => {
-  return departments.value.map(dept => ({
+  return departments.value.map((dept) => ({
     label: dept.getName(),
-    value: Number(dept.getId())
+    value: Number(dept.getId()),
   }));
 });
 
 // watch
-watch(() => props.initialData, (newVal) => {
-  if (newVal) {
-    formState.department_id = newVal.department_id ? [Number(newVal.department_id)] : [];
-    formState.name = newVal.name || "";
-    formState.permissions = newVal.permissions || [];
-  }
-}, { immediate: true });
+watch(
+  () => props.initialData,
+  (newVal) => {
+    if (newVal) {
+      formState.department_id = newVal.department_id ? [Number(newVal.department_id)] : [];
+      formState.name = newVal.name || "";
+      formState.permissions = newVal.permissions || [];
+    }
+  },
+  { immediate: true }
+);
 
 //  onMounted
 onMounted(async () => {
@@ -73,7 +75,9 @@ onMounted(async () => {
     const result = await permissionStore.fetchPermission();
     permissionData.value = result.data as unknown as PermissionGroup[];
     if (props.initialData) {
-      formState.department_id = props.initialData.department_id ? [Number(props.initialData.department_id)] : [];
+      formState.department_id = props.initialData.department_id
+        ? [Number(props.initialData.department_id)]
+        : [];
       formState.name = props.initialData.name || "";
       formState.permissions = props.initialData.permissions || [];
     }
@@ -86,49 +90,54 @@ onMounted(async () => {
 
 // Form submission
 const handleSubmit = () => {
-  emit('submit', {
-     department_id: Number(formState.department_id), 
+  emit("submit", {
+    department_id: Number(formState.department_id),
     name: formState.name,
-    permissions: formState.permissions.map(Number)
+    permissions: formState.permissions.map(Number),
   });
 };
 
-watch(() => props.initialData, (newVal) => {
-  if (newVal) {
-    formState.department_id = newVal.department_id ? [Number(newVal.department_id)] : [];
-    formState.name = newVal.name || "";
-    formState.permissions = newVal.permissions || [];
-  }
-}, { immediate: true });
+watch(
+  () => props.initialData,
+  (newVal) => {
+    if (newVal) {
+      formState.department_id = newVal.department_id ? [Number(newVal.department_id)] : [];
+      formState.name = newVal.name || "";
+      formState.permissions = newVal.permissions || [];
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
   <div class="user-form">
-     <form @submit.prevent="handleSubmit" class="space-y-4">
-    <div class="form-group">
-      <span>{{ t("role.form.department") }}</span>
-      <InputSelect
-        v-model="formState.department_id"
-        :options="departmentOptions"
-        label="Department"
-        placeholder="Select department"
-        required
-      />
-    </div>
-
-    <div class="form-group">
-      <span>{{ t("role.form.name") }}</span>
-      <UiInput
-        v-model="formState.name"
-        label="Role Name"
-        placeholder="Enter role name"
-        required
-      />
-    </div>
-    <a-divider style="margin-bottom: 10px; margin-top: -10px" />
-    <div class="form-section">
+    <form @submit.prevent="handleSubmit" class="space-y-4">
+      <div class="flex gap-4 mb-4 form-grid">
+        <div>
+          <span> <span class="text-red-600">*</span>{{ t("role.form.department") }}</span>
+          <InputSelect
+            v-model="formState.department_id"
+            :options="departmentOptions"
+            label="Department"
+            placeholder="Select department"
+            required
+          />
+        </div>
+        <div>
+          <span><span class="text-red-600">*</span>{{ t("role.form.name") }}</span>
+          <UiInput
+            v-model="formState.name"
+            label="Role Name"
+            placeholder="Enter role name"
+            required
+          />
+        </div>
+      </div>
+      <a-divider style="margin-bottom: 10px; margin-top: -10px" />
+      <div class="form-section">
         <h2 class="section-title">
-          {{ t("user.form.permissions") }}
+         <span class="text-red-600">*</span> {{ t("user.form.permissions") }}
           <span class="permission-count">
             ({{ formState.permissions.length }} {{ t("user.form.selected") }})
           </span>
@@ -142,25 +151,20 @@ watch(() => props.initialData, (newVal) => {
         </a-spin>
       </div>
 
-    <div class="form-actions">
-      <UiButton
-          type="primary"
-          colorClass="flex items-center"
-          htmlType="submit"
-        >
-        {{ props.isEdit ? t('role.form.update') : t('role.form.create') }}
-      </UiButton>
-    </div>
-  </form>
+      <div class="form-actions">
+        <UiButton type="primary" colorClass="flex items-center" htmlType="submit">
+          {{ props.isEdit ? t("role.form.update") : t("role.form.create") }}
+        </UiButton>
+      </div>
+    </form>
   </div>
- 
 </template>
 
 <style scoped>
 .user-form {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 10px;
 }
 
 .form-section {

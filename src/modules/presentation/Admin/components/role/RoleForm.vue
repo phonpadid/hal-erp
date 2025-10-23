@@ -103,8 +103,7 @@ const handleFormSubmit = async (formData: {
     <h1>{{ isEditMode ? 'ແກ້ໄຂ Role' : 'ຟອມສ້າງ Role' }}</h1>
     <div v-if="loading" class="text-center py-2">
       <span class="loading loading-spinner loading-md"></span>
-    </div>
-    
+    </div> 
     <template v-else>
       <ManageFormRole 
         :initial-data="formattedInitialData" 

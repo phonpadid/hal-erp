@@ -4,9 +4,9 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 
 export interface RoleRepository {
   findAll(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<Role>>;
-  findById(id: string): Promise<Role | null>;
+  findById(id: string | number): Promise<Role | null>;
   findByName(name: string): Promise<Role | null>;
   create(data: CreateRole): Promise<Role>;
   update(id: string, data: UpdateRole): Promise<Role>;
-  delete(id: string): Promise<boolean>;
+  delete(id: string | number): Promise<boolean>;
 }

@@ -6,9 +6,9 @@ export interface ApiListResponse<T> {
   limit: number;
   status?: any[];
   pagination: {
-        total: number,
-        total_pages: number,
-        limit: number,
-        page: number
+        total?: number,
+        total_pages?: number,
+        limit?: number,
+        page?: number
     }
 }
