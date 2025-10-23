@@ -10,10 +10,15 @@ import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-ord
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { numberToLaoWords } from "@/modules/shared/utils/read-number-lao";
 import { Icon } from "@iconify/vue";
+import type { ISelectVendor } from "@/modules/application/dtos/receipt.dto";
+import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
+import VendorDrawer from "./VendorDrawer.vue";
 
 // Import the print helper
 const purchaseOrderStore = usePurchaseOrderStore();
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
+const dataVendor = ref<ISelectVendor | null>(null);
+const openVendor = ref(false);
   const { error } = useNotification();
 const { t } = useI18n();
 const props = defineProps<{
@@ -26,6 +31,10 @@ const fetchOrderDetails = async () => {
     } else {
       error("ບໍ່ພົບຂໍ້ມູນເອກະສານ");
     }
+};
+const vendorInfo = (data: ISelectVendor) => {
+  dataVendor.value = data;
+  openVendor.value = true;
 };
 onMounted( async () => {
   await fetchOrderDetails();
@@ -95,23 +104,37 @@ onMounted( async () => {
               <template v-if="column.key === 'price_in_words'">
                 <span>{{ numberToLaoWords(Number(record?.total)) }}</span>
               </template>
+              <template v-if="column.key === 'vendor'">
+              <span
+                @click="
+                  vendorInfo(record.getSelectedVendor())
+                "
+                class="cursor-pointer text-red-600 hover:text-red-800"
+                >ເບິ່ງຮ້ານຄ້າ</span
+              >
+            </template>
             </template>
           </a-table>
-          <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4">
-            <p class="font-medium text-slate-600">ມູນຄ່າລວມທັງໝົດ:</p>
-            <p class="font-semibold md:text-lg text-sm text-slate-700">
-              {{ formatPrice(orderDetails?.getPurchaseRequest().total || 0) }} ₭
-            </p>
+          <div class="total flex justify-end gap-1 text-14 mr-10 text-gray-600">
+          <div class="lable flex flex-col items-end mt-4 font-medium">
+            <p class="text-sky-500">{{t('receipt.total.sub_total')}}</p>
+            <p class="-mt-3 text-orange-500">{{t('receipt.total.vat')}}</p>
+            <p class="-mt-3 text-red-500">{{t('receipt.total.total')}}</p>
           </div>
-          <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 gap-4">
-            <p class="font-medium text-slate-600 -mt-3 ">ມູນຄ່າລວມທັງໝົດກີບ:</p>
-            <p class="font-semibold md:text-lg text-sm -mt-3 text-slate-700">
-              {{ formatPrice(orderDetails?.getPurchaseRequest().total || 0) }} ₭
-            </p>
+          <div class="lable mt-4">
+            <p class="text-sky-500">:</p>
+            <p class="-mt-3 text-orange-500">:</p>
+            <p class="-mt-3 text-red-500">:</p>
+          </div>
+          <div class="lable mt-4">
+            <p class="text-sky-500">{{ formatPrice(orderDetails?.getSubTotal() || 0) }} LAK</p>
+            <p class="-mt-3 text-orange-500"> {{ formatPrice(orderDetails?.getVat() || 0) }} LAK</p>
+            <p class="-mt-3 text-red-500">{{ formatPrice(orderDetails?.getTotal() || 0) }} LAK</p>
           </div>
         </div>
+        </div>
         <!-- image and signature  -->
-        <div v-for="(vendor , index) in orderDetails?.getPurchaseOrderItem()" :key="index" class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
+        <!-- <div v-for="(vendor , index) in orderDetails?.getPurchaseOrderItem()" :key="index" class="image space-y-4 py-4 shadow-sm px-6 rounded-md">
           <h2 class="text-md font-semibold">ວິເຄາະການຈັດຊື້</h2>
           <div class="grid grid-cols-1 md:grid-cols-1 gap-2 text-sm">
           <div class="flex items-center gap-2">
@@ -133,7 +156,7 @@ onMounted( async () => {
             <span class="text-gray-700">{{vendor.getSelectedVendor()?.getVendorBankAccount()?.account_number}}</span>
           </div>
         </div>
-        </div>
+        </div> -->
 
          <!-- Signature Section -->
       <h2 class="text-md ml-3 mt-4 font-semibold">
@@ -150,7 +173,7 @@ onMounted( async () => {
           class="signature-approver text-center"
         >
           <p class="text-slate-500 text-sm font-bold">
-            {{ t("purchase-rq.approver") }} {{ step.step_number + 1 }}
+            {{ index === 0 ? "ຜູ້ສ້າງ" : t("purchase-rq.approver") + ' ' + (step.step_number) }}
           </p>
 
           <a-image
@@ -176,6 +199,14 @@ onMounted( async () => {
       </div>
       </div>
   </div>
+   <UiDrawer
+    v-model:open="openVendor"
+    :title="`ຂໍ້ມູນຮ້ານຄ້າ`"
+    placement="right"
+    :width="470"
+  >
+    <VendorDrawer :data="dataVendor" />
+  </UiDrawer>
 </template>
 <style scoped>
 ::v-deep(.title .ant-table-thead > tr > th) {
@@ -199,7 +230,8 @@ onMounted( async () => {
   border: none !important;
 }
 ::v-deep(.ant-table-tbody > tr > td) {
- padding-bottom: 1px;
+ padding-top: 12px;
+ padding-bottom: 12px;
 }
 
 </style>

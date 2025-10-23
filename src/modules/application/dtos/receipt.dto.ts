@@ -128,7 +128,7 @@ export interface IPurchaseRequestItem {
   total_price: number;
   remark: string;
   unit: UnitDTO
-
+  created_at?: string;
 }
 
 export interface ISelectVendor {

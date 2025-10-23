@@ -21,6 +21,7 @@ import { message } from "ant-design-vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import type { ISelectVendor } from "@/modules/application/dtos/receipt.dto";
 import VendorDrawer from "./drawers/VendorDrawer.vue";
+import Print from "./modals/Print.vue";
 const openPropoval = ref(false);
 const openAppropoval = ref(false);
 const openVendor = ref(false);
@@ -32,6 +33,7 @@ const user = computed(() => getUserApv());
 const userRole = ref<string[]>(getUserRole() ?? []);
 const uploadLoading = ref<boolean>(false);
 const createModalVisible = ref(false);
+const printModalVisible = ref(false);
 const formRef = ref();
 const selectedId = ref<number | null>(null);
 const dataVendor = ref<ISelectVendor | null>(null);
@@ -125,15 +127,15 @@ const userNextApprove = computed(() =>
         name: step.document_status.name,
         ...(step.doc_approver &&
           step.doc_approver.length > 0 && {
-            dpm: step.doc_approver.map((approver) => ({
-              id: approver.department?.id || 0,
-              name: approver.department?.name,
-            })),
-            user: step.doc_approver.map((userData) => ({
-              id: userData.user?.id,
-              username: userData.user?.username,
-            })),
-          }),
+          dpm: step.doc_approver.map((approver) => ({
+            id: approver.department?.id || 0,
+            name: approver.department?.name,
+          })),
+          user: step.doc_approver.map((userData) => ({
+            id: userData.user?.id,
+            username: userData.user?.username,
+          })),
+        }),
       },
     ],
   }))
@@ -223,6 +225,10 @@ const vendorInfo = (data: ISelectVendor) => {
   dataVendor.value = data;
   openVendor.value = true;
 };
+const openPrintModal = () => {
+  window.print();
+};
+
 onMounted(async () => {
   await rStore.fetchById(receiptId);
   uploadedImages.value.forEach((url) => {
@@ -233,327 +239,285 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <ApvLayout :dataHead="dataHead"></ApvLayout>
-  <div class="mt-[10rem] mb-[5rem]">
-    <div class="user-info">
-      <div class="flex gap-[4rem]">
-        <div class="u w-full">
-          <h2 class="text-md font-semibold px-2 mb-4">
-            {{ t("purchase-rq.field.proposer") }}
-          </h2>
-          <div class="info flex items-center px-2 gap-4 mb-4">
-            <div
-              class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
-            >
-              <Icon icon="mdi:user" class="text-6xl" />
-            </div>
-            <div class="detail -space-y-2">
-              <p class="font-medium">
-                {{ rStore.currentReceipts?.document.requester.username }}
-              </p>
-              <p class="text-gray-600">
-                {{ rStore.currentReceipts?.document?.position[0].name }}
-              </p>
+  <div class="no-print">
+    <ApvLayout :dataHead="dataHead" :onPrint="openPrintModal"></ApvLayout>
+    <div class="mt-[10rem] mb-[5rem]">
+      <div class="user-info">
+        <div class="flex gap-[4rem]">
+          <div class="u w-full">
+            <h2 class="text-md font-semibold px-2 mb-4">
+              {{ t("purchase-rq.field.proposer") }}
+            </h2>
+            <div class="info flex items-center px-2 gap-4 mb-4">
+              <div class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**">
+                <Icon icon="mdi:user" class="text-6xl" />
+              </div>
+              <div class="detail -space-y-2">
+                <p class="font-medium">
+                  {{ rStore.currentReceipts?.document.requester.username }}
+                </p>
+                <p class="text-gray-600">
+                  {{ rStore.currentReceipts?.document?.position[0].name }}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-        <!-- Purpose Section -->
-        <div class="purposes space-y-1 px-2 mb-4 w-full">
-          <h2 class="text-md font-semibold">
-            {{ t("purchase-rq.field.purposes") }}
-          </h2>
-          <p class="text-gray-600 text-md">
-            {{ rStore.currentReceipts?.remark || "----" }}
-          </p>
+          <!-- Purpose Section -->
+          <div class="purposes space-y-1 px-2 mb-4 w-full">
+            <h2 class="text-md font-semibold">
+              {{ t("purchase-rq.field.purposes") }}
+            </h2>
+            <p class="text-gray-600 text-md">
+              {{ rStore.currentReceipts?.remark || "----" }}
+            </p>
 
-          <div class="account_number">
-            <h3>{{ t("receipt.title.account_number") }}</h3>
-            <UiInput
-              v-if="
+            <div class="account_number">
+              <h3>{{ t("receipt.title.account_number") }}</h3>
+              <UiInput v-if="
                 dataHead.isApproved &&
                 isRole &&
                 !rStore.currentReceipts?.account_code
-              "
-              v-model="formModel.account_code"
-              placeholder="ປ້ອນລະຫັດບັນຊີ"
-              size="middle"
-              class="md:w-[15rem] w-full"
-            ></UiInput>
-            <span
-              class="text-[16px] text-gray-700"
-              v-if="rStore.currentReceipts?.account_code"
-              >{{ rStore.currentReceipts?.account_code }}</span
-            >
+              " v-model="formModel.account_code" placeholder="ປ້ອນລະຫັດບັນຊີ" size="middle"
+                class="md:w-[15rem] w-full">
+              </UiInput>
+              <span class="text-[16px] text-gray-700" v-if="rStore.currentReceipts?.account_code">{{
+                rStore.currentReceipts?.account_code }}</span>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- restaurant info Section -->
-      <!-- <div class="purposes space-y-2 px-2 mb-4">
-        <h2 class="text-md font-semibold">
-          {{ t("disbursement.vendor.title") }}
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-1 text-sm">
-          <div class="flex items-center gap-2">
-            <label class="w-40 text-gray-700">{{ t("disbursement.vendor.name") }} :</label>
-            <span class="text-gray-700">{{ vendor?.name }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <label class="w-40 text-gray-700">{{ t("disbursement.vendor.bank") }} :</label>
-            <img :src="bank?.logoUrl" alt="bank logo" class="h-8 w-8" srcset="" />
-            <span class="text-gray-700">{{ bank?.name }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <label class="w-40 text-gray-700">{{ t("disbursement.vendor.account_name") }}:</label>
-            <span class="text-gray-700">{{ account?.account_name }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <label class="w-40 text-gray-700 flex items-center gap-1"
-              >{{ t("disbursement.vendor.account_number") }}
-              <span
-                class="text-sm rounded-full py-1 w-14 flex justify-center items-center bg-gray-200/70"
-                >{{ account?.currency?.code }}</span
-              >
-            </label>
-            <span class="text-gray-700">{{ account?.account_number }}</span>
-          </div>
-        </div>
-      </div> -->
 
-      <div class="table -space-y-0 mb-2 w-full px-2 shadow-sm rounded-md">
-        <h2 class="text-md font-semibold">
-          {{ t("purchase-rq.field.title") }}
-        </h2>
-        <a-table
-          :columns="columns(t)"
-          :dataSource="rStore.currentReceipts?.receipt_item"
-          :pagination="false"
-          row-key="id"
-        >
-          <template #bodyCell="{ column, record, index }">
-            <template v-if="column.key === 'id'">
-              <span>{{ index + 1 }}</span>
-            </template>
-            <template v-if="column.key === 'title'">
-              <span>{{
-                record.purchase_order_item?.purchase_request_item?.title
-              }}</span>
-            </template>
-            <template v-if="column.key === 'budget_code'">
-              <span>{{ budgetAcc?.code }} - {{ budgetAcc?.name }}</span>
-            </template>
-            <!-- <template v-if="column.key === 'account_code'">
+        <div class="table -space-y-0 mb-2 w-full px-2 shadow-sm rounded-md">
+          <h2 class="text-md font-semibold">
+            {{ t("purchase-rq.field.title") }}
+          </h2>
+          <a-table :columns="columns(t)" :dataSource="rStore.currentReceipts?.receipt_item" :pagination="false"
+            row-key="id">
+            <template #bodyCell="{ column, record, index }">
+              <template v-if="column.key === 'id'">
+                <span>{{ index + 1 }}</span>
+              </template>
+              <template v-if="column.key === 'title'">
+                <span>{{
+                  record.purchase_order_item?.purchase_request_item?.title
+                }}</span>
+              </template>
+              <template v-if="column.key === 'budget_code'">
+                <span>{{ budgetAcc?.code }} - {{ budgetAcc?.name }}</span>
+              </template>
+              <!-- <template v-if="column.key === 'account_code'">
 
             </template> -->
-            <!-- <template v-if="column.key === 'qty'">
+              <!-- <template v-if="column.key === 'qty'">
               <span>₭ {{ formatPrice(record.price) }}</span>
             </template> -->
-            <template v-if="column.key === 'price'">
-              <span>₭ {{ formatPrice(record.price) }}</span>
-            </template>
-            <template v-if="column.key === 'vendor'">
-              <span
-                @click="
+              <template v-if="column.key === 'price'">
+                <span>₭ {{ formatPrice(record.price) }}</span>
+              </template>
+              <template v-if="column.key === 'vendor'">
+                <span @click="
                   vendorInfo(record.purchase_order_item.selected_vendor[0])
-                "
-                class="cursor-pointer text-red-600 hover:text-red-800"
-                >ເບິ່ງຮ້ານຄ້າ</span
-              >
+                  " class="cursor-pointer text-red-600 hover:text-red-800">ເບິ່ງຮ້ານຄ້າ</span>
+              </template>
             </template>
-          </template>
-        </a-table>
-        <div class="total flex justify-end gap-1 mr-10 text-gray-700">
-          <div class="lable flex flex-col items-end mt-4 font-medium">
-            <p>{{t('receipt.total.sub_total')}}</p>
-            <p class="-mt-4">{{t('receipt.total.vat')}}</p>
-            <p class="-mt-4">{{t('receipt.total.total')}}</p>
-          </div>
-          <div class="lable mt-4">
-            <p>:</p>
-            <p class="-mt-4">:</p>
-            <p class="-mt-4">:</p>
-          </div>
-          <div class="lable mt-4">
-            <p>₭ {{ formatPrice(rStore.currentReceipts?.sub_total) }}</p>
-            <p class="-mt-4"> ₭ {{ formatPrice(rStore.currentReceipts?.vat) }}</p>
-            <p class="-mt-4">₭ {{ formatPrice(rStore.currentReceipts?.total) }}</p>
+          </a-table>
+          <div class="total flex justify-end gap-1 text-[14px] mr-10 text-gray-700">
+            <div class="lable flex flex-col items-end mt-4 font-medium">
+              <p class="text-sky-500">{{ t('receipt.total.sub_total') }}</p>
+              <p class="-mt-3 text-orange-500">{{ t('receipt.total.vat') }}</p>
+              <p class="-mt-3 text-red-500">{{ t('receipt.total.total') }}</p>
+            </div>
+            <div class="lable mt-4">
+              <p>:</p>
+              <p class="-mt-3">:</p>
+              <p class="-mt-3">:</p>
+            </div>
+            <div class="lable mt-4">
+              <!-- ₭ -->
+              <p class=" text-sky-500 "> {{ formatPrice(rStore.currentReceipts?.sub_total) }} LAK</p>
+              <p class="-mt-3 text-orange-500"> {{ formatPrice(rStore.currentReceipts?.vat) }} LAK</p>
+              <p class="-mt-3 text-red-500"> {{ formatPrice(rStore.currentReceipts?.total) }} LAK</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        v-if="
+        <div v-if="
           check && isAwaitingUser && !uploadCompleted && !attachments.length
-        "
-        class="mb-4 mt-4"
-      >
-        <h2>ອັບໂຫລດສະລິບໂອນເງິນ</h2>
+        " class="mb-4 mt-4">
+          <h2>ອັບໂຫລດສະລິບໂອນເງິນ</h2>
 
-        <!-- Trigger Upload Modal -->
-        <div
-          class="flex flex-col items-center justify-center w-[190px] h-[120px] border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
-          @click="createModalVisible = true"
-        >
-          <Icon icon="mdi:upload" class="text-2xl text-gray-400 mb-1" />
-          <p class="text-gray-600 text-sm">Click to upload</p>
-          <p class="text-gray-400 text-xs">SVG, PNG, JPG (MAX. 5MB)</p>
+          <!-- Trigger Upload Modal -->
+          <div
+            class="flex flex-col items-center justify-center w-[190px] h-[120px] border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
+            @click="createModalVisible = true">
+            <Icon icon="mdi:upload" class="text-2xl text-gray-400 mb-1" />
+            <p class="text-gray-600 text-sm">Click to upload</p>
+            <p class="text-gray-400 text-xs">SVG, PNG, JPG (MAX. 5MB)</p>
+          </div>
+
+          <!-- Uploaded images preview -->
         </div>
-
         <!-- Uploaded images preview -->
-      </div>
-      <!-- Uploaded images preview -->
-      <!-- <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto"> -->
-      <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto">
-        <div class="flex flex-wrap items-center gap-2 mt-2">
-          <div
-            v-for="(img, index) in uploadedImages"
-            :key="index"
-            class="relative w-[100px] h-[130px] flex items-center justify-center overflow-hidden rounded-md"
-          >
-            <a-image :src="img" style="width: 160px; height: 320px" />
-            <button
-              @click="deleteImage(index)"
-              class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
-            >
-              ×
-            </button>
-          </div>
-          <div
-            @click="createModalVisible = true"
-            class="w-[3rem] h-[3rem] flex items-center justify-center border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
-          >
-            <Icon
-              icon="material-symbols:image-arrow-up-outline-rounded"
-              class="text-2xl text-gray-400 mb-1"
-            />
+        <!-- <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto"> -->
+        <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto">
+          <div class="flex flex-wrap items-center gap-2 mt-2">
+            <div v-for="(img, index) in uploadedImages" :key="index"
+              class="relative w-[100px] h-[130px] flex items-center justify-center overflow-hidden rounded-md">
+              <a-image :src="img" style="max-width: 100%; max-height: 100%;" />
+              <button @click="deleteImage(index)"
+                class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-xs">
+                ×
+              </button>
+            </div>
+            <div @click="createModalVisible = true"
+              class="w-[3rem] h-[3rem] flex items-center justify-center border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer">
+              <Icon icon="material-symbols:image-arrow-up-outline-rounded" class="text-2xl text-gray-400 mb-1" />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div v-else-if="attachments.length" class="mb-1 mt-4 w-full h-auto">
-        <h2>ຫຼັກຖານການໂອນເງິນ</h2>
+        <div v-else-if="attachments.length" class="mb-1 mt-4 w-full h-auto">
+          <h2>ຫຼັກຖານການໂອນເງິນ</h2>
 
-        <!-- Flex container for images -->
-        <div class="flex flex-wrap gap-4 mt-2">
-          <div
-            v-for="(doc, index) in attachments"
-            :key="index"
-            class="w-[90px] h-[130px] flex items-center justify-center overflow-hidden rounded-md"
-          >
-            <a-image
-              class="flex items-center justify-center"
-              :src="doc?.file_name_url"
-              style="width: 160px; height: 320px"
-            />
+          <!-- Flex container for images -->
+          <div class="flex flex-wrap gap-4 -mt-1">
+            <div v-for="(doc, index) in attachments" :key="index"
+              class="w-[90px] h-[130px] flex items-center justify-center overflow-hidden rounded-md">
+              <a-image class="flex items-center justify-center" :src="doc?.file_name_url"
+                style="max-width: 100%; max-height: 100%;" />
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Signature Section -->
-      <h2 class="text-md ml-3 mt-4 font-semibold">
-        {{ t("purchase-rq.signature") }}
-      </h2>
-      <div
-        class="signature flex flex-wrap items-center justif-start gap-[3rem] shadow-sm px-0 rounded-md pb-4"
-      >
-        <div
-          v-for="(step, index) in [
-            ...(rStore.currentReceipts?.user_approval?.approval_step || []),
-          ].sort((a, b) => a.step_number - b.step_number)"
-          :key="index"
-          class="signature-approver text-center"
-        >
-          <p class="text-slate-500 text-sm font-bold">
-            {{ t("purchase-rq.approver") }} {{ step.step_number + 1 }}
-          </p>
-
-          <a-image
-            v-if="step.approver?.user_signature?.signature_url"
-            :src="step.approver?.user_signature?.signature_url"
-            alt="signature"
-            :width="120"
-            :height="60"
-            :preview="false"
-          />
-          <div
-            v-else
-            class="w-[120px] h-[80px] border border-slate-100 flex items-center justify-center text-xs text-slate-400"
-          >
-            <!-- No Signature -->
-          </div>
-
-          <div class="info text-sm text-slate-600 -space-y-2 mt-4">
-            <p>{{ step.approver?.username || "-" }}</p>
-            <p>{{ step.position?.name || "-" }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-4 shadow-sm p-4 px-2 bg-white rounded-md">
-        <h2 class="text-md font-semibold mb-3">
-          {{ $t("disbursement.field.doc_attachment") }}
+        <!-- Signature Section -->
+        <h2 class="text-md ml-3 mt-0 font-semibold">
+          {{ t("purchase-rq.signature") }}
         </h2>
-        <div class="flex flex-wrap gap-4">
-          <div
-            @click="showPropoval"
-            class="text-sky-500 hover:text-sky-600 p-2 bg-slate-50 flex items-center gap-2 cursor-pointer rounded-full"
-          >
-            <Icon icon="material-symbols:docs-outline" />
-            <span class="text-sm"
-              >{{ rStore.currentReceipts?.pr_doc_type }} - ເລກທີ
-              {{ rStore.currentReceipts?.pr_number }}</span
-            >
-            <Icon icon="mdi:arrow-top-right" />
+        <div class="signature flex flex-wrap items-center justif-start gap-[3rem] shadow-sm px-0 rounded-md pb-4">
+          <div v-for="(step, index) in [
+            ...(rStore.currentReceipts?.user_approval?.approval_step || []),
+          ].sort((a, b) => a.step_number - b.step_number)" :key="index" class="signature-approver text-center">
+            <p class="text-slate-500 text-sm font-bold">
+              {{ index === 0 ? "ຜູ້ສ້າງ" : t("purchase-rq.approver") + ' ' + (step.step_number) }}
+            </p>
+
+            <a-image v-if="step.approver?.user_signature?.signature_url" class=" -mt-2"
+              :src="step.approver?.user_signature?.signature_url" alt="signature" :width="120" :height="100"
+              :preview="false" />
+            <div v-else
+              class="w-[120px] h-[80px] border border-slate-100 flex items-center justify-center text-xs text-slate-400">
+              <!-- No Signature -->
+            </div>
+
+            <div class="info text-sm text-slate-600 -space-y-2">
+              <p>{{ step.approver?.username || "-" }}</p>
+              <p>{{ step.position?.name || "-" }}</p>
+            </div>
           </div>
-          <div
-            @click="showApproval"
-            class="text-sky-500 hover:text-sky-600 p-2 bg-slate-50 flex items-center gap-2 cursor-pointer rounded-full"
-          >
-            <Icon icon="material-symbols:docs-outline" />
-            <span class="text-sm"
-              >{{ rStore.currentReceipts?.po_doc_type }} - ເລກທີ
-              {{ rStore.currentReceipts?.po_number }}</span
-            >
-            <Icon icon="mdi:arrow-top-right" />
+        </div>
+
+        <div class="mt-4 shadow-sm p-4 px-2 bg-white rounded-md">
+          <h2 class="text-md font-semibold mb-3">
+            {{ $t("disbursement.field.doc_attachment") }}
+          </h2>
+          <div class="flex flex-wrap gap-4">
+            <div @click="showPropoval"
+              class="text-sky-500 hover:text-sky-600 p-2 bg-slate-50 flex items-center gap-2 cursor-pointer rounded-full">
+              <Icon icon="material-symbols:docs-outline" />
+              <span class="text-sm">{{ rStore.currentReceipts?.pr_doc_type }} - ເລກທີ
+                {{ rStore.currentReceipts?.pr_number }}</span>
+              <Icon icon="mdi:arrow-top-right" />
+            </div>
+            <div @click="showApproval"
+              class="text-sky-500 hover:text-sky-600 p-2 bg-slate-50 flex items-center gap-2 cursor-pointer rounded-full">
+              <Icon icon="material-symbols:docs-outline" />
+              <span class="text-sm">{{ rStore.currentReceipts?.po_doc_type }} - ເລກທີ
+                {{ rStore.currentReceipts?.po_number }}</span>
+              <Icon icon="mdi:arrow-top-right" />
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <!-- //upload modal  -->
-  <UploadSlipModal
-    :visible="createModalVisible"
-    :loading="uploadLoading"
-    @update:visible="createModalVisible = $event"
-    @upload="handleImageUpload"
-  />
-  <UiDrawer
-    v-model:open="openVendor"
-    :title="`ຂໍ້ມູນຮ້ານຄ້າ`"
-    placement="right"
-    :width="470"
-  >
-    <VendorDrawer :data="dataVendor" />
-  </UiDrawer>
-  <UiDrawer
-    v-model:open="openPropoval"
-    :title="`${rStore.currentReceipts?.pr_doc_type} - ເລກທີ ${rStore.currentReceipts?.pr_number} - ວັນທີ 26 ມີນາ 2025`"
-    placement="right"
-    :width="1185"
-  >
-    <PropovalDrawer :id="selectedId" />
-  </UiDrawer>
+    <!-- //upload modal  -->
+    <UploadSlipModal :visible="createModalVisible" :loading="uploadLoading"
+      @update:visible="createModalVisible = $event" @upload="handleImageUpload" />
+    <UiDrawer v-model:open="openVendor" :title="`ຂໍ້ມູນຮ້ານຄ້າ`" placement="right" :width="470">
+      <VendorDrawer :data="dataVendor" />
+    </UiDrawer>
+    <UiDrawer v-model:open="openPropoval"
+      :title="`${rStore.currentReceipts?.pr_doc_type} - ເລກທີ ${rStore.currentReceipts?.pr_number} - ${rStore.currentReceipts?.receipt_item[0].purchase_order_item?.purchase_request_item?.created_at}`"
+      placement="right" :width="1185">
+      <PropovalDrawer :id="selectedId" />
+    </UiDrawer>
 
-  <UiDrawer
-    v-model:open="openAppropoval"
-    :title="`${rStore.currentReceipts?.po_doc_type} - ເລກທີ ${rStore.currentReceipts?.po_number} - ວັນທີ 26 ມີນາ 2025`"
-    placement="right"
-    :width="1185"
-  >
-    <ApprovalDrawer :id="selectedId" />
-  </UiDrawer>
+    <UiDrawer v-model:open="openAppropoval"
+      :title="`${rStore.currentReceipts?.po_doc_type} - ເລກທີ ${rStore.currentReceipts?.po_number} - ${rStore.currentReceipts?.created_at}`"
+      placement="right" :width="1185">
+      <ApprovalDrawer :id="selectedId" />
+    </UiDrawer>
+  </div>
+  <div class="print-only">
+
+    <!-- v-if="printModalVisible" -->
+    <Print :receipt="rStore.currentReceipts"></Print>
+  </div>
 </template>
 <style scoped>
 .user-info {
   background: white;
   border-radius: 0.5rem;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-only,
+  .print-only * {
+    visibility: visible;
+  }
+
+  .print-only {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    z-index: 9999;
+  }
+
+  .flex.justify-between {
+    display: none !important;
+  }
+
+  /* ✅ Hide print header and timestamp correctly */
+  :deep(.print-header),
+  :deep(.print-timestamp) {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  @page {
+    margin: 15mm 10mm 15mm 10mm;
+    size: A4;
+  }
+}
+
+
+@media screen {
+  .print-only {
+    position: fixed;
+    left: -9999px;
+    top: -9999px;
+    visibility: hidden;
+    overflow: hidden;
+    width: 0;
+    height: 0;
+  }
 }
 </style>

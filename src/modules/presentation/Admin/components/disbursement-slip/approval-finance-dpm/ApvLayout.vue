@@ -56,6 +56,7 @@ const props = defineProps<{
       }[];
     }[];
   };
+  onPrint?: () => void;
 }>();
 
 // Modal states
@@ -125,20 +126,11 @@ const customButtons = computed(() => {
 
 const handlePrint = async () => {
   try {
-    await printContent({
-      title: "ໃບສະເໜີຈັດຊື້ ເລກທີ 0036/ພລ",
-      contentSelector: ".body",
-      hideElements: [".fixed", ".ant-drawer", ".ant-modal"],
-      customStyles: `
-        body {
-          font-family: 'Noto Sans Lao', sans-serif;
-        }
-        .signature img {
-          max-width: 180px;
-          max-height: 100px;
-        }
-      `,
-    });
+    // If a custom print handler is provided, use it
+    if (props.onPrint) {
+      props.onPrint();
+      return;
+    }
   } catch (error) {
     console.error("Print error:", error);
   }
