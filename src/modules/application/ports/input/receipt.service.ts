@@ -9,5 +9,6 @@ export interface ReceiptService {
   getAll(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<ReciptQueryDto>>;
   update(id: string, input: UpdateReceiptDTO[]): Promise<ReceiptEntity>;
   reportMenu(type: string): Promise<IReportReceiptCount>;
+  exportExcel(id: string): Promise<Blob>;
   delete(id: string): Promise<boolean>;
 }
