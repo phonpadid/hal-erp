@@ -12,5 +12,6 @@ export interface ReceiptRepository {
   approval(id: number, data: IApprovalReceiptDto): Promise<IApprovalReceiptDto>;
   update(id: string, data: UpdateReceiptDTO[]): Promise<ReceiptEntity>;
   reportMenu(type: string): Promise<IReportReceiptCount>;
+  exportExcel(id: string): Promise<Blob>;
   delete(id: string): Promise<boolean>;
 }

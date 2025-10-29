@@ -168,6 +168,32 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     }
   };
 
+  const exportExcel = async (id: string) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const blob = await serice.exportExcel(id);
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `receipt-${id}-${new Date().toISOString().split('T')[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      return blob;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page || 1;
     pagination.value.limit = newPagination.limit || 10;
@@ -190,6 +216,7 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     created,
     updated,
     deleted,
+    exportExcel,
     status,
     receiptsData,
     reportMenu,

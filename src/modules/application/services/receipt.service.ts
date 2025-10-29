@@ -54,6 +54,11 @@ export class ReceiptServiceImpl implements ReceiptService {
   async reportMenu(type: string): Promise<IReportReceiptCount> {
     return await this.getReportMenu.execute(type);
   }
+
+  async exportExcel(id: string): Promise<Blob> {
+    return await this.repo.exportExcel(id);
+  }
+
   async delete(id: string): Promise<boolean> {
     return await this.deleteUseCase.execute(id);
   }

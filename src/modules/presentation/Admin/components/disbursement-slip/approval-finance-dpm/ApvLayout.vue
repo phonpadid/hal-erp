@@ -9,6 +9,7 @@ import { printContent } from "../../purchase-requests/helpers/printer";
 import OtpModal from "./modals/OtpModal.vue";
 import SuccessModal from "../../purchase-requests/modal/SuccessModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { useReceiptStore } from "../../../stores/receipt.store";
 import { useApprovalStepStore } from "../../../stores/approval-step.store";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
@@ -17,9 +18,11 @@ import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import { rejectRule } from "./modals/rejected.schema";
 const approvalStepStore = useApprovalStepStore();
+const receiptStore = useReceiptStore();
 const { error } = useNotification();
 const otpSending = ref(false);
 const confirmLoading = ref(false);
+const exportLoading = ref(false);
 const formModel = ref({
   remark: "",
 });
@@ -69,6 +72,15 @@ const otpLoading = ref(false);
 
 const customButtons = computed(() => {
   const buttons = [
+    {
+      label: exportLoading.value ? "ກຳລັງດາວໂຫຼດ..." : "ໄຟລ໌ Excel",
+      icon: exportLoading.value ? "ant-design:loading-outlined" : "ant-design:file-excel-outlined",
+      class: `bg-green-700 text-white hover:text-red-50 flex items-center gap-1 hover:bg-green-800 mr-4 ${exportLoading.value ? 'opacity-75 cursor-not-allowed' : ''}`,
+      type: "" as ButtonType,
+      onClick: handleExportExcel,
+      disabled: exportLoading.value,
+      loading: exportLoading.value
+    },
     {
       label: "print",
       icon: "ant-design:printer-outlined",
@@ -123,6 +135,24 @@ const customButtons = computed(() => {
 
   return buttons;
 });
+
+const handleExportExcel = async () => {
+
+  try {
+    exportLoading.value = true;
+    if (!props.dataHead?.rId) {
+      error("ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Receipt ID");
+      return;
+    }
+    // console.log('tou:', props.dataHead.rId);
+    await receiptStore.exportExcel(String(props.dataHead.rId));
+  } catch (erro) {
+    console.error("Export Excel error:", erro);
+    error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງອອກໄຟລ໌ Excel ໄດ້");
+  } finally {
+    exportLoading.value = false;
+  }
+};
 
 const handlePrint = async () => {
   try {
