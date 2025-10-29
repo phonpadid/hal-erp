@@ -207,21 +207,21 @@ export const menuItems = computed<ItemType[]>(() => {
     //   ]),
     //   permission: "read-purchase-request",
     // },
-    {
-      key: "purchase_request.index",
-      label: h("div", { class: "flex items-center gap-2" }, [
-        h("span", t("menu-sidebar.purchase_rq")),
-        h(
-          "span",
-          {
-            class:
-              "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
-          },
-          rStore.counts.pr?.toString() ?? "0"
-        ),
-      ]),
-      permission: "write-purchase-request",
-    },
+    // {
+    //   key: "purchase_request.index",
+    //   label: h("div", { class: "flex items-center gap-2" }, [
+    //     h("span", t("menu-sidebar.purchase_rq")),
+    //     h(
+    //       "span",
+    //       {
+    //         class:
+    //           "rounded-full bg-red-500 text-white text-xs px-2 py-0.5 min-w-[20px] text-center",
+    //       },
+    //       rStore.counts.pr?.toString() ?? "0"
+    //     ),
+    //   ]),
+    //   permission: "write-purchase-request",
+    // },
     {
       key: "apv_purchase_request.index",
 
@@ -236,7 +236,7 @@ export const menuItems = computed<ItemType[]>(() => {
           rStore.counts.pr?.toString() ?? "0"
         ),
       ]),
-      permission: "read-purchase-request",
+      permission: "write-purchase-request",
     },
   ].filter((item) => hasPermission(item.permission));
 

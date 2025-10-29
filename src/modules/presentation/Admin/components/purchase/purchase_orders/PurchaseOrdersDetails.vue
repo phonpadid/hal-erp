@@ -14,7 +14,6 @@ import { formatDate } from "@/modules/shared/formatdate";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { convertToLaoWords } from "@/modules/shared/utils/formatLao-and-en";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
-import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import { columns } from "./column";
 import { useVendorStore } from "../../../stores/vendors/vendor.store";
 import { useI18n } from "vue-i18n";
@@ -56,7 +55,6 @@ const purchaseOrderStore = usePurchaseOrderStore();
 const vendorModalRef = ref<InstanceType<typeof ModalVendorCreate> | null>(null);
 const { t } = useI18n();
 const loading = ref(true);
-const orderDetails = ref<PurchaseOrderEntity | null>(null);
 /*****************State Purchase Order********************* */
 const itemVendors = ref<{
   [itemId: string]: {
@@ -81,10 +79,7 @@ const otpSending = ref(false);
 const newlyCreatedDocumentId = ref<string | null>(null);
 const selectedPrId = ref<number | null>(null);
 
-const showDrawer = () => {
-  selectedPrId.value = orderDetails.value?.getPurchaseRequest()?.id ?? null;
-  visible.value = true;
-};
+
 
 
 const sendOtp = async () => {

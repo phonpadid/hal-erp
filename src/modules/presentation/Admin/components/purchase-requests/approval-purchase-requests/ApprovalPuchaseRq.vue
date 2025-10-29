@@ -3,16 +3,15 @@
 import { useI18n } from "vue-i18n";
 import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
 import { computed, onMounted, ref } from "vue";
-import { statusItem } from "@/modules/shared/utils/data-user-approval";
 import { useRouter } from "vue-router";
 import { useDocumentTypeStore } from "../../../stores/document-type.store";
 import { columns } from "../../../views/purchase-requests/column";
-import { DatePicker } from "ant-design-vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
+import { useDocumentStatusStore } from "../../../stores/document-status.store";
 
 /**********************************************************/
 const { t } = useI18n();
@@ -22,6 +21,10 @@ const docTypeStore = useDocumentTypeStore();
 const loading = ref(false);
 const currentPage = ref(1);
 const pageSize = ref(10);
+const selectedDocType = ref("all");
+const selectedStatus = ref("all");
+const documentStatusStore = useDocumentStatusStore();
+
 /********************************************************* */
 const docItem = computed(() => [
   { value: "all", label: "ທັງໝົດ" },
@@ -30,6 +33,18 @@ const docItem = computed(() => [
     label: item.getname(),
   })),
 ]);
+
+const documentStatusItem = computed(() => [
+  { value: "all", label: "ທັງໝົດ" },
+  ...documentStatusStore.document_Status.map((item) => ({
+    value: item.getId(),
+    label: item.getName(),
+  })),
+]);
+const handleSearch = () => {
+  currentPage.value = 1;
+  fetchData();
+};
 
 const tablePagination = computed(() => ({
   current: purchaseRequestStore.pagination.page,
@@ -44,7 +59,18 @@ const fetchData = async () => {
     const apiParams: any = {
       page: currentPage.value,
       limit: pageSize.value,
+      column: "id", // เพิ่ม column parameter
     };
+
+    // เพิ่มเงื่อนไขการค้นหา
+    if (selectedDocType.value && selectedDocType.value !== "all") {
+      apiParams.document_type_id = selectedDocType.value;
+    }
+
+    if (selectedStatus.value && selectedStatus.value !== "all") {
+      apiParams.status_id = selectedStatus.value;
+    }
+
     await purchaseRequestStore.fetchAll(apiParams);
   } finally {
     loading.value = false;
@@ -107,6 +133,7 @@ const handleTableChange = (pagination: any) => {
 
 onMounted(async () => {
   await docTypeStore.fetchdocumentType({ page: 1, limit: 1000 });
+  await documentStatusStore.fetctDocumentStatus({ page: 1, limit: 1000 });
   await fetchData();
 });
 </script>
@@ -132,33 +159,52 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="search flex flex-col md:flex-row justify-between gap-[14rem]">
-        <div class="input flex md:mr-[19.4rem] flex-col md:flex-row gap-4 flex-1">
+      <div class="search flex flex-col md:flex-row justify-between gap-[14rem] mt-4">
+        <div class="input flex flex-col md:flex-row gap-4 flex-1">
           <div class="search-by-doc-type w-full">
-            <label for="" class="block text-sm font-medium text-gray-700 mb-1">{{
-              t("purchase-rq.field.doc_type")
-            }}</label>
-            <InputSelect :options="docItem" placeholder="ທັງໝົດ" class="w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ t("purchase-rq.field.doc_type") }}
+            </label>
+            <InputSelect
+              v-model="selectedDocType"
+              :options="docItem"
+              :placeholder="t('purchase-rq.all')"
+              class="w-full"
+              @clear="fetchData"
+            />
           </div>
           <div class="search-by-status w-full">
-            <label for="" class="block text-sm font-medium text-gray-700 mb-1">{{
-              t("purchase-rq.field.rq_date")
-            }}</label>
-            <DatePicker
-              :options="statusItem"
-              :placeholder="t('purchase-rq.phd.rq_date')"
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ t("purchase-rq.field.status") }}
+            </label>
+            <InputSelect
+              v-model="selectedStatus"
+              :options="documentStatusItem"
+              :placeholder="t('purchase-rq.all')"
               class="w-full"
+              @clear="fetchData"
             />
           </div>
           <div class="search-button flex items-end">
             <UiButton
+              :loading="loading"
               icon="ant-design:search-outlined"
               color-class="flex items-center justify-center gap-2"
               class="w-full md:w-auto px-6"
+              @click="handleSearch"
             >
               <span>{{ t("purchase-rq.search") }}</span>
             </UiButton>
           </div>
+        </div>
+        <div class="add flex items-end">
+          <UiButton
+            type="primary"
+            @click="push({ name: 'create_purchase_request' })"
+            class="w-full md:w-auto"
+          >
+            {{ t("purchase-rq.created") }}
+          </UiButton>
         </div>
       </div>
     </div>

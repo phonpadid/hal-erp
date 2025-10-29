@@ -6,7 +6,6 @@ export interface PaginationParams {
   sortBy?: string;
   date?: string;
   order_date?: string;
-  
   sortDirection?: "asc" | "desc";
   type?: string;
   //search between

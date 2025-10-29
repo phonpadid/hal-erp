@@ -5,4 +5,5 @@ import type { IReportPo,IReportMoneyPo } from "@/modules/application/dtos/report
 export interface ReportPurchaseOrderRepository {
   reportPo(query: PaginationParams): Promise<PaginatedResult<IReportPo>>;
   reportMoney(): Promise<IReportMoneyPo>;
+  reportPoExport(id: string): Promise<Blob>;
 }

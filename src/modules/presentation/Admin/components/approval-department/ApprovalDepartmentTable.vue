@@ -17,11 +17,13 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 
 /******************************************************** */
 const { t } = useI18n();
-const filterType = ref<string | null>(null);
 const selectedDepartment = ref<string | null>(null);
 const router = useRouter();
 const purchaseOrderStore = usePurchaseOrderStore();
 const departmentStoreInstance = departmentStore();
+const currentPage = ref(1);
+const pageSize = ref(10);
+const loading = ref(false);
 const dates = reactive({
   startDate: null,
   endDate: null,
@@ -31,6 +33,12 @@ const handleDetailsDocument = (record: any) => {
   // console.log("Viewing details for document:", record);
   router.push({ name: "approval_department_panak_detail", params: { id: record.id } });
 };
+const tablePagination = computed(() => ({
+  current: purchaseOrderStore.pagination.page,
+  pageSize: purchaseOrderStore.pagination.limit,
+  total: purchaseOrderStore.pagination.total,
+  showSizeChanger: true,
+}));
 
 // Computed properties for status counts
 const pendingCount = computed(
@@ -101,35 +109,42 @@ const getDocumentStatus = (record: any) => {
 };
 
 const handleSearch = async () => {
-  // Create a pagination params object
-  const params: PaginationParams = {
-    page: 1,
-    limit: 1000, // Set a very high limit to get all records
-  };
-
-  // Add search parameter if a department is selected
-  if (selectedDepartment.value && selectedDepartment.value !== "all") {
-    // Use the search property that exists in PaginationParams
-    params.search = selectedDepartment.value;
-  }
-
-  await purchaseOrderStore.fetchAll(params);
+  currentPage.value = 1;
+  await fetchData();
 };
 
 const handleTableChange = async (pagination: any) => {
   // Create a pagination params object
-  const params: PaginationParams = {
-    page: pagination.current,
-    limit: 1000, // Set a very high limit to get all records
-  };
+  currentPage.value = pagination.current;
+  pageSize.value = pagination.pageSize;
+  fetchData();
+};
 
-  // Add search parameter if a department is selected
-  if (selectedDepartment.value && selectedDepartment.value !== "all") {
-    // Use the search property that exists in PaginationParams
-    params.search = selectedDepartment.value;
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    const apiParams: any = {
+      page: currentPage.value,
+      limit: pageSize.value,
+      column: "id",
+      sort_order: "DESC",
+    };
+
+    // เพิ่ม department_id ถ้าเลือกแล้วและไม่ใช่ "all"
+    if (selectedDepartment.value && selectedDepartment.value !== "all") {
+      apiParams.department_id = selectedDepartment.value;
+    }
+
+    // เพิ่ม order_date ถ้ามีการเลือกวันที่ (ใช้แค่ startDate)
+    if (dates.startDate) {
+      const formattedDate = new Date(dates.startDate).toISOString().split('T')[0];
+      apiParams.order_date = formattedDate;
+    }
+
+    await purchaseOrderStore.fetchAll(apiParams);
+  } finally {
+    loading.value = false;
   }
-
-  await purchaseOrderStore.fetchAll(params);
 };
 
 // Handle department selection change
@@ -153,10 +168,10 @@ onMounted(async () => {
   // Fetch ALL departments data
   await fetchAllDepartments();
 
-  // Fetch purchase orders with a high limit
-  await purchaseOrderStore.fetchAll({ page: 1, limit: 1000 });
-
-
+   await purchaseOrderStore.fetchAll({ 
+    page: currentPage.value, 
+    limit: pageSize.value 
+  });
 });
 </script>
 
@@ -196,15 +211,6 @@ onMounted(async () => {
   </div>
 
   <!-- Filters section -->
-  <div class="flex items-center gap-4">
-    <span>ໜ່ວຍງານ</span>
-    <a-radio-group v-model:value="filterType" class="flex gap-4">
-      <a-radio value="department">ພະແນກ</a-radio>
-      <a-radio value="branch">ສາຂາ</a-radio>
-    </a-radio-group>
-    <span class="ml-4">ວັນທີສະເໜີ</span>
-  </div>
-
   <div class="bg-white p-2 rounded-lg shadow-sm">
     <div class="flex items-center gap-4">
       <!-- Department Select using data from departmentStore -->
@@ -222,7 +228,6 @@ onMounted(async () => {
       <div class="flex-grow">
         <DatePicker
           v-model:modelValueStart="dates.startDate"
-          v-model:modelValueEnd="dates.endDate"
           :cols="8"
         />
       </div>
@@ -245,12 +250,9 @@ onMounted(async () => {
       :columns="columns(t)"
       :loading="purchaseOrderStore.loading"
       :data-source="purchaseOrderStore.orders"
-      :pagination="{
-        ...purchaseOrderStore.pagination,
-        pageSize: 1000, // Show many items per page
-        showSizeChanger: false, // Hide the page size changer
-      }"
+      :pagination="tablePagination"
       @change="handleTableChange"
+      row-key="id"
     >
       <!-- Custom cell rendering for actions column -->
       <template #status="{ record }">

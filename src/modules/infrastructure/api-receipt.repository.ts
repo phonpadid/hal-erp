@@ -137,6 +137,17 @@ export class ApiReceiptRepository implements ReceiptRepository {
     }
   }
 
+  async exportExcel(id: string): Promise<Blob> {
+    try {
+      const response = await api.get(`${this.baseUrl}/export/${id}`, {
+        responseType: 'blob'
+      });
+      return response.data;
+    } catch (error) {
+      this.handleApiError(error, `Failed to export receipt with id ${id}`);
+    }
+  }
+
   private toDomainModel(input: ReciptQueryDto): ReceiptEntity {
 
     // Create an array of ReceiptItemEntity instances

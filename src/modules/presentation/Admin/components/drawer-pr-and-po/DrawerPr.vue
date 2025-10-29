@@ -89,10 +89,10 @@ const getStepTitle = (index: number, step: any) => {
             <span>{{ index + 1 }}</span>
           </template>
           <template #price="{ record }">
-            <span>₭ {{ formatPrice(record.getPrice()) }}</span>
+            <span class="text-green-500">₭ {{ formatPrice(record.getPrice()) }}</span>
           </template>
            <template #total="{ record }">
-              <span>₭ {{ formatPrice(record.total || record.price * record.quantity) }}</span>
+              <span class="text-red-500">₭ {{ formatPrice(record.total || record.price * record.quantity) }}</span>
             </template>
           <template #image="{ record }">
             <a-image
@@ -109,7 +109,7 @@ const getStepTitle = (index: number, step: any) => {
         </Table>
         <div class="total flex items-center md:justify-end justify-start md:px-6 px-1 pt-4 gap-4">
           <p class="font-medium text-slate-600">{{ t("purchase-rq.field.amount") }}:</p>
-          <p class="font-semibold md:text-lg text-sm text-slate-700">
+          <p class="font-semibold md:text-lg text-sm text-yellow-500">
             {{ formatPrice(totalAmount) }} ₭
           </p>
         </div>
@@ -117,58 +117,50 @@ const getStepTitle = (index: number, step: any) => {
       <div class="signature py-4 px-6 rounded-md mb-[2rem] flex flex-col items-start">
         <!-- Title -->
         <h2 class="text-md font-semibold">{{ t("purchase-rq.signature") }}</h2>
-        <p class="text-slate-500 text-sm ml-8">
+        <!-- <p class="text-slate-500 text-sm ml-8">
           {{ t("purchase-rq.proposer") }}
-        </p>
+        </p> -->
 
         <!-- Signature Image -->
-        <div class="flex flex-wrap gap-4">
-          <!-- Approval Steps -->
-          <template v-for="(step, index) in approvalSteps" :key="step.id">
-            <div>
-              <!-- Step Title -->
-              <p class="text-slate-500 text-sm mb-2 text-center">
-                {{ getStepTitle(index, step) }}
-              </p>
+     <div class="flex flex-wrap gap-4">
+  <!-- Approval Steps -->
+  <template v-for="(step, index) in approvalSteps" :key="step.id">
+    <div class="flex flex-col items-center">
+      <!-- Step Title -->
+      <p class="text-slate-500 text-sm mb-2 text-center">
+        {{ getStepTitle(index, step) }}
+      </p>
 
-              <!-- Signature Display -->
-              <div class=" w-[80px] h-[80px] text-center">
-                <template v-if="step.status_id === 2 && step.approver?.user_signature">
-                  <!-- Approved signature -->
-                  <a-image
-                    :src="step.approver.user_signature.signature_url"
-                    alt="signature"
-                    :width="80"
-                    :height="80"
-                    :preview="false"
-                    class="block"
-                  />
-                </template>
-                <template v-else-if="step.status_id === 1">
-                  <!-- Pending signature -->
-                  <div class="h-full flex items-center justify-center bg-gray-50">
-                    <span class="text-gray-400 text-center">{{ t("purchase-rq.pending") }}</span>
-                  </div>
-                </template>
-              </div>
+      <!-- Signature Display - Fixed Container -->
+      <div class="w-[120px] h-[80px] flex items-center justify-center">
+        <template v-if="step.status_id === 2 && step.approver?.user_signature">
+          <!-- Approved signature -->
+          <img
+            :src="step.approver.user_signature.signature_url"
+            alt="signature"
+            class="max-w-[110px] max-h-[70px] object-contain"
+          />
+        </template>
+        <template v-else-if="step.status_id === 1">
+          <!-- Pending signature -->
+          <span class="text-gray-400 text-sm text-center px-2">{{ t("purchase-rq.pending") }}</span>
+        </template>
+      </div>
 
-              <!-- Approver Info -->
-              <div class="info text-sm text-slate-600 -space-y-1 text-center">
-                <template v-if="step.approver">
-                  <p class="font-medium">{{ step.approver.username }}</p>
-                  <p class="text-xs">{{ step.position?.name || "-" }}</p>
-                  <!-- <p class="text-xs" v-if="step.approved_at">
-                    {{ formatDate(step.approved_at) }}
-                  </p> -->
-                </template>
-                <template v-else-if="step.doc_approver?.[0]?.user">
-                  <p class="font-medium">{{ step.doc_approver[0].user.username }}</p>
-                  <p class="text-xs">{{ t("purchase-rq.pending") }}</p>
-                </template>
-              </div>
-            </div>
-          </template>
-        </div>
+      <!-- Approver Info -->
+      <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
+        <template v-if="step.approver">
+          <p class="font-medium">{{ step.approver.username }}</p>
+          <p class="text-xs text-gray-500">{{ step.position?.name || "-" }}</p>
+        </template>
+        <template v-else-if="step.doc_approver?.[0]?.user">
+          <p class="font-medium">{{ step.doc_approver[0].user.username }}</p>
+          <p class="text-xs text-gray-500">{{ t("purchase-rq.pending") }}</p>
+        </template>
+      </div>
+    </div>
+  </template>
+</div>
       </div>
     </div>
   </div>

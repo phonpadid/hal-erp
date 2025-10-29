@@ -20,4 +20,7 @@ export class ReportPurchaseOrderImpl implements ReportPurchaseOrderService {
   async reportMoney(): Promise<IReportMoneyPo> {
     return await this.reportMoneyUsecase.execute();
   }
+  async reportPoExport(id: string): Promise<Blob> {
+    return await this.repo.reportPoExport(id);
+  }
 }

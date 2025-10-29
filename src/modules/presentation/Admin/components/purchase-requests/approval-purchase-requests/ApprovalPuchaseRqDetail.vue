@@ -8,7 +8,6 @@ import type { ButtonType } from "@/modules/shared/buttonType";
 import { storeToRefs } from "pinia";
 import { columns } from "../column";
 import { useToggleStore } from "../../../stores/storage.store";
-import { printContent } from "../helpers/printer";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
 import { useRoute, useRouter } from "vue-router";
@@ -19,6 +18,7 @@ import { useApprovalStepStore } from "../../../stores/approval-step.store";
 import { Icon } from "@iconify/vue";
 import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
 import { useAuthStore } from "../../../stores/authentication/auth.store";
+import { useReportPrStore } from "../../../stores/reports/report-pr.store";
 
 import OtpModal from "../modal/OtpModal.vue";
 import SuccessModal from "../modal/SuccessModal.vue";
@@ -26,12 +26,14 @@ import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
+import PrintPurchaseRequest from "./PrintPurchaseRequest.vue";
 
 const { t } = useI18n();
 const purchaseRequestStore = usePurchaseRequestsStore();
 const documentStatusStore = useDocumentStatusStore();
 const requestDetail = ref<PurchaseRequestEntity | null>(null);
 const { error } = useNotification();
+const exportPrStore = useReportPrStore();
 const approvalStepStore = useApprovalStepStore();
 const route = useRoute();
 const router = useRouter();
@@ -58,13 +60,11 @@ const currentApprovalStep = computed(() => {
   const userData = userDataStr ? JSON.parse(userDataStr) : null;
   const userApproval = requestDetail.value.getUserApproval();
   if (!userApproval?.approval_step) {
-  
     return null;
   }
   const pendingStep = userApproval.approval_step.find((step) => step.status_id === 1);
 
   if (!pendingStep?.doc_approver?.length) {
-    
     return null;
   }
   const isAuthorized = pendingStep.doc_approver.some((approver) => {
@@ -120,15 +120,63 @@ const approvalStepId = ref<number | null>(null);
 const requiresOtp = ref(false);
 const approvalId = ref<number | null>(null);
 
+const handleExport = async () => {
+  try {
+    const documentId = route.params.id as string;
+    if (!documentId) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບເລກທີເອກະສານ");
+      return;
+    }
+
+    loading.value = true;
+    await exportPrStore.reportPrExport(documentId);
+  } catch (err) {
+    console.error("Export error:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດ Export ໄດ້");
+  } finally {
+    loading.value = false;
+  }
+};
+
 const customButtons = computed(() => {
   if (!canApprove.value) {
-    return [];
+    return [
+      {
+        label: "Export",
+        icon: "ant-design:file-excel-outlined",
+        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+        type: "default" as ButtonType,
+        onClick: handleExport,
+      },
+      {
+        label: "Print",
+        icon: "ant-design:printer-outlined",
+        class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+        type: "default" as ButtonType,
+        onClick: handlePrint,
+      },
+    ];
   }
 
+  // ✅ ถ้ามีสิทธิ์อนุมัติ แสดงปุ่ม Reject และ Approve
   const currentStep = currentApprovalStep.value;
   if (!currentStep) return [];
 
   return [
+    {
+      label: "Export",
+      icon: "ant-design:file-excel-outlined",
+      class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
+      type: "default" as ButtonType,
+      onClick: handleExport,
+    },
+    {
+      label: "Print",
+      icon: "ant-design:printer-outlined",
+      class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+      type: "default" as ButtonType,
+      onClick: handlePrint,
+    },
     {
       label: t("purchase-rq.card_title.refused"),
       type: "default" as ButtonType,
@@ -143,7 +191,6 @@ const customButtons = computed(() => {
       onClick: async () => {
         modalAction.value = "approve";
         await handleApprove();
-        // Note: handleApprove doesn't return a value, so removed success check
         modalAction.value = "";
       },
     },
@@ -193,28 +240,18 @@ const documentStatus = computed(() => {
   };
 });
 
-const handlePrint = async () => {
-  try {
-    await printContent({
-      title: "ໃບສະເໜີຈັດຊື້ ເລກທີ 0036/ພລ",
-      contentSelector: ".body",
-      hideElements: [".fixed", ".ant-drawer", ".ant-modal"],
-      customStyles: `
-        /* Add any custom Lao font or specific styling */
-        body {
-          font-family: 'Noto Sans Lao', sans-serif;
-        }
-        .signature img {
-          max-width: 180px;
-          max-height: 100px;
-        }
-      `,
-    });
-  } catch (error) {
-    console.error("Print error:", error);
-  }
+const handlePrint = () => {
+  window.print();
 };
+
 const customButtonSuccess = [
+  {
+    label: "Export",
+    icon: "ant-design:file-excel-outlined",
+    class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+    type: "default" as ButtonType,
+    onClick: handleExport,
+  },
   {
     label: "print",
     icon: "ant-design:printer-outlined",
@@ -274,6 +311,9 @@ const handleApprove = async () => {
 };
 
 const handleOtpConfirm = async (otpCode: string) => {
+  if (modalAction.value === "reject") {
+    await handleOtpRejectConfirm(otpCode);
+  }
   if (!otpCode) {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
     return;
@@ -346,10 +386,10 @@ const handleOtpClose = () => {
 
 // Handle final success confirmation
 const handleReject = async () => {
-  if (!rejectReason.value.trim()) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາລະບຸເຫດຜົນໃນການປະຕິເສດ");
-    return;
-  }
+  // if (!rejectReason.value.trim()) {
+  //   error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາລະບຸເຫດຜົນໃນການປະຕິເສດ");
+  //   return;
+  // }
 
   if (!rejectedStatusId.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Rejected' ໃນລະບົບ");
@@ -361,27 +401,28 @@ const handleReject = async () => {
     return;
   }
 
-  try {
-    const userApproval = requestDetail.value.getUserApproval();
-    if (!userApproval?.approval_step?.[0]) {
-      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
-      return;
-    }
+  // ✅ ใช้ currentApprovalStep แทน approval_step[0]
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ຫຼື ທ່ານບໍ່ມີສິດອະນຸມັດ");
+    return;
+  }
 
-    const currentStep = userApproval.approval_step[0];
+  try {
     approvalStepId.value = currentStep.id;
     requiresOtp.value = currentStep.is_otp === true;
 
+    const documentId = route.params.id as string;
+
+    // ✅ กรณีไม่ต้องการ OTP
     if (!requiresOtp.value) {
-      const documentId = route.params.id as string;
       const payload = {
         type: "pr" as const,
         statusId: Number(rejectedStatusId.value),
         remark: rejectReason.value,
         approvalStepId: Number(approvalStepId.value),
+        is_otp: false,
       };
-
-      // console.log("Sending payload:", payload);
 
       const success = await approvalStepStore.submitApproval(documentId, payload);
       if (success) {
@@ -391,12 +432,53 @@ const handleReject = async () => {
       }
       return;
     }
-    // ถ้าต้องใช้ OTP แสดง OTP Modal
-    isRejectModalVisible.value = false;
-    isOtpModalVisible.value = true;
+
+    // ✅ กรณีต้องการ OTP - ส่ง OTP ก่อน
+    const otpData = await approvalStepStore.sendOtp(currentStep.id);
+    if (otpData) {
+      approvalId.value = otpData.approval_id;
+      isRejectModalVisible.value = false;
+      isOtpModalVisible.value = true;
+    }
   } catch (err) {
     console.error("Error in handleReject:", err);
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+  }
+};
+const handleOtpRejectConfirm = async (otpCode: string) => {
+  if (!otpCode) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
+    return;
+  }
+
+  const approvalIdFromOtp = approvalStepStore.otpResponse?.approval_id;
+  if (!approvalIdFromOtp) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນອ້າງອີງ OTP");
+    return;
+  }
+
+  try {
+    const documentId = route.params.id as string;
+    const payload: SubmitApprovalStepInterface = {
+      type: "pr",
+      statusId: Number(rejectedStatusId.value),
+      remark: rejectReason.value,
+      approvalStepId: Number(approvalStepId.value),
+      approval_id: approvalIdFromOtp,
+      is_otp: true,
+      otp: otpCode,
+    };
+
+    const success = await approvalStepStore.submitApproval(documentId, payload);
+    if (success) {
+      isOtpModalVisible.value = false;
+      rejectReason.value = "";
+      isSuccessModalVisible.value = true;
+    }
+  } catch (err) {
+    console.error("Error in handleOtpRejectConfirm:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+    isOtpModalVisible.value = false;
   }
 };
 
@@ -550,10 +632,10 @@ onMounted(async () => {
               <span>{{ index + 1 }}</span>
             </template>
             <template #price="{ record }">
-              <span>₭ {{ formatPrice(record.getPrice()) }}</span>
+              <span class="text-green-500">₭ {{ formatPrice(record.getPrice()) }}</span>
             </template>
             <template #total="{ record }">
-              <span>₭ {{ formatPrice(record.total || record.price * record.quantity) }}</span>
+              <span class="text-red-500">₭ {{ formatPrice(record.total || record.price * record.quantity) }}</span>
             </template>
             <template #image="{ record }">
               <a-image
@@ -570,12 +652,12 @@ onMounted(async () => {
           </Table>
           <div class="price-summary grid grid-cols-[auto_150px] gap-2 px-6 text-right">
             <div class="font-medium text-slate-600">{{ t("purchase-rq.field.total_price") }}:</div>
-            <div class="font-semibold md:text-lg text-sm text-slate-700">
+            <div class="font-semibold md:text-lg text-sm text-green-500">
               {{ formatPrice(requestDetail?.getTotal()) }}₭
             </div>
 
             <div class="font-medium text-slate-600">{{ t("purchase-rq.field.amounts") }}:</div>
-            <div class="font-semibold md:text-lg text-sm text-slate-700">
+            <div class="font-semibold md:text-lg text-sm  text-red-500">
               {{ formatPrice(totalAmount) }}₭
             </div>
           </div>
@@ -585,58 +667,48 @@ onMounted(async () => {
           <h2 class="text-md font-semibold mb-4">
             {{ t("purchase-rq.signature") }}
           </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+
+          <!-- ✅ เปลี่ยนจาก grid เป็น flex flex-wrap -->
+          <div class="flex flex-wrap gap-4">
             <!-- Approval Steps -->
             <template v-for="(step, index) in approvalStep" :key="step.id">
               <div class="flex flex-col items-center">
                 <!-- Step Title -->
-                <p class="text-slate-500 text-sm mb-2 text-center w-full">
+                <p class="text-slate-500 text-sm mb-2 text-center">
                   {{ getStepTitle(index, step) }}
                 </p>
 
-                <!-- Signature Display -->
-                <div class="w-[100px] h-[100px] rounded-lg overflow-hidden">
+                <!-- Signature Display - Fixed Container -->
+                <div
+                  class="w-[120px] h-[80px] flex items-center justify-center"
+                >
                   <template v-if="step.status_id === 2 && step.approver?.user_signature">
                     <!-- Approved signature -->
-                    <a-image
+                    <img
                       :src="step.approver.user_signature.signature_url"
                       alt="signature"
-                      :width="100"
-                      :height="100"
-                      :preview="false"
-                      class="object-contain w-full h-full"
+                      class="max-w-[110px] max-h-[70px] object-contain"
                     />
                   </template>
                   <template v-else-if="step.status_id === 1">
                     <!-- Pending signature -->
-                    <div class="h-full flex items-center justify-center bg-gray-50">
-                      <span class="text-gray-400 text-center px-2">
-                        {{ t("purchase-rq.pending") }}
-                      </span>
-                    </div>
+                    <span class="text-gray-400 text-sm text-center px-2">
+                      {{ t("purchase-rq.pending") }}
+                    </span>
                   </template>
                 </div>
 
                 <!-- Approver Info -->
-                <div class="w-full">
-                  <div class="text-center">
-                    <template v-if="step.approver">
-                      <p class="font-medium text-sm mb-1">
-                        {{ step.approver.username }}
-                      </p>
-                      <p class="text-xs text-gray-600">
-                        {{ step.position?.name || "-" }}
-                      </p>
-                    </template>
-                    <template v-else-if="step.doc_approver?.[0]?.user">
-                      <!-- <p class="font-medium text-sm truncate">
-                        {{ step.doc_approver[0].user.username }}
-                      </p> -->
-                      <p class="text-xs text-gray-500">
-                        {{ t("purchase-rq.pending") }}
-                      </p>
-                    </template>
-                  </div>
+                <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
+                  <template v-if="step.approver">
+                    <p class="font-medium">{{ step.approver.username }}</p>
+                    <p class="text-xs text-gray-500">{{ step.position?.name || "-" }}</p>
+                  </template>
+                  <template v-else-if="step.doc_approver?.[0]?.user">
+                    <p class="text-xs text-gray-500">
+                      {{ t("purchase-rq.pending") }}
+                    </p>
+                  </template>
                 </div>
               </div>
             </template>
@@ -694,6 +766,10 @@ onMounted(async () => {
         >
       </template>
     </UiModal>
+
+    <div class="print-only">
+      <PrintPurchaseRequest :purchase-request="requestDetail" />
+    </div>
   </div>
 </template>
 
@@ -737,5 +813,41 @@ onMounted(async () => {
   justify-content: center;
   background: white;
   border: 1px solid #e5e7eb;
+}
+
+.print-only {
+  display: none;
+}
+
+@media print {
+  /* Hide everything except print component */
+  body * {
+    visibility: hidden;
+  }
+
+  .print-only,
+  .print-only * {
+    visibility: visible;
+  }
+
+  .print-only {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Hide scrollbars */
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Remove shadows and borders for print */
+  .print-only * {
+    box-shadow: none !important;
+  }
 }
 </style>

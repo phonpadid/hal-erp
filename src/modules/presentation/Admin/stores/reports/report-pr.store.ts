@@ -6,7 +6,6 @@ import { ApiReportPurchaseRequestRepository } from "@/modules/infrastructure/rep
 import { ReportPurchaseRequestImpl } from "@/modules/application/services/reports/report-purchase-request.service";
 import type { IReportPurchaseRequestDto } from "@/modules/application/dtos/report/report-pr.dto";
 
-
 const createReportPurchaseQuestService = () => {
   const repository = new ApiReportPurchaseRequestRepository();
   return new ReportPurchaseRequestImpl(repository);
@@ -18,23 +17,29 @@ export const useReportPrStore = defineStore("report-pr-store", () => {
 
   // State
   const report_pr: Ref<IReportPurchaseRequestDto[]> = ref([]);
-  const status = ref([{
-    id: 0,
-    amount: 0,
-    status: ""
-  }])
-  const report_money = ref([{
-    status: '',
-    total: 0
-  }])
-  const report_receipt_money = ref([{
-    status: '',
-    total: 0,
-    currency_code: '',
-    currency_name: '',
-    payment_total: 0,
-    total_vat: 0,
-  }])
+  const status = ref([
+    {
+      id: 0,
+      amount: 0,
+      status: "",
+    },
+  ]);
+  const report_money = ref([
+    {
+      status: "",
+      total: 0,
+    },
+  ]);
+  const report_receipt_money = ref([
+    {
+      status: "",
+      total: 0,
+      currency_code: "",
+      currency_name: "",
+      payment_total: 0,
+      total_vat: 0,
+    },
+  ]);
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
   const pagination = ref({
@@ -53,11 +58,12 @@ export const useReportPrStore = defineStore("report-pr-store", () => {
     try {
       const result = await serice.reportPurchaseQuest(params);
       report_pr.value = result.data;
-      status.value = result.status?.map((item) => ({
-        id: item.id,
-        amount: item.amount,
-        status: item.status
-      })) ?? []
+      status.value =
+        result.status?.map((item) => ({
+          id: item.id,
+          amount: item.amount,
+          status: item.status,
+        })) ?? [];
       pagination.value = {
         page: result.page ?? 1,
         limit: result.limit ?? 10,
@@ -105,8 +111,38 @@ export const useReportPrStore = defineStore("report-pr-store", () => {
       loading.value = false;
     }
   };
+  const reportPrExport = async (id: string) => {
+    loading.value = true;
+    error.value = null;
 
+    try {
+      const result = await serice.reportPrExport(id);
 
+      // ✅ สร้าง Blob URL และ download
+      const url = window.URL.createObjectURL(new Blob([result]));
+      const link = document.createElement("a");
+      link.href = url;
+
+      // ✅ ตั้งชื่อไฟล์เป็น Excel format
+      const timestamp = new Date().toISOString().split("T")[0];
+      link.setAttribute("download", `purchase-request-${id}-${timestamp}.xlsx`);
+
+      document.body.appendChild(link);
+      link.click();
+
+      // ✅ Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      return true;
+    } catch (err) {
+      error.value = err as Error;
+      console.error("Failed to export report:", err);
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page || 1;
@@ -124,12 +160,13 @@ export const useReportPrStore = defineStore("report-pr-store", () => {
     // Getters
     // Actions
     reportPr,
+    reportPrExport,
     status,
     counts,
     reportMoney,
     report_money,
     reportReceiptMoney,
-    report_receipt_money
+    report_receipt_money,
   };
 });
 
@@ -142,8 +179,8 @@ export const formState = reactive({
       budget_item_id: null as string | null,
       allocated_amount: 0 as number | undefined,
     },
-  ]
-})
+  ],
+});
 
 export const moreFunction = () => {
   formState.detail.push({
@@ -159,7 +196,7 @@ export const yearOptions = computed(() => {
   for (let year = currentYear; year >= startYear; year--) {
     options.push({
       value: year,
-      label: year.toString()
+      label: year.toString(),
     });
   }
 
