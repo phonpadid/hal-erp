@@ -79,6 +79,38 @@ export const useReportPoStore = defineStore("report-po-store", () => {
       loading.value = false;
     }
   };
+  const reportPoExport = async (id: string) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const result = await serice.reportPoExport(id);
+
+      
+      const url = window.URL.createObjectURL(new Blob([result]));
+      const link = document.createElement("a");
+      link.href = url;
+
+
+      const timestamp = new Date().toISOString().split("T")[0];
+      link.setAttribute("download", `purchase-order-${id}-${timestamp}.xlsx`);
+
+      document.body.appendChild(link);
+      link.click();
+
+     
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      return true;
+    } catch (err) {
+      error.value = err as Error;
+      console.error("Failed to export report:", err);
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
 
 
@@ -95,6 +127,7 @@ export const useReportPoStore = defineStore("report-po-store", () => {
     error,
     pagination,
     setPagination,
+    reportPoExport,
     // Getters
     // Actions
     reportPo,

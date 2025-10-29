@@ -94,52 +94,6 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
       throw this.handleApiError(error, `Failed to delete purchase order with id ${id}`);
     }
   }
-
-  // private toApiModel(input: PurchaseOrderEntity): PurchaseOrderApiModel {
-  //   const currentTimestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
-  //   const currentUser = "phonpadid";
-
-  //   return {
-  //     purchase_order_item: [],
-  //     purchase_request_id: input.getPurchaseRequestId(),
-
-  //     document: {
-  //       description: input.getDocument().description,
-  //       documentTypeId: input.getDocument().documentTypeId,
-  //       created_by: currentUser,
-  //       created_at: currentTimestamp,
-  //       updated_by: currentUser,
-  //       updated_at: currentTimestamp,
-  //     },
-  //     items: input.getItems().map((item) => {
-  //       console.log("Converting item to API:", item);
-  //       return {
-  //         purchase_request_item_id: item.getPurchaseRequestItemId(),
-  //         price: item.getPrice(),
-  //         is_vat: item.getIsVat(),
-  //         selected_vendor: [
-  //           {
-  //             vendor_id: item.getVendor().getVendorId(),
-  //             vendor_bank_account_id: item.getVendor().getVendorBankAccountId(),
-  //             filename: item.getVendor().getFilename(),
-  //             reason: item.getVendor().getReason(),
-  //             selected: true,
-  //             created_by: currentUser,
-  //             created_at: currentTimestamp,
-  //           },
-  //         ],
-  //         created_by: currentUser,
-  //         created_at: currentTimestamp,
-  //         updated_by: currentUser,
-  //         updated_at: currentTimestamp,
-  //       };
-  //     }),
-  //     created_by: currentUser,
-  //     created_at: currentTimestamp,
-  //     updated_by: currentUser,
-  //     updated_at: currentTimestamp,
-  //   };
-  // }
   private toApiModel(input: PurchaseOrderEntity): PurchaseOrderApiModel {
     const currentTimestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
     const currentUser = "phonpadid";
@@ -266,23 +220,4 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
       return new Error(`${defaultMessage}: ${(error as Error).message || "Unknown error"}`);
     }
   }
-  // private sanitizeVendorData(vendor: any): any {
-  //   if (vendor && typeof vendor === "object") {
-  //     if (vendor.constructor.name === "Object" && vendor.toString() === "[object Object]") {
-  //       return {
-  //         vendor_id: vendor.vendor_id,
-  //         vendor_name: vendor.vendor_name,
-  //         vendor_bank_account_id: vendor.vendor_bank_account_id,
-  //         bank_name: vendor.bank_name,
-  //         account_number: vendor.account_number,
-  //         file_url: vendor.file_url,
-  //         filename: vendor.filename,
-  //         is_vat: vendor.is_vat,
-  //         reason: vendor.reason || "",
-  //         selected: vendor.selected || false,
-  //       };
-  //     }
-  //   }
-  //   return vendor;
-  // }
 }

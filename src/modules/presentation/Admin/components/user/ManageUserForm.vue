@@ -79,7 +79,7 @@ const loadingPermissions = ref(false);
 onMounted(async () => {
   try {
     loadingPermissions.value = true;
-    await roleStore.fetchAllRoles();
+    await roleStore.fetchAllRoles( {page: 1, limit: 10000} );
     const result = await permissionStore.fetchPermission();
     permissionData.value = result.data as unknown as PermissionGroup[];
   } catch (error) {

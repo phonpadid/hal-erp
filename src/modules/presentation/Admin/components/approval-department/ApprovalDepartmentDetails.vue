@@ -87,10 +87,10 @@
             </template>
 
             <template #price="{ record }">
-              <span>{{ formatPrice(record.getPrice()) }} ₭</span>
+              <span class="text-green-500">{{ formatPrice(record.getPrice()) }} ₭</span>
             </template>
             <template #total="{ record }">
-              <span>{{ formatPrice(record.getTotal()) }} ₭</span>
+              <span class="text-red-500">{{ formatPrice(record.getTotal()) }} ₭</span>
             </template>
             <template #id_name="{ record }">
               <span class="text-gray-600">
@@ -130,7 +130,7 @@
               <UiButton
                 type="link"
                 icon="ant-design:eye-outlined"
-                color-class="flex items-center text-red-500 hover:!text-red-900"
+                color-class="flex items-center text-blue-500 hover:!text-blue-900"
                 @click="() => showShopDetails(record)"
               >
                 ລາຍລະອຽດຮ້ານຄ້າ
@@ -159,13 +159,13 @@
             <div v-if="orderDetails">
               <div class="grid grid-cols-[auto_130px] gap-2 text-right">
                 <div class="font-medium">ລາຄາລວມ:</div>
-                <div class="text-gray-600">{{ formatPrice(getTotalAmount) }} ₭</div>
+                <div class="text-green-500">{{ formatPrice(getTotalAmount) }} ₭</div>
 
                 <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
-                <div class="text-gray-600">{{ formatPrice(orderDetails.getVat()) }} ₭</div>
+                <div class="text-yellow-500">{{ formatPrice(orderDetails.getVat()) }} ₭</div>
 
                 <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
-                <div class="text-gray-600 font-bold">
+                <div class="text-red-500 font-bold">
                   {{ formatPrice(orderDetails.getTotal()) }} ₭
                 </div>
               </div>
@@ -173,62 +173,52 @@
           </div>
         </div>
         <!-- Signatures -->
-        <div class="shadow-sm rounded-md p-4">
-          <h2 class="text-md font-semibold mb-4">
+        <div class="shadow-sm rounded-md p-2">
+          <h2 class="text-md font-semibold mb-2">
             {{ t("purchase-rq.signature") }}
           </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+
+          <!-- ✅ เปลี่ยนจาก grid เป็น flex flex-wrap -->
+          <div class="flex flex-wrap gap-4">
             <!-- Approval Steps -->
             <template v-for="(step, index) in approvalStep" :key="step.id">
               <div class="flex flex-col items-center">
                 <!-- Step Title -->
-                <p class="text-slate-500 text-sm mb-2 text-center w-full">
+                <p class="text-slate-500 text-sm mb-2 text-center">
                   {{ getStepTitle(index, step) }}
                 </p>
 
-                <!-- Signature Display -->
-                <div class="w-[100px] h-[100px] rounded-lg overflow-hidden">
+                <!-- Signature Display - Fixed Container -->
+                <div
+                  class="w-[120px] h-[80px] flex items-center justify-center"
+                >
                   <template v-if="step.status_id === 2 && step.approver?.user_signature">
                     <!-- Approved signature -->
-                    <a-image
+                    <img
                       :src="step.approver.user_signature.signature_url"
                       alt="signature"
-                      :width="100"
-                      :height="100"
-                      :preview="false"
-                      class="object-contain w-full h-full"
+                      class="max-w-[110px] max-h-[70px] object-contain"
                     />
                   </template>
                   <template v-else-if="step.status_id === 1">
                     <!-- Pending signature -->
-                    <div class="h-full flex items-center justify-center bg-gray-50">
-                      <span class="text-gray-400 text-center px-2">
-                        {{ t("purchase-rq.pending") }}
-                      </span>
-                    </div>
+                    <span class="text-gray-400 text-sm text-center px-2">
+                      {{ t("purchase-rq.pending") }}
+                    </span>
                   </template>
                 </div>
 
                 <!-- Approver Info -->
-                <div class="w-full">
-                  <div class="text-center">
-                    <template v-if="step.approver">
-                      <p class="font-medium text-sm mb-1">
-                        {{ step.approver.username }}
-                      </p>
-                      <p class="text-xs text-gray-600">
-                        {{ step.position?.name || "-" }}
-                      </p>
-                    </template>
-                    <template v-else-if="step.doc_approver?.[0]?.user">
-                      <!-- <p class="font-medium text-sm truncate">
-                        {{ step.doc_approver[0].user.username }}
-                      </p> -->
-                      <p class="text-xs text-gray-500">
-                        {{ t("purchase-rq.pending") }}
-                      </p>
-                    </template>
-                  </div>
+                <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
+                  <template v-if="step.approver">
+                    <p class="font-medium">{{ step.approver.username }}</p>
+                    <p class="text-xs text-gray-500">{{ step.position?.name || "-" }}</p>
+                  </template>
+                  <template v-else-if="step.doc_approver?.[0]?.user">
+                    <p class="text-xs text-gray-500">
+                      {{ t("purchase-rq.pending") }}
+                    </p>
+                  </template>
                 </div>
               </div>
             </template>
@@ -438,6 +428,9 @@
   <UiDrawer v-model:open="visibleBudget" title="ເລືອກລະຫັດງົບປະມານ" placement="right" :width="500">
     <BudgetApprovalDrawer @confirm="handleBudgetConfirm" />
   </UiDrawer>
+  <div class="print-only">
+    <PrintPurchaseOrder :purchase-order="orderDetails" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -467,6 +460,8 @@ import { useApprovalStepStore } from "../../stores/approval-step.store";
 import { useDocumentStatusStore } from "../../stores/document-status.store";
 import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
 import { useAuthStore } from "../../stores/authentication/auth.store";
+import { useReportPoStore } from "../../stores/reports/report-po.store";
+import PrintPurchaseOrder from "./PrintPurchaseOrder.vue";
 import BudgetApprovalDrawer from "../budget-approval/BudgetApprovalDrawer.vue";
 import SelectDocumentTypeModal from "../receipt/modal/SelectDocumentTypeModal.vue";
 
@@ -491,9 +486,11 @@ const selectedPrId = ref<number | null>(null);
 const selectedBudgets = ref<Record<string, any>>({});
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const activeItemRecord = ref<any>(null);
+const loading = ref(true);
 const visibleBudget = ref(false);
 const authStore = useAuthStore();
 const { userRoles } = storeToRefs(authStore);
+const reportExcelPoStore = useReportPoStore();
 const canManageBudget = computed(() => {
   return userRoles.value.includes("budget-admin") || userRoles.value.includes("budget-user");
 });
@@ -504,6 +501,24 @@ const showBudgetDrawer = (record: any) => {
   activeItemRecord.value = record;
   visibleBudget.value = true;
 };
+const handleExport = async () => {
+  try {
+    const documentId = route.params.id as string;
+    if (!documentId) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບເລກທີເອກະສານ");
+      return;
+    }
+
+    loading.value = true;
+    await reportExcelPoStore.reportPoExport(documentId);
+  } catch (err) {
+    console.error("Export error:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດ Export ໄດ້");
+  } finally {
+    loading.value = false;
+  }
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleBudgetConfirm = (data: any) => {
   if (activeItemRecord.value) {
@@ -557,12 +572,12 @@ const getTotalAmount = computed(() => {
 });
 const loadInitialBudgets = () => {
   if (orderDetails.value?.getPurchaseOrderItem()) {
-    orderDetails.value.getPurchaseOrderItem().forEach(item => {
+    orderDetails.value.getPurchaseOrderItem().forEach((item) => {
       if (item.getBudgetItem()) {
         selectedBudgets.value[item.getId()] = {
           purchaseOrderItemId: item.getId(),
           budgetId: item.getBudgetItem().id,
-          budgetCode: item.getBudgetItem().budget_account?.code || 'No Code',
+          budgetCode: item.getBudgetItem().budget_account?.code || "No Code",
           budgetName: item.getBudgetItem().budget_account?.name,
           budgetAmount: item.getBudgetItem().allocated_amount,
           remainingAmount: item.getBudgetItem().balance_amount,
@@ -695,7 +710,6 @@ const currentApprovalStep = computed(() => {
 });
 const canCreatePaymentDocument = computed(() => {
   if (!orderDetails.value || !approvalSteps.value.length) {
-   
     return false;
   }
 
@@ -730,7 +744,6 @@ const getPreviousApprovedStep = computed(() => {
 const canApprove = computed(() => {
   const currentStep = currentApprovalStep.value;
   if (!currentStep) {
-  
     return false;
   }
   if (currentStep.step_number === 0) {
@@ -742,24 +755,58 @@ const canApprove = computed(() => {
     previousStep.status_id === 2 &&
     previousStep.step_number === currentStep.step_number - 1;
 
-
   return canApprove;
 });
 
+const isFullyApproved = computed(() => {
+  if (!orderDetails.value || !approvalSteps.value.length) {
+    return false;
+  }
+
+  // เช็คว่าทุก step (ยกเว้น step 0) มีสถานะ APPROVED (status_id === 2)
+  return approvalSteps.value
+    .filter((step) => step.step_number !== 0)
+    .every((step) => step.status_id === 2);
+});
+
 const customButtons = computed(() => {
-  if (isApproved.value) {
+  // ✅ แสดงปุ่ม Export และ Print เมื่ออนุมัติสำเร็จหรือเอกสารอนุมัติครบแล้ว
+  if (isApproved.value || isFullyApproved.value) {
     return [
       {
-        label: "print",
+        label: "Export",
+        icon: "ant-design:file-excel-outlined",
+        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+        type: "default" as ButtonType,
+        onClick: handleExport,
+      },
+      {
+        label: "Print",
         icon: "ant-design:printer-outlined",
-        class: "bg-white flex items-center gap-2 hover:bg-gray-100",
+        class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
         type: "default" as ButtonType,
         onClick: handlePrint,
       },
     ];
   }
+
+  // ✅ ถ้าอนุมัติครบแล้วและเป็น user ที่มีสิทธิ์สร้างใบเบิกจ่าย
   if (canCreatePaymentDocument.value) {
     return [
+      {
+        label: "Export",
+        icon: "ant-design:file-excel-outlined",
+        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+        type: "default" as ButtonType,
+        onClick: handleExport,
+      },
+      {
+        label: "Print",
+        icon: "ant-design:printer-outlined",
+        class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+        type: "default" as ButtonType,
+        onClick: handlePrint,
+      },
       {
         label: `ສ້າງໃບເບີກຈ່າຍ`,
         type: "primary" as ButtonType,
@@ -770,6 +817,7 @@ const customButtons = computed(() => {
     ];
   }
 
+  // ✅ ถ้าไม่มีสิทธิ์อนุมัติ แต่เอกสารยังไม่อนุมัติครบ - ไม่แสดงปุ่ม
   if (!canApprove.value) {
     console.log("Cannot approve - no permissions");
     return [];
@@ -781,11 +829,19 @@ const customButtons = computed(() => {
     return [];
   }
 
+  // ✅ ถ้ามีสิทธิ์อนุมัติ - แสดงปุ่ม Export, Print, Reject, Approve
   return [
     {
-      label: "print",
+      label: "Export",
+      icon: "ant-design:file-excel-outlined",
+      class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
+      type: "default" as ButtonType,
+      onClick: handleExport,
+    },
+    {
+      label: "Print",
       icon: "ant-design:printer-outlined",
-      class: "bg-white flex items-center gap-2 hover:bg-gray-100",
+      class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
       type: "default" as ButtonType,
       onClick: handlePrint,
     },
@@ -830,6 +886,7 @@ const onChooseDocumentType = () => {
   selectedData.value = purchaseOrderId;
   open.value = true;
 };
+
 const getPurchaseOrderRemark = computed(() => {
   if (
     orderDetails.value &&
@@ -846,15 +903,23 @@ const getPurchaseOrderRemark = computed(() => {
 });
 
 const getPurchaseOrderQuantity = computed(() => {
-  if (
-    orderDetails.value &&
-    orderDetails.value.getPurchaseOrderItem &&
-    orderDetails.value.getPurchaseOrderItem().length > 0
-  ) {
-    return orderDetails.value.getPurchaseOrderItem()[0].getQuantity();
-  }
 
-  return orderDetails.value?.getPurchaseRequest()?.purchase_request_item?.[0]?.quantity || 2;
+  const poItems = orderDetails.value?.getPurchaseOrderItem?.() ?? [];
+  if (Array.isArray(poItems) && poItems.length > 0) {
+    return poItems.reduce((sum, item) => {
+    
+      const quantity = item.getQuantity?.() ?? 0;
+      return sum + Number(quantity);
+    }, 0);
+  }
+  const prItems = orderDetails.value?.getPurchaseRequest?.()?.purchase_request_item ?? [];
+  if (Array.isArray(prItems) && prItems.length > 0) {
+    return prItems.reduce((sum, item) => {
+      const quantity = item.quantity ?? 0;
+      return sum + Number(quantity);
+    }, 0);
+  }
+  return 0;
 });
 
 // const items = computed(() => orderDetails.value?.getItems() ?? []);
@@ -890,7 +955,7 @@ const fetchOrderDetails = async () => {
 onMounted(async () => {
   await documentStatusStore.fetctDocumentStatus();
   await fetchOrderDetails();
-   loadInitialBudgets();
+  loadInitialBudgets();
 });
 
 const handlePrint = () => {
@@ -1177,3 +1242,40 @@ const handleModalCancel = () => {
   signatureData.value = "";
 };
 </script>
+<style scoped>
+.print-only {
+  display: none;
+}
+
+@media print {
+  /* Hide everything except print component */
+  body * {
+    visibility: hidden;
+  }
+
+  .print-only,
+  .print-only * {
+    visibility: visible;
+  }
+
+  .print-only {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Hide scrollbars */
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Remove shadows and borders for print */
+  .print-only * {
+    box-shadow: none !important;
+  }
+}
+</style>

@@ -6,4 +6,5 @@ export interface ReportPurchaseRequestRepository {
   reportPr(query: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<IReportPurchaseRequestDto>>;
   reportMoney(): Promise<IReportMoney>;
   reportReceiptMoney(): Promise<IReportReceiptMoney>;
+  reportPrExport(id: string): Promise<Blob>;
 }

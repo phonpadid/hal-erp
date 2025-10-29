@@ -55,6 +55,19 @@ export class ApiReportPurchaseRequestRepository implements ReportPurchaseRequest
       this.handleApiError(error, "Failed to fetch budget accounts list");
     }
   }
+
+  async reportPrExport(id: string): Promise<Blob> {
+    try {
+      const response = await api.get(`purchase-requests/export/${id}`, {
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      this.handleApiError(error, "Failed to export purchase request report");
+    }
+  } 
+
+
   private handleApiError(error: unknown, defaultMessage: string): never {
     const axiosError = error as AxiosError<{ message?: string }>;
 

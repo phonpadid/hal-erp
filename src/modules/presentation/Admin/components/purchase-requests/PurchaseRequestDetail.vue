@@ -15,12 +15,14 @@ import Table from "@/common/shared/components/table/Table.vue";
 import { useRoute } from "vue-router";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
+import { useReportPrStore } from "../../stores/reports/report-pr.store";
 import { formatDate } from "@/modules/shared/formatdate";
 import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const route = useRoute(); // << 3. Get route instance
 const purchaseRequestStore = usePurchaseRequestsStore(); // << 4. Get store instance
+const exportPrStore = useReportPrStore();
 
 const requestDetail = ref<PurchaseRequestEntity | null>(null);
 const loading = ref(true);
@@ -33,6 +35,7 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
 
 const requesterInfo = computed(() => requestDetail.value?.getRequester());
 const departmentInfo = computed(() => requestDetail.value?.getDepartment());
