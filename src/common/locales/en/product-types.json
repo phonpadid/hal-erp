@@ -1,0 +1,68 @@
+{
+  "title": "Product Type information",
+  "add": "Add new product type",
+  "header_form": {
+    "add": "Add new product type",
+    "edit": "Update product type",
+    "delete": {
+      "title": "Confirm delete",
+      "content": "Are you sure you want to delete",
+      "description": "This action cannot be undone"
+    }
+  },
+  "placeholder": {
+    "name": "Please enter product type name",
+    "search": "Search by product type name"
+  },
+
+  "field": {
+    "name": "Product Type name",
+    "category": "Category",
+    "created": "Created At",
+    "updated": "Updated At",
+    "manage": "Manage"
+  },
+
+  "notify": {
+    "created": "Product Type created successfully",
+    "updated": "Product Type updated successfully",
+    "deleted": "Product Type deleted successfully"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "nameMin": "Name must be at least 2 characters",
+    "nameMax": "Name cannot exceed 100 characters",
+    "codeRequired": "Code is required",
+    "codeMin": "Code must be at least 2 characters",
+    "codeMax": "Code cannot exceed 50 characters"
+  },
+  "modal": {
+    "create": "Create Product Type",
+    "edit": "Edit Product Type",
+    "delete": "Delete Product Type",
+    "deleteConfirm": "Are you sure you want to delete Product Type?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "form": {
+    "name": "Product Type Name",
+    "namePlaceholder": "Enter product type",
+    "category": "Category",
+    "categoryPlaceholder": "Select category",
+    "code": "Code",
+    "codePlaceholder": "Enter product type"
+  },
+   "success": {
+    "title": "Success",
+    "created": "Product Type created successfully",
+    "updated": "Product Type updated successfully",
+    "deleted": "Product Type deleted successfully"
+  },
+  "error": {
+    "name": "Please enter product type name",
+    "title": "Error",
+    "loadFailed": "Failed to load Product Type",
+    "createFailed": "Failed to create Product Type",
+    "updateFailed": "Failed to update Product Type",
+    "deleteFailed": "Failed to delete Product Type"
+  }
+}
