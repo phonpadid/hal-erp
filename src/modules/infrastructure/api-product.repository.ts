@@ -1,17 +1,17 @@
-import type { ProductTypeRepository } from "@/modules/domain/repository/product-type.repository";
-import { ProductTypeEntity } from "@/modules/domain/entities/product-types.entity";
+import type { ProductRepository } from "@/modules/domain/repository/product.repository";
+import { ProductEntity } from "@/modules/domain/entities/product.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
-import type { CreateProductTypeDTO, UpdateProductTypeDTO } from "@/modules/application/dtos/product-type.dto";
+import type { CreateProductDTO, UpdateProductDTO } from "@/modules/application/dtos/product.dto";
 
-export class ApiProductTypeRepository implements ProductTypeRepository {
-  private readonly baseUrl = "/product-types";
+export class ApiProductRepository implements ProductRepository {
+  private readonly baseUrl = "/products";
 
   async findAll(
     params: PaginationParams,
     includeDeleted: boolean = false
-  ): Promise<PaginatedResult<ProductTypeEntity>> {
+  ): Promise<PaginatedResult<ProductEntity>> {
     try {
       const response = await api.get(this.baseUrl, {
         params: {
@@ -25,18 +25,18 @@ export class ApiProductTypeRepository implements ProductTypeRepository {
       });
 
       return {
-        data: response.data.data.map((productType: any) => this.toDomainModel(productType)),
+        data: response.data.data.map((product: any) => this.toDomainModel(product)),
         total: response.data.pagination.total,
         page: response.data.pagination.page,
         limit: response.data.pagination.limit,
         totalPages: response.data.pagination.total_pages,
       };
     } catch (error) {
-      return this.handleApiError(error, "Failed to fetch product types list");
+      return this.handleApiError(error, "Failed to fetch products list");
     }
   }
 
-  async findById(id: string): Promise<ProductTypeEntity | null> {
+  async findById(id: string): Promise<ProductEntity | null> {
     try {
       const response = await api.get(`${this.baseUrl}/${id}`);
       return this.toDomainModel(response.data.data);
@@ -45,11 +45,11 @@ export class ApiProductTypeRepository implements ProductTypeRepository {
       if (axiosError.response?.status === 404) {
         return null;
       }
-      return this.handleApiError(error, `Failed to find product type with id ${id}`);
+      return this.handleApiError(error, `Failed to find product with id ${id}`);
     }
   }
 
-  async findByName(name: string): Promise<ProductTypeEntity | null> {
+  async findByName(name: string): Promise<ProductEntity | null> {
     try {
       const response = await api.get(this.baseUrl, {
         params: { name, limit: 5 },
@@ -60,47 +60,53 @@ export class ApiProductTypeRepository implements ProductTypeRepository {
         return null;
       }
       const found = data.find(
-        (pt: any) =>
-          pt.name === name && (pt.deleted_at === null || pt.deleted_at === undefined)
+        (p: any) =>
+          p.name === name && (p.deleted_at === null || p.deleted_at === undefined)
       );
       if (!found) return null;
 
       return this.toDomainModel(found);
     } catch (error) {
-      console.error(`Error finding product type by name '${name}':`, error);
+      console.error(`Error finding product by name '${name}':`, error);
       return null;
     }
   }
 
-  async create(productTypeData: CreateProductTypeDTO): Promise<ProductTypeEntity> {
+  async findByProductTypeId(product_type_id: number): Promise<ProductEntity[]> {
     try {
-      // Handle both categoryId and category_id from frontend
-      const requestData = {
-        name: productTypeData.name,
-        category_id: productTypeData.category_id
-      };
+      const response = await api.get(this.baseUrl, {
+        params: { product_type_id },
+      });
 
-      console.log('Transformed data:', requestData);
+      const data = response.data.data;
+      if (!Array.isArray(data) || data.length === 0) {
+        return [];
+      }
 
-      const response = await api.post(this.baseUrl, requestData);
-      return this.toDomainModel(response.data.data);
+      return data
+        .filter((p: any) => p.deleted_at === null || p.deleted_at === undefined)
+        .map((product: any) => this.toDomainModel(product));
     } catch (error) {
-      return this.handleApiError(error, "Failed to create product type");
+      console.error(`Error finding products by product_type_id '${product_type_id}':`, error);
+      return [];
     }
   }
 
-  async update(id: string, updateProductTypeDTO: UpdateProductTypeDTO): Promise<ProductTypeEntity> {
+  async create(productData: CreateProductDTO): Promise<ProductEntity> {
     try {
-      // Transform data to ensure correct property names
-      const requestData = {
-        name: updateProductTypeDTO.name,
-        category_id: updateProductTypeDTO.category_id
-      };
-
-      const response = await api.put(`${this.baseUrl}/${id}`, requestData);
+      const response = await api.post(this.baseUrl, productData);
       return this.toDomainModel(response.data.data);
     } catch (error) {
-      return this.handleApiError(error, `Failed to update product type with id ${id}`);
+      return this.handleApiError(error, "Failed to create product");
+    }
+  }
+
+  async update(id: string, updateProductDTO: UpdateProductDTO): Promise<ProductEntity> {
+    try {
+      const response = await api.put(`${this.baseUrl}/${id}`, updateProductDTO);
+      return this.toDomainModel(response.data.data);
+    } catch (error) {
+      return this.handleApiError(error, `Failed to update product with id ${id}`);
     }
   }
 
@@ -109,7 +115,7 @@ export class ApiProductTypeRepository implements ProductTypeRepository {
       await api.delete(`${this.baseUrl}/${id}`);
       return true;
     } catch (error) {
-      return this.handleApiError(error, `Failed to delete product type with id ${id}`);
+      return this.handleApiError(error, `Failed to delete product with id ${id}`);
     }
   }
 
@@ -118,18 +124,20 @@ export class ApiProductTypeRepository implements ProductTypeRepository {
       await api.post(`${this.baseUrl}/${id}/restore`);
       return true;
     } catch (error) {
-      return this.handleApiError(error, `Failed to restore product type with id ${id}`);
+      return this.handleApiError(error, `Failed to restore product with id ${id}`);
     }
   }
 
-  private toDomainModel(productType: any): ProductTypeEntity {
-    return new ProductTypeEntity(
-      productType.id?.toString() ?? "",
-      productType.name ?? "",
-      productType.category_id ?? null,
-      productType.created_at ?? "",
-      productType.updated_at ?? "",
-      productType.deleted_at ?? null
+  private toDomainModel(product: any): ProductEntity {
+    return new ProductEntity(
+      product.id?.toString() ?? "",
+      product.name ?? "",
+      product.description ?? "",
+      product.product_type_id ?? 0,
+      product.status ?? "active",
+      product.created_at ?? "",
+      product.updated_at ?? "",
+      product.deleted_at ?? null
     );
   }
 

@@ -34,7 +34,22 @@ export const createProductTypeValidation = (
       trigger: "blur",
     },
   ];
+  const categoryRules = [
+    {
+      required: true,
+      message: t("product-types.validation.categoryRequired"),
+      trigger: "change",
+    },
+    {
+      type: "number" as const,
+      min: 1,
+      message: t("product-types.validation.categoryValid"),
+      trigger: "change",
+    },
+  ];
+
   return {
     name: nameRules,
+    category_id: categoryRules,
   };
 };

@@ -1,0 +1,86 @@
+{
+  "title": "Product Information",
+  "add": "Add new product",
+  "header_form": {
+    "add": "Add new product",
+    "edit": "Update product",
+    "delete": {
+      "title": "Confirm delete",
+      "content": "Are you sure you want to delete",
+      "description": "This action cannot be undone"
+    }
+  },
+  "placeholder": {
+    "name": "Please enter product name",
+    "description": "Please enter product description",
+    "search": "Search by product name"
+  },
+
+  "field": {
+    "name": "Product Name",
+    "description": "Description",
+    "productType": "Product Type",
+    "status": "Status",
+    "created": "Created At",
+    "updated": "Updated At",
+    "manage": "Manage"
+  },
+
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "draft": "Draft"
+  },
+
+  "notify": {
+    "created": "Product created successfully",
+    "updated": "Product updated successfully",
+    "deleted": "Product deleted successfully"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "nameMin": "Name must be at least 2 characters",
+    "nameMax": "Name cannot exceed 200 characters",
+    "descriptionRequired": "Description is required",
+    "descriptionMin": "Description must be at least 5 characters",
+    "descriptionMax": "Description cannot exceed 1000 characters",
+    "productTypeRequired": "Product Type is required",
+    "productTypeValid": "Please select a valid Product Type"
+  },
+  "modal": {
+    "create": "Create Product",
+    "edit": "Edit Product",
+    "delete": "Delete Product",
+    "deleteConfirm": "Are you sure you want to delete Product?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "form": {
+    "name": "Product Name",
+    "namePlaceholder": "Enter product name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter product description",
+    "productType": "Product Type",
+    "productTypePlaceholder": "Select product type"
+  },
+   "success": {
+    "title": "Success",
+    "created": "Product created successfully",
+    "updated": "Product updated successfully",
+    "deleted": "Product deleted successfully"
+  },
+  "error": {
+    "name": "Please enter product name",
+    "title": "Error",
+    "loadFailed": "Failed to load Products",
+    "createFailed": "Failed to create Product",
+    "updateFailed": "Failed to update Product",
+    "deleteFailed": "Failed to delete Product"
+  },
+  "edit": {
+    "title": "Edit Product"
+  },
+  "delete": {
+    "title": "Delete Product",
+    "confirmation": "Are you sure you want to delete '{name}'?"
+  }
+}

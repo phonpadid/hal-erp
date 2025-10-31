@@ -1,17 +1,17 @@
 export interface CreateProductTypeDTO {
   name: string;
-  categoryId?: string | null;
+  category_id: number | null;
 }
 
 export interface UpdateProductTypeDTO {
   name?: string;
-  categoryId?: string | null;
+  category_id?: number | null;
 }
 
 export interface ProductTypeDTO {
   id: string;
   name: string;
-  categoryId: string | null;
+  category_id: number | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;

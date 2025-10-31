@@ -5,6 +5,7 @@ import { departmentRoutes } from "@/modules/presentation/Admin/router/department
 import { unitRoutes } from "@/modules/presentation/Admin/router/unitRoutes";
 import { categoryRoutes } from "@/modules/presentation/Admin/router/categoryRoutes";
 import { productTypeRoutes } from "@/modules/presentation/Admin/router/product-typeRoutes";
+import { productRoutes } from "@/modules/presentation/Admin/router/productRoutes";
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
 import { positionRoutes } from "@/modules/presentation/Admin/router/positionRountes";
 import { userRoutes } from "@/modules/presentation/Admin/router/userRoutes";
@@ -60,6 +61,7 @@ const routes: RouteRecordRaw[] = [
       ...documentTypesRoutes,
       ...categoryRoutes,
       ...productTypeRoutes,
+      ...productRoutes,
       ...positionRoutes,
       ...userApprovalRoutes,
       ...vendorsRoutes,
