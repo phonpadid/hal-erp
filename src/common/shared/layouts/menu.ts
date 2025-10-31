@@ -16,6 +16,8 @@ export const menuItems = computed<ItemType[]>(() => {
 
     { key: "category.index", label: t("menu-sidebar.category"), permission: "read-category" },
 
+    { key: "product-type.index", label: t("menu-sidebar.product_type"), permission: "read-product-type" },
+
     { key: "vat.index", label: t("menu-sidebar.vats"), permission: "read-vat" },
 
     { key: "bank.index", label: t("menu-sidebar.bank"), permission: "read-bank" },
