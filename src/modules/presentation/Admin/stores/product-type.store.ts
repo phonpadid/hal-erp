@@ -43,7 +43,7 @@ export const useProductTypeStore = defineStore("product-type", () => {
   const ProductTypeEntityToInterface = (productType: ProductTypeEntity): ProductTypeInterface => ({
     id: parseInt(productType.getId()),
     name: productType.getName(),
-    category_id: productType.getCategoryId() ? parseInt(productType.getCategoryId()!) : null,
+    category_id: productType.getCategoryId() ? productType.getCategoryId()! : null,
     created_at: productType.getCreatedAt(),
     updated_at: productType.getUpdatedAt(),
     deleted_at: productType.getDeletedAt(),

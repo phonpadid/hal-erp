@@ -32,6 +32,8 @@
     "nameRequired": "Name is required",
     "nameMin": "Name must be at least 2 characters",
     "nameMax": "Name cannot exceed 100 characters",
+    "categoryRequired": "Category is required",
+    "categoryValid": "Please select a valid Category",
     "codeRequired": "Code is required",
     "codeMin": "Code must be at least 2 characters",
     "codeMax": "Code cannot exceed 50 characters"

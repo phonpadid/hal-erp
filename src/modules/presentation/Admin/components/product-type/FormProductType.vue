@@ -18,14 +18,14 @@ const props = defineProps<{
   loading?: boolean;
 }>();
 const emit = defineEmits<{
-  (e: "submit", data: { name: string; categoryId?: string | null }): void;
+  (e: "submit", data: { name: string; category_id: number }): void;
   (e: "cancel"): void;
 }>();
 
 const formRef = ref();
 const formState = reactive({
   name: "",
-  categoryId: null as string | null,
+  category_id: null as number | null,
 });
 
 // Category options for dropdown
@@ -58,10 +58,10 @@ watch(
   (newProductType) => {
     if (newProductType) {
       formState.name = newProductType.name || "";
-      formState.categoryId = newProductType.category_id?.toString() || null;
+      formState.category_id = newProductType.category_id || null;
     } else {
       formState.name = "";
-      formState.categoryId = null;
+      formState.category_id = null;
     }
   },
   { immediate: true }
@@ -72,7 +72,7 @@ const submitForm = async () => {
     await formRef.value.submitForm();
     const formData = {
       name: formState.name,
-      categoryId: formState.categoryId,
+      category_id: formState.category_id!,
     };
 
     emit("submit", formData);
@@ -106,14 +106,13 @@ defineExpose({
       />
     </UiFormItem>
 
-    <UiFormItem :label="$t('product-types.form.category')" name="categoryId">
+    <UiFormItem :label="$t('product-types.form.category')" name="category_id" required>
       <UiInputSelect
-        v-model:value="formState.categoryId"
+        v-model:value="formState.category_id"
         :options="categoryOptions"
         :placeholder="$t('product-types.form.categoryPlaceholder')"
         :loading="categoryStore.loading"
         :disabled="loading"
-        allow-clear
       />
     </UiFormItem>
   </UiForm>

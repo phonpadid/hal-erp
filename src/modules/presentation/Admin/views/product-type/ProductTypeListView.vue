@@ -12,6 +12,7 @@ import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import ProductTypeForm from "@/modules/presentation/Admin/components/product-type/FormProductType.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import type { CreateProductTypeDTO } from "@/modules/application/dtos/product-type.dto";
 
 const { t } = useI18n();
 
@@ -138,7 +139,7 @@ const handleModalCancel = () => {
   modalVisible.value = false;
 };
 
-const handleFormSubmit = async (formData: { name: string; categoryId?: string | null }) => {
+const handleFormSubmit = async (formData: { name: string; category_id?: number | null }) => {
   try {
     submitLoading.value = true;
 
@@ -148,7 +149,7 @@ const handleFormSubmit = async (formData: { name: string; categoryId?: string | 
       });
       success(t("product-types.success.title"), t("product-types.success.updated"));
     } else {
-      await productTypeStore.createProductType(formData);
+      await productTypeStore.createProductType(formData as CreateProductTypeDTO);
       success(t("product-types.success.title"), t("product-types.success.created"));
     }
 
