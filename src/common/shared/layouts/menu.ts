@@ -282,6 +282,16 @@ export const menuItems = computed<ItemType[]>(() => {
           icon: () => h(Icon, { icon: "ic:baseline-pie-chart", class: "text-base" }),
         },
 
+        {
+          key: "company.index",
+
+          label: t("menu-sidebar.company"),
+
+          icon: () => h(Icon, { icon: "mdi:company", class: "text-base" }),
+
+          permission: "read-company",
+        },
+
         ...(manageMenuItems.length > 0
           ? [
               {

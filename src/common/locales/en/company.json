@@ -1,0 +1,108 @@
+{
+  "title": "Company information",
+  "add": "Add new company",
+  "create": "Create Company",
+  "createDescription": "Fill in your company information and create an administrator account",
+  "loading": "Loading company information...",
+  "placeholder": {
+    "name": "Please enter company name",
+    "search": "Search by company name"
+  },
+
+  "field": {
+    "name": "Company Name",
+    "logo": "Logo",
+    "tel": "Telephone",
+    "email": "Email",
+    "address": "Address",
+    "created": "Created At",
+    "updated": "Updated At",
+    "manage": "Manage"
+  },
+
+  "notify": {
+    "created": "Company created successfully",
+    "updated": "Company updated successfully",
+    "deleted": "Company deleted successfully"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "nameMin": "Name must be at least 2 characters",
+    "nameMax": "Name cannot exceed 200 characters",
+    "nameExists": "Company name already exists",
+    "telRequired": "Telephone is required",
+    "telFormat": "Telephone must be 8-15 digits",
+    "telExists": "Company telephone already exists",
+    "emailRequired": "Email is required",
+    "emailFormat": "Please enter a valid email address",
+    "emailExists": "Company email already exists",
+    "addressRequired": "Address is required",
+    "addressMin": "Address must be at least 5 characters",
+    "addressMax": "Address cannot exceed 500 characters",
+    "usernameRequired": "Username is required",
+    "usernameMin": "Username must be at least 3 characters",
+    "usernameMax": "Username cannot exceed 50 characters",
+    "usernameFormat": "Username can only contain letters, numbers, and underscores",
+    "usernameExists": "Username already exists",
+    "userEmailRequired": "User email is required",
+    "userEmailFormat": "Please enter a valid email address",
+    "userEmailExists": "User email already exists",
+    "userTelRequired": "User telephone is required",
+    "userTelFormat": "User telephone must be 8-15 digits",
+    "userTelExists": "User telephone already exists",
+    "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 6 characters",
+    "confirmPasswordRequired": "Confirm password is required",
+    "passwordMismatch": "Passwords do not match"
+  },
+  "modal": {
+    "create": "Create Company",
+    "edit": "Edit Company",
+    "delete": "Delete Company",
+    "deleteConfirm": "Are you sure you want to delete Company?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "form": {
+    "companyInfo": "Company Information",
+    "name": "Company Name",
+    "namePlaceholder": "Enter company name",
+    "logo": "Company Logo",
+    "tel": "Telephone",
+    "telPlaceholder": "Enter telephone number",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter email address",
+    "address": "Address",
+    "addressPlaceholder": "Enter company address",
+    "userSection": "Administrator Account Information",
+    "username": "Username",
+    "usernamePlaceholder": "Enter username",
+    "userEmail": "User Email",
+    "userEmailPlaceholder": "Enter user email",
+    "userTel": "User Telephone",
+    "userTelPlaceholder": "Enter user telephone",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm password",
+    "signature": "User Signature"
+  },
+   "success": {
+    "title": "Success",
+    "created": "Company created successfully",
+    "updated": "Company updated successfully",
+    "deleted": "Company deleted successfully"
+  },
+  "button": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "createCompany": "Create Company"
+  },
+  "error": {
+    "name": "Please enter company name",
+    "title": "Error",
+    "loadFailed": "Failed to load Company",
+    "createFailed": "Failed to create Company",
+    "updateFailed": "Failed to update Company",
+    "deleteFailed": "Failed to delete Company"
+  }
+}

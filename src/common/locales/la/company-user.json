@@ -1,0 +1,86 @@
+{
+  "title": "ຜູ້ໃຊ້ບັນຊີບໍລິສັດ",
+  "add": "ເພີ່ມຜູ້ໃຊ້ບັນຊີໃໝ່",
+  "create": "ສ້າງຜູ້ໃຊ້ບັນຊີ",
+  "createDescription": "ຕອອນຂໍ້ມູນຜູ້ໃຊ້ບັນຊີເພື່ອສ້າງບັນຊີຜູ້ໃຊ້ໃໝ່",
+  "editDescription": "ແກ້ໄຂຂໍ້ມູນຜູ້ໃຊ້ບັນຊີ",
+  "selectCompany": "ເລືອກບໍລິສັດ",
+  "selectCompanyFirst": "ກະລຸນາເລືອກບໍລິສັດກ່ອນ",
+  "selectCompanyDescription": "ເລືອກບໍລິສັດທີ່ທ່ານຕ້ອງການຈັດການຜູ້ໃຊ້ບັນຊີ",
+  "backToCompanies": "ກັບຄືນຫາບໍລິສັດ",
+  "viewCompanies": "ເບັນຊາງບໍລິສັດທັງໝັ່",
+  "description": "ຈັດການຜູ້ໃຊ້ບັນຊີພາຍໃນບໍລິສັດ",
+  "form": {
+    "userInfo": "ຂໍ້ມູນຜູ້ໃຊ້",
+    "username": "ຊື່ຜູ້ໃຊ້",
+    "usernamePlaceholder": "ປ້ອນຊື່ຜູ້ໃຊ້",
+    "email": "ອີເມວຜູ້ໃຊ້",
+    "emailPlaceholder": "ປ້ອນອີເມວຜູ້ໃຊ້",
+    "tel": "ເບີຣໂທຣຟອນຜູ້ໃຊ້",
+    "telPlaceholder": "ປ້ອນເບີຣໂທຣຟອນຜູ້ໃຊ້",
+    "password": "ລະຫັດຜ່ານ",
+    "passwordPlaceholder": "ປ້ອນລະຫັດຜ່ານ",
+    "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
+    "confirmPasswordPlaceholder": "ຢືນຢັນລະຫັດຜ່ານ",
+    "signature": "ລາຍເຊັນຜູ້ໃຊ້",
+    "roles": "ບົດບາດ",
+    "rolesPlaceholder": "ເລືອກບົດບາດ",
+    "permissions": "ສິດທິ",
+    "permissionsPlaceholder": "ເລືອກສິດທິ"
+  },
+  "placeholder": {
+    "search": "ຄົ້ນຫາຊື່ຜູ້ໃຊ້ຫຼືອີເມວ"
+  },
+  "field": {
+    "username": "ຊື່ຜູ້ໃຊ້",
+    "email": "ອີເມວ",
+    "tel": "ເບີຣໂທຣຟອນ",
+    "roles": "ບົດບາດ",
+    "permissions": "ສິດທິ",
+    "signature": "ລາຍເຊັນ",
+    "created": "ເວລາສ້າງ",
+    "manage": "ຈັດການ"
+  },
+  "validation": {
+    "usernameRequired": "ຊື່ຜູ້ໃຊ້ຈຳເປັນ",
+    "usernameMin": "ຊື່ຜູ້ໃຊ້ຕ້ອງມີຢ່າງໜ້ອຍ 3 ຕົວອັກສອນ",
+    "usernameMax": "ຊື່ຜູ້ໃຊ້ບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ",
+    "usernameFormat": "ຊື່ຜູ້ໃຊ້ສາມາດປະກອບດ້ວຍຕົວອັກສອນ, ຕົວເລກ, ແລະ ຂີດລຸ່ມເທົ່າງເທົ່າ",
+    "usernameExists": "ຊື່ຜູ້ໃຊ້ນີ້ມີ້ຢູ່ແລ້ວ",
+    "userEmailRequired": "ອີເມວຜູ້ໃຊ້ຈຳເປັນ",
+    "userEmailFormat": "ກະລຸນາປ້ອນອີເມວທີ່ຖືກຕ້ອງ",
+    "userEmailExists": "ອີເມວຜູ້ໃຊ້ນີ້ມີ້ຢູ່ແລ້ວ",
+    "userTelRequired": "ເບີຣໂທຣຟອນຜູ້ໃຊ້ຈຳເປັນ",
+    "userTelFormat": "ເບີຣໂທຣຟອນຜູ້ໃຊ້ຕ້ອງມີ 8-15 ຕົວເລກ",
+    "userTelExists": "ເບີຣໂທຣຟອນຜູ້ໃຊ້ນີ້ມີ້ຢູ່ແລ້ວ",
+    "passwordRequired": "ລະຫັດຜ່ານຈຳເປັນ",
+    "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ",
+    "confirmPasswordRequired": "ຢືນຢັນລະຫັດຜ່ານຈຳເປັນ",
+    "passwordMismatch": "ລະຫັດຜ່ານບໍ່ຕົງກັນ",
+    "rolesRequired": "ກະລຸນາເລືອກຢ່າງໜ້ອຍ 1 ບົດບາດ",
+    "permissionsRequired": "ກະລຸນາເລືອກຢ່າງໜ້ອຍ 1 ສິດທິ"
+  },
+  "modal": {
+    "create": "ສ້າງຜູ້ໃຊ້ບັນຊີ",
+    "edit": "ແກ້ໄຂຜູ້ໃຊ້ບັນຊີ",
+    "delete": "ລຶບຜູ້ໃຊ້ບັນຊີ",
+    "deleteConfirm": "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບຜູ້ໃຊ້ບັນຊີ?",
+    "deleteWarning": "ການກະທຳນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້."
+  },
+  "success": {
+    "title": "ສຳເລັດ",
+    "created": "ສ້າງຜູ້ໃຊ້ບັນຊີສຳເລັດ",
+    "updated": "ອັບເດດຜູ້ໃຊ້ບັນຊີສຳເລັດ",
+    "deleted": "ລຶບຜູ້ໃຊ້ບັນຊີສຳເລັດ"
+  },
+  "button": {
+    "create": "ສ້າງຜູ້ໃຊ້ບັນຊີ"
+  },
+  "error": {
+    "title": "ເກີດຂໍ້ຜິດພາດ",
+    "loadFailed": "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນຜູ້ໃຊ້ບັນຊີ",
+    "createFailed": "ບໍ່ສາມາດສ້າງຜູ້ໃຊ້ບັນຊີ",
+    "updateFailed": "ບໍ່ສາມາດອັບເດດຜູ້ໃຊ້ບັນຊີ",
+    "deleteFailed": "ບໍ່ສາມາດລຶບຜູ້ໃຊ້ບັນຊີ"
+  }
+}
