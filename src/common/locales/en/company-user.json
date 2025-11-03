@@ -1,0 +1,86 @@
+{
+  "title": "Manage Company Users",
+  "add": "Add New User",
+  "create": "Create User",
+  "createDescription": "Fill in the user information to create a new user account",
+  "editDescription": "Edit user information",
+  "selectCompany": "Select Company",
+  "selectCompanyFirst": "Please select a company first",
+  "selectCompanyDescription": "Select the company you want to manage user accounts for",
+  "backToCompanies": "Back to Companies",
+  "viewCompanies": "View All Companies",
+  "description": "Manage user accounts within the company",
+  "form": {
+    "userInfo": "User Information",
+    "username": "Username",
+    "usernamePlaceholder": "Enter username",
+    "email": "User Email",
+    "emailPlaceholder": "Enter user email",
+    "tel": "User Phone Number",
+    "telPlaceholder": "Enter user phone number",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm Password",
+    "signature": "User Signature",
+    "roles": "Roles",
+    "rolesPlaceholder": "Select Roles",
+    "permissions": "Permissions",
+    "permissionsPlaceholder": "Select Permissions"
+  },
+  "placeholder": {
+    "search": "Search by username or email"
+  },
+  "field": {
+    "username": "Username",
+    "email": "User Email",
+    "tel": "User Phone Number",
+    "roles": "Roles",
+    "permissions": "Permissions",
+    "signature": "User Signature",
+    "created": "Created At",
+    "manage": "Manage"
+  },
+  "validation": {
+    "usernameRequired": "Username is required",
+    "usernameMin": "Username must be at least 3 characters",
+    "usernameMax": "Username cannot exceed 50 characters",
+    "usernameFormat": "Username must consist of letters, numbers, and underscores only",
+    "usernameExists": "This username is already taken",
+    "userEmailRequired": "User email is required",
+    "userEmailFormat": "Please enter a valid email address",
+    "userEmailExists": "This user email is already taken",
+    "userTelRequired": "User phone number is required",
+    "userTelFormat": "User phone number must be 8-15 digits",
+    "userTelExists": "This user phone number is already taken",
+    "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 6 characters",
+    "confirmPasswordRequired": "Confirm password is required",
+    "passwordMismatch": "Passwords do not match",
+    "rolesRequired": "Please select at least 1 role",
+    "permissionsRequired": "Please select at least 1 permission"
+  },
+  "modal": {
+    "create": "Create User",
+    "edit": "Edit User",
+    "delete": "Delete User",
+    "deleteConfirm": "Are you sure you want to delete this user?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "success": {
+    "title": "Success",
+    "created": "User account created successfully",
+    "updated": "User account updated successfully",
+    "deleted": "User account deleted successfully"
+  },
+  "button": {
+    "create": "Create User"
+  },
+  "error": {
+    "title": "Error",
+    "loadFailed": "Failed to load user account data",
+    "createFailed": "Failed to create user account",
+    "updateFailed": "Failed to update user account",
+    "deleteFailed": "Failed to delete user account"
+  }
+}
