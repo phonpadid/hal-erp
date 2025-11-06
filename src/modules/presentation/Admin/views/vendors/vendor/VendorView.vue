@@ -143,7 +143,7 @@ const handleTableChange = (
 }
 
 const viewDetail = (id: number) => {
- router.push({ name: "vendors.bank.index", params: { id } });
+ router.push({ name: "vendors.detail", params: { id } });
 };
 </script>
 
