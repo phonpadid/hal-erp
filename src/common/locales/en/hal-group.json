@@ -1,0 +1,64 @@
+{
+  "title": "Hal Group",
+  "add": "Add Hal",
+  "overview": " Hal Group Overview",
+  "create": "Create Hal",
+  "createDescription": "Provide information about the Hal group to create a new group.",
+  "editDescription": "Edit the information of the Hal group.",
+  "description": "Manage Hal groups within the system.",
+  "followingDescription": "Follow the information and progress of all companies in the network.",
+  "filters": "Filters",
+  "showdata": "Show Data:",
+  "overyear": "Over Year",
+  "proposal":"Wait Proposal Approval",
+  "name": "Total",
+  "budget": "Budget overrun",
+  "budgetused":" Budget Used",
+  "earlybudget":" Early Budget",
+  "proposals": "Proposals",
+  "all-employees": "All Employees",
+  "placeholder": {
+    "search": "Search Hal Group"
+  },
+  "form": {
+    "name": "Hal Group Name",
+    "namePlaceholder": "ປ້ອນຊື່ກຸ່ມ Hal",
+    "description": "ຄຳອະທິບາຍ",
+    "descriptionPlaceholder": "ປ້ອນຄຳອະທິບາຍ"
+  },
+  "field": {
+    "name": "Hal Group Name",
+    "description": "ຄຳອະທິບາຍ",
+    "created": "ວັນທີ່ສ້າງ",
+    "manage": "ຈັດການ"
+  },
+  "validation": {
+    "nameRequired": "ຊື່ກຸ່ມ HAL ຈຳເປັນ",
+    "nameMin": "ຊື່ກຸ່ມ HAL ຕ້ອງມີຢ່າງໜ້ອຍ 2 ຕົວອັກສອນ",
+    "nameMax": "ຊື່ກຸ່ມ HAL ບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
+    "descriptionMax": "ຄຳອະທິບາຍບໍ່ສາມາດເກີນ 500 ຕົວອັກສອນ"
+  },
+  "modal": {
+    "create": "ສ້າງກຸ່ມ HAL",
+    "edit": "ແກ້ໄຂກຸ່ມ HAL",
+    "delete": "ລຶບກຸ່ມ HAL",
+    "deleteConfirm": "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບກຸ່ມ HAL '{name}' ຫຼືບໍ່?",
+    "deleteWarning": "ການກະທຳນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້."
+  },
+  "success": {
+    "title": "ສຳເລັດ",
+    "created": "ສ້າງກຸ່ມ HAL ສຳເລັດ",
+    "updated": "ອັບເດດກຸ່ມ HAL ສຳເລັດ",
+    "deleted": "ລຶບກຸ່ມ HAL ສຳເລັດ"
+  },
+  "button": {
+    "create": "ສ້າງກຸ່ມ HAL"
+  },
+  "error": {
+    "title": "ເກີດຂໍ້ຜິດພາດ",
+    "loadFailed": "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນກຸ່ມ HAL",
+    "createFailed": "ບໍ່ສາມາດສ້າງກຸ່ມ HAL",
+    "updateFailed": "ບໍ່ສາມາດອັບເດດກຸ່ມ HAL",
+    "deleteFailed": "ບໍ່ສາມາດລຶບກຸ່ມ HAL"
+  }
+}

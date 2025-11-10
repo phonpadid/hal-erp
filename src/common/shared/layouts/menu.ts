@@ -294,6 +294,26 @@ export const menuItems = computed<ItemType[]>(() => {
           permission: "read-company",
         },
 
+        // {
+        //   key: "company-user.index",
+
+        //   label: t("menu-sidebar.company_user"),
+
+        //   icon: () => h(Icon, { icon: "mdi:account-group", class: "text-base" }),
+
+        //   permission: "read-company-user",
+        // },
+
+        {
+          key: "hal-group.index",
+
+          label: t("menu-sidebar.hal_group"),
+
+          icon: () => h(Icon, { icon: "mdi:account-multiple", class: "text-base" }),
+
+          permission: "read-hal-group",
+        },
+
         ...(manageMenuItems.length > 0
           ? [
               {

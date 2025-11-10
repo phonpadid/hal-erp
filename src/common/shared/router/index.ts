@@ -8,6 +8,7 @@ import { productTypeRoutes } from "@/modules/presentation/Admin/router/product-t
 
 import { companyRoutes } from "@/modules/presentation/Admin/router/companyRoutes";
 import { companyUserRoutes } from "@/modules/presentation/Admin/router/company-user.routes";
+import { halGroupRoutes } from "@/modules/presentation/Admin/router/hal-group.routes";
 
 import { productRoutes } from "@/modules/presentation/Admin/router/productRoutes";
 
@@ -68,6 +69,7 @@ const routes: RouteRecordRaw[] = [
       ...productTypeRoutes,
       ...companyRoutes,
       ...companyUserRoutes,
+      ...halGroupRoutes,
       ...productRoutes,
       ...positionRoutes,
       ...userApprovalRoutes,
