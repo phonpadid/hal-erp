@@ -2,13 +2,17 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { Ref } from "vue";
 import { ProductServiceImpl } from "@/modules/application/services/product.service";
-import { ApiProductRepository } from "@/modules/infrastructure/api-product.repository";
+// import { MockProductRepository } from "@/modules/infrastructure/mock-product.repository";
+// import { ApiProductRepository } from "@/modules/infrastructure/api-product.repository";
 import type { ProductEntity } from "@/modules/domain/entities/product.entity";
 import type { CreateProductDTO, UpdateProductDTO } from "@/modules/application/dtos/product.dto";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import type { ProductInterface } from "@/modules/interfaces/product.interface";
+import { ApiProductRepository } from "@/modules/infrastructure/api-product.repository";
 
 const createProductService = () => {
+  // Using mock repository for now - switch to API repository when backend is ready
+  // const productRepository = new MockProductRepository();
   const productRepository = new ApiProductRepository();
   return new ProductServiceImpl(productRepository);
 };

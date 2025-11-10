@@ -1,0 +1,51 @@
+{
+  "detail": {
+    "title": "Vendor Details",
+    "subtitle": "Manage vendor information and products",
+    "info": "Vendor Information"
+  },
+  "list": {
+    "title": "Vendor Products",
+    "add": "Add Product",
+    "noData": "No products found for this vendor"
+  },
+  "placeholder": {
+    "search": "Search products..."
+  },
+  "table": {
+    "product": "Product",
+    "price": "Price",
+    "createdAt": "Added Date"
+  },
+  "form": {
+    "product": "Product",
+    "selectProduct": "Select a product",
+    "price": "Price",
+    "pricePlaceholder": "Enter price"
+  },
+  "modal": {
+    "create": "Add Vendor Product",
+    "edit": "Edit Vendor Product",
+    "delete": "Delete Vendor Product",
+    "deleteConfirm": "Are you sure you want to remove {name} from this vendor?",
+    "deleteWarning": "This action cannot be undone"
+  },
+  "validation": {
+    "productRequired": "Please select a product",
+    "priceRequired": "Price must be greater than 0",
+    "duplicateProduct": "This product is already added to this vendor"
+  },
+  "success": {
+    "title": "Success",
+    "created": "Vendor product added successfully",
+    "updated": "Vendor product updated successfully",
+    "deleted": "Vendor product removed successfully"
+  },
+  "error": {
+    "saveFailed": "Failed to save vendor product",
+    "deleteFailed": "Failed to remove vendor product",
+    "loadFailed": "Failed to load vendor products",
+    "notFound": "Vendor not found",
+    "notFoundMessage": "The vendor you're looking for doesn't exist or has been deleted"
+  }
+}
