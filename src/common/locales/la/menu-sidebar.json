@@ -2,6 +2,7 @@
   "menu": "ເມນູ",
   "dashboard": "ແດຊບອດ",
   "company": "ບໍລິສັດ",
+  "company_user": "ຜູ້ໃຊ້ບັນຊີ",
   "purchase_orde": "ໃບສັ່ງຊື້",
   "position": "ຕຳແໜ່ງ",
   "unit": "ຫົວໜ່ວຍ",
@@ -59,5 +60,7 @@
   "report_receipt": "ລາຍງານໃບເບີກຈ່າຍ",
   "report_pr": "ລາຍງານໃບສະເໜີຈັດຊື້",
   "report_po": "ລາຍງານໃບອະນຸມັດຈັດຊື້",
-  "quota": "ໂຄງຂ່າຍ"
+  "quota": "ໂຄງຂ່າຍ",
+  "hal_group": "ກຸ່ມ HAL"
+
 }

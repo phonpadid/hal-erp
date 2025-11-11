@@ -59,5 +59,6 @@
   "report_receipt": "Report receipt",
   "report_pr": "Report purchase request",
   "report_po": "Report purchase order",
-  "quota": "Quotas"
+  "quota": "Quotas",
+  "hal_group": "HAL Group"
 }

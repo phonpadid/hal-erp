@@ -1,0 +1,64 @@
+{
+  "title": "ກຸ່ມ HAL",
+  "add": "ເພີ່ມກຸ່ມ HAL",
+  "overview": "ພາບລວມຂອງກຸ່ມບໍລິສັດໃນເຄືອ",
+  "create": "ສ້າງກຸ່ມ HAL",
+  "createDescription": "ຕອອນຂໍ້ມູນກຸ່ມ HAL ເພື່ອສ້າງກຸ່ມໃໝ່",
+  "editDescription": "ແກ້ໄຂຂໍ້ມູນກຸ່ມ HAL",
+  "description": "ຈັດການກຸ່ມ HAL ຂອງລະບົບ",
+  "followingDescription": "ຕິດຕາມຂໍ້ມູນ ແລະ ຜົນດຳເນີນງານຂອງທຸກບໍລິສັດໃນເຄືອ",
+  "overyear": "ພາບລວມທັງໝົດຂອງປີ",
+  "showdata": "ສະແດງຂໍ້ມູນ:",
+  "proposal": "ໃບສະເໜີທີລໍຖ້າການອະນຸມັດ",
+  "name": "ໃບ",
+  "budget": "ງົບປະມານທີໃຊ້ເກີນ",
+  "budgetused": "ງົບປະມານທີໃຊ້",
+  "earlybudget": "ງົບປະມານຕົ້ນປີ",
+  "proposals": "ໃບສະເໜີ",
+  "all-employees": "ພະນັກງານທັງໝົດ",
+  "filters": "ຟີວເຕີ",
+  "placeholder": {
+    "search": "ຄົ້ນຫາຊື່ກຸ່ມ HAL"
+  },
+  "form": {
+    "name": "ຊື່ກຸ່ມ HAL",
+    "namePlaceholder": "ປ້ອນຊື່ກຸ່ມ HAL",
+    "description": "ຄຳອະທິບາຍ",
+    "descriptionPlaceholder": "ປ້ອນຄຳອະທິບາຍ"
+  },
+  "field": {
+    "name": "ຊື່ກຸ່ມ",
+    "description": "ຄຳອະທິບາຍ",
+    "created": "ວັນທີ່ສ້າງ",
+    "manage": "ຈັດການ"
+  },
+  "validation": {
+    "nameRequired": "ຊື່ກຸ່ມ HAL ຈຳເປັນ",
+    "nameMin": "ຊື່ກຸ່ມ HAL ຕ້ອງມີຢ່າງໜ້ອຍ 2 ຕົວອັກສອນ",
+    "nameMax": "ຊື່ກຸ່ມ HAL ບໍ່ສາມາດເກີນ 100 ຕົວອັກສອນ",
+    "descriptionMax": "ຄຳອະທິບາຍບໍ່ສາມາດເກີນ 500 ຕົວອັກສອນ"
+  },
+  "modal": {
+    "create": "ສ້າງກຸ່ມ HAL",
+    "edit": "ແກ້ໄຂກຸ່ມ HAL",
+    "delete": "ລຶບກຸ່ມ HAL",
+    "deleteConfirm": "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບກຸ່ມ HAL '{name}' ຫຼືບໍ່?",
+    "deleteWarning": "ການກະທຳນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້."
+  },
+  "success": {
+    "title": "ສຳເລັດ",
+    "created": "ສ້າງກຸ່ມ HAL ສຳເລັດ",
+    "updated": "ອັບເດດກຸ່ມ HAL ສຳເລັດ",
+    "deleted": "ລຶບກຸ່ມ HAL ສຳເລັດ"
+  },
+  "button": {
+    "create": "ສ້າງກຸ່ມ HAL"
+  },
+  "error": {
+    "title": "ເກີດຂໍ້ຜິດພາດ",
+    "loadFailed": "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນກຸ່ມ HAL",
+    "createFailed": "ບໍ່ສາມາດສ້າງກຸ່ມ HAL",
+    "updateFailed": "ບໍ່ສາມາດອັບເດດກຸ່ມ HAL",
+    "deleteFailed": "ບໍ່ສາມາດລຶບກຸ່ມ HAL"
+  }
+}
