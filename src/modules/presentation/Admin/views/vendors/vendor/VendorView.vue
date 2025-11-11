@@ -145,6 +145,9 @@ const handleTableChange = (
 const viewDetail = (id: number) => {
  router.push({ name: "vendors.detail", params: { id } });
 };
+const viewAccDetail = (id: number) => {
+ router.push({ name: "vendors.bank.index", params: { id } });
+};
 </script>
 
 <template>
@@ -190,12 +193,19 @@ const viewDetail = (id: number) => {
             size="small"
             @click="viewDetail(record.id)"
           />
+          <UiButton
+            type=""
+            icon="ant-design:info-circle-outlined"
+            colorClass="flex items-center justify-center text-red-700"
+            size="small"
+            @click="viewAccDetail(record.id)"
+          />
 
           <UiButton
             type=""
             icon="ant-design:edit-outlined"
             size="small"
-            shape="circle" 
+            shape="circle"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
@@ -204,7 +214,7 @@ const viewDetail = (id: number) => {
           <UiButton
             type=""
             danger
-            shape="circle" 
+            shape="circle"
             icon="ant-design:delete-outlined"
             colorClass="flex items-center justify-center text-red-700"
             size="small"

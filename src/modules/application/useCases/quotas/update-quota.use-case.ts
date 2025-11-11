@@ -1,0 +1,49 @@
+import type { QuotaRepository } from "@/modules/domain/repository/quotas/quota.repository";
+import { QuotaEntity } from "../../../domain/entities/quotas/quota.entity";
+import type { UpdateQuotaDTO } from "../../dtos/quotas/quota.dto";
+
+export class UpdateQuotaUseCase {
+  constructor(private readonly quotaRepository: QuotaRepository) {}
+
+  async execute(quotaData: UpdateQuotaDTO): Promise<QuotaEntity> {
+    // Get existing quota
+    const existingQuota = await this.quotaRepository.getById(quotaData.id);
+    if (!existingQuota) {
+      throw new Error("Quota not found");
+    }
+
+    if (existingQuota.isDeleted()) {
+      throw new Error("Cannot update deleted quota");
+    }
+
+    // Check if another quota exists for this combination
+    const duplicateQuota = await this.quotaRepository.getByUniqueKey(
+      quotaData.company_id,
+      quotaData.vendor_id,
+      quotaData.product_id,
+      quotaData.year
+    );
+
+    if (duplicateQuota && duplicateQuota.getId() !== quotaData.id) {
+      throw new Error("Quota already exists for this vendor, product, and year");
+    }
+
+    // Update quota entity
+    const updatedQuota = existingQuota.update({
+      company_id: quotaData.company_id,
+      vendor_id: quotaData.vendor_id,
+      product_id: quotaData.product_id,
+      qty: quotaData.qty,
+      year: quotaData.year,
+    });
+
+    // Validate the updated entity
+    const errors = updatedQuota.validate();
+    if (errors.length > 0) {
+      throw new Error(`Validation errors: ${errors.join(", ")}`);
+    }
+
+    // Save to repository
+    return await this.quotaRepository.update(quotaData.id, updatedQuota);
+  }
+}

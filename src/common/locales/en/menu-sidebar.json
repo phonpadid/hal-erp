@@ -58,5 +58,6 @@
   "receipt_approved": "Approved Receipt",
   "report_receipt": "Report receipt",
   "report_pr": "Report purchase request",
-  "report_po": "Report purchase order"
+  "report_po": "Report purchase order",
+  "quota": "Quotas"
 }
