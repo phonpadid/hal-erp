@@ -38,7 +38,10 @@ const loadCompanyUserData = async () => {
   } catch (error) {
     console.error("Error loading company user:", error);
     warning(t("company-user.error.title"), t("company-user.error.loadFailed"));
-    router.push(`/companies/users`);
+    const errorUrl = route.query.company_id
+      ? `/companies/users?company_id=${route.query.company_id}`
+      : '/companies/users';
+    router.push(errorUrl);
   } finally {
     loading.value = false;
   }
@@ -57,6 +60,7 @@ const handleFormSubmit = async (formData: {
   signature?: string | null;
   roleIds: number[];
   permissionIds: number[];
+  company_id?: number | null;
 }) => {
   try {
     submitLoading.value = true;
@@ -74,7 +78,10 @@ const handleFormSubmit = async (formData: {
     }
 
     // Redirect to company user list after successful update
-    router.push(`/companies/users`);
+    const listUrl = formData.company_id
+      ? `/companies/users?company_id=${formData.company_id}`
+      : '/companies/users';
+    router.push(listUrl);
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     warning(t("company-user.error.title"), String(errorMessage));
@@ -84,7 +91,16 @@ const handleFormSubmit = async (formData: {
 };
 
 const handleCancel = () => {
-  router.push(`/companies/users`);
+  // Check if we have company_id from route query or from the loaded company user
+  const queryCompanyId = route.query.company_id;
+  const companyId = queryCompanyId
+    ? Number(queryCompanyId)
+    : companyUser.value?.company_id;
+
+  const cancelUrl = companyId
+    ? `/companies/users?company_id=${companyId}`
+    : '/companies/users';
+  router.push(cancelUrl);
 };
 
 const submitForm = () => {

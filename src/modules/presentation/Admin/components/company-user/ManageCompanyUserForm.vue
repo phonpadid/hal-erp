@@ -13,10 +13,12 @@ import UploadFile from "@/common/shared/components/Upload/UploadFile.vue";
 import { uploadFile } from "@/modules/application/services/upload.service";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import PermissionSelector from "@/modules/presentation/Admin/components/permission/PermissionSelector.vue";
+import { useRoute } from "vue-router";
 
 const { t } = useI18n();
 const roleStore = useRoleStore();
 const permissionStore = usePermissionStore();
+const route = useRoute();
 
 const props = defineProps<{
   companyUser?: (CompanyUserInterface & { signature_url?: string | null }) | null;
@@ -36,6 +38,7 @@ const emit = defineEmits<{
       signature?: string | null;
       roleIds: number[];
       permissionIds: number[];
+      company_id?: number | null;
     }
   ): void;
   (e: "cancel"): void;
@@ -52,6 +55,9 @@ const formState = reactive({
   roleIds: [] as number[],
   permissionIds: [] as number[],
 });
+
+// Company ID state
+const companyId = ref<number | null>(null);
 
 // Form files
 const signatureFile = ref<File | null>(null);
@@ -93,6 +99,13 @@ const companyUserRules = computed(() => {
 onMounted(async () => {
   try {
     loadingPermissions.value = true;
+
+    // Get company_id from query parameters
+    const queryCompanyId = route.query.company_id;
+    if (queryCompanyId) {
+      companyId.value = Number(queryCompanyId);
+    }
+
     await roleStore.fetchAllRoles({ page: 1, limit: 10000 });
     const result = await permissionStore.fetchPermission();
     permissionData.value = result.data as unknown as PermissionGroup[];
@@ -194,6 +207,7 @@ const submitForm = async () => {
       signature: formState.signature,
       roleIds,
       permissionIds,
+      company_id: companyId.value,
     };
 
     emit("submit", formData);
