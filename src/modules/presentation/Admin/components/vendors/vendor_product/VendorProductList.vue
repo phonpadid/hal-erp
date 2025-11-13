@@ -61,8 +61,8 @@ const columns = computed(() => [
     width: "20%",
   },
   {
-    title: t("vendor-product.table.createdAt"),
-    dataIndex: "created_at",
+    title: t("vendors.table.updated_at"),
+    dataIndex: "updated_at",
     key: "updated_at",
     width: "20%",
   },
@@ -81,7 +81,8 @@ const dataSource = computed(() =>
     id: vendorProduct.getId(),
     product_name: getProductName(vendorProduct.getProductId()),
     price: vendorProduct.getPrice(),
-    created_at: new Date(vendorProduct.getCreatedAt()).toLocaleDateString(),
+    created_at: vendorProduct.getCreatedAt(),
+    updated_at: vendorProduct.getUpdatedAt(),
     vendorProduct: vendorProduct,
   }))
 );
@@ -171,7 +172,7 @@ const showEditModal = (vendorProduct: VendorProductEntity) => {
     deleted_at: vendorProduct.getDeletedAt(),
   };
   isEditMode.value = true;
-  modalVisible.value = true; 
+  modalVisible.value = true;
 };
 
 const showDeleteModal = (vendorProduct: VendorProductEntity) => {

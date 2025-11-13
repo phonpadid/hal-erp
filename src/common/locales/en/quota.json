@@ -1,0 +1,90 @@
+{
+  "notify": {
+    "created": "Quota created successfully",
+    "update": "Quota updated successfully",
+    "delete": "Quota deleted successfully"
+  },
+  "alert": {
+    "confirm": "Confirm deletion",
+    "message": "Are you sure you want to delete this quota",
+    "remark": "This action cannot be undone once you have confirmed it."
+  },
+    "total": "total {count} quotas",
+    "title": "Quotas information",
+    "add": "Add quota",
+    "header_form": {
+      "add": "Quota creation form",
+      "edit": "Quota update form"
+    },
+    "placeholder": {
+      "search": "Search for quota information",
+      "company": "Select company",
+      "vendor": "Select vendor",
+      "product": "Select product",
+      "quantity": "Enter quantity",
+      "year": "Enter year"
+    },
+    "error": {
+      "company": "Please select company",
+      "vendor": "Please select vendor",
+      "product": "Please select product",
+      "quantity": "Please enter quantity",
+      "year": "Please enter year",
+      "quantity_min": "Quantity must be greater than 0",
+      "year_format": "Please enter a valid year (e.g. 2025)"
+    },
+    "field": {
+      "company": "Company",
+      "vendor": "Vendor",
+      "product": "Product",
+      "quantity": "Quantity",
+      "year": "Year",
+      "created_at": "Created At",
+      "updated_at": "Updated At",
+      "manage": "Manage"
+    },
+    "table": {
+      "company": "Company",
+      "vendor": "Vendor",
+      "product": "Product",
+      "quantity": "Quantity",
+      "year": "Year",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    },
+    "modal": {
+      "create": "Create New Quota",
+      "edit": "Edit Quota",
+      "delete": "Delete Quota",
+      "deleteConfirm": "Are you sure you want to delete this quota for {company}, {vendor}, {product} ({year})?",
+      "deleteWarning": "This action cannot be undone!"
+    },
+    "list": {
+      "add": "Add Quota",
+      "noData": "No quota data found"
+    },
+    "validation": {
+      "companyRequired": "Company is required",
+      "vendorRequired": "Vendor is required",
+      "productRequired": "Product is required",
+      "qtyRequired": "Quantity is required",
+      "qtyMin": "Quantity must be greater than 0",
+      "yearRequired": "Year is required",
+      "yearFormat": "Year must be in YYYY format"
+    },
+    "success": {
+      "title": "Success",
+      "created": "Quota created successfully",
+      "updated": "Quota updated successfully",
+      "deleted": "Quota deleted successfully"
+    },
+    "errors": {
+      "title": "Error",
+      "loadFailed": "Failed to load quotas",
+      "createFailed": "Failed to create quota",
+      "updateFailed": "Failed to update quota",
+      "deleteFailed": "Failed to delete quota",
+      "saveFailed": "Failed to save quota",
+      "fillAllFields": "Please fill in all required fields"
+    }
+  }

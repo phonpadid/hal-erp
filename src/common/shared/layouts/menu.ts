@@ -54,6 +54,8 @@ export const menuItems = computed<ItemType[]>(() => {
       label: t("menu-sidebar.exchange_rate"),
       permission: "read-exchange-rate",
     },
+
+    { key: "quotas", label: t("menu-sidebar.quota"), permission: "read-quota" },
   ].filter((item) => hasPermission(item.permission));
 
   const departmentMenuItems = [
