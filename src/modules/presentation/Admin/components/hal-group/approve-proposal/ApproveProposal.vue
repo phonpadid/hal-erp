@@ -489,7 +489,7 @@ const handleBackToSelection = () => {
     >
       <!-- Header -->
       <div class="p-4 border-b border-gray-200 flex-shrink-0">
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">ລາຍການໃບສະເໜີທີ່ລໍຖ້າອະນຸມັດ</h3>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">ລາຍການເອກະສານທີ່ລໍຖ້າອະນຸມັດ</h3>
         <p class="text-sm text-gray-600">ຈຳນວນທັງໝົດ: {{ filteredItemDetails.length }} ລາຍການ</p>
       </div>
 

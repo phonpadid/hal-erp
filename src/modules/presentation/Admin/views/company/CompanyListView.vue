@@ -93,7 +93,7 @@ const showCreatePage = () => {
 };
 
 const showCompanyUsers = (company: CompanyInterface) => {
-  router.push(`/companies/users`);
+  router.push(`/companies/users?company_id=${company.id}`);
 };
 
 const showEditPage = (company: CompanyInterface) => {

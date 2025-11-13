@@ -10,11 +10,12 @@ import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { formatDate } from "@/modules/shared/formatdate";
 
 const { t } = useI18n();
 const router = useRouter();
+const route = useRoute();
 
 const companyUserStore = useCompanyUserStore();
 const { success, error, warning } = useNotification();
@@ -22,6 +23,7 @@ const { success, error, warning } = useNotification();
 // State
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
+const companyId = ref<number | null>(null);
 
 // Delete Modal state
 const deleteModalVisible = ref<boolean>(false);
@@ -37,6 +39,11 @@ const tablePagination = computed(() => ({
 }));
 
 onMounted(async () => {
+  // Get company_id from query params
+  const queryCompanyId = route.query.company_id;
+  if (queryCompanyId) {
+    companyId.value = Number(queryCompanyId);
+  }
   await loadCompanyUsers();
 });
 
@@ -48,6 +55,7 @@ const loadCompanyUsers = async () => {
       page: companyUserStore.pagination.page,
       limit: companyUserStore.pagination.limit,
       search: searchKeyword.value,
+      company_id: companyId.value,
     });
 
     // Debug: Log the loaded data
@@ -81,6 +89,7 @@ const handleSearch = async () => {
     page: 1,
     limit: companyUserStore.pagination.limit,
     search: searchKeyword.value,
+    company_id: companyId.value,
   });
 };
 
@@ -95,9 +104,20 @@ watch(searchKeyword, async(newVal: string) => {
   }
 })
 
+// Watch for route query changes
+watch(() => route.query.company_id, async(newVal) => {
+  if (newVal) {
+    companyId.value = Number(newVal);
+    await loadCompanyUsers();
+  }
+})
+
 // Navigation handlers
 const showCreatePage = () => {
-  router.push('/companies/users/create');
+  const createUrl = companyId.value
+    ? `/companies/users/create?company_id=${companyId.value}`
+    : '/companies/users/create';
+  router.push(createUrl);
 };
 
 const showEditPage = (companyUser: CompanyUserInterface) => {
