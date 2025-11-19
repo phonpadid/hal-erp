@@ -22,6 +22,7 @@ export interface CompanyUserCreate {
   signature?: string | null;
   roleIds: number[];
   permissionIds: number[];
+  company_id?: number | null; // Optional but should be validated when creating user
 }
 
 export interface CompanyUserUpdate {
@@ -70,6 +71,7 @@ export interface CompanyUserListPayload {
   page?: number;
   limit?: number;
   search?: string;
+  company_id?: number | null;
 }
 
 

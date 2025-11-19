@@ -1051,16 +1051,16 @@ onMounted(() => {
             </div>
           </Tabs.TabPane>
 
-          <!-- Tab 2: ອະນຸມັດໃບສະເໜີ -->
-          <Tabs.TabPane key="2" tab="ອະນຸມັດໃບສະເໜີ">
+          <!-- Tab 2: ອະນຸມັດເອກະສານ  -->
+          <Tabs.TabPane key="2" tab="ອະນຸມັດເອກະສານ">
             <!-- Compact Header for Tab 2 -->
             <div
               class="border-b border-gray-200 p-3 md:p-2 bg-gradient-to-r from-orange-50 to-yellow-50"
             >
               <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div>
-                  <h2 class="text-lg md:text-xl font-bold text-gray-900">ອະນຸມັດໃບສະເໜີ</h2>
-                  <p class="text-sm text-gray-600 mt-0.5">ຈັດການການອະນຸມັດໃບສະເໜີທັງໝົດ</p>
+                  <h2 class="text-lg md:text-xl font-bold text-gray-900">ອະນຸມັດເອກະສານ</h2>
+                  <p class="text-sm text-gray-600 mt-0.5">ຈັດການການອະນຸມັດເອກະສານທັງໝົດ</p>
                 </div>
                 <div class="flex items-center gap-2">
                   <div
@@ -1169,8 +1169,8 @@ onMounted(() => {
           </Tabs.TabPane>
 
           <!-- Tab 4: ການເງີນ -->
-          <Tabs.TabPane key="4" tab="ການເງີນ">
-            <!-- Dynamic Header for Tab 4 -->
+          <!-- <Tabs.TabPane key="4" tab="ການເງີນ">
+           
             <div
               class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-green-50 to-emerald-50"
             >
@@ -1194,7 +1194,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Tab Content -->
+    
             <div class="p-6">
               <div class="text-center py-12">
                 <Icon icon="ant-design:bank-outlined" class="text-6xl text-gray-300 mx-auto mb-4" />
@@ -1202,11 +1202,11 @@ onMounted(() => {
                 <p class="text-gray-500">ຈັດການການເງີນ ແລະ ງົບປະມານ</p>
               </div>
             </div>
-          </Tabs.TabPane>
+          </Tabs.TabPane> -->
 
           <!-- Tab 5: ລາຍງານປະມານ -->
-          <Tabs.TabPane key="5" tab="ລາຍງານປະມານ">
-            <!-- Dynamic Header for Tab 5 -->
+          <!-- <Tabs.TabPane key="5" tab="ລາຍງານປະມານ">
+          
             <div
               class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-red-50 to-rose-50"
             >
@@ -1230,7 +1230,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Tab Content -->
+          
             <div class="p-6">
               <div class="text-center py-12">
                 <Icon
@@ -1241,7 +1241,7 @@ onMounted(() => {
                 <p class="text-gray-500">ສະແດງລາຍງານງົບປະມານທັງໝົດ</p>
               </div>
             </div>
-          </Tabs.TabPane>
+          </Tabs.TabPane> -->
         </Tabs>
       </div>
     </div>

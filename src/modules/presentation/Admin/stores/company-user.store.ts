@@ -65,7 +65,7 @@ export const useCompanyUserStore = defineStore("companyUser", {
     },
 
     // Fetch all company users
-    async fetchCompanyUsers(params: { page?: number; limit?: number; search?: string }) {
+    async fetchCompanyUsers(params: { page?: number; limit?: number; search?: string; company_id?: number | null }) {
       this.loading = true;
       this.error = null;
 
@@ -78,6 +78,7 @@ export const useCompanyUserStore = defineStore("companyUser", {
         const result = await repository.getAll({
           ...paginationParams,
           search: params.search,
+          company_id: params.company_id,
         });
 
         this.companyUsers = result.data;

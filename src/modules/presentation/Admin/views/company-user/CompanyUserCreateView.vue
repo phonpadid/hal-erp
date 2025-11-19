@@ -17,7 +17,11 @@ const route = useRoute();
 const companyId = ref<number | null>(null);
 
 onMounted(() => {
-  // No need company_id parameter
+  // Get company_id from query parameters
+  const queryCompanyId = route.query.company_id;
+  if (queryCompanyId) {
+    companyId.value = Number(queryCompanyId);
+  }
 });
 
 // State
@@ -25,7 +29,10 @@ const submitLoading = ref<boolean>(false);
 const companyUserFormRef = ref();
 
 const handleCancel = () => {
-  router.push(`/companies/users`);
+  const cancelUrl = companyId.value
+    ? `/companies/users?company_id=${companyId.value}`
+    : '/companies/users';
+  router.push(cancelUrl);
 };
 
 const handleFormSubmit = async (formData: {
@@ -45,7 +52,10 @@ const handleFormSubmit = async (formData: {
     success(t("company-user.success.title"), t("company-user.success.created"));
 
     // Redirect to company user list after successful creation
-    router.push(`/companies/users`);
+    const listUrl = companyId.value
+      ? `/companies/users?company_id=${companyId.value}`
+      : '/companies/users';
+    router.push(listUrl);
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     warning(t("companyUser.error.title"), String(errorMessage));
