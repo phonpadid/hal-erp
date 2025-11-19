@@ -20,6 +20,7 @@
   "department": "ພະແນກ",
   "department_approver": "ຜູ້ອະນຸມັດພະແນກ",
   "department_user": "ຜູ້ໃຊ້ພະແນກ",
+  "department_role": "ບົດບາດພະແນກ",
   "budget_manage": "ຈັດການງົບປະມານ",
   "budget_account": "ບັນຊີງົບປະມານ",
   "budget_item": "ລາຍການງົບປະມານ",

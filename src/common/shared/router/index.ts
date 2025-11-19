@@ -17,6 +17,7 @@ import { positionRoutes } from "@/modules/presentation/Admin/router/positionRoun
 import { userRoutes } from "@/modules/presentation/Admin/router/userRoutes";
 import { departmentApproverRoutes } from "@/modules/presentation/Admin/router/departments/department-approver.routers";
 import { departmentUserRoutes } from "@/modules/presentation/Admin/router/departments/department-user.routers";
+import { departmentRoleRoutes } from "@/modules/presentation/Admin/router/departments/department-role.routers";
 import { userApprovalRoutes } from "@/modules/presentation/Admin/router/user-approval";
 import { documentTypesRoutes } from "@/modules/presentation/Admin/router/documentTypeRoutes";
 import { vendorsRoutes } from "@/modules/presentation/Admin/router/vendors/vendorRoutes";
@@ -65,6 +66,7 @@ const routes: RouteRecordRaw[] = [
       ...userRoutes,
       ...departmentApproverRoutes,
       ...departmentUserRoutes,
+      ...departmentRoleRoutes,
       ...documentTypesRoutes,
       ...categoryRoutes,
       ...productTypeRoutes,
@@ -103,7 +105,7 @@ const routes: RouteRecordRaw[] = [
       ...exchangeRateRoutes,
       ...quotaRoutes,
       ...reportRoutes,
-      ...reportPoRoutes
+      ...reportPoRoutes,
     ],
   },
   ...authRoutes,
