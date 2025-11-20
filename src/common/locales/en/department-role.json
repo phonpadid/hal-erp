@@ -69,6 +69,7 @@
     "deleteSuccess": "Department role deleted successfully"
   },
   "filter": {
-    "allDepartments": "filter by all deaprtments"
+    "allDepartments": "All",
+    "search": "filter by department"
   }
 }

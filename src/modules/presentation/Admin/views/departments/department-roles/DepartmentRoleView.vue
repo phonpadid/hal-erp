@@ -8,7 +8,7 @@
         <InputSelect
           v-model="selectedDepartmentId"
           :options="departmentOptions"
-          :placeholder="t('department-role.filter.departmentPlaceholder')"
+          :placeholder="t('department-role.filter.search')"
           :loading="departmentStore.loading"
           style="width: 250px;"
           @change="handleDepartmentFilterChange"

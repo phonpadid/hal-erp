@@ -69,6 +69,7 @@
     "deleteSuccess": "ລຶບບົດບາດຂອງພາກວິຊາສຳເລັດ"
   },
   "filter": {
-    "allDepartments": "ຄົ້ນຫາດ້ວຍພະແນກ"
+    "allDepartments": "ທັງໝົດ",
+    "search": "ຄົ້ນຫາດ້ວຍພະແນກ"
   }
 }
