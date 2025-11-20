@@ -11,6 +11,24 @@ import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
+import { Icon } from "@iconify/vue";
+
+// Props for purchase request data
+const props = defineProps<{
+  purchaseRequestData?: {
+    purchase_request_item: Array<{
+      quota_company?: {
+        vendor?: {
+          id: number;
+          name: string;
+          contact_info: string;
+          created_at: string;
+          updated_at: string;
+        };
+      };
+    }>;
+  };
+}>();
 
 const vendorStore = useVendorStore();
 const { error } = useNotification();
@@ -42,6 +60,8 @@ const emit = defineEmits<{
 // เปิด/ปิด/รีเซ็ต โมดัล
 const open = () => {
   visible.value = true;
+  // Auto-select vendor from purchase request data
+  autoSelectVendor();
 };
 const close = () => {
   visible.value = false;
@@ -55,16 +75,20 @@ const reset = () => {
   previewUrl.value = "";
   uploadedFileNames.value = [];
   uploadLoading.value = false;
+  form.value.bank = "";
+  form.value.bankName = "";
+  form.value.accountName = "";
+  form.value.accountNumber = "";
+  form.value.currencyCode = "";
 };
 
-// ตัวเลือกของร้านค้า
-const vendorOptions = computed(() => {
-  return vendorStore.activeVendors.map((vendor) => ({
-    label: vendor.getname(),
-    value: vendor.getId(),
-    contact: vendor.getcontact_info(),
-  }));
-});
+// const vendorOptions = computed(() => {
+//   return vendorStore.activeVendors.map((vendor) => ({
+//     label: vendor.getname(),
+//     value: vendor.getId(),
+//     contact: vendor.getcontact_info(),
+//   }));
+// });
 
 // โหลดร้านค้า
 onMounted(async () => {
@@ -228,6 +252,26 @@ const handleRemove = () => {
 };
 
 const selectedType = ref<string>("");
+// Auto-select vendor from purchase request data
+const autoSelectVendor = async () => {
+  if (props.purchaseRequestData?.purchase_request_item) {
+    // Find the first item that has vendor data
+    const firstItemWithVendor = props.purchaseRequestData.purchase_request_item.find(
+      (item) => item.quota_company?.vendor
+    );
+
+    if (firstItemWithVendor?.quota_company?.vendor) {
+      const vendor = firstItemWithVendor.quota_company.vendor;
+
+      // Select the vendor by ID
+      selectedVendor.value = vendor.id.toString();
+
+      // Load bank accounts for this vendor
+      await handleVendorChange(vendor.id.toString());
+    }
+  }
+};
+
 const setSelectedType = (type: string) => {
   selectedType.value = type;
   const matchingVendor = vendorStore.activeVendors.find((v) => v.getId() === type);
@@ -274,81 +318,197 @@ defineExpose({ open, close, reset, setSelectedType });
     title="ໃບສະເໜີລາຄາ"
     title-icon="material-symbols-light:receipt-long"
     :footer="null"
+    :width="800"
+    :max-width="'92vw'"
+    :centered="true"
+    class="vendor-modal"
     @cancel="close"
   >
-    <div class="space-y-4">
-      <UiFormItem label="ເລືອກຮ້ານຄ້າ" required>
-        <InputSelect
-          v-model="selectedVendor"
-          :options="vendorOptions"
-          placeholder="ເລືອກຮ້ານຄ້າ"
-          @change="handleVendorChange"
-        >
-          <template #option="{ option }">
-            <div class="flex flex-col">
-              <span>{{ option.label }}</span>
-              <span class="text-gray-500 text-sm">{{ option.contact }}</span>
+    <div class="modal-content">
+      <div class="space-y-3">
+        <!-- Vendor Section -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-md p-3 border border-blue-100">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center">
+              <Icon icon="mdi:store" class="text-white text-sm" />
             </div>
-          </template>
-        </InputSelect>
-      </UiFormItem>
-
-      <UiFormItem label="ທະນາຄານ" required>
-        <InputSelect
-          v-model:modelValue="form.bank"
-          :options="bankOptions"
-          placeholder="ເລືອກທະນາຄານ"
-          @update:modelValue="handleBankChange"
-        >
-        </InputSelect>
-      </UiFormItem>
-
-      <UiFormItem label="ເລືອກພາສີ">
-        <a-checkbox v-model:checked="isVat"> ລວມພາສີມູນຄ່າເພີ່ມ (VAT) </a-checkbox>
-      </UiFormItem>
-      <span class="font-medium">ເຫດຜົນທີເລືອກ</span>
-      <div class="flex items-start gap-4 mt-2">
-        <Textarea v-model="form.descriptions" placeholder="ປ້ອນເຫດຜົນ" class="w-full" :rows="4" />
-      </div>
-
-      <div class="text-gray-600">ອັບໂຫລດໃບສະເໜີລາຄາ</div>
-      <Upload.Dragger
-        v-model:file-list="fileList"
-        :before-upload="beforeUpload"
-        :show-upload-list="false"
-        accept="image/*"
-        :multiple="false"
-        :max-count="1"
-        class="upload-dragger"
-        @change="handleChange"
-      >
-        <div class="uploader-body">
-          <div v-if="previewUrl" class="preview-wrapper">
-            <img :src="previewUrl" class="preview-image" alt="quotation preview" />
-            <button type="button" class="remove-btn" @click.stop="handleRemove" aria-label="remove">
-              <span class="icon">🗑️</span>
-            </button>
-
-            <div v-if="uploadLoading" class="overlay">
-              <a-spin size="large" />
-              <div class="overlay-text">ກຳລັງອັບໂຫລດ...</div>
+            <div>
+              <h3 class="text-sm font-bold text-gray-800">ຂໍ້ມູນຮ້ານຄ້າ</h3>
+              <p class="text-xs text-gray-600">ຮ້ານຄ້າຈາກໃບສະເໜີລາຄາ</p>
             </div>
           </div>
-          <div v-else class="placeholder">
-            <div class="icon">☁️</div>
-            <div class="title">Click to upload or drag and drop</div>
-            <div class="hint">SVG, PNG, JPG or GIF</div>
+
+          <div v-if="selectedVendor" class="bg-white rounded-md p-2 shadow-sm border border-blue-50">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-md flex items-center justify-center flex-shrink-0">
+                <Icon icon="mdi:storefront" class="text-blue-600 text-sm" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-semibold text-gray-800 text-xs truncate">
+                  {{ vendorStore.activeVendors.find(v => v.getId() === selectedVendor)?.getname() }}
+                </h4>
+                <div class="flex items-center gap-1 mt-0.5">
+                  <Icon icon="mdi:phone" class="text-gray-400 text-xs flex-shrink-0" />
+                  <span class="text-gray-500 text-xs truncate">
+                    {{ vendorStore.activeVendors.find(v => v.getId() === selectedVendor)?.getcontact_info() }}
+                  </span>
+                </div>
+              </div>
+              <div class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full text-[10px] font-medium flex-shrink-0">
+                ຮ້ານຄ້າ
+              </div>
+            </div>
           </div>
         </div>
-      </Upload.Dragger>
-      <div class="mt-4">
+      </div>
+
+      <!-- Bank Selection Section -->
+      <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-md p-3 border border-green-100 mt-1">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center">
+            <Icon icon="mdi:bank" class="text-white text-sm" />
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-800">ຂໍ້ມູນທະນາຄານ</h3>
+            <p class="text-xs text-gray-600">ເລືອກບັນຊີທະນາຄານຂອງຮ້ານຄ້າ</p>
+          </div>
+        </div>
+
+        <UiFormItem label="ເລືອກບັນຊີທະນາຄານ" required class="mb-0">
+          <InputSelect
+            v-model:modelValue="form.bank"
+            :options="bankOptions"
+            placeholder="ເລືອກທະນາຄານທີ່ຕ້ອງການໂອນເງິນ"
+            @update:modelValue="handleBankChange"
+            class="shadow-sm text-xs"
+          >
+            <template #option="{ option }">
+              <div class="flex flex-col py-0.5">
+                <div class="flex items-center gap-1">
+                  <Icon icon="mdi:bank" class="text-gray-400 text-xs" />
+                  <span class="font-medium text-xs">{{ option.label }}</span>
+                </div>
+                <span class="text-gray-500 text-[10px] ml-5">{{ option.account_number }}</span>
+              </div>
+            </template>
+          </InputSelect>
+        </UiFormItem>
+      </div>
+
+      <!-- Additional Information Section -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-md p-3 border border-amber-100 mt-1">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-7 h-7 bg-amber-500 rounded-full flex items-center justify-center">
+            <Icon icon="mdi:information" class="text-white text-sm" />
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-800">ຂໍ້ມູນເພີ່ມເຕີມ</h3>
+            <p class="text-xs text-gray-600">ລາຍລະອຽດອື່ນໆ ສຳລັບການສັ່ງຊື້</p>
+          </div>
+        </div>
+
+        <!-- VAT Checkbox -->
+        <div class="bg-white rounded-md p-2 shadow-sm border border-amber-50 mb-2">
+          <div class="flex items-center gap-2">
+            <a-checkbox v-model:checked="isVat" class="scale-100">
+              <span class="font-medium text-gray-700 text-xs">ລວມພາສີມູນຄ່າເພີ່ມ (VAT)</span>
+            </a-checkbox>
+            <div class="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-[10px] font-medium">
+              7%
+            </div>
+          </div>
+        </div>
+
+        <!-- Reason Textarea -->
+        <div class="bg-white rounded-md p-2 shadow-sm border border-amber-50">
+          <UiFormItem label="ເຫດຜົນ" class="mb-0">
+            <Textarea
+              v-model="form.descriptions"
+              placeholder="ກະລຸນາລະບຸເຫດຜົນທີ່ເລືອກ..."
+              class="w-full border-amber-100 text-xs"
+              :rows="2"
+              :show-count="true"
+              :maxlength="300"
+            />
+          </UiFormItem>
+        </div>
+      </div>
+
+      <!-- File Upload Section -->
+      <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-md p-3 border border-purple-100 mt-1">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="w-7 h-7 bg-purple-500 rounded-full flex items-center justify-center">
+            <Icon icon="mdi:file-upload" class="text-white text-sm" />
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-800">ອັບໂຫລດໃບສະເໜີລາຄາ</h3>
+            <p class="text-xs text-gray-600">ແນບລະບຸໃບສະເໜີລາຄາຈາກຮ້ານຄ້າ</p>
+          </div>
+        </div>
+
+        <Upload.Dragger
+          v-model:file-list="fileList"
+          :before-upload="beforeUpload"
+          :show-upload-list="false"
+          accept="image/*"
+          :multiple="false"
+          :max-count="1"
+          class="upload-dragger border-purple-200 hover:border-purple-400 transition-colors"
+          @change="handleChange"
+        >
+          <div class="uploader-body">
+            <div v-if="previewUrl" class="preview-wrapper">
+              <img :src="previewUrl" class="preview-image" alt="quotation preview" />
+              <button
+                type="button"
+                class="remove-btn bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg transition-all hover:scale-110"
+                @click.stop="handleRemove"
+                aria-label="remove"
+              >
+                <Icon icon="mdi:delete" class="text-xs" />
+              </button>
+
+              <div v-if="uploadLoading" class="overlay">
+                <a-spin size="large" />
+                <div class="overlay-text font-medium text-xs">ກຳລັງອັບໂຫລດ...</div>
+              </div>
+            </div>
+            <div v-else class="placeholder">
+              <div class="icon">
+                <Icon icon="mdi:cloud-upload" class="text-purple-400 text-4xl" />
+              </div>
+              <div class="title text-gray-700 font-medium text-xs">
+                ຄລິກຫຼືລາກໄຟລ໌ມາວາງທີ່ນີ້
+              </div>
+              <div class="hint text-gray-500 text-[10px]">
+                ຮູບແບບ: SVG, PNG, JPG, GIF (ສູງສຸດ 10MB)
+              </div>
+            </div>
+          </div>
+        </Upload.Dragger>
+      </div>
+
+      <!-- Submit Buttons -->
+      <div class="flex gap-2 mt-3">
+        <UiButton
+          type="default"
+          color-class="bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 flex items-center justify-center"
+          class="flex-1 h-9 text-xs font-medium"
+          @click="close"
+        >
+          <Icon icon="mdi:close" class="mr-1 text-xs" />
+          ຍົກເລີກ
+        </UiButton>
         <UiButton
           type="primary"
-          color-class="bg-red-500 text-white hover:bg-red-600 hover:!text-white w-full"
+          color-class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          class="flex-1 h-9 text-xs font-medium"
           :disabled="!selectedVendor || uploadedFileNames.length === 0 || uploadLoading"
           @click="handleOk"
         >
-          ຢືນຢັນ
+          <Icon icon="mdi:check-circle" class="mr-1 text-xs" />
+          <span v-if="uploadLoading" class="text-xs">ກຳລັງບັນທຶກ...</span>
+          <span v-else class="text-xs font-semibold">ຢືນຢັນ</span>
         </UiButton>
       </div>
     </div>
@@ -356,25 +516,76 @@ defineExpose({ open, close, reset, setSelectedType });
 </template>
 
 <style scoped>
+/* Modal custom styles */
+.vendor-modal :deep(.ant-modal) {
+  max-width: 95vw;
+}
+
+.vendor-modal :deep(.ant-modal-body) {
+  padding: 0;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.vendor-modal :deep(.ant-modal-content) {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.vendor-modal :deep(.ant-modal-header) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 24px 32px;
+  border-bottom: none;
+}
+
+.vendor-modal :deep(.ant-modal-title) {
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.vendor-modal :deep(.ant-modal-close) {
+  color: white;
+  opacity: 0.8;
+  top: 24px;
+  right: 24px;
+}
+
+.vendor-modal :deep(.ant-modal-close:hover) {
+  opacity: 1;
+}
+
+/* Content area */
+.modal-content {
+  padding: 10px;
+  min-height: 300px;
+}
+
+/* Upload area styles */
 .uploader-body {
   position: relative;
   min-height: 220px;
 }
+
 .placeholder {
   display: grid;
   place-items: center;
-  gap: 6px;
+  gap: 12px;
   color: #6b7280;
+  padding: 32px;
 }
+
 .placeholder .icon {
-  font-size: 40px;
-  opacity: 0.6;
+  opacity: 0.7;
 }
+
 .placeholder .title {
   color: #374151;
+  font-weight: 500;
 }
+
 .placeholder .hint {
-  font-size: 12px;
+  font-size: 14px;
   color: #9ca3af;
 }
 
@@ -384,41 +595,77 @@ defineExpose({ open, close, reset, setSelectedType });
   place-items: center;
   min-height: 220px;
 }
+
 .preview-image {
-  max-width: 360px;
+  max-width: 400px;
   width: 100%;
-  max-height: 380px;
+  max-height: 300px;
   object-fit: contain;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
+
 .remove-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #fff;
-  border: 1px solid #fca5a5;
-  color: #ef4444;
-  border-radius: 9999px;
-  padding: 6px 8px;
-  font-size: 12px;
+  top: 12px;
+  right: 12px;
   cursor: pointer;
-}
-.remove-btn:hover {
-  background: #fee2e2;
 }
 
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
   display: grid;
   place-items: center;
-  gap: 8px;
-  border-radius: 8px;
+  gap: 12px;
+  border-radius: 12px;
 }
+
 .overlay-text {
   color: #374151;
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Scrollbar styling */
+.vendor-modal :deep(.ant-modal-body)::-webkit-scrollbar {
+  width: 8px;
+}
+
+.vendor-modal :deep(.ant-modal-body)::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.vendor-modal :deep(.ant-modal-body)::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.vendor-modal :deep(.ant-modal-body)::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .modal-content {
+    padding: 20px;
+  }
+
+  .vendor-modal :deep(.ant-modal-header) {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 16px;
+  }
+
+  .space-y-4 > * + * {
+    margin-top: 0.75rem;
+  }
 }
 </style>
