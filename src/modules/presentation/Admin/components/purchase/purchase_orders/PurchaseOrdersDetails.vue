@@ -420,6 +420,48 @@ interface VendorData {
   type: string;
 }
 
+// Get vendor data from purchase request items
+const purchaseRequestData = computed(() => {
+  if (!requestDetail.value) return undefined;
+
+  try {
+    const items = requestDetail.value.getItems();
+
+    // Extract vendor data from items (now available from API)
+    const purchaseRequestItems = items.map(item => {
+      // Get vendor data that was added in the API repository
+      const itemData = (item as any);
+
+      if (itemData.vendor) {
+        return {
+          quota_company: {
+            vendor: itemData.vendor
+          }
+        };
+      }
+
+      return undefined;
+    }).filter(item => item !== undefined) as Array<{
+      quota_company?: {
+        vendor?: {
+          id: number;
+          name: string;
+          contact_info: string;
+          created_at: string;
+          updated_at: string;
+        };
+      };
+    }>;
+
+    return {
+      purchase_request_item: purchaseRequestItems
+    };
+  } catch (err) {
+    console.error("Error extracting vendor data:", err);
+    return undefined;
+  }
+});
+
 const openVendorModal = () => {
   if (selectedRowKeys.value.length === 0) {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກລາຍການກ່ອນເພີ່ມຮ້ານຄ້າ");
@@ -432,6 +474,8 @@ const openVendorModal = () => {
     if (form.value.invoiceType) {
       vendorModalRef.value.setSelectedType(form.value.invoiceType);
     }
+
+    // Pass purchase request data to modal
     vendorModalRef.value.open();
   }
 };
@@ -807,7 +851,7 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
       <DrawerPr :id="selectedPrId" />
     </UiDrawer>
     <!--  -->
-    <ModalVendorCreate ref="vendorModalRef" @submitted="handleVendorModalSubmitted" />
+    <ModalVendorCreate ref="vendorModalRef" @submitted="handleVendorModalSubmitted" :purchaseRequestData="purchaseRequestData" />
     <!-- OTP Modal (ສຳລັບປ້ອນ OTP) -->
     <OtpModal
       :visible="showOtpModal"

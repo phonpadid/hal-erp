@@ -19,6 +19,15 @@ interface PurchaseRequestItemApiModel {
   total_price: number;
   remark: string;
   quota_company_id?: number;
+  quota_company?: {
+    vendor?: {
+      id: number;
+      name: string;
+      contact_info: string;
+      created_at: string;
+      updated_at: string;
+    };
+  };
   unit?: { name: string };
 }
 interface PurchaseRequestApiModel {
@@ -185,7 +194,8 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
     if (data.purchase_request_item) {
       console.log('API item data:', data.purchase_request_item);
       const items = data.purchase_request_item.map((item: any) => {
-        return new PurchaseRequestItemEntity(
+        // Store the vendor data in the entity for later use
+        const purchaseRequestItem = new PurchaseRequestItemEntity(
           item.id,
           item.title,
           item.file_name,
@@ -199,6 +209,13 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
           item.remark || "",
           item.quota_company_id || null
         );
+
+        // Add vendor data to the entity as a custom property
+        if (item.quota_company?.vendor) {
+          (purchaseRequestItem as any).vendor = item.quota_company.vendor;
+        }
+
+        return purchaseRequestItem;
       });
       purchaseRequest.setItems(items);
     }
