@@ -44,7 +44,6 @@ const nextStep = () => {
     // Emit the form data to parent and trigger next step
     emit("next-step", {
       document_type_id: formState.document_type_id,
-      // Add any other data you want to pass to the next step
     });
   }
 };

@@ -18,6 +18,7 @@ interface PurchaseRequestItemApiModel {
   price: number;
   total_price: number;
   remark: string;
+  quota_company_id?: number;
   unit?: { name: string };
 }
 interface PurchaseRequestApiModel {
@@ -149,6 +150,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
           unit_id: Number(item.getUnitId()),
           price: item.getPrice(),
           remark: item.getRemark() || "",
+          quota_company_id: item.getQuotaId(),
         })) || [],
     };
   }
@@ -194,7 +196,8 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
           item.price,
           item.total_price,
           null,
-          item.remark || ""
+          item.remark || "",
+          item.quota_company_id || null
         );
       });
       purchaseRequest.setItems(items);

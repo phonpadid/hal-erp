@@ -12,6 +12,9 @@
     "total": "total {count} quotas",
     "title": "Quotas information",
     "add": "Add quota",
+    "edit": "Edit",
+    "delete": "Delete",
+    "listQuota": "List quota",
     "header_form": {
       "add": "Quota creation form",
       "edit": "Quota update form"
@@ -50,13 +53,14 @@
       "quantity": "Quantity",
       "year": "Year",
       "createdAt": "Created At",
-      "updatedAt": "Updated At"
+      "updatedAt": "Updated At",
+      "actions": "Actions"
     },
     "modal": {
       "create": "Create New Quota",
       "edit": "Edit Quota",
       "delete": "Delete Quota",
-      "deleteConfirm": "Are you sure you want to delete this quota for {company}, {vendor}, {product} ({year})?",
+      "deleteConfirm": "Are you sure you want to delete this quota?",
       "deleteWarning": "This action cannot be undone!"
     },
     "list": {

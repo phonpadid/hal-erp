@@ -9,12 +9,12 @@ import type {
   CreateQuotaDTO,
   UpdateQuotaDTO,
 } from "@/modules/application/dtos/quotas/quota.dto";
-import { MockQuotaRepository } from "@/modules/infrastructure/quotas/mock-quota.repository";
+import { ApiQuotaRepository } from "@/modules/infrastructure/quotas/api-quota.repository";
 
 // Create the quota service instance
 const createQuotaService = () => {
-  const quotaRepository = new MockQuotaRepository();
-  // const quotaRepository = new ApiQuotaRepository();
+  // const quotaRepository = new MockQuotaRepository();
+  const quotaRepository = new ApiQuotaRepository();
   return new QuotaServiceImpl(quotaRepository);
 };
 
@@ -42,6 +42,43 @@ export const useQuotaStore = defineStore("quota", () => {
   // Getters
   const activeQuotas = computed(() => quotas.value.filter(quota => !quota.isDeleted()));
 
+  // Transform quotas for table display with additional info
+  const quotasWithDetails = computed(() => {
+    return quotas.value.map(quota => {
+      const createdAt = quota.getCreatedAt();
+      const updatedAt = quota.getUpdatedAt();
+      const deletedAt = quota.getDeletedAt();
+
+      // Get vendor and product info from the entity if available
+      const entity = quota as any;
+      const vendorProduct = entity.vendor_product;
+      const product = entity.product;
+
+    
+
+      return {
+        id: quota.getId(),
+        vendor_product_id: quota.getVendorProductId(),
+        vendor_id: quota.getVendorId(),
+        product_id: quota.getProductId(),
+        company_id: quota.getCompanyId(),
+        qty: quota.getQty(),
+        year: quota.getYear(),
+        created_at: createdAt && !isNaN(createdAt.getTime()) ? createdAt.toISOString() : new Date().toISOString(),
+        updated_at: updatedAt && !isNaN(updatedAt.getTime()) ? updatedAt.toISOString() : new Date().toISOString(),
+        deleted_at: deletedAt && !isNaN(deletedAt.getTime()) ? deletedAt.toISOString() : null,
+
+        // Use actual vendor and product names from API response
+        // Based on JSON structure: product.name and vendor_product.product.name
+        product_name: product?.name || vendorProduct?.product?.name || `ສິນຄ້າ #${quota.getVendorProductId()}`,
+        vendor_name: `ຮ້ານຄ້າ #${vendorProduct?.vendor_id || quota.getVendorId() || 'N/A'}`,
+        vendor_id_display: vendorProduct?.vendor_id || quota.getVendorId(),
+        price: vendorProduct?.price || null,
+        product_type: product?.product_type?.name || null,
+      };
+    });
+  });
+
   // Actions
   const createQuota = async (data: CreateQuotaDTO) => {
     loading.value = true;
@@ -64,22 +101,34 @@ export const useQuotaStore = defineStore("quota", () => {
       company_id?: number;
       vendor_id?: number;
       product_id?: number;
+      vendor_product_id?: number;
       year?: string;
     } = { page: 1, limit: 10 }
   ) => {
     loading.value = true;
     error.value = null;
 
+    
+
     try {
       const result = await quotaService.getQuotas(params);
+
       quotas.value = result.quotas;
-      pagination.value = {
+
+      const newPagination = {
         page: result.page ?? 1,
         limit: result.limit ?? 10,
         total: result.total ?? 0,
         totalPages: Math.ceil((result.total ?? 0) / (result.limit ?? 10)),
       };
+
+    
+      pagination.value = newPagination;
+
+    
+
     } catch (err) {
+      console.error("Quota Store: Error fetching quotas:", err);
       error.value = err as Error;
       throw err;
     } finally {
@@ -138,17 +187,7 @@ export const useQuotaStore = defineStore("quota", () => {
       const index = quotas.value.findIndex((q) => q.getId() === id);
       if (index !== -1) {
         const quota = quotas.value[index];
-        quotas.value[index] = QuotaEntity.restore({
-          id: quota.getId(),
-          company_id: quota.getCompanyId(),
-          vendor_id: quota.getVendorId(),
-          product_id: quota.getProductId(),
-          qty: quota.getQty(),
-          year: quota.getYear(),
-          created_at: quota.getCreatedAt(),
-          updated_at: new Date(),
-          deleted_at: new Date(),
-        });
+        quotas.value[index] = quota.softDelete();
       }
 
       if (currentQuota.value?.getId() === id) {
@@ -209,6 +248,7 @@ export const useQuotaStore = defineStore("quota", () => {
 
     // Getters
     activeQuotas,
+    quotasWithDetails,
 
     // Actions
     createQuota,

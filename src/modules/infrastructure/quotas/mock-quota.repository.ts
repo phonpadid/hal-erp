@@ -6,6 +6,7 @@ export class MockQuotaRepository implements QuotaRepository {
   private mockQuotas: QuotaApiModel[] = [
     {
       id: 1,
+      vendor_product_id: 101,
       company_id: 1,
       vendor_id: 1,
       product_id: 1,
@@ -17,6 +18,7 @@ export class MockQuotaRepository implements QuotaRepository {
     },
     {
       id: 2,
+      vendor_product_id: 103,
       company_id: 1,
       vendor_id: 2,
       product_id: 3,
@@ -28,6 +30,7 @@ export class MockQuotaRepository implements QuotaRepository {
     },
     {
       id: 3,
+      vendor_product_id: 102,
       company_id: 2,
       vendor_id: 1,
       product_id: 2,
@@ -39,6 +42,7 @@ export class MockQuotaRepository implements QuotaRepository {
     },
     {
       id: 4,
+      vendor_product_id: 101,
       company_id: 1,
       vendor_id: 3,
       product_id: 1,
@@ -50,6 +54,7 @@ export class MockQuotaRepository implements QuotaRepository {
     },
     {
       id: 5,
+      vendor_product_id: 104,
       company_id: 3,
       vendor_id: 2,
       product_id: 4,
@@ -66,6 +71,7 @@ export class MockQuotaRepository implements QuotaRepository {
   private toDomainModel(apiModel: QuotaApiModel): QuotaEntity {
     return QuotaEntity.restore({
       id: apiModel.id.toString(),
+      vendor_product_id: apiModel.vendor_product_id,
       company_id: apiModel.company_id,
       vendor_id: apiModel.vendor_id,
       product_id: apiModel.product_id,
@@ -79,6 +85,7 @@ export class MockQuotaRepository implements QuotaRepository {
 
   private toApiModel(entity: QuotaEntity): Omit<QuotaApiModel, "id" | "created_at" | "updated_at" | "deleted_at"> {
     return {
+      vendor_product_id: entity.getVendorProductId(),
       company_id: entity.getCompanyId(),
       vendor_id: entity.getVendorId(),
       product_id: entity.getProductId(),
@@ -91,9 +98,12 @@ export class MockQuotaRepository implements QuotaRepository {
     page?: number;
     limit?: number;
     search?: string;
+    column?: string;
+    sort_order?: string;
     company_id?: number;
     vendor_id?: number;
     product_id?: number;
+    vendor_product_id?: number;
     year?: string;
     includeDeleted?: boolean;
   }): Promise<{
@@ -131,9 +141,9 @@ export class MockQuotaRepository implements QuotaRepository {
         return (
           quota.year.toLowerCase().includes(searchTerm) ||
           quota.qty.toString().includes(searchTerm) ||
-          quota.company_id.toString().includes(searchTerm) ||
-          quota.vendor_id.toString().includes(searchTerm) ||
-          quota.product_id.toString().includes(searchTerm)
+          (quota.company_id && quota.company_id.toString().includes(searchTerm)) ||
+          (quota.vendor_id && quota.vendor_id.toString().includes(searchTerm)) ||
+          (quota.product_id && quota.product_id.toString().includes(searchTerm))
         );
       }
 
@@ -256,30 +266,28 @@ export class MockQuotaRepository implements QuotaRepository {
     return this.toDomainModel(quota);
   }
 
-  async exists(company_id: number, vendor_id: number, product_id: number, year: string): Promise<boolean> {
+  async exists(company_id: number | undefined, vendor_product_id: number, year: string): Promise<boolean> {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 100));
 
     const exists = this.mockQuotas.some(quota =>
-      quota.company_id === company_id &&
-      quota.vendor_id === vendor_id &&
-      quota.product_id === product_id &&
+      quota.vendor_product_id === vendor_product_id &&
       quota.year === year &&
+      (company_id === undefined || quota.company_id === company_id) &&
       !quota.deleted_at
     );
 
     return exists;
   }
 
-  async getByUniqueKey(company_id: number, vendor_id: number, product_id: number, year: string): Promise<QuotaEntity | null> {
+  async getByUniqueKey(company_id: number | undefined, vendor_product_id: number, year: string): Promise<QuotaEntity | null> {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 150));
 
     const quota = this.mockQuotas.find(q =>
-      q.company_id === company_id &&
-      q.vendor_id === vendor_id &&
-      q.product_id === product_id &&
-      q.year === year
+      q.vendor_product_id === vendor_product_id &&
+      q.year === year &&
+      (company_id === undefined || q.company_id === company_id)
     );
 
     if (!quota) {

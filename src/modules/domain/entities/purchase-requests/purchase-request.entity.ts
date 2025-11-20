@@ -271,8 +271,15 @@ export class PurchaseRequestEntity {
       purposes
     );
 
-    const purchaseRequestItems = purchaseItems.map((item) =>
-      PurchaseRequestItemEntity.create(
+    console.log("PurchaseRequestEntity - purchaseItems:", purchaseItems);
+    console.log("PurchaseRequestEntity - item.quotaId check:");
+
+    const purchaseRequestItems = purchaseItems.map((item) => {
+      console.log("item:", item);
+      console.log("item.quotaId:", item.quotaId);
+      console.log("item.quotaId || null:", item.quotaId || null);
+
+      return PurchaseRequestItemEntity.create(
         item.title,
         item.fileName,
         item.fileNameUrl || null,
@@ -280,9 +287,12 @@ export class PurchaseRequestEntity {
         item.unitId.toString(),
         item.price,
         item.quantity * item.price,
-        item.remark || ""
-      )
-    );
+        item.remark || "",
+        item.quotaId || null
+      );
+    });
+
+    console.log("PurchaseRequestEntity - purchaseRequestItems created:", purchaseRequestItems);
 
     purchaseRequest.setItems(purchaseRequestItems);
 
