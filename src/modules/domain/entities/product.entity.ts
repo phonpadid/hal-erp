@@ -1,10 +1,13 @@
 import { formatDate } from "@/modules/shared/formatdate"
+import type { UnitEntity } from "./unit.entity"
 
 export class ProductEntity {
   private id: string
   private name: string
   private description: string
   private product_type_id: number
+  private unit_id: string | null
+  private unit: UnitEntity | null
   private status: string
   private createdAt: string
   private updatedAt: string
@@ -15,6 +18,8 @@ export class ProductEntity {
     name: string,
     description: string,
     product_type_id: number,
+    unit_id: string | null,
+    unit: UnitEntity | null = null,
     status: string,
     createdAt: string,
     updatedAt: string,
@@ -24,6 +29,8 @@ export class ProductEntity {
     this.name = name
     this.description = description
     this.product_type_id = product_type_id
+    this.unit_id = unit_id
+    this.unit = unit
     this.status = status
 
     this.createdAt = formatDate(createdAt)
@@ -45,6 +52,13 @@ export class ProductEntity {
 
   public getProductTypeId(): number {
     return this.product_type_id
+  }
+
+  public getUnitId(): string | null {
+    return this.unit_id
+  }
+  public getUnit(): UnitEntity | null {
+    return this.unit
   }
 
   public getStatus(): string {
@@ -82,6 +96,11 @@ export class ProductEntity {
     this.updatedAt = new Date().toISOString().replace("T", "").substring(0, 19);
   }
 
+  public updateUnitId(unit_id: string | null): void {
+    this.unit_id = unit_id
+    this.updatedAt = new Date().toISOString().replace("T", "").substring(0, 19);
+  }
+
   public updateStatus(status: string): void {
     this.status = status
     this.updatedAt = new Date().toISOString().replace("T", "").substring(0, 19);
@@ -97,8 +116,8 @@ export class ProductEntity {
     this.updatedAt = new Date().toISOString().replace("T", "").substring(0, 19);
   }
 
-  public static create(id: string, name: string, description: string, product_type_id: number, status: string = "active"): ProductEntity {
+  public static create(id: string, name: string, description: string, product_type_id: number, unit_id: string | null, status: string = "active"): ProductEntity {
     const now = new Date().toISOString().replace("T", "").substring(0, 19);
-    return new ProductEntity(id, name, description, product_type_id, status, now, now, null);
+    return new ProductEntity(id, name, description, product_type_id, unit_id, null, status, now, now, null);
   }
 }

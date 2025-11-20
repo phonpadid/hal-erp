@@ -3,6 +3,7 @@ import { ref, reactive, defineProps, defineEmits, watch, computed, onMounted } f
 import type { ProductInterface } from "@/modules/interfaces/product.interface";
 import { useI18n } from "vue-i18n";
 import { useProductTypeStore } from "@/modules/presentation/Admin/stores/product-type.store";
+import { useUnitStore } from "@/modules/presentation/Admin/stores/unit.store";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
@@ -12,6 +13,7 @@ import Textarea from "@/common/shared/components/Input/Textarea.vue";
 
 const { t } = useI18n();
 const productTypeStore = useProductTypeStore();
+const unitStore = useUnitStore();
 
 const props = defineProps<{
   product?: ProductInterface | null;
@@ -20,7 +22,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "submit", data: { name: string; description: string; product_type_id: number; }): void;
+  (e: "submit", data: { name: string; description: string; product_type_id: number; unit_id?: number | null; }): void;
   (e: "cancel"): void;
 }>();
 
@@ -29,6 +31,7 @@ const formState = reactive({
   name: "",
   description: "",
   product_type_id: null as number | null,
+  unit_id: null as number | null,
 });
 
 // Product type options for dropdown
@@ -36,6 +39,14 @@ const productTypeOptions = computed(() =>
   productTypeStore.activeProductTypes.map((productType) => ({
     label: productType.getName(),
     value: Number(productType.getId()),
+  }))
+);
+
+// Unit options for dropdown
+const unitOptions = computed(() =>
+  unitStore.activeUnits.map((unit) => ({
+    label: unit.getName() || "",
+    value: unit.getId(),
   }))
 );
 
@@ -59,10 +70,12 @@ watch(
       formState.name = newProduct.name || "";
       formState.description = newProduct.description || "";
       formState.product_type_id = newProduct.product_type_id || null;
+      formState.unit_id = newProduct.unit_id || null;
     } else {
       formState.name = "";
       formState.description = "";
       formState.product_type_id = null;
+      formState.unit_id = null;
     }
   },
   { immediate: true }
@@ -75,6 +88,7 @@ const submitForm = async () => {
       name: formState.name,
       description: formState.description,
       product_type_id: formState.product_type_id!,
+      unit_id: formState.unit_id,
     };
 
     emit("submit", formData);
@@ -83,13 +97,20 @@ const submitForm = async () => {
   }
 };
 
-// Load product types on component mount
+// Load product types and units on component mount
 onMounted(async () => {
-  await productTypeStore.fetchProductTypes({
-    page: 1,
-    limit: 100, // Get all product types for dropdown
-    search: "",
-  });
+  await Promise.all([
+    productTypeStore.fetchProductTypes({
+      page: 1,
+      limit: 100, // Get all product types for dropdown
+      search: "",
+    }),
+    unitStore.fetchUnits({
+      page: 1,
+      limit: 100, // Get all units for dropdown
+      search: "",
+    }),
+  ]);
 });
 
 defineExpose({
@@ -115,6 +136,16 @@ defineExpose({
         :placeholder="$t('products.form.productTypePlaceholder')"
         :loading="productTypeStore.loading"
         :disabled="loading"
+      />
+    </UiFormItem>
+    <UiFormItem :label="$t('products.form.unit')" name="unit_id">
+      <UiInputSelect
+        v-model:value="formState.unit_id"
+        :options="unitOptions"
+        :placeholder="$t('products.form.unitPlaceholder')"
+        :loading="unitStore.loading"
+        :disabled="loading"
+        allow-clear
       />
     </UiFormItem>
     <UiFormItem :label="$t('products.form.description')" name="description">

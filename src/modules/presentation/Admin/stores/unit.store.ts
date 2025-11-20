@@ -6,11 +6,13 @@ import type { UnitEntity } from "@/modules/domain/entities/unit.entity";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { UnitServiceImpl } from "@/modules/application/services/unit.service";
 import { ApiUnitRepository } from "@/modules/infrastructure/api-unit.repository";
+import { ApiProductRepository } from "@/modules/infrastructure/api-product.repository";
 import type { UnitInterface } from "@/modules/interfaces/unit.interface";
 
 const createUnitService = () => {
   const unitRepository = new ApiUnitRepository();
-  return new UnitServiceImpl(unitRepository);
+  const productRepository = new ApiProductRepository();
+  return new UnitServiceImpl(unitRepository, productRepository);
 };
 
 export const useUnitStore = defineStore("unit", () => {

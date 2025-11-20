@@ -4,6 +4,31 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 import { api } from "@/common/config/axios/axios";
 import type { AxiosError } from "axios";
 import type { CreateProductDTO, UpdateProductDTO } from "@/modules/application/dtos/product.dto";
+import type { UnitApiModel, UnitInterface } from "../interfaces/unit.interface";
+import { UnitEntity } from "../domain/entities/unit.entity";
+
+interface ApiResponseProduct {
+  id: string | number;
+  name: string;
+  description: string;
+  product_type_id: number;
+  unit_id: string | null;
+  unit?: UnitApiModel | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string | null;
+}
+
+interface ApiResponseData {
+  data: ApiResponseProduct[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+  };
+}
 
 export class ApiProductRepository implements ProductRepository {
   private readonly baseUrl = "/products";
@@ -24,12 +49,13 @@ export class ApiProductRepository implements ProductRepository {
         },
       });
 
+      const apiResponse = response.data as ApiResponseData;
       return {
-        data: response.data.data.map((product: any) => this.toDomainModel(product)),
-        total: response.data.pagination.total,
-        page: response.data.pagination.page,
-        limit: response.data.pagination.limit,
-        totalPages: response.data.pagination.total_pages,
+        data: apiResponse.data.map((product) => this.toDomainModel(product)),
+        total: apiResponse.pagination.total,
+        page: apiResponse.pagination.page,
+        limit: apiResponse.pagination.limit,
+        totalPages: apiResponse.pagination.total_pages,
       };
     } catch (error) {
       return this.handleApiError(error, "Failed to fetch products list");
@@ -55,12 +81,12 @@ export class ApiProductRepository implements ProductRepository {
         params: { name, limit: 5 },
       });
 
-      const data = response.data.data;
-      if (!Array.isArray(data) || data.length === 0) {
+      const apiResponse = response.data as { data: ApiResponseProduct[] };
+      if (!Array.isArray(apiResponse.data) || apiResponse.data.length === 0) {
         return null;
       }
-      const found = data.find(
-        (p: any) =>
+      const found = apiResponse.data.find(
+        (p) =>
           p.name === name && (p.deleted_at === null || p.deleted_at === undefined)
       );
       if (!found) return null;
@@ -78,16 +104,36 @@ export class ApiProductRepository implements ProductRepository {
         params: { product_type_id },
       });
 
-      const data = response.data.data;
-      if (!Array.isArray(data) || data.length === 0) {
+      const apiResponse = response.data as { data: ApiResponseProduct[] };
+      if (!Array.isArray(apiResponse.data) || apiResponse.data.length === 0) {
         return [];
       }
 
-      return data
-        .filter((p: any) => p.deleted_at === null || p.deleted_at === undefined)
-        .map((product: any) => this.toDomainModel(product));
+      return apiResponse.data
+        .filter((p) => p.deleted_at === null || p.deleted_at === undefined)
+        .map((product) => this.toDomainModel(product));
     } catch (error) {
       console.error(`Error finding products by product_type_id '${product_type_id}':`, error);
+      return [];
+    }
+  }
+
+  async findByUnitId(unit_id: string): Promise<ProductEntity[]> {
+    try {
+      const response = await api.get(this.baseUrl, {
+        params: { unit_id },
+      });
+
+      const apiResponse = response.data as { data: ApiResponseProduct[] };
+      if (!Array.isArray(apiResponse.data) || apiResponse.data.length === 0) {
+        return [];
+      }
+
+      return apiResponse.data
+        .filter((p) => p.deleted_at === null || p.deleted_at === undefined)
+        .map((product) => this.toDomainModel(product));
+    } catch (error) {
+      console.error(`Error finding products by unit_id '${unit_id}':`, error);
       return [];
     }
   }
@@ -128,18 +174,30 @@ export class ApiProductRepository implements ProductRepository {
     }
   }
 
-  private toDomainModel(product: any): ProductEntity {
+  private toDomainModel(product: ApiResponseProduct): ProductEntity {
+     const unit = product.unit ? this.toUnitEntity(product.unit) : undefined;
     return new ProductEntity(
       product.id?.toString() ?? "",
       product.name ?? "",
       product.description ?? "",
       product.product_type_id ?? 0,
+      product.unit_id ?? null,
+      unit,
       product.status ?? "active",
       product.created_at ?? "",
       product.updated_at ?? "",
       product.deleted_at ?? null
     );
   }
+
+   private toUnitEntity(unit: UnitInterface): UnitEntity {
+      return new UnitEntity(
+        unit.id.toString(),
+        unit.name ?? '',
+        unit.created_at ?? "",
+        unit.updated_at ?? ""
+      );
+    }
 
   private handleApiError(error: unknown, defaultMessage: string): never {
     const axiosError = error as AxiosError<{ message?: string }>;

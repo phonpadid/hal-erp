@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import type { ProductInterface } from "@/modules/interfaces/product.interface";
 import { useProductStore } from "../../stores/product.store";
 import { useProductTypeStore } from "../../stores/product-type.store";
+import { useUnitStore } from "../../stores/unit.store";
 import { Columns } from "./column";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -18,6 +19,7 @@ const { t } = useI18n();
 
 const productStore = useProductStore();
 const productTypeStore = useProductTypeStore();
+const unitStore = useUnitStore();
 const { success, error, warning } = useNotification();
 
 // State
@@ -43,6 +45,7 @@ const tablePagination = computed(() => ({
 onMounted(async () => {
   await loadProducts();
   await loadProductTypes();
+  await loadUnits();
 });
 
 // Load product types for dropdown display
@@ -55,6 +58,19 @@ const loadProductTypes = async () => {
     });
   } catch (err) {
     console.error("Failed to load product types:", err);
+  }
+};
+
+// Load units for dropdown display
+const loadUnits = async () => {
+  try {
+    await unitStore.fetchUnits({
+      page: 1,
+      limit: 100, // Get all units
+      search: "",
+    });
+  } catch (err) {
+    console.error("Failed to load units:", err);
   }
 };
 
@@ -217,6 +233,11 @@ const handleDeleteConfirm = async () => {
       <!-- Product Type column -->
       <template #product_type_id="{ record }">
         <span>{{ getProductTypeName(record.product_type_id) }}</span>
+      </template>
+
+      <!-- Unit column -->
+      <template #unit_id="{ record }">
+        <span>{{ record.unit?.name }}</span>
       </template>
 
       <!-- Status column -->

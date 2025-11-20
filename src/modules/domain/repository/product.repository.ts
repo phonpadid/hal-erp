@@ -10,6 +10,7 @@ export interface ProductRepository {
   findById(id: string): Promise<ProductEntity | null>;
   findByName(name: string): Promise<ProductEntity | null>;
   findByProductTypeId(product_type_id: number): Promise<ProductEntity[]>;
+  findByUnitId(unit_id: string): Promise<ProductEntity[]>;
   create(data: CreateProductDTO): Promise<ProductEntity>;
   update(id: string, data: UpdateProductDTO): Promise<ProductEntity>;
   delete(id: string): Promise<boolean>;
