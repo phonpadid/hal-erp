@@ -20,6 +20,7 @@ export interface CreatePurchaseRequestDTO {
   purposes: string;
   document: DocumentDTO;
   purchase_request_items: PurchaseRequestItemDTO[];
+  quota_company_id?: string;
 }
 
 export interface UpdatePurchaseRequestDTO {

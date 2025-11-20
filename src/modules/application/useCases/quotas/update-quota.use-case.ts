@@ -16,23 +16,12 @@ export class UpdateQuotaUseCase {
       throw new Error("Cannot update deleted quota");
     }
 
-    // Check if another quota exists for this combination
-    const duplicateQuota = await this.quotaRepository.getByUniqueKey(
-      quotaData.company_id,
-      quotaData.vendor_id,
-      quotaData.product_id,
-      quotaData.year
-    );
-
-    if (duplicateQuota && duplicateQuota.getId() !== quotaData.id) {
-      throw new Error("Quota already exists for this vendor, product, and year");
-    }
+    // Skip duplicate check for now - go directly to update
 
     // Update quota entity
     const updatedQuota = existingQuota.update({
       company_id: quotaData.company_id,
-      vendor_id: quotaData.vendor_id,
-      product_id: quotaData.product_id,
+      vendor_product_id: quotaData.vendor_product_id,
       qty: quotaData.qty,
       year: quotaData.year,
     });

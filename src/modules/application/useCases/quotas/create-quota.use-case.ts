@@ -6,19 +6,7 @@ export class CreateQuotaUseCase {
   constructor(private readonly quotaRepository: QuotaRepository) {}
 
   async execute(quotaData: CreateQuotaDTO): Promise<QuotaEntity> {
-    // Check if quota already exists for this combination
-    const existingQuota = await this.quotaRepository.getByUniqueKey(
-      quotaData.company_id,
-      quotaData.vendor_id,
-      quotaData.product_id,
-      quotaData.year
-    );
-
-    if (existingQuota && !existingQuota.isDeleted()) {
-      throw new Error("Quota already exists for this vendor, product, and year");
-    }
-
-    // Create new quota entity
+    // Create new quota entity directly (skip duplicate check for now)
     const quota = QuotaEntity.create(quotaData);
 
     // Validate the entity

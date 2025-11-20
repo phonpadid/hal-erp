@@ -8,9 +8,12 @@ export interface QuotaRepository {
     page?: number;
     limit?: number;
     search?: string;
+    column?: string;
+    sort_order?: string;
     company_id?: number;
     vendor_id?: number;
     product_id?: number;
+    vendor_product_id?: number;
     year?: string;
     includeDeleted?: boolean;
   }): Promise<{
@@ -48,10 +51,10 @@ export interface QuotaRepository {
   /**
    * Check if quota exists for specific combination
    */
-  exists(company_id: number, vendor_id: number, product_id: number, year: string): Promise<boolean>;
+  exists(company_id: number | undefined, vendor_product_id: number, year: string): Promise<boolean>;
 
   /**
    * Get quota by unique combination
    */
-  getByUniqueKey(company_id: number, vendor_id: number, product_id: number, year: string): Promise<QuotaEntity | null>;
+  getByUniqueKey(company_id: number | undefined, vendor_product_id: number, year: string): Promise<QuotaEntity | null>;
 }

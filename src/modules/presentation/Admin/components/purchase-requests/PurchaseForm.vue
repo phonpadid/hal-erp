@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 // --- YOUR SHARED COMPONENTS ---
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
@@ -32,6 +33,7 @@ import type {
 import { useUnitStore } from "../../stores/unit.store";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 import { departmenUsertStore } from "../../stores/departments/department-user.store";
+import { useQuotaStore } from "../../stores/quotas/quota.store";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 import { Icon } from "@iconify/vue";
 
@@ -51,15 +53,59 @@ const props = defineProps<{
 const purchaseRequestStore = usePurchaseRequestsStore();
 const unitStore = useUnitStore();
 const userLocal = departmenUsertStore();
+const quotaStore = useQuotaStore();
 
 const units: Ref<UnitEntity[]> = ref([]);
+const selectedQuotaCompanyId = ref<string>("");
+
+// Computed property for quota options with company names but company_id as value
+const quotaOptions = computed(() => {
+  const quotas = quotaStore.quotas;
+  console.log("PurchaseForm: Computing quota options from:", quotas.length, "quotas");
+
+  const uniqueCompanies = new Map();
+  quotas.forEach(quota => {
+    const companyId = quota.getCompanyId();
+    console.log("Processing quota:", {
+      id: quota.getId(),
+      companyId: companyId,
+      vendorProductId: quota.getVendorProductId(),
+      qty: quota.getQty(),
+      year: quota.getYear()
+    });
+
+    if (companyId && !uniqueCompanies.has(companyId.toString())) {
+      // You can customize the label to show company name instead of ID
+      // For now, I'll show both ID and company name in a readable format
+      uniqueCompanies.set(companyId.toString(), {
+        value: companyId.toString(),
+        label: `ບໍລິສັດ ${companyId}`,
+      });
+    }
+  });
+
+  const options = Array.from(uniqueCompanies.values());
+  console.log("PurchaseForm: Final quota options:", options);
+  return options;
+});
 
 const userPosition = ref("ພະແນກການເງິນ, ພະນັກງານ");
 const departmentUser = userLocal.currentDpmUser;
 
 onMounted(async () => {
+  console.log("PurchaseForm: Starting data fetch...");
   await unitStore.fetchUnits({ page: 1, limit: 1000 });
+
+  console.log("PurchaseForm: Fetching quotas...");
+  try {
+    await quotaStore.fetchQuotas({ page: 1, limit: 1000 });
+    console.log("PurchaseForm: Quotas fetched successfully:", quotaStore.quotas.length);
+  } catch (error) {
+    console.error("PurchaseForm: Failed to fetch quotas:", error);
+  }
+
   units.value = unitStore.activeUnits;
+
   if (props.isEditing && props.requestId) {
     const existingData = await purchaseRequestStore.fetchById(props.requestId);
     if (existingData) {
@@ -211,6 +257,7 @@ async function handleSave(): Promise<any | null> {
           documentTypeId: Number(props.documentTypeId),
         },
         purchase_request_items: itemsPayload,
+        quota_company_id: selectedQuotaCompanyId.value,
       };
       result = await purchaseRequestStore.create(createPayload);
     }
@@ -304,6 +351,21 @@ defineExpose({
           :placeholder="t('purchase-rq.phd.purpose', 'ລະບຸວັດຖຸປະສົງໃນການຂໍຊື້')"
           class="w-full min-h-[100px]"
         />
+      </div>
+
+      <!-- Quota section -->
+      <div class="mb-4">
+        <h3 class="text-lg font-medium mb-4">
+          ເລືອກ Quota ບໍລິສັດ
+        </h3>
+        <div class="w-full max-w-md">
+          <InputSelect
+            v-model="selectedQuotaCompanyId"
+            :options="quotaOptions"
+            placeholder="ເລືອກ Quota ບໍລິສັດ"
+            class="w-full"
+          />
+        </div>
       </div>
 
       <!-- Items section -->
