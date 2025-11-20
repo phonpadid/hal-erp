@@ -6,9 +6,9 @@ import { usePermissions } from "../store/usePermissions";
 import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
 const rStore = useReceiptStore();
 export const menuItems = computed<ItemType[]>(() => {
-  const { hasPermission } = usePermissions();
+  const { hasPermission, hasCompanyPermission } = usePermissions();
   const manageMenuItems = [
-    { key: "position.index", label: t("menu-sidebar.position"), permission: "read-position" },
+    { key: "position.index", label: t("menu-sidebar.position"), companyPermission: "read-position" },
 
     { key: "currencies.index", label: t("menu-sidebar.currency"), permission: "read-currency" },
 
@@ -47,7 +47,7 @@ export const menuItems = computed<ItemType[]>(() => {
 
       label: t("menu-sidebar.approval_workflow"),
 
-      permission: "read-approval-workflow",
+      companyPermission: "read-approval-workflow",
     },
     {
       key: "exchange-rate.index",
@@ -56,27 +56,37 @@ export const menuItems = computed<ItemType[]>(() => {
     },
 
     { key: "quotas", label: t("menu-sidebar.quota"), permission: "read-quota" },
-  ].filter((item) => hasPermission(item.permission));
+  ].filter((item) => {
+    if (item.companyPermission) {
+      return hasCompanyPermission(item.companyPermission);
+    }
+    return hasPermission(item.permission!);
+  });
 
   const departmentMenuItems = [
-    { key: "department.index", label: t("menu-sidebar.department"), permission: "read-department" },
+    { key: "department.index", label: t("menu-sidebar.department"), companyPermission: "read-department" },
     {
       key: "department_approver.index",
       label: t("menu-sidebar.department_approver"),
-      permission: "read-department-approver",
+      companyPermission: "read-department-approver",
     },
     {
       key: "department_user.index",
       label: t("menu-sidebar.department_user"),
-      permission: "read-department-user",
+      companyPermission: "read-department-user",
     },
-  ].filter((item) => hasPermission(item.permission));
+    {
+      key: "department_role.index",
+      label: t("menu-sidebar.department_role"),
+      companyPermission: "read-department-role",
+    },
+  ].filter((item) => hasCompanyPermission(item.companyPermission));
 
   const budgetMenuItems = [
     {
       key: "budget-accounts",
       label: t("menu-sidebar.budget_account"),
-      permission: "read-budget-account",
+      companyPermission: "read-budget-account",
     },
     // {
     //   key: "budget-items",
@@ -86,9 +96,9 @@ export const menuItems = computed<ItemType[]>(() => {
     {
       key: "budget_apv_rule.index",
       label: t("menu-sidebar.budget_apv_rule"),
-      permission: "read-budget-approval-rule",
+      companyPermission: "read-budget-approval-rule",
     },
-  ].filter((item) => hasPermission(item.permission));
+  ].filter((item) => hasCompanyPermission(item.companyPermission));
 
   // const budgetApprovalMenuItems = [
   //   {
@@ -116,20 +126,20 @@ export const menuItems = computed<ItemType[]>(() => {
   //   },
   // ].filter((item) => hasPermission(item.permission));
 
-  const budgetApprovalRuleMenuItems = [
-    {
-      key: "budget_apv_rule.index",
-      label: t("menu-sidebar.budget_apv_rule"),
-      icon: () =>
-        h("div", {}, [
-          h(Icon, {
-            icon: "mdi:account-check",
-            class: "text-base",
-          }),
-        ]),
-      permission: "read-budget-approval-rule",
-    },
-  ].filter((item) => hasPermission(item.permission));
+  // const budgetApprovalRuleMenuItems = [
+  //   {
+  //     key: "budget_apv_rule.index",
+  //     label: t("menu-sidebar.budget_apv_rule"),
+  //     icon: () =>
+  //       h("div", {}, [
+  //         h(Icon, {
+  //           icon: "mdi:account-check",
+  //           class: "text-base",
+  //         }),
+  //       ]),
+  //     permission: "read-budget-approval-rule",
+  //   },
+  // ].filter((item) => hasPermission(item.permission));
   const reportMenu = [
     {
       key: "report_pr",
@@ -146,7 +156,7 @@ export const menuItems = computed<ItemType[]>(() => {
       label: t("menu-sidebar.report_receipt"),
       permission: "read-budget-approval-rule",
     },
-   
+
   ].filter((item) => hasPermission(item.permission));
 
   const receiptsMenuItems = [
@@ -174,20 +184,20 @@ export const menuItems = computed<ItemType[]>(() => {
     },
   ].filter((item) => hasPermission(item.permission));
 
-  const userApprovalMenuItems = [
-    {
-      key: "user_approval.index",
-      label: t("menu-sidebar.user_approval"),
-      icon: () =>
-        h("div", {}, [
-          h(Icon, {
-            icon: "ic:outline-imagesearch-roller",
-            class: "text-base",
-          }),
-        ]),
-      permission: "read-user-approval",
-    },
-  ].filter((item) => hasPermission(item.permission));
+  // const userApprovalMenuItems = [
+  //   {
+  //     key: "user_approval.index",
+  //     label: t("menu-sidebar.user_approval"),
+  //     icon: () =>
+  //       h("div", {}, [
+  //         h(Icon, {
+  //           icon: "ic:outline-imagesearch-roller",
+  //           class: "text-base",
+  //         }),
+  //       ]),
+  //     permission: "read-user-approval",
+  //   },
+  // ].filter((item) => hasPermission(item.permission));
 
   const userManageMenuItems = [
     { key: "userList", label: t("menu-sidebar.user"), permission: "read-user" },
@@ -481,8 +491,8 @@ export const menuItems = computed<ItemType[]>(() => {
         //   icon: () => h(Icon, { icon: "solar:archive-check-broken", class: "text-base" }),
         //   permission: "read-director-list",
         // },
-        ...userApprovalMenuItems,
-        ...budgetApprovalRuleMenuItems,
+        // ...userApprovalMenuItems,
+        // ...budgetApprovalRuleMenuItems,
         // ...reportMenu,
         ...(reportMenu.length > 0
           ? [
@@ -514,7 +524,7 @@ export const menuItems = computed<ItemType[]>(() => {
           : []),
       ],
       type: "group",
-      
+
     },
   ];
 

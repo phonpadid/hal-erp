@@ -109,9 +109,7 @@ export class ApiRoleRepository implements RoleRepository {
   async update(id: string, data: UpdateRole): Promise<Role> {
     try {
       const payload = {
-        department_id: data.department_id,
         name: data.name,
-        permissions: data.permissions,
       };
       const response = (await api.put(`/roles/${id}`, payload)) as {
         data: ApiResponse<Roleinterface>;
@@ -137,6 +135,8 @@ export class ApiRoleRepository implements RoleRepository {
   }
 
   private toDomainModel(data: Roleinterface): Role {
+    console.log('hhh:', data);
+
     return new Role(
       data.id.toString(),
       data.name,

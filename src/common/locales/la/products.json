@@ -20,6 +20,7 @@
     "name": "ຊື່ສິນຄ້າ",
     "description": "ລາຍລະອຽດ",
     "productType": "ປະເພດສິນຄ້າ",
+    "unit": "ຫົວໜ່ວຍ",
     "status": "ສະຖານະ",
     "created": "ເວລາສ້າງ",
     "updated": "ເວລາແກ້ໄຂ",
@@ -60,7 +61,9 @@
     "description": "ລາຍລະອຽດ",
     "descriptionPlaceholder": "ປ້ອນລາຍລະອຽດສິນຄ້າ",
     "productType": "ປະເພດສິນຄ້າ",
-    "productTypePlaceholder": "ເລືອກປະເພດສິນຄ້າ"
+    "productTypePlaceholder": "ເລືອກປະເພດສິນຄ້າ",
+    "unit": "ຫົວໜ່ວຍ",
+    "unitPlaceholder": "ເລືອກຫົວໜ່ວຍ (ບໍ່ຈຳເປັນຕ້ອງ)"
   },
    "success": {
     "title": "ສຳເລັດ",

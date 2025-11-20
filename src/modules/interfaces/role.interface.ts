@@ -10,14 +10,10 @@ export interface Roleinterface {
 }
 
 export interface CreateRole {
-  department_id?: number;
   name: string;
-  permissions: number[];
 }
 export interface UpdateRole {
-  department_id?: number;
   name?: string;
-  permissions?: number[];
 }
 export interface RoleResponse {
   id: number;

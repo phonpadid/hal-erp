@@ -14,11 +14,11 @@ export class MockProductRepository implements ProductRepository {
   private initializeMockData() {
     // Add some sample products for testing
     const mockProducts = [
-      { name: "Laptop Computer", description: "High-performance laptop for work", product_type_id: 1, status: "active" },
-      { name: "Office Chair", description: "Ergonomic office chair", product_type_id: 2, status: "active" },
-      { name: "Desk Phone", description: "Multi-line desk phone", product_type_id: 3, status: "active" },
-      { name: "Printer", description: "Laser printer for office", product_type_id: 1, status: "active" },
-      { name: "Monitor", description: "24-inch LED monitor", product_type_id: 1, status: "active" },
+      { name: "Laptop Computer", description: "High-performance laptop for work", product_type_id: 1, unit_id: "1", status: "active" },
+      { name: "Office Chair", description: "Ergonomic office chair", product_type_id: 2, unit_id: "2", status: "active" },
+      { name: "Desk Phone", description: "Multi-line desk phone", product_type_id: 3, unit_id: "1", status: "active" },
+      { name: "Printer", description: "Laser printer for office", product_type_id: 1, unit_id: "1", status: "active" },
+      { name: "Monitor", description: "24-inch LED monitor", product_type_id: 1, unit_id: "3", status: "active" },
     ];
 
     mockProducts.forEach(productData => {
@@ -27,6 +27,7 @@ export class MockProductRepository implements ProductRepository {
         productData.name,
         productData.description,
         productData.product_type_id,
+        productData.unit_id,
         productData.status
       );
       this.products.push(product);
@@ -89,6 +90,7 @@ export class MockProductRepository implements ProductRepository {
       productData.name,
       productData.description,
       productData.product_type_id,
+      productData.unit_id || null,
       "active" // Default status for new products
     );
 
@@ -118,6 +120,10 @@ export class MockProductRepository implements ProductRepository {
 
     if (productData.product_type_id !== undefined) {
       product.updateProductTypeId(productData.product_type_id);
+    }
+
+    if (productData.unit_id !== undefined) {
+      product.updateUnitId(productData.unit_id);
     }
 
     if (productData.status !== undefined) {
@@ -157,5 +163,9 @@ export class MockProductRepository implements ProductRepository {
 
   async findByProductTypeId(productTypeId: number): Promise<ProductEntity[]> {
     return this.products.filter(p => p.getProductTypeId() === productTypeId && !p.isDeleted());
+  }
+
+  async findByUnitId(unitId: string): Promise<ProductEntity[]> {
+    return this.products.filter(p => p.getUnitId() === unitId && !p.isDeleted());
   }
 }

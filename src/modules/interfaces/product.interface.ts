@@ -3,6 +3,7 @@ export interface ProductInterface {
   name: string;
   description: string;
   product_type_id: number;
+  unit_id?: number | null;
   status: string;
   created_at?: string;
   updated_at?: string;
@@ -13,6 +14,7 @@ export interface ProductCreate {
   name: string;
   description: string;
   product_type_id: number;
+  unit_id?: number | null;
 }
 
 export interface ProductUpdate {
@@ -20,6 +22,7 @@ export interface ProductUpdate {
   name?: string;
   description?: string;
   product_type_id?: number;
+  unit_id?: number | null;
   status?: string;
 }
 
@@ -28,6 +31,7 @@ export interface ProductApiModel {
   name: string;
   description: string;
   product_type_id: number;
+  unit_id?: number | null;
   status: string;
   created_at: string;
   updated_at: string;

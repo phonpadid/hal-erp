@@ -18,6 +18,11 @@ export function Columns(t: (key: string) => string): Column[] {
       key: "product_type_id",
     },
     {
+      title: t("products.field.unit"),
+      dataIndex: "unit_id",
+      key: "unit_id",
+    },
+    {
       title: t("products.field.status"),
       dataIndex: "status",
       key: "status",
