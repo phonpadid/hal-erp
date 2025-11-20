@@ -22,6 +22,7 @@ export const useAuthStore = defineStore("auth", () => {
   const user: Ref<AuthEntity | null> = ref(null);
   const userPermissions: Ref<string[]> = ref([]);
   const userRoles: Ref<string[]> = ref([]);
+  const userType: Ref<string[]> = ref([]);
   const loading = ref(false);
   const error: Ref<Error | null> = ref(null);
 
@@ -97,11 +98,12 @@ export const useAuthStore = defineStore("auth", () => {
     const userData = localStorage.getItem("userData");
     const storedPermissions = localStorage.getItem("userPermissions");
     const storedRoles = localStorage.getItem("userRoles");
-
-    if (token && userData && storedPermissions && storedRoles) {
+    const storedUserType = localStorage.getItem("userType");
+    if (token && userData && storedPermissions && storedRoles && storedUserType) {
       const parsedUser = JSON.parse(userData);
       const permissions = JSON.parse(storedPermissions);
       const roles = JSON.parse(storedRoles);
+      const user_type = JSON.parse(storedUserType);
 
       user.value = new AuthEntity(
         parsedUser.id,
@@ -120,6 +122,7 @@ export const useAuthStore = defineStore("auth", () => {
       );
       userPermissions.value = permissions;
       userRoles.value = roles;
+      userType.value = user_type;
     }
   };
 
@@ -129,6 +132,10 @@ export const useAuthStore = defineStore("auth", () => {
   };
   const isSuperAdmin = computed(() => userRoles.value.includes("super-admin"));
   const isAdmin = computed(() => userRoles.value.includes("admin"));
+
+  const isUserTypeCompanyAdmin = computed(() => userType.value.includes("company_user"));
+  const isCompanyAdmin = computed(() => userRoles.value.includes("company-admin"));
+  const isCompanyUser = computed(() => userRoles.value.includes("company-user"));
 
   initializeUser();
 
@@ -143,5 +150,8 @@ export const useAuthStore = defineStore("auth", () => {
     checkSession,
     isSuperAdmin,
     isAdmin,
+    isCompanyAdmin,
+    isCompanyUser,
+    isUserTypeCompanyAdmin
   };
 });

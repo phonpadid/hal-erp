@@ -1,4 +1,5 @@
 import type { UnitRepository } from "@/modules/domain/repository/unit.repository";
+import type { ProductRepository } from "@/modules/domain/repository/product.repository";
 import type { UnitEntity } from "../../domain/entities/unit.entity";
 import type { CreateUnitDTO, UpdateUnitDTO } from "../dtos/unit.dto";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
@@ -16,11 +17,14 @@ export class UnitServiceImpl implements UnitService {
   private readonly deleteUnitUseCase: DeleteUnitUseCase;
   private readonly restoreUnitUseCase: RestoreUnitUseCase;
 
-  constructor(private readonly unitRepository: UnitRepository) {
+  constructor(
+    private readonly unitRepository: UnitRepository,
+    private readonly productRepository: ProductRepository
+  ) {
     this.createUnitUseCase = new CreateUnitUseCase(unitRepository);
     this.getUnitUseCase = new GetUnitUseCase(unitRepository);
     this.updateUnitUseCase = new UpdateUnitUseCase(unitRepository);
-    this.deleteUnitUseCase = new DeleteUnitUseCase(unitRepository);
+    this.deleteUnitUseCase = new DeleteUnitUseCase(unitRepository, productRepository);
     this.restoreUnitUseCase = new RestoreUnitUseCase(unitRepository);
   }
 

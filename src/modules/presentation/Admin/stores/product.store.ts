@@ -49,6 +49,7 @@ export const useProductStore = defineStore("product", () => {
     name: product.getName(),
     description: product.getDescription(),
     product_type_id: product.getProductTypeId(),
+    unit_id: product.getUnitId() ? parseInt(product.getUnitId() as string) : null,
     status: product.getStatus(),
     created_at: product.getCreatedAt(),
     updated_at: product.getUpdatedAt(),

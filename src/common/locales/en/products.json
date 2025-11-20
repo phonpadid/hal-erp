@@ -20,6 +20,7 @@
     "name": "Product Name",
     "description": "Description",
     "productType": "Product Type",
+    "unit": "Unit",
     "status": "Status",
     "created": "Created At",
     "updated": "Updated At",
@@ -60,7 +61,9 @@
     "description": "Description",
     "descriptionPlaceholder": "Enter product description",
     "productType": "Product Type",
-    "productTypePlaceholder": "Select product type"
+    "productTypePlaceholder": "Select product type",
+    "unit": "Unit",
+    "unitPlaceholder": "Select unit (optional)"
   },
    "success": {
     "title": "Success",
