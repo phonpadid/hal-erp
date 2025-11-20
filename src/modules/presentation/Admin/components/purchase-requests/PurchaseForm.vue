@@ -34,6 +34,7 @@ import { useUnitStore } from "../../stores/unit.store";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 import { departmenUsertStore } from "../../stores/departments/department-user.store";
 import { useQuotaStore } from "../../stores/quotas/quota.store";
+import { useVendorStore } from "../../stores/vendors/vendor.store";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 import { Icon } from "@iconify/vue";
 
@@ -54,39 +55,71 @@ const purchaseRequestStore = usePurchaseRequestsStore();
 const unitStore = useUnitStore();
 const userLocal = departmenUsertStore();
 const quotaStore = useQuotaStore();
+const vendorStore = useVendorStore();
 
 const units: Ref<UnitEntity[]> = ref([]);
-const selectedQuotaCompanyId = ref<string>("");
+const selectedQuotaId = ref<string>("");
+const selectedVendorId = ref<string>("");
+const vendors = computed(() => vendorStore.activeVendors);
 
-// Computed property for quota options with company names but company_id as value
+// Helper function to extract year from date string
+const extractYear = (dateString: string): string => {
+  if (!dateString) return "N/A";
+  // Handle formats like "2025-01-01" or full datetime
+  const yearMatch = dateString.match(/(\d{4})/);
+  return yearMatch ? yearMatch[1] : dateString;
+};
+
+// Computed property for quota options showing quota info with product details
 const quotaOptions = computed(() => {
   const quotas = quotaStore.quotas;
-  console.log("PurchaseForm: Computing quota options from:", quotas.length, "quotas");
+  return quotas.map(quota => {
+    const quotaEntity = quota as any;
+    const quotaId = quota.getId();
+    const qty = quota.getQty();
+    const year = extractYear(quota.getYear());
 
-  const uniqueCompanies = new Map();
-  quotas.forEach(quota => {
-    const companyId = quota.getCompanyId();
+    // Get product info from the enhanced quota entity
+    const vendorProduct = quotaEntity.vendor_product;
+    const product = quotaEntity.product || vendorProduct?.product;
+    const productName = product?.name || `ສິນຄ້າ #${quota.getVendorProductId()}`;
+    const price = vendorProduct?.price || "0";
+
     console.log("Processing quota:", {
-      id: quota.getId(),
-      companyId: companyId,
-      vendorProductId: quota.getVendorProductId(),
-      qty: quota.getQty(),
-      year: quota.getYear()
+      id: quotaId,
+      productName,
+      qty,
+      year,
+      price
     });
 
-    if (companyId && !uniqueCompanies.has(companyId.toString())) {
-      // You can customize the label to show company name instead of ID
-      // For now, I'll show both ID and company name in a readable format
-      uniqueCompanies.set(companyId.toString(), {
-        value: companyId.toString(),
-        label: `ບໍລິສັດ ${companyId}`,
-      });
-    }
+    return {
+      value: quotaId,
+      label: `${productName} - ${year} (${qty} ຊຸດ) - ${parseInt(price).toLocaleString()} ກີບ`,
+    };
   });
+});
 
-  const options = Array.from(uniqueCompanies.values());
-  console.log("PurchaseForm: Final quota options:", options);
-  return options;
+// Computed property for selected quota details
+const selectedQuotaDetails = computed(() => {
+  if (!selectedQuotaId.value) return null;
+
+  const quota = quotaStore.quotas.find(q => q.getId() === selectedQuotaId.value);
+  if (!quota) return null;
+
+  const quotaEntity = quota as any;
+  const vendorProduct = quotaEntity.vendor_product;
+  const product = quotaEntity.product || vendorProduct?.product;
+
+  return {
+    id: quota.getId(),
+    productName: product?.name || "N/A",
+    productDescription: product?.description || "",
+    qty: quota.getQty(),
+    year: extractYear(quota.getYear()),
+    price: vendorProduct?.price || "0",
+    productType: product?.product_type?.name || "",
+  };
 });
 
 const userPosition = ref("ພະແນກການເງິນ, ພະນັກງານ");
@@ -95,6 +128,9 @@ const departmentUser = userLocal.currentDpmUser;
 onMounted(async () => {
   console.log("PurchaseForm: Starting data fetch...");
   await unitStore.fetchUnits({ page: 1, limit: 1000 });
+
+  // Fetch vendors
+  await vendorStore.fetchVendors({ page: 1, limit: 1000 });
 
   console.log("PurchaseForm: Fetching quotas...");
   try {
@@ -206,6 +242,42 @@ function getFormData() {
   return formState.value;
 }
 
+// Get quota_company_id from selected quota
+function getQuotaId(): number | undefined {
+  if (!selectedQuotaId.value) return undefined;
+
+  return Number(selectedQuotaId.value);
+}
+
+// Fetch quotas by selected vendor
+const fetchQuotasByVendor = async (vendorId: string) => {
+  if (!vendorId) {
+    // If no vendor selected, fetch all quotas
+    await quotaStore.fetchQuotas({ page: 1, limit: 1000 });
+    return;
+  }
+
+  try {
+    console.log("Fetching quotas for vendor:", vendorId);
+    await quotaStore.fetchQuotas({
+      page: 1,
+      limit: 1000,
+      vendor_id: Number(vendorId)
+    });
+    console.log("Quotas fetched for vendor:", quotaStore.quotas.length);
+  } catch (error) {
+    console.error("Error fetching quotas for vendor:", error);
+    message.error("ບໍ່ສາມາດໂຫຼດขໍ້ມູນ Quota ຕາມຮ້ານຄ້ານີ້ໄດ້");
+  }
+};
+
+// Handle vendor selection change
+const handleVendorChange = (vendorId: string) => {
+  selectedVendorId.value = vendorId;
+  selectedQuotaId.value = ""; // Reset quota selection when vendor changes
+  fetchQuotasByVendor(vendorId);
+};
+
 async function handleSave(): Promise<any | null> {
   loading.value = true;
   const isValid = await validateForm();
@@ -222,6 +294,23 @@ async function handleSave(): Promise<any | null> {
     return null;
   }
 
+  // Validate quota selection
+  if (!props.isEditing && !selectedQuotaId.value) {
+    message.error("ກະລຸນາເລືອກ Quota ສິນຄ້າ");
+    loading.value = false;
+    return null;
+  }
+
+  // Validate that quota is selected
+  if (!props.isEditing && !getQuotaId()) {
+    message.error("ກະລຸນາເລືອກ Quota ສິນຄ້າ");
+    loading.value = false;
+    return null;
+  }
+
+  const quotaId = getQuotaId();
+  console.log("Creating itemsPayload with quota_company_id:", quotaId);
+
   const itemsPayload = formData.addMore.map((item) => ({
     ...(item.id && { id: item.id }),
     title: item.title,
@@ -230,7 +319,10 @@ async function handleSave(): Promise<any | null> {
     price: item.price || 0,
     remark: item.remark,
     unit_id: item.unit_id!,
+    quota_company_id: quotaId,
   }));
+
+  console.log("Final itemsPayload:", itemsPayload);
 
   try {
     let result;
@@ -257,7 +349,6 @@ async function handleSave(): Promise<any | null> {
           documentTypeId: Number(props.documentTypeId),
         },
         purchase_request_items: itemsPayload,
-        quota_company_id: selectedQuotaCompanyId.value,
       };
       result = await purchaseRequestStore.create(createPayload);
     }
@@ -353,18 +444,103 @@ defineExpose({
         />
       </div>
 
-      <!-- Quota section -->
-      <div class="mb-4">
-        <h3 class="text-lg font-medium mb-4">
-          ເລືອກ Quota ບໍລິສັດ
-        </h3>
-        <div class="w-full max-w-md">
-          <InputSelect
-            v-model="selectedQuotaCompanyId"
-            :options="quotaOptions"
-            placeholder="ເລືອກ Quota ບໍລິສັດ"
-            class="w-full"
-          />
+      <!-- Vendor & Quota section -->
+      <div class="mb-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Vendor Selection -->
+          <div>
+            <h3 class="text-lg font-medium mb-4 flex items-center gap-2">
+              <Icon icon="mdi:store" class="text-blue-600" />
+              ເລືອກຮ້ານຄ້າ
+            </h3>
+            <InputSelect
+              v-model="selectedVendorId"
+              :options="[
+                { value: '', label: 'ເລືອກຮ້ານຄ້າ' },
+                ...vendors.map(vendor => ({
+                  value: vendor.getId(),
+                  label: vendor.getname()
+                }))
+              ]"
+              placeholder="ເລືອກຮ້ານຄ້າ"
+              class="w-full"
+              @update:value="handleVendorChange"
+            />
+            <!-- <div v-if="selectedVendorId" class="mt-2 p-3 bg-blue-50 rounded border border-blue-200">
+              <p class="text-sm text-blue-700 font-medium">
+                ຮ້ານຄ້າທີ່ເລືອກ: {{ vendors.find(v => v.getId() === selectedVendorId)?.getname() }}
+              </p>
+            </div> -->
+          </div>
+
+          <!-- Quota Selection -->
+          <div>
+            <h3 class="text-lg font-medium mb-4 flex items-center gap-2">
+              <Icon icon="mdi:package-variant" class="text-green-600" />
+              ເລືອກ Quota ສິນຄ້າ
+            </h3>
+            <InputSelect
+              
+              v-model="selectedQuotaId"
+              :options="quotaOptions"
+              placeholder="ເລືອກ Quota ສິນຄ້າ"
+              class="w-full"
+            />
+            <div v-if="!selectedVendorId && selectedQuotaId" class="mt-2 p-3 bg-yellow-50 rounded border border-yellow-200">
+              <p class="text-sm text-yellow-700">
+                <Icon icon="mdi:information" class="inline mr-1" />
+                ແນະນຳ: ເລືອກຮ້ານຄ້າເພື່ອສະແດງ Quota ສະເພາະຮ້ານຄ້ານັ້ນໆ
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quota Details Display (Compact) -->
+        <div v-if="selectedQuotaDetails" class="mt-6">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-semibold text-gray-800 text-sm flex items-center gap-1">
+              <Icon icon="mdi:clipboard-text" class="text-blue-500 text-base" />
+              ລາຍລະອຽດ Quota
+            </h4>
+          </div>
+          <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200 p-3">
+            <div class="flex flex-wrap items-center gap-4 text-sm">
+              <!-- Product Name -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-500 font-medium">ສິນຄ້າ:</span>
+                <span class="font-semibold text-gray-900">{{ selectedQuotaDetails.productName }}</span>
+              </div>
+
+              <!-- Year -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-500 font-medium">ປີ:</span>
+                <span class="font-semibold text-gray-700 bg-white px-2 py-1 rounded">{{ selectedQuotaDetails.year }}</span>
+              </div>
+
+              <!-- Quantity -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-500 font-medium">ຈຳນວນ:</span>
+                <span class="font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">{{ selectedQuotaDetails.qty }} ຊຸດ</span>
+              </div>
+
+              <!-- Price -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-500 font-medium">ລາຄາ:</span>
+                <span class="font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">{{ parseInt(selectedQuotaDetails.price).toLocaleString() }} ກີບ</span>
+              </div>
+
+              <!-- Product Type -->
+              <div v-if="selectedQuotaDetails.productType" class="flex items-center gap-2">
+                <span class="text-xs text-gray-500 font-medium">ປະເພດ:</span>
+                <span class="font-medium text-gray-700 bg-gray-50 px-2 py-1 rounded text-xs">{{ selectedQuotaDetails.productType }}</span>
+              </div>
+            </div>
+
+            <!-- Product Description (if exists) -->
+            <div v-if="selectedQuotaDetails.productDescription" class="mt-2 pt-2 border-t border-blue-100">
+              <p class="text-xs text-gray-600 italic">{{ selectedQuotaDetails.productDescription }}</p>
+            </div>
+          </div>
         </div>
       </div>
 

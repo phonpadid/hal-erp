@@ -11,6 +11,7 @@ export interface PurchaseRequestItemParams {
   price: number;
   total: number;
   remark?: string;
+  quotaId?: number;
 }
 export interface Department {
   id: number;

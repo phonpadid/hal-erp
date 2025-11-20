@@ -25,6 +25,9 @@ export class PurchaseRequestServiceImpl implements PurchaseRequestService {
     this.getAllUseCase = new GetAllPurchaseRequestUseCase(approvalFlowRepo);
   }
   async create(input: CreatePurchaseRequestDTO): Promise<PurchaseRequestEntity> {
+    console.log("PurchaseRequestService - create - input:", input);
+    console.log("PurchaseRequestService - purchase_request_items:", input.purchase_request_items);
+
     return await this.createUseCase.execute(input);
   }
 

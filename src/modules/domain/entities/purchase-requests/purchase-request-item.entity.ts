@@ -13,6 +13,7 @@ export class PurchaseRequestItemEntity {
   private total_price: number;
   private purchase_request: PurchaseRequestEntity | null;
   private remark: string;
+  private quota_company_id: number | null;
   private createdAt: string | null;
   private updatedAt: string | null;
   private deletedAt: string | null;
@@ -29,6 +30,7 @@ export class PurchaseRequestItemEntity {
     total_price: number = 0,
     purchase_request: PurchaseRequestEntity | null = null,
     remark: string = "",
+    quota_company_id: number | null = null,
     createdAt: string | null = null,
     updatedAt: string | null = null,
     deletedAt: string | null = null
@@ -44,6 +46,7 @@ export class PurchaseRequestItemEntity {
     this.file_name_url = file_name_url;
     this.purchase_request = purchase_request;
     this.remark = remark;
+    this.quota_company_id = quota_company_id;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.deletedAt = deletedAt;
@@ -104,6 +107,10 @@ export class PurchaseRequestItemEntity {
     return this.deletedAt;
   }
 
+  public getQuotaId(): number | null {
+    return this.quota_company_id;
+  }
+
   public update(
     title: string,
     file_name: string | null = null,
@@ -111,7 +118,8 @@ export class PurchaseRequestItemEntity {
     unit_id: string,
     price: number,
     total_price: number,
-    remark: string = ""
+    remark: string = "",
+    quota_company_id: number | null = null
   ): void {
     this.title = title;
     this.file_name = file_name;
@@ -120,6 +128,7 @@ export class PurchaseRequestItemEntity {
     this.price = price;
     this.total_price = total_price;
     this.remark = remark;
+    this.quota_company_id = quota_company_id;
     this.updatedAt = new Date().toISOString();
   }
 
@@ -140,7 +149,8 @@ export class PurchaseRequestItemEntity {
     unit_id: string,
     price: number,
     total_price: number,
-    remark: string = ""
+    remark: string = "",
+    quota_id: number | null = null
   ): PurchaseRequestItemEntity {
     return new PurchaseRequestItemEntity(
       null,
@@ -154,6 +164,7 @@ export class PurchaseRequestItemEntity {
       total_price,
       null,
       remark,
+      quota_id,
       null,
       null,
       null
