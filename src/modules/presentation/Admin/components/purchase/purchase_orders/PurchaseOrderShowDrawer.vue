@@ -1,10 +1,43 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { columns } from "../../../views/purchase_requests/column";
 import { useI18n } from "vue-i18n";
 import { purchaseRequestData } from "@/modules/shared/utils/purchaseRequestDetails";
 import Table from "@/common/shared/components/table/Table.vue";
+import { useAuthStore } from "../../../stores/authentication/auth.store";
 /********************************************************* */
 const { t } = useI18n();
+const authStore = useAuthStore();
+
+// Get user signature from localStorage
+const userSignature = computed(() => {
+  // Try to get signature from auth store user data first
+  if (authStore.user?.getSignature()) {
+    return authStore.user.getSignature();
+  }
+
+  // Fallback to localStorage directly
+  try {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      return parsedData.signature;
+    }
+  } catch (error) {
+    console.error('Error parsing userData from localStorage:', error);
+  }
+
+  // Fallback to default signature image if no signature found
+  return '/public/2.png';
+});
+
+// Handle signature image error
+const handleSignatureError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  // Fallback to default signature image if user signature fails to load
+  img.src = '/public/2.png';
+};
+
 // Document details
 const documentDetails = {
   requester: {
@@ -17,20 +50,20 @@ const documentDetails = {
 };
 
 // Signatures
-const signatures = [
+const signatures = computed(() => [
   {
     role: "ຜູ້ສະເໜີ",
-    name: "ພົມມະກອນ ຄວາມຄູ",
-    position: "ພະນັກງານພັດທະນາລະບົບ",
-    signature: "/public/2.png",
+    name: authStore.user?.getUsername() || "ຜູ້ສະເໜີ",
+    position: authStore.user?.getDepartmentName() || "ພະນັກງານພັດທະນາລະບົບ",
+    signature: userSignature.value,
   },
   {
     role: "ອະນຸມັດ",
     name: "ສຸກສະຫວັນ ພົນໂຍທາ",
     position: "ຫົວໜ້າພະແນກພັດທະນາລະບົບ",
-    signature: "/public/3.png",
+    signature: "/public/3.png", // Keep this as default for approver
   },
-];
+]);
 </script>
 
 <template>
@@ -86,7 +119,12 @@ const signatures = [
       <h4 class="text-base font-semibold mb-4 col-span-2">ລາຍເຊັ່ນ</h4>
       <div v-for="(sig, index) in signatures" :key="index" class="text-center">
         <p class="font-semibold mb-2">{{ sig.role }}</p>
-        <img :src="sig.signature" :alt="`${sig.role} signature`" class="h-16 mx-auto mb-2" />
+        <img
+          :src="sig.signature"
+          :alt="`${sig.role} signature`"
+          class="h-16 mx-auto mb-2"
+          @error="handleSignatureError"
+        />
         <p class="font-semibold">{{ sig.name }}</p>
         <p class="text-gray-600">{{ sig.position }}</p>
       </div>

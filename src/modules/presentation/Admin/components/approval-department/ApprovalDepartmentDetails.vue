@@ -268,58 +268,16 @@
       </div>
     </template>
   </UiModal>
-  <!-- OTP -->
-  <UiModal
-    title="ລາຍເຊັນ"
-    title-icon="material-symbols-light:signature"
+  <!-- OTP Modal -->
+  <OtpModal
     :visible="isOtpModalVisible"
-    :confirm-loading="confirmLoading"
-    @update:visible="isOtpModalVisible = $event"
-    @cancel="handleModalCancel"
-  >
-    <div class="p-4">
-      <div>
-        <p>{{ userInfo.name }} {{ userInfo.department }}</p>
-      </div>
-      <div>
-        <p class="text-gray-950 text-xl">ກວດສອບຂໍ້ຄວາມ</p>
-        <p class="text-sm text-gray-500 mb-4">
-          ລະຫັດຢືນຢັນ 6 ຕົວ ໄດ້ສົ່ງໄປທີ່ເບີໂທລະສັບ +856 20 5555 5555
-        </p>
-        <!-- OTP Input -->
-        <div class="flex justify-center gap-2">
-          <template v-for="i in 6" :key="i">
-            <UiInput
-              :ref="(el) => setOtpInputRef(el, i - 1)"
-              v-model="otpValue[i - 1]"
-              class="w-12 h-12 text-center text-xl"
-              :maxlength="1"
-              type="text"
-              pattern="[0-9]*"
-              inputmode="numeric"
-              @input="(value) => handleOtpInput(value, i - 1)"
-              @keydown="(event) => handleOtpKeydown(event, i - 1)"
-              @paste="handlePaste"
-            />
-          </template>
-        </div>
-      </div>
-      <div class="text-center mt-4">
-        <p class="text-sm text-gray-500">
-          ບໍ່ໄດ້ຮັບລະຫັດ?
-          <a-button type="link" class="p-0" @click="handleResendOtp">ສົ່ງອີກຄັ້ງ</a-button>
-        </p>
-      </div>
-    </div>
-    <template #footer>
-      <div class="flex">
-        <UiButton @click="submitOtp" type="primary" :loading="confirmLoading" color-class="w-full"
-          >ຢືນຢັນ</UiButton
-        >
-      </div>
-    </template>
-  </UiModal>
-  <!-- OTP -->
+    :title="t('purchase-rq.otp-verification')"
+    :approval-step-id="currentApprovalStep?.id"
+    :loading="confirmLoading"
+    @confirm="handleOtpConfirm"
+    @close="handleModalCancel"
+    @resend="handleResendOtp"
+  />
   <!-- Signature Modal -->
   <UiModal
     title="ລາຍເຊັນ"
@@ -435,7 +393,7 @@
 
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
-import { computed, nextTick, onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { columnsApprovalDetails } from "../../views/budget/budget-approval/column/columnDetails";
 import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -450,7 +408,6 @@ import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import ShowShop from "./ShowShop.vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { formatDate } from "@/modules/shared/formatdate";
@@ -464,8 +421,7 @@ import { useReportPoStore } from "../../stores/reports/report-po.store";
 import PrintPurchaseOrder from "./PrintPurchaseOrder.vue";
 import BudgetApprovalDrawer from "../budget-approval/BudgetApprovalDrawer.vue";
 import SelectDocumentTypeModal from "../receipt/modal/SelectDocumentTypeModal.vue";
-
-// import OtpModal from "../purchase-requests/modal/OtpModal.vue";
+import OtpModal from "../purchase-requests/modal/OtpModal.vue";
 
 /********************************************************* */
 const purchaseOrderStore = usePurchaseOrderStore();
@@ -640,14 +596,6 @@ const documentStatus = computed(() => {
   };
 });
 
-const submitOtp = async () => {
-  const otpString = otpValue.value.join("");
-  if (otpString.length !== 6) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນ OTP ໃຫ້ຄົບ 6 ຫຼັກ");
-    return;
-  }
-  await handleOtpConfirm(otpString);
-};
 
 const handleResendOtp = async () => {
   if (!currentApprovalStep.value) {
@@ -659,7 +607,6 @@ const handleResendOtp = async () => {
     const result = await approvalStepStore.sendOtp(currentApprovalStep.value.id);
     if (result) {
       success("ສຳເລັດ", "ສົ່ງລະຫັດ OTP ໃໝ່ສຳເລັດ");
-      otpValue.value = Array(6).fill("");
     }
   } catch (err: unknown) {
     console.error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງລະຫັດ OTP ໄດ້", err);
@@ -872,9 +819,6 @@ const orderDetails = ref<PurchaseOrderEntity | null>(null);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const orderItems = ref<any[]>([]);
 const showApprovalSuccess = ref(false);
-const otpValue = ref<string[]>(Array(6).fill(""));
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const otpInputRefs = ref<any[]>([]);
 const isOtpModalVisible = ref(false);
 const isSignatureModalVisible = ref(false);
 const isSuccessModalVisible = ref(false);
@@ -1125,71 +1069,6 @@ const documentDetails = {
   purpose:
     "ເພື່ອໃຫ້ແທດເໝາະ ໃຫ້ຮອງຮັບກັບການປະຕິບັດວຽກງານ ແລະ ເພື່ອອຳນວຍຄວາມສະດວກໃນການປະຕິບັດໜ້າທີ່ວຽກງານ",
 };
-// OTP
-const handleOtpInput = (value: string, index: number) => {
-  const numericValue = value.replace(/[^0-9]/g, "");
-  if (numericValue) {
-    otpValue.value[index] = numericValue[0];
-    if (index < 5) {
-      nextTick(() => {
-        const nextInput = otpInputRefs.value[index + 1];
-        if (nextInput) {
-          const inputElement = nextInput.$el.querySelector("input") || nextInput.$el;
-          inputElement?.focus();
-        }
-      });
-    }
-  } else {
-    otpValue.value[index] = "";
-  }
-};
-
-//************************************* */
-const handleOtpKeydown = (event: KeyboardEvent, index: number) => {
-  if (event.key === "Backspace" && !otpValue.value[index]) {
-    event.preventDefault();
-    // ย้ายไป input ก่อนหน้า
-    if (index > 0) {
-      nextTick(() => {
-        const prevInput = otpInputRefs.value[index - 1];
-        if (prevInput) {
-          const inputElement = prevInput.$el.querySelector("input") || prevInput.$el;
-          inputElement?.focus();
-          // เคลียร์ค่าของ input ก่อนหน้า
-          otpValue.value[index - 1] = "";
-        }
-      });
-    }
-  }
-  if (
-    !/^\d$/.test(event.key) &&
-    !["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight"].includes(event.key)
-  ) {
-    event.preventDefault();
-  }
-};
-
-/********************************************************** */
-const handlePaste = (event: ClipboardEvent) => {
-  event.preventDefault();
-  const pastedData = event.clipboardData?.getData("text").replace(/[^0-9]/g, "");
-  if (pastedData) {
-    const digits = pastedData.split("").slice(0, 6);
-    digits.forEach((digit, index) => {
-      if (index < 6) {
-        otpValue.value[index] = digit;
-      }
-    });
-    const nextIndex = Math.min(digits.length, 5);
-    nextTick(() => {
-      const nextInput = otpInputRefs.value[nextIndex];
-      if (nextInput) {
-        const inputElement = nextInput.$el.querySelector("input") || nextInput.$el;
-        inputElement?.focus();
-      }
-    });
-  }
-};
 
 /********************************************************** */
 const handleSignatureConfirm = async () => {
@@ -1225,20 +1104,12 @@ const handleSuccessConfirm = async () => {
   }
 };
 
-/******************************************************* */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const setOtpInputRef = (el: any, index: number) => {
-  if (el) {
-    otpInputRefs.value[index] = el;
-  }
-};
 
 /********************************** */
 const handleModalCancel = () => {
   isOtpModalVisible.value = false;
   isSignatureModalVisible.value = false;
   isSuccessModalVisible.value = false;
-  otpValue.value = Array(6).fill("");
   signatureData.value = "";
 };
 </script>
