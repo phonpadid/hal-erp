@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
@@ -6,7 +7,6 @@ import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useVendorStore } from "@/modules/presentation/Admin/stores/vendors/vendor.store";
 import { useVendorProductStore } from "@/modules/presentation/Admin/stores/vendor-products/vendor-product.store";
 import { useQuotaStore } from "@/modules/presentation/Admin/stores/quotas/quota.store";
-import axios from "axios";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
@@ -19,6 +19,7 @@ interface Props {
   loading?: boolean;
   quota?: any | null;
   isEditMode?: boolean;
+  companyId?: number | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -70,12 +71,6 @@ const vendorProductOptions = computed(() => {
   }));
 });
 
-const selectedVendorProduct = computed(() => {
-  if (!formData.value.vendor_product_id) return null;
-  return vendorProductStore.vendorProducts.find(
-    (product) => product.getId() === formData.value.vendor_product_id
-  );
-});
 
 const isLoading = computed(() => vendorStore.loading || loadingProducts.value);
 
@@ -293,30 +288,6 @@ onMounted(async () => {
             style="width: 100%"
           />
         </UiFormItem>
-
-        <!-- Product Details -->
-        <div v-if="selectedVendorProduct" class="bg-blue-50 p-4 rounded-lg">
-          <h4 class="font-semibold text-blue-900 mb-2">ລາຍລະອຽດສິນค้า:</h4>
-          <div class="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span class="font-medium text-blue-700">ຮ້ານຄ້າ:</span>
-              <span class="text-blue-900">{{ selectedVendorProduct.getVendorName() || '-' }}</span>
-            </div>
-            <div>
-              <span class="font-medium text-blue-700">ສິນค้า:</span>
-              <span class="text-blue-900">{{ selectedVendorProduct.getProductName() || '-' }}</span>
-            </div>
-            <div v-if="selectedVendorProduct.getVendorId()">
-              <span class="font-medium text-blue-700">Vendor ID:</span>
-              <span class="text-blue-900">{{ selectedVendorProduct.getVendorId() }}</span>
-            </div>
-            <div v-if="selectedVendorProduct.getProductId()">
-              <span class="font-medium text-blue-700">Product ID:</span>
-              <span class="text-blue-900">{{ selectedVendorProduct.getProductId() }}</span>
-            </div>
-          </div>
-        </div>
-
         <!-- Quantity -->
         <UiFormItem
           label="ຈຳນວນ"
