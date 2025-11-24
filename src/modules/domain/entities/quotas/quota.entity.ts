@@ -15,6 +15,11 @@ export class QuotaEntity {
   private readonly updated_at: Date;
   private readonly deleted_at: Date | null;
 
+  // Additional data for display purposes
+  private _vendor_product?: any;
+  private _product?: any;
+  private _vendor?: any;
+
   constructor(props: {
     id: string;
     vendor_product_id: number;
@@ -26,6 +31,9 @@ export class QuotaEntity {
     created_at: Date;
     updated_at: Date;
     deleted_at: Date | null;
+    vendor_product?: any;
+    product?: any;
+    vendor?: any;
   }) {
     this.id = props.id;
     this.vendor_product_id = props.vendor_product_id;
@@ -37,6 +45,11 @@ export class QuotaEntity {
     this.created_at = props.created_at;
     this.updated_at = props.updated_at;
     this.deleted_at = props.deleted_at;
+
+    // Store additional data
+    this._vendor_product = props.vendor_product;
+    this._product = props.product;
+    this._vendor = props.vendor;
   }
 
   public static create(props: {
@@ -137,6 +150,9 @@ export class QuotaEntity {
       created_at: safeParseDate(apiData.created_at),
       updated_at: safeParseDate(apiData.updated_at),
       deleted_at: safeParseNullableDate(apiData.deleted_at),
+      vendor_product: apiData.vendor_product,
+      product: apiData.product,
+      vendor: apiData.vendor,
     });
   }
 
@@ -159,6 +175,9 @@ export class QuotaEntity {
       created_at: this.created_at,
       updated_at: new Date(),
       deleted_at: this.deleted_at,
+      vendor_product: this._vendor_product,
+      product: this._product,
+      vendor: this._vendor,
     });
   }
 
@@ -174,6 +193,9 @@ export class QuotaEntity {
       created_at: this.created_at,
       updated_at: new Date(),
       deleted_at: new Date(),
+      vendor_product: this._vendor_product,
+      product: this._product,
+      vendor: this._vendor,
     });
   }
 
@@ -256,5 +278,40 @@ export class QuotaEntity {
     }
 
     return errors;
+  }
+
+  // Getters for nested data
+  public getVendorProduct(): any {
+    return this._vendor_product;
+  }
+
+  public getProduct(): any {
+    return this._product;
+  }
+
+  public getVendor(): any {
+    return this._vendor;
+  }
+
+  // Get product name from nested data
+  public getProductName(): string {
+    if (this._product?.name) {
+      return this._product.name;
+    }
+    if (this._vendor_product?.product?.name) {
+      return this._vendor_product.product.name;
+    }
+    return `ສິນຄ້າ #${this.vendor_product_id}`;
+  }
+
+  // Get vendor name from nested data
+  public getVendorName(): string {
+    if (this._vendor?.name) {
+      return this._vendor.name;
+    }
+    if (this._vendor_product?.vendor?.name) {
+      return this._vendor_product.vendor.name;
+    }
+    return `ຮ້ານຄ້າ #${this.vendor_id || 'N/A'}`;
   }
 }

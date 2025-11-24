@@ -23,7 +23,7 @@ const loading = ref<boolean>(false);
 const createModalVisible = ref<boolean>(false);
 const editModalVisible = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
-const selectedQuota = ref<QuotaApiModel | null>(null);
+const selectedQuota = ref<QuotaApiModel | any | null>(null);
 
 // Search and filter state
 const search = ref<string>("");
@@ -139,11 +139,31 @@ const showCreateModal = (): void => {
 
 const showEditModal = async (record: QuotaApiModel): Promise<void> => {
   try {
-    selectedQuota.value = record;
-    editModalVisible.value = true;
+    loading.value = true;
+    console.log('Opening edit modal for quota ID:', record.id);
+
+    // Fetch complete quota data by ID
+    const quotaDetails = await quotaStore.fetchQuotaById(record.id.toString());
+
+    if (quotaDetails) {
+      selectedQuota.value = quotaDetails;
+      console.log('Fetched quota details:', quotaDetails);
+      editModalVisible.value = true;
+    } else {
+      // Fallback to using record if fetch fails
+      console.warn('Failed to fetch quota details, using record data');
+      selectedQuota.value = record;
+      editModalVisible.value = true;
+    }
   } catch (err) {
     console.error('Error in showEditModal:', err);
     error(t("quota.error.title"), String(err));
+
+    // Fallback to using record if fetch fails
+    selectedQuota.value = record;
+    editModalVisible.value = true;
+  } finally {
+    loading.value = false;
   }
 };
 
