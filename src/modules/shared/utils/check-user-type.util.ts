@@ -9,6 +9,6 @@ export function canAccessAll() {
   } catch {
     userType = rawType ? [rawType] : [];
   }
-
-  return userType.includes("admin");
+  // Fixed: Check both company-user (dash) and company_user (underscore)
+  return userType.includes("admin") || userType.includes("company-user") || userType.includes("company_user") || userType.includes("company-admin");
 }
