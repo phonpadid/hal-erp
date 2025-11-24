@@ -42,13 +42,6 @@ const userItem = computed(() =>
   })
 );
 
-const filteredUserItem = computed(() => {
-  const selectedUserIds = new Set(formModel.user_id);
-  return userItem.value.filter(
-    (item) => !selectedUserIds.has(item.value)
-  );
-});
-
 const dpmOption = computed(() =>
   dpmStore.departments.map((item) => {
     return {
@@ -366,7 +359,7 @@ watch(search, async (newValue) => {
         <UiFormItem :label="t('departments.dpm_user.field.user')" name="user_id" required>
           <InputSelect
             v-model="formModel.user_id"
-            :options="filteredUserItem"
+            :options="userItem"
             mode="tags"
             :placeholder="t('departments.dpm_user.placeholder.user')"
           />
