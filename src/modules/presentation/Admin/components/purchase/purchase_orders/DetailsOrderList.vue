@@ -229,7 +229,12 @@
           <h4 class="text-base font-semibold mb-4 col-span-2">ລາຍເຊັ່ນ</h4>
           <div v-for="(sig, index) in signatures" :key="index">
             <p class="font-semibold mb-2">{{ sig.role }}</p>
-            <img :src="sig.signature" :alt="`${sig.role} signature`" class="h-16 mb-2" />
+            <img
+              :src="sig.signature"
+              :alt="`${sig.role} signature`"
+              class="h-16 mb-2"
+              @error="handleSignatureError"
+            />
             <p class="font-semibold">{{ sig.name }}</p>
             <p class="text-gray-600">{{ sig.position }}</p>
           </div>
@@ -271,9 +276,11 @@ import { formatPrice } from "@/modules/shared/utils/format-price";
 import { formatDate } from "@/modules/shared/formatdate";
 import { useToggleStore } from "../../../stores/storage.store";
 import { storeToRefs } from "pinia";
+import { useAuthStore } from "../../../stores/authentication/auth.store";
 /********************************************************* */
 const purchaseOrderStore = usePurchaseOrderStore();
 const route = useRoute();
+const authStore = useAuthStore();
 const orderId = ref<number>(parseInt(route.params.id as string, 10));
 const { t } = useI18n();
 const { error } = useNotification();
@@ -391,6 +398,35 @@ onMounted(async () => {
   await fetchOrderDetails();
 });
 
+// Get user signature from localStorage
+const userSignature = computed(() => {
+  // Try to get signature from auth store user data first
+  if (authStore.user?.getSignature()) {
+    return authStore.user.getSignature();
+  }
+
+  // Fallback to localStorage directly
+  try {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      return parsedData.signature;
+    }
+  } catch (error) {
+    console.error('Error parsing userData from localStorage:', error);
+  }
+
+  // Fallback to default signature image if no signature found
+  return '/public/2.png';
+});
+
+// Handle signature image error
+const handleSignatureError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  // Fallback to default signature image if user signature fails to load
+  img.src = '/public/2.png';
+};
+
 const documentDetails = {
   requester: {
     name: "ທ່ານ ພົມມະກອນ ຄວາມຄູ",
@@ -403,12 +439,12 @@ const documentDetails = {
 };
 
 // Signatures
-const signatures = [
+const signatures = computed(() => [
   {
     role: "ຜູ້ສະເໜີ",
-    name: "ພົມມະກອນ ຄວາມຄູ",
-    position: "ພະນັກງານພັດທະນາລະບົບ",
-    signature: "/public/2.png",
+    name: authStore.user?.getUsername() || orderDetails.value?.getRequester()?.username || "ຜູ້ສະເໜີ",
+    position: authStore.user?.getDepartmentName() || orderDetails.value?.getDepartment()?.name || "ພະນັກງານພັດທະນາລະບົບ",
+    signature: userSignature.value,
   },
-];
+]);
 </script>

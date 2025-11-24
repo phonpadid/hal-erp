@@ -17,6 +17,10 @@ export interface QuotaApiModel {
     id: string;
     vendor_id: string;
     product_id: number;
+    vendor?: {
+      id: string;
+      name: string;
+    };
     product?: {
       id: number;
       name: string;
@@ -36,7 +40,19 @@ export interface QuotaApiModel {
       name: string;
     };
     unit_id?: number;
+    unit?: {
+      id: string;
+      name: string;
+    };
     status?: string;
+    created_at: string;
+    updated_at: string;
+  };
+
+  vendor?: {
+    id: number;
+    name: string;
+    contact_info?: string;
     created_at: string;
     updated_at: string;
   };

@@ -8,17 +8,37 @@ export class ApiQuotaRepository implements QuotaRepository {
   private readonly baseUrl = "/quota-company";
 
   private toDomainModel(apiModel: QuotaApiModel): QuotaEntity {
-    const entity = QuotaEntity.fromApiResponse(apiModel);
 
-    // Store additional information for display purposes
-    if (apiModel.vendor_product) {
-      (entity as any).vendor_product = apiModel.vendor_product;
-    }
-    if (apiModel.product) {
-      (entity as any).product = apiModel.product;
-    }
+    try {
+      const entity = QuotaEntity.fromApiResponse(apiModel);
 
-    return entity;
+      // Store additional information for display purposes
+      if (apiModel.vendor_product) {
+        (entity as any).vendor_product = apiModel.vendor_product;
+      } else {
+        console.log('⚠️ Repository - vendor_product is null, skipping');
+      }
+
+      if (apiModel.product) {
+        (entity as any).product = apiModel.product;
+      } else {
+        console.log('⚠️ Repository - product is null, skipping');
+      }
+
+      if (apiModel.vendor) {
+        (entity as any).vendor = apiModel.vendor;
+      } else {
+        console.log('⚠️ Repository - vendor is null, skipping');
+      }
+
+      
+
+      return entity;
+    } catch (error) {
+      console.error('❌ Repository - Error in toDomainModel:', error);
+      console.error('❌ Repository - API Model that failed:', apiModel);
+      throw error;
+    }
   }
 
   private toCreateApiRequest(entity: QuotaEntity): CreateQuotaApiRequest {
@@ -132,7 +152,17 @@ export class ApiQuotaRepository implements QuotaRepository {
     try {
       const params = includeDeleted ? "?include_deleted=true" : "";
       const response = await api.get(`${this.baseUrl}/${id}${params}`);
-      return this.toDomainModel(response.data);
+
+
+      // Handle API response structure: { status_code, message, data: {...} }
+      let responseData = response.data;
+
+      // If response has data wrapper, extract the data object
+      if (responseData && responseData.data) {
+        responseData = responseData.data;
+      }
+
+      return this.toDomainModel(responseData);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         return null;
@@ -182,12 +212,48 @@ export class ApiQuotaRepository implements QuotaRepository {
 
   async update(id: string, quota: QuotaEntity): Promise<QuotaEntity> {
     try {
-      const response = await api.put(`${this.baseUrl}/${id}`, this.toUpdateApiRequest(quota));
-      return this.toDomainModel(response.data);
+      const requestData = this.toUpdateApiRequest(quota);
+      
+
+      const response = await api.put(`${this.baseUrl}/${id}`, requestData);
+    
+
+      // Check if response is actually successful
+      if (response.status === 200 || response.status === 201) {
+        // Handle response structure: { status_code, message, data: {...} }
+        let responseData = response.data;
+
+        // If response has data wrapper, extract the actual data
+        if (responseData && responseData.data && typeof responseData === 'object') {
+          responseData = responseData.data;
+        }
+
+        return this.toDomainModel(responseData);
+      } else {
+        throw new Error(`Unexpected response status: ${response.status}`);
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        console.error('❌ Repository - Axios error:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          message: error.message,
+          config: {
+            url: error.config?.url,
+            method: error.config?.method,
+            data: error.config?.data
+          }
+        });
+
+        // Check if it's actually a success but with non-200 status
+        if (error.response?.status === 200 || error.response?.status === 201) {
+          return this.toDomainModel(error.response.data);
+        }
+
         throw new Error(`Failed to update quota: ${error.response?.data?.message || error.message}`);
       }
+      console.error('❌ Repository - Non-axios error:', error);
       throw new Error("Failed to update quota");
     }
   }

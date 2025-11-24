@@ -157,7 +157,22 @@ export const useQuotaStore = defineStore("quota", () => {
     error.value = null;
 
     try {
-      const updatedQuota = await quotaService.updateQuota(data);
+      // Create UpdateQuotaDTO with id from parameter
+      // Remove any existing id from data to avoid conflicts
+      const { id: existingId, ...dataWithoutId } = data;
+      const updateData: UpdateQuotaDTO = {
+        id: id,
+        ...dataWithoutId
+      };
+
+      console.log('🔄 Store - Creating update data:', {
+        originalId: existingId,
+        newId: id,
+        hasExistingId: !!existingId,
+        updateData
+      });
+
+      const updatedQuota = await quotaService.updateQuota(updateData);
 
       const index = quotas.value.findIndex((q) => q.getId() === id);
       if (index !== -1) {
@@ -170,6 +185,7 @@ export const useQuotaStore = defineStore("quota", () => {
 
       return updatedQuota;
     } catch (err) {
+      console.error('🔥 Quota store update error:', err);
       error.value = err as Error;
       throw err;
     } finally {

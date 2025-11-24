@@ -5,10 +5,12 @@ import { nextTick, ref, computed, watch, defineProps, defineEmits } from "vue";
 import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useApprovalStepStore } from "../../../stores/approval-step.store";
+import { useAuthStore } from "../../../stores/authentication/auth.store";
 
 const { t } = useI18n();
 const { error } = useNotification();
 const approvalStepStore = useApprovalStepStore();
+const authStore = useAuthStore();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const otpInputRefs = ref<any[]>([]);
@@ -37,6 +39,28 @@ const phoneNumber = computed(() => {
     return `+856 ${tel}`;
   }
   return "+856 20 502 221 02";
+});
+
+// Get user signature from localStorage
+const userSignature = computed(() => {
+  // Try to get signature from auth store user data first
+  if (authStore.user?.getSignature()) {
+    return authStore.user.getSignature();
+  }
+
+  // Fallback to localStorage directly
+  try {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      return parsedData.signature;
+    }
+  } catch (error) {
+    console.error('Error parsing userData from localStorage:', error);
+  }
+
+  // Fallback to default signature image if no signature found
+  return '/2.png';
 });
 // Computed property to check if OTP is complete
 const isOtpComplete = computed(() => {
@@ -194,6 +218,13 @@ const setOtpInputElement = (el: unknown, index: number) => {
     otpInputRefs.value[index] = el;
   }
 };
+
+// Handle signature image error
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  // Fallback to default signature image if user signature fails to load
+  img.src = '/2.png';
+};
 </script>
 
 <template>
@@ -233,7 +264,6 @@ const setOtpInputElement = (el: unknown, index: number) => {
             />
           </template>
         </div>
-
         <!-- Resend Link with Cooldown -->
         <div class="text-center mb-4">
           <p class="text-sm text-gray-500">
@@ -267,9 +297,10 @@ const setOtpInputElement = (el: unknown, index: number) => {
           title="Click to confirm signature"
         >
           <img
-            src="/2.png"
+            :src="userSignature"
             alt="Digital Signature"
             class="max-w-[270px] max-h-[120px] object-contain pointer-events-none"
+            @error="handleImageError"
           />
         </div>
       </div>
