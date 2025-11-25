@@ -73,7 +73,7 @@ watch(
           },
         ];
         // ตั้งค่า previewImage เพื่อใช้ใน a-modal ด้วย
-        previewImage.value = val; 
+        previewImage.value = val;
       }
     } else if (val === null || val === "") { // เคลียร์ fileList เมื่อ modelValue เป็น null หรือ string ว่าง
       fileList.value = [];

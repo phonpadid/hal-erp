@@ -66,6 +66,9 @@ const formState = reactive({
 const logoFile = ref<File | null>(null);
 const signatureFile = ref<File | null>(null);
 
+// Track if logo was uploaded
+const logoUploaded = ref<boolean>(false);
+
 // Preview states
 const logoPreview = ref<string | null>(null);
 const signaturePreview = ref<string | null>(null);
@@ -110,6 +113,9 @@ watch(
       formState.email = newCompany.email || "";
       formState.address = newCompany.address || "";
 
+      // Reset logo upload tracker when loading company data
+      logoUploaded.value = false;
+
       // Set logo preview for display using logo_url if available
       if (newCompany.logo_url) {
         logoPreview.value = newCompany.logo_url;
@@ -142,6 +148,7 @@ watch(
       formState.user.signature = null;
       logoPreview.value = null;
       signaturePreview.value = null;
+      logoUploaded.value = false;
     }
   },
   { immediate: true }
@@ -153,7 +160,7 @@ const submitForm = async () => {
 
     const formData = {
       name: formState.name,
-      logo: formState.logo, // Already uploaded filename
+      logo: logoUploaded.value ? formState.logo : "", // Send empty string if no new logo uploaded
       tel: formState.tel,
       email: formState.email,
       address: formState.address,
@@ -177,6 +184,7 @@ const submitForm = async () => {
 const handleLogoChange = async (file: File) => {
   try {
     logoUploading.value = true;
+    logoUploaded.value = true;
 
     // For preview, convert to base64
     const reader = new FileReader();
@@ -295,11 +303,10 @@ defineExpose({
           <div class="md:col-span-2">
             <UiFormItem :label="$t('company.form.logo')" name="logo">
               <UploadFile
-                v-model:file="logoFile"
                 @onFileSelect="handleLogoChange"
                 :disabled="loading || logoUploading"
                 accept="image/*"
-                :model-value="logoPreview || formState.logo"
+                :model-value="logoPreview"
                 :max-size="5"
                 :uploading="logoUploading"
               />
@@ -370,11 +377,10 @@ defineExpose({
             <div class="md:col-span-2">
               <UiFormItem :label="$t('company.form.signature')" name="user.signature" >
                 <UploadFile
-                  v-model:file="signatureFile"
                   @onFileSelect="handleSignatureChange"
                   :disabled="loading || signatureUploading"
                   accept="image/*"
-                  :model-value="signaturePreview || formState.user.signature"
+                  :model-value="signaturePreview"
                   :max-size="5"
                   :uploading="signatureUploading"
                 />

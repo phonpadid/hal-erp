@@ -105,73 +105,81 @@ const vendorProductOptions = computed(() => {
 
   let options: { value: number | string; label: string }[] = [];
 
-  // For edit mode, prioritize entity data
+  // For edit mode, create option from quota entity
   if (props.isEditMode && props.quota) {
     const quotaEntity = props.quota;
 
-    // Get product name from entity
+    // Get product name and ID from entity
     let productName = '';
     let productId = null;
 
+    // Try multiple ways to get product data
     if (quotaEntity.getProductName && typeof quotaEntity.getProductName === 'function') {
       productName = quotaEntity.getProductName();
-    }
-
-    // Get product ID
-    if (quotaEntity.getVendorProductId && typeof quotaEntity.getVendorProductId === 'function') {
-      productId = quotaEntity.getVendorProductId();
-    }
-
-    // Fallback to direct access if getters don't work
-    if (!productName && (quotaEntity as any).Product?.name) {
+    } else if ((quotaEntity as any).vendor_product?.product?.name) {
+      productName = (quotaEntity as any).vendor_product.product.name;
+    } else if ((quotaEntity as any).Product?.name) {
       productName = (quotaEntity as any).Product.name;
     }
-    else if (!productName && (quotaEntity as any).vendor_product?.product?.name) {
-      productName = (quotaEntity as any).vendor_product.product.name;
-    }
 
-    if (!productId && quotaEntity.vendor_product_id) {
+    if (quotaEntity.getVendorProductId && typeof quotaEntity.getVendorProductId === 'function') {
+      productId = quotaEntity.getVendorProductId();
+    } else if (quotaEntity.vendor_product_id) {
       productId = Number(quotaEntity.vendor_product_id);
+    } else if ((quotaEntity as any).vendor_product?.id) {
+      productId = Number((quotaEntity as any).vendor_product.id);
     }
 
+   
     if (productId && productName) {
-      const option = {
-        value: productId,
-        label: productName,
-      };
+      const option = { value: productId, label: productName };
       options = [option];
+      
     } else {
-      console.log('❌ Edit mode - could not create option from entity');
-      console.log('  - productId:', productId);
-      console.log('  - productName:', productName);
+      console.error('❌ Edit mode - could not create option from entity');
     }
   }
 
-  // For create mode or if edit mode failed, use store data
+  // For create mode or fallback, use store data
   if (options.length === 0 && vendorProductStore.vendorProducts.length > 0) {
     options = vendorProductStore.vendorProducts.map((product) => {
-
       const productName = product.getProductName?.() ||
                          product.getDisplayNameWithVendor?.() ||
                          `ສິນຄ້າ ID: ${product.getId?.()}`;
-
 
       return {
         value: product.getId?.(),
         label: productName,
       };
     });
+  
   }
 
-  // Last resort fallback
+  // Fallback option
   if (options.length === 0 && fallbackProductOption.value) {
     options = [fallbackProductOption.value];
+   
   }
-    return options;
+
+
+  return options;
 });
 
 
 const isLoading = computed(() => vendorStore.loading || loadingProducts.value);
+
+// Helper function for product placeholder
+const getProductPlaceholder = () => {
+  if (!props.isEditMode && !formData.value.vendor_id) {
+    return 'ກະລຸນາເລືອກຮ້ານຄ້າກ່ອນ...';
+  }
+
+  if (!props.isEditMode && vendorProductOptions.value.length === 0 && formData.value.vendor_id) {
+    return 'ບໍ່ມີສິນຄ້າໃນຮ້ານຄ້ານີ້...';
+  }
+
+  return 'ເລືອກສິນຄ້າ...';
+};
 
 // Validation rules
 const rules = computed(() => ({
@@ -289,14 +297,23 @@ watch(
 watch(
   () => formData.value.vendor_id,
   async (newVendorId) => {
+    console.log('🏪 Vendor selection changed:', {
+      newVendorId,
+      isEditMode: props.isEditMode,
+      currentProductsCount: vendorProductStore.vendorProducts.length
+    });
+
     // Only load vendor products for create mode, not edit mode
     if (!props.isEditMode && newVendorId) {
+     
       await loadVendorProducts(newVendorId);
+     
       // Reset product selection when vendor changes
       formData.value.vendor_product_id = null;
     } else {
       // Clear products when no vendor is selected
       if (!props.isEditMode) {
+        console.log('🗑️ Clearing products (no vendor selected)');
         vendorProductStore.vendorProducts = [];
         formData.value.vendor_product_id = null;
       }
@@ -384,12 +401,11 @@ const loadVendorProducts = async (vendorId: number) => {
   try {
     loadingProducts.value = true;
 
-    await vendorProductStore.fetchVendorProducts({
+  await vendorProductStore.fetchVendorProducts({
       vendor_id: vendorId,
       page: 1,
       limit: 1000,
     });
-
   } catch (err) {
     console.error("Failed to load vendor products:", err);
     error("ບໍ່ສາມາດໂຫຼດສິນค้าຂອງຮ້ານຄ້ານີ້ໄດ້", "");
@@ -404,8 +420,12 @@ const submitForm = async () => {
     submitLoading.value = true;
     const valid = await formRef.value?.validate();
     if (!valid) return;
-
     if (!formData.value.vendor_product_id || !formData.value.qty || !formData.value.year) {
+      console.error('❌ Validation failed:', {
+        vendor_product_id: formData.value.vendor_product_id,
+        qty: formData.value.qty,
+        year: formData.value.year
+      });
       error("ກະລຸນາຕື່ມຂໍ້ມູນໃຫ້ຄົບຖ້ວນ", "");
       return;
     }
@@ -548,8 +568,8 @@ onMounted(async () => {
             v-model="formData.vendor_product_id"
             :options="vendorProductOptions"
             :loading="loadingProducts"
-            :disabled="!formData.vendor_id && !isEditMode"
-            placeholder="!formData.vendor_id && !isEditMode ? 'ກະລຸນາເລືອກຮ້ານຄ້າກ່ອນ' : 'ເລືອກສິນຄ້າ...'"
+            :disabled="!formData.vendor_id && !isEditMode || vendorProductOptions.length === 0"
+            :placeholder="getProductPlaceholder()"
             size="large"
             style="width: 100%"
           />
@@ -592,7 +612,7 @@ onMounted(async () => {
         <UiButton
           type="primary"
           :loading="submitLoading"
-          :disabled="(!isEditMode && !formData.vendor_id) || !formData.vendor_product_id"
+          :disabled="(!isEditMode && !formData.vendor_id) || !formData.vendor_product_id || vendorProductOptions.length === 0"
           @click="submitForm"
         >
           {{ isEditMode ? t("button.update") : t("button.save") }}
