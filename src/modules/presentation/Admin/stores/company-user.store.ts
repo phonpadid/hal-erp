@@ -78,7 +78,7 @@ export const useCompanyUserStore = defineStore("companyUser", {
         const result = await repository.getAll({
           ...paginationParams,
           search: params.search,
-          company_id: params.company_id,
+          company_id: params.company_id || undefined,
         });
 
         this.companyUsers = result.data;
@@ -126,13 +126,12 @@ export const useCompanyUserStore = defineStore("companyUser", {
     async fetchCompanyUserById(id: number): Promise<CompanyUserInterface> {
       this.loading = true;
       this.error = null;
-      console.log("Store - Fetching company user with ID:", id);
+      
 
       try {
         const companyUser = await repository.getById(id);
-        console.log("Store - Company user data received:", companyUser);
+        
         this.currentCompanyUser = companyUser;
-        console.log("Store - currentCompanyUser set to:", this.currentCompanyUser);
         return companyUser;
       } catch (err: unknown) {
         this.error = err instanceof Error ? err.message : "Failed to fetch company user";
@@ -152,7 +151,6 @@ export const useCompanyUserStore = defineStore("companyUser", {
         const newCompanyUser = await repository.create(data);
         this.companyUsers.unshift(newCompanyUser);
         this.pagination.total += 1;
-        success("Success", "Company user created successfully");
         return newCompanyUser;
       } catch (err: unknown) {
         this.error = err instanceof Error ? err.message : "Failed to create company user";
@@ -182,7 +180,7 @@ export const useCompanyUserStore = defineStore("companyUser", {
           this.currentCompanyUser = updatedCompanyUser;
         }
 
-        success("Success", "Company user updated successfully");
+       
         return updatedCompanyUser;
       } catch (err: unknown) {
         this.error = err instanceof Error ? err.message : "Failed to update company user";

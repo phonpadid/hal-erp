@@ -12,6 +12,7 @@ import Table, { type TablePaginationType } from "@/common/shared/components/tabl
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import QuotaFormModal from "../../../components/quotas/quota-form/QuotaFormModal.vue";
+import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const quotaStore = useQuotaStore();
@@ -344,8 +345,9 @@ const yearOptions = computed(() => {
                 type="link"
                 size="small"
                 @click="showEditModal(record)"
+                
               >
-                {{ t("quota.edit") }}
+              <Icon icon="material-symbols:edit-square-outline-rounded" class="mr-1" />
               </UiButton>
               <UiButton
                 type="link"
@@ -353,7 +355,7 @@ const yearOptions = computed(() => {
                 danger
                 @click="showDeleteModal(record)"
               >
-                {{ t("quota.delete") }}
+                <Icon icon="material-symbols:delete-outline-rounded" class="mr-1" />
               </UiButton>
         </div>
       </template>

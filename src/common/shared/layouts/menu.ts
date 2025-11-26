@@ -240,6 +240,7 @@ export const menuItems = computed<ItemType[]>(() => {
     // },
     {
       key: "apv_purchase_request.index",
+        icon: () =>h(Icon, { icon: "mdi:file-document-box-outline", class: "text-base" }),
 
       label: h("div", { class: "flex items-center gap-2" }, [
         h("span", t("menu-sidebar.apv_purchase_rq")),
@@ -266,7 +267,7 @@ export const menuItems = computed<ItemType[]>(() => {
     // },
     {
       key: "approval_department_panak",
-
+      icon: () => h(Icon, { icon: "solar:archive-check-broken", class: "text-base" }),
       label: h("div", { class: "flex items-center gap-2" }, [
         h("span", t("menu-sidebar.purchasePanak")),
         h(
@@ -435,54 +436,55 @@ export const menuItems = computed<ItemType[]>(() => {
               },
             ]
           : []),
+          ...prManageMenuItems,
+        // ...(prManageMenuItems.length > 0
+        //   ? [
+        //       {
+        //         label: "",
 
-        ...(prManageMenuItems.length > 0
-          ? [
-              {
-                label: "",
+        //         children: [
+        //           { type: "divider" },
 
-                children: [
-                  { type: "divider" },
+        //           {
+        //             key: "6",
 
-                  {
-                    key: "6",
+        //             label: t("menu-sidebar.pr_manage"),
 
-                    label: t("menu-sidebar.pr_manage"),
+        //             icon: () =>
+        //               h(Icon, { icon: "mdi:file-document-box-outline", class: "text-base" }),
 
-                    icon: () =>
-                      h(Icon, { icon: "mdi:file-document-box-outline", class: "text-base" }),
+        //             children: prManageMenuItems,
+        //           },
+        //         ],
 
-                    children: prManageMenuItems,
-                  },
-                ],
+        //         type: "group",
+        //       },
+        //     ]
+        //   : []),
+          ...poManageMenuItems,
+        // ...(poManageMenuItems.length > 0
+        //   ? [
+        //       {
+        //         label: "",
 
-                type: "group",
-              },
-            ]
-          : []),
-        ...(poManageMenuItems.length > 0
-          ? [
-              {
-                label: "",
+        //         children: [
+        //           { type: "divider" },
 
-                children: [
-                  { type: "divider" },
+        //           {
+        //             key: "7",
 
-                  {
-                    key: "7",
+        //             label: t("menu-sidebar.po_manage"),
 
-                    label: t("menu-sidebar.po_manage"),
+        //             icon: () => h(Icon, { icon: "solar:archive-check-broken", class: "text-base" }),
 
-                    icon: () => h(Icon, { icon: "solar:archive-check-broken", class: "text-base" }),
+        //             children: poManageMenuItems,
+        //           },
+        //         ],
 
-                    children: poManageMenuItems,
-                  },
-                ],
-
-                type: "group",
-              },
-            ]
-          : []),
+        //         type: "group",
+        //       },
+        //     ]
+        //   : []),
         ...receiptsMenuItems,
         // ...budgetApprovalMenuItems,
         // {

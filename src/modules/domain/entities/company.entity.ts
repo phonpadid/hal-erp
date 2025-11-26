@@ -4,6 +4,7 @@ export class CompanyEntity {
   private id: string
   private name: string
   private logo: string | null
+  private logo_url: string | null
   private tel: string
   private email: string
   private address: string
@@ -15,6 +16,7 @@ export class CompanyEntity {
     id: string,
     name: string,
     logo: string | null,
+    logo_url: string | null,
     tel: string,
     email: string,
     address: string,
@@ -25,6 +27,7 @@ export class CompanyEntity {
     this.id = id
     this.name = name
     this.logo = logo
+    this.logo_url = logo_url
     this.tel = tel
     this.email = email
     this.address = address
@@ -43,6 +46,10 @@ export class CompanyEntity {
 
   public getLogo(): string | null {
     return this.logo
+  }
+
+  public getLogoUrl(): string | null {
+    return this.logo_url
   }
 
   public getTel(): string {
@@ -117,7 +124,7 @@ export class CompanyEntity {
     address: string
   ): CompanyEntity {
     const now = new Date().toISOString().replace("T", "").substring(0, 19);
-    return new CompanyEntity(id, name, logo, tel, email, address, now, now, null);
+    return new CompanyEntity(id, name, logo, null, tel, email, address, now, now, null);
   }
 
   // Static method to create entity from API response
@@ -126,6 +133,7 @@ export class CompanyEntity {
       data.id?.toString() ?? "",
       data.name ?? "",
       data.logo ?? null,
+      data.logo_url ?? null,
       data.tel ?? "",
       data.email ?? "",
       data.address ?? "",

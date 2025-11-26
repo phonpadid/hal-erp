@@ -9,38 +9,44 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import UploadFile from "@/common/shared/components/Upload/UploadFile.vue";
 import { uploadFile } from "@/modules/application/services/upload.service";
+import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const props = defineProps<{
-  company?: CompanyInterface & {
-    logo_url?: string;
-    user?: {
-      username: string;
-      email: string;
-      tel: string;
-      signature?: string | null;
-      signature_url?: string;
-    };
-  } | null;
+  company?:
+    | (CompanyInterface & {
+        logo_url?: string;
+        user?: {
+          username: string;
+          email: string;
+          tel: string;
+          signature?: string | null;
+          signature_url?: string;
+        };
+      })
+    | null;
   isEditMode: boolean;
   loading?: boolean;
 }>();
 const emit = defineEmits<{
-  (e: "submit", data: {
-    name: string;
-    logo?: string | null;
-    tel: string;
-    email: string;
-    address: string;
-    user?: {
-      username: string;
-      email: string;
+  (
+    e: "submit",
+    data: {
+      name: string;
+      logo?: string | null;
       tel: string;
-      password: string;
-      confirm_password: string;
-      signature?: string | null;
-    };
-  }): void;
+      email: string;
+      address: string;
+      user?: {
+        username: string;
+        email: string;
+        tel: string;
+        password: string;
+        confirm_password: string;
+        signature?: string | null;
+      };
+    }
+  ): void;
   (e: "cancel"): void;
 }>();
 
@@ -65,6 +71,9 @@ const formState = reactive({
 // Form files
 const logoFile = ref<File | null>(null);
 const signatureFile = ref<File | null>(null);
+
+// Track if logo was uploaded
+const logoUploaded = ref<boolean>(false);
 
 // Preview states
 const logoPreview = ref<string | null>(null);
@@ -91,14 +100,13 @@ const companyRules = computed(() => {
   // ✅ Pass current formState for reactive validation
   const currentValidationState = {
     ...validationState,
-    formState: formState
+    formState: formState,
   };
 
   const rules = createCompanyValidation(t, currentValidationState);
 
   return rules;
 });
-
 
 watch(
   () => props.company,
@@ -109,6 +117,9 @@ watch(
       formState.tel = newCompany.tel || "";
       formState.email = newCompany.email || "";
       formState.address = newCompany.address || "";
+
+      // Reset logo upload tracker when loading company data
+      logoUploaded.value = false;
 
       // Set logo preview for display using logo_url if available
       if (newCompany.logo_url) {
@@ -142,6 +153,7 @@ watch(
       formState.user.signature = null;
       logoPreview.value = null;
       signaturePreview.value = null;
+      logoUploaded.value = false;
     }
   },
   { immediate: true }
@@ -153,7 +165,7 @@ const submitForm = async () => {
 
     const formData = {
       name: formState.name,
-      logo: formState.logo, // Already uploaded filename
+      logo: logoUploaded.value ? formState.logo : "", // Send empty string if no new logo uploaded
       tel: formState.tel,
       email: formState.email,
       address: formState.address,
@@ -177,6 +189,7 @@ const submitForm = async () => {
 const handleLogoChange = async (file: File) => {
   try {
     logoUploading.value = true;
+    logoUploaded.value = true;
 
     // For preview, convert to base64
     const reader = new FileReader();
@@ -193,7 +206,6 @@ const handleLogoChange = async (file: File) => {
     // Store the uploaded filename in formState
     formState.logo = uploadResult.fileName;
     logoFile.value = file;
-
   } catch (error) {
     console.error("Error uploading logo:", error);
     // Show error message (you might want to add a notification system)
@@ -222,7 +234,6 @@ const handleSignatureChange = async (file: File) => {
     // Store the uploaded filename in formState
     formState.user.signature = uploadResult.fileName;
     signatureFile.value = file;
-
   } catch (error) {
     console.error("Error uploading signature:", error);
     // Show error message
@@ -244,9 +255,12 @@ defineExpose({
       <!-- Company Information Section -->
       <div class="form-section mb-6">
         <h3 class="section-title text-lg font-semibold mb-4 text-gray-700">
-          {{ $t('company.form.companyInfo') }}
+          <div class="flex items-center gap-2">
+            <Icon icon="material-symbols:account-balance-outline-rounded" />
+            {{ $t("company.form.companyInfo") }}
+          </div>
         </h3>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Company Name - Full Width -->
           <div class="md:col-span-2">
@@ -295,11 +309,10 @@ defineExpose({
           <div class="md:col-span-2">
             <UiFormItem :label="$t('company.form.logo')" name="logo">
               <UploadFile
-                v-model:file="logoFile"
                 @onFileSelect="handleLogoChange"
                 :disabled="loading || logoUploading"
                 accept="image/*"
-                :model-value="logoPreview || formState.logo"
+                :model-value="logoPreview"
                 :max-size="5"
                 :uploading="logoUploading"
               />
@@ -312,9 +325,12 @@ defineExpose({
       <template v-if="!isEditMode">
         <div class="form-section">
           <h3 class="section-title text-lg font-semibold mb-4 text-gray-700">
-            {{ $t('company.form.userSection') }}
+            <div class="flex items-center gap-2">
+              <Icon icon="ic:sharp-supervised-user-circle" class="text-xl" />
+              {{ $t("company.form.userSection") }}
+            </div>
           </h3>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Username -->
             <UiFormItem :label="$t('company.form.username')" name="user.username" required>
@@ -356,7 +372,11 @@ defineExpose({
 
             <!-- Confirm Password - Full Width on Mobile -->
             <div class="md:col-span-2">
-              <UiFormItem :label="$t('company.form.confirmPassword')" name="user.confirm_password" required>
+              <UiFormItem
+                :label="$t('company.form.confirmPassword')"
+                name="user.confirm_password"
+                required
+              >
                 <UiInput
                   v-model="formState.user.confirm_password"
                   :placeholder="$t('company.form.confirmPasswordPlaceholder')"
@@ -368,13 +388,12 @@ defineExpose({
 
             <!-- Signature - Full Width -->
             <div class="md:col-span-2">
-              <UiFormItem :label="$t('company.form.signature')" name="user.signature" >
+              <UiFormItem :label="$t('company.form.signature')" name="user.signature">
                 <UploadFile
-                  v-model:file="signatureFile"
                   @onFileSelect="handleSignatureChange"
                   :disabled="loading || signatureUploading"
                   accept="image/*"
-                  :model-value="signaturePreview || formState.user.signature"
+                  :model-value="signaturePreview"
                   :max-size="5"
                   :uploading="signatureUploading"
                 />

@@ -21,9 +21,14 @@ onMounted(async () => {
     try {
       loading.value = true;
       const userId = route.params.id as string;
+      console.log("=== USERFORM DEBUG: Loading user ===");
+      console.log("Loading user ID:", userId);
       const userData = await userStore.fetchUserById(userId);
+      console.log("userData returned from store:", userData);
       user.value = userData;
-      // console.log("Loaded user data:", userData);
+      console.log("user.value after setting:", user.value);
+      console.log("user.value.user_signature:", user.value?.user_signature);
+      console.log("=== END USERFORM DEBUG ===");
     } catch (err) {
       console.error("Error loading user:", err);
       showError(t("user.error.loadFailed"));

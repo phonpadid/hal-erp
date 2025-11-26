@@ -167,7 +167,10 @@ export class ApiUserRepository implements UserRepository {
     const roles = data.roles || [];
     const permissionIds = data.permissions?.map((perm: any) => perm.id) || [];
     const userSignature = data.user_signature || null;
-    return new UserEntity(
+
+   
+
+    const entity = new UserEntity(
       data.id.toString(),
       data.username,
       data.email,
@@ -179,9 +182,19 @@ export class ApiUserRepository implements UserRepository {
       data.deleted_at || null,
       data.password,
       data.tel,
-      [], 
-      userSignature, 
+      [],
+      userSignature,
     );
+
+    // Don't override user_signature if it's already set correctly in constructor
+    // Only handle signature field if needed
+    if (data.signature && typeof data.signature === 'string' && data.signature !== "") {
+      entity.signature = data.signature;
+    }
+
+  
+
+    return entity;
   }
 
   private handleApiError(error: unknown, defaultMessage: string): never {

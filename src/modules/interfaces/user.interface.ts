@@ -15,8 +15,8 @@ export interface UserInterface {
   deleted_at?: string | null;
   getRoles(): Role[];
   permissions?: Permission[];
-  user_signature?: ShowSignature_url | null | string |File;
-  signature:string | File;
+  user_signature?: ShowSignature_url | null;
+  signature?: string | File;
 
 }
 export interface ShowSignature_url{
@@ -35,7 +35,7 @@ export interface UserCreatePayload {
   tel?: string;
   roleIds: number[];
   permissionIds: number[];
-  signature:string
+  signature?: string | File
 }
 
 export interface UserUpdatePayload {
@@ -45,7 +45,8 @@ export interface UserUpdatePayload {
   tel?: string;
   roleIds: number[];
   permissionIds: number[];
-  signature:string
+  signature?: string | File;
+  delete_signature?: boolean;
 }
 export interface UserChangePasswordPayload {
   old_password?: string;

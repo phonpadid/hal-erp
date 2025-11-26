@@ -21,7 +21,8 @@ export interface PaginationParams {
   requested_date_end?: string;
   start_date?: string;
   end_date?: string;
-  
+  company_id?: number;
+
 }
 
 export interface APIResponse<T> {
