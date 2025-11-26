@@ -63,21 +63,6 @@ export class UserServiceImpl implements UserServices {
     if (!user) {
       throw new Error(`User with id ${id} not found`);
     }
-
-    if (userData.username && userData.username !== user.getUsername()) {
-      const existingUsername = await this.userRepository.findByUsername(userData.username);
-      if (existingUsername && existingUsername.getId() !== id) {
-        throw new Error(`Username ${userData.username} already exists`);
-      }
-    }
-
-    if (userData.email && userData.email !== user.getEmail()) {
-      const existingEmail = await this.userRepository.findByEmail(userData.email);
-      if (existingEmail && existingEmail.getId() !== id) {
-        throw new Error(`Email ${userData.email} already exists`);
-      }
-    }
-
     return await this.userRepository.update(id, userData);
   }
 
