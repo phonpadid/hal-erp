@@ -36,9 +36,7 @@ export class UserEntity implements UserInterface {
     user_signature?: ShowSignature_url | null,
 
   ) {
-    console.log("=== ENTITY CONSTRUCTOR DEBUG ===");
-    console.log("Constructor received user_signature:", user_signature);
-    console.log("Type of user_signature:", typeof user_signature);
+    
 
     this.privateId = id;
     this.id = parseInt(id);
@@ -59,16 +57,12 @@ export class UserEntity implements UserInterface {
     if (user_signature && typeof user_signature === 'object' && user_signature.signature_url) {
       this.user_signature = user_signature;
       this.signature = user_signature.signature_url;
-      console.log("✅ Set user_signature and signature correctly");
     } else {
       // Ensure signature is initialized properly
       this.user_signature = null;
       this.signature = "";
-      console.log("❌ Set user_signature to null, signature to empty string");
     }
-    console.log("Final this.user_signature:", this.user_signature);
-    console.log("Final this.signature:", this.signature);
-    console.log("=== END ENTITY CONSTRUCTOR DEBUG ===");
+ 
   }
 
   public getId(): string {

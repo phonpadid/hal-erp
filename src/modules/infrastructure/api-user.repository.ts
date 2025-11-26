@@ -163,17 +163,12 @@ export class ApiUserRepository implements UserRepository {
 
   private toDomainModel(apiResponse: any): UserEntity {
     const data = apiResponse.data || apiResponse;
-
-    console.log("=== REPOSITORY DEBUG: toDomainModel ===");
-    console.log("Original data:", data);
-    console.log("data.user_signature:", data.user_signature);
-
     const roleIds = data.roles?.map((role: any) => role.id) || [];
     const roles = data.roles || [];
     const permissionIds = data.permissions?.map((perm: any) => perm.id) || [];
     const userSignature = data.user_signature || null;
 
-    console.log("processed userSignature:", userSignature);
+   
 
     const entity = new UserEntity(
       data.id.toString(),
@@ -197,9 +192,7 @@ export class ApiUserRepository implements UserRepository {
       entity.signature = data.signature;
     }
 
-    console.log("Entity user_signature after creation:", entity.getUseSignature());
-    console.log("Entity signature:", entity.signature);
-    console.log("=== END REPOSITORY DEBUG ===");
+  
 
     return entity;
   }

@@ -9,15 +9,8 @@ export class ApiCompanyUserRepository implements ICompanyUserRepository {
 
   async getAll(params: CompanyUserListPayload & PaginationParams): Promise<PaginatedResult<CompanyUserInterface>> {
     try {
-      console.log("API Request params:", params);
-      console.log("API URL:", this.baseUrl);
-
+     
       const response = await api.get(this.baseUrl, { params });
-
-      console.log("Raw API Response:", response.data);
-      console.log("Response data:", response.data.data);
-      console.log("Response type:", typeof response.data.data);
-      console.log("Is array:", Array.isArray(response.data.data));
 
       const result = {
         data: response.data.data || [],
@@ -27,7 +20,6 @@ export class ApiCompanyUserRepository implements ICompanyUserRepository {
         totalPages: response.data.totalPages || 1,
       };
 
-      console.log("Processed result:", result);
       return result;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -39,13 +31,10 @@ export class ApiCompanyUserRepository implements ICompanyUserRepository {
 
   async getById(id: number): Promise<CompanyUserInterface> {
     try {
-      console.log("Repository - Fetching company user with ID:", id);
-      console.log("Repository - API URL:", `${this.baseUrl}/${id}`);
+  
 
       const response = await api.get(`${this.baseUrl}/${id}`);
-      console.log("Repository - Raw response:", response.data);
-      console.log("Repository - Response data:", response.data.data);
-      console.log("Repository - Response data type:", typeof response.data.data);
+     
 
       return response.data.data;
     } catch (error: unknown) {
