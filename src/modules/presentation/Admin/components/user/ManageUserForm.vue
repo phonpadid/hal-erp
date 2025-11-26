@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, defineProps, defineEmits, watch, onMounted, computed } from "vue";
-import type { UserCreatePayload, UserInterface } from "@/modules/interfaces/user.interface";
+import type { UserInterface } from "@/modules/interfaces/user.interface";
 import type { PermissionGroup } from "@/modules/interfaces/permission.interface";
 import { useI18n } from "vue-i18n";
 import { createUserValidation } from "../../views/user/validation/user.validate";
@@ -51,13 +51,21 @@ const formState = reactive({
   tel: "",
   roleIds: [] as number[],
   permissionIds: [] as (string | number)[],
-  signature: "" as string | File,
+  signature: "" as string | File | undefined,
 });
 
 const signatureFile = ref<File | null>(null);
+const signaturePreview = ref<string | null>(null);
 // Add handler for signature file changes
 const handleFileChange = async (file: File) => {
   try {
+    // For preview, convert to base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      signaturePreview.value = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
     const formData = new FormData();
     formData.append("image", file);
 
@@ -124,13 +132,37 @@ const userRules = createUserValidation(t, validationState);
 watch(
   () => props.user,
   (newUser) => {
+    console.log("=== DEBUG: User data changed ===");
+    console.log(" newUser:", newUser);
+    console.log(" newUser.user_signature:", newUser?.user_signature);
+
     if (newUser) {
       formState.username = newUser.username;
       formState.email = newUser.email;
       formState.tel = newUser.tel || "";
       formState.roleIds = newUser.roleIds.map(Number);
       formState.permissionIds = newUser.permissionIds.map(Number);
+
+      // Handle signature for edit mode - use signature_url directly
+      if (newUser.user_signature?.signature_url) {
+        console.log("✅ Setting signature preview:", newUser.user_signature.signature_url);
+        signaturePreview.value = newUser.user_signature.signature_url;
+        formState.signature = newUser.user_signature.signature_url;
+      } else {
+        console.log("❌ No signature URL found");
+        signaturePreview.value = null;
+        formState.signature = "";
+      }
+    } else {
+      // Reset for create mode
+      console.log("Resetting for create mode");
+      signaturePreview.value = null;
+      formState.signature = "";
     }
+
+    console.log("Final signaturePreview:", signaturePreview.value);
+    console.log("Final formState.signature:", formState.signature);
+    console.log("=== END DEBUG ===");
   },
   { immediate: true }
 );
@@ -138,14 +170,23 @@ watch(
 const submitForm = async () => {
   try {
     await formRef.value.submitForm();
-    const formData = {
+
+    const formData: {
+      username: string;
+      email: string;
+      password?: string;
+      tel?: string;
+      roleIds: number[];
+      permissionIds: number[];
+      signature: string | File;
+    } = {
       username: formState.username,
       email: formState.email,
       tel: formState.tel || undefined,
       roleIds: formState.roleIds.map((id) => Number(id)),
       permissionIds: formState.permissionIds.map((id) => Number(id)),
-      signature: formState.signature,
-    } as UserCreatePayload;
+      signature: formState.signature || "",
+    };
 
     if (formState.password) {
       formData.password = formState.password;
@@ -181,7 +222,7 @@ watch(
   <div class="user-form">
     <UiForm ref="formRef" :model="formState" :rules="userRules" layout="vertical">
       <!-- Basic Information -->
-      <UiFormItem :label="t('user.form.signatureUpload')" name="signature" required>
+      <UiFormItem :label="t('user.form.signatureUpload')" name="signature">
         <UploadFile
           v-model="signatureFile"
           :width="'100%'"
@@ -189,7 +230,7 @@ watch(
           :upload-text="t('user.form.signatureUpload')"
           @onFileSelect="handleFileChange"
           accept="image/*"
-          :defaultUrl="formState.signature"
+          :defaultUrl="signaturePreview"
         />
       </UiFormItem>
       <div class="form-section">

@@ -27,6 +27,10 @@ const props = defineProps({
     type: [File, String, null],
     default: null,
   },
+  defaultUrl: {
+    type: [String, null],
+    default: null,
+  },
   uploadText: {
     type: String,
     default: "ອັບໂຫລດ",
@@ -48,34 +52,43 @@ const props = defineProps({
 const emit = defineEmits<{
   (e: "update:modelValue", value: File | null | string): void;
   (e: "onFileSelect", file: File): void;
+  (e: "onFileRemove"): void;
 }>();
 
 const fileList = ref<FileItem[]>([]);
 const previewImage = ref<string>("");
 const previewVisible = ref<boolean>(false);
 
-// --- Handle external v-model change (string URL from getOne)
-// --- Handle external v-model change (string URL from getOne)
+// --- Handle external v-model and defaultUrl change
 watch(
-  () => props.modelValue,
-  (val) => {
-    if (typeof val === "string" && val !== "") {
-      // ตรวจสอบว่า URL นี้ไม่ใช่ชื่อไฟล์ที่เพิ่งอัปโหลดใหม่แต่เป็น URL เต็ม
-      // เพื่อป้องกันการสร้าง FileItem ซ้ำซ้อนเมื่อมีการอัปโหลดใหม่
-      if (!fileList.value.length || (fileList.value[0].url !== val && fileList.value[0].thumbUrl !== val)) {
+  [() => props.modelValue, () => props.defaultUrl],
+  ([modelVal, defaultUrl]) => {
+    console.log("UploadFile watch - modelValue:", modelVal);
+    console.log("UploadFile watch - defaultUrl:", defaultUrl);
+    console.log("UploadFile watch - types:", typeof modelVal, typeof defaultUrl);
+
+    // Use defaultUrl if available, otherwise use modelValue
+    const imageUrl = defaultUrl || modelVal;
+
+    if (typeof imageUrl === "string" && imageUrl !== "") {
+      console.log("UploadFile - Setting up image display for URL:", imageUrl);
+      // Check if this URL is not already displayed
+      if (!fileList.value.length || (fileList.value[0].url !== imageUrl && fileList.value[0].thumbUrl !== imageUrl)) {
         fileList.value = [
           {
             uid: Date.now().toString(),
             name: "uploaded-image",
             status: "done",
-            url: val,
-            thumbUrl: val, // *** เพิ่ม thumbUrl เข้ามาด้วย ***
+            url: imageUrl,
+            thumbUrl: imageUrl,
           },
         ];
-        // ตั้งค่า previewImage เพื่อใช้ใน a-modal ด้วย
-        previewImage.value = val;
+        // Set previewImage for a-modal
+        previewImage.value = imageUrl;
+        console.log("UploadFile - FileList set:", fileList.value);
       }
-    } else if (val === null || val === "") { // เคลียร์ fileList เมื่อ modelValue เป็น null หรือ string ว่าง
+    } else if (imageUrl === null || imageUrl === "") {
+      console.log("UploadFile - Clearing file list");
       fileList.value = [];
       previewImage.value = "";
     }
@@ -126,6 +139,13 @@ const handlePreview = (file: FileItem): void => {
   previewImage.value = file.url || file.thumbUrl || "";
   previewVisible.value = true;
 };
+
+const handleRemove = (file: FileItem): void => {
+  fileList.value = [];
+  previewImage.value = "";
+  emit("update:modelValue", null);
+  emit("onFileRemove");
+};
 </script>
 
 <template>
@@ -137,6 +157,7 @@ const handlePreview = (file: FileItem): void => {
       :custom-request="customUpload"
       list-type="picture-card"
       @preview="handlePreview"
+      @remove="handleRemove"
     >
       <div v-if="fileList.length < 1">
         <div class="flex flex-col items-center justify-center">

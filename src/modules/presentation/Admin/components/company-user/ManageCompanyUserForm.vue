@@ -14,6 +14,8 @@ import { uploadFile } from "@/modules/application/services/upload.service";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import PermissionSelector from "@/modules/presentation/Admin/components/permission/PermissionSelector.vue";
 import { useRoute } from "vue-router";
+import type { PaginationParams } from "@/modules/shared/pagination";
+import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const roleStore = useRoleStore();
@@ -109,7 +111,7 @@ onMounted(async () => {
       companyId.value = Number(queryCompanyId);
     }
 
-    await roleStore.fetchAllRoles({ page: 1, limit: 10000 });
+    await loadRoles();
     const result = await permissionStore.fetchPermission();
     permissionData.value = result.data as unknown as PermissionGroup[];
   } catch (error) {
@@ -118,6 +120,32 @@ onMounted(async () => {
     loadingPermissions.value = false;
   }
 });
+
+// Watch company changes and reload roles
+watch(
+  () => companyId.value,
+  async (newCompanyId) => {
+    if (newCompanyId !== null) {
+      await loadRoles();
+    }
+  }
+);
+
+// Load roles based on company
+const loadRoles = async () => {
+  try {
+    loadingPermissions.value = true;
+    const params: PaginationParams = { page: 1, limit: 10000 };
+    if (companyId.value) {
+      params.company_id = companyId.value;
+    }
+    await roleStore.fetchAllRoles(params);
+  } catch (error) {
+    console.error("Error loading roles:", error);
+  } finally {
+    loadingPermissions.value = false;
+  }
+};
 
 // Watch company user changes
 watch(
@@ -272,7 +300,10 @@ defineExpose({
       <!-- User Information Section -->
       <div class="form-section mb-6">
         <h3 class="section-title text-lg font-semibold mb-4 text-gray-700">
-          {{ $t("company-user.form.userInfo") }}
+          <div class="flex items-center gap-2">
+            <Icon icon="ic:sharp-supervised-user-circle" class="text-xl" />
+            {{ $t("company-user.form.userInfo") }}
+          </div>
         </h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
