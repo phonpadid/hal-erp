@@ -1,20 +1,24 @@
-import type { UserAPIResponse, Role, ShowSignature_url,  } from "@/modules/interfaces/user.interface";
+import type { UserAPIResponse, Role, ShowSignature_url, UserInterface } from "@/modules/interfaces/user.interface";
 import { formatDate } from "@/modules/shared/formatdate";
 
-export class UserEntity {
-  private id: string;
-  private username: string ;
-  private email: string;
-  private password?: string;
-  private tel?: string;
-  private roleIds: number[];
-  private permissionIds: number[];
-  private roles: Role[];
-  private user_signature?: ShowSignature_url | null;
-  private created_at: string;
-  private updated_at: string;
-  private deleted_at: string | null;
-  private user_type?: string[] = [];
+export class UserEntity implements UserInterface {
+  public id: number;
+  public username: string ;
+  public email: string;
+  public password?: string;
+  public tel?: string;
+  public roleIds: number[];
+  public permissionIds: number[];
+  public roles: Role[];
+  public user_signature?: ShowSignature_url | null;
+  public signature?: string | File;
+  public permissions?: any[];
+  public created_at: string;
+  public updated_at: string;
+  public deleted_at: string | null;
+  public user_type?: string[] = [];
+
+  private privateId: string;
 
   constructor(
     id: string,
@@ -32,7 +36,10 @@ export class UserEntity {
     user_signature?: ShowSignature_url | null,
 
   ) {
-    this.id = id;
+    
+
+    this.privateId = id;
+    this.id = parseInt(id);
     this.username = username;
     this.email = email;
     this.roleIds = roleIds;
@@ -45,10 +52,21 @@ export class UserEntity {
     this.created_at = formatDate(created_at);
     this.updated_at = formatDate(updated_at);
     this.deleted_at = deleted_at === null ? null : formatDate(deleted_at);
+
+    // Set signature and user_signature from API data
+    if (user_signature && typeof user_signature === 'object' && user_signature.signature_url) {
+      this.user_signature = user_signature;
+      this.signature = user_signature.signature_url;
+    } else {
+      // Ensure signature is initialized properly
+      this.user_signature = null;
+      this.signature = "";
+    }
+ 
   }
 
   public getId(): string {
-    return this.id;
+    return this.privateId;
   }
 
   public getUsername(): string {
@@ -165,7 +183,7 @@ export class UserEntity {
     );
   }
   public static fromAPI(data: UserAPIResponse): UserEntity {
-    return new UserEntity(
+    const entity = new UserEntity(
       data.id.toString(),
       data.username,
       data.email,
@@ -180,5 +198,10 @@ export class UserEntity {
       [],
       data.user_signature || null,
     );
+
+    // Set permissions for interface compliance
+    entity.permissions = data.permissions;
+
+    return entity;
   }
 }

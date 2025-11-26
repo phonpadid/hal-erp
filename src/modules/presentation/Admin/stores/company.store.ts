@@ -44,6 +44,7 @@ export const useCompanyStore = defineStore("company", () => {
     id: parseInt(company.getId()),
     name: company.getName(),
     logo: company.getLogo(),
+    logo_url: company.getLogoUrl() || undefined,
     tel: company.getTel(),
     email: company.getEmail(),
     address: company.getAddress(),
