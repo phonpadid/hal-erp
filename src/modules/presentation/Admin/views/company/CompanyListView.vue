@@ -3,6 +3,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { CompanyInterface } from "@/modules/interfaces/company.interface";
 import { useCompanyStore } from "../../stores/company.store";
+import { useAuthStore } from "../../stores/authentication/auth.store";
 import { Columns } from "./column";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -16,6 +17,7 @@ const { t } = useI18n();
 const router = useRouter();
 
 const companyStore = useCompanyStore();
+const authStore = useAuthStore();
 const { success, error, warning } = useNotification();
 
 // State
@@ -26,6 +28,9 @@ const searchKeyword = ref<string>("");
 const deleteModalVisible = ref<boolean>(false);
 const submitLoading = ref<boolean>(false);
 const selectedCompany = ref<CompanyInterface | null>(null);
+
+// Check if current user can create company (only super-admin)
+const canCreateCompany = computed(() => authStore.isSuperAdmin);
 
 // Table pagination
 const tablePagination = computed(() => ({
@@ -138,7 +143,9 @@ const handleDeleteConfirm = async () => {
           @keyup.enter="handleSearch"
           :placeholder="t('company.placeholder.search')"
         />
+        <!-- Create Company Button - Only visible to super-admin -->
         <UiButton
+          v-if="canCreateCompany"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreatePage"
