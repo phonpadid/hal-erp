@@ -14,6 +14,7 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import ProductForm from "@/modules/presentation/Admin/components/product/FormProduct.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import type { CreateProductDTO } from "@/modules/application/dtos/product.dto";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
 
@@ -21,6 +22,12 @@ const productStore = useProductStore();
 const productTypeStore = useProductTypeStore();
 const unitStore = useUnitStore();
 const { success, error, warning } = useNotification();
+const { hasPermission } = usePermissions();
+
+// check show or hide buttons based on permissions
+const canCreate = hasPermission("create-product");
+const canEdit = hasPermission("update-product");
+const canDelete = hasPermission("delete-product");
 
 // State
 const loading = ref<boolean>(false);
@@ -211,6 +218,7 @@ const handleDeleteConfirm = async () => {
           :placeholder="t('products.placeholder.search')"
         />
         <UiButton
+          v-if="canCreate"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -255,6 +263,7 @@ const handleDeleteConfirm = async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEdit"
             type=""
             icon="ant-design:edit-outlined"
             shape="circle"
@@ -264,7 +273,8 @@ const handleDeleteConfirm = async () => {
             :disabled="!!record.deleted_at"
           />
 
-          <UiButton
+          <UiButton 
+            v-if="canDelete"
             type=""
             danger
             icon="ant-design:delete-outlined"

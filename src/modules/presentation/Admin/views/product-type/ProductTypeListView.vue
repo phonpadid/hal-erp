@@ -13,12 +13,19 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import ProductTypeForm from "@/modules/presentation/Admin/components/product-type/FormProductType.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import type { CreateProductTypeDTO } from "@/modules/application/dtos/product-type.dto";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
 
 const productTypeStore = useProductTypeStore();
 const categoryStore = useCategoryStore();
 const { success, error, warning } = useNotification();
+const { hasPermission } = usePermissions();
+
+// check permission to view this page
+const canCreateProductType = hasPermission("create-product-type");
+const canEditProductType = hasPermission("update-product-type");
+const canDeleteProductType = hasPermission("delete-product-type");
 
 // State
 const loading = ref<boolean>(false);
@@ -196,6 +203,7 @@ const handleDeleteConfirm = async () => {
           :placeholder="t('product-types.placeholder.search')"
         />
         <UiButton
+          v-if="canCreateProductType"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -226,6 +234,7 @@ const handleDeleteConfirm = async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditProductType"
             type=""
             icon="ant-design:edit-outlined"
             shape="circle"
@@ -236,6 +245,7 @@ const handleDeleteConfirm = async () => {
           />
 
           <UiButton
+            v-if="canDeleteProductType"
             type=""
             danger
             icon="ant-design:delete-outlined"

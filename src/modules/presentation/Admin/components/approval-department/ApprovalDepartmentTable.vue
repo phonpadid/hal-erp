@@ -7,7 +7,7 @@ import { useI18n } from "vue-i18n";
 import { usePurchaseOrderStore } from "@/modules/presentation/Admin/stores/purchase_requests/purchase-order";
 import { formatDate } from "@/modules/shared/formatdate";
 import { departmentStore } from "../../stores/departments/department.store";
-import type { PaginationParams } from "@/modules/shared/pagination";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -16,6 +16,7 @@ import DatePicker from "@/common/shared/components/Datepicker/DatePicker.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 
 /******************************************************** */
+const { hasPermission } = usePermissions();
 const { t } = useI18n();
 const selectedDepartment = ref<string | null>(null);
 const router = useRouter();
@@ -28,6 +29,10 @@ const dates = reactive({
   startDate: null,
   endDate: null,
 });
+/************************Check Button Show******************************* */
+const canViewDetails = computed(() => hasPermission('read-department-approver'));
+
+
 
 const handleDetailsDocument = (record: any) => {
   // console.log("Viewing details for document:", record);
@@ -275,6 +280,7 @@ onMounted(async () => {
       </template>
       <template #action="{ record }">
         <UiButton
+          v-if="canViewDetails"
           type="link"
           icon="ant-design:eye-outlined"
           color-class="flex items-center text-red-500 hover:!text-red-900"

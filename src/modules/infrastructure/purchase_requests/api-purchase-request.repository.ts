@@ -67,6 +67,17 @@ interface PurchaseRequestApiModel {
     };
   };
   total: number;
+  company?: {
+    id: number;
+    name: string;
+    logo: string;
+    logo_url: string;
+    tel: string;
+    email: string;
+    address: string;
+    created_at: string;
+    updated_at: string;
+  };
 }
 
 export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
@@ -183,6 +194,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       data.document?.department,
       data.document?.requester,
       positionData,
+      data.company || null,
       data.user_approval, 
       data.created_at || null,
       data.updated_at || null,

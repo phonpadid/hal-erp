@@ -2,16 +2,15 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { BudgetItemDetailsInterface } from "@/modules/interfaces/budget/budget-item-details.interface";
-import { formatDate } from "@/modules/shared/formatdate";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useBudgetItemDetailsStore } from "@/modules/presentation/Admin/stores/budget/budget-item-details.store";
 import { columns } from "./column";
 import { useRoute } from "vue-router";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import FormBudgetItemDetails from "@/modules/presentation/Admin/components/budget/FormBudgetItemDetails.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
@@ -19,7 +18,12 @@ const { t } = useI18n();
 const budgetItemDetailsStore = useBudgetItemDetailsStore();
 const { success, error } = useNotification();
 const route = useRoute();
+const { hasPermission } = usePermissions(); 
 
+// check show button permission
+const canCreateBudgetItemDetail = computed(() => hasPermission('create-budget-item-detail'));
+const canEditBudgetItemDetail = computed(() => hasPermission('update-budget-item-detail'));
+const canDeleteBudgetItemDetail = computed(() => hasPermission('delete-budget-item-detail'));
 // Props for filtered view
 const props = defineProps<{
   budgetItemId?: string; // Optional: when provided, only shows details for this budget item
@@ -214,6 +218,7 @@ const handleDeleteConfirm = async () => {
           :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
+          v-if="canCreateBudgetItemDetail"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -242,6 +247,7 @@ const handleDeleteConfirm = async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditBudgetItemDetail"
             type=""
             icon="ant-design:edit-outlined"
             size="small"
@@ -251,6 +257,7 @@ const handleDeleteConfirm = async () => {
           />
 
           <UiButton
+            v-if="canDeleteBudgetItemDetail"
             type=""
             danger
             icon="ant-design:delete-outlined"

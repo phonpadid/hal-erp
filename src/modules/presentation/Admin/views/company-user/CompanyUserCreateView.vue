@@ -71,18 +71,36 @@ const submitForm = () => {
 
 <template>
   <div class="company-user-create-container">
-    <div class="max-w-4xl mx-auto p-6">
-      <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-4">
-          <div>
-            <h1 class="text-2xl font-semibold">{{ t("company-user.modal.create") }}</h1>
-          </div>
+    <div class="w-full p-3 pl-2">
+      <!-- Header with Action Buttons -->
+      <div class="flex items-center justify-between mb-4 mt-1">
+        <div>
+          <h1 class="text-2xl font-semibold">{{ t("company-user.modal.create") }}</h1>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3">
+          <UiButton
+            type="default"
+            @click="handleCancel"
+            :disabled="submitLoading"
+          >
+            {{ t("button.cancel") }}
+          </UiButton>
+          <UiButton
+            type="primary"
+            @click="submitForm"
+            :loading="submitLoading"
+            icon="ant-design:save-outlined"
+            color-class="flex items-center gap-2"
+          >
+            {{ t("company-user.button.create") }}
+          </UiButton>
         </div>
       </div>
 
       <!-- Company User Create Form -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="w-full">
         <ManageCompanyUserForm
           ref="companyUserFormRef"
           :company-user="null"
@@ -90,26 +108,6 @@ const submitForm = () => {
           :loading="submitLoading"
           @submit="handleFormSubmit"
         />
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex justify-end gap-4 mt-6">
-        <UiButton
-          type="default"
-          @click="handleCancel"
-          :disabled="submitLoading"
-        >
-          {{ t("button.cancel") }}
-        </UiButton>
-        <UiButton
-          type="primary"
-          @click="submitForm"
-          :loading="submitLoading"
-          icon="ant-design:save-outlined"
-          color-class="flex items-center gap-2"
-        >
-          {{ t("company-user.button.create") }}
-        </UiButton>
       </div>
     </div>
   </div>

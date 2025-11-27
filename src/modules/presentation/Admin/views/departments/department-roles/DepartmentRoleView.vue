@@ -81,6 +81,7 @@ import { useDepartmentRoleStore } from "../../../stores/departments/department-r
 import { departmentStore as useDepartmentStore } from "../../../stores/departments/department.store";
 import { departmentRoleColumn } from "./column"; // Fixed import for department role table columns
 import type { DepartmentEntity } from "@/modules/domain/entities/departments/department.entity";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
 
@@ -89,6 +90,12 @@ const departmentStore = useDepartmentStore();
 const departmentRoles = ref<DepartmentRoleWithDetailsDTO[]>([]);
 const router = useRouter();
 const { success } = useNotification();
+const { hasPermission } = usePermissions();
+
+// check show or hide buttons based on permissions
+const canCreate = hasPermission("write-department-role");
+const canEdit = hasPermission("update-department-role");
+const canDelete = hasPermission("delete-department-role");
 
 // Department filter state
 const selectedDepartmentId = ref<string | number | null>(null);

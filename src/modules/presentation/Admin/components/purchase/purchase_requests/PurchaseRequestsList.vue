@@ -6,6 +6,7 @@ import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purc
 import { columns } from "./column";
 import { useI18n } from "vue-i18n";
 import { formatDate } from "@/modules/shared/formatdate";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
@@ -18,11 +19,15 @@ const dates = reactive({
   startDate: null,
   endDate: null,
 });
+const { hasPermission } = usePermissions();
 const { t } = useI18n();
 const currentPage = ref(1);
 const pageSize = ref(10);
 const loading = ref(false);
 const purchaseRequestStore = usePurchaseRequestsStore();
+
+// check permission to view this page
+const canViewPurchaseRequests = hasPermission("read-purchase-request");
 
 const tablePagination = computed(() => ({
   current: purchaseRequestStore.pagination.page,
@@ -179,6 +184,7 @@ onMounted(async () => {
       <!-- Custom cell rendering for actions column -->
       <template #actions="{ record }">
         <UiButton
+          v-if="canViewPurchaseRequests"
           type="link"
           icon="ant-design:eye-outlined"
           color-class="flex items-center text-red-500 hover:!text-red-900"

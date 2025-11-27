@@ -6,6 +6,7 @@ import { useDocumentTypeStore } from "../../stores/document-type.store";
 import { columns } from "./column";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -15,6 +16,12 @@ import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 const { t } = useI18n();
 const documentTypeStore = useDocumentTypeStore();
 const { success, error, warning } = useNotification();
+const { hasPermission } = usePermissions();
+
+// check show or hide buttons based on permissions
+const canCreate = hasPermission("write-document-type");
+const canEdit = hasPermission("update-document-type");
+const canDelete = hasPermission("delete-document-type");
 
 // State
 const loading = ref<boolean>(false);
@@ -172,6 +179,7 @@ const handleDeleteConfirm = async () => {
           :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
+          v-if="canCreate"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -196,6 +204,7 @@ const handleDeleteConfirm = async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEdit"
             type=""
             shape="circle" 
             icon="ant-design:edit-outlined"
@@ -206,6 +215,7 @@ const handleDeleteConfirm = async () => {
           />
 
           <UiButton
+            v-if="canDelete"
             type=""
             danger
             shape="circle" 

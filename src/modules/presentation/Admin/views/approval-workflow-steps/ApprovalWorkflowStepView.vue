@@ -22,6 +22,9 @@ import { useUserStore } from "../../stores/user.store";
 import Radio from "@/common/shared/components/Input/Radio.vue";
 import InputNumber from "@/common/shared/components/Input/InputNumber.vue";
 import { useRoute } from "vue-router";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
+
+const {hasPermission} = usePermissions();
 const {error} = useNotification()
 const search = ref<string>("");
 const { t } = useI18n();
@@ -35,6 +38,13 @@ const isEdit = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedData = ref<IApprovalWorkflowStepApiModel | null>(null);
+
+// check button show permission
+const canCreateStep = computed(() => hasPermission('create-approval-workflow-step'));
+const canEditStep = computed(() => hasPermission('update-approval-workflow-step'));
+const canDeleteStep = computed(() => hasPermission('delete-approval-workflow-step'));
+
+
 
 const store = approvalWorkflowStore();
 const dpmStore = departmentStore();
@@ -282,6 +292,7 @@ const getTypeLabel = (type: string) => {
           />
         </div>
         <UiButton
+          v-if="canCreateStep"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -356,6 +367,7 @@ const getTypeLabel = (type: string) => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditStep"
             type=""
             icon="ant-design:edit-outlined"
             size="small"
@@ -365,6 +377,7 @@ const getTypeLabel = (type: string) => {
           >
           </UiButton>
           <UiButton
+            v-if="canDeleteStep"
             type=""
             danger
             shape="circle" 

@@ -73,7 +73,11 @@
     "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
     "confirmPasswordPlaceholder": "ຢືນຢັນລະຫັດຜ່ານ",
     "signature": "ລາຍເຊັນຜູ້ໃຊ້",
-    "companyInfo": "ຂໍ້ມູນບໍລິສັດ"
+    "companyInfo": "ຂໍ້ມູນບໍລິສັດ",
+    "uploadLogo": "ອັບໂຫລດໂລໂກບໍລິສັດຂອງທ່ານທີ່ນີ້",
+    "uploadSignature": "ອັບໂຫລດລາຍເຊັນຜູ້ໃຊ້ຂອງທ່ານທີ່ນີ້",
+    "companySetup": "ການຕັ້ງຄ່າບໍລິສັດ",
+    "companySetupDescription": "ຕັ້ງຄ່າຂໍ້ມູນໂປຣຟາຍບໍລິສັດຂອງທ່ານໃຫ້ສຳເລັດ"
   },
   "header_form": {
     "add": "ເພີ່ມບໍລິສັດໃໝ່",

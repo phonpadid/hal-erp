@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted,computed } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -19,6 +19,7 @@ import {
 import { userApprovalStore } from "../../stores/user-approval.store";
 import type { UserApprovalEntity } from "@/modules/domain/entities/user-approvals/user-approval.entity";
 import type { UserApprovalApiModel } from "@/modules/interfaces/user-approvals/user-approval.interface";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 const { t } = useI18n();
 
@@ -27,6 +28,7 @@ const userApproval = userApprovalStore();
 const user_aproval = ref<UserApprovalApiModel[]>([]);
 const useRealApi = ref<boolean>(true); // Toggle between mock and real APIfgfgfgf
 const { success } = useNotification();
+const { hasPermission } = usePermissions();
 // Form related
 
 const formRef = ref();
@@ -48,7 +50,10 @@ function getStatusColor(status: string): string {
       return "red"; // or any default/fallback color
   }
 }
-
+// check button show
+const canCreateUserApproval = computed(() => hasPermission("write-user-approval"));
+const canEditUserApproval = computed(() => hasPermission("update-user-approval"));
+const canDeleteUserApproval = computed(() => hasPermission("delete-user-approval"));
 // Load data on component mount
 onMounted(async () => {
   await loadDpm();

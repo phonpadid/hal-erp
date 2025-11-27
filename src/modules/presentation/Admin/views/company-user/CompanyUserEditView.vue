@@ -107,18 +107,44 @@ const submitForm = () => {
 
 <template>
   <div class="company-user-edit-container">
-    <div class="max-w-4xl mx-auto p-6">
-      <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-4">
-          <div>
-            <h1 class="text-2xl font-semibold">{{ t("company-user.modal.edit") }}</h1>
-          </div>
+    <div class="w-full p-3 pl-2">
+      <!-- Header with Action Buttons -->
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h1 class="text-2xl font-semibold">{{ t("company-user.modal.edit") }}</h1>
+        </div>
+
+        <!-- Action Buttons in Header -->
+        <div class="flex gap-3" v-if="!loading">
+          <UiButton
+            type="default"
+            @click="handleCancel"
+            :disabled="submitLoading"
+      
+          >
+            {{ t("button.cancel") }}
+          </UiButton>
+          <UiButton
+            type="primary"
+            @click="submitForm"
+            :loading="submitLoading"
+            icon="ant-design:edit-outlined"
+            color-class="flex items-center gap-2"
+       
+          >
+            {{ t("button.edit") }}
+          </UiButton>
         </div>
       </div>
 
+      <!-- Loading State -->
+      <div class="bg-white rounded-lg shadow-sm p-6 text-center" v-if="loading">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+        <p class="mt-4 text-gray-600">{{ t("common.loading") }}</p>
+      </div>
+
       <!-- Company User Edit Form -->
-      <div class="bg-white rounded-lg shadow-sm p-6" v-if="!loading">
+      <div class="w-full" v-else>
         <ManageCompanyUserForm
           ref="companyUserFormRef"
           :company-user="companyUser"
@@ -128,31 +154,29 @@ const submitForm = () => {
         />
       </div>
 
-      <!-- Loading State -->
-      <div class="bg-white rounded-lg shadow-sm p-6 text-center" v-else>
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-        <p class="mt-4 text-gray-600">{{ t("common.loading") }}</p>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex justify-end gap-4 mt-6" v-if="!loading">
-        <UiButton
-          type="default"
-          @click="handleCancel"
-          :disabled="submitLoading"
-        >
-          {{ t("button.cancel") }}
-        </UiButton>
-        <UiButton
-          type="primary"
-          @click="submitForm"
-          :loading="submitLoading"
-          icon="ant-design:edit-outlined"
-          color-class="flex items-center gap-2"
-        >
-          {{ t("button.edit") }}
-        </UiButton>
-      </div>
+      <!-- Fixed Bottom Action Buttons (Sticky) -->
+      <!-- <div class="fixed bottom-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-10" style="left: 256px;" v-if="!loading">
+        <div class="flex justify-end gap-3 max-w-4xl mx-auto">
+          <UiButton
+            type="default"
+            @click="handleCancel"
+            :disabled="submitLoading"
+            size="default"
+          >
+            {{ t("button.cancel") }}
+          </UiButton>
+          <UiButton
+            type="primary"
+            @click="submitForm"
+            :loading="submitLoading"
+            icon="ant-design:edit-outlined"
+            color-class="flex items-center gap-2"
+            size="default"
+          >
+            {{ t("button.edit") }}
+          </UiButton>
+        </div>
+      </div> -->
     </div>
   </div>
 </template>

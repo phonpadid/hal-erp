@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -15,7 +15,10 @@ import { currencyStore, formState } from "../../stores/currency.store";
 import type { CurrencyEntity } from "@/modules/domain/entities/currency.entity";
 import type { CurrencyApiModel } from "@/modules/interfaces/currency.interface";
 import { CurrencyValidate } from "./validation/create.validate";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 const { t } = useI18n();
+const { hasPermission } = usePermissions();
+
 // Initialize the unit store
 const store = currencyStore();
 // currency data that will be displayed (from API or mock)
@@ -30,12 +33,18 @@ const loading = ref<boolean>(false);
 const selectedCurrency = ref<CurrencyApiModel | null>(null);
 const search = ref<string>("");
 
+// Permission checks for buttons
+const canCreateCurrency = computed(() => hasPermission('write-currency'));
+const canEditCurrency = computed(() => hasPermission('edit-currency'));
+const canDeleteCurrency = computed(() => hasPermission('delete-currency'));
+
 // Form model
 const formModel = store.currencyFormModel;
 
 // Load data on component mount
 onMounted(async () => {
   await currenciesList();
+  // debugPermissions();
 });
 
 const currenciesList = async (): Promise<void> => {
@@ -238,6 +247,7 @@ watch(search, async(newVal) => {
           />
         </div>
         <UiButton
+          v-if="canCreateCurrency"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -270,19 +280,21 @@ watch(search, async(newVal) => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditCurrency"
             type=""
             icon="ant-design:edit-outlined"
-            shape="circle" 
+            shape="circle"
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
           >
           </UiButton>
           <UiButton
+            v-if="canDeleteCurrency"
             type=""
             danger
             icon="ant-design:delete-outlined"
-            shape="circle" 
+            shape="circle"
             colorClass="flex items-center justify-center text-red-700"
             size="small"
             @click="showDeleteModal(record)"

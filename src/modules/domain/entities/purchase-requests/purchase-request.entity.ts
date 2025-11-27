@@ -7,7 +7,8 @@ import type {
   Position,
   Requester,
   UserApproval,
-  UserSignature
+  UserSignature,
+  Company
 } from "@/modules/interfaces/purchase-requests/purchase-request.interface";
 export class PurchaseRequestEntity {
   private readonly id: string | null;
@@ -24,6 +25,7 @@ export class PurchaseRequestEntity {
   private position: Position | null;
   private total: number;
   private items: PurchaseRequestItemEntity[];
+  private company: Company | null;
   private user_approval: {
     id: number;
     document_id: number;
@@ -68,11 +70,12 @@ export class PurchaseRequestEntity {
     department: Department | null = null,
     requester: Requester | null = null,
     position: Position | null = null,
+    company: Company | null = null,
     user_approval: any = null,
     createdAt: string | null = null,
     updatedAt: string | null = null,
     deletedAt: string | null = null,
-    total: number = 0 
+    total: number = 0
   ) {
     this.id = id;
     this.documentTypeId = documentTypeId;
@@ -86,6 +89,7 @@ export class PurchaseRequestEntity {
     this.department = department;
     this.requester = requester;
     this.position = position;
+    this.company = company;
     this.user_approval = user_approval;
     this.total = total;
     this.items = [];
@@ -146,6 +150,11 @@ export class PurchaseRequestEntity {
   public getPosition(): Position | null {
     return this.position;
   }
+
+  public getCompany(): Company | null {
+    return this.company;
+  }
+
   public getUserApproval() {
     if (
       this.user_approval &&
@@ -246,6 +255,7 @@ export class PurchaseRequestEntity {
       purposes,
       "PENDING",
    
+      null,
       null,
       null,
       null,

@@ -84,7 +84,11 @@
     "passwordPlaceholder": "Enter password",
     "confirmPassword": "Confirm Password",
     "confirmPasswordPlaceholder": "Confirm password",
-    "signature": "User Signature"
+    "signature": "User Signature",
+    "uploadLogo": "Upload your company logo here",
+    "uploadSignature": "Upload your user signature here",
+    "companySetup": "Company Setup",
+    "companySetupDescription": "Complete your company profile information"
   },
    "success": {
     "title": "Success",
