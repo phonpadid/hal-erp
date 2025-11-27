@@ -487,7 +487,7 @@ const handleBudgetConfirm = (data: any) => {
       remainingAmount: data.balance_amount,
       usedAmount: data.used || data.use_amount,
     };
-    console.log("Selected budgets after confirm:", selectedBudgets.value);
+    // console.log("Selected budgets after confirm:", selectedBudgets.value);
   }
   visibleBudget.value = false;
 };
@@ -717,28 +717,22 @@ const isFullyApproved = computed(() => {
 });
 
 const customButtons = computed(() => {
-  // ✅ แสดงปุ่ม Export และ Print เมื่ออนุมัติสำเร็จหรือเอกสารอนุมัติครบแล้ว
-  if (isApproved.value || isFullyApproved.value) {
-    return [
-      {
-        label: "Export",
-        icon: "ant-design:file-excel-outlined",
-        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
-        type: "default" as ButtonType,
-        onClick: handleExport,
-      },
-      {
-        label: "Print",
-        icon: "ant-design:printer-outlined",
-        class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
-        type: "default" as ButtonType,
-        onClick: handlePrint,
-      },
-    ];
-  }
+  // Debug logs
+  // console.log("=== DEBUG CUSTOM BUTTONS ===");
+  // console.log("isApproved:", isApproved.value);
+  // console.log("isFullyApproved:", isFullyApproved.value);
+  // console.log("canApprove:", canApprove.value);
+  // console.log("canCreatePaymentDocument:", canCreatePaymentDocument.value);
+  // console.log("approvalSteps:", approvalSteps.value);
 
-  // ✅ ถ้าอนุมัติครบแล้วและเป็น user ที่มีสิทธิ์สร้างใบเบิกจ่าย
+  // Debug user data
+  const userDataStr = localStorage.getItem("userData");
+  const userData = userDataStr ? JSON.parse(userDataStr) : null;
+  console.log("User data from localStorage:", userData);
+
+  // ✅ ถ้าอนุมัติครบแล้วและเป็น user ที่มีสิทธิ์สร้างใบเบิกจ่าย (มาก่อนเสมอ!)
   if (canCreatePaymentDocument.value) {
+    // console.log("Showing payment document buttons - case 2 (PRIORITY)");
     return [
       {
         label: "Export",
@@ -764,15 +758,88 @@ const customButtons = computed(() => {
     ];
   }
 
-  // ✅ ถ้าไม่มีสิทธิ์อนุมัติ แต่เอกสารยังไม่อนุมัติครบ - ไม่แสดงปุ่ม
+  // ✅ แสดงปุ่ม Export และ Print เมื่ออนุมัติสำเร็จหรือเอกสารอนุมัติครบแล้ว (หลัง case 2)
+  if (isApproved.value || isFullyApproved.value) {
+    // console.log("Showing basic buttons (Export, Print) - case 1");
+    return [
+      {
+        label: "Export",
+        icon: "ant-design:file-excel-outlined",
+        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+        type: "default" as ButtonType,
+        onClick: handleExport,
+      },
+      {
+        label: "Print",
+        icon: "ant-design:printer-outlined",
+        class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+        type: "default" as ButtonType,
+        onClick: handlePrint,
+      },
+    ];
+  }
+
+  // ✅ ถ้าไม่มีสิทธิ์อนุมัติ แต่เอกสารอนุมัติครบแล้ว ให้ตรวจสอบว่าเป็นผู้อนุมัติคนสุดท้ายหรือไม่
+  if (!canApprove.value && isFullyApproved.value) {
+    // console.log("Cannot approve - no permissions, but document is fully approved - case 3");
+
+    // ตรวจสอบว่าเป็นผู้อนุมัติขั้นตอนสุดท้ายหรือไม่
+    if (canCreatePaymentDocument.value) {
+      // console.log("User can create payment document - showing all buttons");
+      return [
+        {
+          label: "Export",
+          icon: "ant-design:file-excel-outlined",
+          class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+          type: "default" as ButtonType,
+          onClick: handleExport,
+        },
+        {
+          label: "Print",
+          icon: "ant-design:printer-outlined",
+          class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+          type: "default" as ButtonType,
+          onClick: handlePrint,
+        },
+        {
+          label: `ສ້າງໃບເບີກຈ່າຍ`,
+          type: "primary" as ButtonType,
+          onClick: () => {
+            onChooseDocumentType();
+          },
+        },
+      ];
+    }
+
+    // ถ้าไม่มีสิทธิ์สร้างใบเบิกจ่ายก็แสดงแค่ปุ่ม Export และ Print
+    // console.log("User cannot create payment document - showing basic buttons only");
+    return [
+      {
+        label: "Export",
+        icon: "ant-design:file-excel-outlined",
+        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+        type: "default" as ButtonType,
+        onClick: handleExport,
+      },
+      {
+        label: "Print",
+        icon: "ant-design:printer-outlined",
+        class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+        type: "default" as ButtonType,
+        onClick: handlePrint,
+      },
+    ];
+  }
+
+  // ✅ ถ้าไม่มีสิทธิ์อนุมัติและเอกสารยังไม่อนุมัติครบ - ไม่แสดงปุ่ม
   if (!canApprove.value) {
-    console.log("Cannot approve - no permissions");
+    // console.log("Cannot approve - no permissions and document not fully approved - case 4");
     return [];
   }
 
   const currentStep = currentApprovalStep.value;
   if (!currentStep) {
-    console.log("No current step available for buttons");
+    // console.log("No current step available for buttons");
     return [];
   }
 
