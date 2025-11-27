@@ -6,6 +6,7 @@ import type { UserDTO } from "./user.dto";
 import type { UnitDTO } from "./unit.dto";
 import type { VendorDto } from "./vendors/vendor/vendor.dto";
 import type { VendorBankAccountDto } from "./vendors/vendor_bank_accounts/vendor-bank-accounts";
+import type { CompanyInterface } from "@/modules/interfaces/company.interface";
 
 export interface CreateReceiptDTO {
   purchase_order_id: string;
@@ -86,6 +87,7 @@ export interface IDocument {
   document_type: DocumentTypeDTO;
   requester: UserDTO;
   position: { id: number; name: string }[],
+  company: CompanyInterface
 }
 
 

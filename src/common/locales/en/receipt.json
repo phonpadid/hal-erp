@@ -15,5 +15,7 @@
         "sub_total": "Subtotal",
         "vat": "Vat",
         "total": "Total amount"
-    }
+    },
+    "address": "Address",
+    "from_company": "From company"
 }
