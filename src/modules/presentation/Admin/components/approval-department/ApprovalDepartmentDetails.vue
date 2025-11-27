@@ -851,7 +851,7 @@ const getPurchaseOrderQuantity = computed(() => {
   const poItems = orderDetails.value?.getPurchaseOrderItem?.() ?? [];
   if (Array.isArray(poItems) && poItems.length > 0) {
     return poItems.reduce((sum, item) => {
-    
+
       const quantity = item.getQuantity?.() ?? 0;
       return sum + Number(quantity);
     }, 0);
