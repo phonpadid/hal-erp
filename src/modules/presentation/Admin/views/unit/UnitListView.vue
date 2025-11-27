@@ -6,6 +6,7 @@ import { useUnitStore } from "../../stores/unit.store";
 import { Columns } from "./column";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -16,6 +17,7 @@ const { t } = useI18n();
 
 const unitStore = useUnitStore();
 const { success, error, warning } = useNotification();
+const { hasPermission } = usePermissions();
 
 // State
 const loading = ref<boolean>(false);
@@ -28,6 +30,11 @@ const submitLoading = ref<boolean>(false);
 const selectedUnit = ref<UnitInterface | null>(null);
 const isEditMode = ref<boolean>(false);
 const unitFormRef = ref();
+
+// check show buttons
+const canCreateUnit = computed(() => hasPermission("write-unit"));
+const canEditUnit = computed(() => hasPermission("update-unit"));
+const canDeleteUnit = computed(() => hasPermission("delete-unit"));
 
 // Table pagination
 const tablePagination = computed(() => ({
@@ -172,6 +179,7 @@ const handleDeleteConfirm = async () => {
           :placeholder="t('units.placeholder.search')"
         />
         <UiButton
+          v-if="canCreateUnit"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -197,6 +205,7 @@ const handleDeleteConfirm = async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditUnit"
             type=""
             icon="ant-design:edit-outlined"
             shape="circle" 
@@ -207,6 +216,7 @@ const handleDeleteConfirm = async () => {
           />
 
           <UiButton
+            v-if="canDeleteUnit"
             type=""
             danger
             icon="ant-design:delete-outlined"

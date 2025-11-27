@@ -13,11 +13,19 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FormBudgetItem from "@/modules/presentation/Admin/components/budget/FormBudgetItem.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import type { PaginationParams } from "@/modules/shared/pagination";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
 const budgetItemStore = useBudgetItemStore();
 const { success, error } = useNotification();
 // const router = useRouter();
+
+const { hasPermission } = usePermissions();
+
+// check show button permission
+const canCreateBudgetItem = computed(() => hasPermission('create-budget-item'));
+const canEditBudgetItem = computed(() => hasPermission('update-budget-item'));
+const canDeleteBudgetItem = computed(() => hasPermission('delete-budget-item'));
 
 // Props for filtered view
 const props = defineProps<{
@@ -202,6 +210,7 @@ const handleDeleteConfirm = async () => {
           :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
+          v-if="canCreateBudgetItem"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -242,6 +251,7 @@ const handleDeleteConfirm = async () => {
             :disabled="!!record.deleted_at"
           /> -->
           <UiButton
+            v-if="canEditBudgetItem"
             type=""
             icon="ant-design:edit-outlined"
             size="small"
@@ -250,6 +260,7 @@ const handleDeleteConfirm = async () => {
             :disabled="!!record.deleted_at"
           />
           <UiButton
+            v-if="canDeleteBudgetItem"
             type=""
             danger
             icon="ant-design:delete-outlined"

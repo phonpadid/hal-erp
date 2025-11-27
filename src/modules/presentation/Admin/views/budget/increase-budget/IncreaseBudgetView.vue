@@ -17,10 +17,18 @@ import { formatPrice } from "@/modules/shared/utils/format-price";
 import type { IncreaseBudgetAccountDTO } from "@/modules/application/dtos/budget/increase-budget/increase-budget.dto";
 import UpdateModal from "../../../components/budget/increase/UpdateModal.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
+
+
 const { t } = useI18n();
 const { push } = useRouter();
 const increaseStore = useIncreaseBudgetStore();
 const { success, error } = useNotification();
+const { hasPermission } = usePermissions(); 
+// check permissions
+const canCreateIncreaseBudget = computed(() => hasPermission('create-increase-budget'));
+const canEditIncreaseBudget = computed(() => hasPermission('update-increase-budget'));
+const canDeleteIncreaseBudget = computed(() => hasPermission('delete-increase-budget'));
 // console.log('increaseStore', increaseStore.increase_budget);
 const editModalVisible = ref<boolean>(false);
 const selectedYear = ref<number>(new Date().getFullYear()); // Default to current year;
@@ -149,6 +157,7 @@ onMounted(async () => {
           class="min-w-[120px]"
         />
         <UiButton
+          v-if="canCreateIncreaseBudget"
           type="primary"
           icon="ant-design:plus-outlined"
           colorClass="text-white flex items-center"
@@ -172,6 +181,7 @@ onMounted(async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditIncreaseBudget"
             type=""
             icon="ant-design:info-circle-outlined"
             size="small"
@@ -180,6 +190,7 @@ onMounted(async () => {
             :disabled="!!record.deleted_at"
           />
           <UiButton
+            v-if="canEditIncreaseBudget"
             type=""
             icon="ant-design:edit-outlined"
             size="small"
@@ -188,6 +199,7 @@ onMounted(async () => {
             :disabled="!!record.deleted_at"
           />
           <UiButton
+            v-if="canDeleteIncreaseBudget"
             type=""
             danger
             icon="ant-design:delete-outlined"

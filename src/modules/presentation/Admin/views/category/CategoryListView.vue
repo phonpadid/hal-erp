@@ -11,11 +11,19 @@ import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import CategoryForm from "@/modules/presentation/Admin/components/category/FormCategory.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
 
 const categoryStore = useCategoryStore();
 const { success, error, warning } = useNotification();
+
+const { hasPermission } = usePermissions();
+
+// Check show button permission
+const canCreateCategory = computed(() => hasPermission('create-category'));
+const canEditCategory = computed(() => hasPermission('update-category'));
+const canDeleteCategory = computed(() => hasPermission('delete-category'));
 
 // State
 const loading = ref<boolean>(false);
@@ -172,6 +180,7 @@ const handleDeleteConfirm = async () => {
           :placeholder="t('categories.placeholder.search')"
         />
         <UiButton
+          v-if="canCreateCategory"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -189,7 +198,6 @@ const handleDeleteConfirm = async () => {
       :pagination="tablePagination"
       :loading="loading"
       row-key="id"
-
       @change="handleTableChange"
     >
 
@@ -197,6 +205,7 @@ const handleDeleteConfirm = async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditCategory"
             type=""
             icon="ant-design:edit-outlined"
             shape="circle" 
@@ -207,6 +216,7 @@ const handleDeleteConfirm = async () => {
           />
 
           <UiButton
+            v-if="canDeleteCategory"
             type=""
             danger
             icon="ant-design:delete-outlined"

@@ -12,9 +12,12 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import { useRoleStore } from "../../stores/role.store";
 import { roleRules } from "./validation/role.validate";
 import type { Role } from "@/modules/domain/entities/role.entities";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
 const { success, error } = useNotification();
+
+const { hasPermission } = usePermissions();
 
 const roleStore = useRoleStore();
 const roles = ref<Role[]>([]);
@@ -33,6 +36,11 @@ const formModel = reactive({
   name: "",
   permissions: [], // Default empty permissions for compatibility
 });
+
+// check button show 
+const canCreateRole = computed(() => hasPermission("write-role"));
+const canEditRole = computed(() => hasPermission("update-role"));
+const canDeleteRole = computed(() => hasPermission("delete-role"));
 
 // Table pagination
 const tablePagination = computed(() => ({
@@ -196,6 +204,7 @@ onMounted(async () => {
         <h1 class="text-2xl font-semibold">{{ t("role.list.title") }}</h1>
       </div>
       <UiButton
+        v-if="canCreateRole"
         type="primary"
         icon="material-symbols:add"
         @click="showCreateModal"
@@ -216,6 +225,7 @@ onMounted(async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditRole"
             type=""
             icon="ant-design:edit-outlined"
             size="small"
@@ -224,6 +234,7 @@ onMounted(async () => {
             colorClass="flex items-center justify-center text-orange-400"
           />
           <UiButton
+            v-if="canDeleteRole"
             type=""
             icon="ant-design:delete-outlined"
             size="small"

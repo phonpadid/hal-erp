@@ -21,12 +21,19 @@ import {
   parsePrice,
 } from "@/modules/shared/utils/format-price";
 import { departmenUsertStore } from "../../stores/departments/department-user.store";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const search = ref<string>("");
 const { t } = useI18n();
 const dpmStore = departmentStore();
 const budget_apv_rules = ref<BudgetApprovalRuleApiModel[]>([]);
 const { success, error, warning } = useNotification();
+const {hasPermission} = usePermissions()
+// check show button permission
+const canCreateBudgetApvRule = computed(() => hasPermission('create-budget-approval-rule'));
+const canEditBudgetApvRule = computed(() => hasPermission('update-budget-approval-rule'));
+const canDeleteBudgetApvRule = computed(() => hasPermission('delete-budget-approval-rule'));
+
 // Form related
 const formRef = ref();
 const createModalVisible = ref<boolean>(false);
@@ -266,6 +273,7 @@ const checkedRadio = ref("personal");
           />
         </div>
         <UiButton
+          v-if="canCreateBudgetApvRule"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -316,6 +324,7 @@ const checkedRadio = ref("personal");
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+          v-if="canEditBudgetApvRule"
             type=""
             shape="circle" 
             icon="ant-design:edit-outlined"
@@ -325,6 +334,7 @@ const checkedRadio = ref("personal");
           >
           </UiButton>
           <UiButton
+            v-if="canDeleteBudgetApvRule"
             type=""
             danger
             shape="circle" 

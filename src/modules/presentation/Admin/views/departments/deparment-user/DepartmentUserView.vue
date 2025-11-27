@@ -10,11 +10,19 @@ import { useRouter } from "vue-router";
 import { departmenUsertStore } from "../../../stores/departments/department-user.store";
 import type { DepartmentUserApiModel } from "@/modules/interfaces/departments/department-user.interface";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { warning } = useNotification();
 const { t } = useI18n();
 const dpmUserStore = departmenUsertStore();
 const search = ref<string>("");
+
+const { hasPermission } = usePermissions();
+// check show or hide buttons based on permissions
+const canCreate = hasPermission("write-department-user");
+const canEdit = hasPermission("update-department-user");
+const canDelete = hasPermission("delete-department-user");
+
 // Form related
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
@@ -122,6 +130,7 @@ watch(search, async(load) => {
           />
         </div>
         <UiButton
+          v-if="canCreate"  
           type="primary"
           icon="ant-design:plus-outlined"
           @click="creation"
@@ -163,6 +172,7 @@ watch(search, async(load) => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEdit"
             icon="ant-design:edit-outlined"
             size="small"
             shape="circle" 
@@ -170,6 +180,7 @@ watch(search, async(load) => {
             colorClass="flex items-center justify-center text-orange-400"
           />
           <UiButton
+            v-if="canDelete"
             icon="ant-design:delete-outlined"
             size="small"
             shape="circle" 

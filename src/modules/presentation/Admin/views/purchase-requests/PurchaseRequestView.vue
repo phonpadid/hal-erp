@@ -9,6 +9,7 @@ import { useRouter } from "vue-router";
 import { columns } from "./column";
 import type { DocumentTypeEntity } from "@/modules/domain/entities/document-type.entities";
 import { useDocumentStatusStore } from "../../stores/document-status.store";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
@@ -19,6 +20,11 @@ const { push } = useRouter();
 const docTypeStore = useDocumentTypeStore();
 const purchaseRequestStore = usePurchaseRequestsStore();
 const documentStatusStore = useDocumentStatusStore();
+const { hasPermission } = usePermissions();
+
+// check permission to view this page
+const canViewPurchaseRequests = hasPermission("read-purchase-request");
+const canUpdatePurchaseRequests = hasPermission("update-purchase-request");
 
 // Filters state
 const selectedDocType = ref("all");
@@ -76,8 +82,8 @@ const statusCounts = computed(() => {
 });
 // New computed property to check if a request can be edited
 const canEdit = (status: string) => {
-  // check APPROVED, REJECTED or CANCELED 
-  const nonEditableStatuses = ['APPROVED', 'REJECTED', 'CANCELED'];
+  // check APPROVED, REJECTED or CANCELED
+  const nonEditableStatuses = ["APPROVED", "REJECTED", "CANCELED"];
   return !nonEditableStatuses.includes(status.toUpperCase());
 };
 const statusCards = computed(() => {
@@ -251,20 +257,22 @@ onMounted(async () => {
         <template #actions="{ record }">
           <div class="flex items-center justify-center gap-2">
             <UiButton
-      type="link"
-      icon="material-symbols:edit-square"
-      color-class="flex items-center"
-      :class="[
-        canEdit(record.status) 
-          ? 'text-blue-500 hover:!text-blue-800' 
-          : 'text-gray-400 cursor-not-allowed'
-      ]"
-      :disabled="!canEdit(record.status)"
-      @click="canEdit(record.status) && edit(record.getId())"
-    >
-      {{ t("purchase-rq.edit") }}
-    </UiButton>
+              v-if="canUpdatePurchaseRequests"
+              type="link"
+              icon="material-symbols:edit-square"
+              color-class="flex items-center"
+              :class="[
+                canEdit(record.status)
+                  ? 'text-blue-500 hover:!text-blue-800'
+                  : 'text-gray-400 cursor-not-allowed',
+              ]"
+              :disabled="!canEdit(record.status)"
+              @click="canEdit(record.status) && edit(record.getId())"
+            >
+              {{ t("purchase-rq.edit") }}
+            </UiButton>
             <UiButton
+              v-if="canViewPurchaseRequests"
               type="link"
               icon="ant-design:eye-outlined"
               color-class="flex items-center text-red-500 hover:!text-red-800"

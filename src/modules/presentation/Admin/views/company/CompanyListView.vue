@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { CompanyInterface } from "@/modules/interfaces/company.interface";
 import { useCompanyStore } from "../../stores/company.store";
-import { useAuthStore } from "../../stores/authentication/auth.store";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import { Columns } from "./column";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -17,8 +17,16 @@ const { t } = useI18n();
 const router = useRouter();
 
 const companyStore = useCompanyStore();
-const authStore = useAuthStore();
 const { success, error, warning } = useNotification();
+const {
+  canCreateCompany,
+  hasPermission
+} = usePermissions();
+
+// check show button permission
+const canEditCompany = computed(() => hasPermission('update-company'));
+const canDeleteCompany = computed(() => hasPermission('delete-company'));
+const canManageCompanyUsers = computed(() => hasPermission('read-company-user'));
 
 // State
 const loading = ref<boolean>(false);
@@ -28,10 +36,6 @@ const searchKeyword = ref<string>("");
 const deleteModalVisible = ref<boolean>(false);
 const submitLoading = ref<boolean>(false);
 const selectedCompany = ref<CompanyInterface | null>(null);
-
-// Check if current user can create company (only super-admin)
-const canCreateCompany = computed(() => authStore.isSuperAdmin);
-
 // Table pagination
 const tablePagination = computed(() => ({
   current: companyStore.pagination.page,
@@ -41,6 +45,7 @@ const tablePagination = computed(() => ({
 }));
 
 onMounted(async () => {
+  // checkPermissions();
   await loadCompanies();
 });
 
@@ -189,6 +194,7 @@ const handleDeleteConfirm = async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canManageCompanyUsers"
             type=""
             icon="ant-design:team-outlined"
             shape="circle"
@@ -199,6 +205,7 @@ const handleDeleteConfirm = async () => {
           />
 
           <UiButton
+            v-if="canEditCompany"
             type=""
             icon="ant-design:edit-outlined"
             shape="circle"
@@ -207,8 +214,8 @@ const handleDeleteConfirm = async () => {
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
           />
-
           <UiButton
+            v-if="canDeleteCompany"
             type=""
             danger
             icon="ant-design:delete-outlined"

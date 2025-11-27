@@ -7,16 +7,24 @@ import { useBankStore } from "@/modules/presentation/Admin/stores/bank.store";
 import { getColumns } from "./column";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FormBank from "@/modules/presentation/Admin/components/bank/FormBank.vue";
 
+
+const { hasPermission } = usePermissions();
 const { t } = useI18n();
 const bankStore = useBankStore();
 const { success, warning } = useNotification();
 const bankFormRef = ref();
 const formRef = ref();
+
+/*********Check Button Show */
+const canCreateBank = ref(hasPermission('create-bank'));
+const canEditBank = ref(hasPermission('update-bank'));
+const canDeleteBank = ref(hasPermission('delete-bank'));
 
 onMounted(async () => {
   await loadBanks();
@@ -106,6 +114,7 @@ const handleFormSubmit = async (formData: {
           :placeholder="t('banks.placeholder.search')"
         />
         <UiButton
+          v-if="canCreateBank"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="bankStore.showCreateModal"
@@ -127,6 +136,7 @@ const handleFormSubmit = async (formData: {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditBank"
             type=""
             icon="ant-design:edit-outlined"
             shape="circle" 
@@ -136,6 +146,7 @@ const handleFormSubmit = async (formData: {
             :disabled="!!record.deleted_at"
           />
           <UiButton
+            v-if="canDeleteBank"
             type=""
             danger
             icon="ant-design:delete-outlined"

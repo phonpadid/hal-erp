@@ -13,12 +13,13 @@ import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import QuotaFormModal from "../../../components/quotas/quota-form/QuotaFormModal.vue";
 import { Icon } from "@iconify/vue";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
+const { hasPermission } = usePermissions();
 const quotaStore = useQuotaStore();
 const vendorStore = useVendorStore();
 const { success, error } = useNotification();
-
 // State
 const loading = ref<boolean>(false);
 const createModalVisible = ref<boolean>(false);
@@ -33,6 +34,11 @@ const vendor_id = ref<number | undefined>(undefined);
 const pageSize = ref<number>(10);
 const sortBy = ref<string>("id");
 const sortOrder = ref<string>("desc");
+
+// check permission to view this page
+const canCreateQuotas = hasPermission("create-quota-company");
+const canUpdateQuotas = hasPermission("update-quota-company");
+const canDeleteQuotas = hasPermission("delete-quota-company");
 
 const tablePagination = computed(() => {
   const pagination = {
@@ -268,6 +274,7 @@ const yearOptions = computed(() => {
         <p class="text-gray-600 mt-1">{{ t("quota.listQuota") }}</p>
       </div>
       <UiButton
+        v-if="canCreateQuotas"
         type="primary"
         @click="showCreateModal"
         class="flex items-center gap-2"
@@ -342,6 +349,7 @@ const yearOptions = computed(() => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center">
          <UiButton
+                v-if="canUpdateQuotas"
                 type="link"
                 size="small"
                 @click="showEditModal(record)"
@@ -350,6 +358,7 @@ const yearOptions = computed(() => {
               <Icon icon="material-symbols:edit-square-outline-rounded" class="mr-1" />
               </UiButton>
               <UiButton
+                v-if="canDeleteQuotas"
                 type="link"
                 size="small"
                 danger
