@@ -91,6 +91,7 @@ export class ApiCompanyRepository implements CompanyRepository {
       company.id?.toString() ?? "",
       company.name ?? "",
       company.logo ?? null,
+      company.logo_url ?? null,
       company.tel ?? "",
       company.email ?? "",
       company.address ?? "",

@@ -2,6 +2,7 @@ export interface CompanyInterface {
   id: number;
   name: string;
   logo: string | null;
+  logo_url?: string;
   tel: string;
   email: string;
   address: string;

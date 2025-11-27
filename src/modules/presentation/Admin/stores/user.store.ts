@@ -175,14 +175,24 @@ export const useUserStore = defineStore("user", () => {
     }
   };
   const userEntityToInterface = (user: UserEntity): UserInterface => {
-     const signatureUrl = user.getUseSignature()?.signature_url; 
-    return {
+     console.log("=== STORE DEBUG: userEntityToInterface ===");
+     console.log("User Entity:", user);
+     console.log("user.getUseSignature():", user.getUseSignature());
+
+     // Priority: database signature_url > user.signature (for form updates)
+     const signatureUrl = user.getUseSignature()?.signature_url;
+     const signature = signatureUrl || (user as any).signature || "";
+
+     console.log("signatureUrl:", signatureUrl);
+     console.log("final signature:", signature);
+
+     const result = {
       id: parseInt(user.getId()),
       username: user.getUsername(),
       email: user.getEmail(),
       roleIds: user.getRoleIds(),
       permissionIds: user.getPermissionIds(),
-        signature: signatureUrl ?? "", 
+      signature: signature,
       tel: user.getTel(),
       getId: () => user.getId(),
       roles: user.getRoles(),
@@ -190,8 +200,13 @@ export const useUserStore = defineStore("user", () => {
       created_at: user.getCreatedAt(),
       updated_at: user.getUpdatedAt(),
       deleted_at: user.getDeletedAt(),
-      
-    };
+      user_signature: user.getUseSignature(),
+     };
+
+     console.log("Result user_signature:", result.user_signature);
+     console.log("=== END STORE DEBUG ===");
+
+     return result;
   };
 
   // Reset state

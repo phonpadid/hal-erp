@@ -27,14 +27,11 @@ const loading = ref<boolean>(false);
 const loadCompanyUserData = async () => {
   try {
     loading.value = true;
-    console.log("Loading company user with ID:", userId.value);
 
     // Load company user data
     const companyUserData = await companyUserStore.fetchCompanyUserById(parseInt(userId.value));
-    console.log("Company user data loaded:", companyUserData);
 
     companyUser.value = companyUserData;
-    console.log("companyUser ref set to:", companyUser.value);
   } catch (error) {
     console.error("Error loading company user:", error);
     warning(t("company-user.error.title"), t("company-user.error.loadFailed"));

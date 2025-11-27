@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, defineProps, defineEmits, watch, onMounted, computed } from "vue";
-import type { UserCreatePayload, UserInterface } from "@/modules/interfaces/user.interface";
+import type { UserInterface } from "@/modules/interfaces/user.interface";
 import type { PermissionGroup } from "@/modules/interfaces/permission.interface";
 import { useI18n } from "vue-i18n";
 import { createUserValidation } from "../../views/user/validation/user.validate";
@@ -51,13 +51,28 @@ const formState = reactive({
   tel: "",
   roleIds: [] as number[],
   permissionIds: [] as (string | number)[],
-  signature: "" as string | File,
+  signature: "" as string | File | undefined,
 });
 
 const signatureFile = ref<File | null>(null);
+const signaturePreview = ref<string | null>(null);
+
+// Track if signature was uploaded (new file)
+const signatureUploaded = ref<boolean>(false);
+
 // Add handler for signature file changes
 const handleFileChange = async (file: File) => {
   try {
+    // Set flag to true when new file is uploaded
+    signatureUploaded.value = true;
+
+    // For preview, convert to base64
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      signaturePreview.value = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
     const formData = new FormData();
     formData.append("image", file);
 
@@ -69,6 +84,7 @@ const handleFileChange = async (file: File) => {
     }
   } catch (error) {
     console.error("Error uploading signature:", error);
+    signatureUploaded.value = false; // Reset flag on error
     message.error(t("user.error.uploadFailed"));
   }
 };
@@ -130,6 +146,23 @@ watch(
       formState.tel = newUser.tel || "";
       formState.roleIds = newUser.roleIds.map(Number);
       formState.permissionIds = newUser.permissionIds.map(Number);
+
+      // Reset signature uploaded flag when loading new user data
+      signatureUploaded.value = false;
+
+      // Handle signature for edit mode - use signature_url directly
+      if (newUser.user_signature?.signature_url) {
+        signaturePreview.value = newUser.user_signature.signature_url;
+        formState.signature = newUser.user_signature.signature_url;
+      } else {
+        signaturePreview.value = null;
+        formState.signature = "";
+      }
+    } else {
+      // Reset for create mode
+      signatureUploaded.value = false;
+      signaturePreview.value = null;
+      formState.signature = "";
     }
   },
   { immediate: true }
@@ -138,14 +171,38 @@ watch(
 const submitForm = async () => {
   try {
     await formRef.value.submitForm();
-    const formData = {
+
+    let signatureValue: string | File | undefined;
+
+    if (props.isEditMode) {
+      // Edit mode: Send empty string if no new signature was uploaded
+      signatureValue = signatureUploaded.value ? formState.signature : "";
+    } else {
+      // Create mode: Send signature if uploaded, empty string if not
+      signatureValue = formState.signature || "";
+    }
+
+    // Ensure we don't send undefined
+    if (signatureValue === undefined) {
+      signatureValue = "";
+    }
+
+    const formData: {
+      username: string;
+      email: string;
+      password?: string;
+      tel?: string;
+      roleIds: number[];
+      permissionIds: number[];
+      signature: string | File;
+    } = {
       username: formState.username,
       email: formState.email,
       tel: formState.tel || undefined,
       roleIds: formState.roleIds.map((id) => Number(id)),
       permissionIds: formState.permissionIds.map((id) => Number(id)),
-      signature: formState.signature,
-    } as UserCreatePayload;
+      signature: signatureValue,
+    };
 
     if (formState.password) {
       formData.password = formState.password;
@@ -181,7 +238,8 @@ watch(
   <div class="user-form">
     <UiForm ref="formRef" :model="formState" :rules="userRules" layout="vertical">
       <!-- Basic Information -->
-      <UiFormItem :label="t('user.form.signatureUpload')" name="signature" required>
+      <UiFormItem  name="signature">
+        <span><span class="text-red-500">*</span> {{ t('user.form.signatureUpload') }}</span>
         <UploadFile
           v-model="signatureFile"
           :width="'100%'"
@@ -189,7 +247,7 @@ watch(
           :upload-text="t('user.form.signatureUpload')"
           @onFileSelect="handleFileChange"
           accept="image/*"
-          :defaultUrl="formState.signature"
+          :defaultUrl="signaturePreview"
         />
       </UiFormItem>
       <div class="form-section">

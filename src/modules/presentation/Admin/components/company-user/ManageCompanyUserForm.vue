@@ -14,6 +14,8 @@ import { uploadFile } from "@/modules/application/services/upload.service";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import PermissionSelector from "@/modules/presentation/Admin/components/permission/PermissionSelector.vue";
 import { useRoute } from "vue-router";
+import type { PaginationParams } from "@/modules/shared/pagination";
+import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const roleStore = useRoleStore();
@@ -65,6 +67,9 @@ const signatureFile = ref<File | null>(null);
 // Preview states
 const signaturePreview = ref<string | null>(null);
 
+// Track if signature was uploaded
+const signatureUploaded = ref<boolean>(false);
+
 // Upload loading states
 const signatureUploading = ref<boolean>(false);
 const loadingPermissions = ref<boolean>(false);
@@ -106,7 +111,7 @@ onMounted(async () => {
       companyId.value = Number(queryCompanyId);
     }
 
-    await roleStore.fetchAllRoles({ page: 1, limit: 10000 });
+    await loadRoles();
     const result = await permissionStore.fetchPermission();
     permissionData.value = result.data as unknown as PermissionGroup[];
   } catch (error) {
@@ -116,11 +121,40 @@ onMounted(async () => {
   }
 });
 
+// Watch company changes and reload roles
+watch(
+  () => companyId.value,
+  async (newCompanyId) => {
+    if (newCompanyId !== null) {
+      await loadRoles();
+    }
+  }
+);
+
+// Load roles based on company
+const loadRoles = async () => {
+  try {
+    loadingPermissions.value = true;
+    const params: PaginationParams = { page: 1, limit: 10000 };
+    if (companyId.value) {
+      params.company_id = companyId.value;
+    }
+    await roleStore.fetchAllRoles(params);
+  } catch (error) {
+    console.error("Error loading roles:", error);
+  } finally {
+    loadingPermissions.value = false;
+  }
+};
+
 // Watch company user changes
 watch(
   () => props.companyUser,
   (newCompanyUser) => {
     if (newCompanyUser) {
+      // Reset signature upload tracker when loading company user data
+      signatureUploaded.value = false;
+
       // Handle nested user structure based on actual API response
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const companyUserAny = newCompanyUser as any;
@@ -178,6 +212,7 @@ watch(
       formState.roleIds = [];
       formState.permissionIds = [];
       signaturePreview.value = null;
+      signatureUploaded.value = false;
     }
   },
   { immediate: true }
@@ -202,9 +237,9 @@ const submitForm = async () => {
       username: formState.username,
       email: formState.email,
       tel: formState.tel,
-      password: formState.password,
-      confirm_password: formState.confirm_password,
-      signature: formState.signature,
+      password: props.isEditMode ? "" : formState.password, // Don't send password in edit mode
+      confirm_password: props.isEditMode ? "" : formState.confirm_password, // Don't send confirm_password in edit mode
+      signature: signatureUploaded.value ? formState.signature : "", // Send empty string if no new signature uploaded
       roleIds,
       permissionIds,
       company_id: companyId.value,
@@ -221,6 +256,7 @@ const submitForm = async () => {
 const handleSignatureChange = async (file: File) => {
   try {
     signatureUploading.value = true;
+    signatureUploaded.value = true;
 
     // For preview, convert to base64
     const reader = new FileReader();
@@ -264,7 +300,10 @@ defineExpose({
       <!-- User Information Section -->
       <div class="form-section mb-6">
         <h3 class="section-title text-lg font-semibold mb-4 text-gray-700">
-          {{ $t("company-user.form.userInfo") }}
+          <div class="flex items-center gap-2">
+            <Icon icon="ic:sharp-supervised-user-circle" class="text-xl" />
+            {{ $t("company-user.form.userInfo") }}
+          </div>
         </h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -294,8 +333,9 @@ defineExpose({
               :disabled="loading"
             />
           </UiFormItem>
-          <!-- Password (only for create mode) -->
+          <!-- Password fields -->
           <template v-if="!isEditMode">
+            <!-- Create mode - editable password fields -->
             <UiFormItem :label="$t('company-user.form.password')" name="password" required>
               <UiInput
                 v-model="formState.password"
@@ -320,6 +360,31 @@ defineExpose({
               </UiFormItem>
             </div>
           </template>
+          <template v-else>
+            <!-- Edit mode - disabled password fields -->
+            <UiFormItem :label="$t('company-user.form.password')" name="password">
+              <UiInput
+                v-model="formState.password"
+                placeholder="••••••••"
+                :disabled="true"
+                type="password"
+              />
+            </UiFormItem>
+            <!-- Confirm Password - Full Width on Mobile -->
+            <div class="md:col-span-2">
+              <UiFormItem
+                :label="$t('company-user.form.confirmPassword')"
+                name="confirm_password"
+              >
+                <UiInput
+                  v-model="formState.confirm_password"
+                  placeholder="••••••••"
+                  :disabled="true"
+                  type="password"
+                />
+              </UiFormItem>
+            </div>
+          </template>
            <!-- Signature -->
           <UiFormItem :label="$t('company-user.form.signature')" name="signature">
             <UploadFile
@@ -332,6 +397,7 @@ defineExpose({
               :uploading="signatureUploading"
             />
           </UiFormItem>
+          
           <!-- Roles -->
           <UiFormItem :label="$t('company-user.form.roles')" name="roleIds" required>
             <InputSelect
