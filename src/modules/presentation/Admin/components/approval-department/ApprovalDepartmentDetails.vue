@@ -725,10 +725,10 @@ const customButtons = computed(() => {
   // console.log("canCreatePaymentDocument:", canCreatePaymentDocument.value);
   // console.log("approvalSteps:", approvalSteps.value);
 
-  // Debug user data
-  const userDataStr = localStorage.getItem("userData");
-  const userData = userDataStr ? JSON.parse(userDataStr) : null;
-  console.log("User data from localStorage:", userData);
+  // // Debug user data
+  // const userDataStr = localStorage.getItem("userData");
+  // const userData = userDataStr ? JSON.parse(userDataStr) : null;
+  // console.log("User data from localStorage:", userData);
 
   // ✅ ถ้าอนุมัติครบแล้วและเป็น user ที่มีสิทธิ์สร้างใบเบิกจ่าย (มาก่อนเสมอ!)
   if (canCreatePaymentDocument.value) {

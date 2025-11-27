@@ -26,7 +26,8 @@
     "roles": "ບົດບາດ",
     "rolesPlaceholder": "ເລືອກບົດບາດ",
     "permissions": "ສິດທິ",
-    "permissionsPlaceholder": "ເລືອກສິດທິ"
+    "permissionsPlaceholder": "ເລືອກສິດທິ",
+    "signatureUpload": "ອັບໂຫລດຮູບລາຍເຊັນຜູ້ໃຊ້"
   },
   "placeholder": {
     "search": "ຄົ້ນຫາຊື່ຜູ້ໃຊ້ຫຼືອີເມວ"

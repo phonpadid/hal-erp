@@ -26,7 +26,8 @@
     "roles": "Roles",
     "rolesPlaceholder": "Select Roles",
     "permissions": "Permissions",
-    "permissionsPlaceholder": "Select Permissions"
+    "permissionsPlaceholder": "Select Permissions",
+    "signatureUpload": "Upload user signature image"
   },
   "placeholder": {
     "search": "Search by username or email"
