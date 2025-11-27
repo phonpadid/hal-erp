@@ -46,6 +46,7 @@ const formModel = reactive({
 });
 const authStore = useAuthStore();
 const isSuperAdmin = computed(() => authStore.isSuperAdmin); // ✅ ดึง getter isSuperAdmin\
+const isCompanyAdmin = computed(() => authStore.isCompanyAdmin); // ✅ ดึง getter isSuperAdmin\
 
 const loadData = async (): Promise<void> => {
   // if (useRealApi.value) {
@@ -157,6 +158,7 @@ watch(search, async (newValue) => {
     await loadData()
   }
 })
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const verify = async (record: any) => {
   Modal.confirm({
     title: t("approval-workflow.confirm.title"),
@@ -241,7 +243,7 @@ onMounted(async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <!-- <SettingOutlined /> -->
-          <UiButton v-if="isSuperAdmin" icon="ant-design:safety-outlined" size="small" shape="circle" @click="verify(record)" :colorClass="[
+          <UiButton v-if="isSuperAdmin || isCompanyAdmin" icon="ant-design:safety-outlined" size="small" shape="circle" @click="verify(record)" :colorClass="[
             'flex items-center justify-center',
             record.status === 'approved'
               ? 'text-green-600'
