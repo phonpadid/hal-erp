@@ -319,7 +319,8 @@ const vendorInfo = (data: ISelectVendor) => {
       :action-buttons="customButtons"
     />
     <div class="bg-white rounded-lg shadow-sm p-2 mt-4">
-      <div class="mb-0">
+      <div class="flex gap-[4rem]">
+      <div class="mb-0 w-full">
         <h3 class="text-base font-semibold mb-2">ຈາກໜ່ວຍງານ</h3>
         <div class="flex items-center gap-3">
           <a-avatar size="large" :src="'/public/4.png'" />
@@ -334,15 +335,21 @@ const vendorInfo = (data: ISelectVendor) => {
         </div>
       </div>
 
-      <div class="mb-6">
+      <div class="mb-2 w-full">
         <h3 class="text-base font-semibold mb-2">{{ t("purchase-rq.field.purposes") }}</h3>
         <UiInput
           v-model="formState.remark"
           placeholder="ປ້ອນຈຸດປະສົງ"
           className="bg-gray-50"
         />
+        <!-- <h3 class="text-base font-semibold m-2">ຈາກບໍລິສັດ</h3>
+        <UiInput
+          v-model="formState.remark"
+          placeholder="ປ້ອນຈຸດປະສົງ"
+          className="bg-gray-50"
+        /> -->
       </div>
-
+</div>
       <!-- <div class="mb-6 border rounded-lg p-4">
         <h3 class="text-base font-semibold mb-4">{{ t("disbursement.vendor.title") }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
