@@ -12,16 +12,6 @@ export class DeleteUnitUseCase {
     if (!unit) {
       throw new Error(`Unit with id ${id} not found`);
     }
-    if (unit.isDeleted()) {
-      throw new Error(`Unit with id ${id} is already deleted`);
-    }
-
-    // Check if any products are using this unit
-    const productsUsingUnit = await this.productRepository.findByUnitId(id);
-    if (productsUsingUnit.length > 0) {
-      throw new Error(`Cannot delete unit because it is being used by ${productsUsingUnit.length} product(s)`);
-    }
-
     return await this.unitRepository.delete(id);
   }
 }

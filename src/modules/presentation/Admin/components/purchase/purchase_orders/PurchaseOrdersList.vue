@@ -6,6 +6,7 @@ import { useI18n } from "vue-i18n";
 import { usePurchaseOrderStore } from "../../../stores/purchase_requests/purchase-order";
 import { columns } from "../../../views/purchase_orders/column";
 import { formatDate } from "@/modules/shared/formatdate";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -16,6 +17,10 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 const { t } = useI18n();
 const router = useRouter();
 const store = usePurchaseOrderStore();
+const { hasPermission } = usePermissions();
+
+// check permission to view this page
+const canViewPurchaseOrders = hasPermission("read-purchase-orders");
 
 // Filter states
 const filterType = ref<string | null>(null);
@@ -219,6 +224,7 @@ onMounted(async () => {
       </template>
       <template #action="{ record }">
         <UiButton
+          v-if="canViewPurchaseOrders"
           type="link"
           icon="ant-design:eye-outlined"
           color-class="flex items-center text-red-500 hover:!text-red-900"

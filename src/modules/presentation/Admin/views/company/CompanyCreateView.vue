@@ -58,31 +58,20 @@ const submitForm = () => {
 
 <template>
   <div class="company-create-container">
-    <div class="max-w-4xl mx-auto p-6">
+    <div class="w-full p-3 pl-2">
       <!-- Header -->
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between mb-4 mt-1">
         <div>
           <h1 class="text-2xl font-semibold">{{ t("company.add") }}</h1>
         </div>
-      </div>
 
-      <!-- Company Creation Form -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <CompanyForm
-          ref="companyFormRef"
-          :company="null"
-          :is-edit-mode="false"
-          :loading="submitLoading"
-          @submit="handleFormSubmit"
-        />
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex justify-end gap-4 mt-6">
+        <!-- Action Buttons -->
+      <div class="flex justify-end gap-4 mt-4">
         <UiButton
           type="default"
           @click="handleCancel"
           :disabled="submitLoading"
+
         >
           {{ t("button.cancel") }}
         </UiButton>
@@ -96,6 +85,20 @@ const submitForm = () => {
           {{ t("button.save") }}
         </UiButton>
       </div>
+      </div>
+
+      <!-- Company Creation Form -->
+      <div class="w-full">
+        <CompanyForm
+          ref="companyFormRef"
+          :company="null"
+          :is-edit-mode="false"
+          :loading="submitLoading"
+          @submit="handleFormSubmit"
+        />
+      </div>
+
+      
     </div>
   </div>
 </template>

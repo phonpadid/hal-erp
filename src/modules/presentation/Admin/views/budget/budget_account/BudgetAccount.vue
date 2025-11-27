@@ -16,10 +16,17 @@ import { departmentStore } from "@/modules/presentation/Admin/stores/departments
 // import UiInputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { useRouter, useRoute } from "vue-router";
 import { formatPrice } from "@/modules/shared/utils/format-price";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
+const { hasPermission } = usePermissions();
 const { push } = useRouter();
 const route = useRoute();
 const departStore = departmentStore();
+
+// check show button permission
+const canCreateBudgetAccount = computed(() => hasPermission('create-budget-account'));
+const canEditBudgetAccount = computed(() => hasPermission('update-budget-account'));
+const canDeleteBudgetAccount = computed(() => hasPermission('delete-budget-account'));
 
 const { t } = useI18n();
 const budgetAccountStore = useBudgetAccountStore();
@@ -234,6 +241,7 @@ onMounted(async () => {
           @change="handleSearch"
         /> -->
         <UiButton
+          
           icon="ant-design:plus-outlined"
           @click="increaseBudgetView"
           colorClass="hover:text-white flex items-center"
@@ -241,6 +249,7 @@ onMounted(async () => {
           {{ t("budget_accounts.button.add") }}
         </UiButton>
         <UiButton
+          v-if="canCreateBudgetAccount"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -278,7 +287,8 @@ onMounted(async () => {
       <!-- Actions column -->
       <template #actions="{ record }">
   <div class="flex items-center justify-center gap-2">
-    <UiButton 
+    <UiButton
+      v-if="canCreateBudgetAccount"
       icon="material-symbols:add-box-outline"
       size="small"
       shape="circle"
@@ -286,6 +296,7 @@ onMounted(async () => {
       colorClass="text-blue-600 flex items-center justify-center"
     />
     <UiButton
+      v-if="canEditBudgetAccount"
       icon="ant-design:edit-outlined"
       size="small"
       shape="circle" 
@@ -293,6 +304,7 @@ onMounted(async () => {
       colorClass="text-orange-400 flex items-center justify-center"
     />
     <UiButton
+      v-if="canDeleteBudgetAccount"
       danger
       icon="ant-design:delete-outlined"
       colorClass="text-red-700 flex items-center justify-center"

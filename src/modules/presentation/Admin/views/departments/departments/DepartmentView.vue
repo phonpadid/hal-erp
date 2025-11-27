@@ -17,9 +17,11 @@ import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { dpmRules } from "./validation/department.validate";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import type { DepartmentUserEntity } from "@/modules/domain/entities/departments/department-user.entity";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const search = ref<string>("");
 const { t } = useI18n();
+const { hasPermission } = usePermissions();
 // Initialize the unit store
 const dpmStore = departmentStore();
 const dpmUserStore = departmenUsertStore();
@@ -40,6 +42,12 @@ const formModel = reactive({
   department_head_id: "",
   type: "in_the_office",
 });
+// check show or hide buttons based on permissions
+const canCreate = hasPermission("write-department");
+const canEdit = hasPermission("update-department");
+const canDelete = hasPermission("delete-department");
+
+
 const departmentLabel = computed(() => {
   return formModel.type === "in_the_office"
     ? t("departments.dpm.field.name")
@@ -230,6 +238,7 @@ watch(search, async (newValue) => {
           />
         </div>
         <UiButton
+          v-if="canCreate"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -265,6 +274,7 @@ watch(search, async (newValue) => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEdit"
             type=""
             icon="ant-design:edit-outlined"
             size="small"
@@ -274,6 +284,7 @@ watch(search, async (newValue) => {
           >
           </UiButton>
           <UiButton
+            v-if="canDelete"
             type=""
             danger
             shape="circle"

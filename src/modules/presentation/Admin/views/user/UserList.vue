@@ -7,6 +7,7 @@ import { columns } from "./column";
 import { useRouter } from "vue-router";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import ResetPasswordForm from "../../components/user/ResetPasswordForm.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -19,7 +20,7 @@ const { t } = useI18n();
 const userStore = useUserStore();
 const router = useRouter();
 const { success, error } = useNotification();
-
+const { hasPermission } = usePermissions();
 // State
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
@@ -33,6 +34,11 @@ const isEditMode = ref<boolean>(false);
 const resetPasswordModalVisible = ref<boolean>(false);
 const resetPasswordFormRef = ref();
 const userFormRef = ref();
+
+// check show buttons
+const canCreateUser = computed(() => hasPermission("write-user"));
+const canEditUser = computed(() => hasPermission("update-user"));
+const canDeleteUser = computed(() => hasPermission("delete-user"));
 
 // Table pagination
 const tablePagination = computed(() => ({
@@ -201,6 +207,7 @@ const handleDeleteConfirm = async () => {
           :placeholder="t('currency.placeholder.search')"
         />
         <UiButton
+          v-if="canCreateUser"
           type="primary"
           icon="material-symbols:add"
           @click="addUser"
@@ -231,6 +238,7 @@ const handleDeleteConfirm = async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center">
           <UiButton
+            v-if="canEditUser"
             type=""
             icon="ant-design:edit-outlined"
             size="small"
@@ -240,6 +248,7 @@ const handleDeleteConfirm = async () => {
             :disabled="!!record.deleted_at"
           />
           <UiButton
+            v-if="canEditUser"
             type=""
             size="small"
             shape="circle" 
@@ -251,6 +260,7 @@ const handleDeleteConfirm = async () => {
           </UiButton>
 
           <UiButton
+            v-if="canDeleteUser"
             type=""
             danger
             shape="circle" 

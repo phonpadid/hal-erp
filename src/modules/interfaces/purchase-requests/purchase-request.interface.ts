@@ -93,3 +93,15 @@ export interface UserSignature {
   updated_at: string;
 
 }
+
+export interface Company {
+  id: number;
+  name: string;
+  logo: string;
+  logo_url: string;
+  tel: string;
+  email: string;
+  address: string;
+  created_at: string;
+  updated_at: string;
+}

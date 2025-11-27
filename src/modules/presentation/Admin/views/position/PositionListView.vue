@@ -6,6 +6,7 @@ import { usePositionStore } from "../../stores/position.store";
 import { Columns } from "./column";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -16,7 +17,12 @@ const { t } = useI18n();
 
 const positionStore = usePositionStore();
 const { success, error, warning } = useNotification();
+const { hasPermission } = usePermissions();
 
+// check show or hide buttons based on permissions
+const canCreate = hasPermission("write-position");
+const canEdit = hasPermission("update-position");
+const canDelete = hasPermission("delete-position");
 // State
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
@@ -172,6 +178,7 @@ const handleDeleteConfirm = async () => {
           :placeholder="t('positions.placeholder.search')"
         />
         <UiButton
+          v-if="canCreate"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -197,6 +204,7 @@ const handleDeleteConfirm = async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEdit"
             type=""
             icon="ant-design:edit-outlined"
             shape="circle" 
@@ -207,6 +215,7 @@ const handleDeleteConfirm = async () => {
           />
 
           <UiButton
+            v-if="canDelete"
             type=""
             danger
             shape="circle" 

@@ -89,6 +89,7 @@ watchEffect(() => {
 const requesterInfo = computed(() => requestDetail.value?.getRequester());
 const departmentInfo = computed(() => requestDetail.value?.getDepartment());
 const positionInfo = computed(() => requestDetail.value?.getPosition());
+const companyInfo = computed(() => requestDetail.value?.getCompany());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
 const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -585,24 +586,53 @@ onMounted(async () => {
     <div v-if="loading" class="mt-[10rem] text-center">Loading...</div>
 
     <div class="body mt-[10rem]" v-else-if="requestDetail">
+      <!-- Company & User Information Section -->
       <div class="user-info shadow-sm py-2">
-        <!-- User Information Section -->
-        <h2 class="text-md font-semibold px-6 mb-4">
-          {{ t("purchase-rq.field.proposer") }}
-        </h2>
+        <!-- Company and User Info in Same Row -->
         <div class="info flex items-center justify-between px-6 gap-4 mb-4">
-          <div class="flex items-center gap-4">
-            <div
-              class="flex items-center justify-center **w-16 h-16** rounded-full **bg-blue-100** **text-4xl**"
-            >
-              <Icon icon="mdi:user" class="text-6xl" />
-            </div>
-            <div class="detail -space-y-2">
-              <p class="font-medium">{{ requesterInfo?.username }}</p>
-              <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
+          <!-- Company Information (Left) -->
+          <div class="company-section flex flex-col " v-if="companyInfo">
+            <h3 class="text-xl font-semibold text-green-700 mb-2">ບໍລິສັດ</h3>
+            <div class="flex items-center gap-4">
+              <div
+                class="flex items-center justify-center w-14 h-14 rounded-full bg-green-100"
+              >
+                <img
+                  v-if="companyInfo.logo_url"
+                  :src="companyInfo.logo_url"
+                  :alt="companyInfo.name"
+                  class="w-10 h-10 rounded-full object-cover"
+                />
+                <Icon v-else icon="mdi:office-building" class="text-2xl text-green-600" />
+              </div>
+              <div class="detail -space-y-1">
+                <p class="font-semibold text-green-700">{{ companyInfo.name }}</p>
+                <p class="text-gray-600 text-sm">{{ companyInfo.email }}</p>
+                <p class="text-gray-500 text-xs">{{ companyInfo.tel }}</p>
+                <p class="text-gray-500 text-xs">{{ companyInfo.address }}</p>
+              </div>
             </div>
           </div>
-          <div class="want-date -space-y-0 px-6 mb-4">
+          
+
+          <!-- User Information (Center) -->
+          <div class="user-section flex flex-col flex-1">
+            <h3 class="text-xl font-semibold text-blue-700 mb-2">ຂໍ້ມູນຜູ້ສະເໜີ</h3>
+            <div class="flex items-center gap-4">
+              <div
+                class="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-4xl"
+              >
+                <Icon icon="mdi:user" class="text-6xl" />
+              </div>
+              <div class="detail -space-y-2">
+                <p class="font-medium">{{ requesterInfo?.username }}</p>
+                <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Request Date (Right) -->
+          <div class="date-section text-right">
             <h2 class="text-md font-semibold">
               {{ t("purchase-rq.field.date_rq") }}
             </h2>
@@ -776,6 +806,11 @@ onMounted(async () => {
 <style scoped>
 /* Add any component-specific styles here if needed */
 
+.company-info {
+  background: white;
+  border-radius: 0.5rem;
+}
+
 .user-info {
   background: white;
   border-radius: 0.5rem;
@@ -804,6 +839,60 @@ onMounted(async () => {
   .info {
     flex-direction: column;
     text-align: center;
+    gap: 1rem;
+  }
+
+  .company-section {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .user-section {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .date-section {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Company and User Section Styling */
+.company-section {
+  border-right: 1px solid #e5e7eb;
+  padding-right: 1rem;
+}
+
+.company-section .detail p {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-section {
+  border-right: 1px solid #e5e7eb;
+  padding-right: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .info {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .company-section,
+  .user-section {
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .date-section {
+    border-left: none;
+    padding-left: 0;
   }
 }
 

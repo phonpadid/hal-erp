@@ -6,6 +6,7 @@ import { columnsApproval } from "../../views/budget/budget-approval/column/cloum
 import { useI18n } from "vue-i18n";
 import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-order";
 import { formatDate } from "@/modules/shared/formatdate";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -22,6 +23,10 @@ const dates = reactive({
   startDate: null,
   endDate: null,
 });
+const { hasPermission } = usePermissions();
+
+// Check view permission
+const canViewBudgetApproval = computed(() => hasPermission('read-budget-approval-rule'));
 
 // Computed properties for status counts
 const pendingCount = computed(
@@ -210,6 +215,7 @@ onMounted(async () => {
       </template>
       <template #action="{ record }">
         <UiButton
+          v-if="canViewBudgetApproval"
           type="link"
           icon="ant-design:eye-outlined"
           color-class="flex items-center text-red-500 hover:!text-red-900"

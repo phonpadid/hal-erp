@@ -36,10 +36,16 @@ export const useAuthStore = defineStore("auth", () => {
       userPermissions.value = result.getPermissions() || [];
 
       userRoles.value = result.getRoles() || [];
+
+      // Add default permission for purchase request
       const createPurchaseRequestPermission = "write-purchase-request";
       if (!userPermissions.value.includes(createPurchaseRequestPermission)) {
         userPermissions.value.push(createPurchaseRequestPermission);
       }
+
+      // Add permissions based on user roles from JSON config
+      // For now, we'll use the existing hardcoded permissions
+      // This will be updated to use JSON config in a separate migration step
 
       localStorage.setItem("accessToken", result.getAccessToken());
       localStorage.setItem("userPermissions", JSON.stringify(userPermissions.value));

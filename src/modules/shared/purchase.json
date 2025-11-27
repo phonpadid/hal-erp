@@ -1,0 +1,432 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": {
+        "id": 352,
+        "document_id": 614,
+        "pr_number": "0005/ກງ",
+        "requested_date": "26-11-2025 23:18:17",
+        "expired_date": "26-11-2025 07:00:00",
+        "purposes": "computer ",
+        "created_at": "26-11-2025 23:18:17",
+        "updated_at": "26-11-2025 23:18:17",
+        "total": 1000000,
+        "step": true,
+        "document": {
+            "id": 614,
+            "document_number": "D-2191DC",
+            "title": "",
+            "description": "computer ",
+            "total_amount": 0,
+            "department_id": 53,
+            "requester_id": 73,
+            "document_type_id": "33",
+            "created_at": "26-11-2025 23:18:17",
+            "updated_at": "26-11-2025 23:18:17",
+            "department": {
+                "id": 53,
+                "code": "ກງ",
+                "name": "ການເງີນ",
+                "department_head_id": 0,
+                "created_at": "12-11-2025 22:33:33",
+                "updated_at": "24-11-2025 22:39:17",
+                "department_head": null,
+                "company": null
+            },
+            "document_type": {
+                "id": "33",
+                "code": "DT-PR-0001",
+                "name": "ໃບສະເໜີ",
+                "created_at": "25-09-2025 22:39:55",
+                "updated_at": "25-09-2025 22:39:55"
+            },
+            "requester": {
+                "id": 73,
+                "username": "ahtou",
+                "email": "ahtou@gmail.com",
+                "tel": "2055084306",
+                "created_at": "24-11-2025 22:31:57",
+                "updated_at": "27-11-2025 21:23:26",
+                "user_signature": {
+                    "id": "67",
+                    "user_id": 73,
+                    "signature": "user_signature/019abf44-8d6e-7023-8570-9a2e6ecc8f63-1764145532270",
+                    "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019abf44-8d6e-7023-8570-9a2e6ecc8f63-1764145532270",
+                    "created_at": "27-11-2025 16:38:59",
+                    "updated_at": "Invalid date"
+                },
+                "roles": [],
+                "permissions": [],
+                "user_types": []
+            },
+            "position": [
+                {
+                    "id": 50,
+                    "name": "Dev",
+                    "created_at": "27-11-2025 16:38:59",
+                    "updated_at": "Invalid date",
+                    "company": null
+                }
+            ],
+            "company": {
+                "id": 8,
+                "name": "synergy",
+                "logo": "company_logo/019aba04-9b91-7655-b180-1315e218056f-1764057455505",
+                "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019aba04-9b91-7655-b180-1315e218056f-1764057455505",
+                "tel": "209787495433",
+                "email": "phou991111@gmail.com",
+                "address": "KM 5 test",
+                "created_at": "11-11-2025 21:25:40",
+                "updated_at": "25-11-2025 21:57:35"
+            }
+        },
+        "company": {
+            "id": 8,
+            "name": "synergy",
+            "logo": "company_logo/019aba04-9b91-7655-b180-1315e218056f-1764057455505",
+            "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019aba04-9b91-7655-b180-1315e218056f-1764057455505",
+            "tel": "209787495433",
+            "email": "phou991111@gmail.com",
+            "address": "KM 5 test",
+            "created_at": "11-11-2025 21:25:40",
+            "updated_at": "25-11-2025 21:57:35"
+        },
+        "user_approval": {
+            "id": 534,
+            "document_id": 614,
+            "status_id": 2,
+            "created_at": "26-11-2025 23:18:18",
+            "updated_at": "26-11-2025 23:23:00",
+            "document_status": {
+                "id": 2,
+                "name": "APPROVED",
+                "created_at": "25-07-2025 14:02:32",
+                "updated_at": "25-07-2025 14:02:32"
+            },
+            "approval_step": [
+                {
+                    "id": 1159,
+                    "user_approval_id": 534,
+                    "step_number": 0,
+                    "approver_id": 73,
+                    "approved_at": "26-11-2025 23:18:36",
+                    "status_id": 2,
+                    "remark": "ຢືນຢັນສຳເລັດ",
+                    "requires_file_upload": false,
+                    "is_otp": true,
+                    "created_at": "26-11-2025 23:18:18",
+                    "updated_at": "26-11-2025 23:18:36",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "25-07-2025 14:02:32",
+                        "updated_at": "25-07-2025 14:02:32"
+                    },
+                    "approver": {
+                        "id": 73,
+                        "username": "ahtou",
+                        "email": "ahtou@gmail.com",
+                        "tel": "2055084306",
+                        "created_at": "24-11-2025 22:31:57",
+                        "updated_at": "27-11-2025 21:23:26",
+                        "user_signature": {
+                            "id": "56",
+                            "user_id": 73,
+                            "signature": "user_signature/019ac36b-3186-724d-b4b9-0714272b81db-1764215173510",
+                            "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019ac36b-3186-724d-b4b9-0714272b81db-1764215173510",
+                            "created_at": "27-11-2025 16:38:59",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 50,
+                        "name": "Dev",
+                        "created_at": "11-11-2025 22:34:31",
+                        "updated_at": "11-11-2025 22:34:31",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 1294,
+                            "user_approval_step_id": 1159,
+                            "user_id": 73,
+                            "created_at": "26-11-2025 23:18:18",
+                            "updated_at": "26-11-2025 23:18:18",
+                            "user": {
+                                "id": 73,
+                                "username": "ahtou",
+                                "email": "ahtou@gmail.com",
+                                "tel": "2055084306",
+                                "created_at": "24-11-2025 22:31:57",
+                                "updated_at": "27-11-2025 21:23:26",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 53,
+                                "code": "ກງ",
+                                "name": "ການເງີນ",
+                                "department_head_id": 0,
+                                "created_at": "12-11-2025 22:33:33",
+                                "updated_at": "24-11-2025 22:39:17",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 1161,
+                    "user_approval_id": 534,
+                    "step_number": 2,
+                    "approver_id": 76,
+                    "approved_at": "26-11-2025 23:23:00",
+                    "status_id": 2,
+                    "remark": "Approved",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "26-11-2025 23:22:22",
+                    "updated_at": "26-11-2025 23:23:00",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "25-07-2025 14:02:32",
+                        "updated_at": "25-07-2025 14:02:32"
+                    },
+                    "approver": {
+                        "id": 76,
+                        "username": "phoud1",
+                        "email": "phoud1@gmail.com",
+                        "tel": "2097874954",
+                        "created_at": "24-11-2025 22:53:36",
+                        "updated_at": "26-11-2025 22:27:59",
+                        "user_signature": {
+                            "id": "59",
+                            "user_id": 76,
+                            "signature": "user_signature/019abf2d-033c-75bb-9c42-73321a3598d5-1764143989564",
+                            "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019abf2d-033c-75bb-9c42-73321a3598d5-1764143989564",
+                            "created_at": "27-11-2025 16:38:59",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 51,
+                        "name": "Testor",
+                        "created_at": "11-11-2025 22:34:40",
+                        "updated_at": "11-11-2025 22:34:40",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 1296,
+                            "user_approval_step_id": 1161,
+                            "user_id": 76,
+                            "created_at": "26-11-2025 23:22:22",
+                            "updated_at": "26-11-2025 23:22:22",
+                            "user": {
+                                "id": 76,
+                                "username": "phoud1",
+                                "email": "phoud1@gmail.com",
+                                "tel": "2097874954",
+                                "created_at": "24-11-2025 22:53:36",
+                                "updated_at": "26-11-2025 22:27:59",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 51,
+                                "code": "ຈຊ",
+                                "name": "ຈັດຊື້ - ຈັດຈ້າງ",
+                                "department_head_id": 0,
+                                "created_at": "12-11-2025 22:28:33",
+                                "updated_at": "24-11-2025 23:12:07",
+                                "department_head": null,
+                                "company": null
+                            }
+                        },
+                        {
+                            "id": 1297,
+                            "user_approval_step_id": 1161,
+                            "user_id": 75,
+                            "created_at": "26-11-2025 23:22:22",
+                            "updated_at": "26-11-2025 23:22:22",
+                            "user": {
+                                "id": 75,
+                                "username": "phoud_head1",
+                                "email": "phoud-head@gmail.com",
+                                "tel": "2097874951",
+                                "created_at": "24-11-2025 22:50:40",
+                                "updated_at": "26-11-2025 22:27:42",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 51,
+                                "code": "ຈຊ",
+                                "name": "ຈັດຊື້ - ຈັດຈ້າງ",
+                                "department_head_id": 0,
+                                "created_at": "12-11-2025 22:28:33",
+                                "updated_at": "24-11-2025 23:12:07",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 1160,
+                    "user_approval_id": 534,
+                    "step_number": 1,
+                    "approver_id": 74,
+                    "approved_at": "26-11-2025 23:22:22",
+                    "status_id": 2,
+                    "remark": "Approved",
+                    "requires_file_upload": false,
+                    "is_otp": true,
+                    "created_at": "26-11-2025 23:18:36",
+                    "updated_at": "26-11-2025 23:22:22",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "25-07-2025 14:02:32",
+                        "updated_at": "25-07-2025 14:02:32"
+                    },
+                    "approver": {
+                        "id": 74,
+                        "username": "ahtou_head",
+                        "email": "ahtouH@gmail.com",
+                        "tel": "2055084307",
+                        "created_at": "24-11-2025 22:38:47",
+                        "updated_at": "27-11-2025 21:28:12",
+                        "user_signature": {
+                            "id": "57",
+                            "user_id": 74,
+                            "signature": "user_signature/019ac364-2e2f-760c-9bf3-4d4b5e4e4659-1764214713903",
+                            "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019ac364-2e2f-760c-9bf3-4d4b5e4e4659-1764214713903",
+                            "created_at": "27-11-2025 16:38:59",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 51,
+                        "name": "Testor",
+                        "created_at": "11-11-2025 22:34:40",
+                        "updated_at": "11-11-2025 22:34:40",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 1295,
+                            "user_approval_step_id": 1160,
+                            "user_id": 74,
+                            "created_at": "26-11-2025 23:18:37",
+                            "updated_at": "26-11-2025 23:18:37",
+                            "user": {
+                                "id": 74,
+                                "username": "ahtou_head",
+                                "email": "ahtouH@gmail.com",
+                                "tel": "2055084307",
+                                "created_at": "24-11-2025 22:38:47",
+                                "updated_at": "27-11-2025 21:28:12",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 53,
+                                "code": "ກງ",
+                                "name": "ການເງີນ",
+                                "department_head_id": 0,
+                                "created_at": "12-11-2025 22:33:33",
+                                "updated_at": "24-11-2025 22:39:17",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "purchase_request_item": [
+            {
+                "id": 351,
+                "purchase_request_id": 352,
+                "title": "computer Mac",
+                "file_name": "pr_file_name/019abf74-db15-764f-99a0-e85fcae09071-1764148697877",
+                "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019abf74-db15-764f-99a0-e85fcae09071-1764148697877",
+                "quantity": 1,
+                "unit_id": "34",
+                "quota_company_id": 0,
+                "price": 1000000,
+                "total_price": 1000000,
+                "remark": "computer Mac in office Macbook",
+                "created_at": "26-11-2025 23:18:18",
+                "updated_at": "26-11-2025 23:18:18",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ",
+                    "created_at": "20-11-2025 18:01:13",
+                    "updated_at": "20-11-2025 18:01:13"
+                },
+                "quota_company": {
+                    "id": 14,
+                    "year": "2025-01-01",
+                    "qty": 4,
+                    "vendor_product_id": "11",
+                    "company_id": 8,
+                    "created_at": "25-11-2025 23:28:54",
+                    "updated_at": "25-11-2025 23:29:42",
+                    "vendor_product": {
+                        "id": "11",
+                        "vendor_id": "21",
+                        "product_id": 1,
+                        "vendor": {
+                            "id": "21",
+                            "name": "ຮ້ານ COMCOM1"
+                        },
+                        "product": {
+                            "id": 1,
+                            "name": "ຄອມພີວເຕີ່ Mac M3"
+                        },
+                        "price": "12000000.00",
+                        "created_at": "25-11-2025 22:16:43",
+                        "updated_at": "25-11-2025 22:16:43"
+                    },
+                    "Product": {
+                        "id": 1,
+                        "name": "ຄອມພີວເຕີ່ Mac M3",
+                        "description": "Ram (16GB, SSD 520GB)",
+                        "product_type_id": 1,
+                        "unit_id": "34",
+                        "status": "active",
+                        "created_at": "31-10-2025 17:04:10",
+                        "updated_at": "20-11-2025 18:01:27"
+                    },
+                    "vendor": {
+                        "id": 21,
+                        "name": "ຮ້ານ COMCOM1",
+                        "contact_info": "2029999391",
+                        "created_at": "25-11-2025 22:15:15",
+                        "updated_at": "25-11-2025 22:15:25"
+                    }
+                }
+            }
+        ]
+    }
+}

@@ -12,13 +12,19 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { useRouter, useRoute } from "vue-router";
 import { formatDate } from "@/modules/shared/formatdate";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
+const {hasPermission} = usePermissions();
 
 const companyUserStore = useCompanyUserStore();
 const { success, error, warning } = useNotification();
+// check show button permission
+const canCreateCompanyUser = computed(() => hasPermission('create-company-user'));
+const canEditCompanyUser = computed(() => hasPermission('update-company-user'));
+const canDeleteCompanyUser = computed(() => hasPermission('delete-company-user'));
 
 // State
 const loading = ref<boolean>(false);
@@ -59,11 +65,11 @@ const loadCompanyUsers = async () => {
     });
 
     // Debug: Log the loaded data
-    console.log("Company users loaded:", companyUserStore.companyUsers);
-    console.log("Store state:", {
-      users: companyUserStore.companyUsers,
-      pagination: companyUserStore.pagination
-    });
+    // console.log("Company users loaded:", companyUserStore.companyUsers);
+    // console.log("Store state:", {
+    //   users: companyUserStore.companyUsers,
+    //   pagination: companyUserStore.pagination
+    // });
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     error(t("company-user.error.loadFailed"), String(errorMessage));
@@ -170,6 +176,7 @@ const openSignature = (signatureUrl: string) => {
           :placeholder="t('company-user.placeholder.search')"
         />
         <UiButton
+          v-if="canCreateCompanyUser"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreatePage"
@@ -255,6 +262,7 @@ const openSignature = (signatureUrl: string) => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditCompanyUser"
             type=""
             icon="ant-design:edit-outlined"
             shape="circle"
@@ -265,6 +273,7 @@ const openSignature = (signatureUrl: string) => {
           />
 
           <UiButton
+            v-if="canDeleteCompanyUser"
             type=""
             danger
             icon="ant-design:delete-outlined"

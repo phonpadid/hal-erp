@@ -16,11 +16,18 @@ import { useNotification } from "@/modules/shared/utils/useNotification";
 import { departmenUsertStore } from "../../../stores/departments/department-user.store";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { canAccessAll } from "@/modules/shared/utils/check-user-type.util";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
 const search = ref<string>("");
 const departmentApv = ref<DepartmentApproverApiModel[]>([]);
 const dpmStore = departmentStore();
+const { hasPermission } = usePermissions();
+
+// check show or hide buttons based on permissions
+const canCreate = hasPermission("write-department-approver");
+// const canEdit = hasPermission("update-department-approver");
+const canDelete = hasPermission("delete-department-approver");
 
 // Form related
 const formRef = ref();
@@ -276,6 +283,7 @@ watch(search, async (newValue) => {
           />
         </div>
         <UiButton
+          v-if="canCreate"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -322,6 +330,7 @@ watch(search, async (newValue) => {
             colorClass="flex items-center justify-center text-orange-400"
           /> -->
           <UiButton
+            v-if="canDelete"
             icon="ant-design:delete-outlined"
             size="small"
             danger
