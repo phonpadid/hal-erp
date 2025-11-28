@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useCompanyUserStore } from "../../stores/company-user.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { useToggleStore } from "../../stores/storage.store";
+import { storeToRefs } from "pinia";
 import ManageCompanyUserForm from "@/modules/presentation/Admin/components/company-user/ManageCompanyUserForm.vue";
 import { useRouter, useRoute } from "vue-router";
 import type { CompanyUserInterface } from "@/modules/interfaces/company-user.interface";
@@ -103,13 +105,27 @@ const handleCancel = () => {
 const submitForm = () => {
   companyUserFormRef.value?.submitForm();
 };
+
+// Toggle sidebar logic
+const toggleStore = useToggleStore();
+const { toggle } = storeToRefs(toggleStore);
+const topbarStyle = computed(() => {
+  return toggle.value ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
+});
+const handleToggle = () => {
+  toggle.value = !toggle.value;
+  localStorage.setItem("toggle", toggle.value.toString());
+};
 </script>
 
 <template>
-  <div class="company-user-edit-container">
-    <div class="w-full p-3 pl-2">
-      <!-- Header with Action Buttons -->
-      <div class="flex items-center justify-between mb-4">
+  <div class="container mx-auto py-1 px-0">
+    <!-- Fixed Header with Action Buttons -->
+    <div
+      class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem]"
+      :class="topbarStyle"
+    >
+      <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-semibold">{{ t("company-user.modal.edit") }}</h1>
         </div>
@@ -120,7 +136,6 @@ const submitForm = () => {
             type="default"
             @click="handleCancel"
             :disabled="submitLoading"
-      
           >
             {{ t("button.cancel") }}
           </UiButton>
@@ -130,60 +145,41 @@ const submitForm = () => {
             :loading="submitLoading"
             icon="ant-design:edit-outlined"
             color-class="flex items-center gap-2"
-       
           >
             {{ t("button.edit") }}
           </UiButton>
         </div>
       </div>
+    </div>
 
-      <!-- Loading State -->
-      <div class="bg-white rounded-lg shadow-sm p-6 text-center" v-if="loading">
+    <!-- Loading State -->
+    <div v-if="loading" class="mt-[10rem] text-center">
+      <div class="bg-white rounded-lg shadow-sm p-6 inline-block">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
         <p class="mt-4 text-gray-600">{{ t("common.loading") }}</p>
       </div>
+    </div>
 
-      <!-- Company User Edit Form -->
-      <div class="w-full" v-else>
-        <ManageCompanyUserForm
-          ref="companyUserFormRef"
-          :company-user="companyUser"
-          :is-edit-mode="true"
-          :loading="submitLoading"
-          @submit="handleFormSubmit"
-        />
-      </div>
-
-      <!-- Fixed Bottom Action Buttons (Sticky) -->
-      <!-- <div class="fixed bottom-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-10" style="left: 256px;" v-if="!loading">
-        <div class="flex justify-end gap-3 max-w-4xl mx-auto">
-          <UiButton
-            type="default"
-            @click="handleCancel"
-            :disabled="submitLoading"
-            size="default"
-          >
-            {{ t("button.cancel") }}
-          </UiButton>
-          <UiButton
-            type="primary"
-            @click="submitForm"
-            :loading="submitLoading"
-            icon="ant-design:edit-outlined"
-            color-class="flex items-center gap-2"
-            size="default"
-          >
-            {{ t("button.edit") }}
-          </UiButton>
-        </div>
-      </div> -->
+    <!-- Company User Edit Form -->
+    <div v-else class="body mt-[6rem] px-6">   
+      <ManageCompanyUserForm
+        ref="companyUserFormRef"
+        :company-user="companyUser"
+        :is-edit-mode="true"
+        :loading="submitLoading"
+        @submit="handleFormSubmit"
+      />
     </div>
   </div>
 </template>
 
 <style scoped>
-.company-user-edit-container {
+.container {
+  background-color: #f8f9fa;
   min-height: calc(100vh - 120px);
+}
+
+.body {
   background-color: #f8f9fa;
 }
 </style>

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useCompanyUserStore } from "../../stores/company-user.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { useToggleStore } from "../../stores/storage.store";
+import { storeToRefs } from "pinia";
 import ManageCompanyUserForm from "@/modules/presentation/Admin/components/company-user/ManageCompanyUserForm.vue";
 import { useRouter, useRoute } from "vue-router";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -67,13 +69,27 @@ const handleFormSubmit = async (formData: {
 const submitForm = () => {
   companyUserFormRef.value?.submitForm();
 };
+
+// Toggle sidebar logic
+const toggleStore = useToggleStore();
+const { toggle } = storeToRefs(toggleStore);
+const topbarStyle = computed(() => {
+  return toggle.value ? "left-64 w-[calc(100%-16rem)]" : "left-0 w-full";
+});
+const handleToggle = () => {
+  toggle.value = !toggle.value;
+  localStorage.setItem("toggle", toggle.value.toString());
+};
 </script>
 
 <template>
-  <div class="company-user-create-container">
-    <div class="w-full p-3 pl-2">
-      <!-- Header with Action Buttons -->
-      <div class="flex items-center justify-between mb-4 mt-1">
+  <div class="container mx-auto py-1 px-0">
+    <!-- Fixed Header with Action Buttons -->
+    <div
+      class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem]"
+      :class="topbarStyle"
+    >
+      <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-semibold">{{ t("company-user.modal.create") }}</h1>
         </div>
@@ -98,24 +114,28 @@ const submitForm = () => {
           </UiButton>
         </div>
       </div>
+    </div>
 
-      <!-- Company User Create Form -->
-      <div class="w-full">
-        <ManageCompanyUserForm
-          ref="companyUserFormRef"
-          :company-user="null"
-          :is-edit-mode="false"
-          :loading="submitLoading"
-          @submit="handleFormSubmit"
-        />
-      </div>
+    <!-- Company User Create Form -->
+    <div class="body mt-[6rem] px-6">
+      <ManageCompanyUserForm
+        ref="companyUserFormRef"
+        :company-user="null"
+        :is-edit-mode="false"
+        :loading="submitLoading"
+        @submit="handleFormSubmit"
+      />
     </div>
   </div>
 </template>
 
 <style scoped>
-.company-user-create-container {
+.container {
+  background-color: #f8f9fa;
   min-height: calc(100vh - 120px);
+}
+
+.body {
   background-color: #f8f9fa;
 }
 </style>
