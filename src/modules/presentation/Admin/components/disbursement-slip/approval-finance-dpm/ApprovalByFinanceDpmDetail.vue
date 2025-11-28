@@ -33,7 +33,6 @@ const user = computed(() => getUserApv());
 const userRole = ref<string[]>(getUserRole() ?? []);
 const uploadLoading = ref<boolean>(false);
 const createModalVisible = ref(false);
-const printModalVisible = ref(false);
 const formRef = ref();
 const selectedId = ref<number | null>(null);
 const dataVendor = ref<ISelectVendor | null>(null);
@@ -282,6 +281,22 @@ onMounted(async () => {
               </UiInput>
               <span class="text-[16px] text-gray-700" v-if="rStore.currentReceipts?.account_code">{{
                 rStore.currentReceipts?.account_code }}</span>
+            </div>
+          </div>
+
+          <div class="purposes space-y-1 px-2 mb-4 w-full">
+            <h2 class="text-md font-semibold">
+              {{ t("receipt.from_company") }}
+            </h2>
+            <p class="text-gray-600 text-md">
+              {{ rStore.currentReceipts?.document?.company?.name || "----" }}
+            </p>
+
+            <div class="account_number">
+              {{ t("receipt.address") }}
+              <p class="text-gray-600 text-md">
+              {{ rStore.currentReceipts?.document?.company?.address || "----" }}
+            </p>
             </div>
           </div>
         </div>
