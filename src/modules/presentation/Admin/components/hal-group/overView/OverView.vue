@@ -10,6 +10,8 @@ import { Tabs } from "ant-design-vue";
 import AffiliatedCompany from "../affiliated-company/AffiliatedCompany.vue";
 import ApproveProposal from "../approve-proposal/ApproveProposal.vue";
 import CompanyDetail from "../company-detail/CompanyDetail.vue";
+import { ReportCompanyService } from "@/modules/application/services/reports/report-company.service";
+import type { CompanyReportData } from "@/modules/infrastructure/reports/report-company.repository";
 
 // Interface for company data
 interface Company {
@@ -20,12 +22,19 @@ interface Company {
   budget: number;
   budgetUsed: number;
   color: string;
+  userCount: number;
+  allocated_amount: number;
+  balance_amount: number;
+  approvalWorkflowCount: number;
 }
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { warning } = useNotification();
+
+// Services
+const reportCompanyService = new ReportCompanyService();
 
 // State
 const loading = ref<boolean>(false);
@@ -34,6 +43,7 @@ const activeTab = ref<string>("1");
 const selectedCompany = ref<Company | null>(null);
 const showCompanyDetail = ref<boolean>(false);
 const selectedDetailCompany = ref<any>(null);
+const companies = ref<Company[]>([]);
 
 // Filter state
 const filters = reactive({
@@ -70,103 +80,10 @@ const companyOptions = [
   { value: "hal-service", label: "HAL Service" },
 ];
 
-// Mock data for companies
-const mockCompanies: Company[] = [
-  {
-    id: 1,
-    name: "HAL ບໍລິສັດ",
-    logo: "mdi:company",
-    proposalCount: 45,
-    budget: 50000000,
-    budgetUsed: 55000000,
-    color: "blue",
-  }, // 超支
-  {
-    id: 2,
-    name: "HAL Tech",
-    logo: "mdi:rocket-launch",
-    proposalCount: 38,
-    budget: 40000000,
-    budgetUsed: 28000000,
-    color: "green",
-  },
-  {
-    id: 3,
-    name: "HAL Energy",
-    logo: "mdi:lightning-bolt",
-    proposalCount: 52,
-    budget: 60000000,
-    budgetUsed: 75000000,
-    color: "yellow",
-  }, // 超支
-  {
-    id: 4,
-    name: "HAL Service",
-    logo: "mdi:account-tie",
-    proposalCount: 29,
-    budget: 30000000,
-    budgetUsed: 22000000,
-    color: "purple",
-  },
-  {
-    id: 5,
-    name: "HAL Logistics",
-    logo: "mdi:truck",
-    proposalCount: 18,
-    budget: 25000000,
-    budgetUsed: 18000000,
-    color: "orange",
-  },
-  {
-    id: 6,
-    name: "HAL Construction",
-    logo: "mdi:hammer",
-    proposalCount: 42,
-    budget: 55000000,
-    budgetUsed: 65000000,
-    color: "red",
-  }, // 超支
-  {
-    id: 7,
-    name: "HAL Agriculture",
-    logo: "mdi:tractor",
-    proposalCount: 25,
-    budget: 35000000,
-    budgetUsed: 25000000,
-    color: "teal",
-  },
-  {
-    id: 8,
-    name: "HAL Education",
-    logo: "mdi:school",
-    proposalCount: 33,
-    budget: 45000000,
-    budgetUsed: 30000000,
-    color: "indigo",
-  },
-  {
-    id: 9,
-    name: "HAL Healthcare",
-    logo: "mdi:hospital",
-    proposalCount: 48,
-    budget: 70000000,
-    budgetUsed: 85000000,
-    color: "pink",
-  }, // 超支
-  {
-    id: 10,
-    name: "HAL Finance",
-    logo: "mdi:bank",
-    proposalCount: 36,
-    budget: 48000000,
-    budgetUsed: 32000000,
-    color: "cyan",
-  },
-];
 
 // Get filtered companies based on filters
 const filteredCompanies = computed(() => {
-  let filtered = [...mockCompanies];
+  let filtered = [...companies.value];
 
   // Filter by company if not "all"
   if (filters.company !== "all") {
@@ -218,15 +135,35 @@ const calculateStatistics = () => {
     filtered.length > 0 ? Math.round(statistics.totalMembers / filtered.length) : 0;
 };
 
+// Transform API data to Company interface
+const transformCompanyData = (apiData: CompanyReportData): Company[] => {
+  const colors = ["blue", "green", "yellow", "purple", "orange", "red", "teal", "indigo", "pink", "cyan"];
+
+  return apiData.data.map((company, index) => ({
+    id: company.id,
+    name: company.name,
+    logo: "mdi:domain", // Default icon for all companies
+    proposalCount: company.approvalWorkflowCount,
+    budget: company.total_budget,
+    budgetUsed: company.totalUsedAmount,
+    color: colors[index % colors.length],
+    userCount: company.userCount,
+    allocated_amount: company.allocated_amount,
+    balance_amount: company.balance_amount,
+    approvalWorkflowCount: company.approvalWorkflowCount
+  }));
+};
+
 // Load data
 const loadData = async () => {
   loading.value = true;
   try {
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    const reportData = await reportCompanyService.getReportCompany();
+    companies.value = transformCompanyData(reportData);
     calculateStatistics();
   } catch (error) {
     console.error("Error loading data:", error);
-    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນໄດ້");
+    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນບໍລິສັດໄດ້");
   } finally {
     loading.value = false;
   }
@@ -238,7 +175,7 @@ const handleFilterChange = () => {
 
   // Update selectedCompany when company filter changes
   if (filters.company !== "all") {
-    const company = mockCompanies.find(c => c.name.includes(filters.company));
+    const company = companies.value.find(c => c.name.includes(filters.company));
     if (company) {
       selectedCompany.value = company;
     }
@@ -451,21 +388,22 @@ const getLogoTextColor = (color: string) => {
 };
 
 
-onMounted(() => {
+onMounted(async () => {
   // Initialize filters from URL query params
   if (route.query.year) filters.year = parseInt(route.query.year as string);
   if (route.query.period) filters.period = route.query.period as string;
   if (route.query.company) filters.company = route.query.company as string;
 
-  // Initialize selectedCompany from company filter
+  // Load data first
+  await loadData();
+
+  // Initialize selectedCompany from company filter after data is loaded
   if (filters.company !== "all") {
-    const company = mockCompanies.find(c => c.name.includes(filters.company));
+    const company = companies.value.find(c => c.name.includes(filters.company));
     if (company) {
       selectedCompany.value = company;
     }
   }
-
-  loadData();
 });
 </script>
 
@@ -631,7 +569,7 @@ onMounted(() => {
                     {{ formatLargeNumber(filteredCompanies.reduce((sum, c) => sum + c.budget, 0)) }}
                   </div>
                   <div class="text-xs md:text-sm opacity-80">
-                    ບໍລິສັດສະເລ່ອ:
+                    ບໍລິສັດສະເລຍ່:
                     {{
                       formatLargeNumber(
                         filteredCompanies.reduce((sum, c) => sum + c.budget, 0) /
