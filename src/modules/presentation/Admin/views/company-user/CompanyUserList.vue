@@ -82,11 +82,22 @@ const loadCompanyUsers = async () => {
 const handleTableChange = (
   pagination: TablePaginationType
 ) => {
+  console.log('Table change:', pagination); // Debug log
   companyUserStore.setPagination({
     page: pagination.current || 1,
     limit: pagination.pageSize || 10,
     total: pagination.total || 0,
-  })
+  });
+
+  // Reset to page 1 if page size changed
+  if (pagination.pageSize && pagination.pageSize !== companyUserStore.pagination.limit) {
+    companyUserStore.setPagination({
+      page: 1,
+      limit: pagination.pageSize,
+      total: pagination.total || 0,
+    });
+  }
+
   loadCompanyUsers();
 };
 

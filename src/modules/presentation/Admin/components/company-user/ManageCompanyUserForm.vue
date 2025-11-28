@@ -105,10 +105,14 @@ onMounted(async () => {
   try {
     loadingPermissions.value = true;
 
-    // Get company_id from query parameters
+    // Get company_id from query parameters (for create mode)
     const queryCompanyId = route.query.company_id;
     if (queryCompanyId) {
       companyId.value = Number(queryCompanyId);
+    }
+    // For edit mode, get company_id from companyUser data
+    else if (props.isEditMode && props.companyUser?.company_id) {
+      companyId.value = props.companyUser.company_id;
     }
 
     await loadRoles();

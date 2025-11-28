@@ -136,7 +136,7 @@ export class ApiRoleRepository implements RoleRepository {
   }
 
   private toDomainModel(data: Roleinterface): Role {
-    console.log('hhh:', data);
+    // console.log('hhh:', data);
 
     return new Role(
       data.id.toString(),
