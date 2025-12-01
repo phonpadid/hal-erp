@@ -3,6 +3,11 @@ import { ref, computed, watch } from "vue";
 import { Icon } from "@iconify/vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FinalApprovalView from "./FinalApprovalView.vue";
+import OtpModal from "../../purchase-requests/modal/OtpModal.vue";
+import UiModal from "@/common/shared/components/Modal/UiModal.vue";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import { useApprovalStepStore } from "../../../stores/approval-step.store";
+import { useAuthStore } from "../../../stores/authentication/auth.store";
 
 // Interface for item details
 interface ItemDetail {
@@ -42,6 +47,9 @@ const emit = defineEmits<{
   selectRequest: [request: ItemDetail];
 }>();
 
+// Composables
+const { warning, error } = useNotification();
+
 // State
 const selectedRequests = ref<string[]>([]);
 const internalSearchKeyword = ref(props.searchKeyword);
@@ -50,6 +58,13 @@ const selectedCompanyFilter = ref<string>("");
 const showRevenueSection = ref<boolean>(false);
 const showFinalApproval = ref<boolean>(false);
 const isProcessingApproval = ref<boolean>(false);
+const showOtpModal = ref<boolean>(false);
+const otpLoading = ref<boolean>(false);
+const pendingApprovalData = ref<{ ids: string[], action: 'approve' | 'reject' } | null>(null);
+
+// Reject modal state
+const isRejectModalVisible = ref<boolean>(false);
+const rejectReason = ref<string>("");
 
 // Generate mock data based on OverView.vue data
 const mockItemDetails: ItemDetail[] = [
@@ -382,15 +397,37 @@ const handleRowClick = (item: ItemDetail) => {
 // Handle approve
 const handleApprove = () => {
   if (selectedRequests.value.length > 0) {
-    emit("approve", selectedRequests.value);
+    // Store pending approval data and show OTP modal directly for approval
+    pendingApprovalData.value = {
+      ids: [...selectedRequests.value],
+      action: 'approve'
+    };
+    showOtpModal.value = true;
   }
 };
 
-// Handle reject
+// Handle reject - show reject modal first
 const handleReject = () => {
   if (selectedRequests.value.length > 0) {
-    emit("reject", selectedRequests.value);
+    isRejectModalVisible.value = true;
   }
+};
+
+// Handle reject confirmation
+const handleRejectConfirm = async () => {
+  if (!rejectReason.value.trim()) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາລະບຸເຫດຜົນໃນການປະຕິເສດ");
+    return;
+  }
+
+  // Store pending approval data and show OTP modal for rejection
+  pendingApprovalData.value = {
+    ids: [...selectedRequests.value],
+    action: 'reject'
+  };
+
+  isRejectModalVisible.value = false;
+  showOtpModal.value = true;
 };
 
 // Get selected request details
@@ -466,6 +503,91 @@ const handleCancelFinalApproval = () => {
 // Handle back to selection
 const handleBackToSelection = () => {
   showFinalApproval.value = false;
+};
+
+// Handle OTP confirmation
+const handleOtpConfirm = async (otpCode: string) => {
+  if (!pendingApprovalData.value) return;
+
+  otpLoading.value = true;
+  try {
+    // Simulate OTP verification API call
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const { ids, action } = pendingApprovalData.value;
+
+    if (action === 'approve') {
+      // Process approval
+      itemDetails.value = itemDetails.value.map(item => {
+        if (ids.includes(item.id)) {
+          return { ...item, status: 'approved' as const };
+        }
+        return item;
+      });
+
+      // Clear selection and close modal
+      selectedRequests.value = [];
+      showOtpModal.value = false;
+      pendingApprovalData.value = null;
+
+      // Show success message
+      warning("ອະນຸມັດສຳເລັດ", `ອະນຸມັດ ${ids.length} ລາຍກາສຳເລັດ`);
+
+      // Emit to parent
+      emit("approve", ids);
+    } else if (action === 'reject') {
+      // Process rejection with reason
+      itemDetails.value = itemDetails.value.map(item => {
+        if (ids.includes(item.id)) {
+          return { ...item, status: 'rejected' as const };
+        }
+        return item;
+      });
+
+      // Clear selection and close modal
+      selectedRequests.value = [];
+      showOtpModal.value = false;
+      pendingApprovalData.value = null;
+
+      // Show success message with reason
+      warning("ປະຕິເສດສຳເລັດ", `ປະຕິເສດ ${ids.length} ລາຍກາສຳເລັດ: ${rejectReason.value}`);
+
+      // Clear reject reason
+      rejectReason.value = "";
+
+      // Emit to parent
+      emit("reject", ids);
+    }
+  } catch (err) {
+    console.error("OTP verification failed:", err);
+    error("ການຢັ້ງຢືນ OTP ລົ້ມເຫລວ", "ກະລຸນາລອງ OTP ໃໝ່ອີກຄັ້ງ");
+  } finally {
+    otpLoading.value = false;
+  }
+};
+
+// Handle OTP modal close
+const handleOtpClose = () => {
+  showOtpModal.value = false;
+  pendingApprovalData.value = null;
+};
+
+// Handle OTP resend
+const handleOtpResend = async () => {
+  try {
+    // Simulate OTP resend API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    warning("ສົ່ງ OTP ສຳເລັດ", "ສົ່ງລະຫັດ OTP ໃໝ່ໄປຍັງໂທລະສັບຂອງທ່ານແລ້ວ");
+  } catch (err) {
+    console.error("Failed to resend OTP:", err);
+    error("ສົ່ງ OTP ລົ້ມເຫລວ", "ບໍ່ສາມາດສົ່ງ OTP ໃໝ່ໄດ້ ກະລຸນາລອງອີກຄັ້ງ");
+  }
+};
+
+// Handle reject modal cancel
+const handleRejectCancel = () => {
+  isRejectModalVisible.value = false;
+  rejectReason.value = "";
 };
 </script>
 
@@ -863,6 +985,40 @@ const handleBackToSelection = () => {
       </div>
     </div>
     </div>
+
+    <!-- Reject Modal -->
+    <UiModal
+      :title="'ປະຕິເສດເອກະສານ'"
+      :visible="isRejectModalVisible"
+      :confirm-loading="false"
+      @cancel="handleRejectCancel"
+      @ok="handleRejectConfirm"
+    >
+      <div class="space-y-4">
+        <p>ທ່ານແນ່ໃຈຈະປະຕິເສດເອກະສານນີ້ບໍ?</p>
+        <div>
+          <p class="mb-2 font-semibold">ເຫດຜົນການປະຕິເສດ:</p>
+          <div class="w-full">
+            <textarea
+              v-model="rejectReason"
+              placeholder="ກະລຸນາປ້ອນເຫດຜົນການປະຕິເສດ..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows="4"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </UiModal>
+
+    <!-- OTP Modal -->
+    <OtpModal
+      :visible="showOtpModal"
+      :title="pendingApprovalData?.action === 'reject' ? 'ຢືນຢັນການປະຕິເສດ' : 'ຢືນຢັນການອະນຸມັດ'"
+      :loading="otpLoading"
+      @confirm="handleOtpConfirm"
+      @close="handleOtpClose"
+      @resend="handleOtpResend"
+    />
   </div>
 </template>
 
