@@ -16,7 +16,7 @@ import { Icon } from "@iconify/vue";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
-const { hasPermission } = usePermissions();
+const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
 const quotaStore = useQuotaStore();
 const vendorStore = useVendorStore();
 const { success, error } = useNotification();
@@ -36,9 +36,11 @@ const sortBy = ref<string>("id");
 const sortOrder = ref<string>("desc");
 
 // check permission to view this page
-const canCreateQuotas = hasPermission("create-quota-company");
-const canUpdateQuotas = hasPermission("update-quota-company");
-const canDeleteQuotas = hasPermission("delete-quota-company");
+// Super-admin and admin can only view (no edit buttons)
+// Company-admin can create, edit, and delete
+const canCreateQuotas = hasPermission("create-quota-company") && !isSuperAdmin.value && !isAdmin.value;
+const canUpdateQuotas = hasPermission("update-quota-company") && !isSuperAdmin.value && !isAdmin.value;
+const canDeleteQuotas = hasPermission("delete-quota-company") && !isSuperAdmin.value && !isAdmin.value;
 
 const tablePagination = computed(() => {
   const pagination = {
