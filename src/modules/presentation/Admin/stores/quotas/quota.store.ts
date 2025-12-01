@@ -44,6 +44,8 @@ export const useQuotaStore = defineStore("quota", () => {
 
   // Transform quotas for table display with additional info
   const quotasWithDetails = computed(() => {
+    // Use real data from API
+   
     return quotas.value.map(quota => {
       const createdAt = quota.getCreatedAt();
       const updatedAt = quota.getUpdatedAt();
@@ -53,10 +55,13 @@ export const useQuotaStore = defineStore("quota", () => {
       const entity = quota as any;
       const vendorProduct = entity.vendor_product;
       const product = entity.product;
+      const Product = entity.Product; // Add access to uppercase Product from JSON
 
-    
+      // Extract product from vendorProduct if available (this should have product_type and unit)
+      const vendorProductData = vendorProduct?.product || {};
 
-      return {
+     
+      const result = {
         id: quota.getId(),
         vendor_product_id: quota.getVendorProductId(),
         vendor_id: quota.getVendorId(),
@@ -68,14 +73,20 @@ export const useQuotaStore = defineStore("quota", () => {
         updated_at: updatedAt && !isNaN(updatedAt.getTime()) ? updatedAt.toISOString() : new Date().toISOString(),
         deleted_at: deletedAt && !isNaN(deletedAt.getTime()) ? deletedAt.toISOString() : null,
 
-        // Use actual vendor and product names from API response
-        // Based on JSON structure: product.name and vendor_product.product.name
-        product_name: product?.name || vendorProduct?.product?.name || `ສິນຄ້າ #${quota.getVendorProductId()}`,
-        vendor_name: `ຮ້ານຄ້າ #${vendorProduct?.vendor_id || quota.getVendorId() || 'N/A'}`,
+        // Pass the full objects for template access - prioritize Product object from JSON
+        vendor: entity.vendor || vendorProduct?.vendor || null,
+        product: Product || vendorProductData || product || vendorProduct?.product || null,
+        Product: Product || vendorProductData || product || vendorProduct?.product || null, // For backward compatibility
+
+        // Keep computed fields for direct access - prioritize Product object
+        product_name: Product?.name || vendorProductData?.name || product?.name || vendorProduct?.product?.name || `ສິນຄ້າ #${quota.getVendorProductId()}`,
+        vendor_name: entity.vendor?.name || `ຮ້ານຄ້າ #${vendorProduct?.vendor_id || quota.getVendorId() || 'N/A'}`,
         vendor_id_display: vendorProduct?.vendor_id || quota.getVendorId(),
         price: vendorProduct?.price || null,
-        product_type: product?.product_type?.name || null,
+        product_type: Product?.product_type?.name || vendorProductData?.product_type?.name || product?.product_type?.name || null,
+        unit: Product?.unit?.name || vendorProductData?.unit?.name || product?.unit?.name || null, // Get unit name directly
       };
+      return result;
     });
   });
 

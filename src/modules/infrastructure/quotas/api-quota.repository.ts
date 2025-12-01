@@ -19,10 +19,13 @@ export class ApiQuotaRepository implements QuotaRepository {
         console.log('⚠️ Repository - vendor_product is null, skipping');
       }
 
-      if (apiModel.product) {
-        (entity as any).product = apiModel.product;
+      // Check for both 'Product' (from API) and 'product' (legacy)
+      const productData = apiModel.Product || apiModel.product;
+      if (productData) {
+        (entity as any).product = productData;
+        (entity as any).Product = productData; // Also store as Product for backward compatibility
       } else {
-        console.log('⚠️ Repository - product is null, skipping');
+        console.log('⚠️ Repository - both Product and product are null, skipping');
       }
 
       if (apiModel.vendor) {

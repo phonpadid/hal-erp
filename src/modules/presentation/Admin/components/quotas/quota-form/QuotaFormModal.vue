@@ -231,7 +231,7 @@ watch(
 watch(
   () => vendorProductStore.vendorProducts,
   (newProducts) => {
-    console.log('👀 Vendor products changed, count:', newProducts.length);
+    // console.log('👀 Vendor products changed, count:', newProducts.length);
     // Force recompute vendorProductOptions when products change
     vendorProductOptionsTrigger.value++;
   },

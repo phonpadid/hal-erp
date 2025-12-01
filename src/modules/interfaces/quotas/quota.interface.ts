@@ -49,6 +49,26 @@ export interface QuotaApiModel {
     updated_at: string;
   };
 
+  // Product object from API (uppercase P) - contains full product details with product_type and unit
+  Product?: {
+    id: number;
+    name: string;
+    description?: string;
+    product_type_id?: number;
+    product_type?: {
+      id: number;
+      name: string;
+    };
+    unit_id?: string;
+    unit?: {
+      id: string;
+      name: string;
+    };
+    status?: string;
+    created_at: string;
+    updated_at: string;
+  };
+
   vendor?: {
     id: number;
     name: string;
