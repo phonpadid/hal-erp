@@ -1099,6 +1099,7 @@ export const PERMISSION_CONFIG: PermissionSystem = {
         // Company management
         "read-company", "update-company",
         "create-company-user", "read-company-user", "update-company-user", "delete-company-user",
+        "create-quota-company", "read-quota-company", "update-quota-company", "delete-quota-company",
 
         // Basic management
         "read-department", "read-position", "read-role",
