@@ -81,38 +81,44 @@ export const useCompanyUserStore = defineStore("companyUser", {
           company_id: params.company_id || undefined,
         });
 
+        // console.log('API Response:', result); 
         this.companyUsers = result.data;
-
-        // If no data from API, add mock data for testing
-        if (!result.data || result.data.length === 0) {
-          this.companyUsers = [
-            {
-              id: 1,
-              username: "admin_test",
-              email: "admin@test.com",
-              tel: "12345678",
-              signature: null,
-              signature_url: "no photo",
-              roles: [{ id: 1, name: "Admin", guard_name: "web" }],
-              permissions: [{ id: 1, name: "user.create", guard_name: "web" }],
-              company_id: 1,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              deleted_at: null as string | null
-            }
-          ];
-        }
-
         // Update pagination
         if (!result.data || result.data.length === 0) {
-          this.pagination.total = 1; // Mock data count
+          this.pagination.total = 0; // No data
           this.pagination.page = 1;
-          this.pagination.limit = 10;
+          this.pagination.limit = paginationParams.limit || 10;
         } else {
-          this.pagination.total = result.total || 0;
+          // Fix: If API returns total: 0 but has data, calculate properly
+          let total = result.total || 0;
+          if (total === 0 && result.data.length > 0) {
+            // Try to get total from totalPages if available
+            if (result.totalPages) {
+              total = result.totalPages * (result.limit || paginationParams.limit || 10);
+            } else {
+              // If no totalPages, estimate based on current situation
+              const currentPage = result.page || 1;
+              const limit = paginationParams.limit || 10;
+              const dataLength = result.data.length;
+
+              if (currentPage === 1) {
+                // First page: if we have less than limit items, this is probably all data
+                total = dataLength < limit ? dataLength : limit * 2;
+              } else {
+                // Other pages: calculate minimum based on current position
+                total = (currentPage - 1) * limit + dataLength;
+              }
+            }
+
+            // console.log('Calculated total:', total, 'from data length:', result.data.length);
+          }
+
+          this.pagination.total = total;
           this.pagination.page = result.page || 1;
-          this.pagination.limit = result.limit || 10;
+          this.pagination.limit = result.limit || paginationParams.limit || 10;
         }
+
+        // console.log('Updated pagination:', this.pagination);
       } catch (err: unknown) {
         this.error = err instanceof Error ? err.message : "Failed to fetch company users";
         error("Failed to fetch company users", this.error);

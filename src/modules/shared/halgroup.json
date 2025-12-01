@@ -1,0 +1,433 @@
+{
+    "status_code": 200,
+    "message": "Operation completed successfully",
+    "data": [
+        {
+            "id": 7,
+            "name": "inboxlaos",
+            "logo": "company_logo/019a5338-f2d7-74be-bfb4-262d2e7f97e5-1762332832471",
+            "tel": "9789088885956",
+            "email": "inboxlaos@gmail.com",
+            "address": "KM 5",
+            "created_at": "2025-11-05T15:53:52.000Z",
+            "updated_at": "2025-11-05T15:53:52.000Z",
+            "deleted_at": null,
+            "company_users": [
+                {
+                    "id": 66,
+                    "username": "inboxlaos",
+                    "email": "inboxlao@gmail.com",
+                    "tel": "9789088885956",
+                    "created_at": "2025-11-05T15:53:52.000Z",
+                    "updated_at": "2025-11-10T09:30:18.000Z",
+                    "deleted_at": null
+                }
+            ],
+            "budget_accounts": [],
+            "approvalWorkflowCount": 0,
+            "budgetRuleCount": 0,
+            "userCount": 1,
+            "allocated_amount": 0,
+            "increase_amount": 0,
+            "totalUsedAmount": 0,
+            "total_budget": 0,
+            "balance_amount": 0
+        },
+        {
+            "id": 6,
+            "name": "Haltech",
+            "logo": "company_logo/019a533c-ecff-778b-9fb9-264d25bf9690-1762333093119",
+            "tel": "2052145590",
+            "email": "haltech@gmail.com",
+            "address": "Viengtain1",
+            "created_at": "2025-10-31T14:20:39.000Z",
+            "updated_at": "2025-11-05T15:58:13.000Z",
+            "deleted_at": null,
+            "company_users": [
+                {
+                    "id": 63,
+                    "username": "nomTest",
+                    "email": "nomTest@gmail.com",
+                    "tel": "2052145593",
+                    "created_at": "2025-11-03T13:51:33.000Z",
+                    "updated_at": "2025-11-05T15:52:18.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 65,
+                    "username": "phon1",
+                    "email": "phon1@gmail.com",
+                    "tel": "2052145598",
+                    "created_at": "2025-11-05T15:53:25.000Z",
+                    "updated_at": "2025-11-05T15:53:25.000Z",
+                    "deleted_at": null
+                }
+            ],
+            "budget_accounts": [],
+            "approvalWorkflowCount": 0,
+            "budgetRuleCount": 0,
+            "userCount": 2,
+            "allocated_amount": 0,
+            "increase_amount": 0,
+            "totalUsedAmount": 0,
+            "total_budget": 0,
+            "balance_amount": 0
+        },
+        {
+            "id": 9,
+            "name": "hal tech",
+            "logo": "company_logo/019a97cf-7477-72f1-9720-0c8a4c599770-1763483546743",
+            "tel": "9787492334556",
+            "email": "HalTech@gmail.com",
+            "address": "KM 5",
+            "created_at": "2025-11-18T23:32:27.000Z",
+            "updated_at": "2025-11-18T23:32:27.000Z",
+            "deleted_at": null,
+            "company_users": [
+                {
+                    "id": 69,
+                    "username": "hal_tech",
+                    "email": "HalTech@gmail.com",
+                    "tel": "97892292535356",
+                    "created_at": "2025-11-18T23:32:27.000Z",
+                    "updated_at": "2025-11-18T23:32:27.000Z",
+                    "deleted_at": null
+                }
+            ],
+            "budget_accounts": [],
+            "approvalWorkflowCount": 0,
+            "budgetRuleCount": 0,
+            "userCount": 1,
+            "allocated_amount": 0,
+            "increase_amount": 0,
+            "totalUsedAmount": 0,
+            "total_budget": 0,
+            "balance_amount": 0
+        },
+        {
+            "id": 10,
+            "name": "PAO Company 1",
+            "logo": "company_logo/019aba01-2f16-73cb-9a9e-edb95ae826ae-1764057231126",
+            "tel": "02099999292",
+            "email": "pao@gmail.com",
+            "address": "Nong Nark",
+            "created_at": "2025-11-25T14:44:49.000Z",
+            "updated_at": "2025-11-25T14:53:51.000Z",
+            "deleted_at": null,
+            "company_users": [],
+            "budget_accounts": [],
+            "approvalWorkflowCount": 0,
+            "budgetRuleCount": 0,
+            "userCount": 0,
+            "allocated_amount": 0,
+            "increase_amount": 0,
+            "totalUsedAmount": 0,
+            "total_budget": 0,
+            "balance_amount": 0
+        },
+        {
+            "id": 8,
+            "name": "synergy",
+            "logo": "company_logo/019aba04-9b91-7655-b180-1315e218056f-1764057455505",
+            "tel": "209787495433",
+            "email": "phou991111@gmail.com",
+            "address": "KM 5 test",
+            "created_at": "2025-11-11T14:25:40.000Z",
+            "updated_at": "2025-11-25T14:57:35.000Z",
+            "deleted_at": null,
+            "company_users": [
+                {
+                    "id": 68,
+                    "username": "phoudvang999",
+                    "email": "phou99111@gmail.com",
+                    "tel": "209787495422222",
+                    "created_at": "2025-11-11T14:25:40.000Z",
+                    "updated_at": "2025-11-11T15:19:18.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 71,
+                    "username": "company_admin",
+                    "email": "company@gmail.com",
+                    "tel": "02058875757",
+                    "created_at": "2025-11-19T11:28:40.000Z",
+                    "updated_at": "2025-11-19T11:28:40.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 72,
+                    "username": "company_user",
+                    "email": "userCompany@gmail.com",
+                    "tel": "020556483743",
+                    "created_at": "2025-11-19T11:33:33.000Z",
+                    "updated_at": "2025-11-19T11:35:59.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 73,
+                    "username": "ahtou",
+                    "email": "ahtou@gmail.com",
+                    "tel": "2055084306",
+                    "created_at": "2025-11-24T15:31:57.000Z",
+                    "updated_at": "2025-11-27T14:23:26.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 74,
+                    "username": "ahtou_head",
+                    "email": "ahtouH@gmail.com",
+                    "tel": "2055084307",
+                    "created_at": "2025-11-24T15:38:47.000Z",
+                    "updated_at": "2025-11-27T14:28:12.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 75,
+                    "username": "phoud_head1",
+                    "email": "phoud-head@gmail.com",
+                    "tel": "2097874951",
+                    "created_at": "2025-11-24T15:50:40.000Z",
+                    "updated_at": "2025-11-26T15:27:42.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 76,
+                    "username": "phoud1",
+                    "email": "phoud1@gmail.com",
+                    "tel": "2097874954",
+                    "created_at": "2025-11-24T15:53:36.000Z",
+                    "updated_at": "2025-11-26T15:27:59.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 77,
+                    "username": "phet",
+                    "email": "phet@gmail.com",
+                    "tel": "2097874943",
+                    "created_at": "2025-11-24T16:30:39.000Z",
+                    "updated_at": "2025-11-24T16:35:36.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 82,
+                    "username": "nome_head01",
+                    "email": "nomehead01@gmail.com",
+                    "tel": "2099999998",
+                    "created_at": "2025-11-26T14:16:42.000Z",
+                    "updated_at": "2025-11-26T14:51:30.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 95,
+                    "username": "account123",
+                    "email": "account1234@gmail.com",
+                    "tel": "2055084300",
+                    "created_at": "2025-11-26T17:06:53.000Z",
+                    "updated_at": "2025-11-27T10:45:10.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 96,
+                    "username": "accont_head",
+                    "email": "account_head@gmail.com",
+                    "tel": "2077887377",
+                    "created_at": "2025-11-26T17:20:50.000Z",
+                    "updated_at": "2025-11-26T17:20:50.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 97,
+                    "username": "aiypao",
+                    "email": "aiypao@gmail.com",
+                    "tel": "2055084303",
+                    "created_at": "2025-11-27T09:28:09.000Z",
+                    "updated_at": "2025-11-27T09:28:09.000Z",
+                    "deleted_at": null
+                }
+            ],
+            "budget_accounts": [
+                {
+                    "id": 26,
+                    "code": "BA-1EDDCF",
+                    "name": "ທົ່ວໄປ",
+                    "fiscal_year": 2025,
+                    "company_id": 8,
+                    "department_id": "52",
+                    "type": "expenditure",
+                    "created_at": "2025-11-24T16:28:21.000Z",
+                    "updated_at": "2025-11-27T16:15:51.000Z",
+                    "deleted_at": null,
+                    "increase_budgets": [
+                        {
+                            "id": "21",
+                            "budget_account_id": 26,
+                            "allocated_amount": null,
+                            "description": "ກກກ",
+                            "import_date": "2025-11-26",
+                            "created_by": 71,
+                            "created_at": "2025-11-26T15:10:17.000Z",
+                            "updated_at": "2025-11-26T15:10:17.000Z",
+                            "deleted_at": null
+                        },
+                        {
+                            "id": "20",
+                            "budget_account_id": 26,
+                            "allocated_amount": "300000000.00",
+                            "description": "",
+                            "import_date": "2025-11-27",
+                            "created_by": 71,
+                            "created_at": "2025-11-24T16:28:21.000Z",
+                            "updated_at": "2025-11-27T16:15:51.000Z",
+                            "deleted_at": null
+                        }
+                    ],
+                    "budget_items": [
+                        {
+                            "id": 24,
+                            "budget_account_id": 26,
+                            "name": "ຫລື້ນ",
+                            "description": "test",
+                            "created_at": "2025-11-24T16:28:55.000Z",
+                            "updated_at": "2025-11-24T16:28:55.000Z",
+                            "deleted_at": null,
+                            "increase_budget_detail": [
+                                {
+                                    "id": "24",
+                                    "budget_item_id": 24,
+                                    "increase_budget_id": "21",
+                                    "allocated_amount": "100000000.00",
+                                    "created_at": "2025-11-26T15:10:17.000Z",
+                                    "updated_at": "2025-11-26T15:10:17.000Z",
+                                    "deleted_at": null
+                                }
+                            ],
+                            "document_transactions": [
+                                {
+                                    "id": 20,
+                                    "transaction_number": "TN-F005CB",
+                                    "document_id": "616",
+                                    "budget_item_id": 24,
+                                    "amount": "1050000.00",
+                                    "transaction_type": "commit",
+                                    "created_at": "2025-11-27T10:46:42.000Z",
+                                    "updated_at": "2025-11-27T10:46:42.000Z",
+                                    "deleted_at": null
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "approvalWorkflowCount": 3,
+            "budgetRuleCount": 0,
+            "userCount": 12,
+            "allocated_amount": 300000000,
+            "increase_amount": 100000000,
+            "totalUsedAmount": 1050000,
+            "total_budget": 200000000,
+            "balance_amount": 98950000
+        },
+        {
+            "id": 11,
+            "name": "ສົມຫວັງນາຈະ",
+            "logo": "company_logo/019aba32-4994-7348-83f6-138f75ae0659-1764060449172",
+            "tel": "2099333333",
+            "email": "somvang@gmail.com",
+            "address": "Nong Nark hahahaha",
+            "created_at": "2025-11-25T15:03:38.000Z",
+            "updated_at": "2025-11-25T17:06:29.000Z",
+            "deleted_at": null,
+            "company_users": [
+                {
+                    "id": 79,
+                    "username": "somvang",
+                    "email": "somvang@gmail.com",
+                    "tel": "2099999991",
+                    "created_at": "2025-11-25T15:03:38.000Z",
+                    "updated_at": "2025-11-25T15:03:38.000Z",
+                    "deleted_at": null
+                },
+                {
+                    "id": 80,
+                    "username": "lalee_der",
+                    "email": "lalee@gmail.com",
+                    "tel": "2092222111",
+                    "created_at": "2025-11-25T15:06:46.000Z",
+                    "updated_at": "2025-11-25T17:07:21.000Z",
+                    "deleted_at": null
+                }
+            ],
+            "budget_accounts": [],
+            "approvalWorkflowCount": 0,
+            "budgetRuleCount": 0,
+            "userCount": 2,
+            "allocated_amount": 0,
+            "increase_amount": 0,
+            "totalUsedAmount": 0,
+            "total_budget": 0,
+            "balance_amount": 0
+        },
+        {
+            "id": 13,
+            "name": "nome",
+            "logo": "company_logo/019abf61-f941-770b-8794-868d5aba5b9a-1764147460417",
+            "tel": "2055555555",
+            "email": "nome555@gmail.com",
+            "address": "Laos PDR",
+            "created_at": "2025-11-26T15:57:40.000Z",
+            "updated_at": "2025-11-27T10:38:26.000Z",
+            "deleted_at": null,
+            "company_users": [
+                {
+                    "id": 84,
+                    "username": "nome55",
+                    "email": "nome5656@gmail.com",
+                    "tel": "2099999995",
+                    "created_at": "2025-11-26T15:57:40.000Z",
+                    "updated_at": "2025-11-26T16:01:39.000Z",
+                    "deleted_at": null
+                }
+            ],
+            "budget_accounts": [],
+            "approvalWorkflowCount": 0,
+            "budgetRuleCount": 0,
+            "userCount": 1,
+            "allocated_amount": 0,
+            "increase_amount": 0,
+            "totalUsedAmount": 0,
+            "total_budget": 0,
+            "balance_amount": 0
+        },
+        {
+            "id": 15,
+            "name": "Phetcompany Co.,Ltd ",
+            "logo": "company_logo/019ac43a-b109-748a-8edd-5dd96ebcf6c1-1764228772105",
+            "tel": "02096048247",
+            "email": "phet@gmail.com",
+            "address": "vientiane",
+            "created_at": "2025-11-27T14:32:52.000Z",
+            "updated_at": "2025-11-27T14:32:52.000Z",
+            "deleted_at": null,
+            "company_users": [
+                {
+                    "id": 99,
+                    "username": "phetcompany",
+                    "email": "phetcompany@gmail.com",
+                    "tel": "02096048247",
+                    "created_at": "2025-11-27T14:32:52.000Z",
+                    "updated_at": "2025-11-27T15:03:29.000Z",
+                    "deleted_at": null
+                }
+            ],
+            "budget_accounts": [],
+            "approvalWorkflowCount": 0,
+            "budgetRuleCount": 0,
+            "userCount": 1,
+            "allocated_amount": 0,
+            "increase_amount": 0,
+            "totalUsedAmount": 0,
+            "total_budget": 0,
+            "balance_amount": 0
+        }
+    ]
+}

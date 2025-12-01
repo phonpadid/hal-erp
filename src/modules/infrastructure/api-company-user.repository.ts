@@ -14,10 +14,10 @@ export class ApiCompanyUserRepository implements ICompanyUserRepository {
 
       const result = {
         data: response.data.data || [],
-        total: response.data.total || 0,
-        page: response.data.page || 1,
-        limit: response.data.limit || 10,
-        totalPages: response.data.totalPages || 1,
+        total: response.data.pagination?.total || 0,
+        page: response.data.pagination?.page || 1,
+        limit: response.data.pagination?.limit || 10,
+        totalPages: response.data.pagination?.total_pages || 1,
       };
 
       return result;

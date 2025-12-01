@@ -1,8 +1,18 @@
 export interface CompanyUserInterface {
   id: number;
-  username: string;
-  email: string;
-  tel: string;
+  user?: {
+    username: string;
+    email: string;
+    tel: string;
+    roles?: RoleInterface[];
+    user_signature?: {
+      signature_url?: string;
+    };
+  };
+  // Keep direct properties for backward compatibility
+  username?: string;
+  email?: string;
+  tel?: string;
   signature?: string | null;
   signature_url?: string | null;
   roles?: RoleInterface[];

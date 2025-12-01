@@ -139,6 +139,9 @@ export class QuotaEntity {
       }
     };
 
+    // Check for both 'Product' (from API) and 'product' (legacy)
+    const productData = apiData.Product || apiData.product;
+
     return new QuotaEntity({
       id: apiData.id.toString(),
       vendor_product_id: apiData.vendor_product_id,
@@ -151,7 +154,7 @@ export class QuotaEntity {
       updated_at: safeParseDate(apiData.updated_at),
       deleted_at: safeParseNullableDate(apiData.deleted_at),
       vendor_product: apiData.vendor_product,
-      product: apiData.product,
+      product: productData,
       vendor: apiData.vendor,
     });
   }
