@@ -17,11 +17,13 @@ const { t } = useI18n();
 const dpmUserStore = departmenUsertStore();
 const search = ref<string>("");
 
-const { hasPermission } = usePermissions();
+const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
 // check show or hide buttons based on permissions
-const canCreate = hasPermission("write-department-user");
-const canEdit = hasPermission("update-department-user");
-const canDelete = hasPermission("delete-department-user");
+// Super-admin and admin can only view (no edit buttons)
+// Company-admin can create, edit, and delete
+const canCreate = hasPermission("write-department-user") && !isSuperAdmin.value && !isAdmin.value;
+const canEdit = hasPermission("update-department-user") && !isSuperAdmin.value && !isAdmin.value;
+const canDelete = hasPermission("delete-department-user") && !isSuperAdmin.value && !isAdmin.value;
 
 // Form related
 const deleteModalVisible = ref<boolean>(false);

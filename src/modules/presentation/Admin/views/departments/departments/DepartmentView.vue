@@ -21,7 +21,7 @@ import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const search = ref<string>("");
 const { t } = useI18n();
-const { hasPermission } = usePermissions();
+const { hasPermission, isSuperAdmin, isAdmin, isCompanyAdmin } = usePermissions();
 // Initialize the unit store
 const dpmStore = departmentStore();
 const dpmUserStore = departmenUsertStore();
@@ -43,9 +43,11 @@ const formModel = reactive({
   type: "in_the_office",
 });
 // check show or hide buttons based on permissions
-const canCreate = hasPermission("write-department");
-const canEdit = hasPermission("update-department");
-const canDelete = hasPermission("delete-department");
+// Super-admin and admin can only view (no edit buttons)
+// Company-admin can create, edit, and delete
+const canCreate = hasPermission("write-department") && !isSuperAdmin.value && !isAdmin.value;
+const canEdit = hasPermission("update-department") && !isSuperAdmin.value && !isAdmin.value;
+const canDelete = hasPermission("delete-department") && !isSuperAdmin.value && !isAdmin.value;
 
 
 const departmentLabel = computed(() => {
