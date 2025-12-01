@@ -18,15 +18,17 @@ import { useRouter, useRoute } from "vue-router";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
-const { hasPermission } = usePermissions();
+const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
 const { push } = useRouter();
 const route = useRoute();
 const departStore = departmentStore();
 
 // check show button permission
-const canCreateBudgetAccount = computed(() => hasPermission('create-budget-account'));
-const canEditBudgetAccount = computed(() => hasPermission('update-budget-account'));
-const canDeleteBudgetAccount = computed(() => hasPermission('delete-budget-account'));
+// Super-admin and admin can only view (no edit buttons)
+// Company-admin can create, edit, and delete
+const canCreateBudgetAccount = computed(() => hasPermission('create-budget-account') && !isSuperAdmin.value && !isAdmin.value);
+const canEditBudgetAccount = computed(() => hasPermission('update-budget-account') && !isSuperAdmin.value && !isAdmin.value);
+const canDeleteBudgetAccount = computed(() => hasPermission('delete-budget-account') && !isSuperAdmin.value && !isAdmin.value);
 
 const { t } = useI18n();
 const budgetAccountStore = useBudgetAccountStore();
@@ -241,7 +243,7 @@ onMounted(async () => {
           @change="handleSearch"
         /> -->
         <UiButton
-          
+          v-if="canCreateBudgetAccount"
           icon="ant-design:plus-outlined"
           @click="increaseBudgetView"
           colorClass="hover:text-white flex items-center"

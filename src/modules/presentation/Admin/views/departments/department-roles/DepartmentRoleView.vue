@@ -14,6 +14,7 @@
           @change="handleDepartmentFilterChange"
         />
         <UiButton
+          v-if="canCreate"
           type="primary"
           icon="material-symbols:add"
           @click="addDepartmentRole"
@@ -35,6 +36,7 @@
       <template #actions="{ record }">
         <div class="flex items-center justify-center">
           <UiButton
+            v-if="canEdit"
             type=""
             icon="ant-design:edit-outlined"
             size="small"
@@ -44,6 +46,7 @@
             :disabled="!!record.deleted_at"
           />
           <UiButton
+            v-if="canDelete"
             type=""
             icon="ant-design:delete-outlined"
             size="small"
@@ -90,12 +93,14 @@ const departmentStore = useDepartmentStore();
 const departmentRoles = ref<DepartmentRoleWithDetailsDTO[]>([]);
 const router = useRouter();
 const { success } = useNotification();
-const { hasPermission } = usePermissions();
+const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
 
 // check show or hide buttons based on permissions
-const canCreate = hasPermission("write-department-role");
-const canEdit = hasPermission("update-department-role");
-const canDelete = hasPermission("delete-department-role");
+// Super-admin and admin can only view (no edit buttons)
+// Company-admin can create, edit, and delete
+const canCreate = hasPermission("write-department-role") && !isSuperAdmin.value && !isAdmin.value;
+const canEdit = hasPermission("update-department-role") && !isSuperAdmin.value && !isAdmin.value;
+const canDelete = hasPermission("delete-department-role") && !isSuperAdmin.value && !isAdmin.value;
 
 // Department filter state
 const selectedDepartmentId = ref<string | number | null>(null);
