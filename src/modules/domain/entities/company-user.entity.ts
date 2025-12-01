@@ -16,9 +16,9 @@ export class CompanyUserEntity {
 
   constructor(data: CompanyUserInterface) {
     this._id = data.id;
-    this._username = data.username;
-    this._email = data.email;
-    this._tel = data.tel;
+    this._username = data.username || data.user?.username || '';
+    this._email = data.email || data.user?.email || '';
+    this._tel = data.tel || data.user?.tel || '';
     this._signature = data.signature || null;
     this._signature_url = data.signature_url || null;
     this._roles = data.roles || [];

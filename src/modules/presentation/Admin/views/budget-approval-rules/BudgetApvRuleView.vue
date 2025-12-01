@@ -28,11 +28,13 @@ const { t } = useI18n();
 const dpmStore = departmentStore();
 const budget_apv_rules = ref<BudgetApprovalRuleApiModel[]>([]);
 const { success, error, warning } = useNotification();
-const {hasPermission} = usePermissions()
+const {hasPermission, isSuperAdmin, isAdmin} = usePermissions()
 // check show button permission
-const canCreateBudgetApvRule = computed(() => hasPermission('create-budget-approval-rule'));
-const canEditBudgetApvRule = computed(() => hasPermission('update-budget-approval-rule'));
-const canDeleteBudgetApvRule = computed(() => hasPermission('delete-budget-approval-rule'));
+// Super-admin and admin can only view (no edit buttons)
+// Company-admin can create, edit, and delete
+const canCreateBudgetApvRule = computed(() => hasPermission('create-budget-approval-rule') && !isSuperAdmin.value && !isAdmin.value);
+const canEditBudgetApvRule = computed(() => hasPermission('update-budget-approval-rule') && !isSuperAdmin.value && !isAdmin.value);
+const canDeleteBudgetApvRule = computed(() => hasPermission('delete-budget-approval-rule') && !isSuperAdmin.value && !isAdmin.value);
 
 // Form related
 const formRef = ref();
