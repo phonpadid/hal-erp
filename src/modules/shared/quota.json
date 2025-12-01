@@ -1,0 +1,512 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": [
+        {
+            "id": 14,
+            "year": "2025-01-01",
+            "qty": 4,
+            "vendor_product_id": "11",
+            "company_id": 8,
+            "created_at": "25-11-2025 23:28:54",
+            "updated_at": "25-11-2025 23:29:42",
+            "vendor_product": {
+                "id": "11",
+                "vendor_id": "21",
+                "product_id": 1,
+                "vendor": {
+                    "id": "21",
+                    "name": "ຮ້ານ COMCOM1"
+                },
+                "product": {
+                    "id": 1,
+                    "name": "ຄອມພີວເຕີ່ Mac M3"
+                },
+                "price": "12000000.00",
+                "created_at": "25-11-2025 22:16:43",
+                "updated_at": "25-11-2025 22:16:43"
+            },
+            "Product": {
+                "id": 1,
+                "name": "ຄອມພີວເຕີ່ Mac M3",
+                "description": "Ram (16GB, SSD 520GB)",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:04:10",
+                "updated_at": "20-11-2025 18:01:27"
+            },
+            "vendor": {
+                "id": 21,
+                "name": "ຮ້ານ COMCOM1",
+                "contact_info": "2029999391",
+                "created_at": "25-11-2025 22:15:15",
+                "updated_at": "25-11-2025 22:15:25"
+            }
+        },
+        {
+            "id": 13,
+            "year": "2030-01-01",
+            "qty": 2,
+            "vendor_product_id": "10",
+            "company_id": 8,
+            "created_at": "21-11-2025 17:23:37",
+            "updated_at": "24-11-2025 18:06:17",
+            "vendor_product": {
+                "id": "10",
+                "vendor_id": "20",
+                "product_id": 3,
+                "vendor": {
+                    "id": "20",
+                    "name": "ຮ້ານ LT"
+                },
+                "product": {
+                    "id": 3,
+                    "name": "ຄອນພີວ Dell"
+                },
+                "price": "1928000.00",
+                "created_at": "06-11-2025 22:04:10",
+                "updated_at": "06-11-2025 22:04:10"
+            },
+            "Product": {
+                "id": 3,
+                "name": "ຄອນພີວ Dell",
+                "description": "(Ram 16GB / 512GB)",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:56:16",
+                "updated_at": "20-11-2025 18:08:30"
+            },
+            "vendor": {
+                "id": 20,
+                "name": "ຮ້ານ LT",
+                "contact_info": "2099999922",
+                "created_at": "06-10-2025 21:48:13",
+                "updated_at": "06-10-2025 21:48:13"
+            }
+        },
+        {
+            "id": 12,
+            "year": "2025-01-01",
+            "qty": 3,
+            "vendor_product_id": "10",
+            "company_id": 8,
+            "created_at": "19-11-2025 21:51:01",
+            "updated_at": "24-11-2025 18:09:25",
+            "vendor_product": {
+                "id": "10",
+                "vendor_id": "20",
+                "product_id": 3,
+                "vendor": {
+                    "id": "20",
+                    "name": "ຮ້ານ LT"
+                },
+                "product": {
+                    "id": 3,
+                    "name": "ຄອນພີວ Dell"
+                },
+                "price": "1928000.00",
+                "created_at": "06-11-2025 22:04:10",
+                "updated_at": "06-11-2025 22:04:10"
+            },
+            "Product": {
+                "id": 3,
+                "name": "ຄອນພີວ Dell",
+                "description": "(Ram 16GB / 512GB)",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:56:16",
+                "updated_at": "20-11-2025 18:08:30"
+            },
+            "vendor": {
+                "id": 20,
+                "name": "ຮ້ານ LT",
+                "contact_info": "2099999922",
+                "created_at": "06-10-2025 21:48:13",
+                "updated_at": "06-10-2025 21:48:13"
+            }
+        },
+        {
+            "id": 11,
+            "year": "2025-01-01",
+            "qty": 2,
+            "vendor_product_id": "10",
+            "company_id": 8,
+            "created_at": "19-11-2025 21:29:19",
+            "updated_at": "24-11-2025 18:15:52",
+            "vendor_product": {
+                "id": "10",
+                "vendor_id": "20",
+                "product_id": 3,
+                "vendor": {
+                    "id": "20",
+                    "name": "ຮ້ານ LT"
+                },
+                "product": {
+                    "id": 3,
+                    "name": "ຄອນພີວ Dell"
+                },
+                "price": "1928000.00",
+                "created_at": "06-11-2025 22:04:10",
+                "updated_at": "06-11-2025 22:04:10"
+            },
+            "Product": {
+                "id": 3,
+                "name": "ຄອນພີວ Dell",
+                "description": "(Ram 16GB / 512GB)",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:56:16",
+                "updated_at": "20-11-2025 18:08:30"
+            },
+            "vendor": {
+                "id": 20,
+                "name": "ຮ້ານ LT",
+                "contact_info": "2099999922",
+                "created_at": "06-10-2025 21:48:13",
+                "updated_at": "06-10-2025 21:48:13"
+            }
+        },
+        {
+            "id": 10,
+            "year": "2025-01-01",
+            "qty": 1,
+            "vendor_product_id": "10",
+            "company_id": 8,
+            "created_at": "19-11-2025 21:19:08",
+            "updated_at": "19-11-2025 21:19:08",
+            "vendor_product": {
+                "id": "10",
+                "vendor_id": "20",
+                "product_id": 3,
+                "vendor": {
+                    "id": "20",
+                    "name": "ຮ້ານ LT"
+                },
+                "product": {
+                    "id": 3,
+                    "name": "ຄອນພີວ Dell"
+                },
+                "price": "1928000.00",
+                "created_at": "06-11-2025 22:04:10",
+                "updated_at": "06-11-2025 22:04:10"
+            },
+            "Product": {
+                "id": 3,
+                "name": "ຄອນພີວ Dell",
+                "description": "(Ram 16GB / 512GB)",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:56:16",
+                "updated_at": "20-11-2025 18:08:30"
+            },
+            "vendor": {
+                "id": 20,
+                "name": "ຮ້ານ LT",
+                "contact_info": "2099999922",
+                "created_at": "06-10-2025 21:48:13",
+                "updated_at": "06-10-2025 21:48:13"
+            }
+        },
+        {
+            "id": 9,
+            "year": "2025-01-01",
+            "qty": 2,
+            "vendor_product_id": "7",
+            "company_id": 8,
+            "created_at": "19-11-2025 21:16:46",
+            "updated_at": "19-11-2025 21:16:46",
+            "vendor_product": {
+                "id": "7",
+                "vendor_id": "19",
+                "product_id": 1,
+                "vendor": {
+                    "id": "19",
+                    "name": "ຮ້ານຄອມຄອມ"
+                },
+                "product": {
+                    "id": 1,
+                    "name": "ຄອມພີວເຕີ່ Mac M3"
+                },
+                "price": "20000000.00",
+                "created_at": "06-11-2025 18:33:48",
+                "updated_at": "06-11-2025 18:33:48"
+            },
+            "Product": {
+                "id": 1,
+                "name": "ຄອມພີວເຕີ່ Mac M3",
+                "description": "Ram (16GB, SSD 520GB)",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:04:10",
+                "updated_at": "20-11-2025 18:01:27"
+            },
+            "vendor": {
+                "id": 19,
+                "name": "ຮ້ານຄອມຄອມ",
+                "contact_info": "2099999993",
+                "created_at": "01-10-2025 16:38:57",
+                "updated_at": "01-10-2025 16:38:57"
+            }
+        },
+        {
+            "id": 8,
+            "year": "2025-01-01",
+            "qty": 2,
+            "vendor_product_id": "8",
+            "company_id": 8,
+            "created_at": "19-11-2025 21:13:40",
+            "updated_at": "21-11-2025 23:21:27",
+            "vendor_product": {
+                "id": "8",
+                "vendor_id": "20",
+                "product_id": 2,
+                "vendor": {
+                    "id": "20",
+                    "name": "ຮ້ານ LT"
+                },
+                "product": {
+                    "id": 2,
+                    "name": "ຄີບອດ"
+                },
+                "price": "21981000.00",
+                "created_at": "06-11-2025 21:51:17",
+                "updated_at": "10-11-2025 21:13:16"
+            },
+            "Product": {
+                "id": 2,
+                "name": "ຄີບອດ",
+                "description": "ຄີບອດແກມມິງ",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "33",
+                "unit": {
+                    "id": "33",
+                    "name": "Qty"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:18:38",
+                "updated_at": "20-11-2025 17:53:20"
+            },
+            "vendor": {
+                "id": 20,
+                "name": "ຮ້ານ LT",
+                "contact_info": "2099999922",
+                "created_at": "06-10-2025 21:48:13",
+                "updated_at": "06-10-2025 21:48:13"
+            }
+        },
+        {
+            "id": 7,
+            "year": "2025-01-01",
+            "qty": 1,
+            "vendor_product_id": "10",
+            "company_id": 8,
+            "created_at": "19-11-2025 21:13:26",
+            "updated_at": "19-11-2025 21:13:26",
+            "vendor_product": {
+                "id": "10",
+                "vendor_id": "20",
+                "product_id": 3,
+                "vendor": {
+                    "id": "20",
+                    "name": "ຮ້ານ LT"
+                },
+                "product": {
+                    "id": 3,
+                    "name": "ຄອນພີວ Dell"
+                },
+                "price": "1928000.00",
+                "created_at": "06-11-2025 22:04:10",
+                "updated_at": "06-11-2025 22:04:10"
+            },
+            "Product": {
+                "id": 3,
+                "name": "ຄອນພີວ Dell",
+                "description": "(Ram 16GB / 512GB)",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:56:16",
+                "updated_at": "20-11-2025 18:08:30"
+            },
+            "vendor": {
+                "id": 20,
+                "name": "ຮ້ານ LT",
+                "contact_info": "2099999922",
+                "created_at": "06-10-2025 21:48:13",
+                "updated_at": "06-10-2025 21:48:13"
+            }
+        },
+        {
+            "id": 6,
+            "year": "2025-01-01",
+            "qty": 1,
+            "vendor_product_id": "10",
+            "company_id": 8,
+            "created_at": "19-11-2025 21:13:19",
+            "updated_at": "19-11-2025 21:13:19",
+            "vendor_product": {
+                "id": "10",
+                "vendor_id": "20",
+                "product_id": 3,
+                "vendor": {
+                    "id": "20",
+                    "name": "ຮ້ານ LT"
+                },
+                "product": {
+                    "id": 3,
+                    "name": "ຄອນພີວ Dell"
+                },
+                "price": "1928000.00",
+                "created_at": "06-11-2025 22:04:10",
+                "updated_at": "06-11-2025 22:04:10"
+            },
+            "Product": {
+                "id": 3,
+                "name": "ຄອນພີວ Dell",
+                "description": "(Ram 16GB / 512GB)",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:56:16",
+                "updated_at": "20-11-2025 18:08:30"
+            },
+            "vendor": {
+                "id": 20,
+                "name": "ຮ້ານ LT",
+                "contact_info": "2099999922",
+                "created_at": "06-10-2025 21:48:13",
+                "updated_at": "06-10-2025 21:48:13"
+            }
+        },
+        {
+            "id": 5,
+            "year": "2025-01-01",
+            "qty": 2,
+            "vendor_product_id": "10",
+            "company_id": 8,
+            "created_at": "19-11-2025 21:08:33",
+            "updated_at": "19-11-2025 21:08:33",
+            "vendor_product": {
+                "id": "10",
+                "vendor_id": "20",
+                "product_id": 3,
+                "vendor": {
+                    "id": "20",
+                    "name": "ຮ້ານ LT"
+                },
+                "product": {
+                    "id": 3,
+                    "name": "ຄອນພີວ Dell"
+                },
+                "price": "1928000.00",
+                "created_at": "06-11-2025 22:04:10",
+                "updated_at": "06-11-2025 22:04:10"
+            },
+            "Product": {
+                "id": 3,
+                "name": "ຄອນພີວ Dell",
+                "description": "(Ram 16GB / 512GB)",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:56:16",
+                "updated_at": "20-11-2025 18:08:30"
+            },
+            "vendor": {
+                "id": 20,
+                "name": "ຮ້ານ LT",
+                "contact_info": "2099999922",
+                "created_at": "06-10-2025 21:48:13",
+                "updated_at": "06-10-2025 21:48:13"
+            }
+        }
+    ],
+    "pagination": {
+        "total": 14,
+        "total_pages": 2,
+        "limit": 10,
+        "page": 1
+    }
+}

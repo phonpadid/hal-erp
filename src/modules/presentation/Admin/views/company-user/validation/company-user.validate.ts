@@ -19,7 +19,7 @@ export function createCompanyUserValidation(
         trigger: "blur",
       },
       {
-        min: 3,
+        min: 2,
         message: t("company-user.validation.usernameMin"),
         trigger: "blur",
       },

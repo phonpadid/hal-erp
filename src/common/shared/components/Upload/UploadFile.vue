@@ -63,15 +63,15 @@ const previewVisible = ref<boolean>(false);
 watch(
   [() => props.modelValue, () => props.defaultUrl],
   ([modelVal, defaultUrl]) => {
-    console.log("UploadFile watch - modelValue:", modelVal);
-    console.log("UploadFile watch - defaultUrl:", defaultUrl);
-    console.log("UploadFile watch - types:", typeof modelVal, typeof defaultUrl);
+    // console.log("UploadFile watch - modelValue:", modelVal);
+    // console.log("UploadFile watch - defaultUrl:", defaultUrl);
+    // console.log("UploadFile watch - types:", typeof modelVal, typeof defaultUrl);
 
     // Use defaultUrl if available, otherwise use modelValue
     const imageUrl = defaultUrl || modelVal;
 
     if (typeof imageUrl === "string" && imageUrl !== "") {
-      console.log("UploadFile - Setting up image display for URL:", imageUrl);
+      // console.log("UploadFile - Setting up image display for URL:", imageUrl);
       // Check if this URL is not already displayed
       if (!fileList.value.length || (fileList.value[0].url !== imageUrl && fileList.value[0].thumbUrl !== imageUrl)) {
         fileList.value = [
@@ -85,10 +85,10 @@ watch(
         ];
         // Set previewImage for a-modal
         previewImage.value = imageUrl;
-        console.log("UploadFile - FileList set:", fileList.value);
+        // console.log("UploadFile - FileList set:", fileList.value);
       }
     } else if (imageUrl === null || imageUrl === "") {
-      console.log("UploadFile - Clearing file list");
+      // console.log("UploadFile - Clearing file list");
       fileList.value = [];
       previewImage.value = "";
     }

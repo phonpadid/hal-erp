@@ -339,9 +339,34 @@ const yearOptions = computed(() => {
         row-key="id"
         @change="handleTableChange"
       >
+      <template #vendor="{ record }">
+        <span>{{ record.vendor?.name || '-' }}</span>
+      </template>
+
+      <template #product_name="{ record }">
+        <span>{{ record.product?.name || record.Product?.name || '-' }}</span>
+      </template>
+
+      <template #product_type="{ record }">
+        <span>
+          {{ record.product?.product_type?.name || record.Product?.product_type?.name || record.product_type || '-' }}
+        </span>
+      </template>
+
+      <template #unit="{ record }">
+        <span>
+          {{ record.product?.unit?.name || record.Product?.unit?.name || record.unit || '-' }}
+        </span>
+      </template>
+
+      <template #qty="{ record }">
+        <span class="font-medium">{{ record.qty || 0 }}</span>
+      </template>
+
       <template #created_at="{ record }">
         <span>{{ formatDates(record.created_at) }}</span>
       </template>
+
       <template #updated_at="{ record }">
         <span>{{ formatDates(record.updated_at) }}</span>
       </template>
