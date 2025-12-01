@@ -42,7 +42,7 @@ const searchKeyword = ref<string>("");
 const activeTab = ref<string>("1");
 const selectedCompany = ref<Company | null>(null);
 const showCompanyDetail = ref<boolean>(false);
-const selectedDetailCompany = ref<any>(null);
+const selectedDetailCompany = ref<Company | null>(null);
 const companies = ref<Company[]>([]);
 
 // Filter state
@@ -142,7 +142,7 @@ const transformCompanyData = (apiData: CompanyReportData): Company[] => {
   return apiData.data.map((company, index) => ({
     id: company.id,
     name: company.name,
-    logo: "mdi:domain", // Default icon for all companies
+    logo: company.logo || "mdi:domain", // Use company logo from API or default icon
     proposalCount: company.approvalWorkflowCount,
     budget: company.total_budget,
     budgetUsed: company.totalUsedAmount,
@@ -296,6 +296,7 @@ const closeCompanyDetail = () => {
   showCompanyDetail.value = false;
   selectedDetailCompany.value = null;
 };
+
 // Handle batch approve/reject for ApproveProposal component
 const handleBatchApprove = (ids: string[]) => {
   console.log('Approve proposals:', ids);
@@ -706,7 +707,27 @@ onMounted(async () => {
                 >
                   <!-- Company Logo -->
                   <div class="flex justify-center mb-3">
+                    <!-- If logo is a URL, show image, otherwise show icon -->
+                    <div v-if="company.logo && company.logo.startsWith('http')" class="relative w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
+                      <img
+                        :src="company.logo"
+                        :alt="company.name"
+                        class="w-full h-full object-cover"
+                        @error="(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.classList.add('hidden');
+                          target.parentElement!.querySelector('.fallback-icon')!.classList.remove('hidden');
+                        }"
+                      />
+                      <div
+                        class="fallback-icon hidden absolute inset-0 p-3 rounded-full"
+                        :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
+                      >
+                        <Icon icon="mdi:domain" class="text-2xl" />
+                      </div>
+                    </div>
                     <div
+                      v-else
                       class="p-3 rounded-full"
                       :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
                     >
@@ -857,11 +878,32 @@ onMounted(async () => {
                       class="flex items-center gap-3 p-2 bg-red-50 rounded border border-red-200"
                     >
                       <!-- Company Logo -->
-                      <div
-                        class="p-1.5 rounded-full flex-shrink-0"
-                        :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
-                      >
-                        <Icon :icon="company.logo" class="text-sm" />
+                      <div class="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 relative">
+                        <img
+                          v-if="company.logo && company.logo.startsWith('http')"
+                          :src="company.logo"
+                          :alt="company.name"
+                          class="w-full h-full object-cover"
+                          @error="(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.classList.add('hidden');
+                            target.parentElement!.querySelector('.fallback-icon')!.classList.remove('hidden');
+                          }"
+                        />
+                        <div
+                          v-if="company.logo && company.logo.startsWith('http')"
+                          class="fallback-icon hidden absolute inset-0 rounded-full"
+                          :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
+                        >
+                          <Icon icon="mdi:domain" class="text-xs" />
+                        </div>
+                        <div
+                          v-else
+                          class="w-full h-full rounded-full flex items-center justify-center"
+                          :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
+                        >
+                          <Icon :icon="company.logo" class="text-xs" />
+                        </div>
                       </div>
 
                       <!-- Company Name & Over Budget -->
@@ -923,11 +965,32 @@ onMounted(async () => {
                       class="flex items-center gap-3 p-2 bg-green-50 rounded border border-green-200"
                     >
                       <!-- Company Logo -->
-                      <div
-                        class="p-1.5 rounded-full flex-shrink-0"
-                        :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
-                      >
-                        <Icon :icon="company.logo" class="text-sm" />
+                      <div class="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 relative">
+                        <img
+                          v-if="company.logo && company.logo.startsWith('http')"
+                          :src="company.logo"
+                          :alt="company.name"
+                          class="w-full h-full object-cover"
+                          @error="(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.classList.add('hidden');
+                            target.parentElement!.querySelector('.fallback-icon')!.classList.remove('hidden');
+                          }"
+                        />
+                        <div
+                          v-if="company.logo && company.logo.startsWith('http')"
+                          class="fallback-icon hidden absolute inset-0 rounded-full"
+                          :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
+                        >
+                          <Icon icon="mdi:domain" class="text-xs" />
+                        </div>
+                        <div
+                          v-else
+                          class="w-full h-full rounded-full flex items-center justify-center"
+                          :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
+                        >
+                          <Icon :icon="company.logo" class="text-xs" />
+                        </div>
                       </div>
 
                       <!-- Company Name & Remaining Budget -->
