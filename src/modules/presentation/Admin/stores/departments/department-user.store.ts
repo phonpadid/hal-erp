@@ -50,6 +50,8 @@ export const departmenUsertStore = defineStore("department-user", () => {
     pagination.value.page = newPagination.page;
     pagination.value.limit = newPagination.limit;
     pagination.value.total = newPagination.total;
+    // Calculate totalPages based on total and limit
+    pagination.value.totalPages = Math.ceil(newPagination.total / newPagination.limit);
   };
   // Getters
   const activeDepartmentUser = computed(() =>
