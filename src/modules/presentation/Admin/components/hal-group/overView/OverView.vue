@@ -12,6 +12,7 @@ import ApproveProposal from "../approve-proposal/ApproveProposal.vue";
 import CompanyDetail from "../company-detail/CompanyDetail.vue";
 import { ReportCompanyService } from "@/modules/application/services/reports/report-company.service";
 import { useReportHalStore } from "@/modules/presentation/Admin/stores/reports/report-hal.store";
+import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
 import type { CompanyReportData } from "@/modules/infrastructure/reports/report-company.repository";
 
 // Interface for company data
@@ -29,6 +30,22 @@ interface Company {
   approvalWorkflowCount: number;
 }
 
+// Interface for affiliated company data (matching AffiliatedCompany.vue)
+interface AffiliatedCompany {
+  id: number;
+  name: string;
+  logo: string;
+  proposalCount: number;
+  budget: number;
+  budgetUsed: number;
+  color: string;
+  status: "active" | "inactive" | "pending";
+  contractType: "annual" | "project" | "service";
+  establishedYear: number;
+  employees: number;
+  registrationNumber: string;
+}
+
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -37,6 +54,7 @@ const { warning } = useNotification();
 // Services
 const reportCompanyService = new ReportCompanyService();
 const reportHalStore = useReportHalStore();
+const department = departmentStore();
 
 // State
 const loading = ref<boolean>(false);
@@ -50,8 +68,8 @@ const companies = ref<Company[]>([]);
 // Filter state
 const filters = reactive({
   year: new Date().getFullYear(),
-  period: "all",
   company: "all",
+  departmentId: "all",
   dateRange: [] as string[],
 });
 
@@ -65,22 +83,47 @@ const years = computed(() => {
   return yearOptions;
 });
 
-// Period options
-const periodOptions = [
-  { value: "all", label: "ທຸກພະແນກ" },
-  { value: "q1", label: "ພະແນກ 1 " },
-  { value: "q2", label: "ພະແນກ 2" },
-  { value: "q3", label: "ພະແນກ 3 " },
-];
-
 // Company options
-const companyOptions = [
-  { value: "all", label: "ທຸກບໍລິສັດ" },
-  { value: "hal", label: "HAL ບໍລິສັດ" },
-  { value: "hal-tech", label: "HAL Tech" },
-  { value: "hal-energy", label: "HAL Energy" },
-  { value: "hal-service", label: "HAL Service" },
-];
+const companyOptions = computed(() => {
+  const options = [{ value: "all", label: "ທຸກບໍລິສັດ" }];
+
+  // Add companies from the companies data with both ID and name
+  const uniqueCompanies = [...new Map(companies.value.map(c => [c.id, c])).values()];
+  uniqueCompanies.forEach(company => {
+    options.push({ value: company.id.toString(), label: company.name });
+  });
+
+  return options;
+});
+
+// Department options
+const departmentOptions = computed(() => {
+  const options = [{ value: "all", label: "ທຸກພະແນກ" }];
+
+  // Add departments from store
+  if (department.departments && department.departments.length > 0) {
+    department.departments.forEach((dept) => {
+      options.push({
+        value: dept.getId(),
+        label: dept.getName() || `ພະແນກ ${dept.getId()}`
+      });
+    });
+  } else {
+    // Mock departments if no data available
+    const mockDepartments = [
+      { value: "1", label: "ພະແນກບໍລິຫານ" },
+      { value: "2", label: "ພະແນກຊື້" },
+      { value: "3", label: "ພະແນກຂາຍ" },
+      { value: "4", label: "ພະແນກບັນຊີ" },
+      { value: "5", label: "ພະແນກການຜະລິດ" },
+      { value: "6", label: "ພະແນກ IT" },
+      { value: "7", label: "ພະແນກຊີການລູກຄ້າ" },
+    ];
+    options.push(...mockDepartments);
+  }
+
+  return options;
+});
 
 
 // Get filtered companies based on filters
@@ -193,6 +236,9 @@ const loadData = async () => {
     companies.value = transformCompanyData(reportData);
     calculateStatistics();
 
+    // Load departments for filters
+    await loadDepartments();
+
     // Load budget report data for charts
     await loadBudgetReport();
   } catch (error) {
@@ -203,12 +249,26 @@ const loadData = async () => {
   }
 };
 
+// Load departments data
+const loadDepartments = async () => {
+  try {
+    // Try to fetch departments from store
+    if (department.departments.length === 0) {
+      await department.fetchDepartment({ page: 1, limit: 100 });
+    }
+  } catch (error) {
+    console.error("Error loading departments:", error);
+    // Silently fail - will use mock departments
+  }
+};
+
 // Load budget report data
 const loadBudgetReport = async () => {
   try {
     await reportHalStore.fetchReportHalGroupsMonthlyBudget({
       fiscal_year: filters.year,
-      company_id: filters.company !== "all" ? parseInt(filters.company) : undefined
+      company_id: filters.company !== "all" ? parseInt(filters.company) : undefined,
+      departmentId: filters.departmentId !== "all" ? filters.departmentId : undefined
     });
   } catch (error) {
     console.error("Error loading budget report:", error);
@@ -238,8 +298,8 @@ const handleFilterChange = async () => {
     query: {
       ...route.query,
       year: filters.year,
-      period: filters.period,
       company: filters.company,
+      departmentId: filters.departmentId,
     },
   });
 };
@@ -331,13 +391,25 @@ const filteredPurchaseRequests = computed(() => {
 
 // Get company label
 const getCompanyLabel = (companyValue: string) => {
-  const company = companyOptions.find((c) => c.value === companyValue);
+  const company = companyOptions.value.find((c) => c.value === companyValue);
   return company ? company.label : companyValue;
 };
 
 // Handle view company details
-const handleViewDetails = (company: any) => {
-  selectedDetailCompany.value = company;
+const handleViewDetails = (company: Company | AffiliatedCompany) => {
+  // Convert company data to Company format if needed
+  const isAffiliatedCompany = 'employees' in company && 'contractType' in company;
+  const affiliatedCompany = company as AffiliatedCompany;
+  const companyData = company as Company;
+
+  selectedDetailCompany.value = {
+    ...company,
+    // Map from AffiliatedCompany format if needed
+    userCount: isAffiliatedCompany ? affiliatedCompany.employees : companyData.userCount,
+    allocated_amount: company.budget || companyData.allocated_amount || 0,
+    balance_amount: (company.budget || companyData.allocated_amount || 0) - (company.budgetUsed || 0),
+    approvalWorkflowCount: company.proposalCount || companyData.approvalWorkflowCount || 0
+  } as Company;
   showCompanyDetail.value = true;
 };
 
@@ -442,9 +514,7 @@ const getLogoTextColor = (color: string) => {
 onMounted(async () => {
   // Initialize filters from URL query params
   if (route.query.year) filters.year = parseInt(route.query.year as string);
-  if (route.query.period) filters.period = route.query.period as string;
   if (route.query.company) filters.company = route.query.company as string;
-
   // Load data first
   await loadData();
 
@@ -497,7 +567,7 @@ onMounted(async () => {
                 {{ t("hal-group.filters") }}
               </h2>
               <div class="flex justify-between">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                   <!-- Year Filter -->
                   <UiFormItem>
                     <UiSelect
@@ -508,32 +578,35 @@ onMounted(async () => {
                       :disabled="loading"
                     />
                   </UiFormItem>
-
-                  <!-- Period Filter -->
+                   <!-- Department Filter -->
                   <UiFormItem>
                     <UiSelect
-                      v-model="filters.period"
-                      :options="periodOptions"
+                      v-model="filters.departmentId"
+                      :options="departmentOptions"
                       placeholder="ເລືອກພະແນກ"
                       @change="handleFilterChange"
                       :disabled="loading"
                     />
                   </UiFormItem>
-
                   <!-- Company Filter -->
                   <UiFormItem>
                     <UiSelect
                       v-model="filters.company"
                       :options="companyOptions"
-                      placeholder="ເລືອກພະແນກ"
+                      placeholder="ເລືອກບໍລິສັດ"
                       @change="handleFilterChange"
                       :disabled="loading"
                     />
                   </UiFormItem>
+
+                 
+
+                
+                 
                 </div>
                 <div>
                   {{ t("hal-group.showdata") }}{{ t("hal-group.overyear") }} {{ filters.year }}
-                  {{ filters.period }} {{ getCompanyLabel(filters.company) }}
+                  {{ getCompanyLabel(filters.company) }}
                 </div>
               </div>
             </div>
