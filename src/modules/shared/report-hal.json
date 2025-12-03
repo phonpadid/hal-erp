@@ -1,0 +1,80 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": {
+        "budget_overruns": {
+            "amount": 0,
+            "total": 0,
+            "budget": []
+        },
+        "within_budget": {
+            "amount": 9,
+            "total": 269950000,
+            "budget": [
+                {
+                    "id": 6,
+                    "name": "Haltech",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019a533c-ecff-778b-9fb9-264d25bf9690-1762333093119",
+                    "allocated_amount": 0,
+                    "total": 0
+                },
+                {
+                    "id": 7,
+                    "name": "inboxlaos",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019a5338-f2d7-74be-bfb4-262d2e7f97e5-1762332832471",
+                    "allocated_amount": 0,
+                    "total": 0
+                },
+                {
+                    "id": 8,
+                    "name": "synergy",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019aba04-9b91-7655-b180-1315e218056f-1764057455505",
+                    "allocated_amount": 300000000,
+                    "total": 269950000
+                },
+                {
+                    "id": 9,
+                    "name": "hal tech",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019a97cf-7477-72f1-9720-0c8a4c599770-1763483546743",
+                    "allocated_amount": 0,
+                    "total": 0
+                },
+                {
+                    "id": 10,
+                    "name": "PAO Company 1",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019aba01-2f16-73cb-9a9e-edb95ae826ae-1764057231126",
+                    "allocated_amount": 0,
+                    "total": 0
+                },
+                {
+                    "id": 11,
+                    "name": "ສົມຫວັງນາຈະ",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019aba32-4994-7348-83f6-138f75ae0659-1764060449172",
+                    "allocated_amount": 0,
+                    "total": 0
+                },
+                {
+                    "id": 13,
+                    "name": "nome",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019abf61-f941-770b-8794-868d5aba5b9a-1764147460417",
+                    "allocated_amount": 0,
+                    "total": 0
+                },
+                {
+                    "id": 15,
+                    "name": "Phetcompany Co.,Ltd ",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019ac43a-b109-748a-8edd-5dd96ebcf6c1-1764228772105",
+                    "allocated_amount": 0,
+                    "total": 0
+                },
+                {
+                    "id": 18,
+                    "name": "TTt",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019ac980-a005-71ae-bd40-5abf88751b25-1764317241349",
+                    "allocated_amount": 0,
+                    "total": 0
+                }
+            ]
+        }
+    }
+}

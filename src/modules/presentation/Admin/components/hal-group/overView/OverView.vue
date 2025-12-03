@@ -11,6 +11,7 @@ import AffiliatedCompany from "../affiliated-company/AffiliatedCompany.vue";
 import ApproveProposal from "../approve-proposal/ApproveProposal.vue";
 import CompanyDetail from "../company-detail/CompanyDetail.vue";
 import { ReportCompanyService } from "@/modules/application/services/reports/report-company.service";
+import { useReportHalStore } from "@/modules/presentation/Admin/stores/reports/report-hal.store";
 import type { CompanyReportData } from "@/modules/infrastructure/reports/report-company.repository";
 
 // Interface for company data
@@ -35,6 +36,7 @@ const { warning } = useNotification();
 
 // Services
 const reportCompanyService = new ReportCompanyService();
+const reportHalStore = useReportHalStore();
 
 // State
 const loading = ref<boolean>(false);
@@ -101,11 +103,39 @@ const filteredCompanies = computed(() => {
 
 // Get over budget companies
 const overBudgetCompanies = computed(() => {
+  // Use data from budgetReport API if available, otherwise fallback to filtered companies
+  const budgetOverruns = reportHalStore.getBudgetOverruns();
+  if (budgetOverruns?.budget) {
+    const colors = ["red", "orange", "yellow", "purple", "pink"];
+    return budgetOverruns.budget.map((item, index) => ({
+      id: item.id,
+      name: item.name,
+      logo: item.logo,
+      allocated_amount: item.allocated_amount,
+      budgetUsed: item.total,
+      budget: item.allocated_amount,
+      color: colors[index % colors.length]
+    }));
+  }
   return filteredCompanies.value.filter((company) => company.budgetUsed >= company.budget);
 });
 
 // Get within budget companies
 const withinBudgetCompanies = computed(() => {
+  // Use data from budgetReport API if available, otherwise fallback to filtered companies
+  const withinBudget = reportHalStore.getWithinBudget();
+  if (withinBudget?.budget) {
+    const colors = ["green", "blue", "teal", "indigo", "cyan"];
+    return withinBudget.budget.map((item, index) => ({
+      id: item.id,
+      name: item.name,
+      logo: item.logo,
+      allocated_amount: item.allocated_amount,
+      budgetUsed: item.total,
+      budget: item.allocated_amount,
+      color: colors[index % colors.length]
+    }));
+  }
   return filteredCompanies.value.filter((company) => company.budgetUsed < company.budget);
 });
 
@@ -158,9 +188,13 @@ const transformCompanyData = (apiData: CompanyReportData): Company[] => {
 const loadData = async () => {
   loading.value = true;
   try {
+    // Load company data
     const reportData = await reportCompanyService.getReportCompany();
     companies.value = transformCompanyData(reportData);
     calculateStatistics();
+
+    // Load budget report data for charts
+    await loadBudgetReport();
   } catch (error) {
     console.error("Error loading data:", error);
     warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນບໍລິສັດໄດ້");
@@ -169,9 +203,25 @@ const loadData = async () => {
   }
 };
 
+// Load budget report data
+const loadBudgetReport = async () => {
+  try {
+    await reportHalStore.fetchReportHalGroupsMonthlyBudget({
+      fiscal_year: filters.year,
+      company_id: filters.company !== "all" ? parseInt(filters.company) : undefined
+    });
+  } catch (error) {
+    console.error("Error loading budget report:", error);
+    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນງົບປະມານໄດ້");
+  }
+};
+
 // Handle filter changes
-const handleFilterChange = () => {
+const handleFilterChange = async () => {
   calculateStatistics();
+
+  // Load budget report data when filters change
+  await loadBudgetReport();
 
   // Update selectedCompany when company filter changes
   if (filters.company !== "all") {
@@ -820,16 +870,14 @@ onMounted(async () => {
                   <div class="text-sm text-red-700">
                     <div>
                       ຈຳນວນ:
-                      {{ filteredCompanies.filter((c) => c.budgetUsed >= c.budget).length }} ບໍລິສັດ
+                      {{ reportHalStore.getBudgetOverruns()?.amount || 0 }} ບໍລິສັດ
                     </div>
                     <div class="mt-1">
                       ມູນຄ່າທີ່ເກີນ:
                       <span class="font-bold">
                         {{
                           formatCurrency(
-                            filteredCompanies
-                              .filter((c) => c.budgetUsed >= c.budget)
-                              .reduce((sum, c) => sum + (c.budgetUsed - c.budget), 0)
+                            reportHalStore.getBudgetOverruns()?.total || 0
                           )
                         }}
                       </span>
@@ -845,16 +893,14 @@ onMounted(async () => {
                   <div class="text-sm text-green-700">
                     <div>
                       ຈຳນວນ:
-                      {{ filteredCompanies.filter((c) => c.budgetUsed < c.budget).length }} ບໍລິສັດ
+                      {{ reportHalStore.getWithinBudget()?.amount || 0 }} ບໍລິສັດ
                     </div>
                     <div class="mt-1">
                       ງົບປະມານທີ່ຍັງຄ້າງ:
                       <span class="font-bold">
                         {{
                           formatCurrency(
-                            filteredCompanies
-                              .filter((c) => c.budgetUsed < c.budget)
-                              .reduce((sum, c) => sum + (c.budget - c.budgetUsed), 0)
+                            reportHalStore.getWithinBudget()?.total || 0
                           )
                         }}
                       </span>
