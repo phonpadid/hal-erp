@@ -98,9 +98,13 @@ const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
 // check show or hide buttons based on permissions
 // Super-admin and admin can only view (no edit buttons)
 // Company-admin can create, edit, and delete
-const canCreate = hasPermission("write-department-role") && !isSuperAdmin.value && !isAdmin.value;
-const canEdit = hasPermission("update-department-role") && !isSuperAdmin.value && !isAdmin.value;
-const canDelete = hasPermission("delete-department-role") && !isSuperAdmin.value && !isAdmin.value;
+// const canCreate = hasPermission("write-department-role") && !isSuperAdmin.value && !isAdmin.value;
+// const canEdit = hasPermission("update-department-role") && !isSuperAdmin.value && !isAdmin.value;
+// const canDelete = hasPermission("delete-department-role") && !isSuperAdmin.value && !isAdmin.value;
+const canCreate = hasPermission("write-department") && !isSuperAdmin.value && !isAdmin.value;
+const canEdit = hasPermission("update-department") && !isSuperAdmin.value && !isAdmin.value;
+const canDelete = hasPermission("delete-department") && !isSuperAdmin.value && !isAdmin.value;
+
 
 // Department filter state
 const selectedDepartmentId = ref<string | number | null>(null);
