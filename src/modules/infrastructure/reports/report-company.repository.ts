@@ -36,6 +36,106 @@ export interface CompanyReportData {
   }>;
 }
 
+export interface CompanyReportOneData {
+  status_code: number;
+  message: string;
+  data: {
+    id: number;
+    name: string;
+    logo: string;
+    tel: string;
+    email: string;
+    address: string;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    company_users: Array<{
+      id: number;
+      username: string;
+      email: string;
+      tel: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string | null;
+    }>;
+    budget_accounts: Array<{
+      id: number;
+      code: string;
+      name: string;
+      fiscal_year: number;
+      company_id: number;
+      department_id: string;
+      type: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string | null;
+      increase_budgets: Array<{
+        id: string;
+        budget_account_id: number;
+        allocated_amount: string | null;
+        description: string;
+        import_date: string;
+        created_by: number;
+        created_at: string;
+        updated_at: string;
+        deleted_at: string | null;
+      }>;
+      budget_items: Array<{
+        id: number;
+        budget_account_id: number;
+        name: string;
+        description: string;
+        created_at: string;
+        updated_at: string;
+        deleted_at: string | null;
+        increase_budget_detail: Array<{
+          id: string;
+          budget_item_id: number;
+          increase_budget_id: string;
+          allocated_amount: string;
+          created_at: string;
+          updated_at: string;
+          deleted_at: string | null;
+        }>;
+        document_transactions: Array<{
+          id: number;
+          transaction_number: string;
+          document_id: string;
+          budget_item_id: number;
+          amount: string;
+          transaction_type: string;
+          created_at: string;
+          updated_at: string;
+          deleted_at: string | null;
+        }>;
+      }>;
+    }>;
+    documents: Array<{
+      id: string;
+      document_number: string;
+      title: string | null;
+      description: string | null;
+      total_amount: string | null;
+      document_type_id: string;
+      department_id: string;
+      requester_id: number;
+      company_id: number;
+      status: string;
+      created_at: string;
+      updated_at: string;
+      deleted_at: string | null;
+    }>;
+    approvalWorkflowCount: number;
+    budgetRuleCount: number;
+    userCount: number;
+    allocated_amount: number;
+    increase_amount: number;
+    totalUsedAmount: number;
+    total_budget: number;
+    balance_amount: number;
+  };
+}
+
 export class ApiReportCompanyRepository implements ReportCompanyRepository {
   async getReportCompany(): Promise<CompanyReportData> {
     try {
@@ -43,6 +143,15 @@ export class ApiReportCompanyRepository implements ReportCompanyRepository {
       return response.data;
     } catch (error) {
       this.handleApiError(error, "Failed to fetch company report data");
+    }
+  }
+
+  async getOneCompanyReport(companyId: string): Promise<CompanyReportOneData> {
+    try {
+      const response = await api.get(`/companies/report/${companyId}`);
+      return response.data;
+    } catch (error) {
+      this.handleApiError(error, `Failed to fetch company report data for company ${companyId}`);
     }
   }
 

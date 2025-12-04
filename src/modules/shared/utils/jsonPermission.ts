@@ -772,50 +772,50 @@ export const PERMISSION_CONFIG: PermissionSystem = {
       category: "admin",
       module: "company-management"
     },
-    // "read-company": {
-    //   name: "Read Company",
-    //   description: "Read Company",
-    //   category: "admin",
-    //   module: "company-management"
-    // },
-    // "update-company": {
-    //   name: "Update Company",
-    //   description: "Update Company",
-    //   category: "admin",
-    //   module: "company-management"
-    // },
-    // "delete-company": {
-    //   name: "Delete Company",
-    //   description: "Delete Company",
-    //   category: "admin",
-    //   module: "company-management"
-    // },
+    "read-company": {
+      name: "Read Company",
+      description: "Read Company",
+      category: "admin",
+      module: "company-management"
+    },
+    "update-company": {
+      name: "Update Company",
+      description: "Update Company",
+      category: "admin",
+      module: "company-management"
+    },
+    "delete-company": {
+      name: "Delete Company",
+      description: "Delete Company",
+      category: "admin",
+      module: "company-management"
+    },
 
     // Company User permissions (id: 30)
-    // "create-company-user": {
-    //   name: "Create Company User",
-    //   description: "Create Company User",
-    //   category: "admin",
-    //   module: "company-management"
-    // },
-    // "read-company-user": {
-    //   name: "Read Company User",
-    //   description: "Read Company User",
-    //   category: "admin",
-    //   module: "company-management"
-    // },
-    // "update-company-user": {
-    //   name: "Update Company User",
-    //   description: "Update Company User",
-    //   category: "admin",
-    //   module: "company-management"
-    // },
-    // "delete-company-user": {
-    //   name: "Delete Company User",
-    //   description: "Delete Company User",
-    //   category: "admin",
-    //   module: "company-management"
-    // },
+    "create-company-user": {
+      name: "Create Company User",
+      description: "Create Company User",
+      category: "admin",
+      module: "company-management"
+    },
+    "read-company-user": {
+      name: "Read Company User",
+      description: "Read Company User",
+      category: "admin",
+      module: "company-management"
+    },
+    "update-company-user": {
+      name: "Update Company User",
+      description: "Update Company User",
+      category: "admin",
+      module: "company-management"
+    },
+    "delete-company-user": {
+      name: "Delete Company User",
+      description: "Delete Company User",
+      category: "admin",
+      module: "company-management"
+    },
 
     // Category permissions (id: 31)
     "create-category": {

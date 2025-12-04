@@ -24,7 +24,7 @@ import InputNumber from "@/common/shared/components/Input/InputNumber.vue";
 import { useRoute } from "vue-router";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
-const {hasPermission} = usePermissions();
+const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
 const {error} = useNotification()
 const search = ref<string>("");
 const { t } = useI18n();
@@ -40,9 +40,9 @@ const loading = ref<boolean>(false);
 const selectedData = ref<IApprovalWorkflowStepApiModel | null>(null);
 
 // check button show permission
-const canCreateStep = computed(() => hasPermission('create-approval-workflow-step'));
-const canEditStep = computed(() => hasPermission('update-approval-workflow-step'));
-const canDeleteStep = computed(() => hasPermission('delete-approval-workflow-step'));
+const canCreateStep = hasPermission('create-approval-workflow-step' )&& !isSuperAdmin.value && !isAdmin.value;
+const canEditStep = hasPermission('update-approval-workflow-step') && !isSuperAdmin.value && !isAdmin.value;
+const canDeleteStep = hasPermission('delete-approval-workflow-step') && !isSuperAdmin.value && !isAdmin.value;
 
 
 
