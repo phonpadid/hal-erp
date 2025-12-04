@@ -19,11 +19,15 @@ import type { ApprovalWorkflowApiModel } from "@/modules/interfaces/approval-wor
 import { approvalWorkflowStore } from "../../stores/approval-workflow.store";
 import { useRouter } from "vue-router";
 import { Modal } from "ant-design-vue";
-import { useAuthStore } from "../../stores/authentication/auth.store";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
+
 const search = ref<string>("");
 const { t } = useI18n();
 // const useRealApi = ref<boolean>(true); // Toggle between mock and real API
 const { success, error, warning } = useNotification();
+
+const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
+
 // Form related
 const formRef = ref();
 const editModalVisible = ref<boolean>(false);
@@ -44,9 +48,10 @@ const formModel = reactive({
   name: "",
   document_type_id: "",
 });
-const authStore = useAuthStore();
-const isSuperAdmin = computed(() => authStore.isSuperAdmin); // ✅ ดึง getter isSuperAdmin\
-const isCompanyAdmin = computed(() => authStore.isCompanyAdmin); // ✅ ดึง getter isSuperAdmin\
+
+const canCreateStep = hasPermission('create-approval-workflow-step' )&& !isSuperAdmin.value && !isAdmin.value;
+const canEditStep = hasPermission('update-approval-workflow-step') && !isSuperAdmin.value && !isAdmin.value;
+const canDeleteStep = hasPermission('delete-approval-workflow-step') && !isSuperAdmin.value && !isAdmin.value;
 
 const loadData = async (): Promise<void> => {
   // if (useRealApi.value) {
@@ -211,7 +216,7 @@ onMounted(async () => {
           <InputSearch v-model:value="search" @keyup.enter="handleSearch"
             :placeholder="t('approval-workflow.placeholder.search')" />
         </div>
-        <UiButton type="primary" icon="ant-design:plus-outlined" @click="showCreateModal"
+        <UiButton v-if="canCreateStep" type="primary" icon="ant-design:plus-outlined" @click="showCreateModal"
           colorClass="flex items-center">
           {{ $t("approval-workflow.add") }}
         </UiButton>
@@ -243,7 +248,7 @@ onMounted(async () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <!-- <SettingOutlined /> -->
-          <UiButton v-if="isSuperAdmin || isCompanyAdmin" icon="ant-design:safety-outlined" size="small" shape="circle" @click="verify(record)" :colorClass="[
+          <UiButton v-if="canEditStep" icon="ant-design:safety-outlined" size="small" shape="circle" @click="verify(record)" :colorClass="[
             'flex items-center justify-center',
             record.status === 'approved'
               ? 'text-green-600'
@@ -252,15 +257,15 @@ onMounted(async () => {
                 : 'text-gray-500'
           ].join(' ')">
           </UiButton>
-          <UiButton icon="ant-design:eye-outlined" size="small" shape="circle" @click="info(record.id)"
+          <UiButton v-if="canEditStep" icon="ant-design:eye-outlined" size="small" shape="circle" @click="info(record.id)"
             colorClass="flex items-center justify-center text-sky-500">
           </UiButton>
 
-          <UiButton icon="ant-design:edit-outlined" size="small" shape="circle" @click="showEditModal(record)"
+          <UiButton v-if="canEditStep" icon="ant-design:edit-outlined" size="small" shape="circle" @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400">
           </UiButton>
 
-          <UiButton danger icon="ant-design:delete-outlined" shape="circle"
+          <UiButton v-if="canDeleteStep" danger icon="ant-design:delete-outlined" shape="circle"
             colorClass="flex items-center justify-center text-red-700" size="small" @click="showDeleteModal(record)">
           </UiButton>
         </div>
