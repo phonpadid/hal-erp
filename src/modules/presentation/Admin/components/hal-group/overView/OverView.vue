@@ -1,5 +1,5 @@
 \<script setup lang="ts">
-import { ref, computed, onMounted, reactive } from "vue";
+import { ref, computed, onMounted, reactive, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -13,6 +13,7 @@ import CompanyDetail from "../company-detail/CompanyDetail.vue";
 import { ReportCompanyService } from "@/modules/application/services/reports/report-company.service";
 import { useReportHalStore } from "@/modules/presentation/Admin/stores/reports/report-hal.store";
 import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
+import { useCompanyReportsStore } from "@/modules/presentation/Admin/stores/company-reports.store";
 import type { CompanyReportData } from "@/modules/infrastructure/reports/report-company.repository";
 
 // Interface for company data
@@ -55,6 +56,7 @@ const { warning } = useNotification();
 const reportCompanyService = new ReportCompanyService();
 const reportHalStore = useReportHalStore();
 const department = departmentStore();
+const companyReportsStore = useCompanyReportsStore();
 
 // State
 const loading = ref<boolean>(false);
@@ -304,11 +306,35 @@ const handleFilterChange = async () => {
   });
 };
 
-// Navigate to approval tab
-const navigateToApprovalTab = (company: Company) => {
-  activeTab.value = "2";
-  selectedCompany.value = company;
+
+
+// Show company details with pending documents
+const showCompanyDetails = async (company: Company) => {
+  loading.value = true;
+  try {
+    // Check if data already exists in store
+    let companyDetails = companyReportsStore.getCompanyById(company.id);
+
+    // If not found or needs refresh, load from API
+    if (!companyDetails) {
+      companyDetails = await companyReportsStore.loadCompanyReport(company.id.toString());
+    }
+
+    // Set selected company for ApproveProposal and go to Tab 2
+    selectedCompany.value = company;
+    activeTab.value = "2";
+
+    await nextTick();
+
+  } catch (error) {
+    console.error("Error loading company details:", error);
+    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນລາຍລະອຽດບໍລິສັດໄດ້");
+  } finally {
+    loading.value = false;
+  }
 };
+
+
 
 // Mock data for purchase requests
 const mockPurchaseRequests = [
@@ -515,7 +541,11 @@ onMounted(async () => {
   // Initialize filters from URL query params
   if (route.query.year) filters.year = parseInt(route.query.year as string);
   if (route.query.company) filters.company = route.query.company as string;
-  // Load data first
+
+  // Load company reports data first
+  await companyReportsStore.loadCompanyReports();
+
+  // Load overview data
   await loadData();
 
   // Initialize selectedCompany from company filter after data is loaded
@@ -825,7 +855,7 @@ onMounted(async () => {
                 <div
                   v-for="company in filteredCompanies"
                   :key="company.id"
-                  @click="navigateToApprovalTab(company)"
+                  @click="showCompanyDetails(company)"
                   class="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-blue-300 hover:scale-105"
                 >
                   <!-- Company Logo -->
@@ -1247,6 +1277,12 @@ onMounted(async () => {
 
             <!-- Tab Content -->
             <div class="p-0">
+                <!-- Show Affiliated Company List if no detail selected -->
+              <AffiliatedCompany
+                v-if="!showCompanyDetail"
+                @view-details="handleViewDetails"
+              />
+
               <!-- Show Company Detail if selected -->
               <div v-if="showCompanyDetail && selectedDetailCompany">
                 <div class="bg-gray-50 min-h-full">
@@ -1263,7 +1299,7 @@ onMounted(async () => {
                         <h1 class="text-xl font-bold">ລາຍລະອຽດບໍລິສັດ</h1>
                         <div class="ml-auto">
                           <span class="bg-white/20 px-3 py-1 rounded-full text-sm">
-                            {{ selectedDetailCompany.name }}
+                            {{ selectedDetailCompany?.name }}
                           </span>
                         </div>
                       </div>
@@ -1273,7 +1309,7 @@ onMounted(async () => {
                   <!-- Company Detail Component -->
                   <div class="p-0">
                     <CompanyDetail
-                      :company-id="selectedDetailCompany.id"
+                      :company-id="selectedDetailCompany?.id"
                       @close="closeCompanyDetail"
                     />
                   </div>
@@ -1282,7 +1318,7 @@ onMounted(async () => {
 
               <!-- Show Affiliated Company List if no detail selected -->
               <AffiliatedCompany
-                v-else
+                v-if="!showCompanyDetail"
                 @view-details="handleViewDetails"
               />
             </div>
@@ -1312,9 +1348,37 @@ onMounted(async () => {
                   </div>
                 </div>
               </div>
+              </div>
+            </div>
+          </Tabs.TabPane>
+
+          <!-- Tab 4: ການເງີນ -->
+          <!-- <Tabs.TabPane key="4" tab="ການເງີນ">
+
+            <div
+              class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-green-50 to-emerald-50"
+            >
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h1 class="text-2xl md:text-3xl font-bold text-gray-900">ການເງີນ</h1>
+                  <p class="text-gray-600 mt-1">ຈັດການການເງີນ ແລະ ງົບປະມານ</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div
+                    class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
+                  >
+                    <Icon icon="ant-design:bank-outlined" class="inline mr-1" />
+                    3 ທະນາຄານ
+                  </div>
+                  <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                    <Icon icon="ant-design:credit-card-outlined" class="inline mr-1" />
+                    12 ບັນຊີ
+                  </div>
+                </div>
+              </div>
             </div>
 
-    
+
             <div class="p-6">
               <div class="text-center py-12">
                 <Icon icon="ant-design:bank-outlined" class="text-6xl text-gray-300 mx-auto mb-4" />
@@ -1366,7 +1430,8 @@ onMounted(async () => {
       </div>
     </div>
   </div>
-</template>
+
+  </template>
 
 <style scoped>
 .hal-group-overview-container {

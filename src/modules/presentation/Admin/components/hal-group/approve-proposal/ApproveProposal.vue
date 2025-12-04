@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { Icon } from "@iconify/vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FinalApprovalView from "./FinalApprovalView.vue";
@@ -8,8 +8,9 @@ import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useApprovalStepStore } from "../../../stores/approval-step.store";
 import { useAuthStore } from "../../../stores/authentication/auth.store";
+import { useCompanyReportsStore } from "../../../stores/company-reports.store";
 
-// Interface for item details
+// Use PendingDocument interface from store (same as ItemDetail)
 interface ItemDetail {
   id: string;
   requestNumber: string;
@@ -50,6 +51,9 @@ const emit = defineEmits<{
 // Composables
 const { warning, error } = useNotification();
 
+// Store
+const companyReportsStore = useCompanyReportsStore();
+
 // State
 const selectedRequests = ref<string[]>([]);
 const internalSearchKeyword = ref(props.searchKeyword);
@@ -66,227 +70,241 @@ const pendingApprovalData = ref<{ ids: string[], action: 'approve' | 'reject' } 
 const isRejectModalVisible = ref<boolean>(false);
 const rejectReason = ref<string>("");
 
-// Generate mock data based on OverView.vue data
-const mockItemDetails: ItemDetail[] = [
-  {
-    id: "PR001",
-    requestNumber: "PR2024-001",
-    title: "ຈັດຊື້ອຸປະກອນສໍານັກງານ",
-    company: "HAL ບໍລິສັດ",
-    amount: 2500000,
-    items: 5,
-    deliveryPoint: "ສານະສຳນັກງານໃຫຍ່",
-    urgency: "normal",
-    requestDate: "2024-11-01",
-    requester: "ສົມສະຫວາດ ວົງສາ",
-    department: "ພະແນກຊື້",
-    status: "pending",
-  },
-  {
-    id: "PR002",
-    requestNumber: "PR2024-002",
-    title: "ຈັດຊື້ວັດຖຸດິບຜ່ານການຜະລິດ",
-    company: "HAL ບໍລິສັດ",
-    amount: 5800000,
-    items: 12,
-    deliveryPoint: "ຄັງສົ່ງສິນຄ້າ A",
-    urgency: "high",
-    requestDate: "2024-11-02",
-    requester: "ຄຳພອນ ໄຊຍະສາດ",
-    department: "ພະແນກຜະລິດ",
-    status: "pending",
-  },
-  {
-    id: "PR003",
-    requestNumber: "PR2024-003",
-    title: "ຈັດຊື້ລົດຈັກບັນຊີ",
-    company: "HAL Tech",
-    amount: 12000000,
-    items: 3,
-    deliveryPoint: "ສານະຫົວໜ້າບໍລິສັດ",
-    urgency: "normal",
-    requestDate: "2024-11-03",
-    requester: "ມາລີ ດວງສະຫວັນ",
-    department: "ພະແນກບັນຊີ",
-    status: "approved",
-  },
-  {
-    id: "PR004",
-    requestNumber: "PR2024-004",
-    title: "ຈັດຊື້ລະບົບຄວາມປອດໄພ",
-    company: "HAL Energy",
-    amount: 8500000,
-    items: 8,
-    deliveryPoint: "ຮ້ານຈັດຊື້ຫຼັກສັນ",
-    urgency: "urgent",
-    requestDate: "2024-11-04",
-    requester: "ສົມພອນ ອິນທະວົງ",
-    department: "ພະແນກ IT",
-    status: "pending",
-  },
-  {
-    id: "ITM005",
-    requestNumber: "1297/ຈຊນ.ນວ/ບຫ",
-    title: "ອຸປະກອນສະຫນັກບໍລິການ",
-    company: "HAL Service",
-    amount: 3200000,
-    items: 15,
-    deliveryPoint: "ສານະການສົ່ງສິນຄ້າ",
-    urgency: "normal",
-    requestDate: "2024-11-05",
-    requester: "ເດືອນ ໄຊຍະພອນ",
-    department: "ພະແນກຊີການລູກຄ້າ",
-    status: "rejected",
-  },
-  {
-    id: "ITM006",
-    requestNumber: "1298/ຈຊນ.ນວ/ບຫ",
-    title: "ລົດຂົນສົ່ງໃໝ່",
-    company: "HAL Logistics",
-    amount: 4500000,
-    items: 7,
-    deliveryPoint: "ສານະສຳນັກງານສາຂາ",
-    urgency: "high",
-    requestDate: "2024-11-06",
-    requester: "ບຸນມີ ຄຳສອນ",
-    department: "ພະແນກຂົນສົ່ງ",
-    status: "pending",
-  },
-  {
-    id: "ITM007",
-    requestNumber: "1299/ຈຊນ.ນວ/ບຫ",
-    title: "ວັດຖຸກໍ່າສ້າງ",
-    company: "HAL Construction",
-    amount: 6700000,
-    items: 10,
-    deliveryPoint: "ໜ່ານກໍ່າສ້າງ",
-    urgency: "normal",
-    requestDate: "2024-11-07",
-    requester: "ສົມພັນ ວົງສະຫາດ",
-    department: "ພະແນກວັດຖຸກໍ່າສ້າງ",
-    status: "pending",
-  },
+// Mock data (replaced with API data)
+// const mockItemDetails: ItemDetail[] = [
+  // {
+  //   id: "PR001",
+  //   requestNumber: "PR2024-001",
+  //   title: "ຈັດຊື້ອຸປະກອນສໍານັກງານ",
+  //   company: "HAL ບໍລິສັດ",
+  //   amount: 2500000,
+  //   items: 5,
+  //   deliveryPoint: "ສານະສຳນັກງານໃຫຍ່",
+  //   urgency: "normal",
+  //   requestDate: "2024-11-01",
+  //   requester: "ສົມສະຫວາດ ວົງສາ",
+  //   department: "ພະແນກຊື້",
+  //   status: "pending",
+  // },
+  // {
+  //   id: "PR002",
+  //   requestNumber: "PR2024-002",
+  //   title: "ຈັດຊື້ວັດຖຸດິບຜ່ານການຜະລິດ",
+  //   company: "HAL ບໍລິສັດ",
+  //   amount: 5800000,
+  //   items: 12,
+  //   deliveryPoint: "ຄັງສົ່ງສິນຄ້າ A",
+  //   urgency: "high",
+  //   requestDate: "2024-11-02",
+  //   requester: "ຄຳພອນ ໄຊຍະສາດ",
+  //   department: "ພະແນກຜະລິດ",
+  //   status: "pending",
+  // },
+  // {
+  //   id: "PR003",
+  //   requestNumber: "PR2024-003",
+  //   title: "ຈັດຊື້ລົດຈັກບັນຊີ",
+  //   company: "HAL Tech",
+  //   amount: 12000000,
+  //   items: 3,
+  //   deliveryPoint: "ສານະຫົວໜ້າບໍລິສັດ",
+  //   urgency: "normal",
+  //   requestDate: "2024-11-03",
+  //   requester: "ມາລີ ດວງສະຫວັນ",
+  //   department: "ພະແນກບັນຊີ",
+  //   status: "approved",
+  // },
+  // {
+  //   id: "PR004",
+  //   requestNumber: "PR2024-004",
+  //   title: "ຈັດຊື້ລະບົບຄວາມປອດໄພ",
+  //   company: "HAL Energy",
+  //   amount: 8500000,
+  //   items: 8,
+  //   deliveryPoint: "ຮ້ານຈັດຊື້ຫຼັກສັນ",
+  //   urgency: "urgent",
+  //   requestDate: "2024-11-04",
+  //   requester: "ສົມພອນ ອິນທະວົງ",
+  //   department: "ພະແນກ IT",
+  //   status: "pending",
+  // },
+  // {
+  //   id: "ITM005",
+  //   requestNumber: "1297/ຈຊນ.ນວ/ບຫ",
+  //   title: "ອຸປະກອນສະຫນັກບໍລິການ",
+  //   company: "HAL Service",
+  //   amount: 3200000,
+  //   items: 15,
+  //   deliveryPoint: "ສານະການສົ່ງສິນຄ້າ",
+  //   urgency: "normal",
+  //   requestDate: "2024-11-05",
+  //   requester: "ເດືອນ ໄຊຍະພອນ",
+  //   department: "ພະແນກຊີການລູກຄ້າ",
+  //   status: "rejected",
+  // },
+  // {
+  //   id: "ITM006",
+  //   requestNumber: "1298/ຈຊນ.ນວ/ບຫ",
+  //   title: "ລົດຂົນສົ່ງໃໝ່",
+  //   company: "HAL Logistics",
+  //   amount: 4500000,
+  //   items: 7,
+  //   deliveryPoint: "ສານະສຳນັກງານສາຂາ",
+  //   urgency: "high",
+  //   requestDate: "2024-11-06",
+  //   requester: "ບຸນມີ ຄຳສອນ",
+  //   department: "ພະແນກຂົນສົ່ງ",
+  //   status: "pending",
+  // },
+  // {
+  //   id: "ITM007",
+  //   requestNumber: "1299/ຈຊນ.ນວ/ບຫ",
+  //   title: "ວັດຖຸກໍ່າສ້າງ",
+  //   company: "HAL Construction",
+  //   amount: 6700000,
+  //   items: 10,
+  //   deliveryPoint: "ໜ່ານກໍ່າສ້າງ",
+  //   urgency: "normal",
+  //   requestDate: "2024-11-07",
+  //   requester: "ສົມພັນ ວົງສະຫາດ",
+  //   department: "ພະແນກວັດຖຸກໍ່າສ້າງ",
+  //   status: "pending",
+  // },
   // Add more items for testing scroll functionality
-  {
-    id: "ITM008",
-    requestNumber: "1300/ຈຊນ.ນວ/ບຫ",
-    title: "ຄອມພິວເຕີ້ໃໝ່",
-    company: "HAL ບໍລິສັດ",
-    amount: 3500000,
-    items: 4,
-    deliveryPoint: "ສານະສຳນັກງານສາຂາ",
-    urgency: "normal",
-    requestDate: "2024-11-08",
-    requester: "ສົມມານ ວົງສາ",
-    department: "ພະແນກ IT",
-    status: "pending",
-  },
-  {
-    id: "ITM009",
-    requestNumber: "REQ-2024-009",
-    title: "ໂຕະຖັງສະຫມຸດ",
-    company: "HAL Tech",
-    amount: 1800000,
-    items: 8,
-    deliveryPoint: "ສານະຫົວໜ້າບໍລິສັດ",
-    urgency: "normal",
-    requestDate: "2024-11-09",
-    requester: "ຄຳເບົາ ດວງສະຫວັນ",
-    department: "ພະແນກຊື້",
-    status: "pending",
-  },
-  {
-    id: "ITM010",
-    requestNumber: "REQ-2024-010",
-    title: "ເຄື່ອງໃຊ້ໃນສຳນັກງານ",
-    company: "HAL Energy",
-    amount: 2200000,
-    items: 20,
-    deliveryPoint: "ຄັງສົ່ງສິນຄ້າ B",
-    urgency: "normal",
-    requestDate: "2024-11-10",
-    requester: "ໄຊຍະພອນ ຄຳພອນ",
-    department: "ພະແນກຊື້",
-    status: "pending",
-  },
-  {
-    id: "ITM011",
-    requestNumber: "REQ-2024-011",
-    title: "ອຸປະກອນຊັກລ້ຽງ",
-    company: "HAL Service",
-    amount: 1500000,
-    items: 6,
-    deliveryPoint: "ສານະສຳນັກງານໃຫຍ່",
-    urgency: "normal",
-    requestDate: "2024-11-11",
-    requester: "ມາລີ ວົງສາ",
-    department: "ພະແນກຄວາມສະອາດ",
-    status: "pending",
-  },
-  {
-    id: "ITM012",
-    requestNumber: "REQ-2024-012",
-    title: "ອຸປະກອນແມ່ນ້ຳ",
-    company: "HAL Logistics",
-    amount: 800000,
-    items: 5,
-    deliveryPoint: "ສານະສຳນັກງານສາຂາ",
-    urgency: "high",
-    requestDate: "2024-11-12",
-    requester: "ສົມພັນ ອິນທະວົງ",
-    department: "ພະແນກຊື້",
-    status: "pending",
-  },
-  {
-    id: "ITM013",
-    requestNumber: "REQ-2024-013",
-    title: "ສານແດນ",
-    company: "HAL Construction",
-    amount: 9200000,
-    items: 15,
-    deliveryPoint: "ໜ່ານກໍ່າສ້າງ",
-    urgency: "high",
-    requestDate: "2024-11-13",
-    requester: "ບຸນມີ ຄຳສອນ",
-    department: "ພະແນກຊື້",
-    status: "pending",
-  },
-  {
-    id: "ITM014",
-    requestNumber: "REQ-2024-014",
-    title: "ໂຄງການເຄື່ອງໃນຫ້ອງການ",
-    company: "HAL ບໍລິສັດ",
-    amount: 4300000,
-    items: 9,
-    deliveryPoint: "ສານະສຳນັກງານໃຫຍ່",
-    urgency: "normal",
-    requestDate: "2024-11-14",
-    requester: "ສົມມານ ວົງສາ",
-    department: "ພະແນກບໍາລຸງຕົວເອງ",
-    status: "pending",
-  },
-  {
-    id: "ITM015",
-    requestNumber: "REQ-2024-015",
-    title: "ລະບົບລັກພາ",
-    company: "HAL Tech",
-    amount: 5600000,
-    items: 3,
-    deliveryPoint: "ສານະຫົວໜ້າບໍລິສັດ",
-    urgency: "high",
-    requestDate: "2024-11-15",
-    requester: "ຄຳເບົາ ດວງສະຫວັນ",
-    department: "ພະແນກປະຕິບັດ",
-    status: "pending",
-  },
-];
+//   {
+//     id: "ITM008",
+//     requestNumber: "1300/ຈຊນ.ນວ/ບຫ",
+//     title: "ຄອມພິວເຕີ້ໃໝ່",
+//     company: "HAL ບໍລິສັດ",
+//     amount: 3500000,
+//     items: 4,
+//     deliveryPoint: "ສານະສຳນັກງານສາຂາ",
+//     urgency: "normal",
+//     requestDate: "2024-11-08",
+//     requester: "ສົມມານ ວົງສາ",
+//     department: "ພະແນກ IT",
+//     status: "pending",
+//   },
+//   {
+//     id: "ITM009",
+//     requestNumber: "REQ-2024-009",
+//     title: "ໂຕະຖັງສະຫມຸດ",
+//     company: "HAL Tech",
+//     amount: 1800000,
+//     items: 8,
+//     deliveryPoint: "ສານະຫົວໜ້າບໍລິສັດ",
+//     urgency: "normal",
+//     requestDate: "2024-11-09",
+//     requester: "ຄຳເບົາ ດວງສະຫວັນ",
+//     department: "ພະແນກຊື້",
+//     status: "pending",
+//   },
+//   {
+//     id: "ITM010",
+//     requestNumber: "REQ-2024-010",
+//     title: "ເຄື່ອງໃຊ້ໃນສຳນັກງານ",
+//     company: "HAL Energy",
+//     amount: 2200000,
+//     items: 20,
+//     deliveryPoint: "ຄັງສົ່ງສິນຄ້າ B",
+//     urgency: "normal",
+//     requestDate: "2024-11-10",
+//     requester: "ໄຊຍະພອນ ຄຳພອນ",
+//     department: "ພະແນກຊື້",
+//     status: "pending",
+//   },
+//   {
+//     id: "ITM011",
+//     requestNumber: "REQ-2024-011",
+//     title: "ອຸປະກອນຊັກລ້ຽງ",
+//     company: "HAL Service",
+//     amount: 1500000,
+//     items: 6,
+//     deliveryPoint: "ສານະສຳນັກງານໃຫຍ່",
+//     urgency: "normal",
+//     requestDate: "2024-11-11",
+//     requester: "ມາລີ ວົງສາ",
+//     department: "ພະແນກຄວາມສະອາດ",
+//     status: "pending",
+//   },
+//   {
+//     id: "ITM012",
+//     requestNumber: "REQ-2024-012",
+//     title: "ອຸປະກອນແມ່ນ້ຳ",
+//     company: "HAL Logistics",
+//     amount: 800000,
+//     items: 5,
+//     deliveryPoint: "ສານະສຳນັກງານສາຂາ",
+//     urgency: "high",
+//     requestDate: "2024-11-12",
+//     requester: "ສົມພັນ ອິນທະວົງ",
+//     department: "ພະແນກຊື້",
+//     status: "pending",
+//   },
+//   {
+//     id: "ITM013",
+//     requestNumber: "REQ-2024-013",
+//     title: "ສານແດນ",
+//     company: "HAL Construction",
+//     amount: 9200000,
+//     items: 15,
+//     deliveryPoint: "ໜ່ານກໍ່າສ້າງ",
+//     urgency: "high",
+//     requestDate: "2024-11-13",
+//     requester: "ບຸນມີ ຄຳສອນ",
+//     department: "ພະແນກຊື້",
+//     status: "pending",
+//   },
+//   {
+//     id: "ITM014",
+//     requestNumber: "REQ-2024-014",
+//     title: "ໂຄງການເຄື່ອງໃນຫ້ອງການ",
+//     company: "HAL ບໍລິສັດ",
+//     amount: 4300000,
+//     items: 9,
+//     deliveryPoint: "ສານະສຳນັກງານໃຫຍ່",
+//     urgency: "normal",
+//     requestDate: "2024-11-14",
+//     requester: "ສົມມານ ວົງສາ",
+//     department: "ພະແນກບໍາລຸງຕົວເອງ",
+//     status: "pending",
+//   },
+//   {
+//     id: "ITM015",
+//     requestNumber: "REQ-2024-015",
+//     title: "ລະບົບລັກພາ",
+//     company: "HAL Tech",
+//     amount: 5600000,
+//     items: 3,
+//     deliveryPoint: "ສານະຫົວໜ້າບໍລິສັດ",
+//     urgency: "high",
+//     requestDate: "2024-11-15",
+//     requester: "ຄຳເບົາ ດວງສະຫວັນ",
+//     department: "ພະແນກປະຕິບັດ",
+//     status: "pending",
+//   },
+// ];
 
-const itemDetails = ref<ItemDetail[]>(mockItemDetails);
+// Use store's computed property for pending documents
+const itemDetails = computed(() => companyReportsStore.getPendingDocuments);
 
 // Get unique companies for filter dropdown
 const uniqueCompanies = computed(() => {
-  const companies = [...new Set(itemDetails.value.map((item) => item.company))];
+  const companies = [...new Set(itemDetails.value.map((item: ItemDetail) => item.company))];
   return companies.sort();
+});
+
+// Load data from store on component mount
+onMounted(async () => {
+  try {
+    // Load data if not already loaded
+    if (!companyReportsStore.hasData) {
+      await companyReportsStore.loadCompanyReports();
+    }
+  } catch (err) {
+    console.error("Error loading company data from store:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນບໍລິສັດໄດ້");
+  }
 });
 
 // Watch for props changes
@@ -474,20 +492,16 @@ const handleFinalApprove = async (itemIds: string[]) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Update statuses in local data
-    itemDetails.value = itemDetails.value.map(item => {
-      if (itemIds.includes(item.id)) {
-        return { ...item, status: 'approved' as const };
-      }
-      return item;
-    });
-
-    // Clear selection
+    // For now, just emit to parent - the data would be updated via API
+    // and store would be refreshed
     selectedRequests.value = [];
     showFinalApproval.value = false;
 
     // Emit to parent
     emit("approve", itemIds);
+
+    // Refresh store data to get updated statuses
+    await companyReportsStore.loadCompanyReports();
   } catch (error) {
     console.error("Error approving items:", error);
   } finally {
@@ -509,6 +523,9 @@ const handleBackToSelection = () => {
 const handleOtpConfirm = async (otpCode: string) => {
   if (!pendingApprovalData.value) return;
 
+  // Log OTP code for debugging (can be removed in production)
+  console.log('OTP Code received:', otpCode);
+
   otpLoading.value = true;
   try {
     // Simulate OTP verification API call
@@ -517,14 +534,6 @@ const handleOtpConfirm = async (otpCode: string) => {
     const { ids, action } = pendingApprovalData.value;
 
     if (action === 'approve') {
-      // Process approval
-      itemDetails.value = itemDetails.value.map(item => {
-        if (ids.includes(item.id)) {
-          return { ...item, status: 'approved' as const };
-        }
-        return item;
-      });
-
       // Clear selection and close modal
       selectedRequests.value = [];
       showOtpModal.value = false;
@@ -536,14 +545,6 @@ const handleOtpConfirm = async (otpCode: string) => {
       // Emit to parent
       emit("approve", ids);
     } else if (action === 'reject') {
-      // Process rejection with reason
-      itemDetails.value = itemDetails.value.map(item => {
-        if (ids.includes(item.id)) {
-          return { ...item, status: 'rejected' as const };
-        }
-        return item;
-      });
-
       // Clear selection and close modal
       selectedRequests.value = [];
       showOtpModal.value = false;
@@ -558,6 +559,9 @@ const handleOtpConfirm = async (otpCode: string) => {
       // Emit to parent
       emit("reject", ids);
     }
+
+    // Refresh store data to get updated statuses
+    await companyReportsStore.loadCompanyReports();
   } catch (err) {
     console.error("OTP verification failed:", err);
     error("ການຢັ້ງຢືນ OTP ລົ້ມເຫລວ", "ກະລຸນາລອງ OTP ໃໝ່ອີກຄັ້ງ");
