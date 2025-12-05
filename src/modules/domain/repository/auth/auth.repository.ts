@@ -5,5 +5,4 @@ import type { LoginDTO } from "@/modules/application/dtos/auth/auth.dto";
 export interface AuthRepository {
   login(credentials: LoginDTO): Promise<AuthEntity>;
   logout(): Promise<void>;
-  
 }
