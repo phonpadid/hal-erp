@@ -37,7 +37,10 @@
         "updated": "Updated At",
         "manege": "Manage",
         "user":"Please select a user department",
-        "branch_name":"District name"
+        "branch_name":"District name",
+        "type":"Choose a level",
+        "in_the_office":"In The Office",
+        "outside_the_office":"Outside The office"
       }
     },
     "dpm_user": {

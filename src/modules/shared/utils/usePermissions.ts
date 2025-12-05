@@ -51,13 +51,21 @@ export function usePermissions() {
 
   // Check if user has specific permission
   const hasPermission = (permission: string): boolean => {
+    // Special roles that see all menus
+    const specialRoles = ["company-admin", "super-admin", "admin"];
+    const userRoles = authStore.userRoles;
+
+    // If user has any special role, grant all permissions
+    if (userRoles.some(role => specialRoles.includes(role))) {
+      return true;
+    }
+
     // Check from store first
     if (authStore.userPermissions.includes(permission)) {
       return true;
     }
 
     // Check based on role permissions from JSON config
-    const userRoles = authStore.userRoles;
     for (const role of userRoles) {
       const rolePerms = getPermissionsForRole(role);
       if (rolePerms.includes(permission)) {
@@ -86,6 +94,11 @@ export function usePermissions() {
   // Check if user has any of the specified roles
   const hasAnyRole = (roles: string[]): boolean => {
     return roles.some(role => hasRole(role));
+  };
+
+  // Check if user has company permission (alias for hasPermission)
+  const hasCompanyPermission = (permission: string): boolean => {
+    return hasPermission(permission);
   };
 
   // Computed properties for common checks
@@ -130,6 +143,7 @@ export function usePermissions() {
     hasAllPermissions,
     hasRole,
     hasAnyRole,
+    hasCompanyPermission,
 
     // Computed properties
     isSuperAdmin,

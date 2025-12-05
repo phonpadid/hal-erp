@@ -39,7 +39,9 @@
       "manege": "ຈັດການ",
       "user":"ເລືອກຫົວໜ້າພະແນກ",
       "branch_name":"ຊືແຂວງ",
-      "type":"ເລືອກລະດັບ"
+      "type":"ເລືອກລະດັບ",
+      "in_the_office":"ສຳນັກງານໃຫຍ່",
+      "outside_the_office":"ລະດັບແຂວງ"
     }
   },
   "dpm_user": {

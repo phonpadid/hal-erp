@@ -17,12 +17,12 @@ const { t } = useI18n();
 
 const positionStore = usePositionStore();
 const { success, error, warning } = useNotification();
-const { hasPermission } = usePermissions();
+const { hasPermission , isAdmin,isSuperAdmin} = usePermissions();
 
 // check show or hide buttons based on permissions
-const canCreate = hasPermission("write-position");
-const canEdit = hasPermission("update-position");
-const canDelete = hasPermission("delete-position");
+const canCreate = hasPermission("write-position")&& !isSuperAdmin.value && !isAdmin.value;
+const canEdit = hasPermission("update-position")&& !isSuperAdmin.value && !isAdmin.value;
+const canDelete = hasPermission("delete-position")&& !isSuperAdmin.value && !isAdmin.value;
 // State
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");

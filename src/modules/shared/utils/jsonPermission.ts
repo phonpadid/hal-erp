@@ -1126,10 +1126,15 @@ export const PERMISSION_CONFIG: PermissionSystem = {
         "create-increase-budget", "read-increase-budget", "update-increase-budget",
         "create-increase-detail", "read-increase-detail", "update-increase-detail",
 
+        // Financial management
+        "write-vat", "read-vat", "update-vat", "delete-vat",
+        "write-exchange-rate", "read-exchange-rate", "update-exchange-rate", "delete-exchange-rate",
+
         // Document management
         "create-document", "read-document", "update-document", "delete-document",
         "create-receipt", "read-receipt", "update-receipt", "delete-receipt",
-        "create-receipt-item", "read-receipt-item", "update-receipt-item", "delete-receipt-item"
+        "create-receipt-item", "read-receipt-item", "update-receipt-item", "delete-receipt-item",
+         "create-bank", "read-bank", "update-bank", "delete-bank"
       ]
     },
     "company-user": {

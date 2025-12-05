@@ -50,6 +50,7 @@ export const useAuthStore = defineStore("auth", () => {
       localStorage.setItem("accessToken", result.getAccessToken());
       localStorage.setItem("userPermissions", JSON.stringify(userPermissions.value));
       localStorage.setItem("userRoles", JSON.stringify(userRoles.value));
+      localStorage.setItem("userType", JSON.stringify(userType.value));
 
       // Store user data
       localStorage.setItem(
@@ -105,11 +106,13 @@ export const useAuthStore = defineStore("auth", () => {
     const storedPermissions = localStorage.getItem("userPermissions");
     const storedRoles = localStorage.getItem("userRoles");
     const storedUserType = localStorage.getItem("userType");
-    if (token && userData && storedPermissions && storedRoles && storedUserType) {
+
+        if (token && userData && storedPermissions && storedRoles) {
+    // userType is optional for backward compatibility
       const parsedUser = JSON.parse(userData);
       const permissions = JSON.parse(storedPermissions);
       const roles = JSON.parse(storedRoles);
-      const user_type = JSON.parse(storedUserType);
+      const user_type = storedUserType ? JSON.parse(storedUserType) : [];
 
       user.value = new AuthEntity(
         parsedUser.id,
@@ -129,7 +132,8 @@ export const useAuthStore = defineStore("auth", () => {
       userPermissions.value = permissions;
       userRoles.value = roles;
       userType.value = user_type;
-    }
+
+          }
   };
 
   const checkSession = () => {

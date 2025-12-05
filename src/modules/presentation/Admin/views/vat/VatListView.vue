@@ -9,10 +9,15 @@ import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import VatForm from "@/modules/presentation/Admin/components/vat/FormVat.vue";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
+const { hasCompanyPermission, hasRole } = usePermissions();
 const vatStore = useVatStore();
 const { success, warning } = useNotification();
+
+// Permission checks - Company-admin ไม่สามารถจัดการ VAT ได้
+const canEditVat = !hasRole('company-admin') && hasCompanyPermission('update-vat');
 
 const loading = ref(false);
 const modalVisible = ref(false);
@@ -78,7 +83,8 @@ const handleFormSubmit = async (formData: { amount: number }) => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
-          type=""
+            v-if="canEditVat"
+            type=""
             icon="ant-design:edit-outlined"
             size="small"
             @click="showEditModal()"
