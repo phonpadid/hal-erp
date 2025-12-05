@@ -40,7 +40,7 @@ export class ApiDepartmentRoleRepository implements DepartmentRoleRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<DepartmentRole>> {
     try {
-      const response = (await api.get("/role", {
+      const response = (await api.get("/role/company", {
         params: {
           page: params.page,
           limit: params.limit,
@@ -66,7 +66,7 @@ export class ApiDepartmentRoleRepository implements DepartmentRoleRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<DepartmentRoleWithDetailsDTO>> {
     try {
-      const response = (await api.get("/roles", {
+      const response = (await api.get("/roles/company", {
         params: {
           page: params.page,
           limit: params.limit,

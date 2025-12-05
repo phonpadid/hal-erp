@@ -14,10 +14,17 @@ import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import { Icon } from "@iconify/vue";
 import FormExchangeRate from "../../components/exchange-rates/FormExchangeRate.vue";
 import type { ExchangeRateApiModel } from "@/modules/interfaces/exchange-rate.interface";
+import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { t } = useI18n();
+const { hasCompanyPermission, hasRole } = usePermissions();
 const exchangeRateStore = useExchangeRateStore();
 const { success, error, warning } = useNotification();
+
+// Permission checks - Company-admin ไม่สามารถจัดการ Exchange Rate ได้
+const canCreateExchangeRate = !hasRole('company-admin') && hasCompanyPermission('write-exchange-rate');
+const canEditExchangeRate = !hasRole('company-admin') && hasCompanyPermission('update-exchange-rate');
+const canDeleteExchangeRate = !hasRole('company-admin') && hasCompanyPermission('delete-exchange-rate');
 
 // State
 const loading = ref<boolean>(false);
@@ -284,6 +291,7 @@ const changeValue = () => {
         />
 
         <UiButton
+          v-if="canCreateExchangeRate"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
@@ -336,22 +344,24 @@ const changeValue = () => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canEditExchangeRate"
             type=""
             icon="ant-design:edit-outlined"
             size="small"
-            shape="circle" 
+            shape="circle"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
           />
 
           <UiButton
+            v-if="canDeleteExchangeRate"
             type=""
             danger
             icon="ant-design:delete-outlined"
             colorClass="flex items-center justify-center text-red-700"
             size="small"
-            shape="circle" 
+            shape="circle"
             @click="showDeleteModal(record)"
           />
         </div>

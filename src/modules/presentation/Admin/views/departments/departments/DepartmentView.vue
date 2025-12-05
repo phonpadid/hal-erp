@@ -316,8 +316,8 @@ watch(search, async (newValue) => {
           <UiRadio
             v-model="formModel.type"
             :options="[
-              { label: 'ສຳນັກງານໃຫຍ່', value: 'in_the_office' },
-              { label: 'ລະດັບແຂວງ', value: 'outside_the_office' },
+              { label: t('departments.dpm.field.in_the_office'), value: 'in_the_office' },
+              { label: t('departments.dpm.field.outside_the_office'), value: 'outside_the_office' },
             ]"
             :buttonStyle="true"
           />
@@ -354,8 +354,8 @@ watch(search, async (newValue) => {
           <UiRadio
             v-model="formModel.type"
             :options="[
-              { label: 'ສຳນັກງານໃຫຍ່', value: 'in_the_office' },
-              { label: 'ລະດັບແຂວງ', value: 'outside_the_office' },
+              { label: t('departments.dpm.field.in_the_office'), value: 'in_the_office' },
+              { label: t('departments.dpm.field.outside_the_office'), value: 'outside_the_office' },
             ]"
             :buttonStyle="true"
           />

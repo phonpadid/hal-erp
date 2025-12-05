@@ -10,36 +10,36 @@ export const menuItems = computed<ItemType[]>(() => {
   const manageMenuItems = [
     { key: "position.index", label: t("menu-sidebar.position"), companyPermission: "read-position" },
 
-    { key: "currencies.index", label: t("menu-sidebar.currency"), permission: "read-currency" },
+    { key: "currencies.index", label: t("menu-sidebar.currency"), companyPermission: "read-currency" },
 
-    { key: "unit.index", label: t("menu-sidebar.unit"), permission: "read-unit" },
+    { key: "unit.index", label: t("menu-sidebar.unit"), companyPermission: "read-unit" },
 
-    { key: "category.index", label: t("menu-sidebar.category"), permission: "read-category" },
+    { key: "category.index", label: t("menu-sidebar.category"), companyPermission: "read-category" },
 
-    { key: "product-type.index", label: t("menu-sidebar.product_type"), permission: "read-product-type" },
+    { key: "product-type.index", label: t("menu-sidebar.product_type"), companyPermission: "read-product-type" },
 
-    { key: "product.index", label: t("menu-sidebar.product"), permission: "read-product" },
+    { key: "product.index", label: t("menu-sidebar.product"), companyPermission: "read-product" },
 
-    { key: "vat.index", label: t("menu-sidebar.vats"), permission: "read-vat" },
+    { key: "vat.index", label: t("menu-sidebar.vats"), companyPermission: "read-vat" },
 
-    { key: "bank.index", label: t("menu-sidebar.bank"), permission: "read-bank" },
+    { key: "bank.index", label: t("menu-sidebar.bank"), companyPermission: "read-bank" },
 
     {
       key: "document.type.index",
 
       label: t("menu-sidebar.document_type"),
 
-      permission: "read-document-type",
+      companyPermission: "read-document-type",
     },
 
-    { key: "vendors.index", label: t("menu-sidebar.vendor"), permission: "read-vendor" },
+    { key: "vendors.index", label: t("menu-sidebar.vendor"), companyPermission: "read-vendor" },
 
     // {
     //   key: "user_approval.index",
 
     //   label: t("menu-sidebar.user_approval"),
 
-    //   permission: "read-user-approval",
+    //   companyPermission: "read-user-approval",
     // },
 
     {
@@ -52,7 +52,7 @@ export const menuItems = computed<ItemType[]>(() => {
     {
       key: "exchange-rate.index",
       label: t("menu-sidebar.exchange_rate"),
-      permission: "read-exchange-rate",
+      companyPermission: "read-exchange-rate",
     },
 
     { key: "quotas", label: t("menu-sidebar.quota"), companyPermission: "read-quota-company" },
@@ -60,7 +60,7 @@ export const menuItems = computed<ItemType[]>(() => {
     if (item.companyPermission) {
       return hasCompanyPermission(item.companyPermission);
     }
-    return hasPermission(item.permission!);
+    return true; // Always show items without permission restrictions
   });
 
   const departmentMenuItems = [
@@ -144,20 +144,50 @@ export const menuItems = computed<ItemType[]>(() => {
     {
       key: "report_pr",
       label: t("menu-sidebar.report_pr"),
-      permission: "read-budget-approval-rule",
+      companyPermission: "read-budget-approval-rule",
     },
     {
       key: "report_po",
       label: t("menu-sidebar.report_po"),
-      permission: "read-budget-approval-rule",
+      companyPermission: "read-budget-approval-rule",
     },
     {
       key: "report_receipt",
       label: t("menu-sidebar.report_receipt"),
-      permission: "read-budget-approval-rule",
+      companyPermission: "read-budget-approval-rule",
     },
 
-  ].filter((item) => hasPermission(item.permission));
+  ].filter((item) => hasCompanyPermission(item.companyPermission));
+
+  const mainMenuItems = [
+    {
+      key: "dashboard",
+      label: t("menu-sidebar.dashboard"),
+      icon: () => h(Icon, { icon: "ic:baseline-pie-chart", class: "text-base" }),
+    },
+
+    {
+      key: "company.index",
+      label: t("menu-sidebar.company"),
+      icon: () => h(Icon, { icon: "mdi:company", class: "text-base" }),
+      companyPermission: "read-company",
+    },
+
+    {
+      key: "hal-group.index",
+      label: t("menu-sidebar.hal_group"),
+      icon: () => h(Icon, { icon: "mdi:account-multiple", class: "text-base" }),
+      permission: "read-hal-group", // เฉพาะ super-admin เท่านั้น
+    },
+  ].filter((item) => {
+    if (item.companyPermission) {
+      return hasCompanyPermission(item.companyPermission);
+    }
+    if (item.permission) {
+      return hasPermission(item.permission);
+    }
+    return true; // Always show dashboard
+  });
 
   const receiptsMenuItems = [
     {
@@ -173,7 +203,7 @@ export const menuItems = computed<ItemType[]>(() => {
           rStore.counts.r?.toString() ?? "0"
         ),
       ]),
-      permission: "read-receipt",
+      companyPermission: "read-receipt",
       icon: () =>
         h("div", {}, [
           h(Icon, {
@@ -182,7 +212,7 @@ export const menuItems = computed<ItemType[]>(() => {
           }),
         ]),
     },
-  ].filter((item) => hasPermission(item.permission));
+  ].filter((item) => hasCompanyPermission(item.companyPermission));
 
   // const userApprovalMenuItems = [
   //   {
@@ -200,12 +230,12 @@ export const menuItems = computed<ItemType[]>(() => {
   // ].filter((item) => hasPermission(item.permission));
 
   const userManageMenuItems = [
-    { key: "userList", label: t("menu-sidebar.user"), permission: "read-user" },
+    { key: "userList", label: t("menu-sidebar.user"), companyPermission: "read-user" },
 
-    { key: "roleList", label: t("menu-sidebar.role"), permission: "read-role" },
+    { key: "roleList", label: t("menu-sidebar.role"), companyPermission: "read-role" },
 
-    { key: "permissionsList", label: t("menu-sidebar.permission"), permission: "read-permission" },
-  ].filter((item) => hasPermission(item.permission));
+    { key: "permissionsList", label: t("menu-sidebar.permission"), companyPermission: "read-permission" },
+  ].filter((item) => hasCompanyPermission(item.companyPermission));
 
   const prManageMenuItems = [
     // {
@@ -221,7 +251,7 @@ export const menuItems = computed<ItemType[]>(() => {
     //       rStore.counts.pr?.toString() ?? "0"
     //     ),
     //   ]),
-    //   permission: "read-purchase-request",
+    //   companyPermission: "read-purchase-request",
     // },
     // {
     //   key: "purchase_request.index",
@@ -236,7 +266,7 @@ export const menuItems = computed<ItemType[]>(() => {
     //       rStore.counts.pr?.toString() ?? "0"
     //     ),
     //   ]),
-    //   permission: "write-purchase-request",
+    //   companyPermission: "write-purchase-request",
     // },
     {
       key: "apv_purchase_request.index",
@@ -253,9 +283,9 @@ export const menuItems = computed<ItemType[]>(() => {
           rStore.counts.pr?.toString() ?? "0"
         ),
       ]),
-      permission: "write-purchase-request",
+      companyPermission: "write-purchase-request",
     },
-  ].filter((item) => hasPermission(item.permission));
+  ].filter((item) => hasCompanyPermission(item.companyPermission));
 
   const poManageMenuItems = [
     // {
@@ -263,7 +293,7 @@ export const menuItems = computed<ItemType[]>(() => {
 
     //   label: t("menu-sidebar.purchaseOrders"),
 
-    //   permission: "read-purchase-order",
+    //   companyPermission: "read-purchase-order",
     // },
     {
       key: "approval_department_panak",
@@ -279,53 +309,17 @@ export const menuItems = computed<ItemType[]>(() => {
           rStore.counts.po?.toString() ?? "0"
         ),
       ]),
-      permission: "read-purchase-order",
+      companyPermission: "read-purchase-order",
 
-      // permission: "read-approval-department",
+      // companyPermission: "read-approval-department",
     },
-  ].filter((item) => hasPermission(item.permission));
+  ].filter((item) => hasCompanyPermission(item.companyPermission));
   const menuStructure = [
     {
       label: t("menu-sidebar.menu"),
 
       children: [
-        {
-          key: "dashboard",
-
-          label: t("menu-sidebar.dashboard"),
-
-          icon: () => h(Icon, { icon: "ic:baseline-pie-chart", class: "text-base" }),
-        },
-
-        {
-          key: "company.index",
-
-          label: t("menu-sidebar.company"),
-
-          icon: () => h(Icon, { icon: "mdi:company", class: "text-base" }),
-
-          permission: "read-company",
-        },
-
-        // {
-        //   key: "company-user.index",
-
-        //   label: t("menu-sidebar.company_user"),
-
-        //   icon: () => h(Icon, { icon: "mdi:account-group", class: "text-base" }),
-
-        //   permission: "read-company-user",
-        // },
-
-        {
-          key: "hal-group.index",
-
-          label: t("menu-sidebar.hal_group"),
-
-          icon: () => h(Icon, { icon: "mdi:account-multiple", class: "text-base" }),
-
-          permission: "read-hal-group",
-        },
+        ...mainMenuItems,
 
         ...(manageMenuItems.length > 0
           ? [

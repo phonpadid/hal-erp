@@ -20,7 +20,7 @@ const { t } = useI18n();
 const userStore = useUserStore();
 const router = useRouter();
 const { success, error } = useNotification();
-const { hasPermission } = usePermissions();
+const { hasRole, hasCompanyPermission } = usePermissions();
 // State
 const loading = ref<boolean>(false);
 const searchKeyword = ref<string>("");
@@ -35,10 +35,16 @@ const resetPasswordModalVisible = ref<boolean>(false);
 const resetPasswordFormRef = ref();
 const userFormRef = ref();
 
-// check show buttons
-const canCreateUser = computed(() => hasPermission("write-user"));
-const canEditUser = computed(() => hasPermission("update-user"));
-const canDeleteUser = computed(() => hasPermission("delete-user"));
+// check show buttons - Company-admin ไม่สามารถจัดการ user ได้
+const canCreateUser = computed(() => {
+  return !hasRole("company-admin") && hasCompanyPermission("write-user");
+});
+const canEditUser = computed(() => {
+  return !hasRole("company-admin") && hasCompanyPermission("update-user");
+});
+const canDeleteUser = computed(() => {
+  return !hasRole("company-admin") && hasCompanyPermission("delete-user");
+});
 
 // Table pagination
 const tablePagination = computed(() => ({

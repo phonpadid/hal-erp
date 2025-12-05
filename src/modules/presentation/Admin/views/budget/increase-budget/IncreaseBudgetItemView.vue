@@ -129,14 +129,14 @@ onMounted(async () => {
       </div>
 
       <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
-        <UiButton
+        <!-- <UiButton
           type="primary"
           icon="ant-design:plus-outlined"
           colorClass="text-white flex items-center"
           @click="openCreateModal"
         >
           {{ $t("budget_accounts.list.add") }}
-        </UiButton>
+        </UiButton> -->
       </div>
     </div>
 
@@ -156,14 +156,14 @@ onMounted(async () => {
       </template>
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
-          <UiButton
+          <!-- <UiButton
             type=""
             icon="ant-design:edit-outlined"
             size="small"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
-          />
+          /> -->
           <UiButton
             type=""
             danger
