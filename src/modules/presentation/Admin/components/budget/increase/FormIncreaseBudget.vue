@@ -274,7 +274,7 @@ const formattedPrice = (index: number) =>
         </UiFormItem>
       </div>
       <div class="btn mb-16 flex items-center justify-start gap-3">
-        <UiButton @click="push({ name: 'approval_workflows.index' })">{{
+        <UiButton @click="push({ name: 'increase_budget' })">{{
           t("button.cancel")
         }}</UiButton>
         <UiButton @click="handleSubmit" type="primary">{{ t("button.save") }}</UiButton>

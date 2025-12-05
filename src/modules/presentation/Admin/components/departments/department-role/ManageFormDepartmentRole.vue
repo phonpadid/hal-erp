@@ -6,7 +6,6 @@ import { usePermissionStore } from "../../../stores/permission.store";
 import { departmentStore } from "../../../stores/departments/department.store";
 import { useRoleStore } from "../../../stores/role.store";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import PermissionSelector from "../../permission/PermissionSelector.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import type { Role } from "@/modules/domain/entities/role.entities";
@@ -52,8 +51,8 @@ interface FormState {
 
 // Form state
 const formState = reactive<FormState>({
-  role_id: props.initialData?.role_id || null,
-  department_id: props.initialData?.department_id || null,
+  role_id: props.initialData?.role_id ? Number(props.initialData.role_id) : null,
+  department_id: props.initialData?.department_id ? Number(props.initialData.department_id) : null,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   permissions: props.initialData?.permissions?.map((per: any) => {
     // Extract ID from permission object or return as-is if it's already an ID
@@ -88,20 +87,7 @@ const departmentOptions = computed(() => {
   return options;
 });
 
-// Get role name for display when editing
-const currentRoleName = computed(() => {
-  if (props.isEdit && props.initialData?.role_name) {
-    return props.initialData.role_name;
-  }
-  if (props.isEdit && props.initialData?.name) {
-    return props.initialData.name;
-  }
-  if (props.isEdit && formState.role_id && roles.value && roles.value.length > 0) {
-    const selectedRole = roles.value.find((role: Role) => Number(role.getId()) === formState.role_id);
-    return selectedRole ? selectedRole.getDisplayname() || selectedRole.getName() : '';
-  }
-  return '';
-});
+
 
 // Watch for roles being loaded to update role name when editing
 watch(
@@ -123,8 +109,8 @@ watch(
   (newVal) => {
     if (newVal) {
       console.log('Initial data changed, setting permissions:', newVal.permissions);
-      formState.role_id = newVal.role_id || null;
-      formState.department_id = newVal.department_id || null;
+      formState.role_id = newVal.role_id ? Number(newVal.role_id) : null;
+      formState.department_id = newVal.department_id ? Number(newVal.department_id) : null;
       // Extract just the IDs from permission objects
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       formState.permissions = newVal.permissions?.map((per: any) => {
@@ -167,8 +153,8 @@ onMounted(async () => {
     permissionData.value = result.data as unknown as any[];
 
     if (props.initialData) {
-      formState.role_id = props.initialData.role_id || 0;
-      formState.department_id = props.initialData.department_id || 0;
+      formState.role_id = props.initialData.role_id ? Number(props.initialData.role_id) : null;
+      formState.department_id = props.initialData.department_id ? Number(props.initialData.department_id) : null;
       // Extract just the IDs from permission objects
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       formState.permissions = props.initialData.permissions?.map((per:any) => {
@@ -212,16 +198,7 @@ const handleSubmit = () => {
       <div class="flex gap-4 mb-4 form-grid">
         <div>
           <span><span class="text-red-600">*</span>{{ t("departments.dpm_user.field.role") }}</span>
-          <!-- Show role as text input when editing, dropdown when creating -->
-          <UiInput
-            v-if="props.isEdit"
-            :model-value="currentRoleName"
-            label="Role"
-            readonly
-
-          />
           <InputSelect
-            v-else
             v-model="formState.role_id"
             :options="roleOptions"
             label="Role"

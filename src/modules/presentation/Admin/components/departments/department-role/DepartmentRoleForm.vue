@@ -37,12 +37,16 @@ const formattedInitialData = computed<DisplayFormData | undefined>(() => {
   const foundRole = roleStore.roles.find(role => role.getId() === role_id.toString());
   const roleDisplayName = foundRole ? foundRole.getDisplayname() || foundRole.getName() : '';
 
+  // Look up department name from departments store
+  const foundDepartment = dpmStore.departments.find(dept => Number(dept.getId()) === departmentRole.getDepartmentId());
+  const departmentName = foundDepartment ? foundDepartment.getName() : '';
+
   return {
     role_id: role_id,
     role_name: roleDisplayName, // Role name from lookup
     name: roleDisplayName, // Use role name as department role display name
     department_id: departmentRole.getDepartmentId(),
-    department_name: '', // Would need to be populated from department store
+    department_name: departmentName, // Department name from lookup
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     permissions: departmentRole.getPermissions().map((per: any) => {
       // Extract ID from permission object or return as-is if it's already an ID
