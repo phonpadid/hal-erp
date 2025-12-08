@@ -99,30 +99,21 @@ watch(
   }
 );
 
-// Watch for role changes to update permissions
+// Watch for role changes to filter permissions (not auto-select)
 watch(
   () => dpmUserFormModel.roleIds,
   (newRoleIds) => {
-    if (newRoleIds && newRoleIds.length > 0) {
-      const allPermissions: number[] = [];
+    // Don't auto-select permissions when roles change
+    // Let users manually select permissions
+    // The filtering will be handled in PermissionCard component
 
-      newRoleIds.forEach((roleId) => {
-        const role = roleStore.roles.find((r) => Number(r.getId()) === roleId);
-        if (role) {
-          const permissions = role.getPermissions?.() || [];
-          permissions.forEach((permission: any) => {
-            if (permission.id && !allPermissions.includes(permission.id)) {
-              allPermissions.push(permission.id);
-            }
-          });
-        }
-      });
-      selectedPermissions.value = allPermissions;
-    } else {
-      selectedPermissions.value = [];
+    // Only clear permissions if going from having roles to no roles
+    if (!newRoleIds || newRoleIds.length === 0) {
+      // Keep selected permissions when roles are cleared to allow manual selection
+      // selectedPermissions.value = [];
     }
   },
-  { immediate: true }
+  { immediate: false }
 );
 
 // Load existing data for edit mode

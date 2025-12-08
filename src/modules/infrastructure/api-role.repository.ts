@@ -20,6 +20,7 @@ export class ApiRoleRepository implements RoleRepository {
         search: params.search || "",
         department_id: params.department_id,
         company_id: params.company_id,
+        type: params.type || undefined, // เพิ่มการ filter ตาม type
         status: includeDeleted ? undefined : "active",
       },
     })) as { data: ApiListResponse<Roleinterface> };
