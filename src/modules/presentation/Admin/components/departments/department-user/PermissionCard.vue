@@ -105,24 +105,19 @@ const rolePermissions = computed(() => {
   return Array.from(permissionSet);
 });
 
-// Filter permission groups to only show permissions that exist in selected roles
+// Show all permission groups (no filtering)
 const processedGroups = computed(() => {
   if (!props.permissionGroups?.length) return [];
-  
-  return props.permissionGroups.map(group => ({
-    ...group,
-    permissions: group.permissions.filter(permission => 
-      rolePermissions.value.includes(permission.id)
-    )
-  })).filter(group => group.permissions.length > 0); // Only show groups with permissions
+
+  // Always show all permissions regardless of role selection
+  return props.permissionGroups;
 });
 
 const selectedPermissions = computed({
   get: () => props.modelValue || [],
   set: (value: number[]) => {
-    // Only allow selecting permissions that exist in roles
-    const filteredValue = value.filter(id => rolePermissions.value.includes(id));
-    emit("update:modelValue", filteredValue);
+    // Always allow all permissions to be selected
+    emit("update:modelValue", value);
   }
 });
 
@@ -192,26 +187,23 @@ const formatPermissionName = (name: string): string => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
     .join(" "); // Join with spaces
 };
-// Watch for changes in role permissions and update selected permissions
-watch(rolePermissions, (newPermissions) => {
-  // Remove any selected permissions that are no longer available in roles
-  const validSelections = selectedPermissions.value.filter(id => 
-    newPermissions.includes(id)
-  );
-  if (validSelections.length !== selectedPermissions.value.length) {
-    selectedPermissions.value = validSelections;
+// Watch for role changes to auto-select role permissions
+watch(() => props.selectedRoleIds, (newRoleIds) => {
+  if (newRoleIds && newRoleIds.length > 0) {
+    // Get permissions from selected roles
+    const rolePermissionIds = rolePermissions.value;
+
+    // Add role permissions to selected permissions (if not already selected)
+    const currentSelections = [...selectedPermissions.value];
+    rolePermissionIds.forEach(permissionId => {
+      if (!currentSelections.includes(permissionId)) {
+        currentSelections.push(permissionId);
+      }
+    });
+
+    selectedPermissions.value = currentSelections;
   }
-}, { immediate: true });
-// Add this watch in PermissionCard.vue
-watch(() => props.modelValue, (newValue) => {
-  if (newValue && newValue.length > 0) {
-    // Ensure we only select permissions that exist in roles
-    const validPermissions = newValue.filter(id => rolePermissions.value.includes(id));
-    if (validPermissions.length !== selectedPermissions.value.length) {
-      selectedPermissions.value = validPermissions;
-    }
-  }
-}, { immediate: true });
+}, { immediate: true, deep: true });
 
 // watch(
 //   () => dpmUserFormModel.roleIds,
