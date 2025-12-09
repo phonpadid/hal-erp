@@ -9,6 +9,7 @@ import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useApprovalStepStore } from "../../../stores/approval-step.store";
 import { useAuthStore } from "../../../stores/authentication/auth.store";
 import { useCompanyReportsStore } from "../../../stores/company-reports.store";
+import { useReceiptStore } from "../../../stores/receipt.store";
 
 // Use PendingDocument interface from store (same as ItemDetail)
 interface ItemDetail {
@@ -24,6 +25,11 @@ interface ItemDetail {
   requester: string;
   department: string;
   status: "pending" | "approved" | "rejected";
+  documentId?: string;
+  companyId?: number;
+  poNumber?: string;
+  prNumber?: string;
+  accountCode?: string | undefined;
 }
 
 // Props
@@ -53,6 +59,7 @@ const { warning, error } = useNotification();
 
 // Store
 const companyReportsStore = useCompanyReportsStore();
+const receiptStore = useReceiptStore();
 
 // State
 const selectedRequests = ref<string[]>([]);
@@ -285,25 +292,58 @@ const rejectReason = ref<string>("");
 //   },
 // ];
 
-// Use store's computed property for pending documents
-const itemDetails = computed(() => companyReportsStore.getPendingDocuments);
+// Use receipts data directly
+const itemDetails = computed(() => {
+  // Always use receipts from receipt store
+  return receiptStore.receipts.map(receipt => {
+    // Get company name from document department company
+    const companyName = receipt.document?.company?.name || 'ບໍ່ຮູ້ບໍລິສັດ';
+    const companyId = receipt.document?.company?.id || 0;
+
+    return {
+      id: receipt.receipt_number || receipt.id.toString(),
+      requestNumber: receipt.receipt_number || receipt.id.toString(),
+      title: receipt.remark || receipt.po_number || 'ບໍ່ມີຫົວຂໍ້',
+      company: companyName,
+      amount: receipt.total || 0,
+      items: receipt.receipt_item?.length || 1, // Use receipt_item array length instead of itemCount
+      deliveryPoint: 'ສານະສຳນັກງານ',
+      urgency: 'normal',
+      requestDate: receipt.receipt_date || receipt.created_at,
+      requester: `ຜູ້ຮັບ ID: ${receipt.received_by}`,
+      department: receipt.document?.department?.name || `ພະແນກ ${receipt.document?.department_id}`,
+      status: (receipt.step ? 'approved' : 'pending') as 'pending' | 'approved' | 'rejected', // Cast to proper type
+      documentId: receipt.document_id?.toString() || receipt.id.toString(),
+      companyId: companyId,
+      // Additional fields for receipts
+      poNumber: receipt.po_number,
+      prNumber: receipt.pr_number,
+      accountCode: receipt.account_code
+    } as ItemDetail; // Type assertion to ItemDetail
+  });
+});
 
 // Get unique companies for filter dropdown
 const uniqueCompanies = computed(() => {
-  const companies = [...new Set(itemDetails.value.map((item: ItemDetail) => item.company))];
+  const companies = Array.from(new Set(itemDetails.value.map(item => item.company)));
   return companies.sort();
 });
 
 // Load data from store on component mount
 onMounted(async () => {
   try {
-    // Load data if not already loaded
+    // Load receipts data if not already loaded
+    if (receiptStore.receipts.length === 0) {
+      await receiptStore.fetchAll({ page: 1, limit: 10000 });
+    }
+
+    // Load company data if needed for other features
     if (!companyReportsStore.hasData) {
       await companyReportsStore.loadCompanyReports();
     }
   } catch (err) {
-    console.error("Error loading company data from store:", err);
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນບໍລິສັດໄດ້");
+    console.error("Error loading data:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນໄດ້");
   }
 });
 
@@ -322,18 +362,30 @@ watch(
   }
 );
 
+// Watch for selected company changes
+watch(
+  () => props.selectedCompany,
+  async (newCompany) => {
+    if (newCompany) {
+      // Load receipts for specific company
+      await receiptStore.fetchByCompanyId(Number(newCompany.id));
+    }
+  },
+  { immediate: true }
+);
+
 // Get filtered item details
 const filteredItemDetails = computed(() => {
   let filtered = [...itemDetails.value];
 
-  // Filter by company if selected
-  if (selectedCompanyFilter.value) {
-    filtered = filtered.filter((item) => item.company === selectedCompanyFilter.value);
+  // Filter by company from props if selected (clicked from company box)
+  if (props.selectedCompany?.id) {
+    filtered = filtered.filter((item) => item.companyId === Number(props.selectedCompany?.id));
   }
 
-  // Filter by company from props if selected
-  if (props.selectedCompany) {
-    filtered = filtered.filter((item) => item.company === props.selectedCompany?.name);
+  // Filter by company from dropdown filter
+  if (selectedCompanyFilter.value) {
+    filtered = filtered.filter((item) => item.company === selectedCompanyFilter.value);
   }
 
   // Filter by status
@@ -630,7 +682,7 @@ const handleRejectCancel = () => {
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">ທັງໝົດ</option>
-              <option v-for="company in uniqueCompanies" :key="company" :value="company">
+              <option v-for="company in uniqueCompanies" :key="String(company)" :value="company">
                 {{ company }}
               </option>
             </select>

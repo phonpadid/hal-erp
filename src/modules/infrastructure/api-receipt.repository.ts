@@ -25,6 +25,7 @@ export class ApiReceiptRepository implements ReceiptRepository {
           end_date: params.end_date || "",
           start_date: params.start_date || "",
           department_id: params?.department_id || "",
+          company_id: params?.company_id || "",
           include_deleted: includeDeleted,
         },
       });

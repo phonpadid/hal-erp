@@ -3,4 +3,5 @@ import type { CompanyReportData, CompanyReportOneData } from "@/modules/infrastr
 export interface ReportCompanyRepository {
   getReportCompany(): Promise<CompanyReportData>;
   getOneCompanyReport(companyId: string): Promise<CompanyReportOneData>;
+  getCompanyReport(companyId?: number): Promise<any>; // For /companies/report endpoint
 }

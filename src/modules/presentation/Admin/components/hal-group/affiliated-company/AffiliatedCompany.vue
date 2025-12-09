@@ -23,6 +23,17 @@ interface AffiliatedCompany {
   registrationNumber: string;
 }
 
+// Props
+const props = withDefaults(defineProps<{
+  statistics?: {
+    totalCompanies: number;
+    totalBudget: number;
+    totalEmployees: number;
+  };
+}>(), {
+  statistics: undefined
+});
+
 const { warning } = useNotification();
 
 // Emits
@@ -409,6 +420,23 @@ const filteredCompanies = computed(() => {
 
 // Statistics
 const statistics = computed(() => {
+  // If props.statistics is provided (from API), use it; otherwise calculate from companies data
+  if (props.statistics) {
+    const filtered = filteredCompanies.value;
+    const activeCount = filtered.filter(c => c.status === "active").length;
+    const totalBudgetUsed = filtered.reduce((sum, c) => sum + c.budgetUsed, 0);
+
+    return {
+      totalCompanies: props.statistics.totalCompanies,
+      activeCompanies: activeCount,
+      totalBudget: props.statistics.totalBudget,
+      totalBudgetUsed,
+      totalEmployees: props.statistics.totalEmployees,
+      avgEmployees: props.statistics.totalCompanies > 0 ? Math.round(props.statistics.totalEmployees / props.statistics.totalCompanies) : 0,
+    };
+  }
+
+  // Calculate from companies data (fallback)
   const filtered = filteredCompanies.value;
   const activeCount = filtered.filter(c => c.status === "active").length;
   const totalBudget = filtered.reduce((sum, c) => sum + c.budget, 0);
@@ -611,19 +639,6 @@ onMounted(() => {
           </div>
         </div>
       </div>
-
-      <div class="bg-white rounded-lg shadow p-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-600">ກຳລັງຜູກສັນຍາ</p>
-            <p class="text-2xl font-bold text-green-600">{{ statistics.activeCompanies }}</p>
-          </div>
-          <div class="p-3 bg-green-100 rounded-full">
-            <Icon icon="mdi:check-circle" class="text-green-600 text-xl" />
-          </div>
-        </div>
-      </div>
-
       <div class="bg-white rounded-lg shadow p-4">
         <div class="flex items-center justify-between">
           <div>

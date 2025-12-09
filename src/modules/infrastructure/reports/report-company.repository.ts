@@ -155,6 +155,16 @@ export class ApiReportCompanyRepository implements ReportCompanyRepository {
     }
   }
 
+  async getCompanyReport(companyId?: number): Promise<any> {
+    try {
+      const url = companyId ? `/companies/report?company_id=${companyId}` : '/companies/report';
+      const response = await api.get(url);
+      return response.data;
+    } catch (error) {
+      this.handleApiError(error, `Failed to fetch company report data${companyId ? ` for company ${companyId}` : ''}`);
+    }
+  }
+
   private handleApiError(error: unknown, defaultMessage: string): never {
     const axiosError = error as AxiosError<{ message?: string }>;
 
