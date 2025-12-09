@@ -552,6 +552,14 @@ onMounted(async () => {
   // Load company report statistics for Tab 3
   await companyReportStore.fetchReportStatistics();
 
+  // Load companies with receipts for Tab 3 Table
+  await companyReportStore.fetchCompaniesWithReceipts({
+    page: 1,
+    limit: 10,
+    sort_by: "created_at",
+    sort_order: "DESC"
+  });
+
   // Load company reports data first
   await companyReportsStore.loadCompanyReports();
 
@@ -1291,6 +1299,8 @@ onMounted(async () => {
                   totalBudget: companyReportStore.statistics.total_allocated,
                   totalEmployees: companyReportStore.statistics.total_users
                 } : undefined"
+                :companiesFromAPI="companyReportStore.companiesWithReceipts"
+                :loading="companyReportStore.loading"
                 @view-details="handleViewDetails"
               />
 
@@ -1328,10 +1338,10 @@ onMounted(async () => {
               </div>
 
               <!-- Show Affiliated Company List if no detail selected -->
-              <AffiliatedCompany
+              <!-- <AffiliatedCompany
                 v-if="!showCompanyDetail"
                 @view-details="handleViewDetails"
-              />
+              /> -->
             </div>
           </Tabs.TabPane>
 

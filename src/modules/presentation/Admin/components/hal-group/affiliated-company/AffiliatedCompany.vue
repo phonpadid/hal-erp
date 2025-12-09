@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive } from "vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -5,13 +6,17 @@ import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiSelect from "@/common/shared/components/Input/InputSelect.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { Icon } from "@iconify/vue";
-import Table, { type TableRecord, type TablePaginationType } from "@/common/shared/components/table/Table.vue";
+import Table, {
+  type TableRecord,
+  type TablePaginationType,
+} from "@/common/shared/components/table/Table.vue";
 
 // Interface for company data
 interface AffiliatedCompany {
   id: number;
   name: string;
   logo: string;
+  logo_url?: string;
   proposalCount: number;
   budget: number;
   budgetUsed: number;
@@ -24,25 +29,62 @@ interface AffiliatedCompany {
 }
 
 // Props
-const props = withDefaults(defineProps<{
-  statistics?: {
-    totalCompanies: number;
-    totalBudget: number;
-    totalEmployees: number;
-  };
-}>(), {
-  statistics: undefined
-});
+const props = withDefaults(
+  defineProps<{
+    statistics?: {
+      totalCompanies: number;
+      totalBudget: number;
+      totalEmployees: number;
+    };
+    companiesFromAPI?: Array<{
+      id: number;
+      name: string;
+      logo: string;
+      logo_url?: string;
+      tel: string;
+      email: string;
+      address: string;
+      created_at: string;
+      updated_at: string;
+      receipt_count: number;
+      total_allocated: number;
+      total_used_amount: number;
+    }>;
+    loading?: boolean;
+  }>(),
+  {
+    statistics: undefined,
+    companiesFromAPI: undefined,
+    loading: false,
+  }
+);
 
 const { warning } = useNotification();
 
 // Emits
 const emit = defineEmits<{
-  (e: 'view-details', company: AffiliatedCompany): void;
+  (e: "view-details", company: AffiliatedCompany): void;
 }>();
 
+// Helper function to generate random color
+const getRandomColor = () => {
+  const colors = [
+    "#3b82f6", // blue
+    "#10b981", // green
+    "#f59e0b", // yellow
+    "#ef4444", // red
+    "#8b5cf6", // purple
+    "#f97316", // orange
+    "#ec4899", // pink
+    "#14b8a6", // teal
+    "#6b7280", // gray
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+};
+
 // State
-const loading = ref<boolean>(false);
+const localLoading = ref<boolean>(false);
+
 const searchKeyword = ref<string>("");
 const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
@@ -55,7 +97,6 @@ const filters = reactive({
   sortBy: "name",
   sortOrder: "asc" as "asc" | "desc",
 });
-
 
 // Status options
 const statusOptions = [
@@ -375,7 +416,32 @@ const mockAffiliatedCompanies: AffiliatedCompany[] = [
 
 // Get filtered companies
 const filteredCompanies = computed(() => {
-  let filtered = [...mockAffiliatedCompanies];
+  // Use companies from API if provided, otherwise use mock data
+  let filtered = props.companiesFromAPI
+    ? props.companiesFromAPI.map((company) => ({
+        id: company.id,
+        name: company.name,
+        logo: company.logo,
+        logo_url: company.logo_url,
+        proposalCount: company.receipt_count,
+        budget: company.total_allocated,
+        budgetUsed: company.total_used_amount,
+        color: getRandomColor(),
+        status: "active" as "active" | "inactive" | "pending",
+        contractType: "annual" as "annual" | "project" | "service",
+        establishedYear: new Date().getFullYear() - Math.floor(Math.random() * 10),
+        employees: Math.floor(Math.random() * 100) + 10,
+        registrationNumber: `HLW-${String(company.id).padStart(
+          3,
+          "0"
+        )}-${new Date().getFullYear()}`,
+        tel: company.tel,
+        email: company.email,
+        address: company.address,
+        created_at: company.created_at,
+        updated_at: company.updated_at,
+      }))
+    : [...mockAffiliatedCompanies];
 
   // Filter by status
   if (filters.status !== "all") {
@@ -423,7 +489,7 @@ const statistics = computed(() => {
   // If props.statistics is provided (from API), use it; otherwise calculate from companies data
   if (props.statistics) {
     const filtered = filteredCompanies.value;
-    const activeCount = filtered.filter(c => c.status === "active").length;
+    const activeCount = filtered.filter((c) => c.status === "active").length;
     const totalBudgetUsed = filtered.reduce((sum, c) => sum + c.budgetUsed, 0);
 
     return {
@@ -432,13 +498,16 @@ const statistics = computed(() => {
       totalBudget: props.statistics.totalBudget,
       totalBudgetUsed,
       totalEmployees: props.statistics.totalEmployees,
-      avgEmployees: props.statistics.totalCompanies > 0 ? Math.round(props.statistics.totalEmployees / props.statistics.totalCompanies) : 0,
+      avgEmployees:
+        props.statistics.totalCompanies > 0
+          ? Math.round(props.statistics.totalEmployees / props.statistics.totalCompanies)
+          : 0,
     };
   }
 
   // Calculate from companies data (fallback)
   const filtered = filteredCompanies.value;
-  const activeCount = filtered.filter(c => c.status === "active").length;
+  const activeCount = filtered.filter((c) => c.status === "active").length;
   const totalBudget = filtered.reduce((sum, c) => sum + c.budget, 0);
   const totalBudgetUsed = filtered.reduce((sum, c) => sum + c.budgetUsed, 0);
   const totalEmployees = filtered.reduce((sum, c) => sum + c.employees, 0);
@@ -488,14 +557,14 @@ const tableColumns = computed(() => [
 
 // Load data
 const loadData = async () => {
-  loading.value = true;
+  localLoading.value = true;
   try {
     await new Promise((resolve) => setTimeout(resolve, 800));
   } catch (error) {
     console.error("Error loading data:", error);
     warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນໄດ້");
   } finally {
-    loading.value = false;
+    localLoading.value = false;
   }
 };
 
@@ -513,14 +582,17 @@ const handleRowClick = (record: TableRecord) => {
   console.log("Company clicked:", record);
 };
 // Handle pagination change
-const handlePaginationChange = (pagination: TablePaginationType, _filters: Record<string, string[]>) => {
+const handlePaginationChange = (
+  pagination: TablePaginationType,
+  _filters: Record<string, string[]>
+) => {
   currentPage.value = pagination.current || 1;
   pageSize.value = pagination.pageSize || 10;
 };
 
 // Handle view details
 const handleViewDetails = (record: AffiliatedCompany) => {
-  emit('view-details', record);
+  emit("view-details", record);
 };
 
 // Format currency
@@ -643,7 +715,9 @@ onMounted(() => {
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-600">ງົບປະມານທັງໝົດ</p>
-            <p class="text-2xl font-bold text-gray-900">{{ formatLargeNumber(statistics.totalBudget) }}</p>
+            <p class="text-2xl font-bold text-gray-900">
+              {{ formatLargeNumber(statistics.totalBudget) }}
+            </p>
           </div>
           <div class="p-3 bg-purple-100 rounded-full">
             <Icon icon="mdi:account-balance" class="text-purple-600 text-xl" />
@@ -655,7 +729,9 @@ onMounted(() => {
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-600">ພະນັກງານທັງໝົດ</p>
-            <p class="text-2xl font-bold text-gray-900">{{ statistics.totalEmployees.toLocaleString() }}</p>
+            <p class="text-2xl font-bold text-gray-900">
+              {{ statistics.totalEmployees.toLocaleString() }}
+            </p>
           </div>
           <div class="p-3 bg-orange-100 rounded-full">
             <Icon icon="mdi:account-group" class="text-orange-600 text-xl" />
@@ -671,7 +747,7 @@ onMounted(() => {
           <InputSearch
             v-model="searchKeyword"
             placeholder="ຄົ້ນຫາຊື່ບໍລິສັດ ຫຼື ເລກທະບຽນ..."
-            :disabled="loading"
+            :disabled="props.loading || localLoading"
             @search="handleSearch"
           />
         </div>
@@ -683,7 +759,7 @@ onMounted(() => {
               :options="statusOptions"
               placeholder="ສະຖານະ"
               @change="handleFilterChange"
-              :disabled="loading"
+              :disabled="props.loading || localLoading"
             />
           </UiFormItem>
 
@@ -693,7 +769,7 @@ onMounted(() => {
               :options="contractTypeOptions"
               placeholder="ປະເພດສັນຍາ"
               @change="handleFilterChange"
-              :disabled="loading"
+              :disabled="props.loading || localLoading"
             />
           </UiFormItem>
 
@@ -703,7 +779,7 @@ onMounted(() => {
               :options="sortOptions"
               placeholder="ຈັດລຽງຕາມ"
               @change="handleFilterChange"
-              :disabled="loading"
+              :disabled="props.loading || localLoading"
             />
           </UiFormItem>
         </div>
@@ -715,7 +791,7 @@ onMounted(() => {
       <Table
         :columns="tableColumns"
         :data-source="paginatedCompanies"
-        :loading="loading"
+        :loading="props.loading || loading"
         :pagination="{
           current: currentPage,
           pageSize: pageSize,
@@ -733,7 +809,11 @@ onMounted(() => {
               class="p-2 rounded-full flex-shrink-0"
               :class="[getLogoBgColor(record.color), getLogoTextColor(record.color)]"
             >
-              <Icon :icon="record.logo" class="text-lg" />
+              <img
+                v-if="record.logo_url"
+                :src="record.logo_url"
+                class="w-8 h-8 object-cover rounded"
+              />
             </div>
             <div class="flex-1 min-w-0">
               <div class="font-medium text-gray-900 truncate">{{ record.name }}</div>
@@ -781,7 +861,10 @@ onMounted(() => {
                       ? 'bg-yellow-500'
                       : 'bg-green-500'
                   "
-                  :style="`width: ${Math.min(getBudgetPercentage(record.budgetUsed, record.budget), 100)}%`"
+                  :style="`width: ${Math.min(
+                    getBudgetPercentage(record.budgetUsed, record.budget),
+                    100
+                  )}%`"
                 ></div>
               </div>
               <span

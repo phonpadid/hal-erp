@@ -165,6 +165,15 @@ export class ApiReportCompanyRepository implements ReportCompanyRepository {
     }
   }
 
+  async getCompaniesWithReceipts(params?: any): Promise<any> {
+    try {
+      const response = await api.get('/companies/report/receipt', { params });
+      return response.data;
+    } catch (error) {
+      this.handleApiError(error, "Failed to fetch companies with receipts data");
+    }
+  }
+
   private handleApiError(error: unknown, defaultMessage: string): never {
     const axiosError = error as AxiosError<{ message?: string }>;
 
