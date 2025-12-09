@@ -53,16 +53,19 @@ export function usePermissions() {
         // Access currentCompany to establish reactive dependency
         const company = currentCompany.value;
 
-        // Debug logging to track permission checks
-
         // Super admin, admin, ແລະ company admin ສາມາດເຫັນທຸກໆຢ່າງ
         if (isSuperAdmin.value || isAdmin.value || isCompanyAdmin.value) {
             return true;
         }
 
-        // ຖ້າບໍ່ມີບໍລິສັດທີ່ເລືອກ, ບໍ່ສະແດງ menu ຂອງບໍລິສັດ (ສຳລັບຜູ້ໃຊ້ທົ່ວໄປ)
+        // ຖ້າບໍ່ມີບໍລິສັດທີ່ເລືອກ, ຍັງສະແດງເມນູທີ່ບໍ່ຕ້ອງການບໍລິສັດ (ສຳລັບຜູ້ໃຊ້ທົ່ວໄປ)
         if (!company) {
-            return false;
+            // ຖ້າບໍ່ມີ permissions ເລີຍ, ບໍ່ສະແດງເມນູ
+            if (!userPermissions.value || userPermissions.value.length === 0) {
+                return false;
+            }
+            // ຖ້າມີ permissions, ໃຫ້ກວດສອບຕາມປົກກະຕິ
+            return userPermissions.value.includes(permissionName);
         }
 
         // ຖ້າເປັນຜູ້ໃຊ້ປະເພດບໍລິສັດ ແຕ່ບໍ່ແມ່ນ admin, ຕ້ອງກວດສອບ permission

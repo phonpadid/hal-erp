@@ -1,0 +1,9 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": {
+        "total_companies": 9,
+        "total_allocated": 157911000000,
+        "total_users": 24
+    }
+}

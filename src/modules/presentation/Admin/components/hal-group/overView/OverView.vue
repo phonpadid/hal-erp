@@ -14,6 +14,8 @@ import { ReportCompanyService } from "@/modules/application/services/reports/rep
 import { useReportHalStore } from "@/modules/presentation/Admin/stores/reports/report-hal.store";
 import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
 import { useCompanyReportsStore } from "@/modules/presentation/Admin/stores/company-reports.store";
+import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
+import { useCompanyReportStore } from "@/modules/presentation/Admin/stores/company-report.store";
 import type { CompanyReportData } from "@/modules/infrastructure/reports/report-company.repository";
 
 // Interface for company data
@@ -57,6 +59,8 @@ const reportCompanyService = new ReportCompanyService();
 const reportHalStore = useReportHalStore();
 const department = departmentStore();
 const companyReportsStore = useCompanyReportsStore();
+const receiptStore = useReceiptStore();
+const companyReportStore = useCompanyReportStore();
 
 // State
 const loading = ref<boolean>(false);
@@ -320,6 +324,9 @@ const showCompanyDetails = async (company: Company) => {
       companyDetails = await companyReportsStore.loadCompanyReport(company.id.toString());
     }
 
+    // Load receipts for this specific company
+    await receiptStore.fetchByCompanyId(Number(company.id));
+
     // Set selected company for ApproveProposal and go to Tab 2
     selectedCompany.value = company;
     activeTab.value = "2";
@@ -542,8 +549,22 @@ onMounted(async () => {
   if (route.query.year) filters.year = parseInt(route.query.year as string);
   if (route.query.company) filters.company = route.query.company as string;
 
+  // Load company report statistics for Tab 3
+  await companyReportStore.fetchReportStatistics();
+
+  // Load companies with receipts for Tab 3 Table
+  await companyReportStore.fetchCompaniesWithReceipts({
+    page: 1,
+    limit: 10,
+    sort_by: "created_at",
+    sort_order: "DESC"
+  });
+
   // Load company reports data first
   await companyReportsStore.loadCompanyReports();
+
+  // Load all receipts for Tab 2 (show all when no company selected)
+  await receiptStore.fetchAll({ page: 1, limit: 10000 });
 
   // Load overview data
   await loadData();
@@ -1224,7 +1245,6 @@ onMounted(async () => {
                     class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium"
                   >
                     ລວມເປັນຈຳນວນເງິນ
-
                     {{ formatCurrency(
                       filteredPurchaseRequests
                         .filter(r => r.status === 'approved')
@@ -1263,13 +1283,7 @@ onMounted(async () => {
                     class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium"
                   >
                     <Icon icon="ant-design:building-outlined" class="inline mr-1" />
-                    10 ບໍລິສັດ
-                  </div>
-                  <div
-                    class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    <Icon icon="ant-design:check-circle-outlined" class="inline mr-1" />
-                    8 ກຳລັງຜູກສັນຍາ
+                    9 ບໍລິສັດ
                   </div>
                 </div>
               </div>
@@ -1279,7 +1293,14 @@ onMounted(async () => {
             <div class="p-0">
                 <!-- Show Affiliated Company List if no detail selected -->
               <AffiliatedCompany
-                v-if="!showCompanyDetail"
+                v-if="!showCompanyDetail && activeTab === '3'"
+                :statistics="companyReportStore.statistics ? {
+                  totalCompanies: companyReportStore.statistics.total_companies,
+                  totalBudget: companyReportStore.statistics.total_allocated,
+                  totalEmployees: companyReportStore.statistics.total_users
+                } : undefined"
+                :companiesFromAPI="companyReportStore.companiesWithReceipts"
+                :loading="companyReportStore.loading"
                 @view-details="handleViewDetails"
               />
 
@@ -1317,10 +1338,10 @@ onMounted(async () => {
               </div>
 
               <!-- Show Affiliated Company List if no detail selected -->
-              <AffiliatedCompany
+              <!-- <AffiliatedCompany
                 v-if="!showCompanyDetail"
                 @view-details="handleViewDetails"
-              />
+              /> -->
             </div>
           </Tabs.TabPane>
 
@@ -1352,7 +1373,7 @@ onMounted(async () => {
             </div>
           </Tabs.TabPane>
 
-          <!-- Tab 4: ການເງີນ -->
+          <!- Tab 4: ການເງີນ -->
           <!-- <Tabs.TabPane key="4" tab="ການເງີນ">
 
             <div
