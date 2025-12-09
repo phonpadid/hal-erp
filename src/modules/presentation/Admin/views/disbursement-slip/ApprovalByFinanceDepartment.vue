@@ -69,11 +69,30 @@ const statusCards = computed(() => {
   }));
 });
 
-const details = (id: string) => {
-  push({
-    name: "approval-by-finance-department-detail.index",
-    params: { id: id },
-  });
+const details = async (id: string) => {
+  try {
+    // Fetch receipt details by id first
+    await rStore.fetchById(id);
+
+    // Check if the receipt has pending approval steps
+    if (rStore.currentReceipts?.user_approval?.approval_step) {
+      const pendingSteps = rStore.currentReceipts.user_approval.approval_step.filter(
+        (step) => step.status_id === 1 // pending status
+      );
+
+      if (pendingSteps.length > 0) {
+        console.log('Document has pending approval steps:', pendingSteps);
+      }
+    }
+
+    // Navigate to detail page
+    push({
+      name: "approval-by-finance-department-detail.index",
+      params: { id: id },
+    });
+  } catch (error) {
+    console.error('Error fetching receipt details:', error);
+  }
 };
 const loadReceipt = async (): Promise<void> => {
   try {

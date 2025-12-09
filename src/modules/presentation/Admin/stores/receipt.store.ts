@@ -62,6 +62,25 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     }
   };
 
+  // Fetch receipts filtered by company_id
+  const fetchByCompanyId = async (companyId: number, params: PaginationParams = { page: 1, limit: 10000 }) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const result = await serice.getAll({
+        ...params,
+        company_id: companyId
+      });
+      return result;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const fetchById = async (id: string) => {
     loading.value = true;
     error.value = null;
@@ -212,6 +231,7 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     // Getters
     // Actions
     fetchAll,
+    fetchByCompanyId,
     fetchById,
     created,
     updated,
