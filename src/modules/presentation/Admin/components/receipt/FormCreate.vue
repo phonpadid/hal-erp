@@ -218,7 +218,7 @@ const handleOtpConfirm = async (otpValue: string) => {
 
     if (modalAction.value === "approve") {
       // Handle approval logic with OTP
-      console.log("Approving with OTP:", otpValue);
+      console.log("A OTP:", otpValue);
       isOtpModalVisible.value = false;
     }
   } catch (error) {
