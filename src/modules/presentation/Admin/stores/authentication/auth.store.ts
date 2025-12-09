@@ -36,6 +36,7 @@ export const useAuthStore = defineStore("auth", () => {
       userPermissions.value = result.getPermissions() || [];
 
       userRoles.value = result.getRoles() || [];
+      userType.value = result.getUserType() || [];
 
       // Add default permission for purchase request
       const createPurchaseRequestPermission = "write-purchase-request";
@@ -62,6 +63,7 @@ export const useAuthStore = defineStore("auth", () => {
           tel: result.getTel(),
           department_name: result.getDepartmentName(),
           signature: result.getSignature(),
+          user_type: result.getUserType(),
         })
       );
 
@@ -85,11 +87,13 @@ export const useAuthStore = defineStore("auth", () => {
       user.value = null;
       userPermissions.value = [];
       userRoles.value = [];
+      userType.value = [];
 
       localStorage.removeItem("accessToken");
       localStorage.removeItem("userData");
       localStorage.removeItem("userPermissions");
       localStorage.removeItem("userRoles");
+      localStorage.removeItem("userType");
 
       router.push("/login");
     } catch (err) {
@@ -153,6 +157,7 @@ export const useAuthStore = defineStore("auth", () => {
     user,
     userPermissions,
     userRoles,
+    userType,
     loading,
     error,
     login,

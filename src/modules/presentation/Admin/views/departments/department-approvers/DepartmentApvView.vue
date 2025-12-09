@@ -15,14 +15,14 @@ import { departmentStore } from "../../../stores/departments/department.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { departmenUsertStore } from "../../../stores/departments/department-user.store";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import { canAccessAll } from "@/modules/shared/utils/check-user-type.util";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
+import { canAccessAll } from "@/modules/shared/utils/check-user-type.util";
 
 const { t } = useI18n();
 const search = ref<string>("");
 const departmentApv = ref<DepartmentApproverApiModel[]>([]);
 const dpmStore = departmentStore();
-const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
+const { hasPermission, isSuperAdmin, isAdmin, } = usePermissions();
 
 // check show or hide buttons based on permissions
 // Super-admin and admin can only view (no edit buttons)
@@ -30,6 +30,7 @@ const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
 const canCreate = hasPermission("write-department-approver") && !isSuperAdmin.value && !isAdmin.value;
 // const canEdit = hasPermission("update-department-approver") && !isSuperAdmin.value && !isAdmin.value;
 const canDelete = hasPermission("delete-department-approver") && !isSuperAdmin.value && !isAdmin.value;
+
 
 // Form related
 const formRef = ref();
