@@ -10,4 +10,5 @@ export const getUserRole = () => {
 export enum UserRoleEnum {
   ACCOUNT_ADMIN = "account-admin",
   ACCOUNT_USER = "account-user",
+  HAL_GROUP_ADMIN = "hal-group-admin",
 }

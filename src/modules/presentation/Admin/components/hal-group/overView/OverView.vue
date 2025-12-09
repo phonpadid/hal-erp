@@ -1373,7 +1373,7 @@ onMounted(async () => {
             </div>
           </Tabs.TabPane>
 
-          <!-- Tab 4: ການເງີນ -->
+          <!- Tab 4: ການເງີນ -->
           <!-- <Tabs.TabPane key="4" tab="ການເງີນ">
 
             <div

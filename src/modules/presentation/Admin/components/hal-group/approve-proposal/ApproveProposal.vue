@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { Icon } from "@iconify/vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FinalApprovalView from "./FinalApprovalView.vue";
 import OtpModal from "../../purchase-requests/modal/OtpModal.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import { useApprovalStepStore } from "../../../stores/approval-step.store";
-import { useAuthStore } from "../../../stores/authentication/auth.store";
 import { useCompanyReportsStore } from "../../../stores/company-reports.store";
 import { useReceiptStore } from "../../../stores/receipt.store";
+import { useProposalStore } from "../../../stores/proposal.store";
+import { getUserApv } from "@/modules/shared/utils/get-user.login";
+import { useApprovalLogic, getDocumentById, checkDocumentStatus } from "./proval-logic";
+import type { ProposalDocument } from "@/modules/application/dtos/proposal.dto";
 
 // Use PendingDocument interface from store (same as ItemDetail)
 interface ItemDetail {
@@ -60,6 +62,15 @@ const { warning, error } = useNotification();
 // Store
 const companyReportsStore = useCompanyReportsStore();
 const receiptStore = useReceiptStore();
+const proposalStore = useProposalStore();
+
+// Current selected document for approval
+const currentDocument = ref<ProposalDocument | null>(null);
+
+// Approval logic for current document
+const approvalLogic = computed(() =>
+  currentDocument.value ? useApprovalLogic(currentDocument.value) : null
+);
 
 // State
 const selectedRequests = ref<string[]>([]);
@@ -292,13 +303,17 @@ const rejectReason = ref<string>("");
 //   },
 // ];
 
-// Use receipts data directly
+// Use receipts data directly (from step.json structure)
 const itemDetails = computed(() => {
-  // Always use receipts from receipt store
+  // Use receipts from receipt store
   return receiptStore.receipts.map(receipt => {
     // Get company name from document department company
     const companyName = receipt.document?.company?.name || 'ບໍ່ຮູ້ບໍລິສັດ';
     const companyId = receipt.document?.company?.id || 0;
+
+    // Check approval status from user_approval
+    const statusId = Number(receipt.user_approval?.status_id);
+    const status = statusId === 2 ? 'approved' : statusId === 3 ? 'rejected' : 'pending';
 
     return {
       id: receipt.receipt_number || receipt.id.toString(),
@@ -306,20 +321,20 @@ const itemDetails = computed(() => {
       title: receipt.remark || receipt.po_number || 'ບໍ່ມີຫົວຂໍ້',
       company: companyName,
       amount: receipt.total || 0,
-      items: receipt.receipt_item?.length || 1, // Use receipt_item array length instead of itemCount
+      items: receipt.receipt_item?.length || 1, // Use receipt_item array length
       deliveryPoint: 'ສານະສຳນັກງານ',
       urgency: 'normal',
       requestDate: receipt.receipt_date || receipt.created_at,
       requester: `ຜູ້ຮັບ ID: ${receipt.received_by}`,
       department: receipt.document?.department?.name || `ພະແນກ ${receipt.document?.department_id}`,
-      status: (receipt.step ? 'approved' : 'pending') as 'pending' | 'approved' | 'rejected', // Cast to proper type
+      status: status as 'pending' | 'approved' | 'rejected',
       documentId: receipt.document_id?.toString() || receipt.id.toString(),
       companyId: companyId,
-      // Additional fields for receipts
+      // Additional fields from receipts
       poNumber: receipt.po_number,
       prNumber: receipt.pr_number,
       accountCode: receipt.account_code
-    } as ItemDetail; // Type assertion to ItemDetail
+    } as ItemDetail;
   });
 });
 
@@ -337,14 +352,87 @@ onMounted(async () => {
       await receiptStore.fetchAll({ page: 1, limit: 10000 });
     }
 
+    // Load proposals data if not already loaded
+    if (proposalStore.proposals.length === 0) {
+      await proposalStore.fetchAll({ page: 1, limit: 100 });
+    }
+
     // Load company data if needed for other features
     if (!companyReportsStore.hasData) {
       await companyReportsStore.loadCompanyReports();
     }
+
+    // Setup event listeners for approval actions
+    globalThis.addEventListener('approve-proposal', handleApproveProposal);
+    globalThis.addEventListener('reject-proposal', handleRejectProposal);
   } catch (err) {
     console.error("Error loading data:", err);
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນໄດ້");
   }
+});
+
+// Handle approve proposal event
+const handleApproveProposal = async (event: any) => {
+  const { proposalId, stepId, data } = event.detail;
+
+  try {
+    const success = await proposalStore.approveProposal(
+      Number(proposalId),
+      stepId!,
+      data
+    );
+
+    if (success) {
+      warning("ອະນຸມັດສຳເລັດ", `ອະນຸມັດໃບສະເໜີ ${proposalId} ສຳເລັດ`);
+
+      // Refresh data
+      await proposalStore.fetchAll({ page: 1, limit: 100 });
+
+      // Clear selection and current document
+      selectedRequests.value = selectedRequests.value.filter(id => id !== proposalId.toString());
+      if (currentDocument.value?.id === Number(proposalId)) {
+        currentDocument.value = null;
+      }
+    }
+  } catch (err) {
+    console.error("Error approving proposal:", err);
+    error("ອະນຸມັດລົ້ມເຫລວ", "ບໍ່ສາມາດອະນຸມັດໃບສະເໜີນີ້ໄດ້");
+  }
+};
+
+// Handle reject proposal event
+const handleRejectProposal = async (event: any) => {
+  const { proposalId, stepId, reason } = event.detail;
+
+  try {
+    const success = await proposalStore.rejectProposal(
+      Number(proposalId),
+      stepId!,
+      reason
+    );
+
+    if (success) {
+      warning("ປະຕິເສດສຳເລັດ", `ປະຕິເສດໃບສະເໜີ ${proposalId} ສຳເລັດ: ${reason}`);
+
+      // Refresh data
+      await proposalStore.fetchAll({ page: 1, limit: 100 });
+
+      // Clear selection and current document
+      selectedRequests.value = selectedRequests.value.filter(id => id !== proposalId.toString());
+      if (currentDocument.value?.id === Number(proposalId)) {
+        currentDocument.value = null;
+      }
+    }
+  } catch (err) {
+    console.error("Error rejecting proposal:", err);
+    error("ປະຕິເສດລົ້ມເຫລວ", "ບໍ່ສາມາດປະຕິເສດໃບສະເໜີນີ້ໄດ້");
+  }
+};
+
+// Cleanup event listeners
+onUnmounted(() => {
+  globalThis.removeEventListener('approve-proposal', handleApproveProposal);
+  globalThis.removeEventListener('reject-proposal', handleRejectProposal);
 });
 
 // Watch for props changes
@@ -458,10 +546,41 @@ const toggleSelectAll = () => {
   }
 };
 
-// Handle row click
-const handleRowClick = (item: ItemDetail) => {
+// Handle row click - fetch receipt details (using step.json structure)
+const handleRowClick = async (item: ItemDetail) => {
   selectedRequests.value = [item.id];
-  emit("selectRequest", item);
+
+  // Fetch full receipt details by id (like step.json)
+  await receiptStore.fetchById(item.id);
+  const document = receiptStore.currentReceipts;
+
+  if (document) {
+    // Convert receipt to proposal document format for logic
+    currentDocument.value = {
+      ...document,
+      id: Number(document.id),
+      proposal_number: document.receipt_number,
+      title: document.remark,
+      total_amount: document.total,
+      user_approval: {
+        id: Number(document.user_approval?.id),
+        approval_step: document.user_approval?.approval_step || []
+      }
+    } as unknown as ProposalDocument;
+
+    emit("selectRequest", item);
+
+    // Log approval steps from user_approval.approval_step
+    if (document.user_approval?.approval_step) {
+      const currentStep = document.user_approval.approval_step.find((step: any) => step.status_id === 1);
+      if (currentStep) {
+        console.log('Current approval step:', currentStep);
+        console.log('Next approvers:', currentStep.doc_approver);
+        console.log('Requires file upload:', currentStep.requires_file_upload);
+        console.log('Requires OTP:', currentStep.is_otp);
+      }
+    }
+  }
 };
 
 // Handle approve
@@ -645,10 +764,29 @@ const handleRejectCancel = () => {
   isRejectModalVisible.value = false;
   rejectReason.value = "";
 };
+
+// Handle print action
+const handlePrint = () => {
+  globalThis.print();
+};
+
+// Approval handlers
+const handleDocumentApprove = async (data?: any) => {
+  if (!approvalLogic.value) return false;
+  return await approvalLogic.value.handleApprove(data);
+};
+
+const handleDocumentReject = async (reason: string) => {
+  if (!approvalLogic.value) return false;
+  return await approvalLogic.value.handleReject(reason);
+};
 </script>
 
 <template>
   <div class="approve-proposal-container flex gap-6 h-full">
+    <!-- Your UI here -->
+    <!-- Approval Logic Available via approvalLogic computed -->
+    <!-- Example: approvalLogic.value?.isUserPendingApprover -->
     <!-- Show Final Approval View when ready -->
     <FinalApprovalView
       v-if="showFinalApproval"
