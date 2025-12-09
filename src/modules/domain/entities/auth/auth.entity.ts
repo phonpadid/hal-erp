@@ -66,6 +66,10 @@ export class AuthEntity {
     return this.access_token;
   }
 
+  getUserType(): string[] {
+    return this.user_type;
+  }
+
   // Helper methods
   isDeleted(): boolean {
     return this.deleted_at !== null;
