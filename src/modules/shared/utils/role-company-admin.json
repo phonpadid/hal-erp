@@ -1,0 +1,54 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": {
+        "id": 38,
+        "company_id": 22,
+        "user_id": 113,
+        "created_at": "09-12-2025 21:25:28",
+        "updated_at": "09-12-2025 21:25:28",
+        "company": {
+            "id": 22,
+            "name": "Hal-tech",
+            "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+            "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+            "tel": "2055889858",
+            "email": "haltech@gmail.com",
+            "address": "ບ້ານຈອມມະນີ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ",
+            "created_at": "09-12-2025 21:25:27",
+            "updated_at": "09-12-2025 21:25:27"
+        },
+        "user": {
+            "id": 113,
+            "username": "haltech",
+            "email": "haltechadmin@gmail.com",
+            "tel": "2055778975",
+            "created_at": "09-12-2025 21:25:27",
+            "updated_at": "10-12-2025 17:42:44",
+            "user_signature": {
+                "id": "91",
+                "user_id": 113,
+                "signature": "user_signature/019b0200-3a5f-712f-8416-d6f1003b61c2-1765265128031",
+                "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0200-3a5f-712f-8416-d6f1003b61c2-1765265128031",
+                "created_at": "09-12-2025 21:25:28",
+                "updated_at": "09-12-2025 21:25:28"
+            },
+            "roles": [
+                {
+                    "id": 23,
+                    "name": "company-admin",
+                    "created_at": "31-10-2025 21:19:01",
+                    "updated_at": "24-11-2025 22:32:32",
+                    "department_id": 0,
+                    "department_code": "",
+                    "department_name": "",
+                    "company_id": null,
+                    "company_logo_url": null,
+                    "permissions": []
+                }
+            ],
+            "permissions": [],
+            "user_types": []
+        }
+    }
+}
