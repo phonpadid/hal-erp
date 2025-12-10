@@ -7,6 +7,7 @@ const props = defineProps<{
   options: OptionType[];
   groupBy?: string;
   modelValue?: (string | number)[];
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -118,13 +119,14 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
       <a-checkbox
         :checked="checkAllState['all'].checked"
         :indeterminate="checkAllState['all'].indeterminate"
+        :disabled="props.disabled"
         @change="(e:any) => toggleCheckAll('all', e.target.checked)"
       >
         ເລືອກທັງໝົດ
       </a-checkbox>
     </div>
     <a-divider />
-    <a-checkbox-group :options="props.options" v-model="selectedValues" />
+    <a-checkbox-group :options="props.options" v-model="selectedValues" :disabled="props.disabled" />
   </div>
 
     <div v-else>
@@ -133,6 +135,7 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
       <a-checkbox
         :checked="checkAllState['all'].checked"
         :indeterminate="checkAllState['all'].indeterminate"
+        :disabled="props.disabled"
         @change="(e:any) => toggleCheckAll('all', e.target.checked)"
       >
         ເລືອກທັງໝົດ
@@ -145,6 +148,7 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
         <a-checkbox
           :checked="checkAllState[groupName].checked"
           :indeterminate="checkAllState[groupName].indeterminate"
+          :disabled="props.disabled"
           @change="(e:any) => toggleCheckAll(groupName, e.target.checked)"
         >
           {{ groupName }}
@@ -160,6 +164,7 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
           <a-checkbox
             :value="option.value"
             :checked="isSelected(option.value)"
+            :disabled="props.disabled"
             @change="() => toggleOption(option.value)"
           />
           <span

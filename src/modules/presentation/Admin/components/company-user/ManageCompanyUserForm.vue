@@ -16,6 +16,7 @@ import PermissionSelector from "@/modules/presentation/Admin/components/permissi
 import { useRoute } from "vue-router";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { Icon } from "@iconify/vue";
+import { isUserCompanyAdmin } from "@/modules/shared/utils/check-user-type.util";
 
 const { t } = useI18n();
 const roleStore = useRoleStore();
@@ -237,6 +238,9 @@ const submitForm = async () => {
       ? formState.permissionIds.map((id) => Number(id))
       : [];
 
+    // For company_admin users, send empty permissionIds array to backend
+    const finalPermissionIds = disableRolePermissionSelection.value ? [] : permissionIds;
+
     const formData = {
       username: formState.username,
       email: formState.email,
@@ -245,9 +249,18 @@ const submitForm = async () => {
       confirm_password: props.isEditMode ? "" : formState.confirm_password, // Don't send confirm_password in edit mode
       signature: signatureUploaded.value ? formState.signature : "", // Send empty string if no new signature uploaded
       roleIds,
-      permissionIds,
+      permissionIds: finalPermissionIds,
       company_id: companyId.value,
     };
+
+    // Debug logging for company_admin submit
+    if (disableRolePermissionSelection.value) {
+      console.log('🔒 Company Admin Submit - Sending only role data:', {
+        roleIds,
+        permissionIds: '[] (empty array)',
+        isCompanyAdmin: true
+      });
+    }
 
     emit("submit", formData);
   } catch (error) {
@@ -290,6 +303,39 @@ const roleOptions = computed(() => {
     value: Number(role.id),
     label: role.display_name || role.name,
   }));
+});
+
+// Check if user has company_admin role (for edit mode restrictions)
+const hasCompanyAdminRole = computed(() => {
+  if (!props.isEditMode || !props.companyUser) return false;
+
+  return isUserCompanyAdmin(props.companyUser);
+});
+
+// Disable role and permission selection for company_admin users
+const disableRolePermissionSelection = computed(() => {
+  return props.isEditMode && hasCompanyAdminRole.value;
+});
+
+// Debug function to check company admin status
+const debugCompanyAdminStatus = computed(() => {
+  if (!props.isEditMode || !props.companyUser) return { status: 'not-edit-mode' };
+
+  const isAdmin = isUserCompanyAdmin(props.companyUser);
+  const roles = props.companyUser.roles || [];
+
+  const result = {
+    status: isAdmin ? 'is-company-admin' : 'not-company-admin',
+    roles: roles,
+    user: props.companyUser,
+    hasCompanyAdminRole: isAdmin,
+    disableSelection: props.isEditMode && isAdmin
+  };
+
+  // Log to console for debugging
+  console.log('🔍 Company User Edit Status:', result);
+
+  return result;
 });
 
 defineExpose({
@@ -405,7 +451,7 @@ defineExpose({
                   v-model="formState.roleIds"
                   :options="roleOptions"
                   :placeholder="$t('company-user.form.rolesPlaceholder')"
-                  :disabled="loading || loadingPermissions"
+                  :disabled="loading || loadingPermissions || disableRolePermissionSelection"
                   width="100%"
                   size="large"
                 />
@@ -484,8 +530,8 @@ defineExpose({
           </div>
         </div>
       </div>
-       <!-- Permissions Section (Full Width) -->
-          <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
+       <!-- Permissions Section (Full Width) - Hidden for company_admin -->
+          <div v-if="!disableRolePermissionSelection" class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
             <div class="flex items-center gap-3 mb-4">
               <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                 <Icon icon="material-symbols:security" class="text-purple-600 text-xl" />
@@ -496,7 +542,10 @@ defineExpose({
             </div>
 
             <UiFormItem :label="$t('company-user.form.permissions')" name="permissionIds" required>
-              <PermissionSelector v-model="formState.permissionIds" :permissionData="permissionData" />
+              <PermissionSelector
+                v-model="formState.permissionIds"
+                :permissionData="permissionData"
+              />
             </UiFormItem>
           </div>
     </UiForm>

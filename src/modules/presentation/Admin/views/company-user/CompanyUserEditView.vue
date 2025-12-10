@@ -33,6 +33,14 @@ const loadCompanyUserData = async () => {
     // Load company user data
     const companyUserData = await companyUserStore.fetchCompanyUserById(parseInt(userId.value));
 
+    console.log('📦 Company User Data from API:', companyUserData);
+
+    // Log roles structure for debugging
+    if (companyUserData?.roles) {
+      console.log('👤 User Roles:', companyUserData.roles);
+      console.log('🔍 Has company_admin?', companyUserData.roles.some((r: any) => r.name === 'company_admin'));
+    }
+
     companyUser.value = companyUserData;
   } catch (error) {
     console.error("Error loading company user:", error);
