@@ -422,6 +422,7 @@ import PrintPurchaseOrder from "./PrintPurchaseOrder.vue";
 import BudgetApprovalDrawer from "../budget-approval/BudgetApprovalDrawer.vue";
 import SelectDocumentTypeModal from "../receipt/modal/SelectDocumentTypeModal.vue";
 import OtpModal from "../purchase-requests/modal/OtpModal.vue";
+import { isUserCompanyAdmin } from "@/modules/shared/utils/check-user-type.util";
 
 /********************************************************* */
 const purchaseOrderStore = usePurchaseOrderStore();
@@ -431,7 +432,7 @@ const route = useRoute();
 const router = useRouter();
 const orderId = ref<number>(parseInt(route.params.id as string, 10));
 const { t } = useI18n();
-const { success, error } = useNotification();
+const { success, error, warning } = useNotification();
 const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
@@ -447,6 +448,52 @@ const visibleBudget = ref(false);
 const authStore = useAuthStore();
 const { userRoles } = storeToRefs(authStore);
 const reportExcelPoStore = useReportPoStore();
+
+// Super Admin Authentication Check
+const isSuperAdmin = computed(() => {
+  return userRoles.value.includes('super-admin');
+});
+
+// Enhanced access control function for approval workflow
+const hasApprovalAccess = computed(() => {
+  // Super admins can access all approval steps
+  if (isSuperAdmin.value) {
+    // console.log('🔍 Super Admin access granted');
+    return true;
+  }
+
+  // Regular users follow existing approval logic
+  const userDataStr = localStorage.getItem("userData");
+  const userData = userDataStr ? JSON.parse(userDataStr) : null;
+
+  if (!userData) {
+    // console.log('❌ No user data found for access check');
+    return false;
+  }
+
+  // console.log('🔍 User data for access check:', {
+  //   username: userData.username,
+  //   roles: userData.roles,
+  //   department: userData.department_name
+  // });
+
+  // Check if user has company admin role
+  const isCompanyAdmin = userData.roles?.some((role: any) =>
+    role.name === 'company_admin' ||
+    role.name === 'company-admin' ||
+    role.display_name === 'company_admin' ||
+    role.display_name === 'company-admin'
+  );
+
+  // Company admins also have broader access
+  if (isCompanyAdmin) {
+    // console.log('🔍 Company Admin access granted');
+    return true;
+  }
+
+  // Default to existing approval logic for regular users
+  return canApprove.value;
+});
 const canManageBudget = computed(() => {
   return userRoles.value.includes("budget-admin") || userRoles.value.includes("budget-user");
 });
@@ -637,7 +684,30 @@ const currentApprovalStep = computed(() => {
     return null;
   }
 
-  // หา step ที่มีสถานะ pending
+  // Super admins and company admins can access any pending step
+  if (hasApprovalAccess.value) {
+    const pendingStep = approvalSteps.value.find(
+      (step) =>
+        step.status_id === 1 && // PENDING
+        step.step_number === (getPreviousApprovedStep.value?.step_number ?? 0) + 1
+    );
+
+    // if (pendingStep) {
+    //   console.log('🔍 Enhanced access - Pending step found:', {
+    //     stepId: pendingStep.id,
+    //     stepNumber: pendingStep.step_number,
+    //     status: pendingStep.status_id,
+    //     approvers: pendingStep.doc_approver?.map(a => ({
+    //       username: a.user?.username,
+    //       department: a.department?.name
+    //     }))
+    //   });
+    // }
+
+    return pendingStep || null;
+  }
+
+  // Regular users follow existing approval logic
   const pendingStep = approvalSteps.value.find(
     (step) =>
       step.status_id === 1 && // PENDING
@@ -647,6 +717,7 @@ const currentApprovalStep = computed(() => {
   if (!pendingStep) {
     return null;
   }
+
   const isAuthorized = pendingStep.doc_approver?.some((approver) => {
     const userMatches = approver.user?.username === userData.username;
     const departmentMatches = approver.department?.name === userData.department_name;
@@ -658,6 +729,12 @@ const currentApprovalStep = computed(() => {
 const canCreatePaymentDocument = computed(() => {
   if (!orderDetails.value || !approvalSteps.value.length) {
     return false;
+  }
+
+  // Super admins and company admins can create payment documents when fully approved
+  if (hasApprovalAccess.value) {
+    const allStepsApproved = approvalSteps.value.every((step) => step.status_id === 2);
+    return allStepsApproved;
   }
 
   const userDataStr = localStorage.getItem("userData");
@@ -689,6 +766,11 @@ const getPreviousApprovedStep = computed(() => {
 });
 
 const canApprove = computed(() => {
+  // Super admins and company admins with enhanced access can always approve
+  if (hasApprovalAccess.value && currentApprovalStep.value) {
+    return true;
+  }
+
   const currentStep = currentApprovalStep.value;
   if (!currentStep) {
     return false;
