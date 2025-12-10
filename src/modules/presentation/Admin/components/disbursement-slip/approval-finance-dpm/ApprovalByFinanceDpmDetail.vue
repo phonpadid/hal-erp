@@ -96,8 +96,14 @@ const handleImageUpload = async (files: File[]) => {
 const deleteImage = (index: number) => {
   uploadedImages.value.splice(index, 1);
   formState.value.files.splice(index, 1);
-  if (index === 0) {
+
+  // If all uploaded images are deleted, reset uploadCompleted
+  if (uploadedImages.value.length === 0) {
     uploadCompleted.value = false;
+    // If there are no old attachments, show the upload modal again
+    if (attachments.value.length === 0) {
+      createModalVisible.value = true;
+    }
   }
 };
 
@@ -295,8 +301,8 @@ onMounted(async () => {
             <div class="account_number">
               {{ t("receipt.address") }}
               <p class="text-gray-600 text-md">
-              {{ rStore.currentReceipts?.document?.company?.address || "----" }}
-            </p>
+                {{ rStore.currentReceipts?.document?.company?.address || "----" }}
+              </p>
             </div>
           </div>
         </div>
@@ -314,7 +320,7 @@ onMounted(async () => {
               <template v-if="column.key === 'title'">
                 <span>{{
                   record.purchase_order_item?.purchase_request_item?.title
-                }}</span>
+                  }}</span>
               </template>
               <template v-if="column.key === 'budget_code'">
                 <span>{{ budgetAcc?.code }} - {{ budgetAcc?.name }}</span>
@@ -355,7 +361,7 @@ onMounted(async () => {
           </div>
         </div>
         <div v-if="
-          check && isAwaitingUser && !uploadCompleted && !attachments.length
+          check && isAwaitingUser && !attachments.length && !uploadedImages.length
         " class="mb-4 mt-4">
           <h2>ອັບໂຫລດສະລິບໂອນເງິນ</h2>
 
@@ -370,34 +376,56 @@ onMounted(async () => {
 
           <!-- Uploaded images preview -->
         </div>
-        <!-- Uploaded images preview -->
-        <!-- <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto"> -->
+
+        <!-- Show old attachments when there are attachments but no new uploads -->
+        <div v-if="attachments.length && !uploadedImages.length" class="mb-1 mt-4 w-full h-auto">
+          <h2>ຫຼັກຖານການໂອນເງິນ</h2>
+
+          <!-- Flex container for images -->
+          <div class="flex flex-wrap items-center justify-start gap-4 -mt-1">
+            <div v-for="(doc, index) in attachments" :key="'old-' + index"
+              class="w-[90px] h-[130px] flex items-center justify-center overflow-hidden rounded-md">
+              <a-image class="flex items-center justify-center" :src="doc?.file_name_url"
+                style="max-width: 100%; max-height: 100%;" />
+            </div>
+            <!-- Show upload button only if user can upload -->
+            <div v-if="check && isAwaitingUser"
+              class="flex flex-col items-center justify-center w-[190px] h-[120px] border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
+              @click="createModalVisible = true">
+              <Icon icon="mdi:upload" class="text-2xl text-gray-400 mb-1" />
+              <p class="text-gray-600 text-sm">Click to upload</p>
+              <p class="text-gray-400 text-xs">SVG, PNG, JPG (MAX. 5MB)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Show both old attachments and new uploaded images when there are new uploads -->
         <div v-if="uploadedImages.length" class="mb-1 mt-4 w-full h-auto">
-          <div class="flex flex-wrap items-center gap-2 mt-2">
-            <div v-for="(img, index) in uploadedImages" :key="index"
-              class="relative w-[100px] h-[130px] flex items-center justify-center overflow-hidden rounded-md">
+          <h2>ຫຼັກຖານການໂອນເງິນ</h2>
+
+          <!-- Single flex container for all images -->
+          <div class="flex flex-wrap items-center justify-start gap-2 -mt-1">
+            <!-- Old attachments -->
+            <div v-for="(doc, index) in attachments" :key="'old-' + index"
+              class="w-[90px] h-[130px] flex items-center justify-center overflow-hidden rounded-md border-2 border-gray-200">
+              <a-image class="flex items-center justify-center" :src="doc?.file_name_url"
+                style="max-width: 100%; max-height: 100%;" />
+            </div>
+
+            <!-- New uploaded images -->
+            <div v-for="(img, index) in uploadedImages" :key="'new-' + index"
+              class="relative w-[100px] h-[130px] flex items-center justify-center overflow-hidden rounded-md border-2 border-blue-300">
               <a-image :src="img" style="max-width: 100%; max-height: 100%;" />
               <button @click="deleteImage(index)"
                 class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-xs">
                 ×
               </button>
             </div>
+
+            <!-- Add more images button -->
             <div @click="createModalVisible = true"
               class="w-[3rem] h-[3rem] flex items-center justify-center border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer">
               <Icon icon="material-symbols:image-arrow-up-outline-rounded" class="text-2xl text-gray-400 mb-1" />
-            </div>
-          </div>
-        </div>
-
-        <div v-else-if="attachments.length" class="mb-1 mt-4 w-full h-auto">
-          <h2>ຫຼັກຖານການໂອນເງິນ</h2>
-
-          <!-- Flex container for images -->
-          <div class="flex flex-wrap gap-4 -mt-1">
-            <div v-for="(doc, index) in attachments" :key="index"
-              class="w-[90px] h-[130px] flex items-center justify-center overflow-hidden rounded-md">
-              <a-image class="flex items-center justify-center" :src="doc?.file_name_url"
-                style="max-width: 100%; max-height: 100%;" />
             </div>
           </div>
         </div>
