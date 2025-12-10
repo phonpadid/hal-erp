@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -46,16 +46,26 @@ const selectData = ref<BudgetApprovalRuleApiModel | null>(null);
 const budgetApvRuleStore = budgetApprovalRuleStore();
 const userStore = departmenUsertStore();
 
-const userItem = computed(() =>
-  userStore.departmentUser.map((item) => ({
+// Filter users based on selected department
+const userItem = computed(() => {
+  // If no department selected, return all users
+  if (!formModel.department_id || checkedRadio.value === 'personal') {
+    return userStore.departmentUser.map((item) => ({
+      value: item.getUser()?.getId() ?? "",
+      label: item.getUser()?.getUsername() ?? "",
+    }));
+  }
+
+  // Filter users by selected department
+  return userStore.departmentUserByDpm.map((item) => ({
     value: item.getUser()?.getId() ?? "",
     label: item.getUser()?.getUsername() ?? "",
-  }))
-);
+  }));
+});
 
 const departmentItem = computed(() =>
   dpmStore.departments.map((item) => ({
-    value: item.getId(),
+    value: item.getId().toString(), // Convert to string to match formModel.department_id
     label: item.getName(),
   }))
 );
@@ -104,17 +114,41 @@ const showCreateModal = (): void => {
   formModel.approver_id = "";
   formModel.min_amount = undefined;
   formModel.max_amount = undefined;
+  checkedRadio.value = "personal"; // Reset to personal mode
+  userStore.departmentUserByDpm = []; // Clear department users
   createModalVisible.value = true;
 };
 
-const showEditModal = (record: BudgetApprovalRuleApiModel): void => {
-  const dpmId = record.department?.id ?? "";
-  selectData.value = record;
-  formModel.approver_id = record.approver?.id.toString() ?? "";
-  formModel.department_id = dpmId.toString();
-  formModel.min_amount = record.min_amount;
-  formModel.max_amount = record.max_amount;
-  editModalVisible.value = true;
+const showEditModal = async (record: BudgetApprovalRuleApiModel): Promise<void> => {
+  try {
+    // 1. Use existing record data (no API call needed)
+    selectData.value = record;
+
+    // 2. Set form model with existing record data
+    formModel.approver_id = record.approver?.id?.toString() ?? "";
+    formModel.department_id = record.department?.id?.toString() ?? "";
+    formModel.min_amount = record.min_amount;
+    formModel.max_amount = record.max_amount;
+
+    const dpmId = formModel.department_id;
+
+    // 3. Set radio mode based on whether department exists
+    checkedRadio.value = dpmId ? 'department' : 'personal';
+
+    // 4. Load users for the department if department mode (frontend filtering only)
+    if (dpmId && checkedRadio.value === 'department') {
+      await userStore.fetchDepartmentUserByDpm(dpmId);
+    }
+
+    // 5. Show modal with existing data
+    editModalVisible.value = true;
+
+    
+
+  } catch (error) {
+    console.error('Error in showEditModal:', error);
+    warning(t("budget-apv-rule.error.load_users"), String(error));
+  }
 };
 
 const showDeleteModal = (record: BudgetApprovalRuleApiModel): void => {
@@ -258,6 +292,43 @@ const formattedMaxAmount = computed({
 });
 
 const checkedRadio = ref("personal");
+
+// Watch department_id changes to load users for that department
+watch(
+  () => formModel.department_id,
+  async (newDepartmentId) => {
+    if (newDepartmentId && checkedRadio.value === 'department') {
+      try {
+        await userStore.fetchDepartmentUserByDpm(newDepartmentId);
+      } catch (error) {
+        console.error('Error loading users for department:', error);
+      }
+    } else if (checkedRadio.value === 'personal') {
+      // Clear department-specific users when switching to personal
+      userStore.departmentUserByDpm = [];
+    }
+  }
+);
+
+// Watch radio button changes
+watch(
+  () => checkedRadio.value,
+  async (newValue) => {
+    if (newValue === 'department' && formModel.department_id) {
+      // Load department users when switching to department mode
+      try {
+        await userStore.fetchDepartmentUserByDpm(formModel.department_id);
+      } catch (error) {
+        console.error('Error loading users for department:', error);
+      }
+    } else if (newValue === 'personal') {
+      // Clear approver_id and department-specific users when switching to personal
+      formModel.approver_id = "";
+      userStore.departmentUserByDpm = [];
+    }
+  }
+);
+
 </script>
 
 <template>
@@ -363,10 +434,32 @@ const checkedRadio = ref("personal");
     >
       <UiForm ref="formRef" :model="formModel" :rules="budgetApvRuleRules(t)">
         <div class="mb-4 mt-4">
-          <a-radio-group v-model:value="checkedRadio">
-            <a-radio-button value="personal">Personal</a-radio-button>
-            <a-radio-button value="department">Department</a-radio-button>
-          </a-radio-group>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              @click="checkedRadio = 'personal'"
+              :class="[
+                'px-4 py-2 rounded-l-md border border-gray-300 text-sm font-medium',
+                checkedRadio === 'personal'
+                  ? 'bg-blue-500 text-white border-blue-500'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              ]"
+            >
+              Personal
+            </button>
+            <button
+              type="button"
+              @click="checkedRadio = 'department'"
+              :class="[
+                'px-4 py-2 rounded-r-md border border-l-0 border-gray-300 text-sm font-medium',
+                checkedRadio === 'department'
+                  ? 'bg-blue-500 text-white border-blue-500'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              ]"
+            >
+              Department
+            </button>
+          </div>
         </div>
 
         <UiFormItem
