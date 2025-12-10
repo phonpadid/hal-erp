@@ -70,7 +70,7 @@ onMounted(async () => {
 
     if (isEditMode.value) {
       const departmentRole = await roleStore.fetchRoleById(route.params.id as string);
-      console.log('tou:', departmentRole);
+      // console.log('tou:', departmentRole);
       if (!departmentRole) {
         error(
           'error',
@@ -91,7 +91,9 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  // departmentRoleStore.clearCurrentDepartmentRole();
+  // Clear role store to prevent data persistence when switching between edit and add
+  roleStore.clearCurrentRole();
+  departmentRoleStore.clearCurrentDepartmentRole();
 });
 
 const handleFormSubmit = async (formData: {

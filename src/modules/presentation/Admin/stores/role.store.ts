@@ -223,6 +223,11 @@ export const useRoleStore = defineStore("roles", () => {
       totalPages: 0,
     };
   };
+
+  // Clear current role only
+  const clearCurrentRole = () => {
+    currentRole.value = null;
+  };
  const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
   pagination.value.page = newPagination.page || 1;
   pagination.value.limit = newPagination.limit || 10;
@@ -252,5 +257,6 @@ export const useRoleStore = defineStore("roles", () => {
     totalActiveRoles,
     totalDeletedRoles,
     resetState,
+    clearCurrentRole,
   };
 });

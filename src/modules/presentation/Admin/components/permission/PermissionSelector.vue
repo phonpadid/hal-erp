@@ -18,6 +18,7 @@ export interface PermissionGroup {
 const props = defineProps<{
   permissionData: PermissionGroup[];
   modelValue: (string | number)[];
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -52,6 +53,11 @@ const selectedPermissions = computed({
 
 <template>
   <div class="permission-selector">
-    <CheckboxGroup v-model="selectedPermissions" :options="checkboxOptions" groupBy="group" />
+    <CheckboxGroup
+      v-model="selectedPermissions"
+      :options="checkboxOptions"
+      groupBy="group"
+      :disabled="disabled"
+    />
   </div>
 </template>

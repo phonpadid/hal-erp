@@ -26,8 +26,7 @@ const { t } = useI18n();
 const emit = defineEmits<{
   (event: "submit", value: { role_id: number; department_id: number; permissions: number[] }): void;
 }>();
-console.log('kkkk:', props.initialData);
-console.log('Initial permissions:', props.initialData?.permissions);
+
 
 // Initialize stores
 const dpmStore = departmentStore();
@@ -96,7 +95,7 @@ watch(
     if (props.isEdit && formState.role_id && roles.value && roles.value.length > 0) {
       const selectedRole = roles.value.find((role: Role) => Number(role.getId()) === formState.role_id);
       if (selectedRole) {
-        console.log("Found role for edit:", selectedRole.getDisplayname() || selectedRole.getName());
+        // console.log("Found role for edit:", selectedRole.getDisplayname() || selectedRole.getName());
       }
     }
   },
@@ -108,7 +107,7 @@ watch(
   () => props.initialData,
   (newVal) => {
     if (newVal) {
-      console.log('Initial data changed, setting permissions:', newVal.permissions);
+      // console.log('Initial data changed, setting permissions:', newVal.permissions);
       formState.role_id = newVal.role_id ? Number(newVal.role_id) : null;
       formState.department_id = newVal.department_id ? Number(newVal.department_id) : null;
       // Extract just the IDs from permission objects
@@ -119,7 +118,7 @@ watch(
         }
         return per;
       }) || [];
-      console.log('Form state permissions after watcher:', formState.permissions);
+      // console.log('Form state permissions after watcher:', formState.permissions);
     }
   },
   { immediate: true }
@@ -129,11 +128,11 @@ watch(
 watch(
   () => formState.permissions,
   (newPermissions, oldPermissions) => {
-    console.log('Form permissions changed:', {
-      from: oldPermissions,
-      to: newPermissions,
-      length: newPermissions?.length || 0
-    });
+    // console.log('Form permissions changed:', {
+    //   from: oldPermissions,
+    //   to: newPermissions,
+    //   length: newPermissions?.length || 0
+    // });
   },
   { immediate: true, deep: true }
 );
@@ -165,7 +164,7 @@ onMounted(async () => {
       }) || [];
       // If we have initial permissions, wait a tick and verify they're set
       setTimeout(() => {
-        console.log('onMounted: Form permissions after timeout:', formState.permissions);
+        // console.log('onMounted: Form permissions after timeout:', formState.permissions);
       }, 100);
     }
   } catch (error) {
