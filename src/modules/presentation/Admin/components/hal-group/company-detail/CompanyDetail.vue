@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -8,6 +9,36 @@ import ProposalList from "../proposal-list/ProposalList.vue";
 import BudgetList from "../budget-list/BudgetList.vue";
 import ApproveProposal from "../approve-proposal/ApproveProposal.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+
+// Import types from OverView
+type Company = {
+  id: number;
+  name: string;
+  logo: string;
+  proposalCount: number;
+  budget: number;
+  budgetUsed: number;
+  color: string;
+  userCount: number;
+  allocated_amount: number;
+  balance_amount: number;
+  approvalWorkflowCount: number;
+};
+
+type AffiliatedCompany = {
+  id: number;
+  name: string;
+  logo: string;
+  proposalCount: number;
+  budget: number;
+  budgetUsed: number;
+  color: string;
+  status: "active" | "inactive" | "pending";
+  contractType: "annual" | "project" | "service";
+  establishedYear: number;
+  employees: number;
+  registrationNumber: string;
+};
 
 // Interface for company data
 interface CompanyDetail {
@@ -36,9 +67,11 @@ const route = useRoute();
 // Props
 const props = defineProps<{
   companyId?: number;
+  companyData?: CompanyDetail | Company | AffiliatedCompany | null; // Add company data prop to receive from parent
 }>();
 
 // Emits
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emit = defineEmits<{
   (e: 'close'): void;
 }>();
@@ -46,9 +79,43 @@ const emit = defineEmits<{
 // State
 const loading = ref<boolean>(false);
 const showDetail = ref<boolean>(false);
-const selectedCompany = ref<CompanyDetail | null>(null);
+const selectedCompany = ref<CompanyDetail | Company | AffiliatedCompany | null>(null);
 const activeTab = ref<string>("proposals");
 const showApproveProposal = ref<boolean>(false);
+
+// Helper functions to safely access company properties
+const getCompanyProperty = (property: string, fallback: any = '-') => {
+  if (!selectedCompany.value) return fallback;
+
+  const company = selectedCompany.value;
+  // Check if property exists in the company object
+  if (property in company) {
+    return (company as any)[property];
+  }
+
+  // Map common properties between different company types
+  const propertyMap: { [key: string]: string[] } = {
+    'employees': ['userCount', 'employees'],
+    'description': ['description', 'name'],
+    'registrationNumber': ['registrationNumber', 'id'],
+    'establishedYear': ['establishedYear', 'id'],
+    'address': ['address', '-'],
+    'phone': ['phone', '-'],
+    'email': ['email', '-'],
+    'director': ['director', '-'],
+    'status': ['status', 'active'],
+    'contractType': ['contractType', 'annual']
+  };
+
+  const possibleProperties = propertyMap[property] || [property];
+  for (const prop of possibleProperties) {
+    if (prop in company && (company as any)[prop]) {
+      return (company as any)[prop];
+    }
+  }
+
+  return fallback;
+};
 
 // Get company detail from all companies
 const getCompanyDetail = (companyId: number): CompanyDetail | null => {
@@ -251,13 +318,25 @@ const getCompanyDetail = (companyId: number): CompanyDetail | null => {
 
 // Load company detail
 const loadCompanyDetail = async (companyId: number) => {
+  // console.log('🔍 loadCompanyDetail called with companyId:', companyId);
   loading.value = true;
   try {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    selectedCompany.value = getCompanyDetail(companyId);
+    // First try to use companyData from props if available
+    if (props.companyData && props.companyData.id === companyId) {
+      // console.log('✅ Using companyData from props:', props.companyData);
+      selectedCompany.value = props.companyData;
+    } else {
+      // Fallback to mock data search
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      selectedCompany.value = getCompanyDetail(companyId);
+      // console.log('🔍 getCompanyDetail result:', selectedCompany.value);
+    }
 
     if (!selectedCompany.value) {
+      // console.log('❌ Company not found for ID:', companyId);
       warning("ຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນບໍລິສັດ");
+    } else {
+      // console.log('✅ Company found:', selectedCompany.value.name);
     }
   } catch (error) {
     console.error("Error loading company detail:", error);
@@ -273,13 +352,6 @@ const showCompanyDetail = (company: { id: number }) => {
   showDetail.value = true;
 };
 
-// Close detail
-const closeDetail = () => {
-  showDetail.value = false;
-  showApproveProposal.value = false;
-  selectedCompany.value = null;
-  emit('close');
-};
 
 // Navigate to approve proposal
 const navigateToApproveProposal = () => {
@@ -349,6 +421,7 @@ defineExpose({
 // Load company if companyId prop is provided or from route params
 onMounted(() => {
   const companyId = props.companyId || Number(route.params.id);
+  // console.log('🔍 CompanyDetail onMounted - companyId:', companyId);
   if (companyId) {
     loadCompanyDetail(companyId);
     showDetail.value = true;
@@ -357,8 +430,18 @@ onMounted(() => {
 
 // Watch for companyId prop changes
 watch(() => props.companyId, (newCompanyId) => {
+  // console.log('🔍 CompanyDetail watch - companyId changed:', newCompanyId);
   if (newCompanyId) {
     loadCompanyDetail(newCompanyId);
+    showDetail.value = true;
+  }
+}, { immediate: true });
+
+// Watch for companyData prop changes
+watch(() => props.companyData, (newCompanyData) => {
+  // console.log('🔍 CompanyDetail watch - companyData changed:', newCompanyData);
+  if (newCompanyData) {
+    selectedCompany.value = newCompanyData;
     showDetail.value = true;
   }
 }, { immediate: true });
@@ -412,7 +495,7 @@ watch(() => props.companyId, (newCompanyId) => {
               <!-- Company Info -->
               <div class="flex-1">
                 <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ selectedCompany.name }}</h2>
-                <p class="text-gray-600 text-lg">{{ selectedCompany.description }}</p>
+                <p class="text-gray-600 text-lg">{{ getCompanyProperty('description', selectedCompany.name) }}</p>
               </div>
             </div>
           </div>
@@ -467,20 +550,20 @@ watch(() => props.companyId, (newCompanyId) => {
                       <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
                           <span class="text-gray-600">ເລກທະບຽນ:</span>
-                          <span class="font-medium">{{ selectedCompany.registrationNumber }}</span>
+                          <span class="font-medium">{{ getCompanyProperty('registrationNumber') }}</span>
                         </div>
                         <div class="flex justify-between">
                           <span class="text-gray-600">ປີທີ່ສ້າງ:</span>
-                          <span class="font-medium">{{ selectedCompany.establishedYear }}</span>
+                          <span class="font-medium">{{ getCompanyProperty('establishedYear') }}</span>
                         </div>
                         <div class="flex justify-between">
                           <span class="text-gray-600">ພະນັກງານ:</span>
-                          <span class="font-medium">{{ selectedCompany.employees }} ຄົນ</span>
+                          <span class="font-medium">{{ getCompanyProperty('employees') }} ຄົນ</span>
                         </div>
                         <div class="flex justify-between">
                           <span class="text-gray-600">ປະເພດສັນຍາ:</span>
                           <span class="font-medium">
-                            {{ selectedCompany.contractType === 'annual' ? 'ປະຈຳປີ' : selectedCompany.contractType === 'project' ? 'ຕາມໂຄງການ' : 'ບໍລິການ' }}
+                            {{ getCompanyProperty('contractType') === 'annual' ? 'ປະຈຳປີ' : getCompanyProperty('contractType') === 'project' ? 'ຕາມໂຄງການ' : 'ບໍລິການ' }}
                           </span>
                         </div>
                       </div>
@@ -492,19 +575,19 @@ watch(() => props.companyId, (newCompanyId) => {
                       <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
                           <span class="text-gray-600">ທີ່ຢູ່:</span>
-                          <span class="font-medium text-right">{{ selectedCompany.address }}</span>
+                          <span class="font-medium text-right">{{ getCompanyProperty('address') }}</span>
                         </div>
                         <div class="flex justify-between">
                           <span class="text-gray-600">ໂທລະສັບ:</span>
-                          <span class="font-medium">{{ selectedCompany.phone }}</span>
+                          <span class="font-medium">{{ getCompanyProperty('phone') }}</span>
                         </div>
                         <div class="flex justify-between">
                           <span class="text-gray-600">ອີເມວ:</span>
-                          <span class="font-medium">{{ selectedCompany.email }}</span>
+                          <span class="font-medium">{{ getCompanyProperty('email') }}</span>
                         </div>
                         <div class="flex justify-between">
                           <span class="text-gray-600">ຜູ້ອຳນວຍການ:</span>
-                          <span class="font-medium">{{ selectedCompany.director }}</span>
+                          <span class="font-medium">{{ getCompanyProperty('director') }}</span>
                         </div>
                       </div>
                     </div>
@@ -532,9 +615,9 @@ watch(() => props.companyId, (newCompanyId) => {
                             <span class="text-gray-600">ສະຖານະບໍລິສັດ:</span>
                             <span
                               class="px-2 py-1 rounded-full text-xs font-medium"
-                              :class="selectedCompany.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                              :class="getCompanyProperty('status') === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
                             >
-                              {{ selectedCompany.status === 'active' ? 'ກຳລັງຜູກສັນຍາ' : 'ສິ້ນສຸດສັນຍາ' }}
+                              {{ getCompanyProperty('status') === 'active' ? 'ກຳລັງຜູກສັນຍາ' : 'ສິ້ນສຸດສັນຍາ' }}
                             </span>
                           </div>
                         </div>

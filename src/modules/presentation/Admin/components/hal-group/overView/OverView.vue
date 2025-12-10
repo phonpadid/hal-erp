@@ -430,6 +430,8 @@ const getCompanyLabel = (companyValue: string) => {
 
 // Handle view company details
 const handleViewDetails = (company: Company | AffiliatedCompany) => {
+  // console.log('🔍 handleViewDetails called with:', company);
+
   // Convert company data to Company format if needed
   const isAffiliatedCompany = 'employees' in company && 'contractType' in company;
   const affiliatedCompany = company as AffiliatedCompany;
@@ -443,7 +445,12 @@ const handleViewDetails = (company: Company | AffiliatedCompany) => {
     balance_amount: (company.budget || companyData.allocated_amount || 0) - (company.budgetUsed || 0),
     approvalWorkflowCount: company.proposalCount || companyData.approvalWorkflowCount || 0
   } as Company;
+
+  // console.log('🔍 selectedDetailCompany set to:', selectedDetailCompany.value);
+  // console.log('🔍 Company ID being passed:', selectedDetailCompany.value?.id);
+
   showCompanyDetail.value = true;
+  // console.log('🔍 showCompanyDetail set to:', showCompanyDetail.value);
 };
 
 // Close company detail view
@@ -454,12 +461,12 @@ const closeCompanyDetail = () => {
 
 // Handle batch approve/reject for ApproveProposal component
 const handleBatchApprove = (ids: string[]) => {
-  console.log('Approve proposals:', ids);
+  // console.log('Approve proposals:', ids);
   warning("ອະນຸມັດ", `ອະນຸມັດ ${ids.length} ລາຍກາສຳເລັດ`);
 };
 
 const handleBatchReject = (ids: string[]) => {
-  console.log('Reject proposals:', ids);
+  // console.log('Reject proposals:', ids);
   warning("ປະຕິເສດ", `ປະຕິເສດ ${ids.length} ລາຍກາສຳເລັດ`);
 };
 
@@ -1304,6 +1311,14 @@ onMounted(async () => {
                 @view-details="handleViewDetails"
               />
 
+              <!-- Debug Info - Remove this in production -->
+              <!-- <div v-if="activeTab === '3'" class="bg-yellow-50 p-2 mb-2 text-xs">
+                <div>showCompanyDetail: {{ showCompanyDetail }}</div>
+                <div>selectedDetailCompany ID: {{ selectedDetailCompany?.id }}</div>
+                <div>selectedDetailCompany Name: {{ selectedDetailCompany?.name }}</div>
+                <div>Active Tab: {{ activeTab }}</div>
+              </div> -->
+
               <!-- Show Company Detail if selected -->
               <div v-if="showCompanyDetail && selectedDetailCompany">
                 <div class="bg-gray-50 min-h-full">
@@ -1331,6 +1346,7 @@ onMounted(async () => {
                   <div class="p-0">
                     <CompanyDetail
                       :company-id="selectedDetailCompany?.id"
+                      :company-data="selectedDetailCompany"
                       @close="closeCompanyDetail"
                     />
                   </div>
