@@ -253,14 +253,7 @@ const submitForm = async () => {
       company_id: companyId.value,
     };
 
-    // Debug logging for company_admin submit
-    if (disableRolePermissionSelection.value) {
-      console.log('🔒 Company Admin Submit - Sending only role data:', {
-        roleIds,
-        permissionIds: '[] (empty array)',
-        isCompanyAdmin: true
-      });
-    }
+    
 
     emit("submit", formData);
   } catch (error) {
@@ -299,10 +292,26 @@ const handleSignatureChange = async (file: File) => {
 };
 
 const roleOptions = computed(() => {
-  return roleStore.rawRoles.map((role) => ({
+  const roles = roleStore.rawRoles.map((role) => ({
     value: Number(role.id),
     label: role.display_name || role.name,
   }));
+
+  // Add company-admin role if not already present
+  const hasCompanyAdmin = roles.some(role => role.label === 'company-admin');
+
+  if (!hasCompanyAdmin && props.isEditMode && props.companyUser?.user?.roles?.some((r: any) => r.name === 'company-admin')) {
+    const companyAdminRole = props.companyUser.user.roles.find((r: any) => r.name === 'company-admin');
+    if (companyAdminRole) {
+      roles.push({
+        value: Number(companyAdminRole.id),
+        label: companyAdminRole.name,
+      });
+    }
+  }
+
+ 
+  return roles;
 });
 
 // Check if user has company_admin role (for edit mode restrictions)
@@ -317,26 +326,6 @@ const disableRolePermissionSelection = computed(() => {
   return props.isEditMode && hasCompanyAdminRole.value;
 });
 
-// Debug function to check company admin status
-const debugCompanyAdminStatus = computed(() => {
-  if (!props.isEditMode || !props.companyUser) return { status: 'not-edit-mode' };
-
-  const isAdmin = isUserCompanyAdmin(props.companyUser);
-  const roles = props.companyUser.roles || [];
-
-  const result = {
-    status: isAdmin ? 'is-company-admin' : 'not-company-admin',
-    roles: roles,
-    user: props.companyUser,
-    hasCompanyAdminRole: isAdmin,
-    disableSelection: props.isEditMode && isAdmin
-  };
-
-  // Log to console for debugging
-  console.log('🔍 Company User Edit Status:', result);
-
-  return result;
-});
 
 defineExpose({
   submitForm,
