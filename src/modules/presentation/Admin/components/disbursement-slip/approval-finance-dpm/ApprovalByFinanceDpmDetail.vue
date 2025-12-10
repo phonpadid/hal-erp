@@ -234,6 +234,14 @@ const openPrintModal = () => {
   window.print();
 };
 
+// Function to reset uploaded images after successful approval
+const resetUploadedImages = () => {
+  uploadedImages.value = [];
+  formState.value.files = [];
+  uploadCompleted.value = false;
+  createModalVisible.value = false;
+};
+
 onMounted(async () => {
   await rStore.fetchById(receiptId);
   uploadedImages.value.forEach((url) => {
@@ -245,7 +253,7 @@ onMounted(async () => {
 </script>
 <template>
   <div class="no-print">
-    <ApvLayout :dataHead="dataHead" :onPrint="openPrintModal"></ApvLayout>
+    <ApvLayout :dataHead="dataHead" :onPrint="openPrintModal" :onApprovalSuccess="resetUploadedImages"></ApvLayout>
     <div class="mt-[10rem] mb-[5rem]">
       <div class="user-info">
         <div class="flex gap-[4rem]">

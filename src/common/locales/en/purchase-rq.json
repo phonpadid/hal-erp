@@ -1,4 +1,5 @@
 {
+  "otp_verification": "Confirm otp code",
   "field": {
     "pr_number": "No",
     "user": "Staff name",

@@ -60,6 +60,7 @@ const props = defineProps<{
     }[];
   };
   onPrint?: () => void;
+  onApprovalSuccess?: () => void;
 }>();
 
 // Modal states
@@ -227,6 +228,10 @@ const requestOtp = async () => {
 const handleSuccessConfirm = () => {
   isSuccessModalVisible.value = false;
   modalAction.value = "";
+  // Call the reset callback after successful approval
+  if (props.onApprovalSuccess) {
+    props.onApprovalSuccess();
+  }
 };
 
 const handleSuccessCancel = () => {
