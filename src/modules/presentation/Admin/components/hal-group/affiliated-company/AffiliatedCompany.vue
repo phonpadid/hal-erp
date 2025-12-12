@@ -819,12 +819,12 @@ onMounted(() => {
               <div class="font-medium text-gray-900 truncate">{{ record.name }}</div>
               <div class="text-xs text-gray-500">{{ record.registrationNumber }}</div>
               <div class="flex items-center gap-2 mt-1">
-                <span
+                <!-- <span
                   class="px-2 py-0.5 rounded-full text-xs font-medium"
                   :class="getStatusBadgeClass(record.status)"
                 >
                   {{ getStatusLabel(record.status) }}
-                </span>
+                </span> -->
                 <span class="text-xs text-gray-500">
                   {{ getContractTypeLabel(record.contractType) }}
                 </span>
