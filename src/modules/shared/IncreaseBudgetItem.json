@@ -1,0 +1,58 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": [
+        {
+            "id": 55,
+            "budget_item_id": 38,
+            "increase_budget_id": "49",
+            "allocated_amount": "10000000.00",
+            "created_at": "15-12-2025 23:15:18",
+            "updated_at": "15-12-2025 23:15:18",
+            "budget_item": {
+                "id": 38,
+                "name": "ເຄື່ອງທຳຄວາມສະອາດ",
+                "budget_account_id": 36,
+                "allocated_amount": 0,
+                "use_amount": 0,
+                "balance_amount": 0,
+                "description": "",
+                "created_at": "15-12-2025 23:10:07",
+                "updated_at": "15-12-2025 23:10:07",
+                "budget_account": {
+                    "id": 36,
+                    "code": "BA-A552B6",
+                    "name": "ຈັດຊື້ເຄື່ອງຫ້ອງການທົ່ວໄປ",
+                    "department_id": 70,
+                    "company_id": 0,
+                    "fiscal_year": 2025,
+                    "allocated_amount": null,
+                    "total_budget": null,
+                    "increase_amount": 0,
+                    "used_amount": 0,
+                    "balance_amount": 0,
+                    "type": "expenditure",
+                    "created_at": "15-12-2025 22:39:10",
+                    "updated_at": "15-12-2025 22:46:36",
+                    "department": {
+                        "id": 70,
+                        "code": "ງປ",
+                        "name": "ງົບປະມານ",
+                        "department_head_id": 0,
+                        "created_at": "15-12-2025 21:59:50",
+                        "updated_at": "15-12-2025 21:59:50",
+                        "department_head": null,
+                        "company": null
+                    },
+                    "company": null
+                }
+            }
+        }
+    ],
+    "pagination": {
+        "total": 1,
+        "total_pages": 1,
+        "limit": 10,
+        "page": 1
+    }
+}

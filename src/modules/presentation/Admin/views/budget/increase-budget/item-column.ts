@@ -8,6 +8,11 @@ export function itemColumns(t: (key: string) => string): Column[] {
       key: "id",
     },
     {
+      title: t("budget_accounts.list.budget_item"),
+      dataIndex: "budget_item.name",
+      key: "budget_item_name",
+    },
+    {
       title: t("budget_accounts.list.name"),
       dataIndex: "budget_item.budget_account.name",
       key: "name",
