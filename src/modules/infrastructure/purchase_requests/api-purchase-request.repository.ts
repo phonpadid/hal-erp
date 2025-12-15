@@ -204,7 +204,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
     );
 
     if (data.purchase_request_item) {
-      console.log('API item data:', data.purchase_request_item);
+      // console.log('API item data:', data.purchase_request_item);
       const items = data.purchase_request_item.map((item: any) => {
         // Store the vendor data in the entity for later use
         const purchaseRequestItem = new PurchaseRequestItemEntity(

@@ -1,4 +1,5 @@
-\<script setup lang="ts">
+\
+<script setup lang="ts">
 import { ref, computed, onMounted, reactive, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -94,8 +95,8 @@ const companyOptions = computed(() => {
   const options = [{ value: "all", label: "ທຸກບໍລິສັດ" }];
 
   // Add companies from the companies data with both ID and name
-  const uniqueCompanies = [...new Map(companies.value.map(c => [c.id, c])).values()];
-  uniqueCompanies.forEach(company => {
+  const uniqueCompanies = [...new Map(companies.value.map((c) => [c.id, c])).values()];
+  uniqueCompanies.forEach((company) => {
     options.push({ value: company.id.toString(), label: company.name });
   });
 
@@ -111,7 +112,7 @@ const departmentOptions = computed(() => {
     department.departments.forEach((dept) => {
       options.push({
         value: dept.getId(),
-        label: dept.getName() || `ພະແນກ ${dept.getId()}`
+        label: dept.getName() || `ພະແນກ ${dept.getId()}`,
       });
     });
   } else {
@@ -130,7 +131,6 @@ const departmentOptions = computed(() => {
 
   return options;
 });
-
 
 // Get filtered companies based on filters
 const filteredCompanies = computed(() => {
@@ -163,7 +163,7 @@ const overBudgetCompanies = computed(() => {
       allocated_amount: item.allocated_amount,
       budgetUsed: item.total,
       budget: item.allocated_amount,
-      color: colors[index % colors.length]
+      color: colors[index % colors.length],
     }));
   }
   return filteredCompanies.value.filter((company) => company.budgetUsed >= company.budget);
@@ -182,7 +182,7 @@ const withinBudgetCompanies = computed(() => {
       allocated_amount: item.allocated_amount,
       budgetUsed: item.total,
       budget: item.allocated_amount,
-      color: colors[index % colors.length]
+      color: colors[index % colors.length],
     }));
   }
   return filteredCompanies.value.filter((company) => company.budgetUsed < company.budget);
@@ -216,20 +216,31 @@ const calculateStatistics = () => {
 
 // Transform API data to Company interface
 const transformCompanyData = (apiData: CompanyReportData): Company[] => {
-  const colors = ["blue", "green", "yellow", "purple", "orange", "red", "teal", "indigo", "pink", "cyan"];
+  const colors = [
+    "blue",
+    "green",
+    "yellow",
+    "purple",
+    "orange",
+    "red",
+    "teal",
+    "indigo",
+    "pink",
+    "cyan",
+  ];
 
   return apiData.data.map((company, index) => ({
     id: company.id,
     name: company.name,
     logo: company.logo || "mdi:domain", // Use company logo from API or default icon
     proposalCount: company.approvalWorkflowCount,
-    budget: company.total_budget,
+    budget: company.allocated_amount || company.total_budget, // Use allocated_amount as the budget limit
     budgetUsed: company.totalUsedAmount,
     color: colors[index % colors.length],
     userCount: company.userCount,
     allocated_amount: company.allocated_amount,
     balance_amount: company.balance_amount,
-    approvalWorkflowCount: company.approvalWorkflowCount
+    approvalWorkflowCount: company.approvalWorkflowCount,
   }));
 };
 
@@ -247,6 +258,9 @@ const loadData = async () => {
 
     // Load budget report data for charts
     await loadBudgetReport();
+
+    // Load HAL group state data
+    await loadHalGroupState();
   } catch (error) {
     console.error("Error loading data:", error);
     warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນບໍລິສັດໄດ້");
@@ -274,11 +288,21 @@ const loadBudgetReport = async () => {
     await reportHalStore.fetchReportHalGroupsMonthlyBudget({
       fiscal_year: filters.year,
       company_id: filters.company !== "all" ? parseInt(filters.company) : undefined,
-      departmentId: filters.departmentId !== "all" ? filters.departmentId : undefined
+      departmentId: filters.departmentId !== "all" ? filters.departmentId : undefined,
     });
   } catch (error) {
     console.error("Error loading budget report:", error);
     warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນງົບປະມານໄດ້");
+  }
+};
+
+// Load HAL group state data
+const loadHalGroupState = async () => {
+  try {
+    await reportHalStore.fetchReportHalGroupState();
+  } catch (error) {
+    console.error("Error loading HAL group state:", error);
+    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນສະຖານະ HAL Group ໄດ້");
   }
 };
 
@@ -291,7 +315,7 @@ const handleFilterChange = async () => {
 
   // Update selectedCompany when company filter changes
   if (filters.company !== "all") {
-    const company = companies.value.find(c => c.name.includes(filters.company));
+    const company = companies.value.find((c) => c.name.includes(filters.company));
     if (company) {
       selectedCompany.value = company;
     }
@@ -309,8 +333,6 @@ const handleFilterChange = async () => {
     },
   });
 };
-
-
 
 // Show company details with pending documents
 const showCompanyDetails = async (company: Company) => {
@@ -332,7 +354,6 @@ const showCompanyDetails = async (company: Company) => {
     activeTab.value = "2";
 
     await nextTick();
-
   } catch (error) {
     console.error("Error loading company details:", error);
     warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນລາຍລະອຽດບໍລິສັດໄດ້");
@@ -340,8 +361,6 @@ const showCompanyDetails = async (company: Company) => {
     loading.value = false;
   }
 };
-
-
 
 // Mock data for purchase requests
 const mockPurchaseRequests = [
@@ -414,12 +433,12 @@ const mockPurchaseRequests = [
 
 // Filter purchase requests based on company
 const filteredPurchaseRequests = computed(() => {
-  if (filters.company === 'all') {
+  if (filters.company === "all") {
     return mockPurchaseRequests;
   }
 
   const companyName = getCompanyLabel(filters.company);
-  return mockPurchaseRequests.filter(req => req.company === companyName);
+  return mockPurchaseRequests.filter((req) => req.company === companyName);
 });
 
 // Get company label
@@ -433,7 +452,7 @@ const handleViewDetails = (company: Company | AffiliatedCompany) => {
   // console.log('🔍 handleViewDetails called with:', company);
 
   // Convert company data to Company format if needed
-  const isAffiliatedCompany = 'employees' in company && 'contractType' in company;
+  const isAffiliatedCompany = "employees" in company && "contractType" in company;
   const affiliatedCompany = company as AffiliatedCompany;
   const companyData = company as Company;
 
@@ -442,8 +461,9 @@ const handleViewDetails = (company: Company | AffiliatedCompany) => {
     // Map from AffiliatedCompany format if needed
     userCount: isAffiliatedCompany ? affiliatedCompany.employees : companyData.userCount,
     allocated_amount: company.budget || companyData.allocated_amount || 0,
-    balance_amount: (company.budget || companyData.allocated_amount || 0) - (company.budgetUsed || 0),
-    approvalWorkflowCount: company.proposalCount || companyData.approvalWorkflowCount || 0
+    balance_amount:
+      (company.budget || companyData.allocated_amount || 0) - (company.budgetUsed || 0),
+    approvalWorkflowCount: company.proposalCount || companyData.approvalWorkflowCount || 0,
   } as Company;
 
   // console.log('🔍 selectedDetailCompany set to:', selectedDetailCompany.value);
@@ -458,18 +478,6 @@ const closeCompanyDetail = () => {
   showCompanyDetail.value = false;
   selectedDetailCompany.value = null;
 };
-
-// Handle batch approve/reject for ApproveProposal component
-const handleBatchApprove = (ids: string[]) => {
-  // console.log('Approve proposals:', ids);
-  warning("ອະນຸມັດ", `ອະນຸມັດ ${ids.length} ລາຍກາສຳເລັດ`);
-};
-
-const handleBatchReject = (ids: string[]) => {
-  // console.log('Reject proposals:', ids);
-  warning("ປະຕິເສດ", `ປະຕິເສດ ${ids.length} ລາຍກາສຳເລັດ`);
-};
-
 // Format currency
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("lo-LA", {
@@ -485,24 +493,15 @@ const formatCurrency = (amount: number) => {
 // Format large numbers with abbreviations
 const formatLargeNumber = (amount: number) => {
   if (amount >= 1000000000) {
-    return `₭${(amount / 1000000000).toFixed(1)}B`;
+    return `${(amount / 1000000000).toFixed(1)}B`;
   } else if (amount >= 1000000) {
-    return `₭${(amount / 1000000).toFixed(1)}M`;
+    return `${(amount / 1000000).toFixed(1)}M`;
   } else if (amount >= 1000) {
-    return `₭${(amount / 1000).toFixed(1)}K`;
+    return `${(amount / 1000).toFixed(1)}K`;
   }
-  return `₭${amount}`;
+  return amount.toString();
 };
 
-// Format compact number
-const formatCompactNumber = (num: number) => {
-  if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(1)}M`;
-  } else if (num >= 1000) {
-    return `${(num / 1000).toFixed(1)}K`;
-  }
-  return num.toString();
-};
 
 // Calculate budget percentage
 const getBudgetPercentage = (budgetUsed: number, budget: number) => {
@@ -511,8 +510,9 @@ const getBudgetPercentage = (budgetUsed: number, budget: number) => {
 
 // Get color classes for budget bars
 const getBudgetBarColor = (percentage: number) => {
-  if (percentage > 80) return "bg-red-500";
-  if (percentage > 60) return "bg-yellow-500";
+  if (percentage > 100) return "bg-red-500";
+  if (percentage > 90) return "bg-orange-500";
+  if (percentage > 70) return "bg-yellow-500";
   return "bg-green-500";
 };
 
@@ -550,7 +550,6 @@ const getLogoTextColor = (color: string) => {
   return colorMap[color] || "text-gray-600";
 };
 
-
 onMounted(async () => {
   // Initialize filters from URL query params
   if (route.query.year) filters.year = parseInt(route.query.year as string);
@@ -564,11 +563,11 @@ onMounted(async () => {
     page: 1,
     limit: 10,
     sort_by: "created_at",
-    sort_order: "DESC"
+    sort_order: "DESC",
   });
 
   // Load company reports data first
-  await companyReportsStore.loadCompanyReports();
+  // await companyReportsStore.loadCompanyReports();
 
   // Load all receipts for Tab 2 (show all when no company selected)
   await receiptStore.fetchAll({ page: 1, limit: 10000 });
@@ -578,7 +577,7 @@ onMounted(async () => {
 
   // Initialize selectedCompany from company filter after data is loaded
   if (filters.company !== "all") {
-    const company = companies.value.find(c => c.name.includes(filters.company));
+    const company = companies.value.find((c) => c.name.includes(filters.company));
     if (company) {
       selectedCompany.value = company;
     }
@@ -626,7 +625,6 @@ onMounted(async () => {
               </h2>
               <div class="flex justify-between">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                  <!-- Year Filter -->
                   <UiFormItem>
                     <UiSelect
                       v-model="filters.year"
@@ -636,7 +634,7 @@ onMounted(async () => {
                       :disabled="loading"
                     />
                   </UiFormItem>
-                   <!-- Department Filter -->
+
                   <UiFormItem>
                     <UiSelect
                       v-model="filters.departmentId"
@@ -656,11 +654,6 @@ onMounted(async () => {
                       :disabled="loading"
                     />
                   </UiFormItem>
-
-                 
-
-                
-                 
                 </div>
                 <div>
                   {{ t("hal-group.showdata") }}{{ t("hal-group.overyear") }} {{ filters.year }}
@@ -669,9 +662,9 @@ onMounted(async () => {
               </div>
             </div>
 
-            <!-- Statistics Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-2 p-2">
-              <!-- Total Proposals -->
+            <!-- HAL Group State Summary -->
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-2 p-2"  v-if="reportHalStore.getHalGroupStateData()">
               <div
                 class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
@@ -687,20 +680,14 @@ onMounted(async () => {
                   >
                 </div>
                 <div class="space-y-1">
-                  <div class="text-2xl md:text-3xl font-bold tracking-tight">
-                    {{
-                      formatCompactNumber(
-                        filteredCompanies.reduce((sum, c) => sum + c.proposalCount, 0)
-                      )
-                    }}
+                  <div
+                    class="text-2xl md:text-3xl font-bold tracking-tight"
+                    :title="`${reportHalStore.getHalGroupStateData()?.totalReceiptsPadding || 0} ໃບ`"
+                  >
+                    {{ reportHalStore.getHalGroupStateData()?.totalReceiptsPadding || 0 }}
                   </div>
                   <div class="text-xs md:text-sm opacity-80">
-                    {{
-                      Math.round(
-                        filteredCompanies.reduce((sum, c) => sum + c.proposalCount, 0) /
-                          filteredCompanies.length
-                      )
-                    }}
+                   {{ reportHalStore.getHalGroupStateData()?.totalReceiptsPadding || 0 }}
                     ໃບ
                   </div>
                 </div>
@@ -716,12 +703,11 @@ onMounted(async () => {
                   <span class="text-xs md:text-sm opacity-90 font-medium">ໃບສະເໜີທັງໝົດ</span>
                 </div>
                 <div class="space-y-1">
-                  <div class="text-2xl md:text-3xl font-bold tracking-tight">
-                    {{
-                      formatCompactNumber(
-                        filteredCompanies.reduce((sum, c) => sum + c.proposalCount, 0)
-                      )
-                    }}
+                  <div
+                    class="text-2xl md:text-3xl font-bold tracking-tight"
+                    :title="`${reportHalStore.getHalGroupStateData()?.totalReceipts || 0} ໃບ`"
+                  >
+                    {{ reportHalStore.getHalGroupStateData()?.totalReceipts || 0 }}
                   </div>
                   <div class="text-xs md:text-sm opacity-80">
                     ໂປດປະຈຳ:
@@ -736,7 +722,6 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <!-- Total Budget -->
               <div
                 class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
@@ -747,8 +732,11 @@ onMounted(async () => {
                   <span class="text-xs md:text-sm opacity-90 font-medium">ງົບປະມານທັງໝົດ</span>
                 </div>
                 <div class="space-y-1">
-                  <div class="text-2xl md:text-3xl font-bold tracking-tight">
-                    {{ formatLargeNumber(filteredCompanies.reduce((sum, c) => sum + c.budget, 0)) }}
+                  <div
+                    class="text-lg md:text-xl font-bold tracking-tight"
+                    :title="formatCurrency(reportHalStore.getHalGroupStateData()?.total_budget || 0)"
+                  >
+                     {{ formatLargeNumber(reportHalStore.getHalGroupStateData()?.total_budget || 0) }}
                   </div>
                   <div class="text-xs md:text-sm opacity-80">
                     ບໍລິສັດສະເລຍ່:
@@ -762,7 +750,6 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <!-- Budget Used -->
               <div
                 class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
@@ -773,24 +760,24 @@ onMounted(async () => {
                   <span class="text-xs md:text-sm opacity-90 font-medium">ງົບທີໃຊ້ໄປ</span>
                 </div>
                 <div class="space-y-1">
-                  <div class="text-2xl md:text-3xl font-bold tracking-tight">
-                    {{
-                      formatLargeNumber(filteredCompanies.reduce((sum, c) => sum + c.budgetUsed, 0))
-                    }}
+                  <div
+                    class="text-lg md:text-xl font-bold tracking-tight"
+                    :title="formatCurrency(reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0)"
+                  >
+                    {{ formatLargeNumber(reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0) }}
                   </div>
                   <div class="text-xs md:text-sm opacity-80">
                     ໃຊ້ໄປແລ້ວ:
                     {{
-                      getBudgetPercentage(
-                        filteredCompanies.reduce((sum, c) => sum + c.budgetUsed, 0),
-                        filteredCompanies.reduce((sum, c) => sum + c.budget, 0)
+                      Math.round(
+                        ((reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0) /
+                         (reportHalStore.getHalGroupStateData()?.total_budget || 1)) * 100
                       )
                     }}%
                   </div>
                 </div>
               </div>
 
-              <!-- Remaining Budget -->
               <div
                 class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
@@ -801,26 +788,30 @@ onMounted(async () => {
                   <span class="text-xs md:text-sm opacity-90 font-medium">ງົບປະມານຍັງຄ້າງ</span>
                 </div>
                 <div class="space-y-1">
-                  <div class="text-2xl md:text-3xl font-bold tracking-tight">
+                  <div
+                    class="text-lg md:text-xl font-bold tracking-tight"
+                    :title="formatCurrency((reportHalStore.getHalGroupStateData()?.total_budget || 0) - (reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0))"
+                  >
                     {{
                       formatLargeNumber(
-                        filteredCompanies.reduce((sum, c) => sum + (c.budget - c.budgetUsed), 0)
+                        (reportHalStore.getHalGroupStateData()?.total_budget || 0) -
+                        (reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0)
                       )
                     }}
                   </div>
                   <div class="text-xs md:text-sm opacity-80">
                     ຍັງຄ້າງ:
                     {{
-                      getBudgetPercentage(
-                        filteredCompanies.reduce((sum, c) => sum + (c.budget - c.budgetUsed), 0),
-                        filteredCompanies.reduce((sum, c) => sum + c.budget, 0)
+                      Math.round(
+                        (((reportHalStore.getHalGroupStateData()?.total_budget || 0) -
+                          (reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0)) /
+                         (reportHalStore.getHalGroupStateData()?.total_budget || 1)) * 100
                       )
                     }}%
                   </div>
                 </div>
               </div>
 
-              <!-- Companies Count -->
               <div
                 class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
               >
@@ -834,33 +825,15 @@ onMounted(async () => {
                   <span class="text-xs md:text-sm opacity-90 font-medium">ພະນັກງານ</span>
                 </div>
                 <div class="space-y-1">
-                  <div class="text-2xl md:text-3xl font-bold">2000ຄົນ</div>
-                  <div class="text-xs md:text-sm opacity-80">ສະເລ່ຍ: 200ຄົນ/ບໍລິສັດ</div>
+                  <div
+                    class="text-2xl md:text-3xl font-bold"
+                    :title="`${reportHalStore.getHalGroupStateData()?.totalUsers || 0} ຄົນ`"
+                  >{{ reportHalStore.getHalGroupStateData()?.totalUsers || 0 }}</div>
+                  <!-- <div class="text-xs md:text-sm opacity-80">ສະເລ່ຍ: 200ຄົນ/ບໍລິສັດ</div> -->
                 </div>
               </div>
+            </div>
 
-              <!-- Over Budget Count -->
-              <!-- <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <div class="flex items-center justify-between mb-3">
-            <div class="p-2 bg-white/20 rounded-lg">
-              <Icon icon="material-symbols:warning" class="text-xl md:text-2xl" />
-            </div>
-            <span class="text-xs md:text-sm opacity-90 font-medium">ບໍລິສັດເກີນງົບ</span>
-          </div>
-          <div class="space-y-1">
-            <div class="text-2xl md:text-3xl font-bold">
-              {{ overBudgetCompanies.length }}
-            </div>
-            <div class="text-xs md:text-sm opacity-80">
-              ອດສວານທັງໝົດ: {{ overBudgetCompanies.length > 0 ?
-                `(${Math.round((overBudgetCompanies.length / filteredCompanies.length) * 100)}%)` :
-                '(0%)'
-              }}
-            </div>
-          </div>
-        </div> -->
-            </div>
-            <!-- Proposal Overview Header -->
             <div class="p-2 md:p-6 border-b border-gray-200">
               <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <h2 class="text-lg font-semibold flex items-center gap-2 flex-wrap">
@@ -877,6 +850,8 @@ onMounted(async () => {
               </div>
             </div>
 
+          
+
             <!-- Company Boxes Grid -->
             <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
               <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -889,7 +864,10 @@ onMounted(async () => {
                   <!-- Company Logo -->
                   <div class="flex justify-center mb-3">
                     <!-- If logo is a URL, show image, otherwise show icon -->
-                    <div v-if="company.logo && company.logo.startsWith('http')" class="relative w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
+                    <div
+                      v-if="company.logo && company.logo.startsWith('http')"
+                      class="relative w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-gray-100"
+                    >
                       <img
                         :src="company.logo"
                         :alt="company.name"
@@ -929,15 +907,20 @@ onMounted(async () => {
 
                   <!-- Budget Progress -->
                   <div class="mt-3">
+                    <!-- Debug info (remove in production) -->
+                    <div class="text-xs text-gray-400 mb-1" style="font-size: 10px;">
+                      ງົບ: {{ formatLargeNumber(company.budget) }} | ໃຊ້: {{ formatLargeNumber(company.budgetUsed) }}
+                    </div>
                     <div class="flex justify-between text-xs text-gray-600 mb-1">
                       <span>ງົບປະມານ</span>
                       <span
                         class="font-medium"
-                        :class="
-                          getBudgetPercentage(company.budgetUsed, company.budget) > 100
-                            ? 'text-red-600'
-                            : 'text-gray-700'
-                        "
+                        :class="{
+                          'text-red-600': getBudgetPercentage(company.budgetUsed, company.budget) > 100,
+                          'text-orange-600': getBudgetPercentage(company.budgetUsed, company.budget) > 90,
+                          'text-yellow-600': getBudgetPercentage(company.budgetUsed, company.budget) > 70,
+                          'text-gray-700': getBudgetPercentage(company.budgetUsed, company.budget) <= 70
+                        }"
                       >
                         {{ getBudgetPercentage(company.budgetUsed, company.budget) }}%
                       </span>
@@ -1006,11 +989,7 @@ onMounted(async () => {
                     <div class="mt-1">
                       ມູນຄ່າທີ່ເກີນ:
                       <span class="font-bold">
-                        {{
-                          formatCurrency(
-                            reportHalStore.getBudgetOverruns()?.total || 0
-                          )
-                        }}
+                        {{ formatCurrency(reportHalStore.getBudgetOverruns()?.total || 0) }}
                       </span>
                     </div>
                   </div>
@@ -1029,11 +1008,7 @@ onMounted(async () => {
                     <div class="mt-1">
                       ງົບປະມານທີ່ຍັງຄ້າງ:
                       <span class="font-bold">
-                        {{
-                          formatCurrency(
-                            reportHalStore.getWithinBudget()?.total || 0
-                          )
-                        }}
+                        {{ formatCurrency(reportHalStore.getWithinBudget()?.total || 0) }}
                       </span>
                     </div>
                   </div>
@@ -1245,18 +1220,23 @@ onMounted(async () => {
                     class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium"
                   >
                     <Icon icon="ant-design:clock-circle-outlined" class="inline mr-1" />
-                    {{ filteredPurchaseRequests.filter(r => r.status === 'pending').length }} ລໍຖ້າອະນຸມັດ
+                    {{
+                      filteredPurchaseRequests.filter((r) => r.status === "pending").length
+                    }}
+                    ລໍຖ້າອະນຸມັດ
                   </div>
                   |
                   <div
                     class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium"
                   >
                     ລວມເປັນຈຳນວນເງິນ
-                    {{ formatCurrency(
-                      filteredPurchaseRequests
-                        .filter(r => r.status === 'approved')
-                        .reduce((sum, r) => sum + r.amount, 0)
-                    ) }}
+                    {{
+                      formatCurrency(
+                        filteredPurchaseRequests
+                          .filter((r) => r.status === "approved")
+                          .reduce((sum, r) => sum + r.amount, 0)
+                      )
+                    }}
                   </div>
                 </div>
               </div>
@@ -1268,8 +1248,7 @@ onMounted(async () => {
                 :selectedCompany="selectedCompany"
                 :searchKeyword="searchKeyword"
                 :statusFilter="'pending'"
-                @approve="handleBatchApprove"
-                @reject="handleBatchReject"
+              
               />
             </div>
           </Tabs.TabPane>
@@ -1298,14 +1277,18 @@ onMounted(async () => {
 
             <!-- Tab Content -->
             <div class="p-0">
-                <!-- Show Affiliated Company List if no detail selected -->
+              <!-- Show Affiliated Company List if no detail selected -->
               <AffiliatedCompany
                 v-if="!showCompanyDetail && activeTab === '3'"
-                :statistics="companyReportStore.statistics ? {
-                  totalCompanies: companyReportStore.statistics.total_companies,
-                  totalBudget: companyReportStore.statistics.total_allocated,
-                  totalEmployees: companyReportStore.statistics.total_users
-                } : undefined"
+                :statistics="
+                  companyReportStore.statistics
+                    ? {
+                        totalCompanies: companyReportStore.statistics.total_companies,
+                        totalBudget: companyReportStore.statistics.total_allocated,
+                        totalEmployees: companyReportStore.statistics.total_users,
+                      }
+                    : undefined
+                "
                 :companiesFromAPI="companyReportStore.companiesWithReceipts"
                 :loading="companyReportStore.loading"
                 @view-details="handleViewDetails"
@@ -1467,8 +1450,7 @@ onMounted(async () => {
       </div>
     </div>
   </div>
-
-  </template>
+</template>
 
 <style scoped>
 .hal-group-overview-container {

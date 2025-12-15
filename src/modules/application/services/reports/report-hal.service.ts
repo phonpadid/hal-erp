@@ -1,7 +1,8 @@
 import { api } from "@/common/config/axios/axios";
 import type {
   HalGroupReportResponse,
-  HalGroupReportParams
+  HalGroupReportParams,
+  HalGroupStateResponse
 } from "@/modules/infrastructure/reports/report-hal.repository";
 
 export class ReportHalService {
@@ -46,5 +47,18 @@ export class ReportHalService {
    */
   async getDefaultReport(): Promise<HalGroupReportResponse> {
     return this.getReportHalGroupsMonthlyBudget();
+  }
+
+  /**
+   * Get HAL group state summary data
+   */
+  async getReportHalGroupState(): Promise<HalGroupStateResponse> {
+    try {
+      const response = await api.get("/companies/report-hal-group-state");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching HAL group state report:", error);
+      throw error;
+    }
   }
 }

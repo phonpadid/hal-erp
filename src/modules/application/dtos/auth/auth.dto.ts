@@ -17,6 +17,11 @@ export interface UserDTO {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  company?: {
+    id: number;
+    name: string;
+    [key: string]: any;
+  };
 }
 
 export interface AuthResponseDTO {

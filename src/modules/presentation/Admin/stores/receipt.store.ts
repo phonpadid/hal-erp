@@ -72,9 +72,18 @@ export const useReceiptStore = defineStore("receipt-store", () => {
         ...params,
         company_id: companyId
       });
+      // Set receipts data to state
+      receipts.value = result.data;
+      pagination.value = {
+        page: result.page ?? 1,
+        limit: result.limit ?? 10,
+        total: result.total ?? 0,
+        totalPages: result.totalPages ?? 0,
+      };
       return result;
     } catch (err) {
       error.value = err as Error;
+      receipts.value = []; // Clear receipts on error
       throw err;
     } finally {
       loading.value = false;
@@ -156,6 +165,22 @@ export const useReceiptStore = defineStore("receipt-store", () => {
       loading.value = false;
     }
   };
+  const approvalReceiptHalGroup = async (
+    input: IApprovalReceiptDto
+  ) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const res = await serice.approvalhal(input);
+      return res;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const reportMenu = async (type: string) => {
     loading.value = true;
@@ -228,6 +253,7 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     pagination,
     setPagination,
     approvalReceipt,
+    approvalReceiptHalGroup,
     // Getters
     // Actions
     fetchAll,

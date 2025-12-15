@@ -4,13 +4,16 @@ import { Icon } from "@iconify/vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import FinalApprovalView from "./FinalApprovalView.vue";
 import OtpModal from "../../purchase-requests/modal/OtpModal.vue";
+import SignatureModal from "./SignatureModal.vue";
+import SuccessConfirmModal from "./SuccessConfirmModal.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useCompanyReportsStore } from "../../../stores/company-reports.store";
 import { useReceiptStore } from "../../../stores/receipt.store";
 import { useProposalStore } from "../../../stores/proposal.store";
+import { useApprovalStepStore } from "../../../stores/approval-step.store";
 import { getUserApv } from "@/modules/shared/utils/get-user.login";
-import { useApprovalLogic, getDocumentById, checkDocumentStatus } from "./proval-logic";
+import { useApprovalLogic } from "./proval-logic";
 import type { ProposalDocument } from "@/modules/application/dtos/proposal.dto";
 
 // Use PendingDocument interface from store (same as ItemDetail)
@@ -63,6 +66,14 @@ const { warning, error } = useNotification();
 const companyReportsStore = useCompanyReportsStore();
 const receiptStore = useReceiptStore();
 const proposalStore = useProposalStore();
+const approvalStepStore = useApprovalStepStore();
+
+// Current user
+const user = computed(() => {
+  const userData = getUserApv();
+  console.log('👤 Current logged in user:', userData);
+  return userData;
+});
 
 // Current selected document for approval
 const currentDocument = ref<ProposalDocument | null>(null);
@@ -82,228 +93,100 @@ const showFinalApproval = ref<boolean>(false);
 const isProcessingApproval = ref<boolean>(false);
 const showOtpModal = ref<boolean>(false);
 const otpLoading = ref<boolean>(false);
-const pendingApprovalData = ref<{ ids: string[], action: 'approve' | 'reject' } | null>(null);
+const showSignatureModal = ref<boolean>(false);
+const showSuccessModal = ref<boolean>(false);
+const successActionType = ref<'approve' | 'reject' | undefined>(undefined);
+const pendingApprovalData = ref<{
+  ids: string[],
+  action: 'approve' | 'reject',
+  receiptId?: number,
+  stepId?: number,
+  requiresFile?: boolean,
+  requiresOTP?: boolean,
+  otpCode?: string
+} | null>(null);
 
 // Reject modal state
 const isRejectModalVisible = ref<boolean>(false);
 const rejectReason = ref<string>("");
 
-// Mock data (replaced with API data)
-// const mockItemDetails: ItemDetail[] = [
-  // {
-  //   id: "PR001",
-  //   requestNumber: "PR2024-001",
-  //   title: "ຈັດຊື້ອຸປະກອນສໍານັກງານ",
-  //   company: "HAL ບໍລິສັດ",
-  //   amount: 2500000,
-  //   items: 5,
-  //   deliveryPoint: "ສານະສຳນັກງານໃຫຍ່",
-  //   urgency: "normal",
-  //   requestDate: "2024-11-01",
-  //   requester: "ສົມສະຫວາດ ວົງສາ",
-  //   department: "ພະແນກຊື້",
-  //   status: "pending",
-  // },
-  // {
-  //   id: "PR002",
-  //   requestNumber: "PR2024-002",
-  //   title: "ຈັດຊື້ວັດຖຸດິບຜ່ານການຜະລິດ",
-  //   company: "HAL ບໍລິສັດ",
-  //   amount: 5800000,
-  //   items: 12,
-  //   deliveryPoint: "ຄັງສົ່ງສິນຄ້າ A",
-  //   urgency: "high",
-  //   requestDate: "2024-11-02",
-  //   requester: "ຄຳພອນ ໄຊຍະສາດ",
-  //   department: "ພະແນກຜະລິດ",
-  //   status: "pending",
-  // },
-  // {
-  //   id: "PR003",
-  //   requestNumber: "PR2024-003",
-  //   title: "ຈັດຊື້ລົດຈັກບັນຊີ",
-  //   company: "HAL Tech",
-  //   amount: 12000000,
-  //   items: 3,
-  //   deliveryPoint: "ສານະຫົວໜ້າບໍລິສັດ",
-  //   urgency: "normal",
-  //   requestDate: "2024-11-03",
-  //   requester: "ມາລີ ດວງສະຫວັນ",
-  //   department: "ພະແນກບັນຊີ",
-  //   status: "approved",
-  // },
-  // {
-  //   id: "PR004",
-  //   requestNumber: "PR2024-004",
-  //   title: "ຈັດຊື້ລະບົບຄວາມປອດໄພ",
-  //   company: "HAL Energy",
-  //   amount: 8500000,
-  //   items: 8,
-  //   deliveryPoint: "ຮ້ານຈັດຊື້ຫຼັກສັນ",
-  //   urgency: "urgent",
-  //   requestDate: "2024-11-04",
-  //   requester: "ສົມພອນ ອິນທະວົງ",
-  //   department: "ພະແນກ IT",
-  //   status: "pending",
-  // },
-  // {
-  //   id: "ITM005",
-  //   requestNumber: "1297/ຈຊນ.ນວ/ບຫ",
-  //   title: "ອຸປະກອນສະຫນັກບໍລິການ",
-  //   company: "HAL Service",
-  //   amount: 3200000,
-  //   items: 15,
-  //   deliveryPoint: "ສານະການສົ່ງສິນຄ້າ",
-  //   urgency: "normal",
-  //   requestDate: "2024-11-05",
-  //   requester: "ເດືອນ ໄຊຍະພອນ",
-  //   department: "ພະແນກຊີການລູກຄ້າ",
-  //   status: "rejected",
-  // },
-  // {
-  //   id: "ITM006",
-  //   requestNumber: "1298/ຈຊນ.ນວ/ບຫ",
-  //   title: "ລົດຂົນສົ່ງໃໝ່",
-  //   company: "HAL Logistics",
-  //   amount: 4500000,
-  //   items: 7,
-  //   deliveryPoint: "ສານະສຳນັກງານສາຂາ",
-  //   urgency: "high",
-  //   requestDate: "2024-11-06",
-  //   requester: "ບຸນມີ ຄຳສອນ",
-  //   department: "ພະແນກຂົນສົ່ງ",
-  //   status: "pending",
-  // },
-  // {
-  //   id: "ITM007",
-  //   requestNumber: "1299/ຈຊນ.ນວ/ບຫ",
-  //   title: "ວັດຖຸກໍ່າສ້າງ",
-  //   company: "HAL Construction",
-  //   amount: 6700000,
-  //   items: 10,
-  //   deliveryPoint: "ໜ່ານກໍ່າສ້າງ",
-  //   urgency: "normal",
-  //   requestDate: "2024-11-07",
-  //   requester: "ສົມພັນ ວົງສະຫາດ",
-  //   department: "ພະແນກວັດຖຸກໍ່າສ້າງ",
-  //   status: "pending",
-  // },
-  // Add more items for testing scroll functionality
-//   {
-//     id: "ITM008",
-//     requestNumber: "1300/ຈຊນ.ນວ/ບຫ",
-//     title: "ຄອມພິວເຕີ້ໃໝ່",
-//     company: "HAL ບໍລິສັດ",
-//     amount: 3500000,
-//     items: 4,
-//     deliveryPoint: "ສານະສຳນັກງານສາຂາ",
-//     urgency: "normal",
-//     requestDate: "2024-11-08",
-//     requester: "ສົມມານ ວົງສາ",
-//     department: "ພະແນກ IT",
-//     status: "pending",
-//   },
-//   {
-//     id: "ITM009",
-//     requestNumber: "REQ-2024-009",
-//     title: "ໂຕະຖັງສະຫມຸດ",
-//     company: "HAL Tech",
-//     amount: 1800000,
-//     items: 8,
-//     deliveryPoint: "ສານະຫົວໜ້າບໍລິສັດ",
-//     urgency: "normal",
-//     requestDate: "2024-11-09",
-//     requester: "ຄຳເບົາ ດວງສະຫວັນ",
-//     department: "ພະແນກຊື້",
-//     status: "pending",
-//   },
-//   {
-//     id: "ITM010",
-//     requestNumber: "REQ-2024-010",
-//     title: "ເຄື່ອງໃຊ້ໃນສຳນັກງານ",
-//     company: "HAL Energy",
-//     amount: 2200000,
-//     items: 20,
-//     deliveryPoint: "ຄັງສົ່ງສິນຄ້າ B",
-//     urgency: "normal",
-//     requestDate: "2024-11-10",
-//     requester: "ໄຊຍະພອນ ຄຳພອນ",
-//     department: "ພະແນກຊື້",
-//     status: "pending",
-//   },
-//   {
-//     id: "ITM011",
-//     requestNumber: "REQ-2024-011",
-//     title: "ອຸປະກອນຊັກລ້ຽງ",
-//     company: "HAL Service",
-//     amount: 1500000,
-//     items: 6,
-//     deliveryPoint: "ສານະສຳນັກງານໃຫຍ່",
-//     urgency: "normal",
-//     requestDate: "2024-11-11",
-//     requester: "ມາລີ ວົງສາ",
-//     department: "ພະແນກຄວາມສະອາດ",
-//     status: "pending",
-//   },
-//   {
-//     id: "ITM012",
-//     requestNumber: "REQ-2024-012",
-//     title: "ອຸປະກອນແມ່ນ້ຳ",
-//     company: "HAL Logistics",
-//     amount: 800000,
-//     items: 5,
-//     deliveryPoint: "ສານະສຳນັກງານສາຂາ",
-//     urgency: "high",
-//     requestDate: "2024-11-12",
-//     requester: "ສົມພັນ ອິນທະວົງ",
-//     department: "ພະແນກຊື້",
-//     status: "pending",
-//   },
-//   {
-//     id: "ITM013",
-//     requestNumber: "REQ-2024-013",
-//     title: "ສານແດນ",
-//     company: "HAL Construction",
-//     amount: 9200000,
-//     items: 15,
-//     deliveryPoint: "ໜ່ານກໍ່າສ້າງ",
-//     urgency: "high",
-//     requestDate: "2024-11-13",
-//     requester: "ບຸນມີ ຄຳສອນ",
-//     department: "ພະແນກຊື້",
-//     status: "pending",
-//   },
-//   {
-//     id: "ITM014",
-//     requestNumber: "REQ-2024-014",
-//     title: "ໂຄງການເຄື່ອງໃນຫ້ອງການ",
-//     company: "HAL ບໍລິສັດ",
-//     amount: 4300000,
-//     items: 9,
-//     deliveryPoint: "ສານະສຳນັກງານໃຫຍ່",
-//     urgency: "normal",
-//     requestDate: "2024-11-14",
-//     requester: "ສົມມານ ວົງສາ",
-//     department: "ພະແນກບໍາລຸງຕົວເອງ",
-//     status: "pending",
-//   },
-//   {
-//     id: "ITM015",
-//     requestNumber: "REQ-2024-015",
-//     title: "ລະບົບລັກພາ",
-//     company: "HAL Tech",
-//     amount: 5600000,
-//     items: 3,
-//     deliveryPoint: "ສານະຫົວໜ້າບໍລິສັດ",
-//     urgency: "high",
-//     requestDate: "2024-11-15",
-//     requester: "ຄຳເບົາ ດວງສະຫວັນ",
-//     department: "ພະແນກປະຕິບັດ",
-//     status: "pending",
-//   },
-// ];
+// State for file uploads
+const hasUploadedFiles = ref(false);
+
+// Perform approval API call
+const performApproval = async (otpCode?: string) => {
+  if (!pendingApprovalData.value || !pendingApprovalData.value.receiptId || !pendingApprovalData.value.stepId) {
+    error("ຜິດພາດ", "ຂໍ້ມູນອະນຸມັດບໍ່ຄົບຖ້ວນ");
+    return;
+  }
+
+  try {
+    isProcessingApproval.value = true;
+
+    // Fix: Always use the correct step ID (1253) for the API path parameter
+    // For OTP cases, API returns approval_id in response, but we still need the step ID for the URL
+    const stepIdForApi = pendingApprovalData.value.stepId; // This should be 1253, not 148
+    const approval_id = otpCode
+      ? approvalStepStore.otpResponse?.approval_id || stepIdForApi
+      : stepIdForApi;
+
+    console.log('🔍 Approval Data Debug:', {
+      hasOtpCode: !!otpCode,
+      stepId: pendingApprovalData.value.stepId,
+      receiptId: pendingApprovalData.value.receiptId,
+      otpResponseApprovalId: approvalStepStore.otpResponse?.approval_id,
+      finalApprovalId: approval_id,
+      willCallApi: `/api/approve-step/${stepIdForApi}`,
+      otpResponse: approvalStepStore.otpResponse
+    });
+
+    const approvalData = {
+      type: "r",
+      statusId: pendingApprovalData.value.action === 'approve' ? 2 : 3, // 2=Approved, 3=Rejected
+      approval_id: approval_id,
+      is_otp: pendingApprovalData.value.requiresOTP || false, // Send is_otp flag to backend
+      otp: otpCode || undefined,
+      remark: pendingApprovalData.value.action === 'reject' ? rejectReason.value : undefined,
+      files: pendingApprovalData.value.requiresFile ? [{ file_name: "uploaded_file.pdf" }] : undefined
+    };
+
+    // IMPORTANT: Always use step ID for both OTP and non-OTP cases
+    // The API path should always be /api/approve-step/{stepId} not /api/approve-step/{receiptId}
+    if (!pendingApprovalData.value.requiresOTP) {
+      console.log('🔧 Using approvalReceiptHalGroup with step ID:', stepIdForApi);
+      await receiptStore.approvalReceiptHalGroup(approvalData);
+    } else {
+      // FIX: Use step ID instead of receipt ID for OTP cases too
+      console.log('🔧 Using approvalReceipt with STEP ID (was receiptId):', stepIdForApi);
+      await receiptStore.approvalReceipt(
+        stepIdForApi, // Use stepId (1253) instead of receiptId (148)
+        approvalData
+      );
+    }
+
+    // Success
+    const actionText = pendingApprovalData.value.action === 'approve' ? 'ອະນຸມັດ' : 'ປະຕິເສດ';
+    warning("ສຳເລັດ", `${actionText}ແລ້ວ ${pendingApprovalData.value.ids.length} ລາຍການ`);
+
+    // Clear data
+    selectedRequests.value = [];
+    pendingApprovalData.value = null;
+    showOtpModal.value = false;
+    currentDocument.value = null;
+
+    // Refresh data
+    await receiptStore.fetchAll({ page: 1, limit: 100 });
+  } catch (err) {
+    console.error("Approval failed:", err);
+    error("ອະນຸມັດລົ້ມເຫລວ", "ບໍ່ສາມາດອະນຸມັດໄດ້");
+  } finally {
+    isProcessingApproval.value = false;
+  }
+};
 
 // Use receipts data directly (from step.json structure)
+
+
 const itemDetails = computed(() => {
   // Use receipts from receipt store
   return receiptStore.receipts.map(receipt => {
@@ -316,7 +199,7 @@ const itemDetails = computed(() => {
     const status = statusId === 2 ? 'approved' : statusId === 3 ? 'rejected' : 'pending';
 
     return {
-      id: receipt.receipt_number || receipt.id.toString(),
+      id: receipt.id.toString(), // Use receipt.id consistently
       requestNumber: receipt.receipt_number || receipt.id.toString(),
       title: receipt.remark || receipt.po_number || 'ບໍ່ມີຫົວຂໍ້',
       company: companyName,
@@ -328,7 +211,7 @@ const itemDetails = computed(() => {
       requester: `ຜູ້ຮັບ ID: ${receipt.received_by}`,
       department: receipt.document?.department?.name || `ພະແນກ ${receipt.document?.department_id}`,
       status: status as 'pending' | 'approved' | 'rejected',
-      documentId: receipt.document_id?.toString() || receipt.id.toString(),
+      documentId: receipt.id.toString(), // Keep as string for interface
       companyId: companyId,
       // Additional fields from receipts
       poNumber: receipt.po_number,
@@ -550,8 +433,12 @@ const toggleSelectAll = () => {
 const handleRowClick = async (item: ItemDetail) => {
   selectedRequests.value = [item.id];
 
-  // Fetch full receipt details by id (like step.json)
-  await receiptStore.fetchById(item.id);
+  // Use the actual numeric ID instead of receipt_number for API call
+  const actualId = item.documentId || item.id;
+  console.log('Fetching receipt with ID:', actualId, 'instead of receipt_number:', item.id);
+
+  // Fetch full receipt details by numeric id
+  await receiptStore.fetchById(actualId);
   const document = receiptStore.currentReceipts;
 
   if (document) {
@@ -574,31 +461,222 @@ const handleRowClick = async (item: ItemDetail) => {
     if (document.user_approval?.approval_step) {
       const currentStep = document.user_approval.approval_step.find((step: any) => step.status_id === 1);
       if (currentStep) {
+        console.log('Current approval step ID:', currentStep.id); // This should be 1225
         console.log('Current approval step:', currentStep);
         console.log('Next approvers:', currentStep.doc_approver);
         console.log('Requires file upload:', currentStep.requires_file_upload);
         console.log('Requires OTP:', currentStep.is_otp);
+        console.log('----------------------------------');
+        console.log('All approval steps:');
+        document.user_approval.approval_step.forEach((step: any, index: number) => {
+          console.log(`Step ${index}: id=${step.id}, status_id=${step.status_id}, step_number=${step.step_number}`);
+        });
       }
     }
   }
 };
 
 // Handle approve
-const handleApprove = () => {
-  if (selectedRequests.value.length > 0) {
-    // Store pending approval data and show OTP modal directly for approval
-    pendingApprovalData.value = {
-      ids: [...selectedRequests.value],
-      action: 'approve'
-    };
-    showOtpModal.value = true;
+const handleApprove = async () => {
+  if (selectedRequests.value.length > 0 && currentDocument.value) {
+    try {
+      // Get the receipt ID and current approval step ID
+      const receiptId = Number(currentDocument.value.id);
+
+      // Find current approval step for this user
+      const userId = user.value?.id;
+      console.log('🔍 Looking for approval steps...');
+      console.log('User ID:', userId);
+      console.log('Approval Steps:', currentDocument.value.user_approval?.approval_step);
+
+      const currentStep = currentDocument.value.user_approval?.approval_step?.find(
+        (step) => {
+          console.log(`Checking step ${step.id}:`, {
+            status_id: step.status_id,
+            doc_approvers: step.doc_approver?.map(d => ({
+              userId: d.user?.id,
+              user: d.user
+            }))
+          });
+          return step.status_id === 1 &&
+          step.doc_approver?.some((doc) => doc.user?.id === userId);
+        }
+      );
+
+      console.log('Found current step:', currentStep);
+
+      if (!currentStep) {
+        // Try to find step by step_number logic (for debugging)
+        const step2 = currentDocument.value.user_approval?.approval_step?.find(
+          (step) => step.step_number === 2 && step.status_id === 1
+        );
+        if (step2) {
+          console.warn('🔧 Found step 2 instead (ID should be 1229, not 143):', step2);
+          console.log('✅ Using step 2 ID:', step2.id, 'as approval step');
+          // Force to use step2
+          let foundStep = step2;
+
+          // Check if file upload is required
+          const requiresFile = foundStep.requires_file_upload;
+          if (requiresFile && !hasUploadedFiles.value) {
+            error("ຕ້ອງອັບໂຫຼດໄຟລ໌", "ກະລຸນາອັບໂຫຼດໄຟລ໌ທີ່ຕ້ອງກ່ອນ");
+            return;
+          }
+
+          // Store pending approval data with actual step ID (should be 1229)
+          pendingApprovalData.value = {
+            ids: [...selectedRequests.value],
+            action: 'approve',
+            receiptId,
+            stepId: foundStep.id, // This should be 1229
+            requiresFile,
+            requiresOTP: foundStep.is_otp // This will be false
+          };
+
+          console.log('Pending Approval Data (using step2):', pendingApprovalData.value);
+
+          // Explicitly check if OTP is required for step2
+          if (foundStep.is_otp === true) {
+            console.log('📲 OTP is required (step2) - sending OTP request');
+            try {
+              const otpData = await approvalStepStore.sendOtp(foundStep.id);
+              if (otpData) {
+                showOtpModal.value = true;
+              } else {
+                error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
+              }
+            } catch (err) {
+              console.error("Error sending OTP (step2):", err);
+              error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
+            }
+          } else {
+            console.log('✅ No OTP required (step2) - showing signature modal');
+            showSignatureModal.value = true;
+          }
+          return;
+        } else {
+          console.error('❌ No step 2 found either');
+        }
+      }
+
+      if (!currentStep) {
+        console.error('❌ No approval step found for user:', {
+          userId,
+          availableSteps: currentDocument.value.user_approval?.approval_step?.map(s => ({
+            id: s.id,
+            step_number: s.step_number,
+            status_id: s.status_id,
+            approvers: s.doc_approver?.map(d => d.user?.id)
+          }))
+        });
+        error("ບໍ່ສາມາດອະນຸມັດ", "ບໍ່ພົບຂັ້ນຕອນອະນຸມັດທີ່ທ່ານສາມາດອະນຸມັດໄດ້");
+        return;
+      }
+
+      // Check if file upload is required
+      const requiresFile = currentStep.requires_file_upload;
+      if (requiresFile && !hasUploadedFiles.value) {
+        error("ຕ້ອງອັບໂຫຼດໄຟລ໌", "ກະລຸນາອັບໂຫຼດໄຟລ໌ທີ່ຕ້ອງການກ່ອນ");
+        return;
+      }
+
+      // Debug log
+      console.log('=== APPROVAL DEBUG ===');
+      console.log('Current Step:', {
+        id: currentStep.id,
+        step_number: currentStep.step_number,
+        is_otp: currentStep.is_otp,
+        is_otp_type: typeof currentStep.is_otp,
+        requires_file_upload: currentStep.requires_file_upload
+      });
+
+      // Check OTP requirement
+      const requiresOtp = currentStep.is_otp === true;
+      console.log('🔍 OTP Check:', {
+        'currentStep.is_otp': currentStep.is_otp,
+        'currentStep.is_otp === true': requiresOtp,
+        'typeof currentStep.is_otp': typeof currentStep.is_otp,
+        'willShowOtpModal': requiresOtp,
+        'willShowSignatureModal': !requiresOtp
+      });
+
+      // Store pending approval data with actual step ID (1229)
+      pendingApprovalData.value = {
+        ids: [...selectedRequests.value],
+        action: 'approve',
+        receiptId,
+        stepId: currentStep.id, // This will be 1229
+        requiresFile,
+        requiresOTP: currentStep.is_otp // This will be false
+      };
+
+      console.log('Pending Approval Data:', pendingApprovalData.value);
+
+      // Explicitly check if OTP is required (must be exactly true)
+      if (currentStep.is_otp === true) {
+        console.log('📲 OTP is required - sending OTP request');
+        try {
+          const otpData = await approvalStepStore.sendOtp(currentStep.id);
+          if (otpData) {
+            showOtpModal.value = true;
+          } else {
+            error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
+          }
+        } catch (err) {
+          console.error("Error sending OTP:", err);
+          error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
+        }
+      } else {
+        console.log('✅ No OTP required - showing signature modal');
+        showSignatureModal.value = true;
+      }
+    } catch (err) {
+      console.error("Error preparing approval:", err);
+      error("ຜິດພາດ", "ບໍ່ສາມາດດຳເນີນການອະນຸມັດ");
+    }
   }
 };
 
 // Handle reject - show reject modal first
-const handleReject = () => {
-  if (selectedRequests.value.length > 0) {
-    isRejectModalVisible.value = true;
+const handleReject = async () => {
+  if (selectedRequests.value.length > 0 && currentDocument.value) {
+    try {
+      // Get the receipt ID and current approval step ID
+      const receiptId = Number(currentDocument.value.id);
+
+      // Find current approval step for this user
+      const userId = user.value?.id;
+      const currentStep = currentDocument.value.user_approval?.approval_step?.find(
+        (step) => step.status_id === 1 &&
+        step.doc_approver?.some((doc) => doc.user?.id === userId)
+      );
+
+      if (!currentStep) {
+        error("ບໍ່ສາມາດປະຕິເສດ", "ບໍ່ພົບຂັ້ນຕອນອະນຸມັດທີ່ທ່ານສາມາດປະຕິເສດໄດ້");
+        return;
+      }
+
+      // Store pending approval data
+      pendingApprovalData.value = {
+        ids: [...selectedRequests.value],
+        action: 'reject',
+        receiptId,
+        stepId: currentStep.id,
+        requiresFile: currentStep.requires_file_upload,
+        requiresOTP: currentStep.is_otp
+      };
+
+      if (currentStep.is_otp) {
+        // Show reject modal first, then OTP
+        isRejectModalVisible.value = true;
+      } else {
+        // Show reject modal first
+        isRejectModalVisible.value = true;
+      }
+    } catch (err) {
+      console.error("Error preparing rejection:", err);
+      error("ຜິດພາດ", "ບໍ່ສາມາດດຳເນີນການປະຕິເສດ");
+    }
   }
 };
 
@@ -609,14 +687,26 @@ const handleRejectConfirm = async () => {
     return;
   }
 
-  // Store pending approval data and show OTP modal for rejection
-  pendingApprovalData.value = {
-    ids: [...selectedRequests.value],
-    action: 'reject'
-  };
-
+  // Close reject modal
   isRejectModalVisible.value = false;
-  showOtpModal.value = true;
+
+  if (pendingApprovalData.value?.requiresOTP) {
+    console.log('📲 OTP is required for rejection - sending OTP request');
+    try {
+      const otpData = await approvalStepStore.sendOtp(pendingApprovalData.value.stepId!);
+      if (otpData) {
+        showOtpModal.value = true;
+      } else {
+        error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
+      }
+    } catch (err) {
+      console.error("Error sending OTP for rejection:", err);
+      error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
+    }
+  } else {
+    // Show signature modal for rejection
+    showSignatureModal.value = true;
+  }
 };
 
 // Get selected request details
@@ -625,6 +715,62 @@ const selectedRequestDetails = computed(() => {
     return itemDetails.value.find((item) => item.id === selectedRequests.value[0]);
   }
   return null;
+});
+
+// Check if any selected requests can be approved by current user
+const canApproveSelected = computed(() => {
+  if (selectedRequests.value.length === 0) return false;
+
+  return selectedRequests.value.every(requestId => {
+    const receipt = receiptStore.receipts.find(r => r.id === requestId);
+    if (!receipt) return false;
+
+    // Check if user is approver for this receipt
+    const userId = user.value?.id;
+    if (!userId) return false;
+
+    return receipt.user_approval?.approval_step?.some(step =>
+      step.status_id === 1 && // pending step
+      step.doc_approver?.some(approver => approver.user?.id === userId)
+    ) ?? false;
+  });
+});
+
+// Check if current user can approve the selected single document
+const canApproveDocument = computed(() => {
+  if (!selectedRequestDetails.value || selectedRequests.value.length !== 1) {
+    console.log('🚫 No selected request details or multiple selections');
+    return false;
+  }
+
+  // Get receipt data from store using the selected request ID (more reliable)
+  const receipt = receiptStore.receipts.find(r => r.id.toString() === selectedRequests.value[0]);
+  if (!receipt) {
+    console.log('🚫 No receipt found for request ID:', selectedRequests.value[0]);
+    return false;
+  }
+
+  // Check if user is approver for this receipt
+  const userId = user.value?.id;
+  if (!userId) {
+    console.log('🚫 No user ID');
+    return false;
+  }
+
+  const canApprove = receipt.user_approval?.approval_step?.some(step =>
+    step.status_id === 1 && // pending step
+    step.doc_approver?.some(approver => approver.user?.id === userId)
+  ) ?? false;
+
+  console.log('🔍 User Approval Check:', {
+    userId,
+    requestId: selectedRequests.value[0],
+    receiptId: receipt.id,
+    approvalSteps: receipt.user_approval?.approval_step,
+    canApprove
+  });
+
+  return canApprove;
 });
 // Handle next
 const handleNext = () => {
@@ -699,40 +845,15 @@ const handleOtpConfirm = async (otpCode: string) => {
 
   otpLoading.value = true;
   try {
-    // Simulate OTP verification API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Use the real approval API
+    await performApproval(otpCode);
 
-    const { ids, action } = pendingApprovalData.value;
+    // Store action type before clearing data
+    successActionType.value = pendingApprovalData.value?.action || undefined;
 
-    if (action === 'approve') {
-      // Clear selection and close modal
-      selectedRequests.value = [];
-      showOtpModal.value = false;
-      pendingApprovalData.value = null;
-
-      // Show success message
-      warning("ອະນຸມັດສຳເລັດ", `ອະນຸມັດ ${ids.length} ລາຍກາສຳເລັດ`);
-
-      // Emit to parent
-      emit("approve", ids);
-    } else if (action === 'reject') {
-      // Clear selection and close modal
-      selectedRequests.value = [];
-      showOtpModal.value = false;
-      pendingApprovalData.value = null;
-
-      // Show success message with reason
-      warning("ປະຕິເສດສຳເລັດ", `ປະຕິເສດ ${ids.length} ລາຍກາສຳເລັດ: ${rejectReason.value}`);
-
-      // Clear reject reason
-      rejectReason.value = "";
-
-      // Emit to parent
-      emit("reject", ids);
-    }
-
-    // Refresh store data to get updated statuses
-    await companyReportsStore.loadCompanyReports();
+    // Success - Show success modal
+    showOtpModal.value = false;
+    showSuccessModal.value = true;
   } catch (err) {
     console.error("OTP verification failed:", err);
     error("ການຢັ້ງຢືນ OTP ລົ້ມເຫລວ", "ກະລຸນາລອງ OTP ໃໝ່ອີກຄັ້ງ");
@@ -745,6 +866,79 @@ const handleOtpConfirm = async (otpCode: string) => {
 const handleOtpClose = () => {
   showOtpModal.value = false;
   pendingApprovalData.value = null;
+};
+
+// Handle modal close (for both OTP and Signature modals)
+
+
+// Handle signature confirmation
+const handleSignatureConfirm = async () => {
+  try {
+    otpLoading.value = true;
+
+    // Debug: Check what data we have before performing approval
+    console.log('🔍 Signature Confirmation Debug:', {
+      requiresOTP: pendingApprovalData.value?.requiresOTP,
+      receiptId: pendingApprovalData.value?.receiptId,
+      stepId: pendingApprovalData.value?.stepId,
+      willCallApprovalHalGroup: !pendingApprovalData.value?.requiresOTP,
+      approval_id_will_be_sent: pendingApprovalData.value?.stepId, // This should be 1253, not 148
+      full_pending_data: pendingApprovalData.value
+    });
+
+    // Clear warning before calling API
+    console.warn('⚠️ ABOUT TO CALL API - CHECKING FINAL PARAMETERS:');
+    console.warn('✅ Expected API call: /api/approve-step/' + pendingApprovalData.value?.stepId);
+    console.warn('❌ Wrong API call would be: /api/approve-step/' + pendingApprovalData.value?.receiptId);
+
+    // Perform approval after signature confirmation
+    await performApproval();
+
+    // Store action type before clearing data
+    successActionType.value = pendingApprovalData.value?.action || undefined;
+
+    showSignatureModal.value = false;
+    showSuccessModal.value = true;
+  } catch (err) {
+    console.error(err);
+    error("ການຢືນຢັນລາຍເຊັນລົ້ມເຫລວ");
+  } finally {
+    otpLoading.value = false;
+  }
+};
+
+const handleSignatureClose = () => {
+  showSignatureModal.value = false;
+};
+
+// Handle success modal confirmation
+const handleSuccessConfirm = async () => {
+  try {
+    // Clear data and refresh after success confirmation
+    const actionText = pendingApprovalData.value?.action === 'approve' ? 'ອະນຸມັດ' : 'ປະຕິເສດ';
+    warning("ສຳເລັດ", `${actionText}ແລ້ວ ${pendingApprovalData.value?.ids.length || 0} ລາຍການ`);
+
+    // Clear data
+    selectedRequests.value = [];
+    pendingApprovalData.value = null;
+    currentDocument.value = null;
+
+    // Refresh data
+    await receiptStore.fetchAll({ page: 1, limit: 100 });
+
+    // Refresh store data to get updated statuses
+    await companyReportsStore.loadCompanyReports();
+
+    showSuccessModal.value = false;
+  } catch (err) {
+    console.error("Error refreshing data:", err);
+    showSuccessModal.value = false;
+  }
+};
+
+const handleSuccessClose = () => {
+  showSuccessModal.value = false;
+  successActionType.value = undefined;
 };
 
 // Handle OTP resend
@@ -765,21 +959,6 @@ const handleRejectCancel = () => {
   rejectReason.value = "";
 };
 
-// Handle print action
-const handlePrint = () => {
-  globalThis.print();
-};
-
-// Approval handlers
-const handleDocumentApprove = async (data?: any) => {
-  if (!approvalLogic.value) return false;
-  return await approvalLogic.value.handleApprove(data);
-};
-
-const handleDocumentReject = async (reason: string) => {
-  if (!approvalLogic.value) return false;
-  return await approvalLogic.value.handleReject(reason);
-};
 </script>
 
 <template>
@@ -849,7 +1028,7 @@ const handleDocumentReject = async (reason: string) => {
             <span class="text-sm font-medium">ເລືອກທັງໝົດ ({{ selectedRequests.length }})</span>
           </label>
           <button
-            v-if="selectedRequests.length > 0"
+            v-if="selectedRequests.length > 0 && canApproveSelected"
             @click="handleBatchApprove"
             class="px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
           >
@@ -1153,6 +1332,7 @@ const handleDocumentReject = async (reason: string) => {
         </div>
         <div class="grid grid-cols-2 gap-3">
           <button
+            v-if="canApproveDocument"
             @click="handleReject"
             class="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
           >
@@ -1160,6 +1340,7 @@ const handleDocumentReject = async (reason: string) => {
             ປະຕິເສດ
           </button>
           <button
+            v-if="canApproveDocument"
             @click="handleApprove"
             class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
           >
@@ -1212,6 +1393,23 @@ const handleDocumentReject = async (reason: string) => {
       @confirm="handleOtpConfirm"
       @close="handleOtpClose"
       @resend="handleOtpResend"
+    />
+
+    <!-- Signature Modal -->
+    <SignatureModal
+      :visible="showSignatureModal"
+      :title="pendingApprovalData?.action === 'reject' ? 'ຢືນຢັນການປະຕິເສດ' : 'ຢືນຢັນການອະນຸມັດ'"
+      :loading="otpLoading"
+      @confirm="handleSignatureConfirm"
+      @close="handleSignatureClose"
+    />
+
+    <!-- Success Confirmation Modal -->
+    <SuccessConfirmModal
+      :visible="showSuccessModal"
+      :action-type="successActionType"
+      @confirm="handleSuccessConfirm"
+      @close="handleSuccessClose"
     />
   </div>
 </template>

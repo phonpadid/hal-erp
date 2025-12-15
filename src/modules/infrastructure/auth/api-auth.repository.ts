@@ -40,15 +40,16 @@ export class ApiAuthRepository implements AuthRepository {
       user.username,
       user.email,
       user.tel,
-      user.roles,
-      user.permission,
       user.department_name,
       user.signature,
+      user.roles,
+      user.permission,
       user.user_type,
       user.created_at,
       user.updated_at,
       user.deleted_at,
-      access_token
+      access_token,
+      user.company
     );
   }
 

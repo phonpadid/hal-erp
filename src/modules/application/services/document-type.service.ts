@@ -23,7 +23,11 @@ export class DocumentTypeServiceImpl implements DocumentTypeServices {
     params: PaginationParams,
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<DocumentTypeEntity>> {
-    return await this.documentTypeRepository.findAll(params, includeDeleted);
+    
+
+    const result = await this.documentTypeRepository.findAll(params, includeDeleted);
+
+    return result;
   }
 
   async getDocumentTypeById(id: string): Promise<DocumentTypeEntity | null> {

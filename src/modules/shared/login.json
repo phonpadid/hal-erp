@@ -1,0 +1,63 @@
+{
+    "status_code": 201,
+    "message": "Operation completed successfully",
+    "data": {
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRvdSIsInN1YiI6MTE1LCJpYXQiOjE3NjU3Nzk3MzUsImV4cCI6MTc2ODM3MTczNX0.YhoWaH2_YD862oTQWm3GZzx93k2xTNdbe3hWEy4luEk",
+        "user": {
+            "id": 115,
+            "username": "tou",
+            "email": "tou@gmail.com",
+            "password": "$2b$10$tZbqjP1vCrhah1pWivgi9.HcnE87jEHCBs2QxgYynMWnQJlGz8xke",
+            "tel": "2055084306",
+            "created_at": "2025-12-09T14:44:03.000Z",
+            "updated_at": "2025-12-10T14:10:16.000Z",
+            "deleted_at": null,
+            "roles": [
+                "finance-user"
+            ],
+            "permission": [
+                "create-purchase-request",
+                "read-purchase-request",
+                "update-purchase-request",
+                "create-purchase-request-item",
+                "read-purchase-request-item",
+                "create-purchase-order",
+                "read-purchase-order",
+                "update-purchase-order",
+                "delete-purchase-order",
+                "create-purchase-order-item",
+                "read-purchase-order-item",
+                "update-purchase-order-item",
+                "read-department-approver",
+                "update-department-approver",
+                "delete-department-approver",
+                "delete-purchase-request",
+                "update-purchase-request-item",
+                "delete-purchase-request-item",
+                "delete-purchase-order-item",
+                "create-purchase-selected-vendor",
+                "read-purchase-selected-vendor",
+                "update-purchase-selected-vendor",
+                "delete-purchase-selected-vendor",
+                "create-receipt",
+                "read-receipt",
+                "update-receipt",
+                "delete-receipt",
+                "create-receipt-item",
+                "read-receipt-item",
+                "update-receipt-item",
+                "delete-receipt-item",
+                "write-department-approver"
+            ],
+            "user_type": [
+                "department"
+            ],
+            "department_name": "ການເງິນ",
+            "signature": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
+            "company": {
+                "id": 22,
+                "name": "Hal-tech"
+            }
+        }
+    }
+}

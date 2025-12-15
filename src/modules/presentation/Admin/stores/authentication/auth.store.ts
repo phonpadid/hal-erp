@@ -64,8 +64,14 @@ export const useAuthStore = defineStore("auth", () => {
           department_name: result.getDepartmentName(),
           signature: result.getSignature(),
           user_type: result.getUserType(),
+          company: result.getCompany(),
         })
       );
+
+      // Store company data separately
+      if (result.getCompany()) {
+        localStorage.setItem("userCompany", JSON.stringify(result.getCompany()));
+      }
 
       success("ສຳເລັດ", "ເຂົ້າສູ່ລະບົບສຳເລັດແລ້ວ");
       router.push("/dashboard");
@@ -91,6 +97,7 @@ export const useAuthStore = defineStore("auth", () => {
 
       localStorage.removeItem("accessToken");
       localStorage.removeItem("userData");
+      localStorage.removeItem("userCompany");
       localStorage.removeItem("userPermissions");
       localStorage.removeItem("userRoles");
       localStorage.removeItem("userType");
@@ -107,6 +114,7 @@ export const useAuthStore = defineStore("auth", () => {
   const initializeUser = () => {
     const token = localStorage.getItem("accessToken");
     const userData = localStorage.getItem("userData");
+    const userCompany = localStorage.getItem("userCompany");
     const storedPermissions = localStorage.getItem("userPermissions");
     const storedRoles = localStorage.getItem("userRoles");
     const storedUserType = localStorage.getItem("userType");
@@ -114,6 +122,7 @@ export const useAuthStore = defineStore("auth", () => {
         if (token && userData && storedPermissions && storedRoles) {
     // userType is optional for backward compatibility
       const parsedUser = JSON.parse(userData);
+      const companyData = userCompany ? JSON.parse(userCompany) : null;
       const permissions = JSON.parse(storedPermissions);
       const roles = JSON.parse(storedRoles);
       const user_type = storedUserType ? JSON.parse(storedUserType) : [];
@@ -131,7 +140,8 @@ export const useAuthStore = defineStore("auth", () => {
         parsedUser.created_at,
         parsedUser.updated_at,
         parsedUser.deleted_at,
-        token
+        token,
+        companyData
       );
       userPermissions.value = permissions;
       userRoles.value = roles;
@@ -151,6 +161,26 @@ export const useAuthStore = defineStore("auth", () => {
   const isCompanyAdmin = computed(() => userRoles.value.includes("company-admin"));
   const isCompanyUser = computed(() => userRoles.value.includes("company-user"));
 
+  // Get company data from localStorage
+  const getCompanyData = () => {
+    const userCompany = localStorage.getItem("userCompany");
+    return userCompany ? JSON.parse(userCompany) : null;
+  };
+
+  const userCompany = computed(() => getCompanyData());
+
+  const getCompanyId = computed(() => {
+  const id = userCompany.value?.id || null;
+  console.log("🔑 AuthStore.getCompanyId computed:", id);
+  return id;
+});
+
+  const getCompanyName = computed(() => {
+  const name = userCompany.value?.name || '';
+  console.log("🔑 AuthStore.getCompanyName computed:", name);
+  return name;
+  });
+
   initializeUser();
 
   return {
@@ -158,6 +188,9 @@ export const useAuthStore = defineStore("auth", () => {
     userPermissions,
     userRoles,
     userType,
+    userCompany,
+    getCompanyId,
+    getCompanyName,
     loading,
     error,
     login,

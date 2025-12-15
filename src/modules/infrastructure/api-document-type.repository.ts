@@ -16,16 +16,27 @@ export class ApiDocumentTypeRepository implements DocumentTypeRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<DocumentTypeEntity>> {
     try {
+      // console.log("🔍 ApiDocumentTypeRepository.findAll called with params:", params);
+
+      const apiParams = {
+        page: params.page || 1,
+        limit: params.limit || 10,
+        column: params.column || "id",
+        sort_order: params.sort_order || "DESC",
+        search: params.search || "",
+        sort_by: params.sortBy,
+        sortDirection: params.sortDirection,
+        include_deleted: includeDeleted,
+        company_id: params.company_id,
+      };
+
+      // console.log("📤 API Params being sent:", apiParams);
+
       const response = await api.get(this.baseUrl, {
-        params: {
-          page: params.page || 1,
-          limit: params.limit || 10,
-          search: params.search || "",
-          sort_by: params.sortBy,
-          sortDirection: params.sortDirection,
-          include_deleted: includeDeleted,
-        },
+        params: apiParams,
       });
+
+      // console.log("📥 API Response:", response.config.url);
 
       return {
         data: response.data.data.map((documentType: unknown) => this.toDomainModel(documentType)),

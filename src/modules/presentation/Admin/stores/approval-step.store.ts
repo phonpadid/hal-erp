@@ -231,6 +231,12 @@ export const useApprovalStepStore = defineStore("approval-step", () => {
       if (response) {
         otpResponse.value = response;
 
+        console.log('🔍 OTP Response Debug:', {
+          requestStepId: approvalStepId,
+          responseApprovalId: response.approval_id,
+          fullResponse: response
+        });
+
         showSuccess("ສຳເລັດ", "ສົ່ງ OTP ສຳເລັດ");
 
       }

@@ -22,7 +22,9 @@ export interface PaginationParams {
   start_date?: string;
   end_date?: string;
   company_id?: number;
-
+  // Additional parameters for document types
+  column?: string;
+  sort_order?: "asc" | "desc" | "ASC" | "DESC";
 }
 
 export interface APIResponse<T> {

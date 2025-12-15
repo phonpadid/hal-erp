@@ -6,6 +6,22 @@ export interface HalGroupBudgetItem {
   total: number;
 }
 
+export interface HalGroupStateData {
+  totalUsers: number;
+  totalReceipts: number;
+  totalReceiptsPadding: number;
+  allocated_amount: number;
+  increase_amount: number;
+  totalUsedAmount: number;
+  total_budget: number;
+}
+
+export interface HalGroupStateResponse {
+  status_code: number;
+  message: string;
+  data: HalGroupStateData;
+}
+
 export interface HalGroupBudgetData {
   amount: number;
   total: number;

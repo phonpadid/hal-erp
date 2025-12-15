@@ -1,11 +1,11 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Icon } from "@iconify/vue";
+import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
 import AffiliatedCompany from "../affiliated-company/AffiliatedCompany.vue";
-import ProposalList from "../proposal-list/ProposalList.vue";
 import BudgetList from "../budget-list/BudgetList.vue";
 import ApproveProposal from "../approve-proposal/ApproveProposal.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
@@ -15,6 +15,8 @@ type Company = {
   id: number;
   name: string;
   logo: string;
+  logo_url?: string;
+  logoUrl?: string;
   proposalCount: number;
   budget: number;
   budgetUsed: number;
@@ -29,6 +31,8 @@ type AffiliatedCompany = {
   id: number;
   name: string;
   logo: string;
+  logo_url?: string;
+  logoUrl?: string;
   proposalCount: number;
   budget: number;
   budgetUsed: number;
@@ -45,6 +49,7 @@ interface CompanyDetail {
   id: number;
   name: string;
   logo: string;
+  logoUrl:string;
   color: string;
   description: string;
   proposalCount: number;
@@ -63,6 +68,7 @@ interface CompanyDetail {
 
 const { warning } = useNotification();
 const route = useRoute();
+const receiptStore = useReceiptStore();
 
 // Props
 const props = defineProps<{
@@ -82,6 +88,13 @@ const showDetail = ref<boolean>(false);
 const selectedCompany = ref<CompanyDetail | Company | AffiliatedCompany | null>(null);
 const activeTab = ref<string>("proposals");
 const showApproveProposal = ref<boolean>(false);
+
+// Receipts search and filter state
+const receiptSearch = ref<string>("");
+const selectedStatus = ref<string>("");
+const selectedDateRange = ref<string>("");
+const currentPage = ref<number>(1);
+const itemsPerPage = ref<number>(10);
 
 // Helper functions to safely access company properties
 const getCompanyProperty = (property: string, fallback: any = '-') => {
@@ -104,7 +117,10 @@ const getCompanyProperty = (property: string, fallback: any = '-') => {
     'email': ['email', '-'],
     'director': ['director', '-'],
     'status': ['status', 'active'],
-    'contractType': ['contractType', 'annual']
+    'contractType': ['contractType', 'annual'],
+    'logo': ['logo', 'mdi:company'],
+    'logoUrl': ['logoUrl', 'logo_url'],
+    'logo_url': ['logo_url', 'logoUrl']
   };
 
   const possibleProperties = propertyMap[property] || [property];
@@ -117,208 +133,17 @@ const getCompanyProperty = (property: string, fallback: any = '-') => {
   return fallback;
 };
 
-// Get company detail from all companies
-const getCompanyDetail = (companyId: number): CompanyDetail | null => {
-  // Mock data for all 20 companies
-  const companies: CompanyDetail[] = [
-    {
-      id: 1,
-      name: "HAL ບໍລິສັດ",
-      logo: "mdi:company",
-      color: "blue",
-      description: "ບໍລິສັດບໍລິຫານຈັດການ ແລະ ການລົງທຶນຫຼາຍດ້ານ ທາງດ້ານອຸດສາຫະກຳ ແລະ ການບໍລິການ",
-      proposalCount: 45,
-      budget: 50000000,
-      budgetUsed: 55000000,
-      employees: 250,
-      establishedYear: 2015,
-      registrationNumber: "HAL-001-2015",
-      phone: "+856 21 123 456",
-      email: "info@hal-group.la",
-      address: "ຖະໜົນວຽງຈັນ, ເມືອງຈັນທະບູລີ, ນະຄອນຫຼວງວຽງຈັນ",
-      director: "ສົມສະຫວາດ ວົງສາ",
-      status: "active",
-      contractType: "annual",
-    },
-    {
-      id: 2,
-      name: "HAL Tech",
-      logo: "mdi:rocket-launch",
-      color: "green",
-      description: "ບໍລິສັດເຕັກໂນໂລຊີຊັ້ນນຳ ຈັດການດ້ານການພັດທະນາຊອບແວຊອບ ແລະ ໂຄງການດິຈິຕອນ",
-      proposalCount: 38,
-      budget: 40000000,
-      budgetUsed: 28000000,
-      employees: 180,
-      establishedYear: 2018,
-      registrationNumber: "HLT-002-2018",
-      phone: "+856 21 234 567",
-      email: "tech@hal-group.la",
-      address: "ຖະໜົນສີສະຫວັດ, ເມືອງໄຊທານີ, ນະຄອນຫຼວງວຽງຈັນ",
-      director: "ຄຳພອນ ໄຊຍະສາດ",
-      status: "active",
-      contractType: "annual",
-    },
-    {
-      id: 3,
-      name: "HAL Energy",
-      logo: "mdi:lightning-bolt",
-      color: "yellow",
-      description: "ບໍລິສັດຜະລິດ ແລະ ຈັດຈຳໜ່າຍພະລັງງານ ທັງພະລັງງານທົດແທນ ແລະ ພະລັງງານສະອາດ",
-      proposalCount: 52,
-      budget: 60000000,
-      budgetUsed: 75000000,
-      employees: 320,
-      establishedYear: 2016,
-      registrationNumber: "HLE-003-2016",
-      phone: "+856 21 345 678",
-      email: "energy@hal-group.la",
-      address: "ຖະໜົນໂພນສຸວັນ, ເມືອງຈັນທະບູລີ, ນະຄອນຫຼວງວຽງຈັນ",
-      director: "ມາລີ ດວງສະຫວັນ",
-      status: "active",
-      contractType: "project",
-    },
-    {
-      id: 4,
-      name: "HAL Service",
-      logo: "mdi:account-tie",
-      color: "purple",
-      description: "ບໍລິສັດບໍລິການຊັ້ນນຳ ຈັດການດ້ານການໃຫ້ບໍລິກາລະຊັບ ແລະ ການປຶກສາດ້ານຕ່າງໆ",
-      proposalCount: 29,
-      budget: 30000000,
-      budgetUsed: 22000000,
-      employees: 150,
-      establishedYear: 2017,
-      registrationNumber: "HLS-004-2017",
-      phone: "+856 21 456 789",
-      email: "service@hal-group.la",
-      address: "ຖະໜົນສີສະຫວັດ, ເມືອງຈັນທະບູລີ, ນະຄອນຫຼວງວຽງຈັນ",
-      director: "ບຸນທອນ ວົງສາ",
-      status: "active",
-      contractType: "service",
-    },
-    {
-      id: 5,
-      name: "HAL Logistics",
-      logo: "mdi:truck",
-      color: "orange",
-      description: "ບໍລິສັດຂົນສົ່ງສິນຄ້າ ແລະ ການຈັດການສາງຄ້າຊັ້ນນຳ ຄອບຄຸມທົ່ວປະເທດ",
-      proposalCount: 18,
-      budget: 25000000,
-      budgetUsed: 18000000,
-      employees: 120,
-      establishedYear: 2019,
-      registrationNumber: "HLL-005-2019",
-      phone: "+856 21 567 890",
-      email: "logistics@hal-group.la",
-      address: "ຖະໜົນສຸກສະຫວັນ, ເມືອງສີສັດຕະນະ, ນະຄອນຫຼວງວຽງຈັນ",
-      director: "ສີສຸດ ດວງສະຫວັນ",
-      status: "active",
-      contractType: "annual",
-    },
-    {
-      id: 6,
-      name: "HAL Construction",
-      logo: "mdi:hammer",
-      color: "red",
-      description: "ບໍລິສັດຮັບເໝົາກໍ່າສ້າງ ແລະ ກໍ່າສ້າງໂຄງການອຸດສາຫະກຳ ແລະ ສິ່ງປຸກສ້າງຕ່າງໆ",
-      proposalCount: 42,
-      budget: 55000000,
-      budgetUsed: 65000000,
-      employees: 280,
-      establishedYear: 2014,
-      registrationNumber: "HLC-006-2014",
-      phone: "+856 21 678 901",
-      email: "construction@hal-group.la",
-      address: "ຖະໜົນໂພນສຸວັນ, ເມືອງຫົວສາຍ, ນະຄອນຫຼວງວຽງຈັນ",
-      director: "ອິນທະວົງ ວົງສາ",
-      status: "active",
-      contractType: "project",
-    },
-    {
-      id: 7,
-      name: "HAL Agriculture",
-      logo: "mdi:tractor",
-      color: "teal",
-      description: "ບໍລິສັດການກະສິກຳ ແລະ ການປຸງຜະລິດທາງກະສິກຳ ສົ່ງເສີມປະກອນອາຫານ",
-      proposalCount: 25,
-      budget: 35000000,
-      budgetUsed: 25000000,
-      employees: 95,
-      establishedYear: 2020,
-      registrationNumber: "HLA-007-2020",
-      phone: "+856 21 789 012",
-      email: "agriculture@hal-group.la",
-      address: "ເມືອງຄຳມ່ວນ, ແຂວງວຽງຈັນ",
-      director: "ຄຳພອນ ດວງສະຫວັນ",
-      status: "active",
-      contractType: "annual",
-    },
-    {
-      id: 8,
-      name: "HAL Education",
-      logo: "mdi:school",
-      color: "indigo",
-      description: "ບໍລິສັດການສຶກສາ ແລະ ຝຶກອົບຮົມ ສະໜອງການຝຶກອົບຮົມທັງລະດັບ ແລະ ການປຶກສາ",
-      proposalCount: 33,
-      budget: 45000000,
-      budgetUsed: 30000000,
-      employees: 140,
-      establishedYear: 2018,
-      registrationNumber: "HLE-008-2018",
-      phone: "+856 21 890 123",
-      email: "education@hal-group.la",
-      address: "ຖະໜົນສີສະຫວັດ, ເມືອງໄຊທານີ, ນະຄອນຫຼວງວຽງຈັນ",
-      director: "ດວນໄຊ ວົງສາ",
-      status: "active",
-      contractType: "service",
-    },
-    {
-      id: 9,
-      name: "HAL Healthcare",
-      logo: "mdi:hospital",
-      color: "pink",
-      description: "ບໍລິສັດການປະກອບການສຸຂະພາບ ແລະ ການຄ້າ ສະຫນອງການປິ່ນປົວຍແລະຢາປະສົບ",
-      proposalCount: 48,
-      budget: 70000000,
-      budgetUsed: 85000000,
-      employees: 380,
-      establishedYear: 2016,
-      registrationNumber: "HLH-009-2016",
-      phone: "+856 21 901 234",
-      email: "healthcare@hal-group.la",
-      address: "ຖະໜົນການເສີມ, ເມືອງຈັນທະບູລີ, ນະຄອນຫຼວງວຽງຈັນ",
-      director: "ນາງ ສຸວສີ ວົງສາ",
-      status: "active",
-      contractType: "annual",
-    },
-    {
-      id: 10,
-      name: "HAL Finance",
-      logo: "mdi:bank",
-      color: "cyan",
-      description: "ບໍລິສັດການເງິນ ແລະ ການລົງທຶນ ສະໜອງການບໍລິການທາງດ້ານການເງິນທະນາຄານ",
-      proposalCount: 36,
-      budget: 48000000,
-      budgetUsed: 32000000,
-      employees: 165,
-      establishedYear: 2017,
-      registrationNumber: "HLF-010-2017",
-      phone: "+856 21 012 345",
-      email: "finance@hal-group.la",
-      address: "ຖະໜົນລາດພັດທະນາ, ເມືອງຈັນທະບູລີ, ນະຄອນຫຼວງວຽງຈັນ",
-      director: "ສະໜອນ ດວງສະຫວັນ",
-      status: "active",
-      contractType: "service",
-    },
-  ];
 
-  return companies.find(c => c.id === companyId) || null;
-};
 
 // Load company detail
 const loadCompanyDetail = async (companyId: number) => {
   // console.log('🔍 loadCompanyDetail called with companyId:', companyId);
+
+  // Prevent double loading if already loading the same company
+  if (loading.value && selectedCompany.value?.id === companyId) {
+    return;
+  }
+
   loading.value = true;
   try {
     // First try to use companyData from props if available
@@ -328,8 +153,6 @@ const loadCompanyDetail = async (companyId: number) => {
     } else {
       // Fallback to mock data search
       await new Promise((resolve) => setTimeout(resolve, 500));
-      selectedCompany.value = getCompanyDetail(companyId);
-      // console.log('🔍 getCompanyDetail result:', selectedCompany.value);
     }
 
     if (!selectedCompany.value) {
@@ -337,6 +160,9 @@ const loadCompanyDetail = async (companyId: number) => {
       warning("ຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນບໍລິສັດ");
     } else {
       // console.log('✅ Company found:', selectedCompany.value.name);
+
+      // ໂຫຼດข้อมูล receipt ของบริษัทนี้
+      await loadCompanyReceipts(companyId);
     }
   } catch (error) {
     console.error("Error loading company detail:", error);
@@ -344,6 +170,106 @@ const loadCompanyDetail = async (companyId: number) => {
   } finally {
     loading.value = false;
   }
+};
+
+// ໂຫຼດข้อมูล receipt ตาม company_id
+const loadCompanyReceipts = async (companyId: number) => {
+  try {
+    console.log('🔍 Loading receipts for company:', companyId);
+    // Clear receipt data before loading new data
+    receiptStore.receipts = [];
+    const result = await receiptStore.fetchByCompanyId(companyId, { page: 1, limit: 100 });
+    console.log('✅ Receipts loaded:', result?.data?.length || 0, 'items');
+
+    // Reset filters
+    receiptSearch.value = "";
+    selectedStatus.value = "";
+    selectedDateRange.value = "";
+    currentPage.value = 1;
+  } catch (error) {
+    console.error('❌ Error loading receipts:', error);
+  }
+};
+
+// Computed property for filtered receipts
+const filteredReceipts = computed(() => {
+  let filtered = receiptStore.receipts;
+
+  // Filter by search term
+  if (receiptSearch.value) {
+    const searchLower = receiptSearch.value.toLowerCase();
+    filtered = filtered.filter(receipt =>
+      receipt.receipt_number?.toLowerCase().includes(searchLower) ||
+      receipt.po_number?.toLowerCase().includes(searchLower) ||
+      receipt.remark?.toLowerCase().includes(searchLower)
+    );
+  }
+
+  // Filter by status
+  if (selectedStatus.value) {
+    filtered = filtered.filter(receipt =>
+      receipt.user_approval?.document_status?.name === selectedStatus.value
+    );
+  }
+
+  // Filter by date range
+  if (selectedDateRange.value) {
+    const now = new Date();
+    let startDate: Date;
+
+    switch(selectedDateRange.value) {
+      case 'today':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case 'week':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'year':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        break;
+      default:
+        startDate = new Date(0);
+    }
+
+    filtered = filtered.filter(receipt => {
+      const receiptDate = new Date(receipt.receipt_date);
+      return receiptDate >= startDate && receiptDate <= now;
+    });
+  }
+
+  return filtered;
+});
+
+// Computed property for paginated receipts
+const paginatedReceipts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredReceipts.value.slice(start, end);
+});
+
+// Computed property for total pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredReceipts.value.length / itemsPerPage.value);
+});
+
+// Get unique statuses for filter options
+const statusOptions = computed(() => {
+  const statuses = [...new Set(receiptStore.receipts.map(r => r.user_approval?.document_status?.name).filter(Boolean))];
+  return statuses.map(status => ({ label: status, value: status }));
+});
+
+// Change page function
+const changePage = (page: number) => {
+  currentPage.value = page;
+};
+
+// Change items per page
+const changeItemsPerPage = (limit: number) => {
+  itemsPerPage.value = limit;
+  currentPage.value = 1;
 };
 
 // Show company detail
@@ -411,6 +337,12 @@ const getLogoTextColor = (color: string) => {
     cyan: "text-cyan-600",
   };
   return colorMap[color] || "text-gray-600";
+};
+
+// Handle image error
+const handleImageError = (event: Event) => {
+  const target = event.target as HTMLImageElement;
+  target.style.display = 'none';
 };
 
 // Expose methods to parent
@@ -486,10 +418,22 @@ watch(() => props.companyData, (newCompanyData) => {
             <div class="flex items-start gap-6">
               <!-- Company Logo -->
               <div
-                class="p-6 rounded-full flex-shrink-0"
+                class="p-6 rounded-full flex-shrink-0 flex items-center justify-center"
                 :class="[getLogoBgColor(selectedCompany.color), getLogoTextColor(selectedCompany.color)]"
               >
-                <Icon :icon="selectedCompany.logo" class="text-5xl" />
+                <!-- Show actual logo if logoUrl exists, otherwise show icon -->
+                <img
+                  v-if="getCompanyProperty('logoUrl')"
+                  :src="getCompanyProperty('logoUrl')"
+                  :alt="selectedCompany.name"
+                  class="w-20 h-20 rounded-full object-cover"
+                  @error="handleImageError"
+                />
+                <Icon
+                  v-else
+                  :icon="selectedCompany.logo"
+                  class="text-5xl"
+                />
               </div>
 
               <!-- Company Info -->
@@ -732,9 +676,237 @@ watch(() => props.companyData, (newCompanyData) => {
 
             <!-- Tab Content -->
             <div class="p-4">
-              <!-- Proposals Tab -->
+              <!-- Proposals Tab (แสดง Receipts) -->
               <div v-if="activeTab === 'proposals'">
-                <ProposalList :company-id="selectedCompany.id" />
+                <div class="space-y-4">
+                  <!-- Loading State -->
+                  <div v-if="receiptStore.loading" class="flex items-center justify-center py-8">
+                    <Icon icon="mdi:loading" class="text-4xl text-blue-600 animate-spin mr-2" />
+                    <span class="text-gray-600">ກຳລັງໂຫຼດຂໍ້ມູນຮັບເງິນ...</span>
+                  </div>
+
+                  <!-- Receipts Table with Search and Filters -->
+                  <div v-else>
+                    <!-- Header with Title and Results Count -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                      <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-lg font-semibold text-gray-900">
+                          <Icon icon="mdi:receipt" class="inline mr-2" />
+                          ຂໍ້ມູນຮັບເງິນ
+                        </h4>
+                        <div class="text-sm text-gray-600">
+                          ພົບ {{ filteredReceipts.length }} ລາຍການ (ຈາກທັງໝົດ {{ receiptStore.receipts.length }} ລາຍການ)
+                        </div>
+                      </div>
+
+                      <!-- Search and Filter Controls -->
+                      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                        <!-- Search Input -->
+                        <div class="md:col-span-2">
+                          <div class="relative">
+                            <Icon icon="mdi:magnify" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <input
+                              v-model="receiptSearch"
+                              type="text"
+                              placeholder="ຄົ້ນຫາ ເລກທີ່ຮັບເງິນ, PO, ຫຼື ໝາຍເຫດ..."
+                              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div>
+                          <select
+                            v-model="selectedStatus"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          >
+                            <option value="">ສະຖານະທັງໝົດ</option>
+                            <option v-for="status in statusOptions" :key="status.value" :value="status.value">
+                              {{ status.label }}
+                            </option>
+                          </select>
+                        </div>
+
+                        <!-- Date Range Filter -->
+                        <div>
+                          <select
+                            v-model="selectedDateRange"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          >
+                            <option value="">ວັນທີ່ທັງໝົດ</option>
+                            <option value="today">ມື້ນີ້</option>
+                            <option value="week">7 ວັນທີ່ຜ່ານມາ</option>
+                            <option value="month">ເດືອນນີ້</option>
+                            <option value="year">ປີນີ້</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <!-- Clear Filters Button -->
+                      <div v-if="receiptSearch || selectedStatus || selectedDateRange" class="mb-4">
+                        <button
+                          @click="
+                            receiptSearch = '';
+                            selectedStatus = '';
+                            selectedDateRange = '';
+                            currentPage = 1;
+                          "
+                          class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          <Icon icon="mdi:filter-remove" />
+                          ລ້າງຕົວກັ່ນ
+                        </button>
+                      </div>
+
+                      <!-- Results Table -->
+                      <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                          <thead class="bg-gray-100">
+                            <tr>
+                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ເລກທີ່ຮັບເງິນ</th>
+                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ເລກທີ່ PO</th>
+                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ວັນທີ່ຮັບເງິນ</th>
+                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ຜູ້ຮ້ອງຂໍ</th>
+                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ຈຸດຮັບ/ສົ່ງ</th>
+                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ຈຳນວນລາຍການ</th>
+                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ມູນຄ່າ</th>
+                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">VAT</th>
+                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ລວມທັງໝົດ</th>
+                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ສະຖານະ</th>
+                            </tr>
+                          </thead>
+                          <tbody class="divide-y divide-gray-200">
+                            <tr v-for="receipt in paginatedReceipts" :key="receipt.id" class="hover:bg-gray-50">
+                              <td class="px-4 py-3 text-sm">{{ receipt.receipt_number }}</td>
+                              <td class="px-4 py-3 text-sm">{{ receipt.po_number }}</td>
+                              <td class="px-4 py-3 text-sm">{{ receipt.receipt_date }}</td>
+                              <!-- Requester -->
+                              <td class="px-4 py-3 text-sm">
+                                <div class="flex flex-col">
+                                  <span class="font-medium">{{ receipt.document?.requester?.username || '-' }}</span>
+                                  <span class="text-xs text-gray-500">{{ receipt.document?.requester?.email || '-' }}</span>
+                                </div>
+                              </td>
+                              <!-- Department (Pickup/Delivery Point) -->
+                              <td class="px-4 py-3 text-sm">
+                                <div class="flex flex-col">
+                                  <span class="font-medium">{{ receipt.document?.department?.name || '-' }}</span>
+                                  <span class="text-xs text-gray-500">{{ receipt.document?.department?.code || '-' }}</span>
+                                </div>
+                              </td>
+                              <td class="px-4 py-3 text-sm text-center">{{ receipt.receipt_item?.length || 0 }}</td>
+                              <td class="px-4 py-3 text-sm text-right">{{ formatCurrency(receipt.sub_total || 0) }}</td>
+                              <td class="px-4 py-3 text-sm text-right">{{ formatCurrency(receipt.vat || 0) }}</td>
+                              <td class="px-4 py-3 text-sm text-right font-semibold">{{ formatCurrency(receipt.total || 0) }}</td>
+                              <td class="px-4 py-3 text-sm">
+                                <span
+                                  class="px-2 py-1 rounded-full text-xs font-medium"
+                                  :class="receipt.user_approval?.document_status?.name === 'APPROVED'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-yellow-100 text-yellow-800'"
+                                >
+                                  {{ receipt.user_approval?.document_status?.name || 'PENDING' }}
+                                </span>
+                              </td>
+                            </tr>
+                          </tbody>
+                          <tfoot class="bg-gray-50">
+                            <tr>
+                              <td colspan="6" class="px-4 py-3 text-sm font-semibold text-gray-700">ລວມທັງໝົດ:</td>
+                              <td class="px-4 py-3 text-sm text-right font-semibold">
+                                {{ formatCurrency(paginatedReceipts.reduce((sum, r) => sum + (r.sub_total || 0), 0)) }}
+                              </td>
+                              <td class="px-4 py-3 text-sm text-right font-semibold">
+                                {{ formatCurrency(paginatedReceipts.reduce((sum, r) => sum + (r.vat || 0), 0)) }}
+                              </td>
+                              <td class="px-4 py-3 text-sm text-right font-semibold">
+                                {{ formatCurrency(paginatedReceipts.reduce((sum, r) => sum + (r.total || 0), 0)) }}
+                              </td>
+                              <td></td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+
+                      <!-- Pagination -->
+                      <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm text-gray-600">ສະແດງລາຍການ:</span>
+                          <select
+                            v-model="itemsPerPage"
+                            @change="changeItemsPerPage(Number(($event.target as HTMLSelectElement)?.value))"
+                            class="px-3 py-1 border border-gray-300 rounded text-sm"
+                          >
+                            <option :value="10">10</option>
+                            <option :value="25">25</option>
+                            <option :value="50">50</option>
+                            <option :value="100">100</option>
+                          </select>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                          <button
+                            @click="changePage(1)"
+                            :disabled="currentPage === 1"
+                            class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                          >
+                            <Icon icon="mdi:page-first" />
+                          </button>
+                          <button
+                            @click="changePage(currentPage - 1)"
+                            :disabled="currentPage === 1"
+                            class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                          >
+                            <Icon icon="mdi:chevron-left" />
+                          </button>
+
+                          <span class="px-4 py-1 text-sm">
+                            ໜ້າ {{ currentPage }} ຈາກ {{ totalPages }}
+                          </span>
+
+                          <button
+                            @click="changePage(currentPage + 1)"
+                            :disabled="currentPage === totalPages"
+                            class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                          >
+                            <Icon icon="mdi:chevron-right" />
+                          </button>
+                          <button
+                            @click="changePage(totalPages)"
+                            :disabled="currentPage === totalPages"
+                            class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                          >
+                            <Icon icon="mdi:page-last" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- No Results After Filter -->
+                  <div v-if="filteredReceipts.length === 0 && receiptStore.receipts.length > 0" class="text-center py-8">
+                    <Icon icon="mdi:filter-off" class="text-6xl text-gray-300 mb-4" />
+                    <p class="text-gray-500 text-lg">ບໍ່ພົບຂໍ້ມູນທີ່ຕົງກັບຕົວກັ່ນ</p>
+                    <button
+                      @click="
+                        receiptSearch = '';
+                        selectedStatus = '';
+                        selectedDateRange = '';
+                        currentPage = 1;
+                      "
+                      class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                      ລ້າງຕົວກັ່ນ
+                    </button>
+                  </div>
+
+                  <!-- Empty State -->
+                  <div v-else-if="receiptStore.receipts.length === 0" class="text-center py-8">
+                    <Icon icon="mdi:receipt" class="text-6xl text-gray-300 mb-4" />
+                    <p class="text-gray-500 text-lg">ຍັງບໍ່ມີຂໍ້ມູນຮັບເງິນ</p>
+                    <p class="text-gray-400 text-sm mt-2">ບໍລິສັດນີ້ຍັງບໍ່ມີການດຳເນີນການຮັບເງິນ</p>
+                  </div>
+                </div>
               </div>
 
               <!-- Budget Tab -->

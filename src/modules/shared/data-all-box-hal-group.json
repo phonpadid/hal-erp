@@ -1,0 +1,13 @@
+{
+    "status_code": 200,
+    "message": "Operation completed successfully",
+    "data": {
+        "totalUsers": 11,
+        "totalReceipts": 7,
+        "totalReceiptsPadding": 7,
+        "allocated_amount": 150000000,
+        "increase_amount": 90000000,
+        "totalUsedAmount": 39151350,
+        "total_budget": 200848650
+    }
+}

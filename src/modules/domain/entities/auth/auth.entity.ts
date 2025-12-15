@@ -5,15 +5,16 @@ export class AuthEntity {
     private username: string,
     private email: string,
     private tel: string,
+    private department_name: string,
+    private signature: string,
     private roles: string[] | null,
     private permission: string[],
-    private department_name: string ,
-    private signature: string,
     private user_type: string[],
     private created_at: string,
     private updated_at: string,
     private deleted_at: string | null,
-    private access_token: string
+    private access_token: string,
+    private company?: { id: number; name: string; [key: string]: any }
   ) {}
 
   // Getters
@@ -68,6 +69,10 @@ export class AuthEntity {
 
   getUserType(): string[] {
     return this.user_type;
+  }
+
+  getCompany(): { id: number; name: string; [key: string]: any } | null {
+    return this.company || null;
   }
 
   // Helper methods
