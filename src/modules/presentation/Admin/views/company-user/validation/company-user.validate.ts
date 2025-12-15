@@ -28,11 +28,7 @@ export function createCompanyUserValidation(
         message: t("company-user.validation.usernameMax"),
         trigger: "blur",
       },
-      {
-        pattern: /^[a-zA-Z0-9_]+$/,
-        message: t("company-user.validation.usernameFormat"),
-        trigger: "blur",
-      },
+     
     ],
     email: [
       {
