@@ -1,0 +1,41 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": [
+        {
+            "id": 24,
+            "name": "company-user",
+            "created_at": "31-10-2025 21:19:01",
+            "updated_at": "10-12-2025 05:51:03",
+            "department_id": 0,
+            "department_code": "",
+            "department_name": "",
+            "company_id": null,
+            "company_logo_url": null,
+            "permissions": [
+                {
+                    "id": 119,
+                    "name": "create-receipt-item"
+                },
+                {
+                    "id": 120,
+                    "name": "read-receipt-item"
+                },
+                {
+                    "id": 121,
+                    "name": "update-receipt-item"
+                },
+                {
+                    "id": 122,
+                    "name": "delete-receipt-item"
+                }
+            ]
+        }
+    ],
+    "pagination": {
+        "total": 1,
+        "total_pages": 1,
+        "limit": 50,
+        "page": 1
+    }
+}

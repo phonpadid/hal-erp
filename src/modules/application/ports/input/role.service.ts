@@ -9,4 +9,5 @@ export interface RoleService {
   createRole(data: CreateRole): Promise<Role>;
   updateRole(id: string, data: UpdateRole): Promise<Role>;
   deleteRole(id: string): Promise<boolean>;
+  getCompanyUsers(params: PaginationParams): Promise<PaginatedResult<Role>>;
 }

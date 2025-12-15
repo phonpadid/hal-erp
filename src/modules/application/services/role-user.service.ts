@@ -10,7 +10,7 @@ import { DeleteRoleUseCase } from "../useCases/role/delete-role.usecase";
 import { GetCompanyUsersUseCase } from "../useCases/role/get-company-users.usecase";
 import type { CreateRole, UpdateRole } from "@/modules/interfaces/role.interface";
 
-export class RoleServiceImpl implements RoleService {
+export class RoleUserServiceImpl implements RoleService {
   private readonly getAllRolesUseCase: GetAllRolesUseCase;
   private readonly getRoleByIdUseCase: GetRoleByIdUseCase;
   private readonly createRoleUseCase: CreateRoleUseCase;

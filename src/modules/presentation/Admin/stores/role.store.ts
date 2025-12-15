@@ -12,9 +12,10 @@ interface RawRole {
   name: string;
   display_name?: string;
   department_id: number;
+  department_name?: string;
   permissions: number[];
-  created_at?: string;
-  updated_at?: string;
+  created_at?: string | null;
+  updated_at?: string | null;
   deleted_at?: string | null;
   type?: string;
 }
@@ -235,6 +236,49 @@ export const useRoleStore = defineStore("roles", () => {
   pagination.value.totalPages = Math.ceil((newPagination.total || 0) / (newPagination.limit || 10));
 };
 
+// Fetch company users roles
+const fetchCompanyUsers = async (
+  params: PaginationParams = { page: 1, limit: 50 }
+) => {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    console.log("Store - fetchCompanyUsers called with params:", params);
+    const result = await roleService.getCompanyUsers(params);
+
+    console.log("Store - API response from service:", result);
+
+    // Update the same roles array with company users data
+    rawRoles.value = JSON.parse(JSON.stringify(result.data));
+    roles.value = result.data;
+
+    // Update pagination
+    pagination.value = {
+      page: result.page || params.page || 1,
+      limit: result.limit || params.limit || 50,
+      total: result.total || 0,
+      totalPages: result.totalPages || Math.ceil((result.total || 0) / (result.limit || 50)),
+    };
+
+    console.log("Store - pagination updated:", pagination.value);
+
+    return {
+      data: result.data,
+      page: pagination.value.page,
+      limit: pagination.value.limit,
+      total: pagination.value.total,
+      totalPages: pagination.value.totalPages,
+    };
+  } catch (err) {
+    console.error("Store - Error fetching company users:", err);
+    error.value = err as Error;
+    throw err;
+  } finally {
+    loading.value = false;
+  }
+};
+
   return {
     // State
     roles,
@@ -250,6 +294,7 @@ export const useRoleStore = defineStore("roles", () => {
     deleteRole,
     setPagination,
     fetchAllRoles,
+    fetchCompanyUsers,
 
     // Getters
     activeRoles,

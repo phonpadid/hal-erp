@@ -78,7 +78,7 @@ authAxios.interceptors.response.use(
             footer: null,
           });
           console.warn("Unauthorized (401)! Logging out...");
-          localStorage.removeItem("access_token");
+          localStorage.removeItem("accessToken");
           window.location.href = "/login";
           break;
         case 403:
