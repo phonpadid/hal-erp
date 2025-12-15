@@ -50,8 +50,10 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
     loading.value = true;
     error.value = null;
 
+
     try {
       const result = await documentTypeService.getAllDocumentTypes(params);
+
       documentTypes.value = result.data;
       pagination.value = {
         page: result.page ?? 1,
@@ -60,6 +62,7 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
         totalPages: result.totalPages ?? 0,
       };
     } catch (err) {
+      console.error("🏪 Error in fetchdocumentType:", err);
       error.value = err as Error;
       throw err;
     } finally {
