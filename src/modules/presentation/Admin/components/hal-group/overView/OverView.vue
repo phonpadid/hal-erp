@@ -1,6 +1,6 @@
 \
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive, nextTick } from "vue";
+import { ref, computed, onMounted, reactive, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -65,12 +65,15 @@ const companyReportStore = useCompanyReportStore();
 
 // State
 const loading = ref<boolean>(false);
+const pageLoading = ref<boolean>(false); // Global page loading
+const tabLoading = ref<{ [key: string]: boolean }>({});
 const searchKeyword = ref<string>("");
 const activeTab = ref<string>("1");
 const selectedCompany = ref<Company | null>(null);
 const showCompanyDetail = ref<boolean>(false);
 const selectedDetailCompany = ref<Company | null>(null);
 const companies = ref<Company[]>([]);
+const tabDataLoaded = ref<{ [key: string]: boolean }>({});
 
 // Filter state
 const filters = reactive({
@@ -244,28 +247,71 @@ const transformCompanyData = (apiData: CompanyReportData): Company[] => {
   }));
 };
 
-// Load data
-const loadData = async () => {
-  loading.value = true;
+// Load data for specific tab
+const loadTabData = async (tabKey: string) => {
+  if (tabDataLoaded.value[tabKey]) return; // Already loaded
+
+  tabLoading.value[tabKey] = true;
   try {
-    // Load company data
-    const reportData = await reportCompanyService.getReportCompany();
-    companies.value = transformCompanyData(reportData);
-    calculateStatistics();
+    switch (tabKey) {
+      case "1": // Overview Tab
+        // Load company data
+        const reportData = await reportCompanyService.getReportCompany();
+        companies.value = transformCompanyData(reportData);
+        calculateStatistics();
 
-    // Load departments for filters
-    await loadDepartments();
+        // Load departments for filters
+        await loadDepartments();
 
-    // Load budget report data for charts
-    await loadBudgetReport();
+        // Load budget report data for charts
+        await loadBudgetReport();
 
-    // Load HAL group state data
-    await loadHalGroupState();
+        // Load HAL group state data
+        await loadHalGroupState();
+        break;
+
+      case "2": // Approve Documents Tab
+        // Load all receipts for Tab 2 (show all when no company selected)
+        await receiptStore.fetchAll({ page: 1, limit: 10000 });
+        break;
+
+      case "3": // Affiliated Companies Tab
+        // Load company report statistics for Tab 3
+        await companyReportStore.fetchReportStatistics();
+
+        // Load companies with receipts for Tab 3 Table
+        await companyReportStore.fetchCompaniesWithReceipts({
+          page: 1,
+          limit: 10,
+          sort_by: "created_at",
+          sort_order: "DESC",
+        });
+        break;
+    }
+    tabDataLoaded.value[tabKey] = true;
   } catch (error) {
-    console.error("Error loading data:", error);
-    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນບໍລິສັດໄດ້");
+    console.error(`Error loading tab ${tabKey} data:`, error);
+    warning("ເກີດຂໍ້ຜິດພາດ", `ບໍ່ສາມາດໂຫຼດຂໍ້ມູນ Tab ${tabKey} ໄດ້`);
   } finally {
-    loading.value = false;
+    tabLoading.value[tabKey] = false;
+  }
+};
+
+// Load initial data (just basic data needed for page initialization)
+const loadInitialData = async () => {
+  pageLoading.value = true;
+  try {
+    // Initialize filters from URL query params
+    if (route.query.year) filters.year = parseInt(route.query.year as string);
+    if (route.query.company) filters.company = route.query.company as string;
+
+    // Only load the most essential data first
+    await loadTabData("1"); // Load Overview tab data by default
+  } catch (error) {
+    console.error("Error loading initial data:", error);
+    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນເບື້ອຕົ້ນໄດ້");
+  } finally {
+    pageLoading.value = false;
   }
 };
 
@@ -550,30 +596,16 @@ const getLogoTextColor = (color: string) => {
   return colorMap[color] || "text-gray-600";
 };
 
+// Watch for tab changes and load data lazily
+watch(activeTab, async (newTab: string) => {
+  if (newTab && !tabDataLoaded.value[newTab]) {
+    await loadTabData(newTab);
+  }
+});
+
 onMounted(async () => {
-  // Initialize filters from URL query params
-  if (route.query.year) filters.year = parseInt(route.query.year as string);
-  if (route.query.company) filters.company = route.query.company as string;
-
-  // Load company report statistics for Tab 3
-  await companyReportStore.fetchReportStatistics();
-
-  // Load companies with receipts for Tab 3 Table
-  await companyReportStore.fetchCompaniesWithReceipts({
-    page: 1,
-    limit: 10,
-    sort_by: "created_at",
-    sort_order: "DESC",
-  });
-
-  // Load company reports data first
-  // await companyReportsStore.loadCompanyReports();
-
-  // Load all receipts for Tab 2 (show all when no company selected)
-  await receiptStore.fetchAll({ page: 1, limit: 10000 });
-
-  // Load overview data
-  await loadData();
+  // Load initial data
+  await loadInitialData();
 
   // Initialize selectedCompany from company filter after data is loaded
   if (filters.company !== "all") {
@@ -587,15 +619,30 @@ onMounted(async () => {
 
 <template>
   <div class="hal-group-overview-container">
+    <!-- Global Loading Overlay -->
+    <div
+      v-if="pageLoading"
+      class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50"
+    >
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p class="mt-4 text-gray-600 font-medium">ກຳລັງໂຫຼດຂໍ້ມູນ...</p>
+      </div>
+    </div>
+
     <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
       <!-- Tabs Section - Moved to Top -->
       <div class="bg-white rounded-lg shadow-sm">
         <Tabs v-model:activeKey="activeTab" type="card" size="large">
           <Tabs.TabPane key="1" tab="ພາບລວມ">
+            <!-- Tab Loading State -->
+            <div v-if="tabLoading['1']" class="p-8 text-center">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p class="mt-2 text-gray-600">ກຳລັງໂຫຼດຂໍ້ມູນພາບລວມ...</p>
+            </div>
+
             <!-- Dynamic Header for Tab 1 -->
-            <div
-              class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-blue-50 to-indigo-50"
-            >
+            <div v-if="!tabLoading['1']" class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
               <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
@@ -1206,8 +1253,14 @@ onMounted(async () => {
 
           <!-- Tab 2: ອະນຸມັດເອກະສານ  -->
           <Tabs.TabPane key="2" tab="ອະນຸມັດເອກະສານ">
+            <!-- Tab Loading State -->
+            <div v-if="tabLoading['2']" class="p-8 text-center">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p class="mt-2 text-gray-600">ກຳລັງໂຫຼດຂໍ້ມູນການອະນຸມັດເອກະສານ...</p>
+            </div>
+
             <!-- Compact Header for Tab 2 -->
-            <div
+            <div v-if="!tabLoading['2']"
               class="border-b border-gray-200 p-3 md:p-2 bg-gradient-to-r from-orange-50 to-yellow-50"
             >
               <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -1255,8 +1308,14 @@ onMounted(async () => {
 
           <!-- Tab 3: ບໍລິສັດໃນເຄືອ -->
           <Tabs.TabPane key="3" tab="ບໍລິສັດໃນເຄືອ">
+            <!-- Tab Loading State -->
+            <div v-if="tabLoading['3']" class="p-8 text-center">
+              <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <p class="mt-2 text-gray-600">ກຳລັງໂຫຼດຂໍ້ມູນບໍລິສັດໃນເຄືອ...</p>
+            </div>
+
             <!-- Dynamic Header for Tab 3 -->
-            <div
+            <div v-if="!tabLoading['3']"
               class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-purple-50 to-pink-50"
             >
               <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
