@@ -478,18 +478,6 @@ const closeCompanyDetail = () => {
   showCompanyDetail.value = false;
   selectedDetailCompany.value = null;
 };
-
-// Handle batch approve/reject for ApproveProposal component
-const handleBatchApprove = (ids: string[]) => {
-  // console.log('Approve proposals:', ids);
-  warning("ອະນຸມັດ", `ອະນຸມັດ ${ids.length} ລາຍກາສຳເລັດ`);
-};
-
-const handleBatchReject = (ids: string[]) => {
-  // console.log('Reject proposals:', ids);
-  warning("ປະຕິເສດ", `ປະຕິເສດ ${ids.length} ລາຍກາສຳເລັດ`);
-};
-
 // Format currency
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("lo-LA", {
@@ -579,7 +567,7 @@ onMounted(async () => {
   });
 
   // Load company reports data first
-  await companyReportsStore.loadCompanyReports();
+  // await companyReportsStore.loadCompanyReports();
 
   // Load all receipts for Tab 2 (show all when no company selected)
   await receiptStore.fetchAll({ page: 1, limit: 10000 });
@@ -1260,8 +1248,7 @@ onMounted(async () => {
                 :selectedCompany="selectedCompany"
                 :searchKeyword="searchKeyword"
                 :statusFilter="'pending'"
-                @approve="handleBatchApprove"
-                @reject="handleBatchReject"
+              
               />
             </div>
           </Tabs.TabPane>

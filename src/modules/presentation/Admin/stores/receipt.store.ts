@@ -156,6 +156,22 @@ export const useReceiptStore = defineStore("receipt-store", () => {
       loading.value = false;
     }
   };
+  const approvalReceiptHalGroup = async (
+    input: IApprovalReceiptDto
+  ) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const res = await serice.approvalhal(input);
+      return res;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
 
   const reportMenu = async (type: string) => {
     loading.value = true;
@@ -228,6 +244,7 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     pagination,
     setPagination,
     approvalReceipt,
+    approvalReceiptHalGroup,
     // Getters
     // Actions
     fetchAll,

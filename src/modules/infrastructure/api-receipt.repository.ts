@@ -105,6 +105,50 @@ export class ApiReceiptRepository implements ReceiptRepository {
       this.handleApiError(error, "Failed to create budget account");
     }
   }
+  async approvalhal(input: IApprovalReceiptDto): Promise<IApprovalReceiptDto> {
+    try {
+      // Create payload object with all fields
+      const fullPayload = {
+        type: input.type,
+        statusId: input.statusId,
+        is_otp: input.is_otp,
+        otp: input.otp,
+        approval_id: input.approval_id,
+        account_code: input.account_code,
+        files: input.files && input.files.length > 0 ? input.files.map((file) => file) : undefined,
+        remark: input.remark,
+      };
+
+      // Filter out null, undefined, and empty values
+      const payload = Object.fromEntries(
+        Object.entries(fullPayload).filter(([ value]) =>
+          value !== null && value !== undefined && value !== ''
+        )
+      );
+
+      // Use approval_id for path parameter for non-OTP cases
+      console.warn('🚨 approvalhal API Repository - FINAL CALL:', {
+        approvalId: input.approval_id,
+        path: `approve-step/${input.approval_id}`,
+        fullInput: input,
+        fullPayload: payload,
+        willCallThisURL: `approve-step/${input.approval_id}`
+      });
+
+      // Make sure we're using the correct ID
+      if (input.approval_id && input.approval_id !== 148) {
+        console.log('✅ Using correct approval_id:', input.approval_id);
+      } else {
+        console.error('❌ PROBLEM: Using receipt ID (148) instead of step ID for approval!');
+      }
+
+      const response = await api.post('approve-step/' + input.approval_id, payload);
+
+      return response.data.data;
+    } catch (error) {
+      this.handleApiError(error, "Failed to create budget account");
+    }
+  }
 
   async update(
     id: string,

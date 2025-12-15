@@ -5,6 +5,7 @@ import type { ReceiptEntity } from "@/modules/domain/entities/receipts/receipt.e
 export interface ReceiptService {
   create(input: CreateReceiptDTO): Promise<ReceiptEntity>;
   approval(id: number, input: IApprovalReceiptDto): Promise<IApprovalReceiptDto>;
+  approvalhal(input: IApprovalReceiptDto): Promise<IApprovalReceiptDto>;
   getOne(id: string): Promise<ReciptQueryDto | null>;
   getAll(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<ReciptQueryDto>>;
   update(id: string, input: UpdateReceiptDTO[]): Promise<ReceiptEntity>;

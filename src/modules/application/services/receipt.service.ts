@@ -9,11 +9,13 @@ import { GetAllReceiptUseCase } from "../useCases/receipts/get-all.use-case";
 import type { CreateReceiptDTO, IApprovalReceiptDto, IReportReceiptCount, ReciptQueryDto, UpdateReceiptDTO } from "../dtos/receipt.dto";
 import type { ReceiptEntity } from "@/modules/domain/entities/receipts/receipt.entity";
 import { ApprovalReceiptUseCase } from "../useCases/receipts/approval.use-case";
+import { ApprovalhalReceiptUseCase } from "../useCases/receipts/approvalhal.use-case";
 import { ReceiptReportMenuUseCase } from "../useCases/receipts/report-menu.use-case";
 
 export class ReceiptServiceImpl implements ReceiptService {
   private readonly createUseCase: CreateReceiptUseCase;
   private readonly approvalUseCase: ApprovalReceiptUseCase;
+  private readonly approvalhalUseCase: ApprovalhalReceiptUseCase;
   private readonly updateUseCase: UpdateReceiptUseCase
   private readonly deleteUseCase: DeleteReceiptUseCase;
   private readonly getOneUseCase: GetOneReceiptUseCase;
@@ -23,6 +25,7 @@ export class ReceiptServiceImpl implements ReceiptService {
   constructor(private readonly repo: ReceiptRepository) {
     this.createUseCase = new CreateReceiptUseCase(repo);
     this.approvalUseCase = new ApprovalReceiptUseCase(repo);
+    this.approvalhalUseCase = new ApprovalhalReceiptUseCase(repo);
     this.updateUseCase = new UpdateReceiptUseCase(repo);
     this.deleteUseCase = new DeleteReceiptUseCase(repo);
     this.getOneUseCase = new GetOneReceiptUseCase(repo);
@@ -35,6 +38,10 @@ export class ReceiptServiceImpl implements ReceiptService {
   async approval(id: number, input: IApprovalReceiptDto):Promise<IApprovalReceiptDto> {
     return await this.approvalUseCase.execute(id, input);
   }
+  async approvalhal(input: IApprovalReceiptDto):Promise<IApprovalReceiptDto> {
+    return await this.approvalhalUseCase.execute(input);
+  }
+  
 
   async getOne(id: string): Promise<ReciptQueryDto | null> {
     return await this.getOneUseCase.execute(id);

@@ -10,6 +10,7 @@ export interface ReceiptRepository {
   findById(id: string): Promise<ReciptQueryDto | null>;
   create(data: CreateReceiptDTO): Promise<ReceiptEntity>;
   approval(id: number, data: IApprovalReceiptDto): Promise<IApprovalReceiptDto>;
+  approvalhal(data: IApprovalReceiptDto): Promise<IApprovalReceiptDto>;
   update(id: string, data: UpdateReceiptDTO[]): Promise<ReceiptEntity>;
   reportMenu(type: string): Promise<IReportReceiptCount>;
   exportExcel(id: string): Promise<Blob>;
