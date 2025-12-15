@@ -1,29 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiSelect from "@/common/shared/components/Input/InputSelect.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { Icon } from "@iconify/vue";
 import Table, { type TableRecord, type TablePaginationType } from "@/common/shared/components/table/Table.vue";
+import { useBudgetReportsStore } from "@/modules/presentation/Admin/stores/reports/budget-reports.store";
 
-// Interface for budget data
-interface BudgetRecord {
-  id: string;
-  category: string;
-  description: string;
-  allocatedAmount: number;
-  spentAmount: number;
-  remainingAmount: number;
-  period: string;
-  department: string;
-  approvedBy: string;
-  approvedDate: string;
-  status: "active" | "completed" | "cancelled";
-  company: string;
-}
 
 const { warning } = useNotification();
+const budgetReportsStore = useBudgetReportsStore();
 
 // Props
 const props = defineProps<{
@@ -31,14 +18,12 @@ const props = defineProps<{
 }>();
 
 // State
-const loading = ref<boolean>(false);
+const loading = computed(() => budgetReportsStore.budgetAccountsLoading);
 const searchKeyword = ref<string>("");
 const selectedYear = ref<number>(new Date().getFullYear());
 const selectedPeriod = ref<string>("all");
 const selectedDepartment = ref<string>("all");
 const selectedStatus = ref<string>("all");
-const selectedTopDepartmentsYear = ref<number>(new Date().getFullYear());
-const selectedTopDepartmentsMonth = ref<number>(new Date().getMonth() + 1);
 const currentPage = ref<number>(1);
 const pageSize = ref<number>(10);
 
@@ -61,22 +46,6 @@ const periodOptions = [
   { value: "q4", label: "ໄຕມາດ 4" },
 ];
 
-// Month options
-const monthOptions = [
-  { value: 1, label: "ມັງກອນ" },
-  { value: 2, label: "ກຸມພາ" },
-  { value: 3, label: "ມີນາ" },
-  { value: 4, label: "ເມສາ" },
-  { value: 5, label: "ພຶດສະພາ" },
-  { value: 6, label: "ມິຖຸນາ" },
-  { value: 7, label: "ກໍລະກົດ" },
-  { value: 8, label: "ສິງຫາ" },
-  { value: 9, label: "ກັນຍາ" },
-  { value: 10, label: "ຕຸລາ" },
-  { value: 11, label: "ພະຈິກ" },
-  { value: 12, label: "ທັນວາ" },
-];
-
 // Department options
 const departmentOptions = [
   { value: "all", label: "ທຸກພະແນກ" },
@@ -96,139 +65,67 @@ const statusOptions = [
   { value: "cancelled", label: "ຍົກເລີກ" },
 ];
 
-// Mock data for budget records - generate company-specific data
-const generateMockBudgets = (companyId: number): BudgetRecord[] => {
-  const categories = [
-    {
-      category: "ຄ່າໃຊ້ຈ່າຍບຸລິຄະມານ",
-      baseAmount: 5000000,
-      department: "hr",
-    },
-    {
-      category: "ຄ່າໃຊ້ຈ່າຍ IT",
-      baseAmount: 8000000,
-      department: "it",
-    },
-    {
-      category: "ຄ່າໃຊ້ຈ່າຍການຕະຫຼາດ",
-      baseAmount: 6000000,
-      department: "marketing",
-    },
-    {
-      category: "ຄ່າໃຊ້ຈ່າຍການຜະລິດ",
-      baseAmount: 12000000,
-      department: "operations",
-    },
-    {
-      category: "ຄ່າໃຊ້ຈ່າຍສຳນັກງານ",
-      baseAmount: 3000000,
-      department: "admin",
-    },
-    {
-      category: "ຄ່າຝຶກອົບຮົມ",
-      baseAmount: 2000000,
-      department: "hr",
-    },
-    {
-      category: "ງົບປະມານສະໜັບສະໜູນ",
-      baseAmount: 4000000,
-      department: "admin",
-    },
-    {
-      category: "ຄ່າລົດຂົນສົ່ງ",
-      baseAmount: 1500000,
-      department: "operations",
-    },
-  ];
+// Real budget data from API
+const budgetData = computed(() => {
+  const reportData = budgetReportsStore.budgetAccountsReportData;
 
-  const companyNames = [
-    "HAL ບໍລິສັດ",
-    "HAL Tech",
-    "HAL Energy",
-    "HAL Service",
-    "HAL Logistics",
-  ];
+  // Handle both data structures
+  if (!reportData || !reportData.data) {
+    return [];
+  }
 
-  const periods = ["Q1", "Q2", "Q3", "Q4"];
+  if (Array.isArray(reportData.data)) {
+    return reportData.data;
+  }
 
-  const budgets: BudgetRecord[] = [];
+  // If it's an object with totals, create a dummy array for table display
+  if (typeof reportData.data === 'object' && !Array.isArray(reportData.data)) {
+    const summaryData = reportData.data as {
+      allocated_total?: number;
+      use_total?: number;
+      balance_total?: number;
+    };
 
-  // Generate budget records for each quarter
-  for (let q = 0; q < 4; q++) {
-    for (let i = 0; i < categories.length; i++) {
-      const cat = categories[i];
-      const variation = 0.8 + Math.random() * 0.4; // 80% to 120% variation
-      const allocated = Math.round(cat.baseAmount * variation);
-      const spent = Math.round(allocated * (0.3 + Math.random() * 0.8)); // 30% to 110% of allocated
-
-      budgets.push({
-        id: `BUD${q + 1}-${String(i + 1).padStart(2, '0')}`,
-        category: cat.category,
-        description: `${cat.category} ໄຕມາດ ${q + 1} ${currentYear}`,
-        allocatedAmount: allocated,
-        spentAmount: Math.min(spent, allocated),
-        remainingAmount: Math.max(0, allocated - spent),
-        period: periods[q],
-        department: cat.department,
-        approvedBy: "ຜູ້ອຳນວຍການ",
-        approvedDate: `${currentYear}-${String(q * 3 + 1).padStart(2, '0')}-01`,
-        status: budgets.length % 4 === 0 ? "completed" : (budgets.length % 7 === 0 ? "cancelled" : "active") as "active" | "completed" | "cancelled",
-        company: companyNames[Math.min(companyId - 1, companyNames.length - 1)],
-      });
+    if ('allocated_total' in summaryData) {
+      return [{
+        id: 'summary',
+        code: 'SUMMARY',
+        name: 'ສະຫຼຸບງົບປະມານທັງໝົດ',
+        type: 'summary',
+        allocated_amount: summaryData.allocated_total || 0,
+        used_amount: summaryData.use_total || 0,
+        balance_amount: summaryData.balance_total || 0,
+        fiscal_year: selectedYear.value,
+        company_id: props.companyId
+      }];
     }
   }
 
-  return budgets.sort((a, b) => b.period.localeCompare(a.period));
-};
-
-const mockBudgets = ref<BudgetRecord[]>([]);
+  return [];
+});
 
 // Load data
 const loadData = async () => {
-  loading.value = true;
   try {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    mockBudgets.value = generateMockBudgets(props.companyId);
+    await budgetReportsStore.fetchBudgetAccountsReport(props.companyId, selectedYear.value);
   } catch (error) {
-    console.error("Error loading data:", error);
-    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນໄດ້");
-  } finally {
-    loading.value = false;
+    console.error("Error loading budget data:", error);
+    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນງົບປະມານໄດ້");
   }
 };
 
 // Get filtered budgets
 const filteredBudgets = computed(() => {
-  let filtered = [...mockBudgets.value];
-
-  // Filter by year (period already contains year info)
-  if (selectedYear.value) {
-    filtered = filtered.filter((budget) => budget.approvedDate.includes(selectedYear.value.toString()));
-  }
-
-  // Filter by period
-  if (selectedPeriod.value !== "all") {
-    filtered = filtered.filter((budget) => budget.period === selectedPeriod.value.toUpperCase());
-  }
-
-  // Filter by department
-  if (selectedDepartment.value !== "all") {
-    filtered = filtered.filter((budget) => budget.department === selectedDepartment.value);
-  }
-
-  // Filter by status
-  if (selectedStatus.value !== "all") {
-    filtered = filtered.filter((budget) => budget.status === selectedStatus.value);
-  }
+  let filtered = [...budgetData.value];
 
   // Filter by search keyword
   if (searchKeyword.value) {
     const keyword = searchKeyword.value.toLowerCase();
     filtered = filtered.filter(
       (budget) =>
-        budget.category.toLowerCase().includes(keyword) ||
-        budget.description.toLowerCase().includes(keyword) ||
-        budget.id.toLowerCase().includes(keyword)
+        budget.name.toLowerCase().includes(keyword) ||
+        budget.code.toLowerCase().includes(keyword) ||
+        budget.type.toLowerCase().includes(keyword)
     );
   }
 
@@ -246,52 +143,46 @@ const paginatedBudgets = computed(() => {
 // Table columns
 const tableColumns = computed(() => [
   {
-    title: "ເລກທີ",
-    key: "id",
-    dataIndex: "id",
-    width: 100,
+    title: "ລະຫັດ",
+    key: "code",
+    dataIndex: "code",
+    width: 120,
   },
   {
-    title: "ປະເພດງົບປະມານ",
-    key: "category",
-    dataIndex: "category",
-    width: 200,
-  },
-  {
-    title: "ລາຍລະອຽດ",
-    key: "description",
-    dataIndex: "description",
+    title: "ຊື່ບັນຊີງົບປະມານ",
+    key: "name",
+    dataIndex: "name",
     width: 250,
   },
   {
+    title: "ປະເພດ",
+    key: "type",
+    dataIndex: "type",
+    width: 120,
+  },
+  {
     title: "ງົບປະມານທີ່ກຳນົດ",
-    key: "allocatedAmount",
-    dataIndex: "allocatedAmount",
+    key: "allocated_amount",
+    dataIndex: "allocated_amount",
     width: 150,
   },
   {
     title: "ງົບປະມານທີ່ໃຊ້",
-    key: "spentAmount",
-    dataIndex: "spentAmount",
+    key: "used_amount",
+    dataIndex: "used_amount",
     width: 150,
   },
   {
     title: "ງົບປະມານທີ່ຍັງເຫຼືອ",
-    key: "remainingAmount",
-    dataIndex: "remainingAmount",
+    key: "balance_amount",
+    dataIndex: "balance_amount",
     width: 150,
   },
   {
-    title: "ໄລຍະ",
-    key: "period",
-    dataIndex: "period",
-    width: 80,
-  },
-  {
-    title: "ສະຖານະ",
-    key: "status",
-    dataIndex: "status",
-    width: 120,
+    title: "ປີບັນຊີ",
+    key: "fiscal_year",
+    dataIndex: "fiscal_year",
+    width: 100,
   },
 ]);
 
@@ -306,10 +197,24 @@ const handleFilterChange = () => {
   currentPage.value = 1;
 };
 
+// Watch for fiscal year changes
+watch(() => selectedYear.value, (newYear) => {
+  if (newYear && props.companyId) {
+    loadData();
+  }
+});
+
+// Watch for company changes
+watch(() => props.companyId, (newCompanyId) => {
+  if (newCompanyId && selectedYear.value) {
+    loadData();
+  }
+});
+
 // Handle pagination change
-const handlePaginationChange = (pagination: TablePaginationType, _filters: Record<string, string[]>, _sorter: any) => {
-  currentPage.value = pagination.current || 1;
-  pageSize.value = pagination.pageSize || 10;
+const handlePaginationChange = (pagination: TablePaginationType) => {
+  currentPage.value = (pagination.current as number) || 1;
+  pageSize.value = (pagination.pageSize as number) || 10;
 };
 
 // Handle row click
@@ -334,25 +239,6 @@ const getUsagePercentage = (spent: number, allocated: number) => {
   return Math.round((spent / allocated) * 100);
 };
 
-// Get status badge classes
-const getStatusBadgeClass = (status: string) => {
-  const statusMap: { [key: string]: string } = {
-    active: "bg-green-100 text-green-800",
-    completed: "bg-blue-100 text-blue-800",
-    cancelled: "bg-red-100 text-red-800",
-  };
-  return statusMap[status] || "bg-gray-100 text-gray-800";
-};
-
-// Get status label
-const getStatusLabel = (status: string) => {
-  const statusMap: { [key: string]: string } = {
-    active: "ກຳລັງໃຊ້ງົບ",
-    completed: "ສຳເລັດແລ້ວ",
-    cancelled: "ຍົກເລີກ",
-  };
-  return statusMap[status] || status;
-};
 
 // Get usage bar color
 const getUsageBarColor = (percentage: number) => {
@@ -370,54 +256,142 @@ const getUsageTextColor = (percentage: number) => {
 
 // Company budget usage by year
 const companyBudgetUsage = computed(() => {
-  const yearBudgets = mockBudgets.value.filter(budget =>
-    budget.approvedDate.includes(selectedYear.value.toString())
-  );
+  const reportData = budgetReportsStore.budgetAccountsReportData;
 
-  const totalAllocated = yearBudgets.reduce((sum, b) => sum + b.allocatedAmount, 0);
-  const totalSpent = yearBudgets.reduce((sum, b) => sum + b.spentAmount, 0);
-  const usagePercentage = totalAllocated > 0 ? Math.round((totalSpent / totalAllocated) * 100) : 0;
+  if (!reportData) {
+    return {
+      totalAllocated: 0,
+      totalSpent: 0,
+      usagePercentage: 0,
+      remaining: 0
+    };
+  }
+
+  // Handle both data structures - direct totals or array data
+  const hasSummaryData = reportData.data &&
+    typeof reportData.data === 'object' &&
+    !Array.isArray(reportData.data) &&
+    'allocated_total' in reportData.data;
+
+  if (hasSummaryData) {
+    // Case when API returns summary totals
+    const summaryData = reportData.data as {
+      allocated_total?: number;
+      use_total?: number;
+      balance_total?: number;
+    };
+    const totalAllocated = summaryData.allocated_total || 0;
+    const totalSpent = summaryData.use_total || 0;
+    const usagePercentage = totalAllocated > 0 ? Math.round((totalSpent / totalAllocated) * 100) : 0;
+
+    return {
+      totalAllocated,
+      totalSpent,
+      usagePercentage,
+      remaining: Math.max(0, totalAllocated - totalSpent)
+    };
+  } else if (Array.isArray(reportData.data)) {
+    // Case when API returns array of budget accounts
+    const totalAllocated = reportData.data.reduce((sum: number, item: { allocated_amount?: number }) => sum + (item.allocated_amount || 0), 0);
+    const totalSpent = reportData.data.reduce((sum: number, item: { used_amount?: number }) => sum + (item.used_amount || 0), 0);
+    const usagePercentage = totalAllocated > 0 ? Math.round((totalSpent / totalAllocated) * 100) : 0;
+
+    return {
+      totalAllocated,
+      totalSpent,
+      usagePercentage,
+      remaining: Math.max(0, totalAllocated - totalSpent)
+    };
+  }
 
   return {
-    totalAllocated,
-    totalSpent,
-    usagePercentage,
-    remaining: Math.max(0, totalAllocated - totalSpent)
+    totalAllocated: 0,
+    totalSpent: 0,
+    usagePercentage: 0,
+    remaining: 0
   };
 });
 
-// Top 3 departments by budget usage for selected month/year
+// Top 3 departments by budget usage for selected year
 const topDepartmentsByBudget = computed(() => {
-  const monthYearBudgets = mockBudgets.value.filter(budget => {
-    const budgetDate = new Date(budget.approvedDate);
-    const budgetMonth = budgetDate.getMonth() + 1;
-    const budgetYear = budgetDate.getFullYear();
+  const reportData = budgetReportsStore.budgetAccountsReportData;
 
-    return budgetMonth === selectedTopDepartmentsMonth.value &&
-           budgetYear === selectedTopDepartmentsYear.value;
-  });
+  if (!reportData || !reportData.data) {
+    return [];
+  }
 
-  // Group by department
-  const departmentSpending: { [key: string]: { spent: number; allocated: number; name: string } } = {};
+  // Handle array data structure
+  let dataArray: Array<{
+    id: number;
+    company_id: number;
+    department_id: string;
+    code: string;
+    name: string;
+    type: string;
+    fiscal_year: number;
+    allocated_amount: number;
+    used_amount: number;
+    balance_amount: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+  }> = [];
+  if (Array.isArray(reportData.data)) {
+    dataArray = reportData.data;
+  } else if (typeof reportData.data === 'object' && !Array.isArray(reportData.data)) {
+    // Check if it's summary data
+    const summaryData = reportData.data as {
+      allocated_total?: number;
+      use_total?: number;
+      balance_total?: number;
+    };
 
-  monthYearBudgets.forEach(budget => {
-    if (!departmentSpending[budget.department]) {
-      const dept = departmentOptions.find(d => d.value === budget.department);
-      departmentSpending[budget.department] = {
-        spent: 0,
-        allocated: 0,
-        name: dept ? dept.label : budget.department
-      };
+    if ('allocated_total' in summaryData) {
+      // If it's summary data, create one entry
+      const allocatedTotal = summaryData.allocated_total || 0;
+      const useTotal = summaryData.use_total || 0;
+
+      return [{
+        department: 'summary',
+        name: 'ສະຫຼຸບທັງໝົດ',
+        code: 'ALL',
+        spent: useTotal,
+        allocated: allocatedTotal,
+        percentage: allocatedTotal > 0 ? Math.round((useTotal / allocatedTotal) * 100) : 0,
+        piePercentage: 100
+      }];
+    } else {
+      return [];
     }
-    departmentSpending[budget.department].spent += budget.spentAmount;
-    departmentSpending[budget.department].allocated += budget.allocatedAmount;
+  } else {
+    return [];
+  }
+
+  // Group by department (using name as key since structure may vary)
+  const departmentSpending: { [key: string]: { spent: number; allocated: number; name: string; code: string } } = {};
+
+  dataArray.forEach(budget => {
+    const deptKey = budget.name || budget.code || 'unknown';
+
+    if (!departmentSpending[deptKey]) {
+      departmentSpending[deptKey] = {
+        spent: budget.used_amount || 0,
+        allocated: budget.allocated_amount || 0,
+        name: budget.name || 'Unknown',
+        code: budget.code || ''
+      };
+    } else {
+      departmentSpending[deptKey].spent += budget.used_amount || 0;
+      departmentSpending[deptKey].allocated += budget.allocated_amount || 0;
+    }
   });
 
   // Convert to array and sort by spent amount
   const sortedDepartments = Object.entries(departmentSpending)
-    .map(([dept, data]) => ({
-      department: dept,
+    .map(([deptId, data]) => ({
+      department: deptId,
       name: data.name,
+      code: data.code,
       spent: data.spent,
       allocated: data.allocated,
       percentage: data.allocated > 0 ? Math.round((data.spent / data.allocated) * 100) : 0
@@ -435,7 +409,9 @@ const topDepartmentsByBudget = computed(() => {
 });
 
 onMounted(() => {
-  loadData();
+  if (props.companyId && selectedYear.value) {
+    loadData();
+  }
 });
 </script>
 
@@ -534,25 +510,7 @@ onMounted(() => {
       <!-- Box 2: Top 3 Departments by Budget Usage -->
       <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-900">3 ອັນດັບພະແນກທີ່ໃຊ້ງົບປະມານຫຼາຍ</h3>
-          <div class="flex gap-2">
-            <UiFormItem class="w-28">
-              <UiSelect
-                v-model="selectedTopDepartmentsMonth"
-                :options="monthOptions"
-                placeholder="ເລືອກເດືອນ"
-                :disabled="loading"
-              />
-            </UiFormItem>
-            <UiFormItem class="w-24">
-              <UiSelect
-                v-model="selectedTopDepartmentsYear"
-                :options="years"
-                placeholder="ເລືອກປີ"
-                :disabled="loading"
-              />
-            </UiFormItem>
-          </div>
+          <h3 class="text-lg font-semibold text-gray-900">3 ອັນດັບບັນຊີງົບປະມານທີ່ໃຊ້ຫຼາຍ</h3>
         </div>
 
         <!-- Top Departments List -->
@@ -729,40 +687,31 @@ onMounted(() => {
         @change="handlePaginationChange"
       >
         <!-- Custom cell renderers -->
-        <template #allocatedAmount="{ record }">
+        <template #allocated_amount="{ record }">
           <div class="text-right font-medium">
-            {{ formatCurrency(record.allocatedAmount) }}
+            {{ formatCurrency(record.allocated_amount) }}
           </div>
         </template>
 
-        <template #spentAmount="{ record }">
+        <template #used_amount="{ record }">
           <div class="text-right">
-            <div class="font-medium">{{ formatCurrency(record.spentAmount) }}</div>
-            <div class="text-xs text-gray-500">{{ getUsagePercentage(record.spentAmount, record.allocatedAmount) }}%</div>
+            <div class="font-medium">{{ formatCurrency(record.used_amount) }}</div>
+            <div class="text-xs text-gray-500">{{ getUsagePercentage(record.used_amount, record.allocated_amount) }}%</div>
           </div>
         </template>
 
-        <template #remainingAmount="{ record }">
+        <template #balance_amount="{ record }">
           <div class="text-right">
-            <div class="font-medium" :class="record.remainingAmount < 0 ? 'text-red-600' : 'text-gray-900'">
-              {{ formatCurrency(Math.abs(record.remainingAmount)) }}
+            <div class="font-medium" :class="record.balance_amount < 0 ? 'text-red-600' : 'text-gray-900'">
+              {{ formatCurrency(Math.abs(record.balance_amount)) }}
             </div>
-            <div v-if="record.remainingAmount < 0" class="text-xs text-red-600">ເກີນງົບ</div>
+            <div v-if="record.balance_amount < 0" class="text-xs text-red-600">ເກີນງົບ</div>
           </div>
         </template>
 
-        <template #period="{ record }">
+        <template #type="{ record }">
           <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm font-medium">
-            {{ record.period }}
-          </span>
-        </template>
-
-        <template #status="{ record }">
-          <span
-            class="px-2 py-1 rounded-full text-xs font-medium"
-            :class="getStatusBadgeClass(record.status)"
-          >
-            {{ getStatusLabel(record.status) }}
+            {{ record.type === 'expenditure' ? 'ລາຍຈ່າຍ' : 'ລາຍຮັບ' }}
           </span>
         </template>
       </Table>

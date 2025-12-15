@@ -1,0 +1,9 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": {
+        "allocated_total": 90000000,
+        "use_total": 78302700,
+        "balance_total": 11697300
+    }
+}

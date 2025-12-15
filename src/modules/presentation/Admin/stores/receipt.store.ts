@@ -72,9 +72,18 @@ export const useReceiptStore = defineStore("receipt-store", () => {
         ...params,
         company_id: companyId
       });
+      // Set receipts data to state
+      receipts.value = result.data;
+      pagination.value = {
+        page: result.page ?? 1,
+        limit: result.limit ?? 10,
+        total: result.total ?? 0,
+        totalPages: result.totalPages ?? 0,
+      };
       return result;
     } catch (err) {
       error.value = err as Error;
+      receipts.value = []; // Clear receipts on error
       throw err;
     } finally {
       loading.value = false;

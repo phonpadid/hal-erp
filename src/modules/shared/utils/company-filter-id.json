@@ -1,0 +1,1976 @@
+{
+    "status_code": 200,
+    "message": "Operation completed successfully",
+    "status": [
+        {
+            "id": 1,
+            "status": "PENDING",
+            "amount": 9
+        },
+        {
+            "id": 2,
+            "status": "APPROVED",
+            "amount": 5
+        }
+    ],
+    "data": [
+        {
+            "id": 149,
+            "receipt_number": "0014/ຈຊ/ກງ",
+            "purchase_order_id": 130,
+            "po_number": "0002/ຈຊ/ກງ",
+            "po_doc_type": "ໃບອະນຸມັດຈັດຊື້",
+            "purchase_request_id": 354,
+            "pr_number": "0002/ກງ",
+            "pr_doc_type": "ໃບສະເໜີ",
+            "document_id": 635,
+            "receipt_date": "12-12-2025 21:45:39",
+            "received_by": 115,
+            "remark": "computer ",
+            "account_code": null,
+            "created_at": "12-12-2025 21:45:39",
+            "updated_at": "12-12-2025 21:45:39",
+            "step": false,
+            "step_number": 0,
+            "itemCount": 1,
+            "sub_total": 1000000,
+            "vat": 50000,
+            "total": 1050000,
+            "currency_totals": [
+                {
+                    "id": 1,
+                    "code": "LAK",
+                    "name": "Lao Kip",
+                    "total": 1000000,
+                    "vat": 50000,
+                    "amount": 1050000
+                }
+            ],
+            "document": {
+                "id": 635,
+                "document_number": "D-E41D11",
+                "title": "",
+                "description": "",
+                "total_amount": 0,
+                "department_id": 59,
+                "requester_id": 115,
+                "document_type_id": "40",
+                "created_at": "12-12-2025 21:45:39",
+                "updated_at": "12-12-2025 21:45:39",
+                "department": {
+                    "id": 59,
+                    "code": "ກງ",
+                    "name": "ການເງິນ",
+                    "department_head_id": 0,
+                    "created_at": "09-12-2025 21:26:17",
+                    "updated_at": "09-12-2025 22:12:33",
+                    "department_head": null,
+                    "company": null
+                },
+                "document_type": {
+                    "id": "40",
+                    "code": "DT-TT022",
+                    "name": "ໃບເທສ",
+                    "created_at": "08-10-2025 16:11:26",
+                    "updated_at": "08-10-2025 16:11:26"
+                },
+                "requester": {
+                    "id": 115,
+                    "username": "tou",
+                    "email": "tou@gmail.com",
+                    "tel": "2055084306",
+                    "created_at": "09-12-2025 21:44:03",
+                    "updated_at": "10-12-2025 21:10:16",
+                    "user_signature": null,
+                    "roles": [],
+                    "permissions": [],
+                    "user_types": []
+                },
+                "position": [
+                    {
+                        "id": 68,
+                        "name": "ພະນັກງານ",
+                        "created_at": "15-12-2025 10:39:07",
+                        "updated_at": "Invalid date",
+                        "company": null
+                    }
+                ],
+                "company": {
+                    "id": 22,
+                    "name": "Hal-tech",
+                    "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "tel": "2055889858",
+                    "email": "haltech@gmail.com",
+                    "address": "ບ້ານຈອມມະນີ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ",
+                    "created_at": "09-12-2025 21:25:27",
+                    "updated_at": "09-12-2025 21:25:27"
+                }
+            },
+            "user_approval": {
+                "id": 555,
+                "document_id": 635,
+                "status_id": 1,
+                "created_at": "12-12-2025 21:45:39",
+                "updated_at": "12-12-2025 21:45:39",
+                "document_status": {
+                    "id": 1,
+                    "name": "PENDING",
+                    "created_at": "25-07-2025 14:02:32",
+                    "updated_at": "25-07-2025 14:02:32"
+                },
+                "approval_step": [
+                    {
+                        "id": 1254,
+                        "user_approval_id": 555,
+                        "step_number": 2,
+                        "approver_id": 2,
+                        "approved_at": "12-12-2025 23:57:22",
+                        "status_id": 2,
+                        "remark": "",
+                        "requires_file_upload": false,
+                        "is_otp": true,
+                        "created_at": "12-12-2025 21:46:27",
+                        "updated_at": "12-12-2025 23:57:22",
+                        "document_status": {
+                            "id": 2,
+                            "name": "APPROVED",
+                            "created_at": "25-07-2025 14:02:32",
+                            "updated_at": "25-07-2025 14:02:32"
+                        },
+                        "approver": {
+                            "id": 2,
+                            "username": "super-admin",
+                            "email": "super-admin@example.com",
+                            "tel": "2078982880",
+                            "created_at": "05-06-2025 19:16:35",
+                            "updated_at": "05-06-2025 19:16:35",
+                            "user_signature": null,
+                            "roles": [],
+                            "permissions": [],
+                            "user_types": []
+                        },
+                        "position": null,
+                        "doc_approver": [
+                            {
+                                "id": 1401,
+                                "user_approval_step_id": 1254,
+                                "user_id": 2,
+                                "created_at": "12-12-2025 21:46:27",
+                                "updated_at": "12-12-2025 21:46:27",
+                                "user": {
+                                    "id": 2,
+                                    "username": "super-admin",
+                                    "email": "super-admin@example.com",
+                                    "tel": "2078982880",
+                                    "created_at": "05-06-2025 19:16:35",
+                                    "updated_at": "05-06-2025 19:16:35",
+                                    "user_signature": null,
+                                    "roles": [],
+                                    "permissions": [],
+                                    "user_types": []
+                                },
+                                "department": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            "document_attachment": [],
+            "receipt_item": [
+                {
+                    "id": 141,
+                    "receipt_id": 149,
+                    "purchase_order_item_id": 136,
+                    "quantity": 1,
+                    "price": 1000000,
+                    "total": 1000000,
+                    "currency_id": 1,
+                    "payment_currency_id": 1,
+                    "exchange_rate": 1,
+                    "vat": 50000,
+                    "payment_total": 1000000,
+                    "payment_type": "transfer",
+                    "remark": "computer ",
+                    "created_at": "12-12-2025 21:45:39",
+                    "updated_at": "12-12-2025 21:45:39",
+                    "currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "payment_currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "purchase_order_item": {
+                        "id": 136,
+                        "purchase_order_id": 130,
+                        "purchase_request_item_id": 354,
+                        "budget_item_id": 34,
+                        "remark": "computer Mac in office",
+                        "quantity": 1,
+                        "price": 1000000,
+                        "total": 1000000,
+                        "vat_total": 0,
+                        "total_with_vat": 1000000,
+                        "is_vat": false,
+                        "created_at": "10-12-2025 22:08:17",
+                        "updated_at": "10-12-2025 22:09:01",
+                        "budget_item": {
+                            "id": 34,
+                            "name": "ກິດຈະກຳຕ່າງໆ",
+                            "budget_account_id": 33,
+                            "allocated_amount": 0,
+                            "use_amount": 0,
+                            "balance_amount": 0,
+                            "description": "",
+                            "created_at": "09-12-2025 22:50:24",
+                            "updated_at": "09-12-2025 22:50:24",
+                            "budget_account": {
+                                "id": 33,
+                                "code": "BA-5FD9FD",
+                                "name": "ທົ່ວໄປ",
+                                "department_id": 61,
+                                "company_id": 0,
+                                "fiscal_year": 2025,
+                                "allocated_amount": null,
+                                "total_budget": null,
+                                "increase_amount": 0,
+                                "used_amount": 0,
+                                "balance_amount": 0,
+                                "type": "expenditure",
+                                "created_at": "09-12-2025 22:39:41",
+                                "updated_at": "09-12-2025 22:39:41",
+                                "department": null,
+                                "company": null
+                            }
+                        },
+                        "purchase_request_item": {
+                            "id": 354,
+                            "purchase_request_id": 354,
+                            "title": "computer Mac",
+                            "file_name": "pr_file_name/019b074b-cc61-731b-a724-3b617b56c10d-1765353966689",
+                            "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019b074b-cc61-731b-a724-3b617b56c10d-1765353966689",
+                            "quantity": 1,
+                            "unit_id": "34",
+                            "quota_company_id": 0,
+                            "price": 1000000,
+                            "total_price": 1000000,
+                            "remark": "computer Mac in office",
+                            "created_at": "10-12-2025 22:06:07",
+                            "updated_at": "10-12-2025 22:06:07",
+                            "unit": {
+                                "id": "34",
+                                "name": "ໜ່ວຍ",
+                                "created_at": "20-11-2025 18:01:13",
+                                "updated_at": "20-11-2025 18:01:13"
+                            },
+                            "quota_company": {
+                                "id": 19,
+                                "year": "2025-01-01",
+                                "qty": 20,
+                                "vendor_product_id": "16",
+                                "company_id": 22,
+                                "created_at": "10-12-2025 00:01:51",
+                                "updated_at": "10-12-2025 00:01:51",
+                                "vendor_product": {
+                                    "id": "16",
+                                    "vendor_id": "28",
+                                    "product_id": 1,
+                                    "vendor": {
+                                        "id": "28",
+                                        "name": "Comcom"
+                                    },
+                                    "product": {
+                                        "id": 1,
+                                        "name": "ຄອມພີວເຕີ່ Mac M3"
+                                    },
+                                    "price": "25000000.00",
+                                    "created_at": "04-12-2025 22:11:39",
+                                    "updated_at": "04-12-2025 22:11:39"
+                                },
+                                "Product": {
+                                    "id": 1,
+                                    "name": "ຄອມພີວເຕີ່ Mac M3",
+                                    "description": "Ram (16GB, SSD 520GB)",
+                                    "product_type_id": 1,
+                                    "unit_id": "34",
+                                    "status": "active",
+                                    "created_at": "31-10-2025 17:04:10",
+                                    "updated_at": "20-11-2025 18:01:27"
+                                },
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                }
+                            }
+                        },
+                        "selected_vendor": [
+                            {
+                                "id": 122,
+                                "purchase_order_item_id": 136,
+                                "vendor_id": 28,
+                                "vendor_bank_account_id": 38,
+                                "filename": "po_file_name/019b074d-ccc8-728c-ae95-0e8b5c7321c4-1765354097864",
+                                "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019b074d-ccc8-728c-ae95-0e8b5c7321c4-1765354097864",
+                                "reason": "computer ",
+                                "selected": true,
+                                "created_at": "10-12-2025 22:08:18",
+                                "updated_at": "10-12-2025 22:08:18",
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                },
+                                "vendor_bank_account": {
+                                    "id": 38,
+                                    "vendor_id": 28,
+                                    "currency_id": 1,
+                                    "account_name": "BCelONe",
+                                    "bank_id": 48,
+                                    "account_number": "1118880000",
+                                    "is_selected": true,
+                                    "created_at": "10-12-2025 00:12:49",
+                                    "updated_at": "10-12-2025 00:12:52",
+                                    "vendor": null,
+                                    "currency": {
+                                        "id": 1,
+                                        "code": "LAK",
+                                        "name": "Lao Kip",
+                                        "created_at": "06-06-2025 20:53:41",
+                                        "updated_at": "06-06-2025 21:05:12"
+                                    },
+                                    "bank": {
+                                        "id": 48,
+                                        "short_name": "ST Bank",
+                                        "name": "ທະນາຄານ ເອັສທີ",
+                                        "logo": "BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "created_at": "27-11-2025 21:37:28",
+                                        "updated_at": "27-11-2025 21:37:42"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 148,
+            "receipt_number": "0013/ຈຊ/ກງ",
+            "purchase_order_id": 129,
+            "po_number": "0001/ຈຊ/ກງ",
+            "po_doc_type": "ໃບອະນຸມັດຈັດຊື້",
+            "purchase_request_id": 353,
+            "pr_number": "0001/ກງ",
+            "pr_doc_type": "ໃບສະເໜີ",
+            "document_id": 634,
+            "receipt_date": "12-12-2025 21:45:05",
+            "received_by": 115,
+            "remark": "computer ",
+            "account_code": null,
+            "created_at": "12-12-2025 21:45:05",
+            "updated_at": "12-12-2025 21:45:05",
+            "step": true,
+            "step_number": 1,
+            "itemCount": 2,
+            "sub_total": 36287000,
+            "vat": 1814350,
+            "total": 38101350,
+            "currency_totals": [
+                {
+                    "id": 1,
+                    "code": "LAK",
+                    "name": "Lao Kip",
+                    "total": 36287000,
+                    "vat": 1814350,
+                    "amount": 38101350
+                }
+            ],
+            "document": {
+                "id": 634,
+                "document_number": "D-930E72",
+                "title": "",
+                "description": "",
+                "total_amount": 0,
+                "department_id": 59,
+                "requester_id": 115,
+                "document_type_id": "40",
+                "created_at": "12-12-2025 21:45:05",
+                "updated_at": "12-12-2025 21:45:05",
+                "department": {
+                    "id": 59,
+                    "code": "ກງ",
+                    "name": "ການເງິນ",
+                    "department_head_id": 0,
+                    "created_at": "09-12-2025 21:26:17",
+                    "updated_at": "09-12-2025 22:12:33",
+                    "department_head": null,
+                    "company": null
+                },
+                "document_type": {
+                    "id": "40",
+                    "code": "DT-TT022",
+                    "name": "ໃບເທສ",
+                    "created_at": "08-10-2025 16:11:26",
+                    "updated_at": "08-10-2025 16:11:26"
+                },
+                "requester": {
+                    "id": 115,
+                    "username": "tou",
+                    "email": "tou@gmail.com",
+                    "tel": "2055084306",
+                    "created_at": "09-12-2025 21:44:03",
+                    "updated_at": "10-12-2025 21:10:16",
+                    "user_signature": null,
+                    "roles": [],
+                    "permissions": [],
+                    "user_types": []
+                },
+                "position": [
+                    {
+                        "id": 68,
+                        "name": "ພະນັກງານ",
+                        "created_at": "15-12-2025 10:39:07",
+                        "updated_at": "Invalid date",
+                        "company": null
+                    }
+                ],
+                "company": {
+                    "id": 22,
+                    "name": "Hal-tech",
+                    "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "tel": "2055889858",
+                    "email": "haltech@gmail.com",
+                    "address": "ບ້ານຈອມມະນີ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ",
+                    "created_at": "09-12-2025 21:25:27",
+                    "updated_at": "09-12-2025 21:25:27"
+                }
+            },
+            "user_approval": {
+                "id": 554,
+                "document_id": 634,
+                "status_id": 1,
+                "created_at": "12-12-2025 21:45:05",
+                "updated_at": "12-12-2025 21:45:05",
+                "document_status": {
+                    "id": 1,
+                    "name": "PENDING",
+                    "created_at": "25-07-2025 14:02:32",
+                    "updated_at": "25-07-2025 14:02:32"
+                },
+                "approval_step": [
+                    {
+                        "id": 1253,
+                        "user_approval_id": 554,
+                        "step_number": 2,
+                        "approver_id": 2,
+                        "approved_at": "12-12-2025 23:47:22",
+                        "status_id": 2,
+                        "remark": "",
+                        "requires_file_upload": false,
+                        "is_otp": true,
+                        "created_at": "12-12-2025 21:46:15",
+                        "updated_at": "12-12-2025 23:47:22",
+                        "document_status": {
+                            "id": 2,
+                            "name": "APPROVED",
+                            "created_at": "25-07-2025 14:02:32",
+                            "updated_at": "25-07-2025 14:02:32"
+                        },
+                        "approver": {
+                            "id": 2,
+                            "username": "super-admin",
+                            "email": "super-admin@example.com",
+                            "tel": "2078982880",
+                            "created_at": "05-06-2025 19:16:35",
+                            "updated_at": "05-06-2025 19:16:35",
+                            "user_signature": null,
+                            "roles": [],
+                            "permissions": [],
+                            "user_types": []
+                        },
+                        "position": null,
+                        "doc_approver": [
+                            {
+                                "id": 1400,
+                                "user_approval_step_id": 1253,
+                                "user_id": 2,
+                                "created_at": "12-12-2025 21:46:15",
+                                "updated_at": "12-12-2025 21:46:15",
+                                "user": {
+                                    "id": 2,
+                                    "username": "super-admin",
+                                    "email": "super-admin@example.com",
+                                    "tel": "2078982880",
+                                    "created_at": "05-06-2025 19:16:35",
+                                    "updated_at": "05-06-2025 19:16:35",
+                                    "user_signature": null,
+                                    "roles": [],
+                                    "permissions": [],
+                                    "user_types": []
+                                },
+                                "department": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            "document_attachment": [],
+            "receipt_item": [
+                {
+                    "id": 140,
+                    "receipt_id": 148,
+                    "purchase_order_item_id": 135,
+                    "quantity": 1,
+                    "price": 35689000,
+                    "total": 35689000,
+                    "currency_id": 1,
+                    "payment_currency_id": 1,
+                    "exchange_rate": 1,
+                    "vat": 1784450,
+                    "payment_total": 35689000,
+                    "payment_type": "transfer",
+                    "remark": "computer ",
+                    "created_at": "12-12-2025 21:45:05",
+                    "updated_at": "12-12-2025 21:45:05",
+                    "currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "payment_currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "purchase_order_item": {
+                        "id": 135,
+                        "purchase_order_id": 129,
+                        "purchase_request_item_id": 352,
+                        "budget_item_id": 33,
+                        "remark": "test",
+                        "quantity": 1,
+                        "price": 35689000,
+                        "total": 35689000,
+                        "vat_total": 0,
+                        "total_with_vat": 35689000,
+                        "is_vat": false,
+                        "created_at": "10-12-2025 00:13:27",
+                        "updated_at": "10-12-2025 17:58:43",
+                        "budget_item": {
+                            "id": 33,
+                            "name": "ເຄື່ອງໃຊ້ຫ້ອງການ",
+                            "budget_account_id": 33,
+                            "allocated_amount": 0,
+                            "use_amount": 0,
+                            "balance_amount": 0,
+                            "description": "",
+                            "created_at": "09-12-2025 22:45:37",
+                            "updated_at": "09-12-2025 22:45:37",
+                            "budget_account": {
+                                "id": 33,
+                                "code": "BA-5FD9FD",
+                                "name": "ທົ່ວໄປ",
+                                "department_id": 61,
+                                "company_id": 0,
+                                "fiscal_year": 2025,
+                                "allocated_amount": null,
+                                "total_budget": null,
+                                "increase_amount": 0,
+                                "used_amount": 0,
+                                "balance_amount": 0,
+                                "type": "expenditure",
+                                "created_at": "09-12-2025 22:39:41",
+                                "updated_at": "09-12-2025 22:39:41",
+                                "department": null,
+                                "company": null
+                            }
+                        },
+                        "purchase_request_item": {
+                            "id": 352,
+                            "purchase_request_id": 353,
+                            "title": "Mack (12GB/512GB)",
+                            "file_name": "pr_file_name/019b0293-919f-7368-aca0-211b898595c5-1765274784159",
+                            "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019b0293-919f-7368-aca0-211b898595c5-1765274784159",
+                            "quantity": 1,
+                            "unit_id": "34",
+                            "quota_company_id": 0,
+                            "price": 35689000,
+                            "total_price": 35689000,
+                            "remark": "test",
+                            "created_at": "10-12-2025 00:06:24",
+                            "updated_at": "10-12-2025 00:06:24",
+                            "unit": {
+                                "id": "34",
+                                "name": "ໜ່ວຍ",
+                                "created_at": "20-11-2025 18:01:13",
+                                "updated_at": "20-11-2025 18:01:13"
+                            },
+                            "quota_company": {
+                                "id": 19,
+                                "year": "2025-01-01",
+                                "qty": 20,
+                                "vendor_product_id": "16",
+                                "company_id": 22,
+                                "created_at": "10-12-2025 00:01:51",
+                                "updated_at": "10-12-2025 00:01:51",
+                                "vendor_product": {
+                                    "id": "16",
+                                    "vendor_id": "28",
+                                    "product_id": 1,
+                                    "vendor": {
+                                        "id": "28",
+                                        "name": "Comcom"
+                                    },
+                                    "product": {
+                                        "id": 1,
+                                        "name": "ຄອມພີວເຕີ່ Mac M3"
+                                    },
+                                    "price": "25000000.00",
+                                    "created_at": "04-12-2025 22:11:39",
+                                    "updated_at": "04-12-2025 22:11:39"
+                                },
+                                "Product": {
+                                    "id": 1,
+                                    "name": "ຄອມພີວເຕີ່ Mac M3",
+                                    "description": "Ram (16GB, SSD 520GB)",
+                                    "product_type_id": 1,
+                                    "unit_id": "34",
+                                    "status": "active",
+                                    "created_at": "31-10-2025 17:04:10",
+                                    "updated_at": "20-11-2025 18:01:27"
+                                },
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                }
+                            }
+                        },
+                        "selected_vendor": [
+                            {
+                                "id": 121,
+                                "purchase_order_item_id": 135,
+                                "vendor_id": 28,
+                                "vendor_bank_account_id": 38,
+                                "filename": "po_file_name/019b029a-079c-7510-8efe-66dc2c8c7ee4-1765275207580",
+                                "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019b029a-079c-7510-8efe-66dc2c8c7ee4-1765275207580",
+                                "reason": "test",
+                                "selected": true,
+                                "created_at": "10-12-2025 00:13:27",
+                                "updated_at": "10-12-2025 00:13:27",
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                },
+                                "vendor_bank_account": {
+                                    "id": 38,
+                                    "vendor_id": 28,
+                                    "currency_id": 1,
+                                    "account_name": "BCelONe",
+                                    "bank_id": 48,
+                                    "account_number": "1118880000",
+                                    "is_selected": true,
+                                    "created_at": "10-12-2025 00:12:49",
+                                    "updated_at": "10-12-2025 00:12:52",
+                                    "vendor": null,
+                                    "currency": {
+                                        "id": 1,
+                                        "code": "LAK",
+                                        "name": "Lao Kip",
+                                        "created_at": "06-06-2025 20:53:41",
+                                        "updated_at": "06-06-2025 21:05:12"
+                                    },
+                                    "bank": {
+                                        "id": 48,
+                                        "short_name": "ST Bank",
+                                        "name": "ທະນາຄານ ເອັສທີ",
+                                        "logo": "BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "created_at": "27-11-2025 21:37:28",
+                                        "updated_at": "27-11-2025 21:37:42"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": 139,
+                    "receipt_id": 148,
+                    "purchase_order_item_id": 134,
+                    "quantity": 2,
+                    "price": 299000,
+                    "total": 598000,
+                    "currency_id": 1,
+                    "payment_currency_id": 1,
+                    "exchange_rate": 1,
+                    "vat": 29900,
+                    "payment_total": 598000,
+                    "payment_type": "transfer",
+                    "remark": "computer ",
+                    "created_at": "12-12-2025 21:45:05",
+                    "updated_at": "12-12-2025 21:45:05",
+                    "currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "payment_currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "purchase_order_item": {
+                        "id": 134,
+                        "purchase_order_id": 129,
+                        "purchase_request_item_id": 353,
+                        "budget_item_id": 33,
+                        "remark": "test",
+                        "quantity": 2,
+                        "price": 299000,
+                        "total": 598000,
+                        "vat_total": 0,
+                        "total_with_vat": 598000,
+                        "is_vat": false,
+                        "created_at": "10-12-2025 00:13:26",
+                        "updated_at": "10-12-2025 17:58:43",
+                        "budget_item": {
+                            "id": 33,
+                            "name": "ເຄື່ອງໃຊ້ຫ້ອງການ",
+                            "budget_account_id": 33,
+                            "allocated_amount": 0,
+                            "use_amount": 0,
+                            "balance_amount": 0,
+                            "description": "",
+                            "created_at": "09-12-2025 22:45:37",
+                            "updated_at": "09-12-2025 22:45:37",
+                            "budget_account": {
+                                "id": 33,
+                                "code": "BA-5FD9FD",
+                                "name": "ທົ່ວໄປ",
+                                "department_id": 61,
+                                "company_id": 0,
+                                "fiscal_year": 2025,
+                                "allocated_amount": null,
+                                "total_budget": null,
+                                "increase_amount": 0,
+                                "used_amount": 0,
+                                "balance_amount": 0,
+                                "type": "expenditure",
+                                "created_at": "09-12-2025 22:39:41",
+                                "updated_at": "09-12-2025 22:39:41",
+                                "department": null,
+                                "company": null
+                            }
+                        },
+                        "purchase_request_item": {
+                            "id": 353,
+                            "purchase_request_id": 353,
+                            "title": "keyboard",
+                            "file_name": "pr_file_name/019b0293-9407-776b-85ea-af7c91599f73-1765274784775",
+                            "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019b0293-9407-776b-85ea-af7c91599f73-1765274784775",
+                            "quantity": 2,
+                            "unit_id": "34",
+                            "quota_company_id": 0,
+                            "price": 299000,
+                            "total_price": 598000,
+                            "remark": "test",
+                            "created_at": "10-12-2025 00:06:24",
+                            "updated_at": "10-12-2025 00:06:24",
+                            "unit": {
+                                "id": "34",
+                                "name": "ໜ່ວຍ",
+                                "created_at": "20-11-2025 18:01:13",
+                                "updated_at": "20-11-2025 18:01:13"
+                            },
+                            "quota_company": {
+                                "id": 19,
+                                "year": "2025-01-01",
+                                "qty": 20,
+                                "vendor_product_id": "16",
+                                "company_id": 22,
+                                "created_at": "10-12-2025 00:01:51",
+                                "updated_at": "10-12-2025 00:01:51",
+                                "vendor_product": {
+                                    "id": "16",
+                                    "vendor_id": "28",
+                                    "product_id": 1,
+                                    "vendor": {
+                                        "id": "28",
+                                        "name": "Comcom"
+                                    },
+                                    "product": {
+                                        "id": 1,
+                                        "name": "ຄອມພີວເຕີ່ Mac M3"
+                                    },
+                                    "price": "25000000.00",
+                                    "created_at": "04-12-2025 22:11:39",
+                                    "updated_at": "04-12-2025 22:11:39"
+                                },
+                                "Product": {
+                                    "id": 1,
+                                    "name": "ຄອມພີວເຕີ່ Mac M3",
+                                    "description": "Ram (16GB, SSD 520GB)",
+                                    "product_type_id": 1,
+                                    "unit_id": "34",
+                                    "status": "active",
+                                    "created_at": "31-10-2025 17:04:10",
+                                    "updated_at": "20-11-2025 18:01:27"
+                                },
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                }
+                            }
+                        },
+                        "selected_vendor": [
+                            {
+                                "id": 120,
+                                "purchase_order_item_id": 134,
+                                "vendor_id": 28,
+                                "vendor_bank_account_id": 38,
+                                "filename": "po_file_name/019b029a-0411-76ba-a389-453a8ae93046-1765275206673",
+                                "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019b029a-0411-76ba-a389-453a8ae93046-1765275206673",
+                                "reason": "test",
+                                "selected": true,
+                                "created_at": "10-12-2025 00:13:27",
+                                "updated_at": "10-12-2025 00:13:27",
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                },
+                                "vendor_bank_account": {
+                                    "id": 38,
+                                    "vendor_id": 28,
+                                    "currency_id": 1,
+                                    "account_name": "BCelONe",
+                                    "bank_id": 48,
+                                    "account_number": "1118880000",
+                                    "is_selected": true,
+                                    "created_at": "10-12-2025 00:12:49",
+                                    "updated_at": "10-12-2025 00:12:52",
+                                    "vendor": null,
+                                    "currency": {
+                                        "id": 1,
+                                        "code": "LAK",
+                                        "name": "Lao Kip",
+                                        "created_at": "06-06-2025 20:53:41",
+                                        "updated_at": "06-06-2025 21:05:12"
+                                    },
+                                    "bank": {
+                                        "id": 48,
+                                        "short_name": "ST Bank",
+                                        "name": "ທະນາຄານ ເອັສທີ",
+                                        "logo": "BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "created_at": "27-11-2025 21:37:28",
+                                        "updated_at": "27-11-2025 21:37:42"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 147,
+            "receipt_number": "0012/ຈຊ/ກງ",
+            "purchase_order_id": 130,
+            "po_number": "0002/ຈຊ/ກງ",
+            "po_doc_type": "ໃບອະນຸມັດຈັດຊື້",
+            "purchase_request_id": 354,
+            "pr_number": "0002/ກງ",
+            "pr_doc_type": "ໃບສະເໜີ",
+            "document_id": 633,
+            "receipt_date": "12-12-2025 18:25:17",
+            "received_by": 115,
+            "remark": "computer ",
+            "account_code": null,
+            "created_at": "12-12-2025 18:25:17",
+            "updated_at": "12-12-2025 18:25:17",
+            "step": true,
+            "step_number": 2,
+            "itemCount": 1,
+            "sub_total": 1000000,
+            "vat": 50000,
+            "total": 1050000,
+            "currency_totals": [
+                {
+                    "id": 1,
+                    "code": "LAK",
+                    "name": "Lao Kip",
+                    "total": 1000000,
+                    "vat": 50000,
+                    "amount": 1050000
+                }
+            ],
+            "document": {
+                "id": 633,
+                "document_number": "D-914431",
+                "title": "",
+                "description": "",
+                "total_amount": 0,
+                "department_id": 59,
+                "requester_id": 115,
+                "document_type_id": "40",
+                "created_at": "12-12-2025 18:25:17",
+                "updated_at": "12-12-2025 18:25:17",
+                "department": {
+                    "id": 59,
+                    "code": "ກງ",
+                    "name": "ການເງິນ",
+                    "department_head_id": 0,
+                    "created_at": "09-12-2025 21:26:17",
+                    "updated_at": "09-12-2025 22:12:33",
+                    "department_head": null,
+                    "company": null
+                },
+                "document_type": {
+                    "id": "40",
+                    "code": "DT-TT022",
+                    "name": "ໃບເທສ",
+                    "created_at": "08-10-2025 16:11:26",
+                    "updated_at": "08-10-2025 16:11:26"
+                },
+                "requester": {
+                    "id": 115,
+                    "username": "tou",
+                    "email": "tou@gmail.com",
+                    "tel": "2055084306",
+                    "created_at": "09-12-2025 21:44:03",
+                    "updated_at": "10-12-2025 21:10:16",
+                    "user_signature": null,
+                    "roles": [],
+                    "permissions": [],
+                    "user_types": []
+                },
+                "position": [
+                    {
+                        "id": 68,
+                        "name": "ພະນັກງານ",
+                        "created_at": "15-12-2025 10:39:07",
+                        "updated_at": "Invalid date",
+                        "company": null
+                    }
+                ],
+                "company": {
+                    "id": 22,
+                    "name": "Hal-tech",
+                    "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "tel": "2055889858",
+                    "email": "haltech@gmail.com",
+                    "address": "ບ້ານຈອມມະນີ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ",
+                    "created_at": "09-12-2025 21:25:27",
+                    "updated_at": "09-12-2025 21:25:27"
+                }
+            },
+            "user_approval": {
+                "id": 553,
+                "document_id": 633,
+                "status_id": 1,
+                "created_at": "12-12-2025 18:25:17",
+                "updated_at": "12-12-2025 18:25:17",
+                "document_status": {
+                    "id": 1,
+                    "name": "PENDING",
+                    "created_at": "25-07-2025 14:02:32",
+                    "updated_at": "25-07-2025 14:02:32"
+                },
+                "approval_step": [
+                    {
+                        "id": 1246,
+                        "user_approval_id": 553,
+                        "step_number": 2,
+                        "approver_id": 2,
+                        "approved_at": "12-12-2025 18:48:38",
+                        "status_id": 2,
+                        "remark": "",
+                        "requires_file_upload": false,
+                        "is_otp": false,
+                        "created_at": "12-12-2025 18:25:59",
+                        "updated_at": "12-12-2025 18:48:38",
+                        "document_status": {
+                            "id": 2,
+                            "name": "APPROVED",
+                            "created_at": "25-07-2025 14:02:32",
+                            "updated_at": "25-07-2025 14:02:32"
+                        },
+                        "approver": {
+                            "id": 2,
+                            "username": "super-admin",
+                            "email": "super-admin@example.com",
+                            "tel": "2078982880",
+                            "created_at": "05-06-2025 19:16:35",
+                            "updated_at": "05-06-2025 19:16:35",
+                            "user_signature": null,
+                            "roles": [],
+                            "permissions": [],
+                            "user_types": []
+                        },
+                        "position": null,
+                        "doc_approver": [
+                            {
+                                "id": 1392,
+                                "user_approval_step_id": 1246,
+                                "user_id": 2,
+                                "created_at": "12-12-2025 18:25:59",
+                                "updated_at": "12-12-2025 18:25:59",
+                                "user": {
+                                    "id": 2,
+                                    "username": "super-admin",
+                                    "email": "super-admin@example.com",
+                                    "tel": "2078982880",
+                                    "created_at": "05-06-2025 19:16:35",
+                                    "updated_at": "05-06-2025 19:16:35",
+                                    "user_signature": null,
+                                    "roles": [],
+                                    "permissions": [],
+                                    "user_types": []
+                                },
+                                "department": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            "document_attachment": [],
+            "receipt_item": [
+                {
+                    "id": 138,
+                    "receipt_id": 147,
+                    "purchase_order_item_id": 136,
+                    "quantity": 1,
+                    "price": 1000000,
+                    "total": 1000000,
+                    "currency_id": 1,
+                    "payment_currency_id": 1,
+                    "exchange_rate": 1,
+                    "vat": 50000,
+                    "payment_total": 1000000,
+                    "payment_type": "transfer",
+                    "remark": "computer ",
+                    "created_at": "12-12-2025 18:25:17",
+                    "updated_at": "12-12-2025 18:25:17",
+                    "currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "payment_currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "purchase_order_item": {
+                        "id": 136,
+                        "purchase_order_id": 130,
+                        "purchase_request_item_id": 354,
+                        "budget_item_id": 34,
+                        "remark": "computer Mac in office",
+                        "quantity": 1,
+                        "price": 1000000,
+                        "total": 1000000,
+                        "vat_total": 0,
+                        "total_with_vat": 1000000,
+                        "is_vat": false,
+                        "created_at": "10-12-2025 22:08:17",
+                        "updated_at": "10-12-2025 22:09:01",
+                        "budget_item": {
+                            "id": 34,
+                            "name": "ກິດຈະກຳຕ່າງໆ",
+                            "budget_account_id": 33,
+                            "allocated_amount": 0,
+                            "use_amount": 0,
+                            "balance_amount": 0,
+                            "description": "",
+                            "created_at": "09-12-2025 22:50:24",
+                            "updated_at": "09-12-2025 22:50:24",
+                            "budget_account": {
+                                "id": 33,
+                                "code": "BA-5FD9FD",
+                                "name": "ທົ່ວໄປ",
+                                "department_id": 61,
+                                "company_id": 0,
+                                "fiscal_year": 2025,
+                                "allocated_amount": null,
+                                "total_budget": null,
+                                "increase_amount": 0,
+                                "used_amount": 0,
+                                "balance_amount": 0,
+                                "type": "expenditure",
+                                "created_at": "09-12-2025 22:39:41",
+                                "updated_at": "09-12-2025 22:39:41",
+                                "department": null,
+                                "company": null
+                            }
+                        },
+                        "purchase_request_item": {
+                            "id": 354,
+                            "purchase_request_id": 354,
+                            "title": "computer Mac",
+                            "file_name": "pr_file_name/019b074b-cc61-731b-a724-3b617b56c10d-1765353966689",
+                            "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019b074b-cc61-731b-a724-3b617b56c10d-1765353966689",
+                            "quantity": 1,
+                            "unit_id": "34",
+                            "quota_company_id": 0,
+                            "price": 1000000,
+                            "total_price": 1000000,
+                            "remark": "computer Mac in office",
+                            "created_at": "10-12-2025 22:06:07",
+                            "updated_at": "10-12-2025 22:06:07",
+                            "unit": {
+                                "id": "34",
+                                "name": "ໜ່ວຍ",
+                                "created_at": "20-11-2025 18:01:13",
+                                "updated_at": "20-11-2025 18:01:13"
+                            },
+                            "quota_company": {
+                                "id": 19,
+                                "year": "2025-01-01",
+                                "qty": 20,
+                                "vendor_product_id": "16",
+                                "company_id": 22,
+                                "created_at": "10-12-2025 00:01:51",
+                                "updated_at": "10-12-2025 00:01:51",
+                                "vendor_product": {
+                                    "id": "16",
+                                    "vendor_id": "28",
+                                    "product_id": 1,
+                                    "vendor": {
+                                        "id": "28",
+                                        "name": "Comcom"
+                                    },
+                                    "product": {
+                                        "id": 1,
+                                        "name": "ຄອມພີວເຕີ່ Mac M3"
+                                    },
+                                    "price": "25000000.00",
+                                    "created_at": "04-12-2025 22:11:39",
+                                    "updated_at": "04-12-2025 22:11:39"
+                                },
+                                "Product": {
+                                    "id": 1,
+                                    "name": "ຄອມພີວເຕີ່ Mac M3",
+                                    "description": "Ram (16GB, SSD 520GB)",
+                                    "product_type_id": 1,
+                                    "unit_id": "34",
+                                    "status": "active",
+                                    "created_at": "31-10-2025 17:04:10",
+                                    "updated_at": "20-11-2025 18:01:27"
+                                },
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                }
+                            }
+                        },
+                        "selected_vendor": [
+                            {
+                                "id": 122,
+                                "purchase_order_item_id": 136,
+                                "vendor_id": 28,
+                                "vendor_bank_account_id": 38,
+                                "filename": "po_file_name/019b074d-ccc8-728c-ae95-0e8b5c7321c4-1765354097864",
+                                "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019b074d-ccc8-728c-ae95-0e8b5c7321c4-1765354097864",
+                                "reason": "computer ",
+                                "selected": true,
+                                "created_at": "10-12-2025 22:08:18",
+                                "updated_at": "10-12-2025 22:08:18",
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                },
+                                "vendor_bank_account": {
+                                    "id": 38,
+                                    "vendor_id": 28,
+                                    "currency_id": 1,
+                                    "account_name": "BCelONe",
+                                    "bank_id": 48,
+                                    "account_number": "1118880000",
+                                    "is_selected": true,
+                                    "created_at": "10-12-2025 00:12:49",
+                                    "updated_at": "10-12-2025 00:12:52",
+                                    "vendor": null,
+                                    "currency": {
+                                        "id": 1,
+                                        "code": "LAK",
+                                        "name": "Lao Kip",
+                                        "created_at": "06-06-2025 20:53:41",
+                                        "updated_at": "06-06-2025 21:05:12"
+                                    },
+                                    "bank": {
+                                        "id": 48,
+                                        "short_name": "ST Bank",
+                                        "name": "ທະນາຄານ ເອັສທີ",
+                                        "logo": "BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "created_at": "27-11-2025 21:37:28",
+                                        "updated_at": "27-11-2025 21:37:42"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 146,
+            "receipt_number": "0011/ຈຊ/ກງ",
+            "purchase_order_id": 130,
+            "po_number": "0002/ຈຊ/ກງ",
+            "po_doc_type": "ໃບອະນຸມັດຈັດຊື້",
+            "purchase_request_id": 354,
+            "pr_number": "0002/ກງ",
+            "pr_doc_type": "ໃບສະເໜີ",
+            "document_id": 632,
+            "receipt_date": "12-12-2025 18:24:44",
+            "received_by": 115,
+            "remark": "computer ",
+            "account_code": null,
+            "created_at": "12-12-2025 18:24:44",
+            "updated_at": "12-12-2025 18:24:44",
+            "step": true,
+            "step_number": 3,
+            "itemCount": 1,
+            "sub_total": 1000000,
+            "vat": 50000,
+            "total": 1050000,
+            "currency_totals": [
+                {
+                    "id": 1,
+                    "code": "LAK",
+                    "name": "Lao Kip",
+                    "total": 1000000,
+                    "vat": 50000,
+                    "amount": 1050000
+                }
+            ],
+            "document": {
+                "id": 632,
+                "document_number": "D-6C7B04",
+                "title": "",
+                "description": "",
+                "total_amount": 0,
+                "department_id": 59,
+                "requester_id": 115,
+                "document_type_id": "40",
+                "created_at": "12-12-2025 18:24:44",
+                "updated_at": "12-12-2025 18:24:44",
+                "department": {
+                    "id": 59,
+                    "code": "ກງ",
+                    "name": "ການເງິນ",
+                    "department_head_id": 0,
+                    "created_at": "09-12-2025 21:26:17",
+                    "updated_at": "09-12-2025 22:12:33",
+                    "department_head": null,
+                    "company": null
+                },
+                "document_type": {
+                    "id": "40",
+                    "code": "DT-TT022",
+                    "name": "ໃບເທສ",
+                    "created_at": "08-10-2025 16:11:26",
+                    "updated_at": "08-10-2025 16:11:26"
+                },
+                "requester": {
+                    "id": 115,
+                    "username": "tou",
+                    "email": "tou@gmail.com",
+                    "tel": "2055084306",
+                    "created_at": "09-12-2025 21:44:03",
+                    "updated_at": "10-12-2025 21:10:16",
+                    "user_signature": null,
+                    "roles": [],
+                    "permissions": [],
+                    "user_types": []
+                },
+                "position": [
+                    {
+                        "id": 68,
+                        "name": "ພະນັກງານ",
+                        "created_at": "15-12-2025 10:39:07",
+                        "updated_at": "Invalid date",
+                        "company": null
+                    }
+                ],
+                "company": {
+                    "id": 22,
+                    "name": "Hal-tech",
+                    "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "tel": "2055889858",
+                    "email": "haltech@gmail.com",
+                    "address": "ບ້ານຈອມມະນີ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ",
+                    "created_at": "09-12-2025 21:25:27",
+                    "updated_at": "09-12-2025 21:25:27"
+                }
+            },
+            "user_approval": {
+                "id": 552,
+                "document_id": 632,
+                "status_id": 1,
+                "created_at": "12-12-2025 18:24:44",
+                "updated_at": "12-12-2025 18:24:44",
+                "document_status": {
+                    "id": 1,
+                    "name": "PENDING",
+                    "created_at": "25-07-2025 14:02:32",
+                    "updated_at": "25-07-2025 14:02:32"
+                },
+                "approval_step": [
+                    {
+                        "id": 1247,
+                        "user_approval_id": 552,
+                        "step_number": 2,
+                        "approver_id": 2,
+                        "approved_at": "13-12-2025 00:04:38",
+                        "status_id": 2,
+                        "remark": "",
+                        "requires_file_upload": false,
+                        "is_otp": false,
+                        "created_at": "12-12-2025 18:26:11",
+                        "updated_at": "13-12-2025 00:04:38",
+                        "document_status": {
+                            "id": 2,
+                            "name": "APPROVED",
+                            "created_at": "25-07-2025 14:02:32",
+                            "updated_at": "25-07-2025 14:02:32"
+                        },
+                        "approver": {
+                            "id": 2,
+                            "username": "super-admin",
+                            "email": "super-admin@example.com",
+                            "tel": "2078982880",
+                            "created_at": "05-06-2025 19:16:35",
+                            "updated_at": "05-06-2025 19:16:35",
+                            "user_signature": null,
+                            "roles": [],
+                            "permissions": [],
+                            "user_types": []
+                        },
+                        "position": null,
+                        "doc_approver": [
+                            {
+                                "id": 1393,
+                                "user_approval_step_id": 1247,
+                                "user_id": 2,
+                                "created_at": "12-12-2025 18:26:11",
+                                "updated_at": "12-12-2025 18:26:11",
+                                "user": {
+                                    "id": 2,
+                                    "username": "super-admin",
+                                    "email": "super-admin@example.com",
+                                    "tel": "2078982880",
+                                    "created_at": "05-06-2025 19:16:35",
+                                    "updated_at": "05-06-2025 19:16:35",
+                                    "user_signature": null,
+                                    "roles": [],
+                                    "permissions": [],
+                                    "user_types": []
+                                },
+                                "department": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            "document_attachment": [],
+            "receipt_item": [
+                {
+                    "id": 137,
+                    "receipt_id": 146,
+                    "purchase_order_item_id": 136,
+                    "quantity": 1,
+                    "price": 1000000,
+                    "total": 1000000,
+                    "currency_id": 1,
+                    "payment_currency_id": 1,
+                    "exchange_rate": 1,
+                    "vat": 50000,
+                    "payment_total": 1000000,
+                    "payment_type": "transfer",
+                    "remark": "computer ",
+                    "created_at": "12-12-2025 18:24:44",
+                    "updated_at": "12-12-2025 18:24:44",
+                    "currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "payment_currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "purchase_order_item": {
+                        "id": 136,
+                        "purchase_order_id": 130,
+                        "purchase_request_item_id": 354,
+                        "budget_item_id": 34,
+                        "remark": "computer Mac in office",
+                        "quantity": 1,
+                        "price": 1000000,
+                        "total": 1000000,
+                        "vat_total": 0,
+                        "total_with_vat": 1000000,
+                        "is_vat": false,
+                        "created_at": "10-12-2025 22:08:17",
+                        "updated_at": "10-12-2025 22:09:01",
+                        "budget_item": {
+                            "id": 34,
+                            "name": "ກິດຈະກຳຕ່າງໆ",
+                            "budget_account_id": 33,
+                            "allocated_amount": 0,
+                            "use_amount": 0,
+                            "balance_amount": 0,
+                            "description": "",
+                            "created_at": "09-12-2025 22:50:24",
+                            "updated_at": "09-12-2025 22:50:24",
+                            "budget_account": {
+                                "id": 33,
+                                "code": "BA-5FD9FD",
+                                "name": "ທົ່ວໄປ",
+                                "department_id": 61,
+                                "company_id": 0,
+                                "fiscal_year": 2025,
+                                "allocated_amount": null,
+                                "total_budget": null,
+                                "increase_amount": 0,
+                                "used_amount": 0,
+                                "balance_amount": 0,
+                                "type": "expenditure",
+                                "created_at": "09-12-2025 22:39:41",
+                                "updated_at": "09-12-2025 22:39:41",
+                                "department": null,
+                                "company": null
+                            }
+                        },
+                        "purchase_request_item": {
+                            "id": 354,
+                            "purchase_request_id": 354,
+                            "title": "computer Mac",
+                            "file_name": "pr_file_name/019b074b-cc61-731b-a724-3b617b56c10d-1765353966689",
+                            "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019b074b-cc61-731b-a724-3b617b56c10d-1765353966689",
+                            "quantity": 1,
+                            "unit_id": "34",
+                            "quota_company_id": 0,
+                            "price": 1000000,
+                            "total_price": 1000000,
+                            "remark": "computer Mac in office",
+                            "created_at": "10-12-2025 22:06:07",
+                            "updated_at": "10-12-2025 22:06:07",
+                            "unit": {
+                                "id": "34",
+                                "name": "ໜ່ວຍ",
+                                "created_at": "20-11-2025 18:01:13",
+                                "updated_at": "20-11-2025 18:01:13"
+                            },
+                            "quota_company": {
+                                "id": 19,
+                                "year": "2025-01-01",
+                                "qty": 20,
+                                "vendor_product_id": "16",
+                                "company_id": 22,
+                                "created_at": "10-12-2025 00:01:51",
+                                "updated_at": "10-12-2025 00:01:51",
+                                "vendor_product": {
+                                    "id": "16",
+                                    "vendor_id": "28",
+                                    "product_id": 1,
+                                    "vendor": {
+                                        "id": "28",
+                                        "name": "Comcom"
+                                    },
+                                    "product": {
+                                        "id": 1,
+                                        "name": "ຄອມພີວເຕີ່ Mac M3"
+                                    },
+                                    "price": "25000000.00",
+                                    "created_at": "04-12-2025 22:11:39",
+                                    "updated_at": "04-12-2025 22:11:39"
+                                },
+                                "Product": {
+                                    "id": 1,
+                                    "name": "ຄອມພີວເຕີ່ Mac M3",
+                                    "description": "Ram (16GB, SSD 520GB)",
+                                    "product_type_id": 1,
+                                    "unit_id": "34",
+                                    "status": "active",
+                                    "created_at": "31-10-2025 17:04:10",
+                                    "updated_at": "20-11-2025 18:01:27"
+                                },
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                }
+                            }
+                        },
+                        "selected_vendor": [
+                            {
+                                "id": 122,
+                                "purchase_order_item_id": 136,
+                                "vendor_id": 28,
+                                "vendor_bank_account_id": 38,
+                                "filename": "po_file_name/019b074d-ccc8-728c-ae95-0e8b5c7321c4-1765354097864",
+                                "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019b074d-ccc8-728c-ae95-0e8b5c7321c4-1765354097864",
+                                "reason": "computer ",
+                                "selected": true,
+                                "created_at": "10-12-2025 22:08:18",
+                                "updated_at": "10-12-2025 22:08:18",
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                },
+                                "vendor_bank_account": {
+                                    "id": 38,
+                                    "vendor_id": 28,
+                                    "currency_id": 1,
+                                    "account_name": "BCelONe",
+                                    "bank_id": 48,
+                                    "account_number": "1118880000",
+                                    "is_selected": true,
+                                    "created_at": "10-12-2025 00:12:49",
+                                    "updated_at": "10-12-2025 00:12:52",
+                                    "vendor": null,
+                                    "currency": {
+                                        "id": 1,
+                                        "code": "LAK",
+                                        "name": "Lao Kip",
+                                        "created_at": "06-06-2025 20:53:41",
+                                        "updated_at": "06-06-2025 21:05:12"
+                                    },
+                                    "bank": {
+                                        "id": 48,
+                                        "short_name": "ST Bank",
+                                        "name": "ທະນາຄານ ເອັສທີ",
+                                        "logo": "BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "created_at": "27-11-2025 21:37:28",
+                                        "updated_at": "27-11-2025 21:37:42"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 143,
+            "receipt_number": "0008/ຈຊ/ກງ",
+            "purchase_order_id": 130,
+            "po_number": "0002/ຈຊ/ກງ",
+            "po_doc_type": "ໃບອະນຸມັດຈັດຊື້",
+            "purchase_request_id": 354,
+            "pr_number": "0002/ກງ",
+            "pr_doc_type": "ໃບສະເໜີ",
+            "document_id": 628,
+            "receipt_date": "12-12-2025 17:37:55",
+            "received_by": 115,
+            "remark": "test",
+            "account_code": null,
+            "created_at": "12-12-2025 17:37:55",
+            "updated_at": "12-12-2025 17:37:55",
+            "step": true,
+            "step_number": 4,
+            "itemCount": 1,
+            "sub_total": 1000000,
+            "vat": 50000,
+            "total": 1050000,
+            "currency_totals": [
+                {
+                    "id": 1,
+                    "code": "LAK",
+                    "name": "Lao Kip",
+                    "total": 1000000,
+                    "vat": 50000,
+                    "amount": 1050000
+                }
+            ],
+            "document": {
+                "id": 628,
+                "document_number": "D-AF5E73",
+                "title": "",
+                "description": "",
+                "total_amount": 0,
+                "department_id": 59,
+                "requester_id": 115,
+                "document_type_id": "40",
+                "created_at": "12-12-2025 17:37:55",
+                "updated_at": "12-12-2025 17:37:55",
+                "department": {
+                    "id": 59,
+                    "code": "ກງ",
+                    "name": "ການເງິນ",
+                    "department_head_id": 0,
+                    "created_at": "09-12-2025 21:26:17",
+                    "updated_at": "09-12-2025 22:12:33",
+                    "department_head": null,
+                    "company": null
+                },
+                "document_type": {
+                    "id": "40",
+                    "code": "DT-TT022",
+                    "name": "ໃບເທສ",
+                    "created_at": "08-10-2025 16:11:26",
+                    "updated_at": "08-10-2025 16:11:26"
+                },
+                "requester": {
+                    "id": 115,
+                    "username": "tou",
+                    "email": "tou@gmail.com",
+                    "tel": "2055084306",
+                    "created_at": "09-12-2025 21:44:03",
+                    "updated_at": "10-12-2025 21:10:16",
+                    "user_signature": null,
+                    "roles": [],
+                    "permissions": [],
+                    "user_types": []
+                },
+                "position": [
+                    {
+                        "id": 68,
+                        "name": "ພະນັກງານ",
+                        "created_at": "15-12-2025 10:39:07",
+                        "updated_at": "Invalid date",
+                        "company": null
+                    }
+                ],
+                "company": {
+                    "id": 22,
+                    "name": "Hal-tech",
+                    "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "tel": "2055889858",
+                    "email": "haltech@gmail.com",
+                    "address": "ບ້ານຈອມມະນີ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ",
+                    "created_at": "09-12-2025 21:25:27",
+                    "updated_at": "09-12-2025 21:25:27"
+                }
+            },
+            "user_approval": {
+                "id": 548,
+                "document_id": 628,
+                "status_id": 1,
+                "created_at": "12-12-2025 17:37:55",
+                "updated_at": "12-12-2025 17:37:55",
+                "document_status": {
+                    "id": 1,
+                    "name": "PENDING",
+                    "created_at": "25-07-2025 14:02:32",
+                    "updated_at": "25-07-2025 14:02:32"
+                },
+                "approval_step": [
+                    {
+                        "id": 1229,
+                        "user_approval_id": 548,
+                        "step_number": 2,
+                        "approver_id": 2,
+                        "approved_at": "12-12-2025 18:10:40",
+                        "status_id": 2,
+                        "remark": "",
+                        "requires_file_upload": false,
+                        "is_otp": false,
+                        "created_at": "12-12-2025 17:38:43",
+                        "updated_at": "12-12-2025 18:10:40",
+                        "document_status": {
+                            "id": 2,
+                            "name": "APPROVED",
+                            "created_at": "25-07-2025 14:02:32",
+                            "updated_at": "25-07-2025 14:02:32"
+                        },
+                        "approver": {
+                            "id": 2,
+                            "username": "super-admin",
+                            "email": "super-admin@example.com",
+                            "tel": "2078982880",
+                            "created_at": "05-06-2025 19:16:35",
+                            "updated_at": "05-06-2025 19:16:35",
+                            "user_signature": null,
+                            "roles": [],
+                            "permissions": [],
+                            "user_types": []
+                        },
+                        "position": null,
+                        "doc_approver": [
+                            {
+                                "id": 1373,
+                                "user_approval_step_id": 1229,
+                                "user_id": 2,
+                                "created_at": "12-12-2025 17:38:43",
+                                "updated_at": "12-12-2025 17:38:43",
+                                "user": {
+                                    "id": 2,
+                                    "username": "super-admin",
+                                    "email": "super-admin@example.com",
+                                    "tel": "2078982880",
+                                    "created_at": "05-06-2025 19:16:35",
+                                    "updated_at": "05-06-2025 19:16:35",
+                                    "user_signature": null,
+                                    "roles": [],
+                                    "permissions": [],
+                                    "user_types": []
+                                },
+                                "department": null
+                            }
+                        ]
+                    }
+                ]
+            },
+            "document_attachment": [],
+            "receipt_item": [
+                {
+                    "id": 134,
+                    "receipt_id": 143,
+                    "purchase_order_item_id": 136,
+                    "quantity": 1,
+                    "price": 1000000,
+                    "total": 1000000,
+                    "currency_id": 1,
+                    "payment_currency_id": 1,
+                    "exchange_rate": 1,
+                    "vat": 50000,
+                    "payment_total": 1000000,
+                    "payment_type": "transfer",
+                    "remark": "test",
+                    "created_at": "12-12-2025 17:37:55",
+                    "updated_at": "12-12-2025 17:37:55",
+                    "currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "payment_currency": {
+                        "id": 1,
+                        "code": "LAK",
+                        "name": "Lao Kip",
+                        "created_at": "06-06-2025 20:53:41",
+                        "updated_at": "06-06-2025 21:05:12"
+                    },
+                    "purchase_order_item": {
+                        "id": 136,
+                        "purchase_order_id": 130,
+                        "purchase_request_item_id": 354,
+                        "budget_item_id": 34,
+                        "remark": "computer Mac in office",
+                        "quantity": 1,
+                        "price": 1000000,
+                        "total": 1000000,
+                        "vat_total": 0,
+                        "total_with_vat": 1000000,
+                        "is_vat": false,
+                        "created_at": "10-12-2025 22:08:17",
+                        "updated_at": "10-12-2025 22:09:01",
+                        "budget_item": {
+                            "id": 34,
+                            "name": "ກິດຈະກຳຕ່າງໆ",
+                            "budget_account_id": 33,
+                            "allocated_amount": 0,
+                            "use_amount": 0,
+                            "balance_amount": 0,
+                            "description": "",
+                            "created_at": "09-12-2025 22:50:24",
+                            "updated_at": "09-12-2025 22:50:24",
+                            "budget_account": {
+                                "id": 33,
+                                "code": "BA-5FD9FD",
+                                "name": "ທົ່ວໄປ",
+                                "department_id": 61,
+                                "company_id": 0,
+                                "fiscal_year": 2025,
+                                "allocated_amount": null,
+                                "total_budget": null,
+                                "increase_amount": 0,
+                                "used_amount": 0,
+                                "balance_amount": 0,
+                                "type": "expenditure",
+                                "created_at": "09-12-2025 22:39:41",
+                                "updated_at": "09-12-2025 22:39:41",
+                                "department": null,
+                                "company": null
+                            }
+                        },
+                        "purchase_request_item": {
+                            "id": 354,
+                            "purchase_request_id": 354,
+                            "title": "computer Mac",
+                            "file_name": "pr_file_name/019b074b-cc61-731b-a724-3b617b56c10d-1765353966689",
+                            "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019b074b-cc61-731b-a724-3b617b56c10d-1765353966689",
+                            "quantity": 1,
+                            "unit_id": "34",
+                            "quota_company_id": 0,
+                            "price": 1000000,
+                            "total_price": 1000000,
+                            "remark": "computer Mac in office",
+                            "created_at": "10-12-2025 22:06:07",
+                            "updated_at": "10-12-2025 22:06:07",
+                            "unit": {
+                                "id": "34",
+                                "name": "ໜ່ວຍ",
+                                "created_at": "20-11-2025 18:01:13",
+                                "updated_at": "20-11-2025 18:01:13"
+                            },
+                            "quota_company": {
+                                "id": 19,
+                                "year": "2025-01-01",
+                                "qty": 20,
+                                "vendor_product_id": "16",
+                                "company_id": 22,
+                                "created_at": "10-12-2025 00:01:51",
+                                "updated_at": "10-12-2025 00:01:51",
+                                "vendor_product": {
+                                    "id": "16",
+                                    "vendor_id": "28",
+                                    "product_id": 1,
+                                    "vendor": {
+                                        "id": "28",
+                                        "name": "Comcom"
+                                    },
+                                    "product": {
+                                        "id": 1,
+                                        "name": "ຄອມພີວເຕີ່ Mac M3"
+                                    },
+                                    "price": "25000000.00",
+                                    "created_at": "04-12-2025 22:11:39",
+                                    "updated_at": "04-12-2025 22:11:39"
+                                },
+                                "Product": {
+                                    "id": 1,
+                                    "name": "ຄອມພີວເຕີ່ Mac M3",
+                                    "description": "Ram (16GB, SSD 520GB)",
+                                    "product_type_id": 1,
+                                    "unit_id": "34",
+                                    "status": "active",
+                                    "created_at": "31-10-2025 17:04:10",
+                                    "updated_at": "20-11-2025 18:01:27"
+                                },
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                }
+                            }
+                        },
+                        "selected_vendor": [
+                            {
+                                "id": 122,
+                                "purchase_order_item_id": 136,
+                                "vendor_id": 28,
+                                "vendor_bank_account_id": 38,
+                                "filename": "po_file_name/019b074d-ccc8-728c-ae95-0e8b5c7321c4-1765354097864",
+                                "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019b074d-ccc8-728c-ae95-0e8b5c7321c4-1765354097864",
+                                "reason": "computer ",
+                                "selected": true,
+                                "created_at": "10-12-2025 22:08:18",
+                                "updated_at": "10-12-2025 22:08:18",
+                                "vendor": {
+                                    "id": 28,
+                                    "name": "Comcom",
+                                    "contact_info": "2054678934",
+                                    "created_at": "28-11-2025 22:53:19",
+                                    "updated_at": "04-12-2025 22:09:36"
+                                },
+                                "vendor_bank_account": {
+                                    "id": 38,
+                                    "vendor_id": 28,
+                                    "currency_id": 1,
+                                    "account_name": "BCelONe",
+                                    "bank_id": 48,
+                                    "account_number": "1118880000",
+                                    "is_selected": true,
+                                    "created_at": "10-12-2025 00:12:49",
+                                    "updated_at": "10-12-2025 00:12:52",
+                                    "vendor": null,
+                                    "currency": {
+                                        "id": 1,
+                                        "code": "LAK",
+                                        "name": "Lao Kip",
+                                        "created_at": "06-06-2025 20:53:41",
+                                        "updated_at": "06-06-2025 21:05:12"
+                                    },
+                                    "bank": {
+                                        "id": 48,
+                                        "short_name": "ST Bank",
+                                        "name": "ທະນາຄານ ເອັສທີ",
+                                        "logo": "BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                        "created_at": "27-11-2025 21:37:28",
+                                        "updated_at": "27-11-2025 21:37:42"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "pagination": {
+        "total": 5,
+        "total_pages": 1,
+        "limit": 10,
+        "page": 1
+    }
+}
