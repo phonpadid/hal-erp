@@ -29,7 +29,7 @@ export const updateDpmUserRules = (t: (key: string) => string) => ({
   email: [
     {
       required: true,
-      message: t("departments.dpm_user.error.dpm"),
+      message: t("departments.dpm_user.error.email"),
       trigger: "blur",
     },
     {
@@ -46,7 +46,7 @@ export const updateDpmUserRules = (t: (key: string) => string) => ({
   tel: [
     {
       required: true,
-      message: t("departments.dpm_user.error.dpm"),
+      message: t("departments.dpm_user.error.tel"),
       trigger: "blur",
     },
     {

@@ -1,5 +1,5 @@
 
-export const dpmUserRules = (t: (key: string) => string) => ({
+export const dpmUserRules = (t: (key: string) => string, formModel: any) => ({
   username: [
     {
       required: true,
@@ -29,7 +29,7 @@ export const dpmUserRules = (t: (key: string) => string) => ({
   email: [
     {
       required: true,
-      message: t("departments.dpm_user.error.dpm"),
+      message: t("departments.dpm_user.error.email"),
       trigger: "blur",
     },
     {
@@ -46,7 +46,7 @@ export const dpmUserRules = (t: (key: string) => string) => ({
   tel: [
     {
       required: true,
-      message: t("departments.dpm_user.error.dpm"),
+      message: t("departments.dpm_user.error.tel"),
       trigger: "blur",
     },
     {
@@ -72,7 +72,7 @@ export const dpmUserRules = (t: (key: string) => string) => ({
   password: [
     {
       required: true,
-      message: t("departments.dpm_user.error.dpm"),
+      message: t("departments.dpm_user.error.password"),
       trigger: "blur",
     },
     {
@@ -89,7 +89,7 @@ export const dpmUserRules = (t: (key: string) => string) => ({
   confirm_password: [
     {
       required: true,
-      message: t("departments.dpm_user.error.dpm"),
+      message: t("departments.dpm_user.error.confirm_password"),
       trigger: "blur",
     },
     {
@@ -100,6 +100,17 @@ export const dpmUserRules = (t: (key: string) => string) => ({
     {
       max: 100,
       message: t("departments.dpm_user.error.password_max"),
+      trigger: "blur",
+    },
+    {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type, @typescript-eslint/no-explicit-any
+      validator: (_rule: any, value: any, callback: Function) => {
+        if (value && formModel && value !== formModel.password) {
+          callback(new Error(t("departments.dpm_user.error.password_match")));
+        } else {
+          callback();
+        }
+      },
       trigger: "blur",
     },
   ],

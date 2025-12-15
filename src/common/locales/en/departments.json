@@ -80,7 +80,12 @@
         "email_max": "Email must not exceed 100 characters.",
         "tel_max": "Phone number must not exceed 50 characters.",
         "password_min": "Password must be at least 6 characters.",
-        "password_max": "Password must not exceed 100 characters."
+        "password_max": "Password must not exceed 100 characters.",
+        "email":"Please enter email",
+        "tel":"Please enter tel",
+        "password":"Please enter password",
+        "confirm_password":"Please enter confirm_password",
+        "password_match":"Password is not match"     
       }
     },
     "dpm_approver": {

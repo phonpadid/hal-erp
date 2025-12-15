@@ -5,6 +5,8 @@ import type { PermissionGroup } from "@/modules/interfaces/permission.interface"
 import { useI18n } from "vue-i18n";
 import { createCompanyUserValidation } from "../../views/company-user/validation/company-user.validate";
 import { useRoleStore } from "../../stores/role.store";
+import { RoleUserServiceImpl } from "@/modules/application/services/role-user.service";
+import { ApiRoleUserRepository } from "@/modules/infrastructure/api-role-user.repository";
 import { usePermissionStore } from "../../stores/permission.store";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
@@ -22,6 +24,13 @@ const { t } = useI18n();
 const roleStore = useRoleStore();
 const permissionStore = usePermissionStore();
 const route = useRoute();
+
+// Create role user service for /roles/company/users endpoint
+const createRoleUserService = () => {
+  const roleUserRepository = new ApiRoleUserRepository();
+  return new RoleUserServiceImpl(roleUserRepository);
+};
+const roleUserService = createRoleUserService();
 
 const props = defineProps<{
   companyUser?: (CompanyUserInterface & { signature_url?: string | null }) | null;
@@ -136,17 +145,50 @@ watch(
   }
 );
 
-// Load roles based on company
+// Load roles based on company using the new role user service
 const loadRoles = async () => {
   try {
     loadingPermissions.value = true;
-    const params: PaginationParams = { page: 1, limit: 10000 };
-    if (companyId.value) {
-      params.company_id = companyId.value;
+
+    // Use role user service to call /roles/company/users endpoint
+    const params: PaginationParams = { page: 1, limit: 50, search: "" };
+    const result = await roleUserService.getCompanyUsers(params);
+   
+
+    // Update store with role user data
+    if (result.data && result.data.length > 0) {
+      // Manually update store data with role user response
+      roleStore.rawRoles = result.data.map((role) => ({
+        id: role.getId(),
+        name: role.getName(),
+        display_name: role.getDisplayname(),
+        department_id: role.getDepartmentId(),
+        department_name: role.getDepartmentName(),
+        permissions: role.getPermissions(),
+        created_at: role.getCreatedAt(),
+        updated_at: role.getUpdatedAt(),
+        type: 'company-user'
+      }));
+
+      // console.log("✅ Company users loaded successfully:", roleStore.rawRoles);
+    } else {
+      console.log("⚠️ No roles from role user endpoint, falling back to regular roles...");
+      throw new Error("No roles found");
     }
-    await roleStore.fetchAllRoles(params);
+
   } catch (error) {
-    console.error("Error loading roles:", error);
+    console.error("❌ Error loading roles from role user endpoint:", error);
+    // Fallback to regular roles on error or no data
+    try {
+      const fallbackParams: PaginationParams = { page: 1, limit: 10000 };
+      if (companyId.value) {
+        fallbackParams.company_id = companyId.value;
+      }
+      await roleStore.fetchAllRoles(fallbackParams);
+      // console.log("✅ Fallback to regular roles successful");
+    } catch (fallbackError) {
+      console.error("❌ Even fallback failed:", fallbackError);
+    }
   } finally {
     loadingPermissions.value = false;
   }
@@ -161,8 +203,23 @@ watch(
       signatureUploaded.value = false;
 
       // Handle nested user structure based on actual API response
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const companyUserAny = newCompanyUser as any;
+      const companyUserAny = newCompanyUser as {
+        user?: {
+          username?: string;
+          email?: string;
+          tel?: string;
+          user_signature?: {
+            signature?: string;
+            signature_url?: string;
+          };
+          roles?: { id: number; name: string }[];
+          permissions?: { id: number }[];
+        };
+        roles?: { id: number; name: string }[];
+        permissions?: { id: number }[];
+        signature?: string | null;
+        signature_url?: string | null;
+      };
 
       // Check if data is nested under user object
       if (companyUserAny.user) {
@@ -182,12 +239,12 @@ watch(
 
         // Handle roles from nested structure
         const roles = companyUserAny.user.roles || newCompanyUser.roles;
-        formState.roleIds = roles?.map((role: { id: number }) => role.id) || [];
+        formState.roleIds = roles?.map((role) => role.id) || [];
 
         // Handle permissions from nested structure
         const permissions = companyUserAny.user.permissions || newCompanyUser.permissions;
         formState.permissionIds =
-          permissions?.map((permission: { id: number }) => permission.id) || [];
+          permissions?.map((permission) => permission.id) || [];
       } else {
         // Fallback to flat structure
 
@@ -197,9 +254,9 @@ watch(
         formState.signature = newCompanyUser.signature || null;
 
         // Handle roles and permissions
-        formState.roleIds = newCompanyUser.roles?.map((role: { id: number }) => role.id) || [];
+        formState.roleIds = newCompanyUser.roles?.map((role) => role.id) || [];
         formState.permissionIds =
-          newCompanyUser.permissions?.map((permission: { id: number }) => permission.id) || [];
+          newCompanyUser.permissions?.map((permission) => permission.id) || [];
 
         // Handle signature preview
         if (newCompanyUser.signature_url) {
@@ -292,16 +349,20 @@ const handleSignatureChange = async (file: File) => {
 };
 
 const roleOptions = computed(() => {
+  // console.log("🔄 Computing roleOptions from store:", roleStore.rawRoles);
+
   const roles = roleStore.rawRoles.map((role) => ({
     value: Number(role.id),
     label: role.display_name || role.name,
   }));
 
+  // console.log("📊 Mapped role options:", roles);
+
   // Add company-admin role if not already present
   const hasCompanyAdmin = roles.some(role => role.label === 'company-admin');
 
-  if (!hasCompanyAdmin && props.isEditMode && props.companyUser?.user?.roles?.some((r: any) => r.name === 'company-admin')) {
-    const companyAdminRole = props.companyUser.user.roles.find((r: any) => r.name === 'company-admin');
+  if (!hasCompanyAdmin && props.isEditMode && props.companyUser?.user?.roles?.some((r: { name: string }) => r.name === 'company-admin')) {
+    const companyAdminRole = props.companyUser.user.roles.find((r: { name: string; id: number }) => r.name === 'company-admin');
     if (companyAdminRole) {
       roles.push({
         value: Number(companyAdminRole.id),
@@ -310,7 +371,7 @@ const roleOptions = computed(() => {
     }
   }
 
- 
+  // console.log("🎯 Final role options:", roles);
   return roles;
 });
 

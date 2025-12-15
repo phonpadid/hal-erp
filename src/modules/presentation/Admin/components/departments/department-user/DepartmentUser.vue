@@ -188,7 +188,7 @@ const handleSubmit = async (): Promise<void> => {
     // Validate form first
     const isValid = await formRef.value.validate();
     if (!isValid) {
-      // console.log("Form validation failed");
+      console.log("Form validation failed");
       return;
     }
 
@@ -319,7 +319,7 @@ onUnmounted(() => {
     <UiForm
       ref="formRef"
       :model="dpmUserFormModel"
-      :rules="isEditMode ? updateDpmUserRules(t) : dpmUserRules(t)"
+      :rules="isEditMode ? updateDpmUserRules(t) : dpmUserRules(t, dpmUserFormModel)"
     >
       <div class="flex flex-col lg:flex-row lg:gap-8">
         <!-- Left Column: User Info -->
