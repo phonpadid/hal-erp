@@ -66,7 +66,8 @@
     "actions": "Actions",
     "allocated_amount":"Allocated Amount",
     "balance_amount":"Balance Amount",
-    "used_amount":"Used Amount"
+    "used_amount":"Used Amount",
+    "budget_item":"Budget Item"
   },
   "form": {
     "department": "Department",
