@@ -1,0 +1,590 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": {
+        "id": 149,
+        "receipt_number": "0014/ຈຊ/ກງ",
+        "purchase_order_id": 130,
+        "po_number": "0002/ຈຊ/ກງ",
+        "po_doc_type": "ໃບອະນຸມັດຈັດຊື້",
+        "purchase_request_id": 354,
+        "pr_number": "0002/ກງ",
+        "pr_doc_type": "ໃບສະເໜີ",
+        "document_id": 635,
+        "receipt_date": "12-12-2025 21:45:39",
+        "received_by": 115,
+        "remark": "computer ",
+        "account_code": null,
+        "created_at": "12-12-2025 21:45:39",
+        "updated_at": "12-12-2025 21:45:39",
+        "step": false,
+        "step_number": -1,
+        "itemCount": 1,
+        "sub_total": 1000000,
+        "vat": 50000,
+        "total": 1050000,
+        "currency_totals": [
+            {
+                "id": 1,
+                "code": "LAK",
+                "name": "Lao Kip",
+                "total": 1000000,
+                "vat": 50000,
+                "amount": 1050000
+            }
+        ],
+        "document": {
+            "id": 635,
+            "document_number": "D-E41D11",
+            "title": "",
+            "description": "",
+            "total_amount": 0,
+            "department_id": 59,
+            "requester_id": 115,
+            "document_type_id": "40",
+            "created_at": "12-12-2025 21:45:39",
+            "updated_at": "12-12-2025 21:45:39",
+            "department": {
+                "id": 59,
+                "code": "ກງ",
+                "name": "ການເງິນ",
+                "department_head_id": 0,
+                "created_at": "09-12-2025 21:26:17",
+                "updated_at": "09-12-2025 22:12:33",
+                "department_head": null,
+                "company": null
+            },
+            "document_type": {
+                "id": "40",
+                "code": "DT-TT022",
+                "name": "ໃບເທສ",
+                "created_at": "08-10-2025 16:11:26",
+                "updated_at": "08-10-2025 16:11:26"
+            },
+            "requester": {
+                "id": 115,
+                "username": "tou",
+                "email": "tou@gmail.com",
+                "tel": "2055084306",
+                "created_at": "09-12-2025 21:44:03",
+                "updated_at": "10-12-2025 21:10:16",
+                "user_signature": null,
+                "roles": [],
+                "permissions": [],
+                "user_types": []
+            },
+            "position": [
+                {
+                    "id": 68,
+                    "name": "ພະນັກງານ",
+                    "created_at": "16-12-2025 09:31:02",
+                    "updated_at": "Invalid date",
+                    "company": null
+                }
+            ],
+            "company": {
+                "id": 22,
+                "name": "Hal-tech",
+                "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                "tel": "2055889858",
+                "email": "haltech@gmail.com",
+                "address": "ບ້ານຈອມມະນີ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ",
+                "created_at": "09-12-2025 21:25:27",
+                "updated_at": "09-12-2025 21:25:27"
+            }
+        },
+        "user_approval": {
+            "id": 555,
+            "document_id": 635,
+            "status_id": 1,
+            "created_at": "12-12-2025 21:45:39",
+            "updated_at": "12-12-2025 21:45:39",
+            "document_status": {
+                "id": 1,
+                "name": "PENDING",
+                "created_at": "25-07-2025 14:02:32",
+                "updated_at": "25-07-2025 14:02:32"
+            },
+            "approval_step": [
+                {
+                    "id": 1251,
+                    "user_approval_id": 555,
+                    "step_number": 0,
+                    "approver_id": 115,
+                    "approved_at": "12-12-2025 21:45:52",
+                    "status_id": 2,
+                    "remark": "computer ",
+                    "requires_file_upload": false,
+                    "is_otp": true,
+                    "created_at": "12-12-2025 21:45:39",
+                    "updated_at": "12-12-2025 21:45:52",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "25-07-2025 14:02:32",
+                        "updated_at": "25-07-2025 14:02:32"
+                    },
+                    "approver": {
+                        "id": 115,
+                        "username": "tou",
+                        "email": "tou@gmail.com",
+                        "tel": "2055084306",
+                        "created_at": "09-12-2025 21:44:03",
+                        "updated_at": "10-12-2025 21:10:16",
+                        "user_signature": {
+                            "id": "93",
+                            "user_id": 115,
+                            "signature": "user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
+                            "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
+                            "created_at": "16-12-2025 09:31:02",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 68,
+                        "name": "ພະນັກງານ",
+                        "created_at": "09-12-2025 21:30:23",
+                        "updated_at": "09-12-2025 21:30:23",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 1398,
+                            "user_approval_step_id": 1251,
+                            "user_id": 115,
+                            "created_at": "12-12-2025 21:45:39",
+                            "updated_at": "12-12-2025 21:45:39",
+                            "user": {
+                                "id": 115,
+                                "username": "tou",
+                                "email": "tou@gmail.com",
+                                "tel": "2055084306",
+                                "created_at": "09-12-2025 21:44:03",
+                                "updated_at": "10-12-2025 21:10:16",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 59,
+                                "code": "ກງ",
+                                "name": "ການເງິນ",
+                                "department_head_id": 0,
+                                "created_at": "09-12-2025 21:26:17",
+                                "updated_at": "09-12-2025 22:12:33",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 1252,
+                    "user_approval_id": 555,
+                    "step_number": 1,
+                    "approver_id": 116,
+                    "approved_at": "12-12-2025 21:46:27",
+                    "status_id": 2,
+                    "remark": "computer ",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "12-12-2025 21:45:52",
+                    "updated_at": "12-12-2025 21:46:27",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "25-07-2025 14:02:32",
+                        "updated_at": "25-07-2025 14:02:32"
+                    },
+                    "approver": {
+                        "id": 116,
+                        "username": "tou_head",
+                        "email": "touhead@gmail.com",
+                        "tel": "2079787899",
+                        "created_at": "09-12-2025 21:45:45",
+                        "updated_at": "10-12-2025 21:09:55",
+                        "user_signature": {
+                            "id": "94",
+                            "user_id": 116,
+                            "signature": "user_signature/019b0212-cdc0-756f-850a-c892101b81c5-1765266345408",
+                            "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0212-cdc0-756f-850a-c892101b81c5-1765266345408",
+                            "created_at": "16-12-2025 09:31:02",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 69,
+                        "name": "ຫົວໜ້າການເງິນ",
+                        "created_at": "09-12-2025 21:31:39",
+                        "updated_at": "09-12-2025 21:31:39",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 1399,
+                            "user_approval_step_id": 1252,
+                            "user_id": 116,
+                            "created_at": "12-12-2025 21:45:52",
+                            "updated_at": "12-12-2025 21:45:52",
+                            "user": {
+                                "id": 116,
+                                "username": "tou_head",
+                                "email": "touhead@gmail.com",
+                                "tel": "2079787899",
+                                "created_at": "09-12-2025 21:45:45",
+                                "updated_at": "10-12-2025 21:09:55",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 59,
+                                "code": "ກງ",
+                                "name": "ການເງິນ",
+                                "department_head_id": 0,
+                                "created_at": "09-12-2025 21:26:17",
+                                "updated_at": "09-12-2025 22:12:33",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 1254,
+                    "user_approval_id": 555,
+                    "step_number": 2,
+                    "approver_id": 2,
+                    "approved_at": "12-12-2025 23:57:22",
+                    "status_id": 2,
+                    "remark": "",
+                    "requires_file_upload": false,
+                    "is_otp": true,
+                    "created_at": "12-12-2025 21:46:27",
+                    "updated_at": "12-12-2025 23:57:22",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "25-07-2025 14:02:32",
+                        "updated_at": "25-07-2025 14:02:32"
+                    },
+                    "approver": {
+                        "id": 2,
+                        "username": "super-admin",
+                        "email": "super-admin@example.com",
+                        "tel": "2078982880",
+                        "created_at": "05-06-2025 19:16:35",
+                        "updated_at": "05-06-2025 19:16:35",
+                        "user_signature": null,
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": null,
+                    "doc_approver": [
+                        {
+                            "id": 1401,
+                            "user_approval_step_id": 1254,
+                            "user_id": 2,
+                            "created_at": "12-12-2025 21:46:27",
+                            "updated_at": "12-12-2025 21:46:27",
+                            "user": {
+                                "id": 2,
+                                "username": "super-admin",
+                                "email": "super-admin@example.com",
+                                "tel": "2078982880",
+                                "created_at": "05-06-2025 19:16:35",
+                                "updated_at": "05-06-2025 19:16:35",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": null
+                        }
+                    ]
+                },
+                {
+                    "id": 1256,
+                    "user_approval_id": 555,
+                    "step_number": 3,
+                    "approver_id": 0,
+                    "approved_at": null,
+                    "status_id": 1,
+                    "remark": "",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "12-12-2025 23:57:22",
+                    "updated_at": "12-12-2025 23:57:22",
+                    "document_status": {
+                        "id": 1,
+                        "name": "PENDING",
+                        "created_at": "25-07-2025 14:02:32",
+                        "updated_at": "25-07-2025 14:02:32"
+                    },
+                    "approver": null,
+                    "position": null,
+                    "doc_approver": [
+                        {
+                            "id": 1404,
+                            "user_approval_step_id": 1256,
+                            "user_id": 122,
+                            "created_at": "12-12-2025 23:57:22",
+                            "updated_at": "12-12-2025 23:57:22",
+                            "user": {
+                                "id": 122,
+                                "username": "accont_head",
+                                "email": "accounthead@gmail.com",
+                                "tel": "2078765678",
+                                "created_at": "09-12-2025 23:12:19",
+                                "updated_at": "09-12-2025 23:12:19",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 63,
+                                "code": "ບຊ",
+                                "name": "ບັນຊີ",
+                                "department_head_id": 0,
+                                "created_at": "09-12-2025 21:27:56",
+                                "updated_at": "10-12-2025 21:16:31",
+                                "department_head": null,
+                                "company": null
+                            }
+                        },
+                        {
+                            "id": 1405,
+                            "user_approval_step_id": 1256,
+                            "user_id": 121,
+                            "created_at": "12-12-2025 23:57:22",
+                            "updated_at": "12-12-2025 23:57:22",
+                            "user": {
+                                "id": 121,
+                                "username": "account",
+                                "email": "account@gmail.com",
+                                "tel": "2056567656",
+                                "created_at": "09-12-2025 23:10:12",
+                                "updated_at": "09-12-2025 23:10:12",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 63,
+                                "code": "ບຊ",
+                                "name": "ບັນຊີ",
+                                "department_head_id": 0,
+                                "created_at": "09-12-2025 21:27:56",
+                                "updated_at": "10-12-2025 21:16:31",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "document_attachment": [],
+        "receipt_item": [
+            {
+                "id": 141,
+                "receipt_id": 149,
+                "purchase_order_item_id": 136,
+                "quantity": 1,
+                "price": 1000000,
+                "total": 1000000,
+                "currency_id": 1,
+                "payment_currency_id": 1,
+                "exchange_rate": 1,
+                "vat": 50000,
+                "payment_total": 1000000,
+                "payment_type": "transfer",
+                "remark": "computer ",
+                "created_at": "12-12-2025 21:45:39",
+                "updated_at": "12-12-2025 21:45:39",
+                "currency": {
+                    "id": 1,
+                    "code": "LAK",
+                    "name": "Lao Kip",
+                    "created_at": "06-06-2025 20:53:41",
+                    "updated_at": "06-06-2025 21:05:12"
+                },
+                "payment_currency": {
+                    "id": 1,
+                    "code": "LAK",
+                    "name": "Lao Kip",
+                    "created_at": "06-06-2025 20:53:41",
+                    "updated_at": "06-06-2025 21:05:12"
+                },
+                "purchase_order_item": {
+                    "id": 136,
+                    "purchase_order_id": 130,
+                    "purchase_request_item_id": 354,
+                    "budget_item_id": 34,
+                    "remark": "computer Mac in office",
+                    "quantity": 1,
+                    "price": 1000000,
+                    "total": 1000000,
+                    "vat_total": 0,
+                    "total_with_vat": 1000000,
+                    "is_vat": false,
+                    "created_at": "10-12-2025 22:08:17",
+                    "updated_at": "10-12-2025 22:09:01",
+                    "budget_item": {
+                        "id": 34,
+                        "name": "ກິດຈະກຳຕ່າງໆ",
+                        "budget_account_id": 33,
+                        "allocated_amount": 0,
+                        "use_amount": 0,
+                        "balance_amount": 0,
+                        "description": "",
+                        "created_at": "09-12-2025 22:50:24",
+                        "updated_at": "09-12-2025 22:50:24",
+                        "budget_account": {
+                            "id": 33,
+                            "code": "BA-5FD9FD",
+                            "name": "ທົ່ວໄປ",
+                            "department_id": 61,
+                            "company_id": 0,
+                            "fiscal_year": 2025,
+                            "allocated_amount": null,
+                            "total_budget": null,
+                            "increase_amount": 0,
+                            "used_amount": 0,
+                            "balance_amount": 0,
+                            "type": "expenditure",
+                            "created_at": "09-12-2025 22:39:41",
+                            "updated_at": "09-12-2025 22:39:41",
+                            "department": null,
+                            "company": null
+                        }
+                    },
+                    "purchase_request_item": {
+                        "id": 354,
+                        "purchase_request_id": 354,
+                        "title": "computer Mac",
+                        "file_name": "pr_file_name/019b074b-cc61-731b-a724-3b617b56c10d-1765353966689",
+                        "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019b074b-cc61-731b-a724-3b617b56c10d-1765353966689",
+                        "quantity": 1,
+                        "unit_id": "34",
+                        "quota_company_id": 0,
+                        "price": 1000000,
+                        "total_price": 1000000,
+                        "remark": "computer Mac in office",
+                        "created_at": "10-12-2025 22:06:07",
+                        "updated_at": "10-12-2025 22:06:07",
+                        "unit": {
+                            "id": "34",
+                            "name": "ໜ່ວຍ",
+                            "created_at": "20-11-2025 18:01:13",
+                            "updated_at": "20-11-2025 18:01:13"
+                        },
+                        "quota_company": {
+                            "id": 19,
+                            "year": "2025-01-01",
+                            "qty": 20,
+                            "vendor_product_id": "16",
+                            "company_id": 22,
+                            "created_at": "10-12-2025 00:01:51",
+                            "updated_at": "10-12-2025 00:01:51",
+                            "vendor_product": {
+                                "id": "16",
+                                "vendor_id": "28",
+                                "product_id": 1,
+                                "vendor": {
+                                    "id": "28",
+                                    "name": "Comcom"
+                                },
+                                "product": {
+                                    "id": 1,
+                                    "name": "ຄອມພີວເຕີ່ Mac M3"
+                                },
+                                "price": "25000000.00",
+                                "created_at": "04-12-2025 22:11:39",
+                                "updated_at": "04-12-2025 22:11:39"
+                            },
+                            "Product": {
+                                "id": 1,
+                                "name": "ຄອມພີວເຕີ່ Mac M3",
+                                "description": "Ram (16GB, SSD 520GB)",
+                                "product_type_id": 1,
+                                "unit_id": "34",
+                                "status": "active",
+                                "created_at": "31-10-2025 17:04:10",
+                                "updated_at": "20-11-2025 18:01:27"
+                            },
+                            "vendor": {
+                                "id": 28,
+                                "name": "Comcom",
+                                "contact_info": "2054678934",
+                                "created_at": "28-11-2025 22:53:19",
+                                "updated_at": "04-12-2025 22:09:36"
+                            }
+                        }
+                    },
+                    "selected_vendor": [
+                        {
+                            "id": 122,
+                            "purchase_order_item_id": 136,
+                            "vendor_id": 28,
+                            "vendor_bank_account_id": 38,
+                            "filename": "po_file_name/019b074d-ccc8-728c-ae95-0e8b5c7321c4-1765354097864",
+                            "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019b074d-ccc8-728c-ae95-0e8b5c7321c4-1765354097864",
+                            "reason": "computer ",
+                            "selected": true,
+                            "created_at": "10-12-2025 22:08:18",
+                            "updated_at": "10-12-2025 22:08:18",
+                            "vendor": {
+                                "id": 28,
+                                "name": "Comcom",
+                                "contact_info": "2054678934",
+                                "created_at": "28-11-2025 22:53:19",
+                                "updated_at": "04-12-2025 22:09:36"
+                            },
+                            "vendor_bank_account": {
+                                "id": 38,
+                                "vendor_id": 28,
+                                "currency_id": 1,
+                                "account_name": "BCelONe",
+                                "bank_id": 48,
+                                "account_number": "1118880000",
+                                "is_selected": true,
+                                "created_at": "10-12-2025 00:12:49",
+                                "updated_at": "10-12-2025 00:12:52",
+                                "vendor": null,
+                                "currency": {
+                                    "id": 1,
+                                    "code": "LAK",
+                                    "name": "Lao Kip",
+                                    "created_at": "06-06-2025 20:53:41",
+                                    "updated_at": "06-06-2025 21:05:12"
+                                },
+                                "bank": {
+                                    "id": 48,
+                                    "short_name": "ST Bank",
+                                    "name": "ທະນາຄານ ເອັສທີ",
+                                    "logo": "BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                    "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019ac43e-e7b2-721d-8518-3490fa7b5536-1764229048242",
+                                    "created_at": "27-11-2025 21:37:28",
+                                    "updated_at": "27-11-2025 21:37:42"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

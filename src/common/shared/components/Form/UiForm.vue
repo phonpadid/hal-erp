@@ -19,7 +19,14 @@ const validate = async (nameList?: string | string[]) => {
     }
   } catch (errors) {
     console.error("Validation errors:", errors);
-    throw errors;
+    // Extract readable error messages from validation errors object
+    if (errors && typeof errors === 'object' && 'errorFields' in errors) {
+      const errorMessages = (errors as any).errorFields?.map((field: any) =>
+        field.errors?.join(', ') || 'Validation failed'
+      ) || ['Validation failed'];
+      throw new Error(errorMessages.join('; '));
+    }
+    throw new Error('Validation failed');
   }
 };
 
@@ -36,8 +43,14 @@ const submitForm = async (nameList?: string | string[]) => {
     return false;
   } catch (errors) {
     console.error("Form validation failed:", errors);
-    // ส่งคืนข้อผิดพลาดเพื่อให้ parent component จัดการได้
-    throw errors;
+    // Extract readable error messages from validation errors object
+    if (errors && typeof errors === 'object' && 'errorFields' in errors) {
+      const errorMessages = (errors as any).errorFields?.map((field: any) =>
+        field.errors?.join(', ') || 'Validation failed'
+      ) || ['Validation failed'];
+      throw new Error(errorMessages.join('; '));
+    }
+    throw new Error('Form validation failed');
   }
 };
 

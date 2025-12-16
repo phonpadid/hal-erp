@@ -8,7 +8,7 @@ export class ApiReportPurchaseOrderRepository implements ReportPurchaseOrderRepo
   private readonly baseUrl = "/reports/purchase-orders";
   async reportMoney(): Promise<IReportMoneyPo> {
     try {
-      const response = await api.get('/reports/purchase-requests/money')
+      const response = await api.get(`${this.baseUrl}/money`)
       return response.data.data
     } catch (error) {
       this.handleApiError(error, "Failed");
