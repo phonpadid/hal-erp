@@ -11,11 +11,20 @@ import { departmenUsertStore } from "../../../stores/departments/department-user
 import type { DepartmentUserApiModel } from "@/modules/interfaces/departments/department-user.interface";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
+import { useUserStore } from "../../../stores/user.store";
+import ResetPasswordForm from "../../../components/user/ResetPasswordForm.vue";
 
-const { warning } = useNotification();
+const { warning, success } = useNotification();
 const { t } = useI18n();
 const dpmUserStore = departmenUsertStore();
+const userStore = useUserStore();
 const search = ref<string>("");
+
+// Change password modal state
+const changePasswordModalVisible = ref<boolean>(false);
+const resetPasswordFormRef = ref();
+const passwordSubmitLoading = ref(false);
+const selectedUser = ref<DepartmentUserApiModel | null>(null);
 
 const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
 // check show or hide buttons based on permissions
@@ -24,6 +33,7 @@ const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
 const canCreate = hasPermission("write-department-user") && !isSuperAdmin.value && !isAdmin.value;
 const canEdit = hasPermission("update-department-user") && !isSuperAdmin.value && !isAdmin.value;
 const canDelete = hasPermission("delete-department-user") && !isSuperAdmin.value && !isAdmin.value;
+const canResetPassword = hasPermission("reset-password-user") && !isSuperAdmin.value && !isAdmin.value;
 
 // Form related
 const deleteModalVisible = ref<boolean>(false);
@@ -110,6 +120,42 @@ const handleDelete = async (): Promise<void> => {
     loading.value = false;
   }
 };
+
+// Change password handlers
+const showChangePasswordModal = (record: DepartmentUserApiModel) => {
+  selectedUser.value = record;
+  changePasswordModalVisible.value = true;
+};
+
+const hideChangePasswordModal = () => {
+  changePasswordModalVisible.value = false;
+  selectedUser.value = null;
+};
+
+const handleResetPassword = async (data: { old_password: string; new_password: string }) => {
+  if (!selectedUser.value?.user?.id) {
+    warning("ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຜູ້ໃຊ້");
+    return;
+  }
+
+  try {
+    passwordSubmitLoading.value = true;
+
+    await userStore.resetPassword(
+      selectedUser.value.user.id.toString(),
+      data.old_password,
+      data.new_password
+    );
+
+    success("ສຳເລັດ", "ປ່ຽນລະຫັດຜ່ານສຳເລັດ");
+    hideChangePasswordModal();
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning("ປ່ຽນລະຫັດຜ່ານລົ້ມເຫລວ", errorMessage);
+  } finally {
+    passwordSubmitLoading.value = false;
+  }
+};
 watch(search, async(load) => {
   if(load === '') {
     await departmentUser()
@@ -177,15 +223,24 @@ watch(search, async(load) => {
             v-if="canEdit"
             icon="ant-design:edit-outlined"
             size="small"
-            shape="circle" 
+            shape="circle"
             @click="update(record)"
             colorClass="flex items-center justify-center text-orange-400"
+          />
+          <UiButton
+            v-if="canResetPassword"
+            icon="ant-design:key-outlined"
+            size="small"
+            shape="circle"
+            @click="showChangePasswordModal(record)"
+            colorClass="flex items-center justify-center text-blue-600"
+            title="ປ່ຽນລະຫັດຜ່ານ"
           />
           <UiButton
             v-if="canDelete"
             icon="ant-design:delete-outlined"
             size="small"
-            shape="circle" 
+            shape="circle"
             danger
             @click="showDeleteModal(record)"
             colorClass="flex items-center justify-center text-red-700"
@@ -214,6 +269,27 @@ watch(search, async(load) => {
       <p class="text-red-500">
         {{ t("departments.alert.remark") }}
       </p>
+    </UiModal>
+
+    <!-- Change Password Modal -->
+    <UiModal
+      :title="'ປ່ຽນລະຫັດຜ່ານຜູ້ໃຊ້'"
+      :visible="changePasswordModalVisible"
+      :confirm-loading="passwordSubmitLoading"
+      @update:visible="changePasswordModalVisible = $event"
+      @ok="resetPasswordFormRef?.submitForm"
+      @cancel="hideChangePasswordModal"
+      :okText="'ປ່ຽນລະຫັດຜ່ານ'"
+      :cancelText="'ຍົກເລີກ'"
+    >
+      <p class="mb-4">
+        ປ່ຽນລະຫັດຜ່ານສຳລັບຜູ້ໃຊ້: <strong>{{ selectedUser?.user?.username || 'N/A' }}</strong>
+      </p>
+      <ResetPasswordForm
+        ref="resetPasswordFormRef"
+        :loading="passwordSubmitLoading"
+        @submit="handleResetPassword"
+      />
     </UiModal>
   </div>
 </template>

@@ -119,13 +119,12 @@ export const dpmUserRules = (t: (key: string) => string, formModel: any) => ({
       required: true,
       message: t("departments.dpm_user.error.signature"),
       trigger: ["blur", "change"],
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type, @typescript-eslint/no-explicit-any
-      validator: (_rule: any, value: any, callback: Function) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      validator: (_rule: any, value: any) => {
         if (!value || value === null || value === undefined) {
-          callback(new Error(t("departments.dpm.error.signature_required")));
-        } else {
-          callback();
+          return Promise.reject(t("departments.dpm_user.error.signature_required"));
         }
+        return Promise.resolve();
       }
     },
   ],

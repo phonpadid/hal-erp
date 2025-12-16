@@ -4,6 +4,9 @@ import { useI18n } from "vue-i18n";
 import type { CompanyInterface } from "@/modules/interfaces/company.interface";
 import { useCompanyStore } from "../../stores/company.store";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
+import { useUserStore } from "../../stores/user.store";
+import { useCompanyUserStore } from "../../stores/company-user.store";
+import ResetPasswordForm from "../../components/user/ResetPasswordForm.vue";
 import { Columns } from "./column";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -17,6 +20,8 @@ const { t } = useI18n();
 const router = useRouter();
 
 const companyStore = useCompanyStore();
+const userStore = useUserStore();
+const companyUserStore = useCompanyUserStore();
 const { success, error, warning } = useNotification();
 const {
   canCreateCompany,
@@ -27,6 +32,7 @@ const {
 const canEditCompany = computed(() => hasPermission('update-company'));
 const canDeleteCompany = computed(() => hasPermission('delete-company'));
 const canManageCompanyUsers = computed(() => hasPermission('read-company-user'));
+const canResetCompanyAdminPassword = computed(() => hasPermission('reset-password-company-admin'));
 
 // State
 const loading = ref<boolean>(false);
@@ -36,6 +42,11 @@ const searchKeyword = ref<string>("");
 const deleteModalVisible = ref<boolean>(false);
 const submitLoading = ref<boolean>(false);
 const selectedCompany = ref<CompanyInterface | null>(null);
+
+// Change Password Modal state
+const changePasswordModalVisible = ref<boolean>(false);
+const resetPasswordFormRef = ref();
+const passwordSubmitLoading = ref(false);
 // Table pagination
 const tablePagination = computed(() => ({
   current: companyStore.pagination.page,
@@ -133,6 +144,79 @@ const handleDeleteConfirm = async () => {
     submitLoading.value = false;
   }
 };
+
+// Change password handlers
+const showChangePasswordModal = (company: CompanyInterface) => {
+  selectedCompany.value = company;
+  changePasswordModalVisible.value = true;
+};
+
+const hideChangePasswordModal = () => {
+  changePasswordModalVisible.value = false;
+  selectedCompany.value = null;
+};
+
+const handleResetPassword = async (data: { old_password: string; new_password: string }) => {
+  if (!selectedCompany.value) return;
+
+  try {
+    passwordSubmitLoading.value = true;
+
+   
+
+    await companyUserStore.fetchCompanyUsers({
+      page: 1,
+      limit: 1000, // Get all users to find admin
+      company_id: selectedCompany.value.id,
+    });
+
+
+    // Look for admin user (user with admin role or first user as fallback)
+    let adminUserId: string | undefined;
+
+    // Try to find user with admin role first
+    const adminUser = companyUserStore.companyUsers.find((companyUser: any) => {
+      const user = companyUser.user;
+      return user?.roles?.some((role: any) =>
+        role.name?.toLowerCase().includes('admin')
+      );
+    });
+
+    if (adminUser?.user) {
+      const userObj = adminUser.user as any;
+      adminUserId = userObj.id?.toString();
+
+    } else {
+      // Fallback: use the first user
+      if (companyUserStore.companyUsers.length > 0) {
+        const firstUser = companyUserStore.companyUsers[0].user as any;
+        adminUserId = firstUser?.id?.toString();
+
+      }
+    }
+
+   
+
+    if (!adminUserId) {
+      warning("ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຜູ້ໃຊ້ຜູ້ດູແລຂອງບໍລິສັດ");
+      return;
+    }
+
+    await userStore.resetPassword(
+      adminUserId,
+      data.old_password,
+      data.new_password
+    );
+
+    success("ສຳເລັດ", "ປ່ຽນລະຫັດຜ່ານຜູ້ດູແລຂອງບໍລິສັດສຳເລັດ");
+    hideChangePasswordModal();
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning("ປ່ຽນລະຫັດຜ່ານລົ້ມເຫລວ", errorMessage);
+  } finally {
+    passwordSubmitLoading.value = false;
+  }
+};
 </script>
 
 <template>
@@ -203,6 +287,15 @@ const handleDeleteConfirm = async () => {
             colorClass="flex items-center justify-center text-blue-500"
             title="ຈັດການຜູ້ໃຊ້ບັນຊີ"
           />
+          <UiButton
+            v-if="canResetCompanyAdminPassword"
+            icon="ant-design:key-outlined"
+            size="small"
+            shape="circle"
+            @click="showChangePasswordModal(record)"
+            colorClass="flex items-center justify-center text-purple-600"
+            title="ປ່ຽນລະຫັດຜ່ານຜູ້ດູແລຂອງບໍລິສັດ"
+          />
 
           <UiButton
             v-if="canEditCompany"
@@ -243,6 +336,27 @@ const handleDeleteConfirm = async () => {
     >
       <p>{{ $t("company.modal.deleteConfirm", { name: selectedCompany?.name }) }}</p>
       <p class="text-red-500">{{ $t("company.modal.deleteWarning") }}</p>
+    </UiModal>
+
+    <!-- Change Password Modal -->
+    <UiModal
+      :title="'ປ່ຽນລະຫັດຜ່ານຜູ້ດູແລຂອງບໍລິສັດ'"
+      :visible="changePasswordModalVisible"
+      :confirm-loading="passwordSubmitLoading"
+      @update:visible="changePasswordModalVisible = $event"
+      @ok="resetPasswordFormRef?.submitForm"
+      @cancel="hideChangePasswordModal"
+      :okText="'ປ່ຽນລະຫັດຜ່ານ'"
+      :cancelText="'ຍົກເລີກ'"
+    >
+      <p class="mb-4">
+        ປ່ຽນລະຫັດຜ່ານສຳລັບຜູ້ດູແລຂອງບໍລິສັດ: <strong>{{ selectedCompany?.name || 'N/A' }}</strong>
+      </p>
+      <ResetPasswordForm
+        ref="resetPasswordFormRef"
+        :loading="passwordSubmitLoading"
+        @submit="handleResetPassword"
+      />
     </UiModal>
   </div>
 </template>
