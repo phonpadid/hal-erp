@@ -60,7 +60,7 @@ watch(
   effectiveCompanyId,
   async (newCompanyId) => {
     if (newCompanyId) {
-      
+
       const params = {
         page: 1,
         limit: 10,
