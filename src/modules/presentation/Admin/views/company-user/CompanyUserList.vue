@@ -13,6 +13,8 @@ import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { useRouter, useRoute } from "vue-router";
 import { formatDate } from "@/modules/shared/formatdate";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
+import { useUserStore } from "../../stores/user.store";
+import ResetPasswordForm from "../../components/user/ResetPasswordForm.vue";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -20,11 +22,13 @@ const route = useRoute();
 const {hasPermission} = usePermissions();
 
 const companyUserStore = useCompanyUserStore();
+const userStore = useUserStore();
 const { success, error, warning } = useNotification();
 // check show button permission
 const canCreateCompanyUser = computed(() => hasPermission('create-company-user'));
 const canEditCompanyUser = computed(() => hasPermission('update-company-user'));
 const canDeleteCompanyUser = computed(() => hasPermission('delete-company-user'));
+const canResetCompanyUserPassword = computed(() => hasPermission('reset-password-company-user'));
 
 // State
 const loading = ref<boolean>(false);
@@ -35,6 +39,12 @@ const companyId = ref<number | null>(null);
 const deleteModalVisible = ref<boolean>(false);
 const submitLoading = ref<boolean>(false);
 const selectedCompanyUser = ref<CompanyUserInterface | null>(null);
+
+// Change Password Modal state
+const changePasswordModalVisible = ref<boolean>(false);
+const resetPasswordFormRef = ref();
+const passwordSubmitLoading = ref(false);
+const selectedUser = ref<CompanyUserInterface | null>(null);
 
 // Table pagination
 const tablePagination = computed(() => ({
@@ -167,6 +177,51 @@ const handleDeleteConfirm = async () => {
 const openSignature = (signatureUrl: string) => {
   window.open(signatureUrl, '_blank');
 };
+
+// Change password handlers
+const showChangePasswordModal = (companyUser: CompanyUserInterface) => {
+  selectedUser.value = companyUser;
+  changePasswordModalVisible.value = true;
+};
+
+const hideChangePasswordModal = () => {
+  changePasswordModalVisible.value = false;
+  selectedUser.value = null;
+};
+
+const handleResetPassword = async (data: { old_password: string; new_password: string }) => {
+  if (!selectedUser.value?.user) {
+    warning("ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຜູ້ໃຊ້");
+    return;
+  }
+
+  // Type assertion to access user id property
+  const userObj = selectedUser.value.user as unknown as { id: number };
+  const userId = userObj.id;
+
+  if (!userId) {
+    warning("ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຜູ້ໃຊ້");
+    return;
+  }
+
+  try {
+    passwordSubmitLoading.value = true;
+
+    await userStore.resetPassword(
+      userId.toString(),
+      data.old_password,
+      data.new_password
+    );
+
+    success("ສຳເລັດ", "ປ່ຽນລະຫັດຜ່ານສຳເລັດ");
+    hideChangePasswordModal();
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning("ປ່ຽນລະຫັດຜ່ານລົ້ມເຫລວ", errorMessage);
+  } finally {
+    passwordSubmitLoading.value = false;
+  }
+};
 </script>
 
 <template>
@@ -273,6 +328,15 @@ const openSignature = (signatureUrl: string) => {
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton
+            v-if="canResetCompanyUserPassword"
+            icon="ant-design:key-outlined"
+            size="small"
+            shape="circle"
+            @click="showChangePasswordModal(record)"
+            colorClass="flex items-center justify-center text-blue-600"
+            title="ປ່ຽນລະຫັດຜ່ານ"
+          />
+          <UiButton
             v-if="canEditCompanyUser"
             type=""
             icon="ant-design:edit-outlined"
@@ -282,6 +346,8 @@ const openSignature = (signatureUrl: string) => {
             colorClass="flex items-center justify-center text-orange-400"
             :disabled="!!record.deleted_at"
           />
+
+          
 
           <UiButton
             v-if="canDeleteCompanyUser"
@@ -311,6 +377,27 @@ const openSignature = (signatureUrl: string) => {
     >
       <p>{{ $t("company-user.modal.deleteConfirm", { name: selectedCompanyUser?.username }) }}</p>
       <p class="text-red-500">{{ $t("company-user.modal.deleteWarning") }}</p>
+    </UiModal>
+
+    <!-- Change Password Modal -->
+    <UiModal
+      :title="'ປ່ຽນລະຫັດຜ່ານຜູ້ໃຊ້ບັນຊີ'"
+      :visible="changePasswordModalVisible"
+      :confirm-loading="passwordSubmitLoading"
+      @update:visible="changePasswordModalVisible = $event"
+      @ok="resetPasswordFormRef?.submitForm"
+      @cancel="hideChangePasswordModal"
+      :okText="'ປ່ຽນລະຫັດຜ່ານ'"
+      :cancelText="'ຍົກເລີກ'"
+    >
+      <p class="mb-4">
+        ປ່ຽນລະຫັດຜ່ານສຳລັບຜູ້ໃຊ້: <strong>{{ (selectedUser?.user as any)?.username || 'N/A' }}</strong>
+      </p>
+      <ResetPasswordForm
+        ref="resetPasswordFormRef"
+        :loading="passwordSubmitLoading"
+        @submit="handleResetPassword"
+      />
     </UiModal>
   </div>
 </template>

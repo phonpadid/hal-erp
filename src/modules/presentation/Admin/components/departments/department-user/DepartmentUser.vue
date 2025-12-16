@@ -39,6 +39,7 @@ const dpmUserStore = departmenUsertStore();
 const permissionStore = usePermissionStore();
 const loading = ref(false);
 const { success, warning } = useNotification();
+
 const selectedPermissions = computed({
   get: () => dpmUserFormModel.permissionIds,
   set: (value: number[]) => {
@@ -46,10 +47,10 @@ const selectedPermissions = computed({
   },
 });
 const departmentType = ref("in_the_office");
-const departmentTypeOptions = [
-  { label: "ສຳນັກງານໃຫຍ່", value: "in_the_office" },
-  { label: "ລະດັບແຂວງ", value: "outside_the_office" },
-];
+const departmentTypeOptions = computed(() => [
+  { label: t('departments.dpm.field.in_the_office'), value: "in_the_office" },
+  { label: t('departments.dpm.field.outside_the_office'), value: "outside_the_office" },
+]);
 const isEditMode = computed(() => !!route.params.id);
 const departmentUserId = computed(() => route.params.id as string);
 
@@ -126,7 +127,7 @@ const loadDepartmentUser = async () => {
       const departmentUser = dpmUserStore.currentDpmUser;
 
       if (!departmentUser) {
-        console.error("Department user not found");
+        
         return;
       }
 
@@ -188,7 +189,7 @@ const handleSubmit = async (): Promise<void> => {
     // Validate form first
     const isValid = await formRef.value.validate();
     if (!isValid) {
-      console.log("Form validation failed");
+      // console.log("Form validation failed");
       return;
     }
 
@@ -231,7 +232,8 @@ const handleSubmit = async (): Promise<void> => {
       success(t("departments.notify.created"));
     }
   } catch (error: unknown) {
-    warning(error as string);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warning(errorMessage);
   } finally {
     loading.value = false;
   }
@@ -250,7 +252,9 @@ const handlerCancel = () => {
   push({ name: "department_user.index" });
   dpmUserStore.resetForm();
   existingSignatureUrl.value = null;
+  departmentType.value = "in_the_office"; // ✅ Reset department type
 };
+
 
 watch(
   () => dpmUserFormModel.departmentId,
@@ -300,6 +304,7 @@ onMounted(async () => {
 onUnmounted(() => {
   dpmUserStore.resetForm();
   existingSignatureUrl.value = null;
+  departmentType.value = "in_the_office"; // ✅ Reset department type
   formRef.value?.resetFields?.();
 });
 </script>

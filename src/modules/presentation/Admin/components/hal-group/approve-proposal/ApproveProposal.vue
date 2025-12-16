@@ -1197,7 +1197,7 @@ const handleRejectCancel = () => {
                   ຫົວຂໍ້
                 </th>
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ລະຫັດງົບປະມານ
+                  ລາຍການງົບປະມານ
                 </th>
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ຈຳນວນເງິນ
@@ -1205,12 +1205,12 @@ const handleRejectCancel = () => {
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="(_, index) in selectedRequestDetails.items" :key="index" class="hover:bg-gray-50 transition-colors">
+              <tr v-for="(item, index) in receiptStore.currentReceipts?.receipt_item || []" :key="item.id" class="hover:bg-gray-50 transition-colors">
                 <td class="px-4 py-3 whitespace-nowrap text-sm">{{ index + 1 }}</td>
-                <td class="px-4 py-3 text-sm">ສິນຄ້າ {{ String.fromCharCode(65 + index) }}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-right">{{ index + 2 }}</td>
+                <td class="px-4 py-3 text-sm">{{ item.purchase_order_item?.purchase_request_item?.title || 'ບໍ່ມີຊື່' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-right">{{ item.purchase_order_item?.budget_item?.name || '-' }}</td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
-                  {{ formatCurrency(Math.floor(selectedRequestDetails.amount / selectedRequestDetails.items)) }}
+                  {{ formatCurrency(item.price || 0) }}
                 </td>
               </tr>
             </tbody>
@@ -1220,7 +1220,7 @@ const handleRejectCancel = () => {
                   ລວມ:
                 </td>
                 <td class="px-4 py-3 text-sm font-bold text-gray-900 text-right">
-                  {{ formatCurrency(selectedRequestDetails.amount) }}
+                  {{ formatCurrency(receiptStore.currentReceipts?.total || selectedRequestDetails.amount) }}
                 </td>
               </tr>
             </tfoot>
@@ -1250,62 +1250,62 @@ const handleRejectCancel = () => {
               <h4 class="text-sm font-semibold text-gray-900 border-b pb-2">ຂໍ້ມູນຮ້ານຄ້າ</h4>
               <div class="space-y-2">
                 <div class="flex justify-between text-sm">
-                  <span class="text-gray-600">ຊື່ຮ້ານ:</span>
-                  <span class="font-medium">ຮ້ານອຸປະກອນສໍານັກງານ HAL</span>
+                  <span class="text-gray-600">ບໍລິສັດ:</span>
+                  <span class="font-medium">{{ receiptStore.currentReceipts?.document?.company?.name || '-' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-gray-600">ສາຂາ:</span>
-                  <span class="font-medium">ສາຂາຫຼັກ</span>
+                  <span class="text-gray-600">ພະແນກ:</span>
+                  <span class="font-medium">{{ receiptStore.currentReceipts?.document?.department?.name || '-' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
                   <span class="text-gray-600">ເບີໂທລະສັບ:</span>
-                  <span class="font-medium">021 456 789</span>
+                  <span class="font-medium">{{ receiptStore.currentReceipts?.document?.company?.tel || '-' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-gray-600">ຜູ້ປະກອບການ:</span>
-                  <span class="font-medium">ທ. ສົມສະຫວາດ ວົງສາ</span>
+                  <span class="text-gray-600">ຜູ້ຮ້ອງຂໍ:</span>
+                  <span class="font-medium">{{ receiptStore.currentReceipts?.document?.requester?.username || '-' }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Revenue Information -->
             <div class="space-y-3">
-              <h4 class="text-sm font-semibold text-gray-900 border-b pb-2">ລາຍຮັບປະຈຳວັນ</h4>
+              <h4 class="text-sm font-semibold text-gray-900 border-b pb-2">ຂໍ້ມູນໃບເກັບເງິນ</h4>
               <div class="space-y-2">
                 <div class="flex justify-between text-sm">
-                  <span class="text-gray-600">ລາຍຮັບວັນນີ້:</span>
-                  <span class="font-medium text-green-600">{{ formatCurrency(8500000) }}</span>
+                  <span class="text-gray-600">ເລກທີໃບເກັບເງິນ:</span>
+                  <span class="font-medium">{{ receiptStore.currentReceipts?.receipt_number || '-' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-gray-600">ລາຍຮັບວານນີ້:</span>
-                  <span class="font-medium text-green-600">{{ formatCurrency(125000000) }}</span>
+                  <span class="text-gray-600">ເລກທີ PO:</span>
+                  <span class="font-medium">{{ receiptStore.currentReceipts?.po_number || '-' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-gray-600">ລາຍຮັບປີນີ້:</span>
-                  <span class="font-medium text-green-600">{{ formatCurrency(1500000000) }}</span>
+                  <span class="text-gray-600">ເລກທີ PR:</span>
+                  <span class="font-medium">{{ receiptStore.currentReceipts?.pr_number || '-' }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-gray-600">ກຳໄລສຸດທິ:</span>
-                  <span class="font-medium text-blue-600">{{ formatCurrency(450000000) }}</span>
+                  <span class="text-gray-600">ມູນຄ່າລວມ:</span>
+                  <span class="font-medium text-green-600">{{ formatCurrency(receiptStore.currentReceipts?.total || 0) }}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Additional Revenue Details -->
+          <!-- Additional Document Details -->
           <div class="mt-4 pt-4 border-t border-gray-200">
             <div class="grid grid-cols-3 gap-4 text-center">
               <div class="bg-blue-50 rounded-lg p-3">
-                <div class="text-xs text-blue-600 mb-1">ຍອດຂາຍປະຈຳເດືອນ</div>
-                <div class="text-lg font-bold text-blue-700">{{ formatCurrency(85000000) }}</div>
+                <div class="text-xs text-blue-600 mb-1">ຈຳນວນລາຍການ</div>
+                <div class="text-lg font-bold text-blue-700">{{ receiptStore.currentReceipts?.receipt_item?.length || 0 }}</div>
               </div>
               <div class="bg-green-50 rounded-lg p-3">
-                <div class="text-xs text-green-600 mb-1">ລູກຄ້າໃໝ່ປະຈຳເດືອນ</div>
-                <div class="text-lg font-bold text-green-700">45 ຄົນ</div>
+                <div class="text-xs text-green-600 mb-1">ມູນຄ່າ VAT</div>
+                <div class="text-lg font-bold text-green-700">{{ formatCurrency(receiptStore.currentReceipts?.vat || 0) }}</div>
               </div>
               <div class="bg-purple-50 rounded-lg p-3">
-                <div class="text-xs text-purple-600 mb-1">ອັດຕາການເຕີບໂຕ</div>
-                <div class="text-lg font-bold text-purple-700">+12.5%</div>
+                <div class="text-xs text-purple-600 mb-1">ມູນຄ່າກ່ອນ VAT</div>
+                <div class="text-lg font-bold text-purple-700">{{ formatCurrency(receiptStore.currentReceipts?.sub_total || 0) }}</div>
               </div>
             </div>
           </div>
