@@ -43,8 +43,14 @@ const submitForm = () => {
     },
   });
 };
+const directCompanyData = computed(() => {
+  const userCompanyStr = localStorage.getItem("userCompany");
+  return userCompanyStr ? JSON.parse(userCompanyStr) : null;
+});
+
+const companyId = computed(() => directCompanyData.value?.id || null);
 onMounted(async () => {
-  await store.fetchdocumentType({ page: 1, limit: 1000 });
+  await store.fetchdocumentType({ page: 1, limit: 1000, company_id: companyId.value });
 })
 </script>
 

@@ -62,14 +62,14 @@ authAxios.interceptors.response.use(
       }
 
       switch (status) {
-        case 400:
-          Modal.warning({
-            title: "ມີບາງຢ່າງຜິດພາດ!",
-            content: "ຂໍ້ມູນທີ່ສົ່ງໄປບໍ່ຖືກຕ້ອງ!",
-            closable: true,
-            footer: null,
-          });
-          break;
+        // case 400:
+        //   Modal.warning({
+        //     title: "ມີບາງຢ່າງຜິດພາດ!",
+        //     content: "ຂໍ້ມູນທີ່ສົ່ງໄປບໍ່ຖືກຕ້ອງ!",
+        //     closable: true,
+        //     footer: null,
+        //   });
+        //   break;
         case 401:
           Modal.warning({
             title: "ເຊສຊັນໝົດອາຍຸ!",
