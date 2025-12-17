@@ -45,6 +45,9 @@ const canEditUser = computed(() => {
 const canDeleteUser = computed(() => {
   return !hasRole("company-admin") && hasCompanyPermission("delete-user");
 });
+const canResetUserPassword = computed(() => {
+  return !hasRole("company-admin") && hasCompanyPermission("reset-password-user");
+});
 
 // Table pagination
 const tablePagination = computed(() => ({
@@ -254,13 +257,14 @@ const handleDeleteConfirm = async () => {
             :disabled="!!record.deleted_at"
           />
           <UiButton
-            v-if="canEditUser"
+            v-if="canResetUserPassword"
             type=""
             size="small"
-            shape="circle" 
-            icon="ic:baseline-lock-reset"
+            shape="circle"
+            icon="ant-design:key-outlined"
             @click="showResetPasswordModal(record)"
             colorClass="flex items-center justify-center text-blue-500"
+            title="ປ່ຽນລະຫັດຜ່ານຜູ້ໃຊ້"
             :disabled="!!record.deleted_at"
           >
           </UiButton>
@@ -299,17 +303,17 @@ const handleDeleteConfirm = async () => {
       />
     </UiModal>
     <UiModal
-      :title="t('user.modal.resetPassword')"
+      :title="'ປ່ຽນລະຫັດຜ່ານຜູ້ໃຊ້'"
       :visible="resetPasswordModalVisible"
       :confirm-loading="submitLoading"
       @update:visible="resetPasswordModalVisible = $event"
       @ok="resetPasswordFormRef?.submitForm()"
       @cancel="resetPasswordModalVisible = false"
-      :okText="t('button.ok')"
-      :cancelText="t('button.cancel')"
+      :okText="'ປ່ຽນລະຫັດຜ່ານ'"
+      :cancelText="'ຍົກເລີກ'"
     >
       <p class="mb-4">
-        {{ t("user.modal.resetPasswordConfirm", { username: selectedUser?.username }) }}
+        ປ່ຽນລະຫັດຜ່ານສຳລັບຜູ້ໃຊ້: <strong>{{ selectedUser?.username || 'N/A' }}</strong>
       </p>
       <ResetPasswordForm
         ref="resetPasswordFormRef"
