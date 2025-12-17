@@ -185,7 +185,7 @@
               <div class="flex flex-col items-center">
                 <!-- Step Title -->
                 <p class="text-slate-500 text-sm mb-2 text-center">
-                  {{ getStepTitle(index, step) }}
+                  {{ getStepTitle(index) }}
                 </p>
 
                 <!-- Signature Display - Fixed Container -->
@@ -422,7 +422,6 @@ import PrintPurchaseOrder from "./PrintPurchaseOrder.vue";
 import BudgetApprovalDrawer from "../budget-approval/BudgetApprovalDrawer.vue";
 import SelectDocumentTypeModal from "../receipt/modal/SelectDocumentTypeModal.vue";
 import OtpModal from "../purchase-requests/modal/OtpModal.vue";
-import { isUserCompanyAdmin } from "@/modules/shared/utils/check-user-type.util";
 
 /********************************************************* */
 const purchaseOrderStore = usePurchaseOrderStore();
@@ -432,7 +431,7 @@ const route = useRoute();
 const router = useRouter();
 const orderId = ref<number>(parseInt(route.params.id as string, 10));
 const { t } = useI18n();
-const { success, error, warning } = useNotification();
+const { success, error } = useNotification();
 const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
@@ -456,42 +455,38 @@ const isSuperAdmin = computed(() => {
 
 // Enhanced access control function for approval workflow
 const hasApprovalAccess = computed(() => {
-  // Super admins can access all approval steps
-  if (isSuperAdmin.value) {
-    // console.log('🔍 Super Admin access granted');
-    return true;
-  }
-
-  // Regular users follow existing approval logic
   const userDataStr = localStorage.getItem("userData");
   const userData = userDataStr ? JSON.parse(userDataStr) : null;
 
   if (!userData) {
-    // console.log('❌ No user data found for access check');
     return false;
   }
 
-  // console.log('🔍 User data for access check:', {
-  //   username: userData.username,
-  //   roles: userData.roles,
-  //   department: userData.department_name
-  // });
+  
 
-  // Check if user has company admin role
-  const isCompanyAdmin = userData.roles?.some((role: any) =>
-    role.name === 'company_admin' ||
-    role.name === 'company-admin' ||
-    role.display_name === 'company_admin' ||
-    role.display_name === 'company-admin'
-  );
-
-  // Company admins also have broader access
-  if (isCompanyAdmin) {
-    // console.log('🔍 Company Admin access granted');
+  // Super admins always have approval access
+  if (isSuperAdmin.value) {
     return true;
   }
 
-  // Default to existing approval logic for regular users
+  // Check if user has company admin role
+  const isCompanyAdmin = userData.roles?.some((role: unknown) => {
+    if (typeof role === 'object' && role !== null) {
+      const roleObj = role as Record<string, string>;
+      return roleObj.name === 'company_admin' ||
+             roleObj.name === 'company-admin' ||
+             roleObj.display_name === 'company_admin' ||
+             roleObj.display_name === 'company-admin';
+    }
+    return false;
+  });
+
+  // Company admins also have broader access
+  if (isCompanyAdmin) {
+    return true;
+  }
+
+  // Regular users follow the same authorization logic
   return canApprove.value;
 });
 const canManageBudget = computed(() => {
@@ -558,8 +553,7 @@ const showShopDetails = (record: any) => {
   selectedShopId.value = record.getId();
   isShopDrawerVisible.value = true;
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getStepTitle = (index: number, step: any) => {
+const getStepTitle = (index: number) => {
   if (index === 0) {
     return t("purchase-rq.proposer");
   }
@@ -684,45 +678,96 @@ const currentApprovalStep = computed(() => {
     return null;
   }
 
-  // Super admins and company admins can access any pending step
+  // ✅ Super admins can approve specific steps they are authorized for
   if (hasApprovalAccess.value) {
+    const previousApprovedStep = getPreviousApprovedStep.value;
+    const nextStepNumber = (previousApprovedStep?.step_number ?? 0) + 1;
+
     const pendingStep = approvalSteps.value.find(
       (step) =>
         step.status_id === 1 && // PENDING
-        step.step_number === (getPreviousApprovedStep.value?.step_number ?? 0) + 1
+        step.step_number === nextStepNumber
     );
 
-    // if (pendingStep) {
-    //   console.log('🔍 Enhanced access - Pending step found:', {
-    //     stepId: pendingStep.id,
-    //     stepNumber: pendingStep.step_number,
-    //     status: pendingStep.status_id,
-    //     approvers: pendingStep.doc_approver?.map(a => ({
-    //       username: a.user?.username,
-    //       department: a.department?.name
-    //     }))
-    //   });
-    // }
+   
 
-    return pendingStep || null;
+    // ✅ For Super Admins: Check if they are explicitly authorized in doc_approver OR if no specific approvers are set
+    if (pendingStep) {
+      const userDataStr = localStorage.getItem("userData");
+      const userData = userDataStr ? JSON.parse(userDataStr) : null;
+
+      // Special case for Super Admin: If no doc_approver is set for this step, allow approval
+      if (isSuperAdmin.value && (!pendingStep.doc_approver || pendingStep.doc_approver.length === 0)) {
+        return pendingStep;
+      }
+
+      // Check if Super Admin is explicitly authorized in doc_approver
+      const isExplicitlyAuthorized = pendingStep.doc_approver?.some((approver) => {
+        const userMatches = approver.user?.username === userData?.username;
+        const departmentMatches = approver.department?.name === userData?.department_name;
+        // For Super Admin, allow username match only (department can be null)
+        if (isSuperAdmin.value) {
+          return userMatches;
+        }
+        return userMatches || departmentMatches;
+      });
+
+      if (isExplicitlyAuthorized) {
+       
+        return pendingStep;
+      } else {
+        
+        return null;
+      }
+    }
+
+    return null;
+  }
+
+  // ✅ ເພີ່ກວດສອບວ່າ user ປະຈຸບັນເປັນ requester ຂອງ PO ຫຼືບໍ່ (ສຳລັບ step 0)
+  const poRequesterFromOrder = orderDetails.value?.getRequester()?.username;
+
+  // ✅ ຕຣວຈອບຈາກ document data ໂດຍກົງ (fallback ຖ້າ getRequester ບໍ່ທຳງານ)
+  const poRequesterFromDoc = orderDetails.value?.getDocument()?.requester?.username;
+  const poRequester = poRequesterFromOrder || poRequesterFromDoc;
+
+  const isPORequester = poRequester === userData.username;
+  const isPOFirstStep = approvalSteps.value.some(step => step.step_number === 0 && step.status_id === 1);
+
+  
+
+  // ✅ ຖ້າເປັນ requester ແລະ step ທຳອິດຍັງບໍ່ອະນຸມັດ → ໃຫ້ອະນຸມັດໄດ້
+  if (isPORequester && isPOFirstStep) {
+    const firstStep = approvalSteps.value.find(step => step.step_number === 0);
+   
+    return firstStep || null;
   }
 
   // Regular users follow existing approval logic
+  const previousApprovedStep = getPreviousApprovedStep.value;
+  const nextStepNumber = (previousApprovedStep?.step_number ?? 0) + 1;
+
   const pendingStep = approvalSteps.value.find(
     (step) =>
       step.status_id === 1 && // PENDING
-      step.step_number === (getPreviousApprovedStep.value?.step_number ?? 0) + 1
+      step.step_number === nextStepNumber
   );
 
   if (!pendingStep) {
+   
     return null;
   }
 
   const isAuthorized = pendingStep.doc_approver?.some((approver) => {
     const userMatches = approver.user?.username === userData.username;
     const departmentMatches = approver.department?.name === userData.department_name;
+    // For Super Admin, allow username match only (department can be null)
+    if (isSuperAdmin.value) {
+      return userMatches;
+    }
     return userMatches && departmentMatches;
   });
+
 
   return isAuthorized ? pendingStep : null;
 });
@@ -766,23 +811,48 @@ const getPreviousApprovedStep = computed(() => {
 });
 
 const canApprove = computed(() => {
-  // Super admins and company admins with enhanced access can always approve
+  // Super admins and company admins need explicit authorization in doc_approver
   if (hasApprovalAccess.value && currentApprovalStep.value) {
-    return true;
+    const userDataStr = localStorage.getItem("userData");
+    const userData = userDataStr ? JSON.parse(userDataStr) : null;
+
+    // Special case for Super Admin: If no doc_approver is set for this step, allow approval
+    if (isSuperAdmin.value && (!currentApprovalStep.value.doc_approver || currentApprovalStep.value.doc_approver.length === 0)) {
+      return true;
+    }
+
+    // Check if current user (Super Admin or Company Admin) is explicitly authorized in doc_approver
+    const isExplicitlyAuthorized = currentApprovalStep.value.doc_approver?.some((approver) => {
+      const userMatches = approver.user?.username === userData?.username;
+      const departmentMatches = approver.department?.name === userData?.department_name;
+      // For Super Admin, allow username match only (department can be null)
+      if (isSuperAdmin.value) {
+        return userMatches;
+      }
+      return userMatches || departmentMatches; // For Company Admin, allow username OR department match
+    });
+
+    
+
+    return isExplicitlyAuthorized;
   }
 
   const currentStep = currentApprovalStep.value;
   if (!currentStep) {
     return false;
   }
+
   if (currentStep.step_number === 0) {
     return true;
   }
+
   const previousStep = getPreviousApprovedStep.value;
   const canApprove =
     previousStep &&
     previousStep.status_id === 2 &&
     previousStep.step_number === currentStep.step_number - 1;
+
+  
 
   return canApprove;
 });
@@ -792,29 +862,54 @@ const isFullyApproved = computed(() => {
     return false;
   }
 
-  // เช็คว่าทุก step (ยกเว้น step 0) มีสถานะ APPROVED (status_id === 2)
-  return approvalSteps.value
-    .filter((step) => step.step_number !== 0)
-    .every((step) => step.status_id === 2);
+  
+
+  // ✅ ຖ້າມີ step ທີ່ຖືກປະຕິເສດ -> ບໍ່ຖືກອະນຸມັດຄົບ
+  const hasRejectedStep = approvalSteps.value.some(step => step.status_id === 3);
+  if (hasRejectedStep) {
+    return false;
+  }
+
+  // ✅ ເຊ็คວ່າທຸກ step ມີສະຖານະ APPROVED (status_id === 2)
+  const allStepsApproved = approvalSteps.value.every(step => step.status_id === 2);
+
+  
+
+  return allStepsApproved;
 });
 
 const customButtons = computed(() => {
-  // Debug logs
-  // console.log("=== DEBUG CUSTOM BUTTONS ===");
-  // console.log("isApproved:", isApproved.value);
-  // console.log("isFullyApproved:", isFullyApproved.value);
-  // console.log("canApprove:", canApprove.value);
-  // console.log("canCreatePaymentDocument:", canCreatePaymentDocument.value);
-  // console.log("approvalSteps:", approvalSteps.value);
+  
 
-  // // Debug user data
-  // const userDataStr = localStorage.getItem("userData");
-  // const userData = userDataStr ? JSON.parse(userDataStr) : null;
-  // console.log("User data from localStorage:", userData);
+  // ✅ ເພີ່ກວດສອບສະຖານະພິເສດຂອງ PO Requester ທີ່ຕ້ອງອະນຸມັດຂັ້ນຕອນທຳອິດ
+  const userDataStr = localStorage.getItem("userData");
+  const userData = userDataStr ? JSON.parse(userDataStr) : null;
 
-  // ✅ ถ้าอนุมัติครบแล้วและเป็น user ที่มีสิทธิ์สร้างใบเบิกจ่าย (มาก่อนเสมอ!)
-  if (canCreatePaymentDocument.value) {
-    // console.log("Showing payment document buttons - case 2 (PRIORITY)");
+  // ✅ ກວດສອບຈາຫຼາຍທາງ - ຖ້າເປັນ PO Requester ຈາກ doc_approver ຂອງ step 0
+  let poRequester = null;
+  const firstStep = approvalSteps.value.find(step => step.step_number === 0);
+  if (firstStep?.doc_approver?.[0]?.user?.username) {
+    poRequester = firstStep.doc_approver[0].user.username;
+  }
+
+  // ✅ Fallback ຖ້າບໍ່ພົບຈາກ doc_approver
+  if (!poRequester) {
+    const poRequesterFromOrder = orderDetails.value?.getRequester()?.username;
+    const poRequesterFromDoc = orderDetails.value?.getDocument()?.requester?.username;
+    poRequester = poRequesterFromOrder || poRequesterFromDoc;
+  }
+
+  const isPORequester = poRequester === userData?.username;
+  const isPOFirstStep = approvalSteps.value.some(step => step.step_number === 0 && step.status_id === 1);
+
+
+
+  // ✅ ກວດສອບການອະນຸມັດທັງຫມົດກ່ອນສ້າງ PO
+  // ຖ້າຍັງບໍ່ອະນຸມັດຄົບບໍ່ໃຫ້ສ້າງ PO
+  if (!isFullyApproved.value) {}
+
+  // ✅ ຖ້າອະນຸມັດຄົບແລ້ວ ແລະ ເປັນ user ທີ່ມີສິດສ້າງໃບເບີກຈ່າຍ (ມາກ່ອນເສມອດ!)
+  if (canCreatePaymentDocument.value && isFullyApproved.value) {
     return [
       {
         label: "Export",
@@ -840,9 +935,8 @@ const customButtons = computed(() => {
     ];
   }
 
-  // ✅ แสดงปุ่ม Export และ Print เมื่ออนุมัติสำเร็จหรือเอกสารอนุมัติครบแล้ว (หลัง case 2)
+  // ✅ ແສດງປຸ່ມ Export ແລະ Print ເມື່ອອະນຸມັດສຳເລັດຫຼື ເອກະສານອະນຸມັດຄົບແລ້ວ
   if (isApproved.value || isFullyApproved.value) {
-    // console.log("Showing basic buttons (Export, Print) - case 1");
     return [
       {
         label: "Export",
@@ -861,45 +955,15 @@ const customButtons = computed(() => {
     ];
   }
 
-  // ✅ ถ้าไม่มีสิทธิ์อนุมัติ แต่เอกสารอนุมัติครบแล้ว ให้ตรวจสอบว่าเป็นผู้อนุมัติคนสุดท้ายหรือไม่
-  if (!canApprove.value && isFullyApproved.value) {
-    // console.log("Cannot approve - no permissions, but document is fully approved - case 3");
+  // ✅ ຖ້າເປັນ PO Requester ແລະມີ current step (ຂັ້ນຕອນທຳອິດ) → ແສດງປຸ່ມອະນຸມັດ
+  if (isPORequester && isPOFirstStep && currentApprovalStep.value) {
+    
 
-    // ตรวจสอบว่าเป็นผู้อนุมัติขั้นตอนสุดท้ายหรือไม่
-    if (canCreatePaymentDocument.value) {
-      // console.log("User can create payment document - showing all buttons");
-      return [
-        {
-          label: "Export",
-          icon: "ant-design:file-excel-outlined",
-          class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
-          type: "default" as ButtonType,
-          onClick: handleExport,
-        },
-        {
-          label: "Print",
-          icon: "ant-design:printer-outlined",
-          class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
-          type: "default" as ButtonType,
-          onClick: handlePrint,
-        },
-        {
-          label: `ສ້າງໃບເບີກຈ່າຍ`,
-          type: "primary" as ButtonType,
-          onClick: () => {
-            onChooseDocumentType();
-          },
-        },
-      ];
-    }
-
-    // ถ้าไม่มีสิทธิ์สร้างใบเบิกจ่ายก็แสดงแค่ปุ่ม Export และ Print
-    // console.log("User cannot create payment document - showing basic buttons only");
     return [
       {
         label: "Export",
         icon: "ant-design:file-excel-outlined",
-        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+        class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
         type: "default" as ButtonType,
         onClick: handleExport,
       },
@@ -910,22 +974,38 @@ const customButtons = computed(() => {
         type: "default" as ButtonType,
         onClick: handlePrint,
       },
+      {
+        label: t("purchase-rq.card_title.refused"),
+        type: "default" as ButtonType,
+        onClick: () => {
+          modalAction.value = "reject";
+          isRejectModalVisible.value = true;
+        },
+      },
+      {
+        label: t("purchase-rq.btn.approval"),
+        type: "primary" as ButtonType,
+        onClick: async () => {
+          modalAction.value = "approve";
+          const success = await handleApprove();
+          if (!success) {
+            modalAction.value = "";
+          }
+        },
+      },
     ];
   }
 
-  // ✅ ถ้าไม่มีสิทธิ์อนุมัติและเอกสารยังไม่อนุมัติครบ - ไม่แสดงปุ่ม
+  // ✅ ຖ້າບໍ່ມີສິດອະນຸມັດ ແລະ ເອກະສາຍຍັງບໍ່ອະນຸມັດຄົບ - ບໍ່ແສດງປຸ່ມ
   if (!canApprove.value) {
-    // console.log("Cannot approve - no permissions and document not fully approved - case 4");
     return [];
   }
 
   const currentStep = currentApprovalStep.value;
   if (!currentStep) {
-    // console.log("No current step available for buttons");
     return [];
   }
 
-  // ✅ ถ้ามีสิทธิ์อนุมัติ - แสดงปุ่ม Export, Print, Reject, Approve
   return [
     {
       label: "Export",
@@ -1098,6 +1178,13 @@ const handleOtpConfirm = async (otpCode: string) => {
       isOtpModalVisible.value = false;
       isSuccessModalVisible.value = true;
       isApproved.value = true;
+
+      // ✅ ກວດສອບວ່າເປັນຂັ້ນຕອນທໍາອິດ (step 0) ຫຼືບໍ່
+      if (currentApprovalStep.value.step_number === 0) {
+        // console.log("🔄 First step approved, redirecting to PR list...");
+        // ຖ້າເປັນຂັ້ນຕອນທໍາອິດ ໃຫ້ກັບໄປຫນ້າ PR list
+          router.push({ name: "purchase-requests" }); // ປັ່ຽນຊື່ route ໃຫ້ຖືກຕ້ອງ
+      }
     }
   } catch (err) {
     console.error("Error in handleOtpConfirm:", err);
@@ -1126,6 +1213,11 @@ const handleApprove = async () => {
         budget_item_id: budgetData.budgetId,
       };
     });
+
+    // ✅ ກວດສອບຂັ້ນຕອນກ່ອນສົ່ງ OTP
+    const isFirstStep = currentApprovalStep.value.step_number === 0;
+   
+
     if (currentApprovalStep.value.is_otp) {
       const otpResult = await approvalStepStore.sendOtp(currentApprovalStep.value.id);
       if (otpResult) {
@@ -1150,6 +1242,13 @@ const handleApprove = async () => {
         isApproveModalVisible.value = false;
         isSuccessModalVisible.value = true;
         isApproved.value = true;
+
+        // ✅ ກວດສອບວ່າເປັນຂັ້ນຕອນທໍາອິດ ຫຼືບໍ່ (ຖ້າບໍ່ຕ້ອງການ OTP)
+        if (isFirstStep) {
+          // console.log("🔄 First step approved (no OTP), redirecting to PR list...");
+            router.push({ name: "purchase-requests" });      
+        }
+
         return true;
       }
     }
