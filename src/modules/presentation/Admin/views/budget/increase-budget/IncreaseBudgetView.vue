@@ -18,13 +18,14 @@ import type { IncreaseBudgetAccountDTO } from "@/modules/application/dtos/budget
 import UpdateModal from "../../../components/budget/increase/UpdateModal.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
+import { EyeOutlined } from "@ant-design/icons-vue";
 
 
 const { t } = useI18n();
 const { push } = useRouter();
 const increaseStore = useIncreaseBudgetStore();
 const { success, error } = useNotification();
-const { hasPermission } = usePermissions(); 
+const { hasPermission } = usePermissions();
 // check permissions
 const canCreateIncreaseBudget = computed(() => hasPermission('create-increase-budget'));
 const canEditIncreaseBudget = computed(() => hasPermission('update-increase-budget'));
@@ -144,69 +145,40 @@ onMounted(async () => {
         </h1>
       </div>
 
-      <div
-        class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit"
-      >
+      <div class="flex items-center justify-end flex-col sm:flex-row gap-2 w-full sm:w-fit">
         <!-- <InputSearch
           :placeholder="$t('currency.placeholder.search')"
         /> -->
-        <UiInputSelect
-          v-model="selectedYear"
-          :options="yearOptions"
-          :placeholder="$t('increase-budget.select.year')"
-          class="min-w-[120px]"
-        />
-        <UiButton
-          v-if="canCreateIncreaseBudget"
-          type="primary"
-          icon="ant-design:plus-outlined"
-          colorClass="text-white flex items-center"
-          @click="push({ name: 'form_increase_budget' })"
-        >
+        <UiInputSelect v-model="selectedYear" :options="yearOptions" :placeholder="$t('increase-budget.select.year')"
+          class="min-w-[120px]" />
+        <UiButton v-if="canCreateIncreaseBudget" type="primary" icon="ant-design:plus-outlined"
+          colorClass="text-white flex items-center" @click="push({ name: 'form_increase_budget' })">
           {{ $t("budget_accounts.list.add") }}
         </UiButton>
       </div>
     </div>
-    <Table
-      :columns="columns(t)"
-      :dataSource="increaseStore.increase_budget"
-      :pagination="tablePagination"
-      :loading="loading"
-      row-key="id"
-      @change="handleTableChange"
-    >
+    <Table :columns="columns(t)" :dataSource="increaseStore.increase_budget" :pagination="tablePagination"
+      :loading="loading" row-key="id" @change="handleTableChange" :scroll="{ x: 'max-content' }">
       <template #allocated_amount="{ record }">
         {{ formatPrice(record.allocated_amount) }}
       </template>
+      <template #file="{ record }">
+        <a v-if="record.increase_budget_files?.length" :href="record.increase_budget_files[0].file_name_url"
+          target="_blank" class="text-blue-600 hover:underline">
+         <EyeOutlined/> {{$t('increase-budget.view')}}
+        </a>
+      </template>
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
-          <UiButton
-            v-if="canEditIncreaseBudget"
-            type=""
-            icon="ant-design:info-circle-outlined"
-            size="small"
-            @click="increaseBudgetView(record.id)"
-            colorClass="flex items-center justify-center text-red-400"
-            :disabled="!!record.deleted_at"
-          />
-          <UiButton
-            v-if="canEditIncreaseBudget"
-            type=""
-            icon="ant-design:edit-outlined"
-            size="small"
-            @click="showEditModal(record)"
-            colorClass="flex items-center justify-center text-orange-400"
-            :disabled="!!record.deleted_at"
-          />
-          <UiButton
-            v-if="canDeleteIncreaseBudget"
-            type=""
-            danger
-            icon="ant-design:delete-outlined"
-            colorClass="flex items-center justify-center text-red-700"
-            size="small"
-            @click="showDeleteModal(record.id)"
-          />
+          <UiButton v-if="canEditIncreaseBudget" type="" icon="ant-design:info-circle-outlined" size="small"
+            @click="increaseBudgetView(record.id)" colorClass="flex items-center justify-center text-red-400"
+            :disabled="!!record.deleted_at" />
+          <UiButton v-if="canEditIncreaseBudget" type="" icon="ant-design:edit-outlined" size="small"
+            @click="showEditModal(record)" colorClass="flex items-center justify-center text-orange-400"
+            :disabled="!!record.deleted_at" />
+          <UiButton v-if="canDeleteIncreaseBudget" type="" danger icon="ant-design:delete-outlined"
+            colorClass="flex items-center justify-center text-red-700" size="small"
+            @click="showDeleteModal(record.id)" />
         </div>
       </template>
     </Table>
@@ -214,25 +186,12 @@ onMounted(async () => {
     <!-- edit modal -->
 
     <!-- Edit Modal -->
-    <UpdateModal
-      v-model:visible="editModalVisible"
-      :loading="loading"
-      :isEdit="true"
-      :editData="selectedRecord"
-      @success="handleFormSuccess"
-    />
+    <UpdateModal v-model:visible="editModalVisible" :loading="loading" :isEdit="true" :editData="selectedRecord"
+      @success="handleFormSuccess" />
 
-    <UiModal
-      :title="t('departments.alert.confirm')"
-      :visible="deleteModalVisible"
-      :confirm-loading="loading"
-      @update:visible="deleteModalVisible = $event"
-      @ok="handleDeleteConfirm"
-      @cancel="deleteModalVisible = false"
-      :okText="t('button.ok')"
-      :cancelText="t('button.cancel')"
-      okType="primary"
-    >
+    <UiModal :title="t('departments.alert.confirm')" :visible="deleteModalVisible" :confirm-loading="loading"
+      @update:visible="deleteModalVisible = $event" @ok="handleDeleteConfirm" @cancel="deleteModalVisible = false"
+      :okText="t('button.ok')" :cancelText="t('button.cancel')" okType="primary">
       <p>{{ $t("departments.alert.message") }}: ""?</p>
       <p class="text-red-500">
         {{ t("departments.alert.remark") }}

@@ -134,6 +134,9 @@ export class ApiIncreaseBudgetItemRepository implements IncreaseBudgetItemReposi
                   input.budget_account?.total_budget ||
                     input.budget_item?.budget_account?.total_budget ||
                     0,
+                  input.budget_account?.increase_amount ||
+                    input.budget_item?.budget_account?.increase_amount ||
+                    0,
                   input.budget_account?.departmentId ||
                     input.budget_item?.budget_account?.departmentId ||
                     "",

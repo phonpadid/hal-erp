@@ -13,6 +13,7 @@ import { useBudgetAccountStore } from "../../../stores/budget/bud-get-account.st
 import {
   formState,
   moreFunction,
+  resetForm,
   useIncreaseBudgetStore,
 } from "../../../stores/budget/increase/increase-budget.store";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
@@ -88,6 +89,37 @@ const removeFile = () => {
 const removeMore = (index: number) => {
   formState.detail.splice(index, 1);
 };
+
+// Reset form function
+// const resetForm = () => {
+//   // Reset form fields
+//   formRef.value?.resetFields();
+
+//   // Reset file upload
+//   selectedFile.value = null;
+//   formState.file_name = "";
+//   uploadStatus.value = null;
+//   if (fileInputRef.value) {
+//     fileInputRef.value.value = "";
+//   }
+
+//   // Reset details array to single empty item
+//   formState.detail = [{ budget_item_id: "", allocated_amount: undefined as number | undefined }];
+
+//   // Reset budget account selection which will also reset budget items
+//   budgetItemStore.budgetItems = [];
+// };
+
+// Handle cancel button
+const handleCancel = () => {
+  resetForm();
+  push({ name: "increase_budget" });
+};
+
+// Handle form close (could be called from parent component)
+const handleClose = () => {
+  resetForm();
+};
 const handleSubmit = async (): Promise<void> => {
   try {
     loading.value = true;
@@ -110,13 +142,10 @@ const handleSubmit = async (): Promise<void> => {
       file_name: upload.data.data.filename,
       increase_budget_details: item,
     });
-    formRef.value?.resetFields();
-    selectedFile.value = null;
-    uploadStatus.value = null;
-    if (fileInputRef.value) {
-      fileInputRef.value.value = "";
-    }
-    // resetForm()
+
+    // Reset the entire form
+    resetForm();
+
     success(t("approval-workflow-step.notify.created"));
     push({ name: "increase_budget" });
   } catch (err: unknown) {
@@ -136,6 +165,12 @@ const formattedPrice = (index: number) =>
       formState.detail[index].allocated_amount = parsePrice(digitsOnly);
     },
   });
+
+// Expose functions for parent component
+defineExpose({
+  resetForm,
+  handleClose
+});
 </script>
 <template>
   <div class="mt-[1rem] px-6 shadow-sm p-2">
@@ -207,7 +242,7 @@ const formattedPrice = (index: number) =>
             type="file"
             @change="onFileChange"
             style="display: none"
-            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
           />
         </UiFormItem>
       </div>
@@ -274,7 +309,7 @@ const formattedPrice = (index: number) =>
         </UiFormItem>
       </div>
       <div class="btn mb-16 flex items-center justify-start gap-3">
-        <UiButton @click="push({ name: 'increase_budget' })">{{
+        <UiButton @click="handleCancel">{{
           t("button.cancel")
         }}</UiButton>
         <UiButton @click="handleSubmit" type="primary">{{ t("button.save") }}</UiButton>

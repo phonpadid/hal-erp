@@ -8,7 +8,7 @@ import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import { useI18n } from "vue-i18n";
 import { createBankValidation } from "@/modules/presentation/Admin/views/bank/validation/bank.validate";
-import { formState } from "../../../stores/budget/increase/increase-budget.store";
+import { formState, resetForm } from "../../../stores/budget/increase/increase-budget.store";
 import { useBudgetAccountStore } from "../../../stores/budget/bud-get-account.store";
 import { useIncreaseBudgetStore } from '../../../stores/budget/increase/increase-budget.store';
 import { useNotification } from '@/modules/shared/utils/useNotification';
@@ -51,18 +51,23 @@ const submitLoading = ref(false);
 
 
 // Watch for modal visibility changes
-watch(() => props.visible, (newVal) => {
-  if (newVal && props.isEdit && props.editData) {
-
-    Object.assign(formState, props.editData);
-    if (props.editData.budget_account_id) {
-      formState.budget_account_id = props.editData.budget_account_id;
+watch(() => props.visible, (newVal, oldVal) => {
+  if (newVal && !oldVal) { // Modal is opening
+    if (props.isEdit && props.editData) {
+      // Load edit data
+      Object.assign(formState, props.editData);
+      if (props.editData.budget_account_id) {
+        formState.budget_account_id = props.editData.budget_account_id;
+      }
+      if (props.editData.increase_budget_files.length > 0) {
+        formState.file_name = props.editData?.increase_budget_files[0]?.file_name;
+      }
+    } else {
+      // Reset form for new entry
+      resetForm();
     }
-    if (props.editData.increase_budget_files.length > 0) {
-      formState.file_name = props.editData?.increase_budget_files[0]?.file_name;
-    }
-  } else if (newVal && !props.isEdit) {
-    // Reset form for new entry
+  } else if (!newVal && oldVal) { // Modal is closing
+    // Reset form when modal closes
     resetForm();
   }
 });
@@ -90,21 +95,26 @@ const removeFile = () => {
   }
 };
 
-const resetForm = () => {
-  formState.budget_account_id = null as number | null;
-  formState.description = "";
-  formState.file_name = "";
-  selectedFile.value = null;
-  uploadStatus.value = null;
-  if (fileInputRef.value) {
-    fileInputRef.value.value = "";
-  }
-  formRef.value?.resetFields();
-};
+// const resetForm = () => {
+//   // Reset form state
+//   formState.budget_account_id = null as number | null;
+//   formState.description = "";
+//   formState.file_name = "";
+
+//   // Reset file upload
+//   selectedFile.value = null;
+//   uploadStatus.value = null;
+//   if (fileInputRef.value) {
+//     fileInputRef.value.value = "";
+//   }
+
+//   // Reset form validation fields
+//   formRef.value?.resetFields();
+// };
 
 const handleCancel = () => {
-  emit("update:visible", false);
   resetForm();
+  emit("update:visible", false);
 };
 
 const submitForm = async () => {
@@ -132,14 +142,14 @@ const submitForm = async () => {
         id: props.editData.id,
         budget_account_id: Number(formState.budget_account_id),
         description: formState.description,
-        file_name: selectedFile.value ? uploadedFileName : ""
+        file_name: selectedFile.value ? uploadedFileName : formState.file_name
       });
       success(t("increase-budget.notify.updated"));
 
-
-    resetForm();
-    emit("update:visible", false);
-    emit("success");
+      // Reset form and close modal
+      resetForm();
+      emit("update:visible", false);
+      emit("success");
     }
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
@@ -150,6 +160,12 @@ const submitForm = async () => {
 };
 
 const rules = computed(() => createBankValidation(t, { isEditMode: props.isEdit ?? false }));
+
+// Expose functions for parent component
+defineExpose({
+  resetForm
+
+});
 
 onMounted(async () => {
   await budgetAccountStore.fetchBudgetAccounts({ limit: 1000, page: 1 });

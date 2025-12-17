@@ -52,7 +52,7 @@ export const approvalWorkflowStepStore = defineStore("approval-workflow-step", (
   };
 
   const fetchApprovalWorkflowSteps = async (id: string,
-    params: PaginationParams = { page: 1, limit: 10 },
+    params: PaginationParams = { page: 1, limit: 10, sort_order: 'ASC' },
     includeDeleted = false
   ) => {
     loading.value = true;
@@ -157,6 +157,21 @@ export const approvalWorkflowStepStore = defineStore("approval-workflow-step", (
     }
   };
 
+  const reorderSteps = async (workflowId: string, ids: number[]) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const result = await apvWorkflowStepService.reorder(workflowId, ids);
+      return result;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   return {
     // State
     approval_workflow_steps,
@@ -170,6 +185,7 @@ export const approvalWorkflowStepStore = defineStore("approval-workflow-step", (
     fetchApprovalWorkflowSteps,
     fetchById,
     update,
-    remove
+    remove,
+    reorderSteps
   };
 });

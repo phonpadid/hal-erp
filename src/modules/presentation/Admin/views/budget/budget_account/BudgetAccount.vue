@@ -301,7 +301,7 @@ onMounted(async () => {
       v-if="canEditBudgetAccount"
       icon="ant-design:edit-outlined"
       size="small"
-      shape="circle" 
+      shape="circle"
       @click="showEditModal(record)"
       colorClass="text-orange-400 flex items-center justify-center"
     />
@@ -311,9 +311,9 @@ onMounted(async () => {
       icon="ant-design:delete-outlined"
       colorClass="text-red-700 flex items-center justify-center"
       size="small"
-      shape="circle" 
+      shape="circle"
       @click="showDeleteModal(record)"
-      
+
     />
   </div>
 </template>

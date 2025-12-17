@@ -178,6 +178,7 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
         Number(ba.balance_amount || 0),
         Number(ba.used_amount||0),
         Number(ba.total_budget||0),
+        Number(ba.increase_amount||0),
         ba.type || "",
         ba.created_at || "",
         ba.updated_at || "",

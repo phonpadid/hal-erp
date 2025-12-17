@@ -60,6 +60,7 @@
     "name": "Name",
     "fiscalYear": "Fiscal Year",
     "allocatedAmount": "Allocated Amount",
+    "increase_amount": "Increase Amount",
     "department": "Department",
     "createdAt": "Created At",
     "updatedAt": "Updated At",

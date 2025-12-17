@@ -2,6 +2,11 @@ import type { Column } from "@/modules/shared/column/column";
 
 export function columns(t: (key: string) => string): Column[] {
   return [
+    // {
+    //   title: 'id',
+    //   dataIndex: "id",
+    //   key: "id",
+    // },
     {
       title: t("approval-workflow-step.field.user"),
       dataIndex: "user.username",

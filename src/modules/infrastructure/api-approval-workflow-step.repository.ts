@@ -50,6 +50,7 @@ export class ApiApprovalWorkflowStepRepository implements ApprovalWorkflowStepRe
         params: {
           page: params.page,
           limit: params.limit,
+          sort_order: 'ASC',
           includeDeleted,
           ...(params.search && { search: params.search }),
         },
@@ -88,6 +89,14 @@ export class ApiApprovalWorkflowStepRepository implements ApprovalWorkflowStepRe
     }
   }
 
+  async reorder(workflowId: string, ids: number[]): Promise<boolean> {
+    try {
+      await api.put(`/approval-workflow-steps/order-by/${workflowId}`, { ids });
+      return true;
+    } catch (error) {
+      return this.handleApiError(error, `Failed to reorder workflow steps`);
+    }
+  }
 
   private toApiModel(input: ApprovalWorkflowStepEntity): ApprovalWorkflowStepApiModel {
     return {

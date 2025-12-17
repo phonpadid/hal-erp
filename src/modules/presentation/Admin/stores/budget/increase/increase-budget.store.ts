@@ -172,18 +172,23 @@ export const useIncreaseBudgetStore = defineStore("increase-budget-store", () =>
   };
 });
 
-export const formState = reactive({
+const initialFormState = () => ({
   budget_account_id: null as number | null,
   description: "",
-  file_name: "" ,
+  file_name: "",
   detail: [
     {
       budget_item_id: null as string | null,
       allocated_amount: 0 as number | undefined,
     },
-  ]
+  ],
 })
 
+export const formState = reactive(initialFormState())
+
+export const resetForm = () => {
+  Object.assign(formState, initialFormState())
+}
 export const moreFunction = () => {
   formState.detail.push({
     budget_item_id: null as string | null,

@@ -49,9 +49,10 @@ const formModel = reactive({
   document_type_id: "",
 });
 
-const canCreateStep = hasPermission('create-approval-workflow-step' )&& !isSuperAdmin.value && !isAdmin.value;
-const canEditStep = hasPermission('update-approval-workflow-step') && !isSuperAdmin.value && !isAdmin.value;
-const canDeleteStep = hasPermission('delete-approval-workflow-step') && !isSuperAdmin.value && !isAdmin.value;
+const canCreateStep = hasPermission('create-approval-workflow' )&& !isSuperAdmin.value && !isAdmin.value;
+const canEditStep = hasPermission('update-approval-workflow') && !isSuperAdmin.value && !isAdmin.value;
+const canViewStep = hasPermission('read-approval-workflow-step') && !isSuperAdmin.value && !isAdmin.value;
+const canDeleteStep = hasPermission('delete-approval-workflow') && !isSuperAdmin.value && !isAdmin.value;
 
 const loadData = async (): Promise<void> => {
   // if (useRealApi.value) {
@@ -257,7 +258,7 @@ onMounted(async () => {
                 : 'text-gray-500'
           ].join(' ')">
           </UiButton>
-          <UiButton v-if="canEditStep" icon="ant-design:eye-outlined" size="small" shape="circle" @click="info(record.id)"
+          <UiButton v-if="canViewStep" icon="ant-design:eye-outlined" size="small" shape="circle" @click="info(record.id)"
             colorClass="flex items-center justify-center text-sky-500">
           </UiButton>
 

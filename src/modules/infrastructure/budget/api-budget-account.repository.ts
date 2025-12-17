@@ -101,6 +101,7 @@ private toDomainModel(budgetAccount: BudgetAccountInterface): BudGetAccountsEnti
     budgetAccount.balance_amount,
     budgetAccount.used_amount,
     budgetAccount.total_budget || null,
+    budgetAccount.increase_amount || null,
     budgetAccount.department_id, // This maps to the 'department_id' parameter
     budgetAccount.type, // type
     null, // description

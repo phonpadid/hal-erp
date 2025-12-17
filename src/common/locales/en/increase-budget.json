@@ -3,6 +3,8 @@
     "title_create": "Budget Request Creation Form",
     "title_edit": "Edit Information Form",
     "add_item": "Item",
+    "createBy": "Created By",
+    "view": "View file",
     "table": {
       "title": "Budget Title",
       "description": "Description",

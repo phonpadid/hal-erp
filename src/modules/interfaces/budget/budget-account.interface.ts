@@ -11,6 +11,7 @@ export interface BudgetAccountInterface {
   balance_amount: number | string;
   used_amount: number | string;
   total_budget?: number | string | null;
+  increase_amount?: number | string | null;
   type: string;
   created_at: string;
   updated_at: string;

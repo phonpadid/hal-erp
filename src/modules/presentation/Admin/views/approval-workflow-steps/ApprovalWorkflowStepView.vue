@@ -38,13 +38,77 @@ const isEdit = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedData = ref<IApprovalWorkflowStepApiModel | null>(null);
+const draggedItem = ref<IApprovalWorkflowStepApiModel | null>(null);
+const dragOverIndex = ref<number | null>(null);
 
 // check button show permission
 const canCreateStep = hasPermission('create-approval-workflow-step' )&& !isSuperAdmin.value && !isAdmin.value;
 const canEditStep = hasPermission('update-approval-workflow-step') && !isSuperAdmin.value && !isAdmin.value;
 const canDeleteStep = hasPermission('delete-approval-workflow-step') && !isSuperAdmin.value && !isAdmin.value;
 
+// Drag and drop handlers
+const handleDragStart = (event: DragEvent, record: IApprovalWorkflowStepApiModel) => {
+  // Check permission before allowing drag
+  if (!canEditStep) {
+    event.preventDefault();
+    return;
+  }
 
+  draggedItem.value = record;
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/html', String(record.id) || '');
+  }
+};
+
+const handleDragOver = (event: DragEvent, index: number) => {
+  // Check permission before allowing drag over
+  if (!canEditStep) {
+    return;
+  }
+
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move';
+  }
+  dragOverIndex.value = index;
+};
+
+const handleDragLeave = () => {
+  dragOverIndex.value = null;
+};
+
+const handleDrop = async (event: DragEvent, dropIndex: number) => {
+  event.preventDefault();
+  dragOverIndex.value = null;
+
+  // Check permission before allowing drop
+  if (!canEditStep) {
+    draggedItem.value = null;
+    return;
+  }
+
+  if (!draggedItem.value) return;
+
+  const allSteps = [...apvWorkflowStepStore.approval_workflow_steps];
+  const draggedIndex = allSteps.findIndex(step => step.getId() === String(draggedItem.value?.id));
+
+  if (draggedIndex === dropIndex || draggedIndex === -1) return;
+
+  // Reorder the array
+  const reorderedSteps = [...allSteps];
+  const [draggedStep] = reorderedSteps.splice(draggedIndex, 1);
+  reorderedSteps.splice(dropIndex, 0, draggedStep);
+
+  // Extract IDs in the new order
+  const reorderedIds = reorderedSteps
+    .map(step => step.getId())
+    .filter(id => id !== null)
+    .map(id => parseInt(id!));
+
+  await saveOrder(reorderedIds);
+  draggedItem.value = null;
+};
 
 const store = approvalWorkflowStore();
 const dpmStore = departmentStore();
@@ -275,6 +339,23 @@ const getColor = (value: string) => {
 const getTypeLabel = (type: string) => {
   return typeEnum.value.find((item) => item.value === type)?.label || type;
 };
+
+
+const saveOrder = async (ids: number[]) => {
+  try {
+    loading.value = true;
+    await apvWorkflowStepStore.reorderSteps(id, ids);
+    success(t("approval-workflow-step.notify.reorder"));
+    await loadApvWorkFlowStep();
+    // selectedRowKeys.value = [];
+    // selectedRows.value = [];
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("documentType.error.title"), String(errorMessage));
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <template>
@@ -312,13 +393,35 @@ const getTypeLabel = (type: string) => {
 
     <!--  Table -->
     <Table
-      :columns="columns(t)"
+      :columns="[
+        ...(canEditStep ? [{ title: '', key: 'drag', width: 60, align: 'center' }] as any : []),
+        ...columns(t)
+      ]"
       :dataSource="apvWorkflowStepStore.approval_workflow_steps"
       :pagination="tablePagination"
-      row-key="id"
+      row-key="getId"
       :loading="store.loading"
       @change="handleTableChange"
+      :custom-row="canEditStep ? (record: any, index: number) => ({
+        draggable: true,
+        onDragstart: (e: DragEvent) => handleDragStart(e, record),
+        onDragover: (e: DragEvent) => handleDragOver(e, index!),
+        onDragleave: handleDragLeave,
+        onDrop: (e: DragEvent) => handleDrop(e, index!),
+        class: [
+          'draggable-row',
+          dragOverIndex === index ? 'drag-over' : ''
+        ].filter(Boolean).join(' ')
+      }) : undefined"
     >
+      <template #drag="{ record }" v-if="canEditStep">
+        <div class="drag-handle" :class="{ 'dragging': draggedItem?.id === record.getId() }">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="cursor-move">
+            <path d="M7 19a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM7 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM7 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM17 19a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM17 13a2 2 0 1 1 0-4 2 2 0 0 1 0 6zM17 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
+          </svg>
+        </div>
+      </template>
+
       <template #step_number="{ record }">
         <div class="flex items-center justify-start gap-2">
           {{ t("approval-workflow-step.field.step") }} ({{
@@ -371,7 +474,7 @@ const getTypeLabel = (type: string) => {
             type=""
             icon="ant-design:edit-outlined"
             size="small"
-            shape="circle" 
+            shape="circle"
             @click="showEditModal(record)"
             colorClass="flex items-center justify-center text-orange-400"
           >
@@ -380,7 +483,7 @@ const getTypeLabel = (type: string) => {
             v-if="canDeleteStep"
             type=""
             danger
-            shape="circle" 
+            shape="circle"
             icon="ant-design:delete-outlined"
             colorClass="flex items-center justify-center text-red-700"
             size="small"
@@ -528,5 +631,58 @@ const getTypeLabel = (type: string) => {
 .total-item .ant-tag {
   font-family: "Noto Sans Lao", sans-serif;
   font-size: 14px;
+}
+
+/* Highlight selected rows */
+:deep(.ant-table-row-selected) {
+  background-color: #e6f7ff !important;
+}
+
+:deep(.ant-table-row-selected:hover) {
+  background-color: #bae7ff !important;
+}
+
+/* Drag and drop styling */
+.drag-handle {
+  cursor: move;
+  color: #999;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drag-handle:hover {
+  color: #666;
+  background-color: #f5f5f5;
+}
+
+.drag-handle.dragging {
+  color: #1890ff;
+  background-color: #e6f7ff;
+}
+
+:deep(.drag-over) {
+  background-color: #f0f8ff !important;
+  border-top: 2px solid #1890ff;
+}
+
+:deep(.ant-table-tbody > tr.draggable-row) {
+  transition: all 0.3s ease;
+}
+
+:deep(.ant-table-tbody > tr.draggable-row:hover) {
+  background-color: #fafafa;
+}
+
+/* Make entire row feel draggable */
+:deep(.ant-table-tbody > tr) {
+  cursor: default;
+}
+
+:deep(.ant-table-tbody > tr.draggable-row) {
+  cursor: move;
 }
 </style>

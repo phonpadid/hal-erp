@@ -8,4 +8,5 @@ export interface ApprovalWorkflowStepRepository {
   findAll(id: string, query: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<ApprovalWorkflowStepEntity>>;
   update(id: string, input: ApprovalWorkflowStepEntity): Promise<ApprovalWorkflowStepEntity>;
   delete(id: string): Promise<boolean>;
+  reorder(workflowId: string, ids: number[]): Promise<boolean>;
 }

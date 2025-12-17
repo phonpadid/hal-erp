@@ -3,6 +3,7 @@ export class IncreaseBudgetFileEntity {
   private id: string;
   private increase_budget_id: number | null;
   private file_name: string;
+  private file_name_url: string | null;
 
   // private increase_budget: IncreaseBudGetAccountsEntity | null;
 
@@ -14,6 +15,7 @@ export class IncreaseBudgetFileEntity {
     id: string,
     increase_budget_id: number | null = null,
     file_name: string,
+    file_name_url: string | null = null,
 
     // increase_budget: IncreaseBudGetAccountsEntity | null = null,
 
@@ -24,6 +26,7 @@ export class IncreaseBudgetFileEntity {
     this.id = id;
     this.increase_budget_id = increase_budget_id;
     this.file_name = file_name;
+    this.file_name_url = file_name_url;
 
     // this.increase_budget = increase_budget;
 
@@ -41,6 +44,9 @@ export class IncreaseBudgetFileEntity {
   }
   public getBudGetItemId(): string {
     return this.file_name;
+  }
+  public getFileNameUrl(): string | null{
+    return this.file_name_url;
   }
 
   // public getIncreaseBudget(): IncreaseBudGetAccountsEntity | null {

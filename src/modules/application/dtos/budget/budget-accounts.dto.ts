@@ -7,6 +7,7 @@ export interface BudgetAccountDTO {
   balance_amount: number | string,
   used_amount: number | string,
   total_budget?: number | string | null,
+  increase_amount?: number | string | null,
   departmentId: string;
   description?: string;
   type: string;

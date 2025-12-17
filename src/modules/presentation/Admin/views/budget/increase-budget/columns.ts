@@ -28,9 +28,14 @@ export function columns(t: (key: string) => string): Column[] {
       key: "allocated_amount",
     },
     {
-      title: "createdBy",
+      title: t('increase-budget.createBy'),
       dataIndex: "created_by.username",
       key: "created_by",
+    },
+    {
+      title: t('increase-budget.table.file_name'),
+      dataIndex: "file",
+      key: "file",
     },
     {
       title: t("budget_accounts.list.createdAt"),

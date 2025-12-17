@@ -48,4 +48,8 @@ export class ApprovalWorkflowStepServiceImpl implements ApprovalWorkflowStepServ
     return await this.deleteApprovalWorkflowStepUseCase.execute(id);
   }
 
+  async reorder(workflowId: string, ids: number[]): Promise<boolean> {
+    return await this.approvalFlowStepRepo.reorder(workflowId, ids);
+  }
+
 }
