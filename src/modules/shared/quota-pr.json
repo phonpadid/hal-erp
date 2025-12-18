@@ -1,0 +1,112 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": [
+        {
+            "id": 23,
+            "year": "2025-01-01",
+            "qty": 12,
+            "vendor_product_id": "15",
+            "company_id": 26,
+            "created_at": "15-12-2025 22:07:10",
+            "updated_at": "15-12-2025 22:07:10",
+            "vendor_product": {
+                "id": "15",
+                "vendor_id": "28",
+                "product_id": 6,
+                "vendor": {
+                    "id": "28",
+                    "name": "Comcom"
+                },
+                "product": {
+                    "id": 6,
+                    "name": "ດອກໄຟ"
+                },
+                "price": "12000.00",
+                "created_at": "04-12-2025 22:11:29",
+                "updated_at": "04-12-2025 22:11:29"
+            },
+            "Product": {
+                "id": 6,
+                "name": "ດອກໄຟ",
+                "description": "goods",
+                "product_type_id": 22,
+                "product_type": {
+                    "id": 22,
+                    "name": "ດອກໄຟຍາວ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "26-11-2025 23:47:13",
+                "updated_at": "26-11-2025 23:47:13"
+            },
+            "vendor": {
+                "id": 28,
+                "name": "Comcom",
+                "contact_info": "2054678934",
+                "created_at": "28-11-2025 22:53:19",
+                "updated_at": "04-12-2025 22:09:36"
+            }
+        },
+        {
+            "id": 19,
+            "year": "2025-01-01",
+            "qty": 20,
+            "vendor_product_id": "16",
+            "company_id": 22,
+            "created_at": "10-12-2025 00:01:51",
+            "updated_at": "10-12-2025 00:01:51",
+            "vendor_product": {
+                "id": "16",
+                "vendor_id": "28",
+                "product_id": 1,
+                "vendor": {
+                    "id": "28",
+                    "name": "Comcom"
+                },
+                "product": {
+                    "id": 1,
+                    "name": "ຄອມພີວເຕີ່ Mac M3"
+                },
+                "price": "25000000.00",
+                "created_at": "04-12-2025 22:11:39",
+                "updated_at": "04-12-2025 22:11:39"
+            },
+            "Product": {
+                "id": 1,
+                "name": "ຄອມພີວເຕີ່ Mac M3",
+                "description": "Ram (16GB, SSD 520GB)",
+                "product_type_id": 1,
+                "product_type": {
+                    "id": 1,
+                    "name": "ເອເລັກໂທນິກ"
+                },
+                "unit_id": "34",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ"
+                },
+                "status": "active",
+                "created_at": "31-10-2025 17:04:10",
+                "updated_at": "20-11-2025 18:01:27"
+            },
+            "vendor": {
+                "id": 28,
+                "name": "Comcom",
+                "contact_info": "2054678934",
+                "created_at": "28-11-2025 22:53:19",
+                "updated_at": "04-12-2025 22:09:36"
+            }
+        }
+    ],
+    "pagination": {
+        "total": 2,
+        "total_pages": 1,
+        "limit": 1000,
+        "page": 1
+    }
+}

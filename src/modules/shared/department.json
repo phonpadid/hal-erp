@@ -1,0 +1,110 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": {
+        "id": 75,
+        "department_id": "74",
+        "position_id": 71,
+        "user_id": 138,
+        "line_manager_id": 0,
+        "company_id": 22,
+        "created_at": "18-12-2025 17:06:03",
+        "updated_at": "18-12-2025 17:22:18",
+        "department": {
+            "id": 74,
+            "code": "VT",
+            "name": "ແຂວງວຽງຈັນ",
+            "department_head_id": 0,
+            "created_at": "18-12-2025 10:28:17",
+            "updated_at": "Invalid date",
+            "department_head": null,
+            "company": null
+        },
+        "position": {
+            "id": 71,
+            "name": "ຫົວໜ້າງົບປະມານ",
+            "created_at": "18-12-2025 10:28:17",
+            "updated_at": "Invalid date",
+            "company": null
+        },
+        "user": {
+            "id": 138,
+            "username": "nomeTest",
+            "email": "TestNome@gmail.com",
+            "tel": "2052145596",
+            "created_at": "18-12-2025 10:28:17",
+            "updated_at": "Invalid date",
+            "user_signature": {
+                "id": "116",
+                "user_id": 0,
+                "signature": "user_signature/019b2f6b-f581-77fd-a303-c86c7fde6bfc-1766027163009",
+                "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b2f6b-f581-77fd-a303-c86c7fde6bfc-1766027163009",
+                "created_at": "18-12-2025 10:28:17",
+                "updated_at": "Invalid date"
+            },
+            "roles": [
+                {
+                    "id": 15,
+                    "name": "ນະຄອນຫຼວງວຽງຈັນ",
+                    "created_at": "18-12-2025 10:28:17",
+                    "updated_at": "Invalid date",
+                    "department_id": 0,
+                    "department_code": "",
+                    "department_name": "",
+                    "company_id": null,
+                    "company_logo_url": null,
+                    "permissions": []
+                }
+            ],
+            "permissions": [
+                {
+                    "id": 198,
+                    "name": "create-vendor-product"
+                },
+                {
+                    "id": 199,
+                    "name": "read-vendor-product"
+                },
+                {
+                    "id": 200,
+                    "name": "update-vendor-product"
+                },
+                {
+                    "id": 201,
+                    "name": "delete-vendor-product"
+                },
+                {
+                    "id": 212,
+                    "name": "create-vat"
+                },
+                {
+                    "id": 213,
+                    "name": "read-vat"
+                },
+                {
+                    "id": 214,
+                    "name": "update-vat"
+                },
+                {
+                    "id": 215,
+                    "name": "delete-vat"
+                }
+            ],
+            "user_types": [
+                "department"
+            ]
+        },
+        "line_manager": null,
+        "company": {
+            "id": 22,
+            "name": "Hal-tech",
+            "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+            "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+            "tel": "2055889858",
+            "email": "haltech@gmail.com",
+            "address": "",
+            "created_at": "18-12-2025 10:28:17",
+            "updated_at": "Invalid date"
+        }
+    }
+}

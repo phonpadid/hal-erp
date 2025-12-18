@@ -6,8 +6,9 @@ export class GetReportBudgetItemUseCase {
   constructor(private readonly budGetRepository: BudgetItemRepository) {}
   async report(
     params: PaginationParams,
-    budgetType: string
+    budgetType: string,
+    departmentId?: number
   ): Promise<PaginatedResult<BudGetItemEntity>> {
-    return await this.budGetRepository.getReport(params, budgetType);
+    return await this.budGetRepository.getReport(params, budgetType, departmentId);
   }
 }

@@ -10,7 +10,7 @@ export interface BudgetItemRepository {
     params: PaginationParams,
     budget_account_id?: number | string,
   ): Promise<PaginatedResult<BudGetItemEntity>>;
-  getReport(params: PaginationParams, budgetType: string,): Promise<PaginatedResult<BudGetItemEntity>>;
+  getReport(params: PaginationParams, budgetType: string, departmentId?: number): Promise<PaginatedResult<BudGetItemEntity>>;
   findById(id: string): Promise<BudGetItemEntity | null>;
   findByBudgetAccountId(
     budgetAccountId: string,

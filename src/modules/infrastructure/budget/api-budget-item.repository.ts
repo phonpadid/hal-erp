@@ -75,7 +75,8 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
   // In the file api-budget-item.repository.ts
   async getReport(
     params: PaginationParams,
-    budgetType: string
+    budgetType: string,
+    departmentId?: number
   ): Promise<PaginatedResult<BudGetItemEntity>> {
     try {
       const response = await api.get(`${this.baseUrl}/report`, {
@@ -87,6 +88,7 @@ export class ApiBudgetItemRepository implements BudgetItemRepository {
           sort_direction: params.sortDirection,
           ...(budgetType === "expenditure" && { expenditure: true }),
           ...(budgetType === "advance" && { advance: true }),
+          ...(departmentId && { department_id: departmentId }),
         },
       });
       return {

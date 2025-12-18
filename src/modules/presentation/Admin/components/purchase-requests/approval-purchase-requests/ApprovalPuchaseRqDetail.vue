@@ -76,14 +76,14 @@ const currentApprovalStep = computed(() => {
 
   return isAuthorized ? pendingStep : null;
 });
-watchEffect(() => {
-  const step = currentApprovalStep.value;
-  console.log("Step changed:", {
-    hasStep: !!step,
-    stepId: step?.id,
-    isAuthorized: !!step,
-  });
-});
+// watchEffect(() => {
+//   const step = currentApprovalStep.value;
+//   console.log("Step changed:", {
+//     hasStep: !!step,
+//     stepId: step?.id,
+//     isAuthorized: !!step,
+//   });
+// });
 
 /****************************************** */
 const requesterInfo = computed(() => requestDetail.value?.getRequester());
@@ -296,7 +296,14 @@ const handleApprove = async () => {
       if (success) {
         await purchaseRequestStore.fetchById(documentId);
 
-        if (currentStep.step_number === 1) {
+       
+
+        // ✅ ກວດສອບວ່າເປັນຂັ້ນຕອນທຳອິດ (step 0) ຫຼືບໍ່
+        if (currentStep.step_number === 0) {
+          setTimeout(() => {
+            router.push({ name: "apv_purchase_request.index" });
+          }, 1500);
+        } else if (currentStep.step_number === 1) {
           router.push({ name: "apv_purchase_request.index" });
         } else if (isLastStep.value) {
           router.push({
@@ -314,6 +321,7 @@ const handleApprove = async () => {
 const handleOtpConfirm = async (otpCode: string) => {
   if (modalAction.value === "reject") {
     await handleOtpRejectConfirm(otpCode);
+    return;
   }
   if (!otpCode) {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
@@ -348,7 +356,14 @@ const handleOtpConfirm = async (otpCode: string) => {
     if (success) {
       isOtpModalVisible.value = false;
 
-      if (currentStep.step_number === 1) {
+    
+
+      // ✅ ກວດສອບວ່າເປັນຂັ້ນຕອນທຳອິດ (step 0) ຫຼືບໍ່
+      if (currentStep.step_number === 0) {
+        setTimeout(() => {
+          router.push({ name: "apv_purchase_request.index" });
+        }, 1500);
+      } else if (currentStep.step_number === 1) {
         router.push({ name: "apv_purchase_request.index" });
       } else if (isLastStep.value) {
         router.push({

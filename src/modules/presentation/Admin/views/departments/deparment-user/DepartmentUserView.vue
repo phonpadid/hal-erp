@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { columns } from "./column";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -12,13 +12,17 @@ import type { DepartmentUserApiModel } from "@/modules/interfaces/departments/de
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import { useUserStore } from "../../../stores/user.store";
+import { departmentStore } from "../../../stores/departments/department.store";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import ResetPasswordForm from "../../../components/user/ResetPasswordForm.vue";
 
 const { warning, success } = useNotification();
 const { t } = useI18n();
 const dpmUserStore = departmenUsertStore();
 const userStore = useUserStore();
+const dpmStore = departmentStore();
 const search = ref<string>("");
+const selectedDepartmentId = ref<string | null>(null);
 
 // Change password modal state
 const changePasswordModalVisible = ref<boolean>(false);
@@ -35,22 +39,35 @@ const canEdit = hasPermission("update-department-user") && !isSuperAdmin.value &
 const canDelete = hasPermission("delete-department-user") && !isSuperAdmin.value && !isAdmin.value;
 const canResetPassword = hasPermission("reset-password-user") && !isSuperAdmin.value && !isAdmin.value;
 
+const dpmOption = computed(() =>
+  dpmStore.departments.map((item) => {
+    return {
+      value: item?.getId?.() ?? "", // convert to string
+      label: item?.getName?.() ?? "",
+    };
+  })
+);
+
 // Form related
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedDpm = ref<DepartmentUserApiModel | null>(null);
 // Load data on component mount
 onMounted(async () => {
+  await dpmStore.fetchDepartment({ limit: 1000, page: 1 });
   await departmentUser();
 });
 
 const departmentUser = async (): Promise<void> => {
   try {
       loading.value = true;
-      dpmUserStore.fetchDepartmentUser({
+      const params = {
         page: dpmUserStore.pagination.page,
         limit: dpmUserStore.pagination.limit,
-      });
+        search: search.value,
+        department_id: selectedDepartmentId.value || undefined,
+      };
+      await dpmUserStore.fetchDepartmentUser(params);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       warning(t("departments.error.title"), String(errorMessage));
@@ -64,9 +81,10 @@ const handleSearch = async () => {
   try {
     loading.value = true;
     await dpmUserStore.fetchDepartmentUser({
-      page: dpmUserStore.pagination.page,
+      page: 1,
       limit: dpmUserStore.pagination.limit,
       search: search.value,
+      department_id: selectedDepartmentId.value || undefined,
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -161,6 +179,15 @@ watch(search, async(load) => {
     await departmentUser()
   }
 })
+
+watch(selectedDepartmentId, async () => {
+  dpmUserStore.setPagination({
+    page: 1,
+    limit: dpmUserStore.pagination.limit,
+    total: dpmUserStore.pagination.total,
+  });
+  await departmentUser();
+});
 </script>
 
 <template>
@@ -169,13 +196,23 @@ watch(search, async(load) => {
       <h1 class="text-2xl font-semibold">
         {{ $t("departments.dpm_user.title") }}
       </h1>
-      <div class="flex items-center justify-between">
-        <div class="w-[20rem]">
-          <InputSearch
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+        <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+          <div class="w-full sm:w-64 lg:w-80">
+            <InputSearch
             v-model="search"
             @keyup.enter="handleSearch"
             :placeholder="t('departments.dpm_user.placeholder.search')"
           />
+          </div>
+          <div class="w-full sm:w-64 lg:w-80">
+            <InputSelect
+              v-model="selectedDepartmentId"
+              :options="dpmOption"
+              :placeholder="t('departments.dpm_user.placeholder.dpm')"
+              :allowClear="true"
+            />
+          </div>
         </div>
         <UiButton
           v-if="canCreate"  
