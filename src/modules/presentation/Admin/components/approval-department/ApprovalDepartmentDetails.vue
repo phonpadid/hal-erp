@@ -384,7 +384,7 @@
 
   <!-- Budget Selection Drawer -->
   <UiDrawer v-model:open="visibleBudget" title="ເລືອກລະຫັດງົບປະມານ" placement="right" :width="500">
-    <BudgetApprovalDrawer @confirm="handleBudgetConfirm" />
+    <BudgetApprovalDrawer :departmentId="orderDetails?.getDocument()?.department?.id" @confirm="handleBudgetConfirm" />
   </UiDrawer>
   <div class="print-only">
     <PrintPurchaseOrder :purchase-order="orderDetails" />

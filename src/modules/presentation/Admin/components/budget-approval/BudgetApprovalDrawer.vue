@@ -9,6 +9,11 @@ import Radio from "@/common/shared/components/Input/Radio.vue";
 import Table, { type TableRecord } from "@/common/shared/components/table/Table.vue";
 import { useBudgetItemStore } from "../../stores/budget/budget-item.store";
 
+// Props
+const props = defineProps<{
+  departmentId?: number;
+}>();
+
 // State
 const budgetItemStore = useBudgetItemStore();
 const selectedValue = ref<string>("1");
@@ -27,7 +32,8 @@ const isValid = computed(() => {
 
 const fetchData = async () => {
   const budgetType = selectedValue.value === "1" ? "expenditure" : "advance";
-  await budgetItemStore.getAllReport({ page: 1, limit: 10 }, budgetType);
+  // console.log("Fetching budget items with departmentId:", props.departmentId);
+  await budgetItemStore.getAllReport({ page: 1, limit: 10 }, budgetType, props.departmentId);
 };
 
 const filteredBudgetData = computed<any[]>(() => {
@@ -62,7 +68,7 @@ const handleConfirm = () => {
   if (!selectedBudget.value) return;
   
   // เพิ่ม console.log เพื่อตรวจสอบข้อมูลที่จะส่ง
-  console.log("Selected budget data:", selectedBudget.value);
+  // console.log("Selected budget data:", selectedBudget.value);
   
   emit("confirm", {
     id: Number(selectedBudget.value.id),
@@ -84,7 +90,7 @@ const handleRowClick = (record: TableRecord) => {
     used: record.use_amount,
     remaining: record.balance_amount,
   };
-  console.log("ข้อมูลรายการที่ถูกเลือก:", selectedBudget.value);
+  // console.log("ข้อมูลรายการที่ถูกเลือก:", selectedBudget.value);
 };
 
 // Watchers
@@ -97,8 +103,13 @@ watch(searchQuery, () => {
   fetchData();
 });
 
-onMounted(() => {
+// Watch for departmentId changes
+watch(() => props.departmentId, () => {
   fetchData();
+}, { immediate: true });
+
+onMounted(() => {
+  // fetchData will be called by watch with immediate: true
 });
 // Emits
 const emit = defineEmits<{

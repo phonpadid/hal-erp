@@ -47,9 +47,10 @@ export class BudgetItemDetailsServiceImpl implements BudgetItemService {
 
   async getAllReportBudgetItem(
     params: PaginationParams,
-    budgetType: string
+    budgetType: string,
+    departmentId?: number
   ): Promise<PaginatedResult<BudGetItemEntity>> {
-    return await this.getReportUseCase.report(params, budgetType);
+    return await this.getReportUseCase.report(params, budgetType, departmentId);
   }
   async getBudgetItemsByAccountId(
     budgetAccountId: string,
