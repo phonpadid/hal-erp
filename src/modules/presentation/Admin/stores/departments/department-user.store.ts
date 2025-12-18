@@ -137,6 +137,28 @@ export const departmenUsertStore = defineStore("department-user", () => {
     }
   };
 
+  const fetchDepartmentUserApproversByDpm = async (params: {
+    page: number;
+    limit: number;
+    search?: string;
+    department_id: string;
+    sort_order?: 'ASC' | 'DESC';
+  }) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const result = await departmentUserService.getAllDepartmentUserApproversByDmp(params);
+      departmentUserByDpm.value = result;
+      return departmentUserByDpm.value;
+    } catch (err) {
+      error.value = err as Error;
+      return null;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   // Update Unit
   const updateDepartmentUser = async (input: UpdateDepartmentUserDTO) => {
     loading.value = true;
@@ -263,6 +285,7 @@ export const departmenUsertStore = defineStore("department-user", () => {
     deleteDepartmentUser,
     resetState,
     resetForm,
-    fetchDepartmentUserByDpm
+    fetchDepartmentUserByDpm,
+    fetchDepartmentUserApproversByDpm
   };
 });

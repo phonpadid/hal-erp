@@ -111,6 +111,33 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     }
   }
 
+  async findAllApproversByDpm(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    department_id: string;
+    sort_order?: 'ASC' | 'DESC';
+  }): Promise<DepartmentUserEntity[]> {
+    try {
+      const response = (await api.get(`/department-users/approvers`, {
+        params: {
+          page: params.page,
+          limit: params.limit,
+          sort_order: params.sort_order || 'DESC',
+          search: params.search || '',
+          department_id: params.department_id,
+        },
+      })) as {
+        data: ApiResponse<DepartmentUserApiModel[]>;
+      };
+      const validItems = response.data.data.filter((item) => item.user);
+      const domainModels = validItems.map((item) => this.toDomainModel(item));
+      return domainModels;
+    } catch (error) {
+      throw this.handleApiError(error, `Failed to find department user approvers with department_id ${params.department_id}`);
+    }
+  }
+
   async findByName(name: string): Promise<DepartmentUserEntity | null> {
     try {
       const response = (await api.get("/department-users", {
@@ -133,13 +160,19 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<DepartmentUserEntity>> {
     try {
+      const requestParams = {
+        page: params.page,
+        limit: params.limit,
+        includeDeleted,
+        ...(params.search && { search: params.search }),
+        ...(params.type && { type: params.type }),
+        ...(params.department_id && { department_id: params.department_id }),
+      };
+      // console.log('API Request params:', requestParams);
       const response = (await api.get("/department-users", {
         params: {
-          page: params.page,
-          limit: params.limit,
-          includeDeleted,
-          ...(params.search && { search: params.search }),
-          ...(params.type && { type: params.type }),
+          ...requestParams,
+          _t: Date.now(), // Add timestamp to prevent caching
         },
       })) as { data: ApiListResponse<DepartmentUserApiModel> };
 

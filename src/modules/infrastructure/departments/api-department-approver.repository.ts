@@ -63,6 +63,7 @@ export class ApiDepartmentApproverRepository implements DepartmentApproverReposi
           limit: params.limit,
           includeDeleted,
           ...(params.search && { search: params.search }),
+          ...(params.department_id && { department_id: params.department_id }),
         },
       })) as { data: ApiListResponse<DepartmentApproverApiModel> };
 
