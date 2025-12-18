@@ -47,6 +47,20 @@ const selectedPermissions = computed({
   },
 });
 const departmentType = ref("in_the_office");
+
+// Store original data for each department type
+const originalData = ref({
+  in_the_office: {
+    departmentId: "",
+    roleIds: [] as number[],
+    permissionIds: [] as number[],
+  },
+  outside_the_office: {
+    departmentId: "",
+    roleIds: [] as number[],
+    permissionIds: [] as number[],
+  },
+});
 const departmentTypeOptions = computed(() => [
   { label: t('departments.dpm.field.in_the_office'), value: "in_the_office" },
   { label: t('departments.dpm.field.outside_the_office'), value: "outside_the_office" },
@@ -127,10 +141,13 @@ const loadDepartmentUser = async () => {
       const departmentUser = dpmUserStore.currentDpmUser;
 
       if (!departmentUser) {
-        
+
         return;
       }
 
+      // 3. get user and position data
+      const userData = departmentUser.getUser();
+      const positionData = departmentUser.getPostion();
       // 2. Setting department type
       const userDepartment = dpmStore.departments.find(
         dept => dept.getId() === departmentUser.getDepartmentId()
@@ -138,10 +155,6 @@ const loadDepartmentUser = async () => {
       if (userDepartment) {
         departmentType.value = userDepartment.getType();
       }
-
-      // 3. get user and position data
-      const userData = departmentUser.getUser();
-      const positionData = departmentUser.getPostion();
 
       // 4. update form model
       dpmUserFormModel.userId = userData?.getId() || "";
@@ -176,6 +189,15 @@ const loadDepartmentUser = async () => {
       dpmUserFormModel.permissionIds = [...userPermissions];
       selectedPermissions.value = [...userPermissions];
 
+      // Store initial data for the current department type
+      if (userDepartment) {
+        originalData.value[userDepartment.getType() as keyof typeof originalData.value] = {
+          departmentId: departmentUser.getDepartmentId(),
+          roleIds: [...existingRoleIds],
+          permissionIds: [...userPermissions],
+        };
+      }
+
     } catch (error) {
       console.error("Failed to load department user:", error);
     } finally {
@@ -192,7 +214,6 @@ const handleSubmit = async (): Promise<void> => {
       // console.log("Form validation failed");
       return;
     }
-
     // Double check signature_file is properly set
     if (!dpmUserFormModel.signature_file) {
       await formRef.value.validateField("signature_file");
@@ -253,6 +274,20 @@ const handlerCancel = () => {
   dpmUserStore.resetForm();
   existingSignatureUrl.value = null;
   departmentType.value = "in_the_office"; // ✅ Reset department type
+
+  // Reset original data
+  originalData.value = {
+    in_the_office: {
+      departmentId: "",
+      roleIds: [],
+      permissionIds: [],
+    },
+    outside_the_office: {
+      departmentId: "",
+      roleIds: [],
+      permissionIds: [],
+    },
+  };
 };
 
 
@@ -276,6 +311,51 @@ watch(
     } else {
       // Reset roles when no department is selected
       roleStore.roles = [];
+    }
+  }
+);
+
+// Watch for department type changes to save/restore department selection
+watch(
+  departmentType,
+  async (newType, oldType) => {
+    // Only process if this is a user action, not initial data loading
+    if (newType !== oldType && !loading.value) {
+      // Save current data before switching
+      if (oldType && dpmUserFormModel.departmentId) {
+        originalData.value[oldType as keyof typeof originalData.value] = {
+          departmentId: dpmUserFormModel.departmentId,
+          roleIds: [...dpmUserFormModel.roleIds],
+          permissionIds: [...dpmUserFormModel.permissionIds],
+        };
+      }
+
+      // Clear current data
+      dpmUserFormModel.departmentId = "";
+      dpmUserFormModel.roleIds = [];
+      dpmUserFormModel.permissionIds = [];
+      selectedPermissions.value = [];
+      roleStore.roles = [];
+
+      // Restore data if exists for new type
+      const savedData = originalData.value[newType as keyof typeof originalData.value];
+      if (savedData && savedData.departmentId) {
+        dpmUserFormModel.departmentId = savedData.departmentId;
+        dpmUserFormModel.roleIds = [...savedData.roleIds];
+        dpmUserFormModel.permissionIds = [...savedData.permissionIds];
+        selectedPermissions.value = [...savedData.permissionIds];
+
+        // Load roles for the restored department
+        try {
+          await roleStore.fetchAllRoles({
+            page: 1,
+            limit: 10000,
+            department_id: savedData.departmentId,
+          });
+        } catch (error) {
+          console.error("Error fetching roles:", error);
+        }
+      }
     }
   }
 );
@@ -306,6 +386,20 @@ onUnmounted(() => {
   existingSignatureUrl.value = null;
   departmentType.value = "in_the_office"; // ✅ Reset department type
   formRef.value?.resetFields?.();
+
+  // Reset original data
+  originalData.value = {
+    in_the_office: {
+      departmentId: "",
+      roleIds: [],
+      permissionIds: [],
+    },
+    outside_the_office: {
+      departmentId: "",
+      roleIds: [],
+      permissionIds: [],
+    },
+  };
 });
 </script>
 
