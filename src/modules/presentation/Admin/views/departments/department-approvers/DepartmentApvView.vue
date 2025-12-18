@@ -20,6 +20,7 @@ import { canAccessAll } from "@/modules/shared/utils/check-user-type.util";
 
 const { t } = useI18n();
 const search = ref<string>("");
+const selectedDepartmentId = ref<string | null>(null);
 const departmentApv = ref<DepartmentApproverApiModel[]>([]);
 const dpmStore = departmentStore();
 const { hasPermission, isSuperAdmin, isAdmin, } = usePermissions();
@@ -82,7 +83,13 @@ watch(
   async (newDpmId) => {
     if (newDpmId) {
       userStore.departmentUserByDpm = [];
-      await userStore.fetchDepartmentUserByDpm(newDpmId);
+      await userStore.fetchDepartmentUserApproversByDpm({
+        page: 1,
+        limit: 10,
+        search: '',
+        department_id: newDpmId,
+        sort_order: 'DESC'
+      });
       if (!isEditMode.value) {
         formModel.user_id = [];
       }
@@ -107,6 +114,7 @@ const dpmApproverList = async (): Promise<void> => {
       page: store.pagination.page,
       limit: store.pagination.limit,
       search: search.value,
+      department_id: selectedDepartmentId.value || undefined,
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -122,6 +130,7 @@ const handleSearch = async () => {
     page: 1,
     limit: store.pagination.limit,
     search: search.value,
+    department_id: selectedDepartmentId.value || undefined,
   });
 };
 
@@ -268,6 +277,16 @@ watch(search, async (newValue) => {
     await dpmApproverList();
   }
 });
+
+/** Watch Department Filter */
+watch(selectedDepartmentId, async () => {
+  store.setPagination({
+    page: 1,
+    limit: store.pagination.limit,
+    total: store.pagination.total,
+  });
+  await dpmApproverList();
+});
 </script>
 
 <template>
@@ -277,22 +296,34 @@ watch(search, async (newValue) => {
         {{ $t("departments.dpm_approver.title") }}
       </h1>
 
-      <div class="flex justify-between gap-20">
-        <div class="w-[20rem]">
-          <InputSearch
-            v-model:value="search"
-            @keyup.enter="handleSearch"
-            :placeholder="t('departments.dpm_user.placeholder.search')"
-          />
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+        <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+          <div class="w-full sm:w-64 lg:w-80">
+            <InputSearch
+              v-model:value="search"
+              @keyup.enter="handleSearch"
+              :placeholder="t('departments.dpm_user.placeholder.search')"
+            />
+          </div>
+          <div class="w-full sm:w-64 lg:w-80">
+            <InputSelect
+              v-model="selectedDepartmentId"
+              :options="dpmOption"
+              :placeholder="t('departments.dpm_user.placeholder.dpm')"
+              :allowClear="true"
+            />
+          </div>
         </div>
         <UiButton
           v-if="canCreate"
           type="primary"
           icon="ant-design:plus-outlined"
           @click="showCreateModal"
-          colorClass="flex items-center"
+          colorClass="flex items-center w-full sm:w-auto lg:w-auto"
+          size="middle"
         >
-          {{ $t("departments.dpm_user.add") }}
+          <span class="hidden sm:inline">{{ $t("departments.dpm_user.add") }}</span>
+          <span class="sm:hidden">{{ $t("button.add") }}</span>
         </UiButton>
       </div>
       <div class="mt-4 text-slate-700 space-y-2">

@@ -514,7 +514,7 @@ const handleApprove = async () => {
           console.warn('🔧 Found step 2 instead (ID should be 1229, not 143):', step2);
           console.log('✅ Using step 2 ID:', step2.id, 'as approval step');
           // Force to use step2
-          let foundStep = step2;
+          const foundStep = step2;
 
           // Check if file upload is required
           const requiresFile = foundStep.requires_file_upload;

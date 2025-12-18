@@ -12,7 +12,7 @@ import { Icon } from "@iconify/vue";
 import { useI18n } from "vue-i18n";
 import { useApprovalStepStore } from "../../stores/approval-step.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import { useDocumentStatusStore } from "../../stores/document-status.store";
+// import { useDocumentStatusStore } from "../../stores/document-status.store";
 const { t } = useI18n();
 const { push } = useRouter();
 const currentStep = ref(0);
@@ -61,7 +61,7 @@ const goToNextStep = (stepData?: Step1Data | Step2Data) => {
 
 /*************************OTP*********************** */
 const approvalStepStore = useApprovalStepStore();
-const documentStatusStore = useDocumentStatusStore();
+// const documentStatusStore = useDocumentStatusStore();
 const { error } = useNotification();
 const confirmLoading = ref(false);
 const otpSending = ref(false);
@@ -126,8 +126,15 @@ const handleOtpConfirm = async (otpCode: string) => {
     const isSuccess = await approvalStepStore.submitApproval(newlyCreatedDocumentId.value, payload);
 
     if (isSuccess) {
+      // console.log("✅ PR creation and first step approval completed successfully");
       showOtpModal.value = false;
       currentStep.value = 2;
+
+      // ✅ ຫຼັງຈາກອະນຸມັດຂັ້ນຕອນທໍາອິດສຳເລັດ ໃຫ້ກັບໄປຫນ້າ PR list ໂດຍກົງ
+      setTimeout(() => {
+        // console.log("🔄 Redirecting to PR list after first step approval...");
+        push({ name: "purchase_request.index" });
+      }, 1500);
     } else {
       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດຢືນຢັນ OTP ດັ່ງກ່າວ");
     }

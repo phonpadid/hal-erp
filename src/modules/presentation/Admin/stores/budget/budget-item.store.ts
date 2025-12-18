@@ -188,12 +188,12 @@ const fetchBudgetItemsByAccountId = async (
     pagination.value.total = newPagination.total;
   };
 
-  const getAllReport = async (params: PaginationParams = { page: 1, limit: 10 } ,budgetType: string,) => {
+  const getAllReport = async (params: PaginationParams = { page: 1, limit: 10 } ,budgetType: string, departmentId?: number,) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const result = await budgetItemService.getAllReportBudgetItem(params, budgetType);
+      const result = await budgetItemService.getAllReportBudgetItem(params, budgetType, departmentId);
 
       if (result && Array.isArray(result.data)) {
         budgetItems.value = result.data;

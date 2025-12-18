@@ -56,7 +56,7 @@ export const CreatePRValidate = (t: (key: string) => string) => {
             trigger: "blur",
           },
           {
-            max: 12,
+            max: 20,
             message: t("purchase-rq.error.max_qty"),
             trigger: "blur",
           },
