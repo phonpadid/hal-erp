@@ -462,7 +462,7 @@ onMounted(async () => {
             <div class="info text-sm text-slate-600 space-y-1">
               <p>{{ step.approver?.username || "-" }}</p>
               <p>{{ step.position?.name || "-" }}</p>
-              <p>{{ step?.created_at || "-" }}</p>
+              <p>{{ step?.approver?.created_at || "-" }}</p>
             </div>
           </div>
         </div>
