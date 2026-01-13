@@ -120,6 +120,24 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: false,
     },
   },
+  {
+    path: "/approval",
+    name: "approval",
+    component: () => import("@/modules/presentation/Admin/components/approval-on-phone/ApprovalOnPhoneDetail.vue"),
+    meta: {
+      layout: "blank",
+      requiresAuth: false,
+    },
+  },
+  {
+    path: "/approval-pr",
+    name: "approval_pr",
+    component: () => import("@/modules/presentation/Admin/components/approval-on-phone/ApprovalPurchaseRequestDetail.vue"),
+    meta: {
+      layout: "blank",
+      requiresAuth: false,
+    },
+  },
 ];
 
 const router = createRouter({
