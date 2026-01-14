@@ -6,28 +6,12 @@ export interface CompanyReportData {
   status_code: number;
   message: string;
   data: Array<{
-    id: number;
-    name: string;
+    companyId: number;
+    companyName: string;
     logo: string;
-    tel: string;
-    email: string;
-    address: string;
-    created_at: string;
-    updated_at: string;
-    deleted_at: string | null;
-    company_users: Array<{
-      id: number;
-      username: string;
-      email: string;
-      tel: string;
-      created_at: string;
-      updated_at: string;
-      deleted_at: string | null;
-    }>;
-    budget_accounts: Array<any>;
+    userCount: number;
     approvalWorkflowCount: number;
     budgetRuleCount: number;
-    userCount: number;
     allocated_amount: number;
     increase_amount: number;
     totalUsedAmount: number;

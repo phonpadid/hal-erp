@@ -86,7 +86,7 @@ export const useCompanyReportsStore = defineStore("companyReports", () => {
       // Get detailed data for each company
       const companyDetails = await Promise.all(
         reportData.data.map(async (company) => {
-          const detail = await reportCompanyService.getOneCompanyReport(company.id.toString());
+          const detail = await reportCompanyService.getOneCompanyReport(company.companyId.toString());
           return detail;
         })
       );
