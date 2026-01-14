@@ -6,11 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
+    "build:halgroup": "vite build --mode halgroup",
+    "build:logistics": "vite build --mode logistics",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
     "deploy": "scp -r dist/ root@134.209.101.30:/var/www/admin/"
+
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
