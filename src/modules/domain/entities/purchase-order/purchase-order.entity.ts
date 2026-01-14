@@ -50,14 +50,15 @@ export class PurchaseOrderEntity {
       is_otp: boolean;
       requires_file_upload: boolean;
       approved_at?: string | null;
-      doc_approver?: Array<{    
+      created_at?: string | null;
+      doc_approver?: Array<{
         user: {
           username: string;
           department?: { name: string } ;
         };
         department?: { name: string };
       }>;
-      
+
     }>;
   } | null = null;
   // private items: PurchaseOrderItemEntity[];
@@ -329,7 +330,7 @@ export class PurchaseOrderEntity {
 
   // --- Business Logic Methods (ตัวอย่าง) ---
   public getTotalWithVAT(): number {
-   
+
     if (this.items && this.items.length > 0) {
       return this.items.reduce((total, item) => {
         const itemPrice = item.getPrice();

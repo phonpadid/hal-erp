@@ -446,8 +446,9 @@ onMounted(async () => {
           <div v-for="(step, index) in [
             ...(rStore.currentReceipts?.user_approval?.approval_step || []),
           ].sort((a, b) => a.step_number - b.step_number)" :key="index" class="signature-approver text-center">
-            <p class="text-slate-500 text-sm font-bold">
-              {{ index === 0 ? "ຜູ້ສ້າງ" : t("purchase-rq.approver") + ' ' + (step.step_number) }}
+            <p v-if="step.doc_approver" class="text-slate-500 text-sm font-bold">
+              {{ index === 0 ? "ຜູ້ສ້າງ" : step?.doc_approver[0].department?.name ?? 'ຜູ້ອຳນວຍການ' }}
+              <!-- {{ index === 0 ? "ຜູ້ສ້າງ" : t("purchase-rq.approver") + ' ' + (step.step_number) }} -->
             </p>
 
             <a-image v-if="step.approver?.user_signature?.signature_url" class=" -mt-2"
@@ -458,9 +459,10 @@ onMounted(async () => {
               <!-- No Signature -->
             </div>
 
-            <div class="info text-sm text-slate-600 -space-y-2">
+            <div class="info text-sm text-slate-600 space-y-1">
               <p>{{ step.approver?.username || "-" }}</p>
               <p>{{ step.position?.name || "-" }}</p>
+              <p>{{ step?.approver?.created_at || "-" }}</p>
             </div>
           </div>
         </div>
