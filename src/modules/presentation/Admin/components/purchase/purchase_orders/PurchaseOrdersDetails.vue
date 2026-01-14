@@ -953,14 +953,15 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
                   <div class="image-thumbnail-container">
                     <a-image
                       :src="record.file_name_url"
+                      :preview="false"
                       class="image-thumbnail cursor-pointer"
                       @click="showImageModal(record.file_name_url)"
                       alt="เอกสาร PR"
                       style="
-                        max-width: 80px;
-                        max-height: 80px;
+                        width: 60px;
+                        height: 60px;
                         object-fit: cover;
-                        border-radius: 4px;
+                        border-radius: 50%;
                       "
                     />
                   </div>
@@ -979,8 +980,15 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
                     <a-image
                       v-if="itemVendors[record.id].file_url"
                       :src="itemVendors[record.id].file_url"
-                      class="rounded w-16 h-16 object-cover cursor-pointer"
+                      :preview="false"
+                      class="image-thumbnail cursor-pointer"
                       @click="showImageModal(itemVendors[record.id].file_url)"
+                      style="
+                        width: 50px;
+                        height: 50px;
+                        object-fit: cover;
+                        border-radius: 50%;
+                      "
                     />
                     <div class="flex flex-col">
                       <span class="font-medium">{{ itemVendors[record.id].vendor_name }}</span>
@@ -1179,4 +1187,13 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
 /* .ui-input[type="number"] {
   -moz-appearance: textfield;
 } */
+
+/* Image thumbnail - วงกลม */
+.image-thumbnail {
+  cursor: pointer;
+}
+
+.image-thumbnail:hover {
+  transform: scale(1.1);
+}
 </style>
