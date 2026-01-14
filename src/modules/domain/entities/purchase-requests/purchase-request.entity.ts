@@ -40,9 +40,10 @@ export class PurchaseRequestEntity {
       status_id: number;
       remark: string;
       is_otp: boolean;
+      created_at?: string;
       requires_file_upload: boolean;
       approved_at?: string | null;
-      doc_approver?: Array<{    
+      doc_approver?: Array<{
         user: {
           username: string;
         };
@@ -254,7 +255,7 @@ export class PurchaseRequestEntity {
       expired_date,
       purposes,
       "PENDING",
-   
+
       null,
       null,
       null,

@@ -119,8 +119,9 @@ const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
           :key="index"
           class="signature-approver text-center"
         >
-          <p class="text-slate-500 text-sm font-bold">
-            {{ index === 0 ? "ຜູ້ຮ້ອງຂໍ" : t("purchase-rq.approver") + ' ' + (step.step_number) }}
+          <p v-if="step.doc_approver" class="text-slate-500 text-sm font-bold">
+            {{ index === 0 ? "ຜູ້ຮ້ອງຂໍ" : step?.doc_approver[0].department?.name ?? 'ຜູ້ອຳນວຍການ'}}
+            <!-- {{ index === 0 ? "ຜູ້ຮ້ອງຂໍ" : t("purchase-rq.approver") + ' ' + (step.step_number) }} -->
           </p>
 
           <a-image
@@ -138,9 +139,10 @@ const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
             <!-- No Signature -->
           </div>
 
-          <div class="info text-sm text-slate-600 -space-y-2 mt-4">
+          <div class="info text-sm text-slate-600 space-y-1 mt-4">
             <p>{{ step.approver?.username || "-" }}</p>
             <p>{{ step.position?.name || "-" }}</p>
+            <p>{{ step.approver?.created_at || "-" }}</p>
           </div>
         </div>
       </div>

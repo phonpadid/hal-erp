@@ -21,6 +21,7 @@ export interface Department {
 export interface Requester {
   id: number;
   username: string;
+  created_at?: string;
   user_signature: UserSignature | null;
 }
 
@@ -51,7 +52,7 @@ export interface ApprovalStep {
   step_number: number;
   approver_id: number;
   approved_at?: string | null;
-  doc_approver?: Array<{    
+  doc_approver?: Array<{
         user: {
           id: string;
           username: string;
