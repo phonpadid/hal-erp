@@ -170,6 +170,16 @@ const closeModal = () => {
   emit("close");
 };
 
+const goBack = () => {
+  if (confirmOTP.value) {
+    // Go back to OTP input step
+    confirmOTP.value = false;
+  } else {
+    // Cancel and close modal
+    emit("close");
+  }
+};
+
 const startCooldown = () => {
   resendCooldown.value = true;
   cooldownTime.value = 60;
@@ -306,14 +316,23 @@ const handleImageError = (event: Event) => {
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex justify-center">
+      <div class="flex gap-3">
+        <!-- Back/Cancel Button -->
+        <button
+          @click="goBack"
+          :disabled="props.loading"
+          class="flex-1 px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ confirmOTP ? t("purchase-rq.btn.back") : t("purchase-rq.btn.cancel") }}
+        </button>
+
         <!-- Confirm Button for OTP Step -->
         <button
           v-if="!confirmOTP"
           @click="confirmOtpStep"
           :disabled="!isOtpComplete || props.loading"
           :class="[
-            'px-4 py-2 w-full rounded-lg transition-colors flex items-center justify-center',
+            'flex-1 px-4 py-2 rounded-lg transition-colors flex items-center justify-center',
             isOtpComplete && !props.loading
               ? 'bg-red-600 text-white hover:bg-red-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed',
@@ -350,7 +369,7 @@ const handleImageError = (event: Event) => {
           @click="finalConfirm"
           :disabled="props.loading"
           :class="[
-            'px-4 py-2 w-full rounded-lg transition-colors flex items-center justify-center',
+            'flex-1 px-4 py-2 rounded-lg transition-colors flex items-center justify-center',
             !props.loading
               ? 'bg-red-600 text-white hover:bg-red-700'
               : 'bg-red-400 text-white cursor-not-allowed',

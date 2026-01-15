@@ -8,7 +8,6 @@ import SignatureModal from "./SignatureModal.vue";
 import SuccessConfirmModal from "./SuccessConfirmModal.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import { useCompanyReportsStore } from "../../../stores/company-reports.store";
 import { useReceiptStore } from "../../../stores/receipt.store";
 import { useProposalStore } from "../../../stores/proposal.store";
 import { useApprovalStepStore } from "../../../stores/approval-step.store";
@@ -63,7 +62,6 @@ const emit = defineEmits<{
 const { warning, error } = useNotification();
 
 // Store
-const companyReportsStore = useCompanyReportsStore();
 const receiptStore = useReceiptStore();
 const proposalStore = useProposalStore();
 const approvalStepStore = useApprovalStepStore();
@@ -240,11 +238,6 @@ onMounted(async () => {
       await proposalStore.fetchAll({ page: 1, limit: 100 });
     }
 
-    // Load company data if needed for other features
-    if (!companyReportsStore.hasData) {
-      await companyReportsStore.loadCompanyReports();
-    }
-
     // Setup event listeners for approval actions
     globalThis.addEventListener('approve-proposal', handleApproveProposal);
     globalThis.addEventListener('reject-proposal', handleRejectProposal);
@@ -396,7 +389,7 @@ const formatCurrency = (amount: number) => {
 const getStatusBadgeClass = (status: string) => {
   switch (status) {
     case "pending":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-orange-200 text-orange-800";
     case "approved":
       return "bg-green-100 text-green-800";
     case "rejected":
@@ -817,8 +810,10 @@ const handleFinalApprove = async (itemIds: string[]) => {
     // Emit to parent
     emit("approve", itemIds);
 
-    // Refresh store data to get updated statuses
-    await companyReportsStore.loadCompanyReports();
+    // Refresh receipts for current company if selected
+    if (props.selectedCompany?.id) {
+      await receiptStore.fetchByCompanyId(Number(props.selectedCompany.id));
+    }
   } catch (error) {
     console.error("Error approving items:", error);
   } finally {
@@ -925,9 +920,6 @@ const handleSuccessConfirm = async () => {
 
     // Refresh data
     await receiptStore.fetchAll({ page: 1, limit: 100 });
-
-    // Refresh store data to get updated statuses
-    await companyReportsStore.loadCompanyReports();
 
     showSuccessModal.value = false;
   } catch (err) {

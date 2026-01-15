@@ -233,8 +233,8 @@ const transformCompanyData = (apiData: CompanyReportData): Company[] => {
   ];
 
   return apiData.data.map((company, index) => ({
-    id: company.id,
-    name: company.name,
+    id: company.companyId,
+    name: company.companyName,
     logo: company.logo || "mdi:domain", // Use company logo from API or default icon
     proposalCount: company.approvalWorkflowCount,
     budget: company.allocated_amount || company.total_budget, // Use allocated_amount as the budget limit
@@ -271,8 +271,11 @@ const loadTabData = async (tabKey: string) => {
         break;
 
       case "2": // Approve Documents Tab
-        // Load all receipts for Tab 2 (show all when no company selected)
-        await receiptStore.fetchAll({ page: 1, limit: 10000 });
+        // Only load all receipts if no company is selected
+        // If a company is selected, ApproveProposal component will handle loading via its watch
+        if (!selectedCompany.value) {
+          await receiptStore.fetchAll({ page: 1, limit: 10000 });
+        }
         break;
 
       case "3": // Affiliated Companies Tab
@@ -382,6 +385,13 @@ const handleFilterChange = async () => {
 
 // Show company details with pending documents
 const showCompanyDetails = async (company: Company) => {
+  // Validate company has required id
+  if (!company || !company.id) {
+    console.error("Invalid company data:", company);
+    warning("ເກີດຂໍ້ຜິດພາດ", "ຂໍ້ມູນບໍລິສັດບໍ່ຖືກຕ້ອງ");
+    return;
+  }
+
   loading.value = true;
   try {
     // Check if data already exists in store
@@ -392,10 +402,8 @@ const showCompanyDetails = async (company: Company) => {
       companyDetails = await companyReportsStore.loadCompanyReport(company.id.toString());
     }
 
-    // Load receipts for this specific company
-    await receiptStore.fetchByCompanyId(Number(company.id));
-
     // Set selected company for ApproveProposal and go to Tab 2
+    // ApproveProposal component will automatically load receipts via its watch
     selectedCompany.value = company;
     activeTab.value = "2";
 
@@ -551,12 +559,22 @@ const formatLargeNumber = (amount: number) => {
 
 // Calculate budget percentage
 const getBudgetPercentage = (budgetUsed: number, budget: number) => {
+  // Handle division by zero and invalid values
+  if (!budget || budget === 0) {
+    return 0; // Return 0% instead of NaN
+  }
+  if (!budgetUsed || budgetUsed === 0) {
+    return 0;
+  }
   return Math.round((budgetUsed / budget) * 100);
 };
 
 // Get color classes for budget bars
 const getBudgetBarColor = (percentage: number) => {
+  // Gray/faded color for 0% (no usage)
+  if (percentage === 0) return "bg-gray-200";
   if (percentage > 100) return "bg-red-500";
+  if (percentage === 100) return "bg-green-500"; // Exact 100% is still within budget
   if (percentage > 90) return "bg-orange-500";
   if (percentage > 70) return "bg-yellow-500";
   return "bg-green-500";

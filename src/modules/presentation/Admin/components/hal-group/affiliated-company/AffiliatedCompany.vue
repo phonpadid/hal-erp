@@ -621,7 +621,25 @@ const formatLargeNumber = (amount: number) => {
 
 // Calculate budget percentage
 const getBudgetPercentage = (budgetUsed: number, budget: number) => {
+  // Handle division by zero and invalid values
+  if (!budget || budget === 0) {
+    return 0; // Return 0% instead of NaN
+  }
+  if (!budgetUsed || budgetUsed === 0) {
+    return 0;
+  }
   return Math.round((budgetUsed / budget) * 100);
+};
+
+// Get color classes for budget bars
+const getBudgetBarColor = (percentage: number) => {
+  // Gray/faded color for 0% (no usage)
+  if (percentage === 0) return "bg-gray-200";
+  if (percentage > 100) return "bg-red-500";
+  if (percentage === 100) return "bg-green-500"; // Exact 100% is still within budget
+  if (percentage > 90) return "bg-orange-500";
+  if (percentage > 70) return "bg-yellow-500";
+  return "bg-green-500";
 };
 
 // Get color classes for company logos
@@ -843,7 +861,7 @@ onMounted(() => {
         <template #budget="{ record }">
           <div>
             <span class="font-medium text-gray-900">{{ formatCurrency(record.budget) }}</span>
-            <div class="text-xs text-gray-500">{{ record.employees }} ຄົນ</div>
+            <!-- <div class="text-xs text-gray-500">{{ record.employees }} ຄົນ</div> -->
           </div>
         </template>
 
@@ -854,13 +872,7 @@ onMounted(() => {
               <div class="flex-1 max-w-16 bg-gray-200 rounded-full h-1.5">
                 <div
                   class="h-1.5 rounded-full"
-                  :class="
-                    getBudgetPercentage(record.budgetUsed, record.budget) > 100
-                      ? 'bg-red-500'
-                      : getBudgetPercentage(record.budgetUsed, record.budget) > 80
-                      ? 'bg-yellow-500'
-                      : 'bg-green-500'
-                  "
+                  :class="getBudgetBarColor(getBudgetPercentage(record.budgetUsed, record.budget))"
                   :style="`width: ${Math.min(
                     getBudgetPercentage(record.budgetUsed, record.budget),
                     100

@@ -1,0 +1,31 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": {
+        "budget_overruns": {
+            "amount": 0,
+            "total": 0,
+            "budget": []
+        },
+        "within_budget": {
+            "amount": 2,
+            "total": 22000000,
+            "budget": [
+                {
+                    "id": 22,
+                    "name": "Hal-tech",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                    "allocated_amount": 0,
+                    "total": 0
+                },
+                {
+                    "id": 26,
+                    "name": "som vang company",
+                    "logo": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b20ed-a5d3-74fd-b0bd-537764682f38-1765784004051",
+                    "allocated_amount": 22000000,
+                    "total": 22000000
+                }
+            ]
+        }
+    }
+}
