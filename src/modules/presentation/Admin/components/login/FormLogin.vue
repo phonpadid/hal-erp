@@ -53,7 +53,7 @@ const submitHandler = async () => {
           src="/src/common/shared/assets/images/logo-Hal-ERP.png"
           alt="logo"
         />
-        <span>HAL ERP</span>
+        <span>HAL Logistics Group ERP</span>
       </a>
       <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
         <div class="p-6 space-y-4 md:space-y-6 sm:p-8">

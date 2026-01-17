@@ -35,13 +35,13 @@ onMounted(() => {
     class="fixed top-0 left-0 z-50 w-0 h-full overflow-hidden overflow-y-auto transition-all bg-white whitespace-nowrap"
     :class="{ 'w-[256px] border': toggle }"
   >
-    <div class="flex flex-row items-center gap-2 mt-4 ml-4">
+    <div class="flex flex-row items-center gap-2 mt-4 ml-2">
       <img
         src="/src/common/shared/assets/images/logo-Hal-ERP.png"
         alt="logo"
         class="w-16 h-16 rounded-full"
       />
-      <p class="text-2xl font-sans">HAL ERP</p>
+      <p class="text-sm font-sans font-bold">HAL Logistics Group ERP</p>
     </div>
     <div class="mt-4">
       <a-menu
