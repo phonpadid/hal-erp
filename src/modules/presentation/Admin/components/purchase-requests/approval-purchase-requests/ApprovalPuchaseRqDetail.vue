@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
-import { computed, onMounted, ref, watch, watchEffect } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import type { ButtonType } from "@/modules/shared/buttonType";
@@ -92,12 +92,13 @@ const positionInfo = computed(() => requestDetail.value?.getPosition());
 const companyInfo = computed(() => requestDetail.value?.getCompany());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
 const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getStepTitle = (index: number, step: any) => {
   if (index === 0) {
     return t("purchase-rq.proposer");
   }
-  return `${t("purchase-rq.approver")} ${index}`;
+  // ໃຊ້ຊື່ແຜນກຈາກ doc_approver[0].department.name
+  const deptName = step.doc_approver?.[0]?.department?.name;
+  return deptName || `${t("purchase-rq.approver")} ${index}`;
 };
 
 /****************************************** */
@@ -748,6 +749,10 @@ onMounted(async () => {
                   <template v-if="step.approver">
                     <p class="font-medium">{{ step.approver.username }}</p>
                     <p class="text-xs text-gray-500">{{ step.position?.name || "-" }}</p>
+                    <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
+                    <p v-if="step.approved_at" class="text-xs text-blue-500 mt-1">
+                      {{ formatDate(step.approved_at) }}
+                    </p>
                   </template>
                   <template v-else-if="step.doc_approver?.[0]?.user">
                     <p class="text-xs text-gray-500">

@@ -1,0 +1,1425 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": [
+        {
+            "id": 41,
+            "name": "department-rule",
+            "display_name": "Department Rule",
+            "display_name_lo": "ກົດລະບຽບພະແນກ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 224,
+                    "name": "create-department-rule",
+                    "display_name": "Create Department Rule",
+                    "display_name_lo": "ສ້າງ ກົດລະບຽບພະແນກ"
+                },
+                {
+                    "id": 227,
+                    "name": "delete-department-rule",
+                    "display_name": "Delete Department Rule",
+                    "display_name_lo": "ລຶບ ກົດລະບຽບພະແນກ"
+                },
+                {
+                    "id": 226,
+                    "name": "update-department-rule",
+                    "display_name": "Update Department Rule",
+                    "display_name_lo": "ແກ້ໄຂ ກົດລະບຽບພະແນກ"
+                },
+                {
+                    "id": 225,
+                    "name": "read-department-rule",
+                    "display_name": "Read Department Rule",
+                    "display_name_lo": "ເບີ່ງ ກົດລະບຽບພະແນກ"
+                }
+            ]
+        },
+        {
+            "id": 40,
+            "name": "budget-approval",
+            "display_name": "Budget Approval",
+            "display_name_lo": "ອະນຸມັດງົບປະມານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 221,
+                    "name": "read-budget-approval",
+                    "display_name": "Read Budget Approval",
+                    "display_name_lo": "ເບີ່ງ ອະນຸມັດງົບປະມານ"
+                },
+                {
+                    "id": 223,
+                    "name": "delete-budget-approval",
+                    "display_name": "Delete Budget Approval",
+                    "display_name_lo": "ລຶບ ອະນຸມັດງົບປະມານ"
+                },
+                {
+                    "id": 222,
+                    "name": "update-budget-approval",
+                    "display_name": "Update Budget Approval",
+                    "display_name_lo": "ແກ້ໄຂ ອະນຸມັດງົບປະມານ"
+                },
+                {
+                    "id": 220,
+                    "name": "create-budget-approval",
+                    "display_name": "Create Budget Approval",
+                    "display_name_lo": "ສ້າງ ອະນຸມັດງົບປະມານ"
+                }
+            ]
+        },
+        {
+            "id": 39,
+            "name": "bank",
+            "display_name": "Bank",
+            "display_name_lo": "ທະນາຄານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 217,
+                    "name": "read-bank",
+                    "display_name": "Read Bank",
+                    "display_name_lo": "ເບີ່ງ ທະນາຄານ"
+                },
+                {
+                    "id": 219,
+                    "name": "delete-bank",
+                    "display_name": "Delete Bank",
+                    "display_name_lo": "ລຶບ ທະນາຄານ"
+                },
+                {
+                    "id": 218,
+                    "name": "update-bank",
+                    "display_name": "Update Bank",
+                    "display_name_lo": "ແກ້ໄຂ ທະນາຄານ"
+                },
+                {
+                    "id": 216,
+                    "name": "create-bank",
+                    "display_name": "Create Bank",
+                    "display_name_lo": "ສ້າງ ທະນາຄານ"
+                }
+            ]
+        },
+        {
+            "id": 38,
+            "name": "vat",
+            "display_name": "Vat",
+            "display_name_lo": "ອາກອມ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 213,
+                    "name": "read-vat",
+                    "display_name": "Read Vat",
+                    "display_name_lo": "ເບີ່ງ ອາກອມ"
+                },
+                {
+                    "id": 215,
+                    "name": "delete-vat",
+                    "display_name": "Delete Vat",
+                    "display_name_lo": "ລຶບ ອາກອມ"
+                },
+                {
+                    "id": 214,
+                    "name": "update-vat",
+                    "display_name": "Update Vat",
+                    "display_name_lo": "ແກ້ໄຂ ອາກອມ"
+                },
+                {
+                    "id": 212,
+                    "name": "create-vat",
+                    "display_name": "Create Vat",
+                    "display_name_lo": "ສ້າງ ອາກອມ"
+                }
+            ]
+        },
+        {
+            "id": 37,
+            "name": "vendor-product",
+            "display_name": "Vendor Product",
+            "display_name_lo": "ສິນຄ້າຜູ້ສະໜອງ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 199,
+                    "name": "read-vendor-product",
+                    "display_name": "Read  Vendor Product",
+                    "display_name_lo": "ເບີ່ງ ສິນຄ້າຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 201,
+                    "name": "delete-vendor-product",
+                    "display_name": "Delete  Vendor Product",
+                    "display_name_lo": "ລຶບ ສິນຄ້າຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 200,
+                    "name": "update-vendor-product",
+                    "display_name": "Update  Vendor Product",
+                    "display_name_lo": "ແກ້ໄຂ ສິນຄ້າຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 198,
+                    "name": "create-vendor-product",
+                    "display_name": "Create Vendor Product",
+                    "display_name_lo": "ສ້າງ ສິນຄ້າຜູ້ສະໜອງ"
+                }
+            ]
+        },
+        {
+            "id": 36,
+            "name": "quota-company",
+            "display_name": "Quota Company",
+            "display_name_lo": "ໂຄຕ້າບໍລິສັດ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 195,
+                    "name": "read-quota-company",
+                    "display_name": "Read Quota Company",
+                    "display_name_lo": "ເບີ່ງ ໂຄຕ້າບໍລິສັດ"
+                },
+                {
+                    "id": 197,
+                    "name": "delete-quota-company",
+                    "display_name": "Delete Quota Company",
+                    "display_name_lo": "ລຶບ ໂຄຕ້າບໍລິສັດ"
+                },
+                {
+                    "id": 196,
+                    "name": "update-quota-company",
+                    "display_name": "Update Quota Company",
+                    "display_name_lo": "ແກ້ໄຂ ໂຄຕ້າບໍລິສັດ"
+                },
+                {
+                    "id": 194,
+                    "name": "create-quota-company",
+                    "display_name": "Create Quota Company",
+                    "display_name_lo": "ສ້າງ ໂຄຕ້າບໍລິສັດ"
+                }
+            ]
+        },
+        {
+            "id": 35,
+            "name": "product",
+            "display_name": "Product",
+            "display_name_lo": "ສິນຄ້າ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 191,
+                    "name": "read-product",
+                    "display_name": "Read Product",
+                    "display_name_lo": "ເບີ່ງ ສິນຄ້າ"
+                },
+                {
+                    "id": 193,
+                    "name": "delete-product",
+                    "display_name": "Delete Product",
+                    "display_name_lo": "ລຶບ ສິນຄ້າ"
+                },
+                {
+                    "id": 192,
+                    "name": "update-product",
+                    "display_name": "Update Product",
+                    "display_name_lo": "ແກ້ໄຂ ສິນຄ້າ"
+                },
+                {
+                    "id": 190,
+                    "name": "create-product",
+                    "display_name": "Create Product",
+                    "display_name_lo": "ສ້າງ ສິນຄ້າ"
+                }
+            ]
+        },
+        {
+            "id": 34,
+            "name": "product-type",
+            "display_name": "Product Type",
+            "display_name_lo": "ປະເພດສິນຄ້າ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 187,
+                    "name": "read-product-type",
+                    "display_name": "Read Product Type",
+                    "display_name_lo": "ເບີ່ງ ປະເພດສິນຄ້າ"
+                },
+                {
+                    "id": 189,
+                    "name": "delete-product-type",
+                    "display_name": "Delete Product Type",
+                    "display_name_lo": "ລຶບ ປະເພດສິນຄ້າ"
+                },
+                {
+                    "id": 188,
+                    "name": "update-product-type",
+                    "display_name": "Update Product Type",
+                    "display_name_lo": "ແກ້ໄຂ ປະເພດສິນຄ້າ"
+                },
+                {
+                    "id": 186,
+                    "name": "create-product-type",
+                    "display_name": "Create Product Type",
+                    "display_name_lo": "ສ້າງ ປະເພດສິນຄ້າ"
+                }
+            ]
+        },
+        {
+            "id": 33,
+            "name": "increase-budget-detail",
+            "display_name": "Increase Budget Detail",
+            "display_name_lo": "ລາຍລະອຽດການຂໍເພີ່ມງົບປະມານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 183,
+                    "name": "read-increase-detail",
+                    "display_name": "Read Increase Budget Detail",
+                    "display_name_lo": "ເບີ່ງ ເພີ່ມ ລາຍລະອຽດ"
+                },
+                {
+                    "id": 185,
+                    "name": "delete-increase-detail",
+                    "display_name": "Delete Increase Budget Detail",
+                    "display_name_lo": "ລຶບ ເພີ່ມ ລາຍລະອຽດ"
+                },
+                {
+                    "id": 184,
+                    "name": "update-increase-detail",
+                    "display_name": "Update Increase Budget Detail",
+                    "display_name_lo": "ແກ້ໄຂ ເພີ່ມ ລາຍລະອຽດ"
+                },
+                {
+                    "id": 182,
+                    "name": "create-increase-detail",
+                    "display_name": "Create Increase Budget Detail",
+                    "display_name_lo": "ສ້າງ ເພີ່ມ ລາຍລະອຽດ"
+                }
+            ]
+        },
+        {
+            "id": 32,
+            "name": "increase-budget",
+            "display_name": "Increase Budget",
+            "display_name_lo": "ຂໍເພີ່ມງົບປະມານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 179,
+                    "name": "read-increase-budget",
+                    "display_name": "Read Increase Budget",
+                    "display_name_lo": "ເບີ່ງ ຂໍເພີ່ມງົບປະມານ"
+                },
+                {
+                    "id": 181,
+                    "name": "delete-increase-budget",
+                    "display_name": "Delete Increase Budget",
+                    "display_name_lo": "ລຶບ ຂໍເພີ່ມງົບປະມານ"
+                },
+                {
+                    "id": 180,
+                    "name": "update-increase-budget",
+                    "display_name": "Update Increase Budget",
+                    "display_name_lo": "ແກ້ໄຂ ຂໍເພີ່ມງົບປະມານ"
+                },
+                {
+                    "id": 178,
+                    "name": "create-increase-budget",
+                    "display_name": "Create Increase Budget",
+                    "display_name_lo": "ສ້າງ ຂໍເພີ່ມງົບປະມານ"
+                }
+            ]
+        },
+        {
+            "id": 31,
+            "name": "category",
+            "display_name": "Category",
+            "display_name_lo": "ໝວດໝູ່",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 176,
+                    "name": "update-category",
+                    "display_name": "Update Category",
+                    "display_name_lo": "ແກ້ໄຂ ໝວດໝູ່"
+                },
+                {
+                    "id": 177,
+                    "name": "delete-category",
+                    "display_name": "Delete Category",
+                    "display_name_lo": "ລຶບ ໝວດໝູ່"
+                },
+                {
+                    "id": 175,
+                    "name": "read-category",
+                    "display_name": "Read Category",
+                    "display_name_lo": "ເບີ່ງ ໝວດໝູ່"
+                },
+                {
+                    "id": 174,
+                    "name": "create-category",
+                    "display_name": "Create Category",
+                    "display_name_lo": "ສ້າງ ໝວດໝູ່"
+                }
+            ]
+        },
+        {
+            "id": 30,
+            "name": "company-user",
+            "display_name": "Company User",
+            "display_name_lo": "ຜູ້ໃຊ້ບໍລິສັດ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 170,
+                    "name": "create-company-user",
+                    "display_name": "Create Company User",
+                    "display_name_lo": "ສ້າງ ຜູ້ໃຊ້ບໍລິສັດ"
+                },
+                {
+                    "id": 173,
+                    "name": "delete-company-user",
+                    "display_name": "Delete Company User",
+                    "display_name_lo": "ລຶບ ຜູ້ໃຊ້ບໍລິສັດ"
+                },
+                {
+                    "id": 172,
+                    "name": "update-company-user",
+                    "display_name": "Update Company User",
+                    "display_name_lo": "ແກ້ໄຂ ຜູ້ໃຊ້ບໍລິສັດ"
+                },
+                {
+                    "id": 171,
+                    "name": "read-company-user",
+                    "display_name": "Read Company User",
+                    "display_name_lo": "ເບີ່ງ ຜູ້ໃຊ້ບໍລິສັດ"
+                }
+            ]
+        },
+        {
+            "id": 29,
+            "name": "company",
+            "display_name": "Company",
+            "display_name_lo": "ບໍລິສັດ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 167,
+                    "name": "read-company",
+                    "display_name": "Read Company",
+                    "display_name_lo": "ເບີ່ງ ບໍລິສັດ"
+                },
+                {
+                    "id": 169,
+                    "name": "delete-company",
+                    "display_name": "Delete Company",
+                    "display_name_lo": "ລຶບ ບໍລິສັດ"
+                },
+                {
+                    "id": 168,
+                    "name": "update-company",
+                    "display_name": "Update Company",
+                    "display_name_lo": "ແກ້ໄຂ ບໍລິສັດ"
+                },
+                {
+                    "id": 166,
+                    "name": "create-company",
+                    "display_name": "Create Company",
+                    "display_name_lo": "ສ້າງ ບໍລິສັດ"
+                }
+            ]
+        },
+        {
+            "id": 28,
+            "name": "receipt-item",
+            "display_name": "Receipt Item",
+            "display_name_lo": "ລາຍການໃບເບີກຈ່າຍ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 120,
+                    "name": "read-receipt-item",
+                    "display_name": "Read Receipt Item",
+                    "display_name_lo": "ເບີ່ງ ລາຍການໃບເບີກຈ່າຍ"
+                },
+                {
+                    "id": 122,
+                    "name": "delete-receipt-item",
+                    "display_name": "Delete Receipt Item",
+                    "display_name_lo": "ລຶບ ລາຍການໃບເບີກຈ່າຍ"
+                },
+                {
+                    "id": 121,
+                    "name": "update-receipt-item",
+                    "display_name": "Update Receipt Item",
+                    "display_name_lo": "ແກ້ໄຂ ລາຍການໃບເບີກຈ່າຍ"
+                },
+                {
+                    "id": 119,
+                    "name": "create-receipt-item",
+                    "display_name": "Create Receipt Item",
+                    "display_name_lo": "ສ້າງ ລາຍການໃບເບີກຈ່າຍ"
+                }
+            ]
+        },
+        {
+            "id": 27,
+            "name": "receipt",
+            "display_name": "Receipt",
+            "display_name_lo": "ໃບເບີກຈ່າຍ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 116,
+                    "name": "read-receipt",
+                    "display_name": "Read Receipt",
+                    "display_name_lo": "ເບີ່ງ ໃບເບີກຈ່າຍ"
+                },
+                {
+                    "id": 118,
+                    "name": "delete-receipt",
+                    "display_name": "Delete Receipt",
+                    "display_name_lo": "ລຶບ ໃບເບີກຈ່າຍ"
+                },
+                {
+                    "id": 117,
+                    "name": "update-receipt",
+                    "display_name": "Update Receipt",
+                    "display_name_lo": "ແກ້ໄຂ ໃບເບີກຈ່າຍ"
+                },
+                {
+                    "id": 115,
+                    "name": "create-receipt",
+                    "display_name": "Create Receipt",
+                    "display_name_lo": "ສ້າງ ໃບເບີກຈ່າຍ"
+                }
+            ]
+        },
+        {
+            "id": 26,
+            "name": "user-approval-step",
+            "display_name": "User Approval Step",
+            "display_name_lo": "ຂັ້ນຕອນການອະນຸມັດເອກະສານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 112,
+                    "name": "read-user-approval-step",
+                    "display_name": "Read User Approval Step",
+                    "display_name_lo": "ເບີ່ງ ຂັ້ນຕອນການອະນຸມັດເອກະສານ"
+                },
+                {
+                    "id": 114,
+                    "name": "delete-user-approval-step",
+                    "display_name": "Delete User Approval Step",
+                    "display_name_lo": "ລຶບ ຂັ້ນຕອນການອະນຸມັດເອກະສານ"
+                },
+                {
+                    "id": 113,
+                    "name": "update-user-approval-step",
+                    "display_name": "Update User Approval Step",
+                    "display_name_lo": "ແກ້ໄຂ ຂັ້ນຕອນການອະນຸມັດເອກະສານ"
+                },
+                {
+                    "id": 111,
+                    "name": "create-user-approval-step",
+                    "display_name": "Create User Approval Step",
+                    "display_name_lo": "ສ້າງ ຂັ້ນຕອນການອະນຸມັດເອກະສານ"
+                }
+            ]
+        },
+        {
+            "id": 25,
+            "name": "user-approval",
+            "display_name": "User Approval",
+            "display_name_lo": "ການອະນຸມັດເອກະສານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 108,
+                    "name": "read-user-approval",
+                    "display_name": "Read User Approval",
+                    "display_name_lo": "ເບີ່ງ ການອະນຸມັດເອກະສານ"
+                },
+                {
+                    "id": 110,
+                    "name": "delete-user-approval",
+                    "display_name": "Delete User Approval",
+                    "display_name_lo": "ລຶບ ການອະນຸມັດເອກະສານ"
+                },
+                {
+                    "id": 109,
+                    "name": "update-user-approval",
+                    "display_name": "Update User Approval",
+                    "display_name_lo": "ແກ້ໄຂ ການອະນຸມັດເອກະສານ"
+                },
+                {
+                    "id": 107,
+                    "name": "create-user-approval",
+                    "display_name": "Create User Approval",
+                    "display_name_lo": "ສ້າງ ການອະນຸມັດເອກະສານ"
+                }
+            ]
+        },
+        {
+            "id": 24,
+            "name": "purchase-order-selected-vendor",
+            "display_name": "Purchase Order Selected Vendor",
+            "display_name_lo": "ເລືອກຜູ້ສະໜອງ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 104,
+                    "name": "read-purchase-selected-vendor",
+                    "display_name": "Read Purchase Selected Vendor",
+                    "display_name_lo": "ເບີ່ງ ເລືອກຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 106,
+                    "name": "delete-purchase-selected-vendor",
+                    "display_name": "Delete Purchase Selected Vendor",
+                    "display_name_lo": "ລຶບ ເລືອກຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 105,
+                    "name": "update-purchase-selected-vendor",
+                    "display_name": "Update Purchase Selected Vendor",
+                    "display_name_lo": "ແກ້ໄຂ ເລືອກຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 103,
+                    "name": "create-purchase-selected-vendor",
+                    "display_name": "Create Purchase Selected Vendor",
+                    "display_name_lo": "ສ້າງ ເລືອກຜູ້ສະໜອງ"
+                }
+            ]
+        },
+        {
+            "id": 23,
+            "name": "purchase-order-item",
+            "display_name": "Purchase Order Item",
+            "display_name_lo": "ລາຍການຄຳສັ່ງຊື້",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 100,
+                    "name": "read-purchase-order-item",
+                    "display_name": "Read Purchase Order Item",
+                    "display_name_lo": "ເບີ່ງ ລາຍການຄຳສັ່ງຊື້"
+                },
+                {
+                    "id": 102,
+                    "name": "delete-purchase-order-item",
+                    "display_name": "Delete Purchase Order Item",
+                    "display_name_lo": "ລຶບ ລາຍການຄຳສັ່ງຊື້"
+                },
+                {
+                    "id": 101,
+                    "name": "update-purchase-order-item",
+                    "display_name": "Update Purchase Order Item",
+                    "display_name_lo": "ແກ້ໄຂ ລາຍການຄຳສັ່ງຊື້"
+                },
+                {
+                    "id": 99,
+                    "name": "create-purchase-order-item",
+                    "display_name": "Create Purchase Order Item",
+                    "display_name_lo": "ສ້າງ ລາຍການຄຳສັ່ງຊື້"
+                }
+            ]
+        },
+        {
+            "id": 22,
+            "name": "purchase-order",
+            "display_name": "Purchase Order",
+            "display_name_lo": "ຄຳສັ່ງຊື້",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 96,
+                    "name": "read-purchase-order",
+                    "display_name": "Read Purchase Order",
+                    "display_name_lo": "ເບີ່ງ ຄຳສັ່ງຊື້"
+                },
+                {
+                    "id": 98,
+                    "name": "delete-purchase-order",
+                    "display_name": "Delete Purchase Order",
+                    "display_name_lo": "ລຶບ ຄຳສັ່ງຊື້"
+                },
+                {
+                    "id": 97,
+                    "name": "update-purchase-order",
+                    "display_name": "Update Purchase Order",
+                    "display_name_lo": "ແກ້ໄຂ ຄຳສັ່ງຊື້"
+                },
+                {
+                    "id": 95,
+                    "name": "create-purchase-order",
+                    "display_name": "Create Purchase Order",
+                    "display_name_lo": "ສ້າງ ຄຳສັ່ງຊື້"
+                }
+            ]
+        },
+        {
+            "id": 21,
+            "name": "purchase-request-item",
+            "display_name": "Purchase Request Item",
+            "display_name_lo": "ລາຍການຄຳຮ້ອງສັ່ງຊື້",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 93,
+                    "name": "update-purchase-request-item",
+                    "display_name": "Update Purchase Request Item",
+                    "display_name_lo": "ແກ້ໄຂ ລາຍການຄຳຮ້ອງສັ່ງຊື້"
+                },
+                {
+                    "id": 94,
+                    "name": "delete-purchase-request-item",
+                    "display_name": "Delete Purchase Request Item",
+                    "display_name_lo": "ລຶບ ລາຍການຄຳຮ້ອງສັ່ງຊື້"
+                },
+                {
+                    "id": 91,
+                    "name": "create-purchase-request-item",
+                    "display_name": "Create Purchase Request Item",
+                    "display_name_lo": "ສ້າງ ລາຍການຄຳຮ້ອງສັ່ງຊື້"
+                },
+                {
+                    "id": 92,
+                    "name": "read-purchase-request-item",
+                    "display_name": "Read Purchase Request Item",
+                    "display_name_lo": "ເບີ່ງ ລາຍການຄຳຮ້ອງສັ່ງຊື້"
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "name": "purchase-request",
+            "display_name": "Purchase Request",
+            "display_name_lo": "ຄຳຮ້ອງສັ່ງຊື້",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 88,
+                    "name": "read-purchase-request",
+                    "display_name": "Read Purchase Request",
+                    "display_name_lo": "ເບີ່ງ ຄຳຮ້ອງສັ່ງຊື້"
+                },
+                {
+                    "id": 87,
+                    "name": "create-purchase-request",
+                    "display_name": "Create Purchase Request",
+                    "display_name_lo": "ສ້າງ ຄຳຮ້ອງສັ່ງຊື້"
+                },
+                {
+                    "id": 89,
+                    "name": "update-purchase-request",
+                    "display_name": "Update Purchase Request",
+                    "display_name_lo": "ແກ້ໄຂ ຄຳຮ້ອງສັ່ງຊື້"
+                },
+                {
+                    "id": 90,
+                    "name": "delete-purchase-request",
+                    "display_name": "Delete Purchase Request",
+                    "display_name_lo": "ລຶບ ຄຳຮ້ອງສັ່ງຊື້"
+                }
+            ]
+        },
+        {
+            "id": 19,
+            "name": "document",
+            "display_name": "Document",
+            "display_name_lo": "ເອກະສານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 86,
+                    "name": "delete-document",
+                    "display_name": "Delete Document",
+                    "display_name_lo": "ລຶບ ເອກະສານ"
+                },
+                {
+                    "id": 85,
+                    "name": "update-document",
+                    "display_name": "Update Document",
+                    "display_name_lo": "ແກ້ໄຂ ເອກະສານ"
+                },
+                {
+                    "id": 84,
+                    "name": "read-document",
+                    "display_name": "Read Document",
+                    "display_name_lo": "ເບີ່ງ ເອກະສານ"
+                },
+                {
+                    "id": 83,
+                    "name": "create-document",
+                    "display_name": "Create Document",
+                    "display_name_lo": "ສ້າງ ເອກະສານ"
+                }
+            ]
+        },
+        {
+            "id": 18,
+            "name": "approval-workflow-step",
+            "display_name": "Approval Workflow Step",
+            "display_name_lo": "ຂັ້ນຕອນຂະບວນການອະນຸມັດ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 80,
+                    "name": "read-approval-workflow-step",
+                    "display_name": "Read Approval Workflow Step",
+                    "display_name_lo": "ເບີ່ງ ຂັ້ນຕອນຂະບວນການອະນຸມັດ"
+                },
+                {
+                    "id": 82,
+                    "name": "delete-approval-workflow-step",
+                    "display_name": "Delete Approval Workflow Step",
+                    "display_name_lo": "ລຶບ ຂັ້ນຕອນຂະບວນການອະນຸມັດ"
+                },
+                {
+                    "id": 81,
+                    "name": "update-approval-workflow-step",
+                    "display_name": "Update Approval Workflow Step",
+                    "display_name_lo": "ແກ້ໄຂ ຂັ້ນຕອນຂະບວນການອະນຸມັດ"
+                },
+                {
+                    "id": 79,
+                    "name": "create-approval-workflow-step",
+                    "display_name": "Create Approval Workflow Step",
+                    "display_name_lo": "ສ້າງ ຂັ້ນຕອນຂະບວນການອະນຸມັດ"
+                }
+            ]
+        },
+        {
+            "id": 17,
+            "name": "approval-workflow",
+            "display_name": "Approval Workflow",
+            "display_name_lo": "ຂະບວນການອະນຸມັດ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 76,
+                    "name": "read-approval-workflow",
+                    "display_name": "Read Approval Workflow",
+                    "display_name_lo": "ເບີ່ງ ຂະບວນການອະນຸມັດ"
+                },
+                {
+                    "id": 78,
+                    "name": "delete-approval-workflow",
+                    "display_name": "Delete Approval Workflow",
+                    "display_name_lo": "ລຶບ ຂະບວນການອະນຸມັດ"
+                },
+                {
+                    "id": 77,
+                    "name": "update-approval-workflow",
+                    "display_name": "Update Approval Workflow",
+                    "display_name_lo": "ແກ້ໄຂ ຂະບວນການອະນຸມັດ"
+                },
+                {
+                    "id": 75,
+                    "name": "create-approval-workflow",
+                    "display_name": "Create Approval Workflow",
+                    "display_name_lo": "ສ້າງ ຂະບວນການອະນຸມັດ"
+                }
+            ]
+        },
+        {
+            "id": 16,
+            "name": "budget-approval-rule",
+            "display_name": "Budget Approval Rule",
+            "display_name_lo": "ກົດລະບຽບອະນຸມັດງົບປະມານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 72,
+                    "name": "read-budget-approval-rule",
+                    "display_name": "Read Budget Approval Rule",
+                    "display_name_lo": "ເບີ່ງ ກົດລະບຽບອະນຸມັດງົບປະມານ"
+                },
+                {
+                    "id": 74,
+                    "name": "delete-budget-approval-rule",
+                    "display_name": "Delete Budget Approval Rule",
+                    "display_name_lo": "ລຶບ ກົດລະບຽບອະນຸມັດງົບປະມານ"
+                },
+                {
+                    "id": 73,
+                    "name": "update-budget-approval-rule",
+                    "display_name": "Update Budget Approval Rule",
+                    "display_name_lo": "ແກ້ໄຂ ກົດລະບຽບອະນຸມັດງົບປະມານ"
+                },
+                {
+                    "id": 71,
+                    "name": "create-budget-approval-rule",
+                    "display_name": "Create Budget Approval Rule",
+                    "display_name_lo": "ສ້າງ ກົດລະບຽບອະນຸມັດງົບປະມານ"
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "name": "budget-item-detail",
+            "display_name": "Budget Item Detail",
+            "display_name_lo": "ລາຍລະອຽດລາຍການງົບປະມານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 67,
+                    "name": "create-budget-item-detail",
+                    "display_name": "Create Budget Item Detail",
+                    "display_name_lo": "ສ້າງ ລາຍລະອຽດລາຍການງົບປະມານ"
+                },
+                {
+                    "id": 70,
+                    "name": "delete-budget-item-detail",
+                    "display_name": "Delete Budget Item Detail",
+                    "display_name_lo": "ລຶບ ລາຍລະອຽດລາຍການງົບປະມານ"
+                },
+                {
+                    "id": 69,
+                    "name": "update-budget-item-detail",
+                    "display_name": "Update Budget Item Detail",
+                    "display_name_lo": "ແກ້ໄຂ ລາຍລະອຽດລາຍການງົບປະມານ"
+                },
+                {
+                    "id": 68,
+                    "name": "read-budget-item-detail",
+                    "display_name": "Read Budget Item Detail",
+                    "display_name_lo": "ເບີ່ງ ລາຍລະອຽດລາຍການງົບປະມານ"
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "name": "budget-item",
+            "display_name": "Budget Item",
+            "display_name_lo": "ລາຍການງົບປະມານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 63,
+                    "name": "create-budget-item",
+                    "display_name": "Create Budget Item",
+                    "display_name_lo": "ສ້າງ ລາຍການງົບປະມານ"
+                },
+                {
+                    "id": 66,
+                    "name": "delete-budget-item",
+                    "display_name": "Delete Budget Item",
+                    "display_name_lo": "ລຶບ ລາຍການງົບປະມານ"
+                },
+                {
+                    "id": 65,
+                    "name": "update-budget-item",
+                    "display_name": "Update Budget Item",
+                    "display_name_lo": "ແກ້ໄຂ ລາຍການງົບປະມານ"
+                },
+                {
+                    "id": 64,
+                    "name": "read-budget-item",
+                    "display_name": "Read Budget Item",
+                    "display_name_lo": "ເບີ່ງ ລາຍການງົບປະມານ"
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "name": "budget-account",
+            "display_name": "Budget Account",
+            "display_name_lo": "ບັນຊີງົບປະມານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 60,
+                    "name": "read-budget-account",
+                    "display_name": "Read Dudget Account",
+                    "display_name_lo": "ເບີ່ງ ບັນຊີງົບປະມານ"
+                },
+                {
+                    "id": 62,
+                    "name": "delete-budget-account",
+                    "display_name": "Delete Dudget Account",
+                    "display_name_lo": "ລຶບ ບັນຊີງົບປະມານ"
+                },
+                {
+                    "id": 61,
+                    "name": "update-budget-account",
+                    "display_name": "Update Dudget Account",
+                    "display_name_lo": "ແກ້ໄຂ ບັນຊີງົບປະມານ"
+                },
+                {
+                    "id": 59,
+                    "name": "create-budget-account",
+                    "display_name": "Create Dudget Account",
+                    "display_name_lo": "ສ້າງ ບັນຊີງົບປະມານ"
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "name": "vendor-bank-account",
+            "display_name": "Vendor Bank Account",
+            "display_name_lo": "ບັນຊີທະນາຄານຜູ້ສະໜອງ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 56,
+                    "name": "read-vendor-bank-account",
+                    "display_name": "Read Vendor Bank Account",
+                    "display_name_lo": "ເບີ່ງ ບັນຊີທະນາຄານຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 58,
+                    "name": "delete-vendor-bank-account",
+                    "display_name": "Delete Vendor Bank Account",
+                    "display_name_lo": "ລຶບ ບັນຊີທະນາຄານຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 57,
+                    "name": "update-vendor-bank-account",
+                    "display_name": "Update Vendor Bank Account",
+                    "display_name_lo": "ແກ້ໄຂ ບັນຊີທະນາຄານຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 55,
+                    "name": "create-vendor-bank-account",
+                    "display_name": "Create Vendor Bank Account",
+                    "display_name_lo": "ສ້າງ ບັນຊີທະນາຄານຜູ້ສະໜອງ"
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "name": "vendor",
+            "display_name": "Vendor",
+            "display_name_lo": "ຜູ້ສະໜອງ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 52,
+                    "name": "read-vendor",
+                    "display_name": "Read Vendor",
+                    "display_name_lo": "ເບີ່ງ ຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 54,
+                    "name": "delete-vendor",
+                    "display_name": "Delete Vendor",
+                    "display_name_lo": "ລຶບ ຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 53,
+                    "name": "update-vendor",
+                    "display_name": "Update Vendor",
+                    "display_name_lo": "ແກ້ໄຂ ຜູ້ສະໜອງ"
+                },
+                {
+                    "id": 51,
+                    "name": "create-vendor",
+                    "display_name": "Create Vendor",
+                    "display_name_lo": "ສ້າງ ຜູ້ສະໜອງ"
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "name": "currency",
+            "display_name": "Currency",
+            "display_name_lo": "ສະກຸນເງິນ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 237,
+                    "name": "create-currency",
+                    "display_name": "Create Currency",
+                    "display_name_lo": "ສ້າງ ສະກຸນເງິນ"
+                },
+                {
+                    "id": 40,
+                    "name": "delete-currency",
+                    "display_name": "Delete Currency",
+                    "display_name_lo": "ລຶບ ສະກຸນເງິນ"
+                },
+                {
+                    "id": 39,
+                    "name": "update-currency",
+                    "display_name": "Update Currency",
+                    "display_name_lo": "ແກ້ໄຂ ສະກຸນເງິນ"
+                },
+                {
+                    "id": 38,
+                    "name": "read-currency",
+                    "display_name": "Read Currency",
+                    "display_name_lo": "ເບີ່ງ ສະກຸນເງິນ"
+                },
+                {
+                    "id": 37,
+                    "name": "write-currency",
+                    "display_name": "Create Currency",
+                    "display_name_lo": null
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "name": "department-approver",
+            "display_name": "Department Approver",
+            "display_name_lo": "ຜູ້ອະນຸມັດພະແນກ",
+            "type": "admin",
+            "permissions": [
+                {
+                    "id": 33,
+                    "name": "write-department-approver",
+                    "display_name": "Create Department Approver",
+                    "display_name_lo": null
+                },
+                {
+                    "id": 36,
+                    "name": "delete-department-approver",
+                    "display_name": "Delete Department Approver",
+                    "display_name_lo": "ລຶບ ຜູ້ອະນຸມັດພະແນກ"
+                },
+                {
+                    "id": 35,
+                    "name": "update-department-approver",
+                    "display_name": "Update Department Approver",
+                    "display_name_lo": "ແກ້ໄຂ ຜູ້ອະນຸມັດພະແນກ"
+                },
+                {
+                    "id": 34,
+                    "name": "read-department-approver",
+                    "display_name": "Read Department Approver",
+                    "display_name_lo": "ເບີ່ງ ຜູ້ອະນຸມັດພະແນກ"
+                },
+                {
+                    "id": 236,
+                    "name": "create-department-approver",
+                    "display_name": "Create Department Approver",
+                    "display_name_lo": "ສ້າງ ຜູ້ອະນຸມັດພະແນກ"
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "name": "department-user",
+            "display_name": "Department User",
+            "display_name_lo": "ຜູ້ໃຊ້ພະແນກ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 235,
+                    "name": "create-department-user",
+                    "display_name": "Create Department User",
+                    "display_name_lo": "ສ້າງ ຜູ້ໃຊ້ພະແນກ"
+                },
+                {
+                    "id": 32,
+                    "name": "delete-department-user",
+                    "display_name": "Delete Department User",
+                    "display_name_lo": "ລຶບ ຜູ້ໃຊ້ພະແນກ"
+                },
+                {
+                    "id": 31,
+                    "name": "update-department-user",
+                    "display_name": "Update Department User",
+                    "display_name_lo": "ແກ້ໄຂ ຜູ້ໃຊ້ພະແນກ"
+                },
+                {
+                    "id": 29,
+                    "name": "write-department-user",
+                    "display_name": "Create Department User",
+                    "display_name_lo": null
+                },
+                {
+                    "id": 30,
+                    "name": "read-department-user",
+                    "display_name": "Read Department User",
+                    "display_name_lo": "ເບີ່ງ ຜູ້ໃຊ້ພະແນກ"
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "name": "document-type",
+            "display_name": "Document Type",
+            "display_name_lo": "ປະເພດເອກະສານ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 25,
+                    "name": "write-document-type",
+                    "display_name": "Create Document Type",
+                    "display_name_lo": null
+                },
+                {
+                    "id": 234,
+                    "name": "create-document-type",
+                    "display_name": "Create Document Type",
+                    "display_name_lo": "ສ້າງ ປະເພດເອກະສານ"
+                },
+                {
+                    "id": 28,
+                    "name": "delete-document-type",
+                    "display_name": "Delete Document Type",
+                    "display_name_lo": "ລຶບ ປະເພດເອກະສານ"
+                },
+                {
+                    "id": 27,
+                    "name": "update-document-type",
+                    "display_name": "Update Document Type",
+                    "display_name_lo": "ແກ້ໄຂ ປະເພດເອກະສານ"
+                },
+                {
+                    "id": 26,
+                    "name": "read-document-type",
+                    "display_name": "Read Document Type",
+                    "display_name_lo": "ເບີ່ງ ປະເພດເອກະສານ"
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "name": "permission",
+            "display_name": "Permission",
+            "display_name_lo": "ສິດອະນຸຍາດ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 23,
+                    "name": "update-permission",
+                    "display_name": "Update Permission",
+                    "display_name_lo": "ແກ້ໄຂ ສິດອະນຸຍາດ"
+                },
+                {
+                    "id": 21,
+                    "name": "write-permission",
+                    "display_name": "Create Permission",
+                    "display_name_lo": null
+                },
+                {
+                    "id": 233,
+                    "name": "create-permission",
+                    "display_name": "Create Permission",
+                    "display_name_lo": "ສ້າງ ສິດອະນຸຍາດ"
+                },
+                {
+                    "id": 24,
+                    "name": "delete-permission",
+                    "display_name": "Delete Permission",
+                    "display_name_lo": "ລຶບ ສິດອະນຸຍາດ"
+                },
+                {
+                    "id": 22,
+                    "name": "read-permission",
+                    "display_name": "Read Permission",
+                    "display_name_lo": "ເບີ່ງ ສິດອະນຸຍາດ"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "name": "user",
+            "display_name": "User",
+            "display_name_lo": "ຜູ້ໃຊ້",
+            "type": "admin",
+            "permissions": [
+                {
+                    "id": 232,
+                    "name": "create-user",
+                    "display_name": "Create User",
+                    "display_name_lo": "ສ້າງ ຜູ້ໃຊ້"
+                },
+                {
+                    "id": 20,
+                    "name": "delete-user",
+                    "display_name": "Delete User",
+                    "display_name_lo": "ລຶບ ຜູ້ໃຊ້"
+                },
+                {
+                    "id": 19,
+                    "name": "update-user",
+                    "display_name": "Update User",
+                    "display_name_lo": "ແກ້ໄຂ ຜູ້ໃຊ້"
+                },
+                {
+                    "id": 18,
+                    "name": "read-user",
+                    "display_name": "Read User",
+                    "display_name_lo": "ເບີ່ງ ຜູ້ໃຊ້"
+                },
+                {
+                    "id": 17,
+                    "name": "write-user",
+                    "display_name": "Create User",
+                    "display_name_lo": null
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "name": "role",
+            "display_name": "Role",
+            "display_name_lo": "ບົດບາດ",
+            "type": "admin",
+            "permissions": [
+                {
+                    "id": 16,
+                    "name": "delete-role",
+                    "display_name": "Delete Role",
+                    "display_name_lo": "ລຶບ ບົດບາດ"
+                },
+                {
+                    "id": 15,
+                    "name": "update-role",
+                    "display_name": "Update Role",
+                    "display_name_lo": "ແກ້ໄຂ ບົດບາດ"
+                },
+                {
+                    "id": 14,
+                    "name": "read-role",
+                    "display_name": "Read Role",
+                    "display_name_lo": "ເບີ່ງ ບົດບາດ"
+                },
+                {
+                    "id": 13,
+                    "name": "write-role",
+                    "display_name": "Create Role",
+                    "display_name_lo": null
+                },
+                {
+                    "id": 231,
+                    "name": "create-role",
+                    "display_name": "Create Role",
+                    "display_name_lo": "ສ້າງ ບົດບາດ"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "name": "position",
+            "display_name": "Position",
+            "display_name_lo": "ຕຳແໜ່ງ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 9,
+                    "name": "write-position",
+                    "display_name": "Create Position",
+                    "display_name_lo": null
+                },
+                {
+                    "id": 12,
+                    "name": "delete-position",
+                    "display_name": "Delete Position",
+                    "display_name_lo": "ລຶບ ຕຳແໜ່ງ"
+                },
+                {
+                    "id": 11,
+                    "name": "update-position",
+                    "display_name": "Update Position",
+                    "display_name_lo": "ແກ້ໄຂ ຕຳແໜ່ງ"
+                },
+                {
+                    "id": 10,
+                    "name": "read-position",
+                    "display_name": "Read Position",
+                    "display_name_lo": "ເບີ່ງ ຕຳແໜ່ງ"
+                },
+                {
+                    "id": 230,
+                    "name": "create-position",
+                    "display_name": "Create Position",
+                    "display_name_lo": "ສ້າງ ຕຳແໜ່ງ"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "unit",
+            "display_name": "Unit",
+            "display_name_lo": "ຫົວໜ່ວຍ",
+            "type": "all",
+            "permissions": [
+                {
+                    "id": 5,
+                    "name": "write-unit",
+                    "display_name": "Create Unit",
+                    "display_name_lo": null
+                },
+                {
+                    "id": 8,
+                    "name": "delete-unit",
+                    "display_name": "Delete Unit",
+                    "display_name_lo": "ລຶບ ຫົວໜ່ວຍ"
+                },
+                {
+                    "id": 7,
+                    "name": "update-unit",
+                    "display_name": "Update Unit",
+                    "display_name_lo": "ແກ້ໄຂ ຫົວໜ່ວຍ"
+                },
+                {
+                    "id": 6,
+                    "name": "read-unit",
+                    "display_name": "Read Unit",
+                    "display_name_lo": "ເບີ່ງ ຫົວໜ່ວຍ"
+                },
+                {
+                    "id": 229,
+                    "name": "create-unit",
+                    "display_name": "Create Unit",
+                    "display_name_lo": "ສ້າງ ຫົວໜ່ວຍ"
+                }
+            ]
+        },
+        {
+            "id": 1,
+            "name": "department",
+            "display_name": "Department",
+            "display_name_lo": "ພະແນກ",
+            "type": "admin",
+            "permissions": [
+                {
+                    "id": 4,
+                    "name": "delete-department",
+                    "display_name": "Delete Department",
+                    "display_name_lo": "ລຶບ ພະແນກ"
+                },
+                {
+                    "id": 2,
+                    "name": "read-department",
+                    "display_name": "Read Department",
+                    "display_name_lo": "ເບີ່ງ ພະແນກ"
+                },
+                {
+                    "id": 1,
+                    "name": "write-department",
+                    "display_name": "Create Department",
+                    "display_name_lo": null
+                },
+                {
+                    "id": 228,
+                    "name": "create-department",
+                    "display_name": "Create Department",
+                    "display_name_lo": "ສ້າງ ພະແນກ"
+                },
+                {
+                    "id": 3,
+                    "name": "update-department",
+                    "display_name": "Update Department",
+                    "display_name_lo": "ແກ້ໄຂ ພະແນກ"
+                }
+            ]
+        }
+    ],
+    "pagination": {
+        "total": 41,
+        "total_pages": 1,
+        "limit": 1000,
+        "page": 1
+    }
+}

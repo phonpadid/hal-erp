@@ -9,7 +9,21 @@
         "approval_proposal": "ອະນຸມັດໃບສະເໜີ",
         "approved": "ອະນຸມັດສຳເລັດ",
         "description": "ອະນຸມັດໃບເບິກຈ່າຍສຳເລັດ",
-        "success": "ສຳເລັດ"
+        "success": "ສຳເລັດ",
+        "view_store": "ເບິ່ງຮ້ານຄ້າ",
+        "store": "ຮ້ານຄ້າ",
+        "total": "ລາຄາລວມ",
+        "title": "ເນື້ອໃນ",
+        "id": "ລຳດັບ",
+        "payment_type": "ປະເພດການຈ່າຍເງິນ",
+        "cash": "ເງິນສົດ(Cash)",
+        "transfer": "ໂອນເງິນ(Transfer)",
+        "cheque": "ເຊັກ(Cheque)",
+        "remark": "ໝາຍເຫດ",
+        "from_dpm": "ຈາກໜ່ວຍງານ",
+        "enter_pur": "ປ້ອນຈຸດປະສົງ",
+        "enter_remark": "ປ້ອນໝາຍເຫດ(ຖ້າມີ)",
+        "item": "ລາຍການ"
     },
     "total": {
         "sub_total": "ລວມຈຳນວນເງິນ",
