@@ -158,7 +158,7 @@ const dataHead = computed(() => ({
 }));
 
 // Header buttons based on the image
-const customButtons = [
+const customButtons = computed(() => [
   {
     label: t('receipt.title.create'),
     type: "primary" as ButtonType,
@@ -174,43 +174,43 @@ const customButtons = [
       window.print();
     },
   },
-];
+]);
 
-const typeOption = [
-  { label: "ເງິນສົດ (Cash)", value: "cash" },
-  { label: "ໂອນເງິນ (Transfer)", value: "transfer" },
-  { label: "ເຊັກ (Cheque)", value: "cheque" },
-];
+const typeOption = computed(() => [
+  { label: t('receipt.title.cash'), value: "cash" },
+  { label: t('receipt.title.transfer'), value: "transfer" },
+  { label: t('receipt.title.cheque'), value: "cheque" },
+]);
 
-const columns = [
+const columns = computed(() => [
   {
-    title: "ລຳດັບ",
+    title: t('receipt.title.id'),
     dataIndex: "id",
     key: "id",
     width: 80,
     align: "center",
   },
   {
-    title: "ເນື້ອໃນລາຍການ",
+    title: t('receipt.title.title'),
     dataIndex: "title",
     key: "title",
   },
   {
-    title: "ລະຫັດງົບປະມານ",
+    title: t('receipt.title.budget_code'),
     dataIndex: "budgetCode",
     key: "budgetCode",
   },
   {
-    title: "ລາຄາລວມ",
+    title: t('receipt.title.total'),
     dataIndex: "total",
     key: "total",
   },
   {
-    title: "ຮ້ານຄ້າ",
+    title: t('receipt.title.store'),
     dataIndex: "vendor",
     key: "vendor",
   },
-];
+]);
 // OTP Modal handlers
 const handleOtpConfirm = async (otpValue: string) => {
   try {
@@ -306,6 +306,7 @@ const vendorInfo = (data: ISelectVendor) => {
   dataVendor.value = data;
   openVendor.value = true;
 };
+const create_text = computed(() => t('receipt.title.create'))
 </script>
 
 <template>
@@ -315,13 +316,13 @@ const vendorInfo = (data: ISelectVendor) => {
       :breadcrumb-items="[t('receipt.title.approval_proposal'), t('receipt.title.create')]"
       :show-document-date="false"
       :show-document-number="false"
-      :document-prefix="t('receipt.title.create')"
+      :document-prefix="create_text"
       :action-buttons="customButtons"
     />
     <div class="bg-white rounded-lg shadow-sm p-2 mt-4">
       <div class="flex gap-[4rem]">
       <div class="mb-0 w-full">
-        <h3 class="text-base font-semibold mb-2">ຈາກໜ່ວຍງານ</h3>
+        <h3 class="text-base font-semibold mb-2">{{ t('receipt.title.from_dpm') }}</h3>
         <div class="flex items-center gap-3">
           <a-avatar size="large" :src="'/public/4.png'" />
           <div>
@@ -339,7 +340,7 @@ const vendorInfo = (data: ISelectVendor) => {
         <h3 class="text-base font-semibold mb-2">{{ t("purchase-rq.field.purposes") }}</h3>
         <UiInput
           v-model="formState.remark"
-          placeholder="ປ້ອນຈຸດປະສົງ"
+          :placeholder="t('receipt.title.enter_pur')"
           className="bg-gray-50"
         />
         <!-- <h3 class="text-base font-semibold m-2">ຈາກບໍລິສັດ</h3>
@@ -399,14 +400,14 @@ const vendorInfo = (data: ISelectVendor) => {
       </div> -->
       <!-- FIXED CHECKBOX SECTION - SINGLE SELECTION -->
       <div class="select-type mb-6">
-        <h3 class="text-base font-semibold mb-4">ປະເພດການຈ່າຍເງິນ</h3>
+        <h3 class="text-base font-semibold mb-4">{{ t('receipt.title.payment_type') }}</h3>
         <div class="space-y-2">
           <Radio v-model="selectType" :options="typeOption" />
         </div>
       </div>
 
       <div class="mb-0">
-        <h3 class="text-base font-semibold mb-2">ລາຍການ</h3>
+        <h3 class="text-base font-semibold mb-2">{{ t('receipt.title.item') }}</h3>
         <Table
           :columns="columns"
           :dataSource="orderDetails?.getPurchaseOrderItem() ?? []"
@@ -423,7 +424,7 @@ const vendorInfo = (data: ISelectVendor) => {
             </span>
           </template>
           <template #vendor="{record}">
-            <span @click="vendorInfo(record.selected_vendor[0])" class="font-medium cursor-pointer text-red-600 hover:text-red-800">ເບິ່ງຮ້ານ</span>
+            <span @click="vendorInfo(record.selected_vendor[0])" class="font-medium cursor-pointer text-red-600 hover:text-red-800">{{ t('receipt.title.view_store') }}</span>
           </template>
         </Table>
 
@@ -460,10 +461,10 @@ const vendorInfo = (data: ISelectVendor) => {
       </div>
 
       <div class="mb-6">
-        <h3 class="text-base font-semibold mb-2">ໝາຍເຫດ</h3>
+        <h3 class="text-base font-semibold mb-2">{{ t('receipt.title.remark') }}</h3>
         <UiInput
           v-model="remark"
-          placeholder="ລະບຸຂໍ້ມູນເພີ່ມເຕີມ (ຖ້າມີ)"
+          :placeholder="t('receipt.title.enter_remark')"
           className="bg-gray-50"
         />
       </div>

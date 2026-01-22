@@ -9,6 +9,7 @@ const { params } = useRoute();
 const prId = params.id as string;
 
 // State for purchase request data
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const prData = ref<any>(null);
 
 // Computed data

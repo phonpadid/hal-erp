@@ -9,7 +9,21 @@
         "approval_proposal": "Approval Proposal",
         "approved": "Approved",
         "description": "Payment voucher approved successfully",
-        "success": "Success"
+        "success": "Success",
+        "view_store": "View store",
+        "store": "Store",
+        "total": "Total Price",
+        "title": "Content",
+        "id": "No.",
+        "payment_type": "Payment Type",
+        "cash": "Cash",
+        "transfer": "Bank Transfer",
+        "cheque": "Cheque",
+        "remark": "Remark",
+        "from_dpm": "From Department",
+        "enter_pur": "Enter Purpose",
+        "enter_remark": "Enter Remark (if any)",
+        "item": "Items"
     },
     "total": {
         "sub_total": "Subtotal",
