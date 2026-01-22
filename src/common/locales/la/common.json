@@ -26,5 +26,8 @@
   "forbidden": "ການເຂົ້າເຖິງຖືກຫ້າມ",
   "notFound": "ບໍ່ພົບ",
   "validationError": "ຂໍ້ຜິດພາດການກວດສອບ",
-  "unknownError": "ເກີດຂໍ້ຜິດພາດທີ່ບໍ່ຮູ້ສາເຫດ"
+  "unknownError": "ເກີດຂໍ້ຜິດພາດທີ່ບໍ່ຮູ້ສາເຫດ",
+  "checkbox": {
+    "selectAll": "ເລືອກທັງໝົດ"
+  }
 }

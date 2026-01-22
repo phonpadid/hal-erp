@@ -61,7 +61,9 @@ export const usePermissionStore = defineStore("permission", () => {
           item.type,
           item.permissions || [],
           item.created_at || new Date(),
-          item.updated_at || new Date()
+          item.updated_at || new Date(),
+          null,
+          item.display_name_lo || null
         );
       });
 

@@ -2,8 +2,9 @@ export class Permission {
   private id: string | number;
   private name: string;
   private display_name: string;
+  private display_name_lo: string | null;
   private type: string;
-  private permissions: { id: number; name: string }[];
+  private permissions: { id: number; name: string; display_name: string; display_name_lo?: string | null }[];
   private created_at: Date;
   private updated_at: Date;
   private deletedAt: Date | null;
@@ -13,14 +14,16 @@ export class Permission {
     name: string,
     display_name: string,
     type: string = "all",
-    permissions: { id: number; name: string }[] = [],
+    permissions: { id: number; name: string; display_name: string; display_name_lo?: string | null }[] = [],
     created_at: Date | string,
     updated_at: Date | string,
-    deletedAt: Date | string | null = null
+    deletedAt: Date | string | null = null,
+    display_name_lo?: string | null
   ) {
     this.id = id;
     this.name = name;
     this.display_name = display_name;
+    this.display_name_lo = display_name_lo || null;
     this.type = type;
     this.permissions = permissions;
     this.created_at = this.parseDate(created_at);
@@ -47,7 +50,7 @@ export class Permission {
     return this.type;
   }
 
-  public getPermissions(): { id: number; name: string }[] {
+  public getPermissions(): { id: number; name: string; display_name: string; display_name_lo?: string | null }[] {
     return this.permissions;
   }
 
@@ -89,6 +92,10 @@ export class Permission {
 
   public getDisplayname(): string {
     return this.display_name;
+  }
+
+  public getDisplaynameLo(): string | null {
+    return this.display_name_lo;
   }
 
   public getcreated_at(): Date {
