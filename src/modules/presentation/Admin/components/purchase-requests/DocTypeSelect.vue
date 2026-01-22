@@ -25,7 +25,7 @@ const store = useDocumentTypeStore();
 const authStore = useAuthStore();
 
 // Get company data from localStorage
-const companyId = computed(() => authStore.getCompanyId.value);
+const companyId = computed(() => authStore.getCompanyId?.value ?? null);
 
 // Direct localStorage data as fallback
 const directCompanyData = computed(() => {

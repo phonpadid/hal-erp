@@ -1,18 +1,21 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { usePermissionStore } from "../../stores/permission.store";
 import { useI18n } from "vue-i18n";
 import { columns } from "./column";
 import Table from "@/common/shared/components/table/Table.vue";
 // import PermissionSelector from "@/modules/presentation/Admin/components/permission/PermissionSelector.vue";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const permissionStore = usePermissionStore();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const permissionData = ref<any[]>([]);
 const loading = ref(false);
 // const selectedPermissionIds = ref<(string | number)[]>([]);
+
+// Add locale as dependency for computed
+const currentLocale = computed(() => locale.value);
 
 const loadPermissions = async () => {
   try {
@@ -52,7 +55,12 @@ onMounted(async () => {
       :pagination="{ pageSize: 10 }"
       :loading="loading"
       row-key="id"
-    />
+    >
+      <!-- Custom render for display_name based on locale -->
+      <template #display_name="{ record }">
+        {{ locale === 'la' && record.display_name_lo ? record.display_name_lo : record.display_name }}
+      </template>
+    </Table>
 
     <!-- Permission Selection Section -->
     <!-- <div class="mb-6 p-4 border rounded-lg bg-white">

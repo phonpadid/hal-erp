@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 type OptionType = { label: string; value: string | number; group?: string };
 
@@ -13,6 +14,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: "update:modelValue", value: (string | number)[]): void;
 }>();
+
+const { t } = useI18n();
 
 const selectedValues = computed({
   get: () => props.modelValue || [],
@@ -122,7 +125,7 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
         :disabled="props.disabled"
         @change="(e:any) => toggleCheckAll('all', e.target.checked)"
       >
-        ເລືອກທັງໝົດ
+        {{ t('common.checkbox.selectAll') }}
       </a-checkbox>
     </div>
     <a-divider />
@@ -138,7 +141,7 @@ const toggleCheckAll = (groupName: string, checked: boolean) => {
         :disabled="props.disabled"
         @change="(e:any) => toggleCheckAll('all', e.target.checked)"
       >
-        ເລືອກທັງໝົດ
+        {{ t('common.checkbox.selectAll') }}
       </a-checkbox>
       <a-divider />
     </div>

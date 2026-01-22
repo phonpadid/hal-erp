@@ -44,7 +44,9 @@ export class ApiPermissionRepository implements PermissionRepository {
       data.type || "all",
       data.permissions || [],
       data.created_at,
-      data.updated_at
+      data.updated_at,
+      null,
+      data.display_name_lo || null
     );
   }
 
