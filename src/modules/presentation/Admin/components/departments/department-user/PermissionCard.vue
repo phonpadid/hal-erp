@@ -20,7 +20,7 @@
           class="h-4 w-4 text-red-600 focus:ring-red-700 border-gray-300 rounded"
         />
         <h5 class="font-bold text-gray-800 m-0 leading-none">
-          {{ group.display_name }}
+          {{ getDisplayName(group) }}
         </h5>
       </label>
     </div>
@@ -40,7 +40,7 @@
           class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
         />
         <span class="text-sm text-gray-700">
-          {{ formatPermissionName(permission.name) }}
+          {{ getDisplayName(permission) }}
         </span>
       </label>
     </div>
@@ -52,11 +52,17 @@
 
 <script setup lang="ts">
 import { computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoleStore } from "../../../stores/role.store";
+
 const roleStore = useRoleStore();
+const { locale } = useI18n();
+
 interface Permission {
   id: number;
   name: string;
+  display_name: string;
+  display_name_lo?: string | null;
   group?: string; // Optional group field
 }
 
@@ -64,6 +70,7 @@ interface PermissionGroup {
   id: number;
   name: string;
   display_name: string;
+  display_name_lo?: string | null;
   type: string;
   permissions: Permission[];
 }
@@ -78,6 +85,14 @@ const props = defineProps<{
 const emit = defineEmits<{
   "update:modelValue": [value: number[]];
 }>();
+
+// Helper function to get display name based on locale
+const getDisplayName = (item: Permission | PermissionGroup): string => {
+  if (locale.value === 'la' && item.display_name_lo) {
+    return item.display_name_lo;
+  }
+  return item.display_name;
+};
 
 // const selectedPermissions = computed({
 //   get: () => props.modelValue || [],
@@ -107,6 +122,10 @@ const rolePermissions = computed(() => {
 
 // Show all permission groups (no filtering)
 const processedGroups = computed(() => {
+  // Add locale as dependency to ensure reactivity when language changes
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const currentLocale = locale.value;
+
   if (!props.permissionGroups?.length) return [];
 
   // Always show all permissions regardless of role selection
@@ -179,14 +198,6 @@ const toggleGroupSelection = (group: PermissionGroup, isSelected: boolean) => {
   selectedPermissions.value = currentValues;
 };
 
-// Format permission name for display
-const formatPermissionName = (name: string): string => {
-  return name
-    .replace(/^(-|-|-|-)/, "") // Remove action prefixes
-    .split("-") // Split by hyphens
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
-    .join(" "); // Join with spaces
-};
 // Watch for role changes to auto-select role permissions
 watch(() => props.selectedRoleIds, (newRoleIds) => {
   if (newRoleIds && newRoleIds.length > 0) {
