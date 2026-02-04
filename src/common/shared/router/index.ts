@@ -130,7 +130,7 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/approval-pr",
+    path: "/approval-pr/:token",
     name: "approval_pr",
     component: () => import("@/modules/presentation/Admin/components/approval-on-phone/ApprovalPurchaseRequestDetail.vue"),
     meta: {

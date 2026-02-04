@@ -109,6 +109,22 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
     }
   }
 
+  async findByToken(token: string): Promise<PurchaseRequestEntity | null> {
+    try {
+      const response = (await api.get(`/purchase-requests/by-token?token=${token}`)) as {
+        data: ApiResponse<PurchaseRequestApiModel>;
+      };
+
+      return this.toDomainModel(response.data.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response?.status === 404) {
+        return null;
+      }
+      this.handleApiError(error, `Failed to find purchase request with token ${token}`);
+    }
+  }
+
   // ใน class ApiPurchaseRequestRepository
 
   async findAll(params: PaginationParams): Promise<PaginatedResult<PurchaseRequestEntity>> {

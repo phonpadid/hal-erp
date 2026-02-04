@@ -5,7 +5,6 @@ import type { ButtonType } from "@/modules/shared/buttonType";
 import { storeToRefs } from "pinia";
 import { useToggleStore } from "../../../stores/storage.store";
 import { useI18n } from "vue-i18n";
-import { printContent } from "../../purchase-requests/helpers/printer";
 import OtpModal from "./modals/OtpModal.vue";
 import SuccessModal from "../../purchase-requests/modal/SuccessModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";

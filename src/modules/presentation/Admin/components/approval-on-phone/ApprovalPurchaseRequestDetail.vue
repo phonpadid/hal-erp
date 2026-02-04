@@ -3,62 +3,164 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { Icon } from "@iconify/vue";
-
+import { usePurchaseRequestsStore } from "@/modules/presentation/Admin/stores/purchase_requests/purchase-requests.store";
+import { useApprovalStepStore } from "@/modules/presentation/Admin/stores/approval-step.store";
+import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
+import Table from "@/common/shared/components/table/Table.vue";
+import { prColumns } from "./pr-column";
+import { formatPrice } from "@/modules/shared/utils/format-price";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import SignatureConfirmModal from "./modal/SignatureConfirmModal.vue";
+// import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
+const { warning } = useNotification()
+const { error: showError } = useNotification();
 const { t } = useI18n();
 const { params } = useRoute();
-const prId = params.id as string;
+const token = params.token as string;
+
+// Stores
+const prStore = usePurchaseRequestsStore();
+const approvalStepStore = useApprovalStepStore();
 
 // State for purchase request data
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const prData = ref<any>(null);
+const prData = ref<PurchaseRequestEntity | null>(null);
+const loading = ref<boolean>(false);
+const error = ref<string | null>(null);
+
+// Modal state
+const showSignatureModal = ref(false);
+const isRejectAction = ref(false);
+
+// Get current pending approval step
+const currentApprovalStep = computed(() => {
+  const userApproval = prData.value?.getUserApproval();
+  if (!userApproval) return null;
+
+  // Find the first pending step (status_id: 1 = PENDING)
+  const pendingStep = userApproval.approval_step?.find(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (step: any) => step.status_id === 1
+  );
+
+  return pendingStep || null;
+});
 
 // Computed data
 const dataInfo = computed(() => ({
-  proposer: prData.value?.document?.requester || {
+  proposer: prData.value?.getRequester() || {
     username: "----",
   },
-  purposes: prData.value?.remark || "----",
-  department: prData.value?.document?.department || {
+  purposes: prData.value?.getPurposes() || "----",
+  department: prData.value?.getDepartment() || {
     name: "----",
   },
-  items: prData.value?.purchase_request_item || [],
-  total: prData.value?.total_amount || 0,
+  items: prData.value?.getItems() || [],
+  total: prData.value?.getTotal() || 0,
 }));
 
 // Position computed
 const positionName = computed(() => {
-  return prData.value?.document?.position?.[0]?.name || "----";
+  return prData.value?.getPosition()?.name || "----";
 });
 
-// Fetch PR data (placeholder - replace with actual store call)
+// Fetch PR data
 onMounted(async () => {
-  if (prId) {
-    // TODO: Replace with actual store call
-    // await prStore.fetchById(prId);
-    console.log("Fetch purchase request:", prId);
+  if (token) {
+    loading.value = true;
+    try {
+      const data = await prStore.fetchByToken(token);
+      if (data) {
+        prData.value = data;
+      } else {
+        error.value = "Failed to load purchase request data";
+      }
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : "Unknown error occurred";
+      console.error("Error fetching purchase request:", err);
+    } finally {
+      loading.value = false;
+    }
   }
 });
 
-// Handle Approve
+// Handle Approve - Show signature modal
 const handleApprove = () => {
-  console.log("Approve clicked");
-  // TODO: Implement approve logic with store
-  const msg = "ອະນຸມັດສຳເລັດ";
-  console.log(msg);
+  if (!currentApprovalStep.value) {
+    showError("ບໍ່ສາມາດອະນຸມັດ", "ບໍ່ພົບຂັ້ນຕອນການອະນຸມັດ");
+    return;
+  }
+  isRejectAction.value = false;
+  showSignatureModal.value = true;
 };
 
-// Handle Reject
+// Handle Reject - Show signature modal
 const handleReject = () => {
-  console.log("Reject clicked");
-  // TODO: Implement reject logic with store
-  const msg = "ປະຕິເສດສຳເລັດ";
-  console.log(msg);
+  if (!currentApprovalStep.value) {
+    showError("ບໍ່ສາມາດປະຕິເສດ", "ບໍ່ພົບຂັ້ນຕອນການອະນຸມັດ");
+    return;
+  }
+  isRejectAction.value = true;
+  showSignatureModal.value = true;
+};
+
+// Confirm signature and submit approval/reject
+const handleConfirmSignature = async () => {
+  if (!currentApprovalStep.value || !prData.value) {
+    return;
+  }
+
+  try {
+    warning('ກຳລັງພັດທະນາ....')
+    showSignatureModal.value = false;
+    // const documentId = prData.value.getId() || "";
+    // const payload: SubmitApprovalStepInterface = {
+    //   type: "pr",
+    //   statusId: isRejectAction.value ? 3 : 2, // 3 = REJECTED, 2 = APPROVED
+    //   remark: isRejectAction.value ? "ປະຕິເສດ" : "ຢືນຢັນສຳເລັດ",
+    //   approvalStepId: currentApprovalStep.value.id,
+    //   is_otp: false, // No OTP required for this flow
+    //   files: [],
+    // };
+
+    // const success = await approvalStepStore.submitApproval(documentId, payload);
+
+    // if (success) {
+    //   showSignatureModal.value = false;
+    //   // Refresh data
+    //   const updatedData = await prStore.fetchByToken(token);
+    //   if (updatedData) {
+    //     prData.value = updatedData;
+    //   }
+    // }
+  } catch (err) {
+    console.error("Error submitting approval:", err);
+  }
+};
+
+// Close modal
+const handleCloseModal = () => {
+  showSignatureModal.value = false;
 };
 </script>
 
 <template>
   <div class="no-print">
-    <div class="approval-container">
+    <!-- Loading State -->
+    <div v-if="loading" class="approval-container">
+      <div class="user-info">
+        <p class="text-center">Loading...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="approval-container">
+      <div class="user-info">
+        <p class="text-center text-error">{{ error }}</p>
+      </div>
+    </div>
+
+    <!-- Data State -->
+    <div v-else class="approval-container">
       <div class="user-info">
         <h4 class="font-bold text-2xl">{{t("menu-sidebar.apv_purchase_rq")}}</h4>
         <!-- Info Sections - Flex Layout -->
@@ -118,37 +220,22 @@ const handleReject = () => {
             {{ t("purchase-rq.field.title") }}
           </h2>
           <div class="table-wrapper">
-            <a-table
+            <Table
               :dataSource="dataInfo.items"
               :pagination="false"
-              row-key="id"
+              :columns="prColumns(t)"
+              :rowKey="(record: any) => record.getId()"
               :scroll="{ x: 'max-content' }"
               size="small"
               class="responsive-table"
             >
-              <template #bodyCell="{ column, record, index }">
-                <template v-if="column.key === 'id'">
-                  <span class="cell-text">{{ index + 1 }}</span>
-                </template>
-                <template v-if="column.key === 'title'">
-                  <span class="cell-text cell-title">
-                    {{ record.title }}
-                  </span>
-                </template>
-                <template v-if="column.key === 'quantity'">
-                  <span class="cell-text">{{ record.quantity }}</span>
-                </template>
-                <template v-if="column.key === 'unit_price'">
-                  <span class="cell-text">{{ record.unit_price }}</span>
-                </template>
-                <template v-if="column.key === 'total_price'">
-                  <span class="cell-text">{{ record.total_price }}</span>
-                </template>
-                <template v-if="column.key === 'remark'">
-                  <span class="cell-text">{{ record.remark || "----" }}</span>
-                </template>
-              </template>
-            </a-table>
+            <template #id="{ index }">
+              <span>{{ index + 1 }}</span>
+            </template>
+            <template #total_price="{ record }">
+              <span>{{ formatPrice(record?.getTotalPrice()) }}</span>
+            </template>
+            </Table>
           </div>
         </div>
 
@@ -165,6 +252,16 @@ const handleReject = () => {
         </div>
       </div>
     </div>
+
+    <!-- Signature Confirm Modal -->
+    <SignatureConfirmModal
+      :visible="showSignatureModal"
+      :title="isRejectAction ? t('purchase-rq.card_title.refused') : t('purchase-rq.confirm_signature')"
+      :isReject="isRejectAction"
+      :loading="approvalStepStore.loading"
+      @confirm="handleConfirmSignature"
+      @close="handleCloseModal"
+    />
   </div>
 </template>
 

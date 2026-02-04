@@ -79,6 +79,19 @@ export const usePurchaseRequestsStore = defineStore("purchaseRequests", () => {
     }
   }
 
+  async function fetchByToken(token: string): Promise<PurchaseRequestEntity | null> {
+    loading.value = true;
+    error.value = null;
+    try {
+      return await repository.findByToken(token);
+    } catch (err: any) {
+      error.value = err.message || `Failed to fetch purchase request with token ${token}.`;
+      return null;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   // ...
 
   async function create(data: CreatePurchaseRequestDTO): Promise<PurchaseRequestEntity | null> {
@@ -142,6 +155,7 @@ export const usePurchaseRequestsStore = defineStore("purchaseRequests", () => {
     statusSummary,
     fetchAll,
     fetchById,
+    fetchByToken,
     create,
     update,
     remove,
