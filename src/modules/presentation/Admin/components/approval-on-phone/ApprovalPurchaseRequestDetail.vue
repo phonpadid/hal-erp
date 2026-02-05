@@ -12,8 +12,9 @@ import { formatPrice } from "@/modules/shared/utils/format-price";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import SignatureConfirmModal from "./modal/SignatureConfirmModal.vue";
 import type { JwtPayload } from "./interfaces/payload.interface";
-// import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
-const { warning } = useNotification()
+import api from "@/common/config/axios/axios";
+// import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface"
+const { success: showSuccess } = useNotification();
 const { error: showError } = useNotification();
 const { t } = useI18n();
 const { params } = useRoute();
@@ -150,30 +151,31 @@ const handleConfirmSignature = async () => {
   }
 
   try {
-    warning('ກຳລັງພັດທະນາ....')
     showSignatureModal.value = false;
-    // const documentId = prData.value.getId() || "";
-    // const payload: SubmitApprovalStepInterface = {
-    //   type: "pr",
-    //   statusId: isRejectAction.value ? 3 : 2, // 3 = REJECTED, 2 = APPROVED
-    //   remark: isRejectAction.value ? "ປະຕິເສດ" : "ຢືນຢັນສຳເລັດ",
-    //   approvalStepId: currentApprovalStep.value.id,
-    //   is_otp: false, // No OTP required for this flow
-    //   files: [],
-    // };
 
-    // const success = await approvalStepStore.submitApproval(documentId, payload);
+    // Prepare payload - remark is required for reject, optional for approve
+    const payload = {
+      type: "pr",
+      statusId: isRejectAction.value ? 3 : 2, // 3 = REJECTED, 2 = APPROVED
+      remark: isRejectAction.value ? "ປະຕິເສດ" : "ຢືນຢັນສຳເລັດ",
+      is_otp: false,
+    };
 
-    // if (success) {
-    //   showSignatureModal.value = false;
-    //   // Refresh data
-    //   const updatedData = await prStore.fetchByToken(token);
-    //   if (updatedData) {
-    //     prData.value = updatedData;
-    //   }
-    // }
+    // Call API to approve/reject by token
+    const response = await api.post(`/approve-by-token/${token}`, payload);
+
+    if (response) {
+      showSuccess("ສຳເລັດ", isRejectAction.value ? "ປະຕິເສດສຳເລັດ" : "ອະນຸມັດສຳເລັດ");
+
+      // Refresh data to get updated status
+      const updatedData = await prStore.fetchByToken(token);
+      if (updatedData) {
+        prData.value = updatedData;
+      }
+    }
   } catch (err) {
     console.error("Error submitting approval:", err);
+    showError("ເກີດຂໍ້ຜິດພາດ", err instanceof Error ? err.message : "ບໍ່ສາມາດດຳເນີນການອະນຸມັດ");
   }
 };
 
