@@ -11,12 +11,36 @@ import { prColumns } from "./pr-column";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import SignatureConfirmModal from "./modal/SignatureConfirmModal.vue";
+import type { JwtPayload } from "./interfaces/payload.interface";
 // import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
 const { warning } = useNotification()
 const { error: showError } = useNotification();
 const { t } = useI18n();
 const { params } = useRoute();
 const token = params.token as string;
+
+// Decode JWT token
+const decodeJwt = (jwtToken: string): JwtPayload | null => {
+  try {
+    const base64Url = jwtToken.split('.')[1];
+    if (!base64Url) {
+      return null;
+    }
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload) as JwtPayload;
+  } catch (error) {
+    console.error('Error decoding JWT:', error);
+    return null;
+  }
+};
+
+const decodedToken = ref<JwtPayload | null>(null);
 
 // Stores
 const prStore = usePurchaseRequestsStore();
@@ -34,6 +58,7 @@ const isRejectAction = ref(false);
 // Get current pending approval step
 const currentApprovalStep = computed(() => {
   const userApproval = prData.value?.getUserApproval();
+
   if (!userApproval) return null;
 
   // Find the first pending step (status_id: 1 = PENDING)
@@ -43,6 +68,15 @@ const currentApprovalStep = computed(() => {
   );
 
   return pendingStep || null;
+});
+const currentRejectStep = computed(() => {
+  const userApproval = prData.value?.getUserApproval();
+  if (!userApproval) return null;
+  const rejectStep = userApproval.approval_step?.find(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (step: any) => step.status_id === 3
+  );
+  return rejectStep || null;
 });
 
 // Computed data
@@ -62,10 +96,16 @@ const dataInfo = computed(() => ({
 const positionName = computed(() => {
   return prData.value?.getPosition()?.name || "----";
 });
-
 // Fetch PR data
 onMounted(async () => {
   if (token) {
+    // Decode JWT token
+    decodedToken.value = decodeJwt(token);
+    if (!decodedToken.value) {
+      error.value = "Invalid token";
+      return;
+    }
+
     loading.value = true;
     try {
       const data = await prStore.fetchByToken(token);
@@ -162,7 +202,21 @@ const handleCloseModal = () => {
     <!-- Data State -->
     <div v-else class="approval-container">
       <div class="user-info">
-        <h4 class="font-bold text-2xl">{{t("menu-sidebar.apv_purchase_rq")}}</h4>
+        <div class="flex items-center gap-4">
+          <h4 class="font-bold md:text-2xl text-lg">{{t("menu-sidebar.apv_purchase_rq")}}</h4>
+          <div v-if="currentApprovalStep" class="status-badge status-pending">
+            <Icon icon="mdi:clock-outline" class="status-icon" />
+            <span>Pending</span>
+          </div>
+          <div v-else-if="currentRejectStep" class="status-badge status-rejected">
+            <Icon icon="mdi:close-circle-outline" class="status-icon" />
+            <span>Rejected</span>
+          </div>
+          <div v-else class="status-badge status-approved">
+            <Icon icon="mdi:check-circle-outline" class="status-icon" />
+            <span>Approved</span>
+          </div>
+        </div>
         <!-- Info Sections - Flex Layout -->
         <div class="info-grid">
           <!-- Proposer Section -->
@@ -179,7 +233,7 @@ const handleCloseModal = () => {
                   {{ dataInfo.proposer.username }}
                 </p>
                 <p class="proposer-position">
-                  {{ positionName }}
+                  {{ positionName }}, {{ decodedToken?.step_id }}
                 </p>
               </div>
             </div>
@@ -240,7 +294,7 @@ const handleCloseModal = () => {
         </div>
 
         <!-- Footer Actions -->
-        <div class="footer-actions">
+        <div v-if="currentApprovalStep" class="footer-actions">
           <button class="btn btn-reject" @click="handleReject">
             <Icon icon="mdi:close" class="btn-icon" />
             <span>{{ t("button.reject") }}</span>
@@ -345,7 +399,7 @@ const handleCloseModal = () => {
 .info-card {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 0.4rem 0.8rem;
   transition: all 0.3s ease;
   border: 1px solid #e2e8f0;
 }
@@ -865,5 +919,69 @@ const handleCloseModal = () => {
     width: 100%;
     padding: 0.75rem 1rem;
   }
+}
+
+/* ===== Status Badge Styles ===== */
+.status-badge {
+  margin-top: -10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 9999px;
+  font-size: 0.56rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+@media (min-width: 768px) {
+  .status-badge {
+    padding: 0.1rem 0.4rem;
+    font-size: 0.70rem;
+  }
+}
+
+.status-icon {
+  font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+  .status-icon {
+    font-size: 1.125rem;
+  }
+}
+
+/* Pending Status */
+.status-pending {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 1px solid #fbbf24;
+}
+
+.status-pending:hover {
+  background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+}
+
+/* Approved Status */
+.status-approved {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border: 1px solid #34d399;
+}
+
+.status-approved:hover {
+  background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
+}
+
+/* Rejected Status */
+.status-rejected {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 1px solid #f87171;
+}
+
+.status-rejected:hover {
+  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
 }
 </style>
