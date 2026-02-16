@@ -6,3 +6,12 @@ export interface JwtPayload {
   iat: number
   exp: number
 }
+
+export interface IStep {
+  id: number,
+  status_id: number
+}
+export interface IRole {
+  id: number,
+  name: string
+}

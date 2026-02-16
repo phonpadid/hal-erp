@@ -155,7 +155,7 @@ const handleImageUpload = async (files: File[]) => {
     createModalVisible.value = false;
     uploadCompleted.value = true;
   } catch (error) {
-    console.error("File upload failed:", error);
+    console.log("File upload failed:", error);
     message.error("ອັບໂຫລດຮູບພາບບໍ່ສຳເລັດ");
 
     if (uploadedImages.value.length > 0) {
@@ -195,9 +195,6 @@ onMounted(async () => {
 
 // Handle Approve
 const handleApprove = () => {
-  console.log("Approve clicked");
-  console.log("Account code:", formModel.value.account_code);
-  console.log("Files:", formState.value.files);
   // TODO: Implement approve logic with store
   const msg = "ອະນຸມັດສຳເລັດ";
   console.log(msg);

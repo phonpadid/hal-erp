@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { getUserApv } from "@/modules/shared/utils/get-user.login";
 
@@ -15,16 +15,28 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "confirm"): void;
+  (e: "confirm", remark?: string): void;
   (e: "close"): void;
 }>();
 
+// Ref for reject remark
+const rejectRemark = ref("");
+
 const handleConfirm = () => {
-  emit("confirm");
+  if (props.isReject) {
+    emit("confirm", rejectRemark.value);
+  } else {
+    emit("confirm");
+  }
 };
 
 const handleClose = () => {
   emit("close");
+};
+
+// Reset remark when modal opens/closes
+const resetForm = () => {
+  rejectRemark.value = "";
 };
 </script>
 
@@ -34,6 +46,7 @@ const handleClose = () => {
     :visible="visible"
     :footer="null"
     @cancel="handleClose"
+    @after-visible-change="resetForm"
   >
     <div class="mt-4 px-2">
       <!-- User Info Header -->
@@ -43,8 +56,8 @@ const handleClose = () => {
         <p>{{ user?.department_name }}</p>
       </div> -->
 
-      <!-- Signature Confirmation -->
-      <div class="mb-6">
+      <!-- Signature Confirmation (for approve) -->
+      <div v-if="!isReject" class="mb-6">
         <p class="text-start mb-2 font-bold">
           {{ t("purchase-rq.signature") }}
         </p>
@@ -66,15 +79,33 @@ const handleClose = () => {
         </div>
       </div>
 
+      <!-- Reject Remark (for reject) -->
+      <div v-else class="mb-6">
+        <p class="text-start mb-2 font-bold">
+          ເຫດຜົນປະຕິເສດ
+        </p>
+        <p class="text-start text-sm text-gray-600 mb-4">
+          ປ້ອນເຫດຜົນໃນການປະຕິເສດ
+        </p>
+
+        <!-- Remark Textarea -->
+        <textarea
+          v-model="rejectRemark"
+          rows="4"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+          placeholder="ປ້ອນເຫດຜົນປະຕິເສດ..."
+        ></textarea>
+      </div>
+
       <!-- Action Button -->
       <div class="flex justify-center">
         <button
           @click="handleConfirm"
-          :disabled="props.loading"
+          :disabled="props.loading || (props.isReject && !rejectRemark.trim())"
           :class="[
             'px-4 py-2 w-full rounded-lg transition-colors flex items-center justify-center',
             props.isReject
-              ? !props.loading
+              ? !props.loading && rejectRemark.trim()
                 ? 'bg-red-600 text-white hover:bg-red-700'
                 : 'bg-red-400 text-white cursor-not-allowed'
               : !props.loading

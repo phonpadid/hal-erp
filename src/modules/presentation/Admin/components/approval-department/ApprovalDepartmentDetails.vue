@@ -462,7 +462,7 @@ const hasApprovalAccess = computed(() => {
     return false;
   }
 
-  
+
 
   // Super admins always have approval access
   if (isSuperAdmin.value) {
@@ -689,7 +689,7 @@ const currentApprovalStep = computed(() => {
         step.step_number === nextStepNumber
     );
 
-   
+
 
     // ✅ For Super Admins: Check if they are explicitly authorized in doc_approver OR if no specific approvers are set
     if (pendingStep) {
@@ -713,10 +713,10 @@ const currentApprovalStep = computed(() => {
       });
 
       if (isExplicitlyAuthorized) {
-       
+
         return pendingStep;
       } else {
-        
+
         return null;
       }
     }
@@ -734,12 +734,12 @@ const currentApprovalStep = computed(() => {
   const isPORequester = poRequester === userData.username;
   const isPOFirstStep = approvalSteps.value.some(step => step.step_number === 0 && step.status_id === 1);
 
-  
+
 
   // ✅ ຖ້າເປັນ requester ແລະ step ທຳອິດຍັງບໍ່ອະນຸມັດ → ໃຫ້ອະນຸມັດໄດ້
   if (isPORequester && isPOFirstStep) {
     const firstStep = approvalSteps.value.find(step => step.step_number === 0);
-   
+
     return firstStep || null;
   }
 
@@ -754,7 +754,7 @@ const currentApprovalStep = computed(() => {
   );
 
   if (!pendingStep) {
-   
+
     return null;
   }
 
@@ -832,7 +832,7 @@ const canApprove = computed(() => {
       return userMatches || departmentMatches; // For Company Admin, allow username OR department match
     });
 
-    
+
 
     return isExplicitlyAuthorized;
   }
@@ -852,7 +852,7 @@ const canApprove = computed(() => {
     previousStep.status_id === 2 &&
     previousStep.step_number === currentStep.step_number - 1;
 
-  
+
 
   return canApprove;
 });
@@ -862,7 +862,7 @@ const isFullyApproved = computed(() => {
     return false;
   }
 
-  
+
 
   // ✅ ຖ້າມີ step ທີ່ຖືກປະຕິເສດ -> ບໍ່ຖືກອະນຸມັດຄົບ
   const hasRejectedStep = approvalSteps.value.some(step => step.status_id === 3);
@@ -873,13 +873,13 @@ const isFullyApproved = computed(() => {
   // ✅ ເຊ็คວ່າທຸກ step ມີສະຖານະ APPROVED (status_id === 2)
   const allStepsApproved = approvalSteps.value.every(step => step.status_id === 2);
 
-  
+
 
   return allStepsApproved;
 });
 
 const customButtons = computed(() => {
-  
+
 
   // ✅ ເພີ່ກວດສອບສະຖານະພິເສດຂອງ PO Requester ທີ່ຕ້ອງອະນຸມັດຂັ້ນຕອນທຳອິດ
   const userDataStr = localStorage.getItem("userData");
@@ -957,7 +957,7 @@ const customButtons = computed(() => {
 
   // ✅ ຖ້າເປັນ PO Requester ແລະມີ current step (ຂັ້ນຕອນທຳອິດ) → ແສດງປຸ່ມອະນຸມັດ
   if (isPORequester && isPOFirstStep && currentApprovalStep.value) {
-    
+
 
     return [
       {
@@ -1216,7 +1216,7 @@ const handleApprove = async () => {
 
     // ✅ ກວດສອບຂັ້ນຕອນກ່ອນສົ່ງ OTP
     const isFirstStep = currentApprovalStep.value.step_number === 0;
-   
+
 
     if (currentApprovalStep.value.is_otp) {
       const otpResult = await approvalStepStore.sendOtp(currentApprovalStep.value.id);
@@ -1246,7 +1246,7 @@ const handleApprove = async () => {
         // ✅ ກວດສອບວ່າເປັນຂັ້ນຕອນທໍາອິດ ຫຼືບໍ່ (ຖ້າບໍ່ຕ້ອງການ OTP)
         if (isFirstStep) {
           // console.log("🔄 First step approved (no OTP), redirecting to PR list...");
-            router.push({ name: "purchase-requests" });      
+            router.push({ name: "purchase-requests" });
         }
 
         return true;
