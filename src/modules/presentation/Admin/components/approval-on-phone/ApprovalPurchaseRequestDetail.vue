@@ -11,7 +11,7 @@ import { prColumns } from "./pr-column";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import SignatureConfirmModal from "./modal/SignatureConfirmModal.vue";
-import type { IStep, JwtPayload } from "./interfaces/payload.interface";
+import type { IStep, JwtPayload, UserData } from "./interfaces/payload.interface";
 import api from "@/common/config/axios/axios";
 // import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface"
 const { success: showSuccess } = useNotification();
@@ -56,6 +56,24 @@ const error = ref<string | null>(null);
 const showSignatureModal = ref(false);
 const isRejectAction = ref(false);
 
+// User data state
+
+const userData = ref<UserData | null>(null);
+
+// Fetch user by token
+const fetchUserByToken = async () => {
+  if (!token) return;
+
+  try {
+    const response = await api.get(`/users/by-token/${token}`);
+    if (response.data && response.data.data) {
+      userData.value = response.data.data;
+    }
+  } catch (err) {
+    console.error("Error fetching user by token:", err);
+  }
+};
+
 // Get current pending approval step
 const currentApprovalStep = computed(() => {
   const userApproval = prData.value?.getUserApproval();
@@ -96,7 +114,7 @@ const dataInfo = computed(() => ({
   items: prData.value?.getItems() || [],
   total: prData.value?.getTotal() || 0,
 }));
-
+const companyInfo = computed(() => prData.value?.getCompany());
 // Position computed
 const positionName = computed(() => {
   return prData.value?.getPosition()?.name || "----";
@@ -106,7 +124,6 @@ onMounted(async () => {
   if (token) {
     // Decode JWT token
     decodedToken.value = decodeJwt(token);
-    console.log('tou:', decodedToken.value)
     if (!decodedToken.value) {
       error.value = "Invalid token";
       return;
@@ -114,6 +131,9 @@ onMounted(async () => {
 
     loading.value = true;
     try {
+      // Fetch user data by token
+      await fetchUserByToken();
+
       const data = await prStore.fetchByToken(token);
       if (data) {
         prData.value = data;
@@ -240,7 +260,7 @@ const handleCloseModal = () => {
                   {{ dataInfo.proposer.username }}
                 </p>
                 <p class="proposer-position">
-                  {{ positionName }}, {{ decodedToken?.step_id }}
+                  {{ positionName }}, {{ dataInfo?.department.name }}
                 </p>
               </div>
             </div>
@@ -254,7 +274,7 @@ const handleCloseModal = () => {
             <div class="purpose-content flex-layout">
               <div class="purpose-section">
                 <p class="purpose-text">
-                  {{ dataInfo.purposes }}
+                  {{ dataInfo?.purposes }}
                 </p>
               </div>
             </div>
@@ -263,12 +283,15 @@ const handleCloseModal = () => {
           <!-- Department Section -->
           <div class="info-card">
             <h2 class="card-title">
-              {{ t("purchase-rq.field.department") }}
+              Company
             </h2>
             <div class="department-content flex-layout">
-              <div class="department-section">
+              <div class="department-section -space-y-2">
                 <p class="department-name">
-                  {{ dataInfo.department.name }}
+                  {{ companyInfo?.name }}
+                </p>
+                <p class="department-name">
+                  {{ companyInfo?.address }}
                 </p>
               </div>
             </div>
@@ -320,6 +343,7 @@ const handleCloseModal = () => {
       :title="isRejectAction ? t('purchase-rq.card_title.refused') : t('purchase-rq.confirm_signature')"
       :isReject="isRejectAction"
       :loading="approvalStepStore.loading"
+      :signatureUrl="userData?.user_signature?.signature_url"
       @confirm="handleConfirmSignature"
       @close="handleCloseModal"
     />

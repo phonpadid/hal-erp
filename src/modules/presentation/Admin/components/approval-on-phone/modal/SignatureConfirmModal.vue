@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { getUserApv } from "@/modules/shared/utils/get-user.login";
 
-const user = computed(() => getUserApv());
 const { t } = useI18n();
 
 const props = defineProps<{
@@ -12,6 +10,7 @@ const props = defineProps<{
   title: string;
   isReject?: boolean;
   loading?: boolean;
+  signatureUrl?: string;
 }>();
 
 const emit = defineEmits<{
@@ -72,7 +71,7 @@ const resetForm = () => {
           title="Click to confirm signature"
         >
           <img
-            :src="user?.signature ?? ''"
+            :src="props.signatureUrl ?? ''"
             alt="Digital Signature"
             class="max-w-[270px] max-h-[120px] object-contain pointer-events-none"
           />
