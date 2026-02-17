@@ -13,7 +13,7 @@ import { useNotification } from "@/modules/shared/utils/useNotification";
 import SignatureConfirmModal from "./modal/SignatureConfirmModal.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import BudgetApprovalDrawer from "../budget-approval/BudgetApprovalDrawer.vue";
-import type { IRole, IStep, JwtPayload } from "./interfaces/payload.interface";
+import type { IRole, IStep, JwtPayload, UserData } from "./interfaces/payload.interface";
 import api from "@/common/config/axios/axios";
 // import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface"
 const { success: showSuccess } = useNotification();
@@ -64,17 +64,6 @@ const visibleBudget = ref(false);
 const selectedBudgets = ref<Record<string, any>>({});
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const activeItemRecord = ref<any>(null);
-
-// User data state
-interface UserData {
-  id: number;
-  username: string;
-  email: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  roles: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  permissions: any[];
-}
 const userData = ref<UserData | null>(null);
 
 // Fetch user by token
@@ -458,6 +447,7 @@ const handleCloseModal = () => {
       :title="isRejectAction ? t('purchase_orders.card_title.refused') : t('purchase-rq.confirm_signature')"
       :isReject="isRejectAction"
       :loading="approvalStepStore.loading"
+      :signatureUrl="userData?.user_signature?.signature_url"
       @confirm="handleConfirmSignature"
       @close="handleCloseModal"
     />

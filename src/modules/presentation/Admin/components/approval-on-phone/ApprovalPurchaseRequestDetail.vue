@@ -80,7 +80,7 @@ const currentApprovalStep = computed(() => {
 
   if (!userApproval) return null;
   const pendingStep = userApproval.approval_step?.find(
-    (step: IStep) => step.status_id === 1
+    (step: IStep) => step.status_id === 1 && String(step.id) === String(decodedToken.value?.step_id)
   );
   return pendingStep || null;
 });

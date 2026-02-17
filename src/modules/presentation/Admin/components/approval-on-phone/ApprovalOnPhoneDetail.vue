@@ -8,23 +8,47 @@ import ApvLayout from "./ApvLayout.vue";
 import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
 import { uploadFile } from "@/modules/application/services/upload.service";
 import { message } from "ant-design-vue";
-import UiInput from "@/common/shared/components/Input/UiInput.vue";
-import {
-  getUserApv,
-  getUserRole,
-  UserRoleEnum,
-} from "@/modules/shared/utils/get-user.login";
+import { UserRoleEnum } from "@/modules/shared/utils/get-user.login";
+import SignatureConfirmModal from "./modal/SignatureConfirmModal.vue";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import api from "@/common/config/axios/axios";
 
+const { success: showSuccess } = useNotification();
+const { error: showError } = useNotification();
 const { t } = useI18n();
 const { params } = useRoute();
-const receiptId = params.id as string;
+const token = params.token as string;
 const rStore = useReceiptStore();
-const user = computed(() => getUserApv());
-const userRole = ref<string[]>(getUserRole() ?? []);
+
+// User data from /users/by-token/{token}
+const user = computed(() => userData.value);
+const userRole = computed(() => userData.value?.roles?.map(r => r.name) ?? []);
+
+// JWT Interfaces
+interface JwtPayload {
+  id: string;
+  step_id: string;
+  user_id: number;
+  email: string;
+  iat: number;
+  exp: number;
+}
+
+interface IRole {
+  name: string;
+}
+
+interface UserData {
+  id: number;
+  username: string;
+  roles?: IRole[];
+  user_signature?: {
+    signature_url: string;
+  };
+}
 
 // Upload state
 const uploadLoading = ref<boolean>(false);
-const createModalVisible = ref(false);
 const formModel = ref({
   account_code: "",
 });
@@ -32,7 +56,52 @@ const formState = ref({
   files: [] as { file_name: string }[],
 });
 const uploadedImages = ref<string[]>([]);
-const uploadCompleted = ref(false);
+
+// JWT Token state
+const decodedToken = ref<JwtPayload | null>(null);
+const loading = ref<boolean>(false);
+const error = ref<string | null>(null);
+const userData = ref<UserData | null>(null);
+
+// Modal state
+const showSignatureModal = ref(false);
+const isRejectAction = ref(false);
+const submitLoading = ref(false);
+
+// Decode JWT token
+const decodeJwt = (jwtToken: string): JwtPayload | null => {
+  try {
+    const base64Url = jwtToken.split('.')[1];
+    if (!base64Url) {
+      return null;
+    }
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload) as JwtPayload;
+  } catch (error) {
+    console.error('Error decoding JWT:', error);
+    return null;
+  }
+};
+
+// Fetch user by token
+const fetchUserByToken = async () => {
+  if (!token) return;
+
+  try {
+    const response = await api.get(`/users/by-token/${token}`);
+    if (response.data && response.data.data) {
+      userData.value = response.data.data;
+    }
+  } catch (err) {
+    console.error("Error fetching user by token:", err);
+  }
+};
 
 // Role check
 const isRole = computed(() =>
@@ -51,7 +120,7 @@ const dataInfo = computed(() => ({
   purposes: rStore.currentReceipts?.remark || "ຈັດຊື້ຄອມ",
   company: rStore.currentReceipts?.document?.company || {
     name: "Haltech",
-    address: "ນະຄອນຫຼວງວຽງຈັນ, ໄຊເສດຖາ, ຈອມມະນີ",
+    address: "ນະຄອນຫຼວງວຽງຈັນ, ໄຊເສດຖາ, ຈອມມະນີ(test)",
   },
   items: rStore.currentReceipts?.receipt_item || [],
   account_code: rStore.currentReceipts?.account_code || "",
@@ -75,11 +144,20 @@ const budgetAcc = computed(
 );
 
 // Approval step checks
-const check = computed(() =>
-  rStore.currentReceipts?.user_approval?.approval_step?.some(
-    (step) => step.requires_file_upload
-  )
-);
+const check = computed(() => {
+  const userApproval = rStore.currentReceipts?.user_approval;
+  if (!userApproval || !decodedToken.value) return false;
+
+  // Find the step that matches decodedToken.step_id AND status_id === 1 (PENDING) AND requires_file_upload === true
+  const matchingStep = userApproval.approval_step?.find(
+    (step) =>
+      step.status_id === 1 &&
+      String(step.id) === String(decodedToken.value!.step_id) &&
+      step.requires_file_upload === true
+  );
+
+  return !!matchingStep;
+});
 
 const userNextApprove = computed(() =>
   rStore.currentReceipts?.user_approval?.approval_step?.map((step) => ({
@@ -115,7 +193,7 @@ const checkUpload = computed(() => {
 });
 
 const isAwaitingUser = computed(() =>
-  checkUpload.value.some((u) => u.id === user.value.id)
+  checkUpload.value.some((u) => String(u.id) === String(user.value?.id))
 );
 
 const isUserPendingApprover = computed(() => {
@@ -125,8 +203,48 @@ const isUserPendingApprover = computed(() => {
   return steps.some(
     (step) =>
       step.status_id === 1 &&
-      step.doc_approver?.some((doc) => doc.user?.id === userId)
+      step.doc_approver?.some((doc) => String(doc.user?.id) === String(userId))
   );
+});
+
+// Get current pending approval step
+const currentApprovalStep = computed(() => {
+  const userApproval = rStore.currentReceipts?.user_approval;
+  if (!userApproval) return null;
+
+  // Find the step where step.id matches decodedToken.value.step_id AND status_id === 1 (PENDING)
+  const matchingStep = userApproval.approval_step?.find(
+    (step) => step.status_id === 1 && String(step.id) === String(decodedToken.value?.step_id)
+  );
+
+  return matchingStep || null;
+});
+
+const currentRejectStep = computed(() => {
+  const userApproval = rStore.currentReceipts?.user_approval;
+  if (!userApproval) return null;
+  const rejectStep = userApproval.approval_step?.find(
+    (step) => step.status_id === 3
+  );
+  return rejectStep || null;
+});
+
+// Check if current user can take action on this approval step
+const canTakeAction = computed(() => {
+  if (!decodedToken.value || !rStore.currentReceipts) {
+    return false;
+  }
+
+  const userApproval = rStore.currentReceipts?.user_approval;
+  if (!userApproval) return false;
+
+  // Find if the step_id from token matches any step in approval_step array
+  const matchingStep = userApproval.approval_step?.find(
+    (step) => String(step.id) === String(decodedToken.value!.step_id)
+  );
+
+  // Check if the matching step exists and is pending (status_id === 1)
+  return matchingStep && Number(matchingStep.status_id) === 1;
 });
 
 // Image upload handler
@@ -152,8 +270,6 @@ const handleImageUpload = async (files: File[]) => {
         throw new Error("Filename not found in API response.");
       }
     }
-    createModalVisible.value = false;
-    uploadCompleted.value = true;
   } catch (error) {
     console.log("File upload failed:", error);
     message.error("ອັບໂຫລດຮູບພາບບໍ່ສຳເລັດ");
@@ -171,19 +287,31 @@ const handleImageUpload = async (files: File[]) => {
 const deleteImage = (index: number) => {
   uploadedImages.value.splice(index, 1);
   formState.value.files.splice(index, 1);
-
-  if (uploadedImages.value.length === 0) {
-    uploadCompleted.value = false;
-    if (attachments.value.length === 0) {
-      createModalVisible.value = true;
-    }
-  }
 };
 
 // Lifecycle
 onMounted(async () => {
-  if (receiptId) {
-    await rStore.fetchById(receiptId);
+  if (token) {
+    // Decode JWT token
+    decodedToken.value = decodeJwt(token);
+    if (!decodedToken.value) {
+      error.value = "Invalid token";
+      return;
+    }
+
+    loading.value = true;
+    try {
+      // Fetch user data by token
+      await fetchUserByToken();
+
+      // Fetch receipt data by token
+      await rStore.fetchById('by-token?token='+token);
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : "Unknown error occurred";
+      console.error("Error fetching receipt:", err);
+    } finally {
+      loading.value = false;
+    }
   }
   // Cleanup blob URLs on unmount
   uploadedImages.value.forEach((url) => {
@@ -193,19 +321,130 @@ onMounted(async () => {
   });
 });
 
-// Handle Approve
+// Handle Approve - Show signature modal
 const handleApprove = () => {
-  // TODO: Implement approve logic with store
-  const msg = "ອະນຸມັດສຳເລັດ";
-  console.log(msg);
+  if (!currentApprovalStep.value) {
+    showError("ບໍ່ສາມາດອະນຸມັດ", "ບໍ່ພົບຂັ້ນຕອນການອະນຸມັດ");
+    return;
+  }
+
+  // Validate file upload if required
+  if (check.value && formState.value.files.length === 0) {
+    showError("ກະລຸນາອັບໂຫລດສະລິບໂອນເງິນ", "ຕ້ອງອັບໂຫລດສະລິບໂອນເງິນກ່ອນອະນຸມັດ");
+    return;
+  }
+
+  // Validate account_code if required
+  if (isUserPendingApprover.value && isRole.value && !dataInfo.value.account_code && !formModel.value.account_code.trim()) {
+    showError("ກະລຸນາປ້ອນລະຫັດບັນຊີ", "ຕ້ອງປ້ອນລະຫັດບັນຊີກ່ອນອະນຸມັດ");
+    return;
+  }
+
+  isRejectAction.value = false;
+  showSignatureModal.value = true;
 };
 
-// Handle Reject
+// Handle Reject - Show signature modal
 const handleReject = () => {
-  console.log("Reject clicked");
-  // TODO: Implement reject logic with store
-  const msg = "ປະຕິເສດສຳເລັດ";
-  console.log(msg);
+  if (!currentApprovalStep.value) {
+    showError("ບໍ່ສາມາດປະຕິເສດ", "ບໍ່ພົບຂັ້ນຕອນການອະນຸມັດ");
+    return;
+  }
+
+  // Validate file upload if required
+  // if (check.value && formState.value.files.length === 0) {
+  //   showError("ກະລຸນາອັບໂຫລດສະລິບໂອນເງິນ", "ຕ້ອງອັບໂຫລດສະລິບໂອນເງິນກ່ອນປະຕິເສດ");
+  //   return;
+  // }
+
+  // // Validate account_code if required
+  // if (isUserPendingApprover.value && isRole.value && !formModel.value.account_code.trim()) {
+  //   showError("ກະລຸນາປ້ອນລະຫັດບັນຊີ", "ຕ້ອງປ້ອນລະຫັດບັນຊີກ່ອນປະຕິເສດ");
+  //   return;
+  // }
+
+  isRejectAction.value = true;
+  showSignatureModal.value = true;
+};
+
+// Confirm signature and submit approval/reject
+const handleConfirmSignature = async (remark?: string) => {
+  if (!currentApprovalStep.value || !rStore.currentReceipts) {
+    return;
+  }
+
+  // Final validation check for file upload
+  if (check.value && formState.value.files.length === 0) {
+    showError("ກະລຸນາອັບໂຫລດສະລິບໂອນເງິນ", "ຕ້ອງອັບໂຫລດສະລິບໂອນເງິນກ່ອນດຳເນີນການ");
+    showSignatureModal.value = true;
+    return;
+  }
+
+  // Final validation check for account_code
+  if (isUserPendingApprover.value && isRole.value && !dataInfo.value.account_code && !formModel.value.account_code.trim()) {
+    showError("ກະລຸນາປ້ອນລະຫັດບັນຊີ", "ຕ້ອງປ້ອນລະຫັດບັນຊີກ່ອນດຳເນີນການ");
+    showSignatureModal.value = true;
+    return;
+  }
+
+  try {
+    submitLoading.value = true;
+    showSignatureModal.value = false;
+
+    // Prepare payload
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: Record<string, any> = {
+      type: "r",
+      statusId: isRejectAction.value ? 3 : 2, // 3 = REJECTED, 2 = APPROVED
+      remark: isRejectAction.value ? (remark || "ປະຕິເສດ") : "ຢືນຢັນສຳເລັດ",
+      is_otp: false,
+    };
+
+    // Add account_code if role is account-admin or account-user
+    if (isRole.value && formModel.value.account_code) {
+      payload.account_code = formModel.value.account_code;
+    }
+
+    // Add files if require_upload is true and files are uploaded
+    if (check.value && formState.value.files.length > 0) {
+      payload.files = formState.value.files;
+    }
+
+    // Call API to approve/reject by token
+    const response = await api.post(`/approve-by-token/${token}`, payload);
+
+    if (response) {
+      showSuccess("ສຳເລັດ", isRejectAction.value ? "ປະຕິເສດສຳເລັດ" : "ອະນຸມັດສຳເລັດ");
+
+      // Reset form state
+      formModel.value.account_code = "";
+      formState.value.files = [];
+
+      // Reset uploaded images and cleanup blob URLs
+      uploadedImages.value.forEach((url) => {
+        if (url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+      uploadedImages.value = [];
+
+      // Refresh user data
+      await fetchUserByToken();
+
+      // Refresh receipt data to get updated status
+      await rStore.fetchById('by-token?token='+token);
+    }
+  } catch (err) {
+    console.error("Error submitting approval:", err);
+    showError("ເກີດຂໍ້ຜິດພາດ", err instanceof Error ? err.message : "ບໍ່ສາມາດດຳເນີນການອະນຸມັດ");
+  } finally {
+    submitLoading.value = false;
+  }
+};
+
+// Close modal
+const handleCloseModal = () => {
+  showSignatureModal.value = false;
 };
 </script>
 
@@ -213,7 +452,34 @@ const handleReject = () => {
   <div class="no-print">
     <ApvLayout />
     <div class="approval-container">
-      <div class="user-info">
+      <!-- Loading State -->
+      <div v-if="loading" class="user-info">
+        <p class="text-center">Loading...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="user-info">
+        <p class="text-center text-error">{{ error }}</p>
+      </div>
+
+      <!-- Data State -->
+      <div v-else class="user-info">
+        <!-- Status Badge -->
+        <div class="flex items-center gap-4 mb-4">
+          <h4 class="font-bold md:text-2xl text-lg">Receipt</h4>
+          <div v-if="currentApprovalStep" class="status-badge status-pending">
+            <Icon icon="mdi:clock-outline" class="status-icon" />
+            <span>Pending</span>
+          </div>
+          <div v-else-if="currentRejectStep" class="status-badge status-rejected">
+            <Icon icon="mdi:close-circle-outline" class="status-icon" />
+            <span>Rejected</span>
+          </div>
+          <div v-else class="status-badge status-approved">
+            <Icon icon="mdi:check-circle-outline" class="status-icon" />
+            <span>Approved</span>
+          </div>
+        </div>
         <!-- Info Sections - Auto Responsive Grid -->
         <div class="info-grid">
           <!-- Proposer Section -->
@@ -251,14 +517,20 @@ const handleReject = () => {
               <div class="account-number">
                 <h3 class="field-label">
                   {{ t("receipt.title.account_number") }}
+                  <span v-if="isUserPendingApprover && isRole && !dataInfo.account_code" class="required-mark">*</span>
                 </h3>
-                <UiInput
+                <a-form-item
                   v-if="isUserPendingApprover && isRole && !dataInfo.account_code"
-                  v-model="formModel.account_code"
-                  placeholder="ປ້ອນລະຫັດບັນຊີ"
-                  size="middle"
-                  class="account-input"
-                />
+                  :rules="[{ required: true, message: 'ກະລຸນາປ້ອນລະຫັດບັນຊີ' }]"
+                  class="account-form-item"
+                >
+                  <a-input
+                    v-model:value="formModel.account_code"
+                    placeholder="ປ້ອນລະຫັດບັນຊີ"
+                    size="middle"
+                    class="account-input"
+                  />
+                </a-form-item>
                 <span
                   v-if="dataInfo.account_code"
                   class="field-value"
@@ -322,6 +594,11 @@ const handleReject = () => {
                     {{ budgetAcc?.code }} - {{ budgetAcc?.name }}
                   </span>
                 </template>
+                <template v-if="column.key === 'price'">
+                  {{ Number(record?.price || 0).toLocaleString(undefined, {
+                    minimumFractionDigits: 0, maximumFractionDigits: 4
+                  }) }}
+                </template>
                 <template v-if="column.key === 'quantity'">
                   <span class="cell-text">{{ record.quantity || 1 }}</span>
                 </template>
@@ -335,17 +612,28 @@ const handleReject = () => {
           v-if="check && isAwaitingUser && !attachments.length && !uploadedImages.length"
           class="upload-section"
         >
-          <h2 class="upload-title">ອັບໂຫລດສະລິບໂອນເງິນ</h2>
+          <h2 class="upload-title">
+            ອັບໂຫລດສະລິບໂອນເງິນ
+            <span class="required-mark">*</span>
+          </h2>
 
-          <!-- Upload trigger -->
-          <div
-            class="upload-trigger"
-            @click="createModalVisible = true"
+          <!-- Direct Upload -->
+          <a-upload
+            :file-list="[]"
+            :before-upload="(file: File) => {
+              handleImageUpload([file]);
+              return false;
+            }"
+            :show-upload-list="false"
+            accept="image/*"
+            multiple
           >
-            <Icon icon="mdi:upload" class="upload-icon" />
-            <p class="upload-text">Click to upload</p>
-            <p class="upload-hint">SVG, PNG, JPG (MAX. 5MB)</p>
-          </div>
+            <div class="upload-trigger">
+              <Icon icon="mdi:upload" class="upload-icon" />
+              <p class="upload-text">Click to upload</p>
+              <p class="upload-hint">SVG, PNG, JPG (MAX. 5MB)</p>
+            </div>
+          </a-upload>
         </div>
 
         <!-- Show old attachments -->
@@ -369,14 +657,22 @@ const handleReject = () => {
             </div>
 
             <!-- Upload button if user can upload -->
-            <div
+            <a-upload
               v-if="check && isAwaitingUser"
-              class="upload-trigger-small"
-              @click="createModalVisible = true"
+              :file-list="[]"
+              :before-upload="(file: File) => {
+                handleImageUpload([file]);
+                return false;
+              }"
+              :show-upload-list="false"
+              accept="image/*"
+              multiple
             >
-              <Icon icon="mdi:upload" class="upload-icon" />
-              <p class="upload-text">Add more</p>
-            </div>
+              <div class="upload-trigger-small">
+                <Icon icon="mdi:upload" class="upload-icon" />
+                <p class="upload-text">Add more</p>
+              </div>
+            </a-upload>
           </div>
         </div>
 
@@ -418,53 +714,47 @@ const handleReject = () => {
             </div>
 
             <!-- Add more button -->
-            <div
-              class="upload-trigger-small"
-              @click="createModalVisible = true"
+            <a-upload
+              :file-list="[]"
+              :before-upload="(file: File) => {
+                handleImageUpload([file]);
+                return false;
+              }"
+              :show-upload-list="false"
+              accept="image/*"
+              multiple
             >
-              <Icon icon="material-symbols:image-arrow-up-outline-rounded" class="upload-icon" />
-            </div>
+              <div class="upload-trigger-small">
+                <Icon icon="material-symbols:image-arrow-up-outline-rounded" class="upload-icon" />
+              </div>
+            </a-upload>
           </div>
         </div>
 
-        <!-- Upload Modal -->
-        <a-modal
-          v-model:open="createModalVisible"
-          title="ອັບໂຫລດສະລິບໂອນເງິນ"
-          :footer="null"
-          width="90%"
-          :style="{ maxWidth: '600px' }"
-        >
-          <a-upload
-            :file-list="[]"
-            :before-upload="(file: File) => {
-              handleImageUpload([file]);
-              return false;
-            }"
-            :show-upload-list="false"
-            accept="image/*"
-            multiple
-          >
-            <a-button :loading="uploadLoading" class="w-full">
-              <Icon icon="mdi:upload" class="mr-2" />
-              ເລືອກໄຟລ໌ຮູບພາບ
-            </a-button>
-          </a-upload>
-        </a-modal>
-
         <!-- Footer Actions -->
-        <div class="footer-actions">
-          <button class="btn btn-reject" @click="handleReject">
+        <div v-if="canTakeAction" class="footer-actions">
+          <button class="btn btn-reject" :disabled="!canTakeAction" @click="handleReject">
             <Icon icon="mdi:close" class="btn-icon" />
             <span>{{ t("button.reject") }}</span>
           </button>
-          <button class="btn btn-approve" @click="handleApprove">
+          <button class="btn btn-approve" :disabled="!canTakeAction" @click="handleApprove">
             <span>{{ t("button.approve") }}</span>
             <Icon icon="mdi:check" class="btn-icon" />
           </button>
         </div>
       </div>
     </div>
+
+    <!-- Signature Confirm Modal -->
+    <SignatureConfirmModal
+      :visible="showSignatureModal"
+      :title="isRejectAction ? 'ປະຕິເສດ' : t('purchase-rq.confirm_signature')"
+      :isReject="isRejectAction"
+      :loading="submitLoading"
+      :signatureUrl="userData?.user_signature?.signature_url"
+      @confirm="handleConfirmSignature"
+      @close="handleCloseModal"
+    />
   </div>
 </template>
 
@@ -1298,6 +1588,15 @@ const handleReject = () => {
 }
 
 /* ===== Account Input ===== */
+.account-form-item {
+  margin-bottom: 0;
+}
+
+.account-form-item :deep(.ant-form-item-explain-error) {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
 .account-input {
   width: 100%;
 }
@@ -1306,5 +1605,84 @@ const handleReject = () => {
   .account-input {
     max-width: 15rem;
   }
+}
+
+/* ===== Required Field Mark ===== */
+.required-mark {
+  color: #ef4444;
+  margin-left: 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ===== Status Badge Styles ===== */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 9999px;
+  font-size: 0.56rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+@media (min-width: 768px) {
+  .status-badge {
+    padding: 0.1rem 0.4rem;
+    font-size: 0.70rem;
+  }
+}
+
+.status-icon {
+  font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+  .status-icon {
+    font-size: 1.125rem;
+  }
+}
+
+/* Pending Status */
+.status-pending {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 1px solid #fbbf24;
+}
+
+.status-pending:hover {
+  background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+}
+
+/* Approved Status */
+.status-approved {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border: 1px solid #34d399;
+}
+
+.status-approved:hover {
+  background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
+}
+
+/* Rejected Status */
+.status-rejected {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 1px solid #f87171;
+}
+
+.status-rejected:hover {
+  background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+}
+
+/* Disabled Button State */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 </style>
