@@ -24,17 +24,17 @@ export function columns(t: (key: string) => string): Column[] {
       key: "quantity",
       width: 100,
     },
-    // {
-    //   title: t("purchase-rq.field.price"),
-    //   dataIndex: "price",
-    //   key: "price",
-    //   width: 150,
-    // },
-    // {
-    //   title: t("purchase-rq.field.remark"),
-    //   dataIndex: "remark",
-    //   key: "remark",
-    // },
+    {
+      title: t("purchase-rq.field.price"),
+      dataIndex: "price",
+      key: "price",
+      width: 150,
+    },
+    {
+      title: t("purchase-rq.field.remark"),
+      dataIndex: "remark",
+      key: "remark",
+    },
     // {
     //   title: "ຂໍ້ມູນຮ້ານ",
     //   dataIndex: "vendor",

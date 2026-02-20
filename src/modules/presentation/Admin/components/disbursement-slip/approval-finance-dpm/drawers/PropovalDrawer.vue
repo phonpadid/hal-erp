@@ -81,7 +81,7 @@ const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
           <template #price="{ record }">
             <span>₭ {{ formatPrice(record?.getPrice()) }}</span>
           </template>
-          <template #total_price="{ record }">
+          <template #total="{ record }">
             <span>₭ {{ formatPrice(record?.total_price) }}</span>
           </template>
           <template #image="{ record }">

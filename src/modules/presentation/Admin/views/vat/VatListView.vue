@@ -80,6 +80,11 @@ const handleFormSubmit = async (formData: { amount: number }) => {
       :loading="loading"
       row-key="id"
     >
+      <template #amount="{ record }">
+        {{ Number(record.amount || 0).toLocaleString(undefined, {
+          minimumFractionDigits: 0, maximumFractionDigits: 4
+        }) }}
+      </template>
       <template #actions="{ record }">
         <div class="flex items-center justify-center gap-2">
           <UiButton

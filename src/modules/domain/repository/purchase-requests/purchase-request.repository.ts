@@ -5,6 +5,7 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 export interface PurchaseRequestRepository {
   create(input: PurchaseRequestEntity): Promise<PurchaseRequestEntity>;
   findById(id: string): Promise<PurchaseRequestEntity | null>;
+  findByToken(token: string): Promise<PurchaseRequestEntity | null>;
   findAll(
     params: PaginationParams,
     includeDeleted?: boolean
