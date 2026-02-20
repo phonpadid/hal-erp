@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import {  reactive, ref } from "vue";
+import {  reactive, ref, nextTick, watch } from "vue";
 import DocTypeSelect, { type FormState } from "./DocTypeSelect.vue";
 import PuchaseRqLayout from "./PuchaseRqLayout.vue";
 import PurchaseForm from "./PurchaseForm.vue";
@@ -17,9 +17,21 @@ const { t } = useI18n();
 const { push } = useRouter();
 const currentStep = ref(0);
 const showModal = ref(false);
-const showOtpModal = ref(false); 
+const showOtpModal = ref(false);
 const pendingStepData = ref<Step2Data | null>(null);
-const approvalStepId = ref<number | null>(null);
+
+// ✅ ใช้ ref สำหรับ OTP state
+const currentIsOtp = ref<boolean>(false);
+const currentOtpStepId = ref<number | null>(null);
+
+// 🔍 Debug: เฝ้าดูการเปลี่ยนแปลง
+watch(() => currentIsOtp.value, (newVal, oldVal) => {
+  console.log('🔍 currentIsOtp.value changed:', { oldVal, newVal });
+});
+
+watch(() => showOtpModal.value, (newVal) => {
+  console.log('🔍 showOtpModal.value changed to:', newVal, 'currentIsOtp.value =', currentIsOtp.value);
+});
 // Add ref for PurchaseForm component
 interface PurchaseFormRef {
   validateForm: () => Promise<boolean>;
@@ -75,19 +87,20 @@ const currentApprovalStepId = ref<number | null>(null);
 const sendOtp = async () => {
   if (!currentApprovalStepId.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ID");
-    return;
+    return false;
   }
 
   try {
     otpSending.value = true;
     const otpResponse = await approvalStepStore.sendOtp(currentApprovalStepId.value);
-    if (otpResponse) {
-      showOtpModal.value = true;
-    } else {
+    if (!otpResponse) {
       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງລະຫັດ OTP ໄດ້");
+      return false;
     }
+    return true;
   } catch (err) {
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+    return false;
   } finally {
     otpSending.value = false;
   }
@@ -119,7 +132,7 @@ const handleOtpConfirm = async (otpCode: string) => {
       remark: "ຢືນຢັນສຳເລັດ",
       approvalStepId: currentApprovalStepId.value,
       otp: otpCode,
-      is_otp: true,
+      is_otp: currentIsOtp.value, // ✅ ใช้ค่าจาก ref
       approval_id: approvalIdFromOtp,
     };
 
@@ -153,6 +166,15 @@ const handleLayoutConfirm = async () => {
       if (newDocumentData) {
         const docId = newDocumentData.id;
         const stepId = newDocumentData.user_approval?.approval_step?.[0]?.id;
+        const isOtp = newDocumentData.user_approval?.approval_step?.[0]?.is_otp ?? true;
+
+        // 🔍 Debug: แสดงค่า is_otp ที่ได้จาก backend
+        console.log('🔍 Debug PR Creation:', {
+          docId,
+          stepId,
+          isOtp,
+          approvalStep: newDocumentData.user_approval?.approval_step?.[0]
+        });
 
         if (docId && stepId) {
           stepsData[1] = pendingStepData.value;
@@ -160,7 +182,39 @@ const handleLayoutConfirm = async () => {
 
           newlyCreatedDocumentId.value = docId;
           currentApprovalStepId.value = stepId;
-          await sendOtp();
+
+          // ✅ ตั้งค่า is_otp จาก backend ก่อนเปิด modal
+          console.log('🔍 STEP 1: Setting currentIsOtp.value =', isOtp, 'from backend');
+          currentIsOtp.value = isOtp;
+          currentOtpStepId.value = stepId;
+          console.log('🔍 STEP 2: After setting, currentIsOtp.value =', currentIsOtp.value);
+
+          console.log('📊 Before sendOtp:', {
+            currentIsOtp: currentIsOtp.value,
+            currentOtpStepId: currentOtpStepId.value,
+            currentApprovalStepId: currentApprovalStepId.value
+          });
+
+          // ✅ รอให้ Vue update ค่าก่อน
+          await nextTick();
+
+          console.log('📊 After nextTick:', {
+            currentIsOtp: currentIsOtp.value,
+            currentOtpStepId: currentOtpStepId.value,
+            currentApprovalStepId: currentApprovalStepId.value
+          });
+
+          // ✅ ส่ง OTP (ไม่ได้เปิด modal ในนี้แล้ว)
+          const otpSent = await sendOtp();
+
+          // ✅ ถ้าส่ง OTP สำเร็จ รอให้ Vue update แล้วค่อยเปิด modal
+          if (otpSent) {
+            await nextTick();
+            console.log('✅ OTP sent successfully, opening modal with is_otp:', currentIsOtp.value);
+            console.log('🔍 STEP 3: About to open modal, currentIsOtp.value =', currentIsOtp.value);
+            showOtpModal.value = true;
+            console.log('🔍 STEP 4: Modal opened, currentIsOtp.value =', currentIsOtp.value);
+          }
         } else {
           error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ໄດ້ຮັບຂໍ້ມູນ ID ທີ່ຈໍາເປັນຈາກ API response");
         }
@@ -175,6 +229,14 @@ const getStep0Data = () => stepsData[0] as FormState;
 
 const handleDone = () => {
   push({ name: "purchase_request.index", params: {} });
+};
+
+// ✅ เพิ่ม function ปิด modal
+const handleOtpClose = () => {
+  showOtpModal.value = false;
+  console.log('🔍 Modal closed, reset currentIsOtp to false');
+  currentIsOtp.value = false;
+  currentOtpStepId.value = null;
 };
 </script>
 
@@ -228,14 +290,17 @@ const handleDone = () => {
       </div>
     </div>
     <!-- OTP Modal (ສຳລັບປ້ອນ OTP) -->
+    <!-- Debug: currentIsOtp.value = {{ currentIsOtp }} -->
     <ConfirmModal
-      :visible="showOtpModal"
+      v-if="showOtpModal"
+      :visible="true"
       :title="t('purchase-rq.otp-verification')"
-      :approval-step-id="approvalStepId"
-      :is-otp-modal="true"
+      :approval-step-id="currentApprovalStepId"
+      :is-otp="currentIsOtp"
       :loading="confirmLoading"
+      :key="`otp-modal-${currentOtpStepId}-${currentIsOtp}`"
       @confirm="handleOtpConfirm"
-      @close="showOtpModal = false"
+      @close="handleOtpClose"
     />
   </div>
 </template>

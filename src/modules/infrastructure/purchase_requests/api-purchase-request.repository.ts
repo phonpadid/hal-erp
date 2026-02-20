@@ -49,6 +49,7 @@ interface PurchaseRequestApiModel {
   created_at?: string;
   updated_at?: string;
   deleted_at?: string;
+  is_created_po?: boolean;
   user_approval?: {
     id: number;
     document_id: number;
@@ -211,12 +212,12 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
       data.document?.requester,
       positionData,
       data.company || null,
-      data.user_approval, 
+      data.user_approval,
       data.created_at || null,
       data.updated_at || null,
       data.deleted_at || null,
-      data.total
-      
+      data.total,
+      data.is_created_po || false
     );
 
     if (data.purchase_request_item) {

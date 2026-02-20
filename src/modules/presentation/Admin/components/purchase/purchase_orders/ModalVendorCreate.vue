@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, onBeforeUnmount } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useVendorStore } from "../../../stores/vendors/vendor.store";
-import { Upload, message } from "ant-design-vue";
-import type { UploadFile } from "ant-design-vue";
-import { uploadFile } from "@/modules/application/services/upload.service";
+import { message } from "ant-design-vue";
 import { useVendorBankAccountStore } from "../../../stores/vendors/vendor-bank-accounts.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -11,6 +9,7 @@ import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
+import PdfUploader from "@/common/shared/components/Input/PdfUploader.vue";
 import { Icon } from "@iconify/vue";
 
 // Props for purchase request data
@@ -34,10 +33,10 @@ const vendorStore = useVendorStore();
 const { error } = useNotification();
 const visible = ref(false);
 const selectedVendor = ref<string>("");
-const fileList = ref<UploadFile[]>([]);
-const previewUrl = ref<string>("");
 const bankAccount = useVendorBankAccountStore();
 const uploadedFileNames = ref<string[]>([]);
+const pdfFileName = ref<string>("");
+const pdfFileUrl = ref<string>("");
 const uploadLoading = ref(false);
 
 const emit = defineEmits<{
@@ -71,9 +70,9 @@ const isVat = ref(false);
 
 const reset = () => {
   selectedVendor.value = "";
-  fileList.value = [];
-  previewUrl.value = "";
   uploadedFileNames.value = [];
+  pdfFileName.value = "";
+  pdfFileUrl.value = "";
   uploadLoading.value = false;
   form.value.bank = "";
   form.value.bankName = "";
@@ -197,58 +196,18 @@ const handleVendorChange = async (value: string) => {
   }
 };
 
-const beforeUpload = async (file: File) => {
-  if (!selectedVendor.value) {
-    message.warning("ກະລຸນາເລືອກຮ້ານຄ້າກ່ອນ");
-    return Upload.LIST_IGNORE;
-  }
-  if (!file.type.startsWith("image/")) {
-    message.error("ກະລຸນາເລືອກໄຟລ໌ຮູບ (PNG/JPG/GIF/SVG)");
-
-    return Upload.LIST_IGNORE;
-  }
-  return false;
+// PDF Upload handlers
+const handlePdfUpload = (payload: { fileName: string; fileUrl: string }) => {
+  uploadedFileNames.value = [payload.fileName];
+  pdfFileName.value = payload.fileName;
+  pdfFileUrl.value = payload.fileUrl;
+  uploadLoading.value = false;
 };
 
-const handleChange = async (info: { file: UploadFile; fileList: UploadFile[] }) => {
-  const latest = info.fileList.slice(-1);
-  fileList.value = latest;
+const handlePdfRemove = () => {
   uploadedFileNames.value = [];
-
-  const first = latest[0];
-  if (first?.originFileObj) {
-    previewUrl.value = URL.createObjectURL(first.originFileObj);
-    try {
-      uploadLoading.value = true;
-      const fd = new FormData();
-      fd.append("file", first.originFileObj as File);
-      const { fileName } = await uploadFile(fd);
-      uploadedFileNames.value = [fileName];
-      message.success("ອັບໂຫລດສຳເລັດ");
-    } catch (err) {
-      console.error("upload api error", err);
-      message.error("ອັບໂຫລດລົ້ມເຫລວ");
-      fileList.value = [];
-      previewUrl.value = "";
-      uploadedFileNames.value = [];
-    } finally {
-      uploadLoading.value = false;
-    }
-  } else {
-    previewUrl.value = "";
-  }
-};
-onBeforeUnmount(() => {
-  if (previewUrl.value) {
-    URL.revokeObjectURL(previewUrl.value);
-  }
-});
-
-// ลบไฟล์ (และล้างชื่อไฟล์ที่อัปโหลดแล้ว)
-const handleRemove = () => {
-  fileList.value = [];
-  previewUrl.value = "";
-  uploadedFileNames.value = [];
+  pdfFileName.value = "";
+  pdfFileUrl.value = "";
 };
 
 const selectedType = ref<string>("");
@@ -286,7 +245,7 @@ const handleOk = () => {
     return;
   }
   if (uploadedFileNames.value.length === 0) {
-    message.warning("ກະລຸນາເລືອກຮູບແລະອັບໂຫລດໃຫ້ສຳເລັດ");
+    message.warning("ກະລຸນາເລືອກໄຟລ໌ PDF ແລະອັບໂຫລດໃຫ້ສຳເລັດ");
     return;
   }
   if (!form.value.bank) {
@@ -298,7 +257,7 @@ const handleOk = () => {
   emit("submitted", {
     vendorId: selectedVendor.value,
     fileNames: uploadedFileNames.value,
-    fileUrl: previewUrl.value,
+    fileUrl: pdfFileUrl.value,
     bankId: form.value.bank,
     bankName: form.value.bankName,
     accountName: form.value.accountName,
@@ -435,57 +394,22 @@ defineExpose({ open, close, reset, setSelectedType });
       </div>
 
       <!-- File Upload Section -->
-      <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-md p-3 border border-purple-100 mt-1">
+      <div class="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-md p-3 border border-amber-100 mt-1">
         <div class="flex items-center gap-2 mb-2">
-          <div class="w-7 h-7 bg-purple-500 rounded-full flex items-center justify-center">
-            <Icon icon="mdi:file-upload" class="text-white text-sm" />
+          <div class="w-7 h-7 bg-amber-500 rounded-full flex items-center justify-center">
+            <Icon icon="mdi:file-pdf-box" class="text-white text-sm" />
           </div>
           <div>
-            <h3 class="text-sm font-bold text-gray-800">ອັບໂຫລດໃບສະເໜີລາຄາ</h3>
+            <h3 class="text-sm font-bold text-gray-800">ອັບໂຫລດໃບສະເໜີລາຄາ (PDF)</h3>
             <p class="text-xs text-gray-600">ແນບລະບຸໃບສະເໜີລາຄາຈາກຮ້ານຄ້າ</p>
           </div>
         </div>
 
-        <Upload.Dragger
-          v-model:file-list="fileList"
-          :before-upload="beforeUpload"
-          :show-upload-list="false"
-          accept="image/*"
-          :multiple="false"
-          :max-count="1"
-          class="upload-dragger border-purple-200 hover:border-purple-400 transition-colors"
-          @change="handleChange"
-        >
-          <div class="uploader-body">
-            <div v-if="previewUrl" class="preview-wrapper">
-              <img :src="previewUrl" class="preview-image" alt="quotation preview" />
-              <button
-                type="button"
-                class="remove-btn bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg transition-all hover:scale-110"
-                @click.stop="handleRemove"
-                aria-label="remove"
-              >
-                <Icon icon="mdi:delete" class="text-xs" />
-              </button>
-
-              <div v-if="uploadLoading" class="overlay">
-                <a-spin size="large" />
-                <div class="overlay-text font-medium text-xs">ກຳລັງອັບໂຫລດ...</div>
-              </div>
-            </div>
-            <div v-else class="placeholder">
-              <div class="icon">
-                <Icon icon="mdi:cloud-upload" class="text-purple-400 text-4xl" />
-              </div>
-              <div class="title text-gray-700 font-medium text-xs">
-                ຄລິກຫຼືລາກໄຟລ໌ມາວາງທີ່ນີ້
-              </div>
-              <div class="hint text-gray-500 text-[10px]">
-                ຮູບແບບ: SVG, PNG, JPG, GIF (ສູງສຸດ 10MB)
-              </div>
-            </div>
-          </div>
-        </Upload.Dragger>
+        <PdfUploader
+          :disabled="!selectedVendor"
+          @uploaded="handlePdfUpload"
+          @remove="handlePdfRemove"
+        />
       </div>
 
       <!-- Submit Buttons -->
@@ -559,74 +483,6 @@ defineExpose({ open, close, reset, setSelectedType });
 .modal-content {
   padding: 10px;
   min-height: 300px;
-}
-
-/* Upload area styles */
-.uploader-body {
-  position: relative;
-  min-height: 220px;
-}
-
-.placeholder {
-  display: grid;
-  place-items: center;
-  gap: 12px;
-  color: #6b7280;
-  padding: 32px;
-}
-
-.placeholder .icon {
-  opacity: 0.7;
-}
-
-.placeholder .title {
-  color: #374151;
-  font-weight: 500;
-}
-
-.placeholder .hint {
-  font-size: 14px;
-  color: #9ca3af;
-}
-
-.preview-wrapper {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 220px;
-}
-
-.preview-image {
-  max-width: 400px;
-  width: 100%;
-  max-height: 300px;
-  object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.remove-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  cursor: pointer;
-}
-
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(4px);
-  display: grid;
-  place-items: center;
-  gap: 12px;
-  border-radius: 12px;
-}
-
-.overlay-text {
-  color: #374151;
-  font-size: 14px;
-  font-weight: 500;
 }
 
 /* Scrollbar styling */

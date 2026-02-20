@@ -32,7 +32,7 @@ const isEditMode = ref<boolean>(false);
 const unitFormRef = ref();
 
 // check show buttons
-const canCreateUnit = computed(() => hasPermission("write-unit"));
+const canCreateUnit = computed(() => hasPermission("create-unit"));
 const canEditUnit = computed(() => hasPermission("update-unit"));
 const canDeleteUnit = computed(() => hasPermission("delete-unit"));
 

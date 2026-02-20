@@ -1,0 +1,303 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": {
+        "id": 423,
+        "document_id": 721,
+        "pr_number": "0005/ຈຊ",
+        "requested_date": "28-01-2026 17:07:07",
+        "expired_date": "28-01-2026 07:00:00",
+        "purposes": "computer ",
+        "created_at": "28-01-2026 17:07:07",
+        "updated_at": "28-01-2026 17:07:07",
+        "total": 50000000,
+        "step": true,
+        "document": {
+            "id": 721,
+            "document_number": "D-2A2C2B",
+            "title": "",
+            "description": "computer ",
+            "total_amount": 0,
+            "department_id": 61,
+            "requester_id": 117,
+            "document_type_id": "33",
+            "created_at": "28-01-2026 17:07:07",
+            "updated_at": "28-01-2026 17:07:07",
+            "department": {
+                "id": 61,
+                "code": "ຈຊ",
+                "name": "ຈັດຊື້",
+                "department_head_id": 0,
+                "created_at": "09-12-2025 21:27:15",
+                "updated_at": "17-12-2025 23:25:27",
+                "department_head": null,
+                "company": null
+            },
+            "document_type": {
+                "id": "33",
+                "code": "DT-PR-0001",
+                "name": "ໃບສະເໜີ",
+                "created_at": "25-09-2025 22:39:55",
+                "updated_at": "25-09-2025 22:39:55"
+            },
+            "requester": {
+                "id": 117,
+                "username": "phoud",
+                "email": "phoud@gmail.com",
+                "tel": "2052145599",
+                "created_at": "09-12-2025 21:47:18",
+                "updated_at": "26-01-2026 17:05:34",
+                "user_signature": {
+                    "id": "95",
+                    "user_id": 117,
+                    "signature": "user_signature/019b0214-3617-748e-be2b-10cf21984cec-1765266437655",
+                    "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0214-3617-748e-be2b-10cf21984cec-1765266437655",
+                    "created_at": "28-01-2026 11:04:10",
+                    "updated_at": "Invalid date"
+                },
+                "roles": [],
+                "permissions": [],
+                "user_types": []
+            },
+            "position": [
+                {
+                    "id": 68,
+                    "name": "ພະນັກງານ",
+                    "created_at": "28-01-2026 11:04:10",
+                    "updated_at": "Invalid date",
+                    "company": null
+                }
+            ],
+            "company": {
+                "id": 22,
+                "name": "Hal-tech",
+                "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                "tel": "2055889858",
+                "email": "haltech@gmail.com",
+                "address": "ບ້ານຈອມມະນີ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ",
+                "created_at": "09-12-2025 21:25:27",
+                "updated_at": "09-12-2025 21:25:27"
+            }
+        },
+        "company": {
+            "id": 22,
+            "name": "Hal-tech",
+            "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+            "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+            "tel": "2055889858",
+            "email": "haltech@gmail.com",
+            "address": "ບ້ານຈອມມະນີ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ",
+            "created_at": "09-12-2025 21:25:27",
+            "updated_at": "09-12-2025 21:25:27"
+        },
+        "user_approval": {
+            "id": 636,
+            "document_id": 721,
+            "status_id": 1,
+            "created_at": "28-01-2026 17:07:08",
+            "updated_at": "28-01-2026 17:07:08",
+            "document_status": {
+                "id": 1,
+                "name": "PENDING",
+                "created_at": "25-07-2025 14:02:32",
+                "updated_at": "25-07-2025 14:02:32"
+            },
+            "approval_step": [
+                {
+                    "id": 1412,
+                    "user_approval_id": 636,
+                    "step_number": 0,
+                    "approver_id": 117,
+                    "approved_at": "28-01-2026 17:07:22",
+                    "status_id": 2,
+                    "remark": "ຢືນຢັນສຳເລັດ",
+                    "requires_file_upload": false,
+                    "is_otp": true,
+                    "created_at": "28-01-2026 17:07:08",
+                    "updated_at": "28-01-2026 17:07:22",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "25-07-2025 14:02:32",
+                        "updated_at": "25-07-2025 14:02:32"
+                    },
+                    "approver": {
+                        "id": 117,
+                        "username": "phoud",
+                        "email": "phoud@gmail.com",
+                        "tel": "2052145599",
+                        "created_at": "09-12-2025 21:47:18",
+                        "updated_at": "26-01-2026 17:05:34",
+                        "user_signature": {
+                            "id": "95",
+                            "user_id": 117,
+                            "signature": "user_signature/019b0214-3617-748e-be2b-10cf21984cec-1765266437655",
+                            "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0214-3617-748e-be2b-10cf21984cec-1765266437655",
+                            "created_at": "28-01-2026 11:04:10",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 68,
+                        "name": "ພະນັກງານ",
+                        "created_at": "09-12-2025 21:30:23",
+                        "updated_at": "09-12-2025 21:30:23",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 1546,
+                            "user_approval_step_id": 1412,
+                            "user_id": 117,
+                            "created_at": "28-01-2026 17:07:08",
+                            "updated_at": "28-01-2026 17:07:08",
+                            "user": {
+                                "id": 117,
+                                "username": "phoud",
+                                "email": "phoud@gmail.com",
+                                "tel": "2052145599",
+                                "created_at": "09-12-2025 21:47:18",
+                                "updated_at": "26-01-2026 17:05:34",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 61,
+                                "code": "ຈຊ",
+                                "name": "ຈັດຊື້",
+                                "department_head_id": 0,
+                                "created_at": "09-12-2025 21:27:15",
+                                "updated_at": "17-12-2025 23:25:27",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 1413,
+                    "user_approval_id": 636,
+                    "step_number": 1,
+                    "approver_id": 0,
+                    "approved_at": null,
+                    "status_id": 1,
+                    "remark": "",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "28-01-2026 17:07:22",
+                    "updated_at": "28-01-2026 17:07:22",
+                    "document_status": {
+                        "id": 1,
+                        "name": "PENDING",
+                        "created_at": "25-07-2025 14:02:32",
+                        "updated_at": "25-07-2025 14:02:32"
+                    },
+                    "approver": null,
+                    "position": null,
+                    "doc_approver": [
+                        {
+                            "id": 1547,
+                            "user_approval_step_id": 1413,
+                            "user_id": 118,
+                            "created_at": "28-01-2026 17:07:22",
+                            "updated_at": "28-01-2026 17:07:22",
+                            "user": {
+                                "id": 118,
+                                "username": "phoud_head",
+                                "email": "phoudhead@gmail.com",
+                                "tel": "02077898767",
+                                "created_at": "09-12-2025 21:48:42",
+                                "updated_at": "10-12-2025 23:33:10",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 61,
+                                "code": "ຈຊ",
+                                "name": "ຈັດຊື້",
+                                "department_head_id": 0,
+                                "created_at": "09-12-2025 21:27:15",
+                                "updated_at": "17-12-2025 23:25:27",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "purchase_request_item": [
+            {
+                "id": 429,
+                "purchase_request_id": 423,
+                "title": "ຄອມພີວເຕີ່ Mac M3",
+                "file_name": "pr_file_name/019c0291-ade5-743e-b3fd-466d568de779-1769569627621",
+                "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019c0291-ade5-743e-b3fd-466d568de779-1769569627621",
+                "quantity": 2,
+                "unit_id": "34",
+                "quota_company_id": 0,
+                "price": 25000000,
+                "total_price": 50000000,
+                "remark": "computer ",
+                "created_at": "28-01-2026 17:07:08",
+                "updated_at": "28-01-2026 17:07:08",
+                "unit": {
+                    "id": "34",
+                    "name": "ໜ່ວຍ",
+                    "created_at": "20-11-2025 18:01:13",
+                    "updated_at": "20-11-2025 18:01:13"
+                },
+                "quota_company": {
+                    "id": 34,
+                    "year": "2026-01-01",
+                    "qty": 12,
+                    "vendor_product_id": "16",
+                    "company_id": 22,
+                    "created_at": "13-01-2026 22:53:01",
+                    "updated_at": "13-01-2026 22:53:01",
+                    "vendor_product": {
+                        "id": "16",
+                        "vendor_id": "28",
+                        "product_id": 1,
+                        "vendor": {
+                            "id": "28",
+                            "name": "Comcom"
+                        },
+                        "product": {
+                            "id": 1,
+                            "name": "ຄອມພີວເຕີ່ Mac M3"
+                        },
+                        "price": "25000000.00",
+                        "created_at": "04-12-2025 22:11:39",
+                        "updated_at": "04-12-2025 22:11:39"
+                    },
+                    "Product": {
+                        "id": 1,
+                        "name": "ຄອມພີວເຕີ່ Mac M3",
+                        "description": "Ram (16GB, SSD 520GB)",
+                        "product_type_id": 1,
+                        "unit_id": "34",
+                        "status": "active",
+                        "created_at": "31-10-2025 17:04:10",
+                        "updated_at": "20-11-2025 18:01:27"
+                    },
+                    "vendor": {
+                        "id": 28,
+                        "name": "Comcom",
+                        "contact_info": "2054678934",
+                        "created_at": "28-11-2025 22:53:19",
+                        "updated_at": "04-12-2025 22:09:36"
+                    }
+                }
+            }
+        ]
+    }
+}
