@@ -1,0 +1,4 @@
+🔍 OTP Response Debug: {requestStepId: 1573, responseApprovalId: 1073, fullResponse: {…}}
+OtpModal.vue:37 🔍 OtpModal props.visible changed: {newVal: true, is_otp: false}
+OtpModal.vue:83 🔍 OtpModal visibility changed: {newVisible: true, is_otp: false, type: 'boolean', approvalStepId: 1573}
+OtpModal.vue:98 ⚠️ Skipping OTP because is_otp is false/undefined. Value: false

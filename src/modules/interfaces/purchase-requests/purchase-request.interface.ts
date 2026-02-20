@@ -82,6 +82,7 @@ export interface UserApproval {
   updated_at: string;
   document_status: DocumentStatus;
   approval_step: ApprovalStep[];
+  is_created_po: boolean;
 }
 
 export interface UserSignature {
