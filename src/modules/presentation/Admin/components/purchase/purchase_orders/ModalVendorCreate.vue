@@ -373,7 +373,7 @@ defineExpose({ open, close, reset, setSelectedType });
               <span class="font-medium text-gray-700 text-xs">ລວມພາສີມູນຄ່າເພີ່ມ (VAT)</span>
             </a-checkbox>
             <div class="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-[10px] font-medium">
-              7%
+              10%
             </div>
           </div>
         </div>

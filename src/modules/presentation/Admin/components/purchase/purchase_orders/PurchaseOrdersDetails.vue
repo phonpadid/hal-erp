@@ -3,7 +3,7 @@
 import ProgressStepsComponent, {
   type ActionButton,
 } from "@/common/shared/components/header/ProgressStepsComponent.vue";
-import { computed, reactive, ref, onMounted, watch } from "vue";
+import { computed, reactive, ref, onMounted, watch, nextTick } from "vue";
 import type { ButtonType } from "@/modules/shared/buttonType";
 import { useRouter, useRoute } from "vue-router";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -72,8 +72,7 @@ const itemVendors = ref<{
 }>({});
 // OTP Logic
 const approvalStepStore = useApprovalStepStore();
-const showOtpModal = ref(false); 
-const approvalStepId = ref<number | null>(null);
+const showOtpModal = ref(false);
 const currentApprovalStepId = ref<number | null>(null);
 const otpSending = ref(false);
 const newlyCreatedDocumentId = ref<string | null>(null);
@@ -85,29 +84,27 @@ const selectedPrId = ref<number | null>(null);
 const sendOtp = async () => {
   if (!currentApprovalStepId.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ID");
-    return;
+    return false;
   }
 
   try {
     otpSending.value = true;
     const otpResponse = await approvalStepStore.sendOtp(currentApprovalStepId.value);
     if (otpResponse) {
-      showOtpModal.value = true;
+      return true;
     } else {
       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດສົ່ງລະຫັດ OTP ໄດ້");
+      return false;
     }
   } catch (err) {
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+    return false;
   } finally {
     otpSending.value = false;
   }
 };
 
 const handleOtpConfirm = async (otpCode: string) => {
-  if (!otpCode) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
-    return;
-  }
   if (!newlyCreatedDocumentId.value || !currentApprovalStepId.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານຫຼືຂະບວນການອະນຸມັດ");
     return;
@@ -124,7 +121,6 @@ const handleOtpConfirm = async (otpCode: string) => {
     confirmLoading.value = true;
     const payload = {
       type: "po" as const,
-      // statusId: Number(approvedStatusId.value),
       statusId: 2,
       remark: "ຢືນຢັນສຳເລັດ",
       approvalStepId: currentApprovalStepId.value,
@@ -146,6 +142,11 @@ const handleOtpConfirm = async (otpCode: string) => {
   } finally {
     confirmLoading.value = false;
   }
+};
+
+// ✅ Handle OTP modal close
+const handleOtpClose = () => {
+  showOtpModal.value = false;
 };
 
 
@@ -510,36 +511,36 @@ const handleConfirm = async () => {
       error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກຮ້ານຄ້າໃຫ້ຄົບທຸກລາຍການ");
       return;
     }
-    
-    isSubmitting.value = true; 
+
+    isSubmitting.value = true;
     const payload = createPurchaseOrderPayload();
     const result = await purchaseOrderStore.create(payload);
 
     // ตรวจสอบว่า result เป็น Entity ที่ถูกต้องและมี ID
-    if (result && result.getId()) { 
-        
-       
+    if (result && result.getId()) {
        const docId = result.getId().toString();
-        
-        const userApproval = result.getUserApproval(); 
+       const userApproval = result.getUserApproval();
+       const step = userApproval?.approval_step?.[0];
 
-       
-        const stepId = userApproval?.approval_step?.[0]?.id; 
-        
-        if (docId && stepId) {
-           
-            newlyCreatedDocumentId.value = docId;
-            currentApprovalStepId.value = stepId;
-            await sendOtp(); 
-        } else {
-        
-            success("ສ້າງໃບສັ່ງຊື້ສຳເລັດແລ້ວ");
-            currentStatus.value = "finish";
-            currentStep.value = 2;
-            customSteps.value[1].disabled = false;
-            customSteps.value[2].disabled = false;
-            stepsData[2] = { order: result };
-        }
+       if (docId && step) {
+          newlyCreatedDocumentId.value = docId;
+          currentApprovalStepId.value = step.id;
+
+          // ✅ เสมอแสดง OTP modal เพื่อกรอก OTP ก่อน
+          console.log('🔍 [PO Create] Showing OTP modal for step:', step.id);
+          const otpSent = await sendOtp();
+          if (otpSent) {
+            await nextTick();
+            showOtpModal.value = true;
+          }
+       } else {
+          success("ສ້າງໃບສັ່ງຊື້ສຳເລັດແລ້ວ");
+          currentStatus.value = "finish";
+          currentStep.value = 2;
+          customSteps.value[1].disabled = false;
+          customSteps.value[2].disabled = false;
+          stepsData[2] = { order: result };
+       }
     } else {
       throw new Error("ບໍ່ສາມາດສ້າງໃບສັ່ງຊື້ໄດ້ ແລະບໍ່ມີ ID ເອກະສານ");
     }
@@ -811,6 +812,21 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
     item.total_price = newPrice * item.quantity;
   }
 };
+
+// ✅ Check if file is PDF or Image
+const isPdfFile = (filename: string) => {
+  return filename.toLowerCase().endsWith('.pdf');
+};
+
+const isImageFile = (filename: string) => {
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
+  return imageExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+};
+
+// ✅ Handle file click - open in new tab
+const handleFileClick = (fileUrl: string, filename: string) => {
+  window.open(fileUrl, '_blank');
+};
 </script>
 
 <template>
@@ -852,15 +868,16 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
     </UiDrawer>
     <!--  -->
     <ModalVendorCreate ref="vendorModalRef" @submitted="handleVendorModalSubmitted" :purchaseRequestData="purchaseRequestData" />
-    <!-- OTP Modal (ສຳລັບປ້ອນ OTP) -->
+    <!-- OTP Modal (ສຳລັບປ້ອນ OTP) - ເສມອງສະເໜີ OTP ເສມອງ -->
     <OtpModal
-      :visible="showOtpModal"
+      v-if="showOtpModal"
+      :visible="true"
       :title="t('purchase-rq.otp-verification')"
-      :approval-step-id="approvalStepId"
-      :is-otp-modal="true"
+      :approval-step-id="currentApprovalStepId"
+      :is-otp="true"
       :loading="confirmLoading"
       @confirm="handleOtpConfirm"
-      @close="showOtpModal = false"
+      @close="handleOtpClose"
     />
 
     <!-- Main Form Content -->
@@ -956,7 +973,7 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
                       :preview="false"
                       class="image-thumbnail cursor-pointer"
                       @click="showImageModal(record.file_name_url)"
-                      alt="เอกสาร PR"
+                      alt="ເອກະສານ PR"
                       style="
                         width: 60px;
                         height: 60px;
@@ -977,19 +994,44 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
 
                 <template v-else-if="column.dataIndex === 'vendor'">
                   <div v-if="itemVendors[record.id]" class="flex items-center gap-2">
-                    <a-image
+                    <!-- ✅ File Preview: Image or PDF -->
+                    <div
                       v-if="itemVendors[record.id].file_url"
-                      :src="itemVendors[record.id].file_url"
-                      :preview="false"
-                      class="image-thumbnail cursor-pointer"
-                      @click="showImageModal(itemVendors[record.id].file_url)"
-                      style="
-                        width: 50px;
-                        height: 50px;
-                        object-fit: cover;
-                        border-radius: 50%;
-                      "
-                    />
+                      class="cursor-pointer file-preview-wrapper"
+                      @click="handleFileClick(itemVendors[record.id].file_url, itemVendors[record.id].filename)"
+                    >
+                      <!-- Image thumbnail -->
+                      <a-image
+                        v-if="isImageFile(itemVendors[record.id].filename || itemVendors[record.id].file_url)"
+                        :src="itemVendors[record.id].file_url"
+                        :preview="false"
+                        class="image-thumbnail"
+                        style="
+                          width: 50px;
+                          height: 50px;
+                          object-fit: cover;
+                          border-radius: 8px;
+                          border: 1px solid #e5e7eb;
+                        "
+                      />
+                      <!-- PDF icon -->
+                      <div
+                        v-else-if="isPdfFile(itemVendors[record.id].filename || itemVendors[record.id].file_url)"
+                        class="pdf-thumbnail"
+                        style="
+                          width: 50px;
+                          height: 50px;
+                          border-radius: 8px;
+                          border: 1px solid #e5e7eb;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                        "
+                      >
+                        <Icon icon="mdi:file-pdf-box" class="text-red-500 text-2xl" />
+                      </div>
+                    </div>
                     <div class="flex flex-col">
                       <span class="font-medium">{{ itemVendors[record.id].vendor_name }}</span>
                       <span class="text-xs text-gray-500">{{
@@ -1195,5 +1237,29 @@ const onPriceChange = (record: PurchaseItem, newPrice: number) => {
 
 .image-thumbnail:hover {
   transform: scale(1.1);
+}
+
+/* File preview wrapper */
+.file-preview-wrapper {
+  transition: all 0.2s ease;
+}
+
+.file-preview-wrapper:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.file-preview-wrapper:hover .image-thumbnail,
+.file-preview-wrapper:hover .pdf-thumbnail {
+  border-color: #f59e0b;
+}
+
+/* PDF thumbnail */
+.pdf-thumbnail {
+  transition: all 0.2s ease;
+}
+
+.pdf-thumbnail:hover {
+  background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
 }
 </style>
