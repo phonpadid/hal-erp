@@ -3,22 +3,17 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-"scripts": {
-  "dev": "vite",
-
-  "type-check": "vue-tsc --build",
-
-  "build-only": "vite build",
-  "build-only:halgroup": "vite build --mode halgroup",
-
-  "build": "run-p type-check build-only",
-  "build:halgroup": "run-p type-check build-only:halgroup",
-
-  "preview": "vite preview",
-  "lint": "eslint . --fix",
-
-  "deploy": "scp -r dist/ root@134.209.101.30:/var/www/admin/"
-},
+  "scripts": {
+    "dev": "vite",
+    "type-check": "vue-tsc --build",
+    "build-only": "vite build",
+    "build-only:halgroup": "vite build --mode halgroup",
+    "build": "run-p type-check build-only",
+    "build:halgroup": "run-p type-check build-only:halgroup",
+    "preview": "vite preview",
+    "lint": "eslint . --fix",
+    "deploy": "scp -r dist/ root@134.209.101.30:/var/www/admin/"
+  },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
     "@iconify/vue": "^5.0.0",
@@ -26,6 +21,7 @@
     "axios": "^1.9.0",
     "dayjs": "^1.11.13",
     "hal-erp": "link:",
+    "jwt-decode": "^4.0.0",
     "pinia": "^3.0.2",
     "uuid": "^11.1.0",
     "vue": "^3.5.13",

@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import type { UnitEntity } from "../unit.entity";
+
 export class PurchaseOrderItemDataEntity {
   private readonly id: number;
   private readonly purchase_order_id: number;
@@ -18,6 +20,7 @@ export class PurchaseOrderItemDataEntity {
   private readonly budget_item: any;
   private readonly selected_vendor: SelectedVendorEntity[];
   private readonly purchase_request_item: any; // เพิ่มเพื่อเก็บข้อมูล purchase_request_item
+  private readonly unit: UnitEntity;
 
   constructor(data: any, purchaseRequestItems?: any[]) {
     this.id = data.id;
@@ -47,6 +50,7 @@ export class PurchaseOrderItemDataEntity {
     this.created_at = data.created_at || "";
     this.updated_at = data.updated_at || "";
     this.budget_item = data.budget_item;
+    this.unit = data.unit;
 
     // เก็บข้อมูล purchase_request_item สำหรับใช้ในการแสดงผล
     if (purchaseRequestItems && data.purchase_request_item_id) {
@@ -152,6 +156,9 @@ export class PurchaseOrderItemDataEntity {
 
   public getUpdatedAt(): string {
     return this.updated_at;
+  }
+  public getUnit(): UnitEntity {
+    return this.unit;
   }
 
   public getBudgetItem(): any {

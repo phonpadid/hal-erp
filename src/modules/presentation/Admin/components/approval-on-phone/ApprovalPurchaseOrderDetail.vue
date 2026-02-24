@@ -3,15 +3,17 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { Icon } from "@iconify/vue";
-import { usePurchaseRequestsStore } from "@/modules/presentation/Admin/stores/purchase_requests/purchase-requests.store";
+import { usePurchaseOrderStore } from "@/modules/presentation/Admin/stores/purchase_requests/purchase-order";
 import { useApprovalStepStore } from "@/modules/presentation/Admin/stores/approval-step.store";
-import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
+import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import Table from "@/common/shared/components/table/Table.vue";
-import { prColumns } from "./pr-column";
+import { poColumns } from "./po-column";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import SignatureConfirmModal from "./modal/SignatureConfirmModal.vue";
-import type { IStep, JwtPayload, UserData } from "./interfaces/payload.interface";
+import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
+import BudgetApprovalDrawer from "../budget-approval/BudgetApprovalDrawer.vue";
+import type { IRole, IStep, JwtPayload, UserData } from "./interfaces/payload.interface";
 import api from "@/common/config/axios/axios";
 // import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface"
 const { success: showSuccess } = useNotification();
@@ -44,11 +46,11 @@ const decodeJwt = (jwtToken: string): JwtPayload | null => {
 const decodedToken = ref<JwtPayload | null>(null);
 
 // Stores
-const prStore = usePurchaseRequestsStore();
+const poStore = usePurchaseOrderStore();
 const approvalStepStore = useApprovalStepStore();
 
-// State for purchase request data
-const prData = ref<PurchaseRequestEntity | null>(null);
+// State for purchase order data
+const poData = ref<PurchaseOrderEntity | null>(null);
 const loading = ref<boolean>(false);
 const error = ref<string | null>(null);
 
@@ -56,8 +58,12 @@ const error = ref<string | null>(null);
 const showSignatureModal = ref(false);
 const isRejectAction = ref(false);
 
-// User data state
-
+// Budget drawer state
+const visibleBudget = ref(false);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const selectedBudgets = ref<Record<string, any>>({});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const activeItemRecord = ref<any>(null);
 const userData = ref<UserData | null>(null);
 
 // Fetch user by token
@@ -74,18 +80,77 @@ const fetchUserByToken = async () => {
   }
 };
 
+// Check if user has budget role
+const hasBudgetRole = computed(() => {
+  if (!userData.value?.roles) return false;
+
+  return userData.value.roles.some((role: IRole) =>
+    role.name === 'budget-admin' || role.name === 'budget-user'
+  );
+});
+// Responsive drawer placement - bottom for mobile, right for desktop
+const drawerPlacement = computed(() => {
+  if (typeof window !== 'undefined') {
+    return window.innerWidth < 768 ? 'bottom' : 'right';
+  }
+  return 'right';
+});
+
+// Responsive drawer width (for desktop/right placement)
+const drawerWidth = computed(() => {
+  if (typeof window !== 'undefined') {
+    return window.innerWidth < 768 ? undefined : 500;
+  }
+  return 500;
+});
+
+// Responsive drawer height (for mobile/bottom placement)
+const drawerHeight = computed(() => {
+  if (typeof window !== 'undefined') {
+    return window.innerWidth < 768 ? '80%' : undefined;
+  }
+  return undefined;
+});
+
+// Open budget drawer handler
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const showBudgetDrawer = (record: any) => {
+  activeItemRecord.value = record;
+  visibleBudget.value = true;
+};
+
+// Budget confirm handler
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const handleBudgetConfirm = (data: any) => {
+  if (activeItemRecord.value) {
+    selectedBudgets.value[activeItemRecord.value.id] = {
+      purchaseOrderItemId: activeItemRecord.value.id,
+      budgetId: data.id,
+      budgetCode: data.budget_account?.code || "No Code",
+      budgetName: data.budget_account?.name,
+      budgetAmount: data.allocated_amount,
+      remainingAmount: data.balance_amount,
+      usedAmount: data.used || data.use_amount,
+    };
+  }
+  visibleBudget.value = false;
+};
+
 // Get current pending approval step
 const currentApprovalStep = computed(() => {
-  const userApproval = prData.value?.getUserApproval();
-
+  const userApproval = poData.value?.getUserApproval();
   if (!userApproval) return null;
-  const pendingStep = userApproval.approval_step?.find(
+
+  // Find the step where step.id matches decodedToken.value.step_id AND status_id === 1 (PENDING)
+  const matchingStep = userApproval.approval_step?.find(
     (step: IStep) => step.status_id === 1 && String(step.id) === String(decodedToken.value?.step_id)
   );
-  return pendingStep || null;
+
+  return matchingStep || null;
 });
+
 const currentRejectStep = computed(() => {
-  const userApproval = prData.value?.getUserApproval();
+  const userApproval = poData.value?.getUserApproval();
   if (!userApproval) return null;
   const rejectStep = userApproval.approval_step?.find(
     (step: IStep) => step.status_id === 3
@@ -95,31 +160,39 @@ const currentRejectStep = computed(() => {
 
 // Check if current user can take action on this approval step
 const canTakeAction = computed(() => {
-  if (!currentApprovalStep.value || !decodedToken.value) {
+  if (!decodedToken.value || !poData.value) {
     return false;
   }
-  const isMatchingStep = String(currentApprovalStep.value.id) === String(decodedToken.value.step_id);
-  const isMatchingUser = Number(currentApprovalStep.value.status_id) === 1;
-  return isMatchingStep && isMatchingUser;
+
+  const userApproval = poData.value?.getUserApproval();
+  if (!userApproval) return false;
+
+  // Find if the step_id from token matches any step in approval_step array
+  const matchingStep = userApproval.approval_step?.find(
+    (step: IStep) => String(step.id) === String(decodedToken.value!.step_id)
+  );
+
+  // Check if the matching step exists and is pending (status_id === 1)
+  return matchingStep && Number(matchingStep.status_id) === 1;
 });
-// Computed data
+// Computed data\
 const dataInfo = computed(() => ({
-  proposer: prData.value?.getRequester() || {
+  proposer: poData.value?.getRequester() || {
     username: "----",
   },
-  purposes: prData.value?.getPurposes() || "----",
-  department: prData.value?.getDepartment() || {
+  purposes: poData.value?.getPurposes() || "----",
+  department: poData.value?.getDepartment() || {
     name: "----",
   },
-  items: prData.value?.getItems() || [],
-  total: prData.value?.getTotal() || 0,
+  items: poData.value?.getPurchaseOrderItem() || [],
+  total: poData.value?.getTotal() || 0,
 }));
-const companyInfo = computed(() => prData.value?.getCompany());
+
 // Position computed
 const positionName = computed(() => {
-  return prData.value?.getPosition()?.name || "----";
+  return poData.value?.getPosition()[0]?.name || "----";
 });
-// Fetch PR data
+// Fetch PO data
 onMounted(async () => {
   if (token) {
     // Decode JWT token
@@ -134,15 +207,15 @@ onMounted(async () => {
       // Fetch user data by token
       await fetchUserByToken();
 
-      const data = await prStore.fetchByToken(token);
+      const data = await poStore.fetchByToken(token);
       if (data) {
-        prData.value = data;
+        poData.value = data;
       } else {
-        error.value = "Failed to load purchase request data";
+        error.value = "Failed to load purchase order data";
       }
     } catch (err) {
       error.value = err instanceof Error ? err.message : "Unknown error occurred";
-      console.error("Error fetching purchase request:", err);
+      console.error("Error fetching purchase order:", err);
     } finally {
       loading.value = false;
     }
@@ -171,19 +244,29 @@ const handleReject = () => {
 
 // Confirm signature and submit approval/reject
 const handleConfirmSignature = async (remark?: string) => {
-  if (!currentApprovalStep.value || !prData.value) {
+  if (!currentApprovalStep.value || !poData.value) {
     return;
   }
 
   try {
     showSignatureModal.value = false;
 
+    // Transform selectedBudgets into purchase_order_items array
+    const purchaseOrderItemsPayload = Object.keys(selectedBudgets.value).map((itemId) => {
+      const budget = selectedBudgets.value[itemId];
+      return {
+        id: Number(budget.purchaseOrderItemId),
+        budget_item_id: budget.budgetId,
+      };
+    });
+
     // Prepare payload - remark is required for reject, optional for approve
     const payload = {
-      type: "pr",
+      type: "po",
       statusId: isRejectAction.value ? 3 : 2, // 3 = REJECTED, 2 = APPROVED
       remark: isRejectAction.value ? (remark || "ປະຕິເສດ") : "ຢືນຢັນສຳເລັດ",
       is_otp: false,
+      purchase_order_items: purchaseOrderItemsPayload,
     };
 
     // Call API to approve/reject by token
@@ -193,9 +276,9 @@ const handleConfirmSignature = async (remark?: string) => {
       showSuccess("ສຳເລັດ", isRejectAction.value ? "ປະຕິເສດສຳເລັດ" : "ອະນຸມັດສຳເລັດ");
 
       // Refresh data to get updated status
-      const updatedData = await prStore.fetchByToken(token);
+      const updatedData = await poStore.fetchByToken(token);
       if (updatedData) {
-        prData.value = updatedData;
+        poData.value = updatedData;
       }
     }
   } catch (err) {
@@ -230,7 +313,7 @@ const handleCloseModal = () => {
     <div v-else class="approval-container">
       <div class="user-info">
         <div class="flex items-center gap-4">
-          <h4 class="font-bold md:text-2xl text-lg">{{t("menu-sidebar.apv_purchase_rq")}}</h4>
+          <h4 class="font-bold md:text-2xl text-lg">{{t("purchase_orders.field.purchase_order")}}</h4>
           <div v-if="currentApprovalStep" class="status-badge status-pending">
             <Icon icon="mdi:clock-outline" class="status-icon" />
             <span>Pending</span>
@@ -260,7 +343,7 @@ const handleCloseModal = () => {
                   {{ dataInfo.proposer.username }}
                 </p>
                 <p class="proposer-position">
-                  {{ positionName }}, {{ dataInfo?.department.name }}
+                  {{ dataInfo.department.name }}, {{ positionName }}
                 </p>
               </div>
             </div>
@@ -274,28 +357,25 @@ const handleCloseModal = () => {
             <div class="purpose-content flex-layout">
               <div class="purpose-section">
                 <p class="purpose-text">
-                  {{ dataInfo?.purposes }}
+                  {{ dataInfo.purposes }}
                 </p>
               </div>
             </div>
           </div>
 
           <!-- Department Section -->
-          <div class="info-card">
+          <!-- <div class="info-card">
             <h2 class="card-title">
-              Company
+              {{ t("purchase-rq.field.department") }}
             </h2>
             <div class="department-content flex-layout">
-              <div class="department-section -space-y-2">
+              <div class="department-section">
                 <p class="department-name">
-                  {{ companyInfo?.name }}
-                </p>
-                <p class="department-name">
-                  {{ companyInfo?.address }}
+                  {{ dataInfo.department.name }}
                 </p>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
 
         <!-- Table Section -->
@@ -307,7 +387,7 @@ const handleCloseModal = () => {
             <Table
               :dataSource="dataInfo.items"
               :pagination="false"
-              :columns="prColumns(t)"
+              :columns="poColumns(t, hasBudgetRole)"
               :rowKey="(record: any) => record.getId()"
               :scroll="{ x: 'max-content' }"
               size="small"
@@ -317,7 +397,31 @@ const handleCloseModal = () => {
               <span>{{ index + 1 }}</span>
             </template>
             <template #total_price="{ record }">
-              <span>{{ formatPrice(record?.getTotalPrice()) }}</span>
+              <span>{{ formatPrice(record?.getTotalWithVat()) }}</span>
+            </template>
+            <template #budget="{ record }">
+              <button
+                v-if="hasBudgetRole "
+                class="budget-btn"
+                @click.stop="showBudgetDrawer(record)"
+                :disabled="record.budget_item"
+              >
+                <template v-if="selectedBudgets[record.getId()]">
+                  <span class="budget-code">
+                    {{ selectedBudgets[record.getId()].budgetCode }}
+                  </span>
+                  <Icon icon="mdi:pencil" class="edit-icon" />
+                </template>
+                <template v-else-if="record.budget_item">
+                    {{ record.budget_item.budget_account.code }}
+                  <!-- <Icon icon="mdi:pencil" class="edit-icon" /> -->
+                </template>
+                <template v-else>
+                  <span class="budget-label">ເລືອກງົບປະມານ</span>
+                  <Icon icon="mdi:chevron-right" class="arrow-icon" />
+                </template>
+              </button>
+              <span v-else class="no-budget-text">-</span>
             </template>
             </Table>
           </div>
@@ -340,13 +444,27 @@ const handleCloseModal = () => {
     <!-- Signature Confirm Modal -->
     <SignatureConfirmModal
       :visible="showSignatureModal"
-      :title="isRejectAction ? t('purchase-rq.card_title.refused') : t('purchase-rq.confirm_signature')"
+      :title="isRejectAction ? t('purchase_orders.card_title.refused') : t('purchase-rq.confirm_signature')"
       :isReject="isRejectAction"
       :loading="approvalStepStore.loading"
       :signatureUrl="userData?.user_signature?.signature_url"
       @confirm="handleConfirmSignature"
       @close="handleCloseModal"
     />
+
+    <!-- Budget Selection Drawer -->
+    <UiDrawer
+      v-model:open="visibleBudget"
+      title="ເລືອກລະຫັດງົບປະມານ"
+      :placement="drawerPlacement"
+      :width="drawerWidth"
+      :height="drawerHeight"
+    >
+      <BudgetApprovalDrawer
+        :departmentId="poData?.getDocument()?.department?.id"
+        @confirm="handleBudgetConfirm"
+      />
+    </UiDrawer>
   </div>
 </template>
 
@@ -402,7 +520,7 @@ const handleCloseModal = () => {
 @media (min-width: 640px) {
   .info-grid {
     gap: 1.25rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 }
 
@@ -1022,5 +1140,72 @@ const handleCloseModal = () => {
 
 .status-rejected:hover {
   background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+}
+
+/* ===== Budget Button ===== */
+.budget-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  color: #3b82f6;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  width: 100%;
+  min-width: 120px;
+}
+
+@media (min-width: 768px) {
+  .budget-btn {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+  }
+}
+
+.budget-btn:hover {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.budget-btn:active {
+  transform: scale(0.98);
+}
+
+.budget-label {
+  flex: 1;
+  text-align: left;
+}
+
+.budget-code {
+  flex: 1;
+  text-align: left;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.edit-icon,
+.arrow-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .edit-icon,
+  .arrow-icon {
+    font-size: 1.125rem;
+  }
+}
+
+.no-budget-text {
+  color: #94a3b8;
+  font-size: 0.875rem;
 }
 </style>

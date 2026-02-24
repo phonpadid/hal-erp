@@ -141,8 +141,30 @@ const handleExport = async () => {
 };
 
 const customButtons = computed(() => {
-  // Base buttons for everyone
-  const baseButtons = [
+  if (!canApprove.value) {
+    return [
+      {
+        label: "Export",
+        icon: "ant-design:file-excel-outlined",
+        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+        type: "default" as ButtonType,
+        onClick: handleExport,
+      },
+      {
+        label: "Print",
+        icon: "ant-design:printer-outlined",
+        class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+        type: "default" as ButtonType,
+        onClick: handlePrint,
+      },
+    ];
+  }
+
+  // ✅ ถ้ามีสิทธิ์อนุมัติ แสดงปุ่ม Reject และ Approve
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep) return [];
+
+  return [
     {
       label: "Export",
       icon: "ant-design:file-excel-outlined",
@@ -157,29 +179,6 @@ const customButtons = computed(() => {
       type: "default" as ButtonType,
       onClick: handlePrint,
     },
-  ];
-
-  // Add Create PO button if PR is fully approved and PO hasn't been created yet
-  if (shouldShowCreatePoButton.value) {
-    baseButtons.splice(2, 0, {
-      label: t("purchase-rq.btn.create_po"),
-      icon: "mdi:file-document-plus",
-      class: "bg-blue-500 flex items-center gap-2 text-white hover:bg-blue-600 mr-4",
-      type: "primary" as ButtonType,
-      onClick: handleCreatePO,
-    });
-  }
-
-  if (!canApprove.value) {
-    return baseButtons;
-  }
-
-  // ✅ ถ้ามีสิทธิ์อนุมัติ แสดงปุ่ม Reject และ Approve
-  const currentStep = currentApprovalStep.value;
-  if (!currentStep) return baseButtons;
-
-  return [
-    ...baseButtons,
     {
       label: t("purchase-rq.card_title.refused"),
       type: "default" as ButtonType,
@@ -210,38 +209,6 @@ const approvalStep = computed(() => {
   const steps = requestDetail.value?.getUserApproval()?.approval_step ?? [];
   return [...steps].sort((a, b) => (a.step_number ?? 0) - (b.step_number ?? 0));
 });
-
-// Check if PR is fully approved (all steps completed with status_id === 2)
-const isFullyApproved = computed(() => {
-  const steps = requestDetail.value?.getUserApproval()?.approval_step ?? [];
-  return steps.length > 0 && steps.every((step) => step.status_id === 2);
-});
-
-// Check if PO has been created
-const isPoCreated = computed(() => {
-  return requestDetail.value?.getIsCreatedPo() ?? false;
-});
-
-// Show Create PO button only when PR is fully approved but PO hasn't been created yet
-const shouldShowCreatePoButton = computed(() => {
-  return isFullyApproved.value && !isPoCreated.value;
-});
-
-// Handle Create PO button click
-const handleCreatePO = () => {
-  if (!requestDetail.value?.getId()) {
-    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບເລກທີເອກະສານ PR");
-    return;
-  }
-
-  console.log('🔄 [PR Approval] Redirecting to Create PO page for PR:', requestDetail.value.getId());
-
-  // Navigate to PO creation page with PR ID
-  router.push({
-    name: "doc-type-select",
-    query: { purchase_request_id: requestDetail.value.getId() },
-  });
-};
 
 const documentStatus = computed(() => {
   const rejectedStep = requestDetail.value
@@ -279,37 +246,22 @@ const handlePrint = () => {
   window.print();
 };
 
-const customButtonSuccess = computed(() => {
-  const buttons = [
-    {
-      label: "Export",
-      icon: "ant-design:file-excel-outlined",
-      class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
-      type: "default" as ButtonType,
-      onClick: handleExport,
-    },
-    {
-      label: "print",
-      icon: "ant-design:printer-outlined",
-      class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
-      type: "default" as ButtonType,
-      onClick: handlePrint,
-    },
-  ];
-
-  // Add Create PO button if PR is fully approved and PO hasn't been created yet
-  if (shouldShowCreatePoButton.value) {
-    buttons.splice(2, 0, {
-      label: t("purchase-rq.btn.create_po"),
-      icon: "mdi:file-document-plus",
-      class: "bg-blue-500 flex items-center gap-2 text-white hover:bg-blue-600 mr-4",
-      type: "primary" as ButtonType,
-      onClick: handleCreatePO,
-    });
-  }
-
-  return buttons;
-});
+const customButtonSuccess = [
+  {
+    label: "Export",
+    icon: "ant-design:file-excel-outlined",
+    class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+    type: "default" as ButtonType,
+    onClick: handleExport,
+  },
+  {
+    label: "print",
+    icon: "ant-design:printer-outlined",
+    class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+    type: "default" as ButtonType,
+    onClick: handlePrint,
+  },
+];
 
 const handleApprove = async () => {
   isApproveModalVisible.value = false;
@@ -353,6 +305,10 @@ const handleOtpConfirm = async (otpCode: string) => {
     error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນລະຫັດ OTP");
     return;
   }
+  if (!currentStep?.id) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
+    return;
+  }
 
   const approvalIdFromOtp = approvalStepStore.otpResponse?.approval_id;
 
@@ -382,43 +338,20 @@ const handleOtpConfirm = async (otpCode: string) => {
     if (success) {
       isOtpModalVisible.value = false;
 
-      // ✅ Reload PR data to get updated approval steps
-      const updatedPR = await purchaseRequestStore.fetchById(documentId);
-      if (updatedPR) {
-        requestDetail.value = updatedPR;
-      }
-
-      // ✅ Check if PR is now fully approved after this approval
-      const steps = requestDetail.value?.getUserApproval()?.approval_step ?? [];
-      const allApproved = steps.length > 0 && steps.every((step) => step.status_id === 2);
-      const hasPO = requestDetail.value?.getIsCreatedPo() ?? false;
+    
 
       // ✅ ກວດສອບວ່າເປັນຂັ້ນຕອນທຳອິດ (step 0) ຫຼືບໍ່
       if (currentStep.step_number === 0) {
-        // Show success modal then redirect to PR list
-        isSuccessModalVisible.value = true;
         setTimeout(() => {
           router.push({ name: "apv_purchase_request.index" });
-        }, 2000);
+        }, 1500);
       } else if (currentStep.step_number === 1) {
-        // Show success modal then redirect to PR list
-        isSuccessModalVisible.value = true;
-        setTimeout(() => {
-          router.push({ name: "apv_purchase_request.index" });
-        }, 1500);
-      } else if (allApproved && !hasPO) {
-        // ✅ Last step approved and no PO created - stay on page and show Create PO button
-        isSuccessModalVisible.value = true;
-        // Don't redirect - let user see the Create PO button
-      } else if (allApproved && hasPO) {
-        // ✅ Last step approved and PO already created - redirect to PR list
-        isSuccessModalVisible.value = true;
-        setTimeout(() => {
-          router.push({ name: "apv_purchase_request.index" });
-        }, 1500);
-      } else {
-        // ✅ Middle steps (step 2, 3, etc.) - show success modal
-        isSuccessModalVisible.value = true;
+        router.push({ name: "apv_purchase_request.index" });
+      } else if (isLastStep.value) {
+        router.push({
+          name: "doc-type-select",
+          query: { purchase_request_id: requestDetail.value?.getId() },
+        });
       }
     }
   } catch (err) {

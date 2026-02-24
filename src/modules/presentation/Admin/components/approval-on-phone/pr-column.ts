@@ -20,13 +20,13 @@ export function prColumns(t: (key: string) => string): Column[] {
       width: 100,
     },
     {
-      title: t("purchase-rq.field.unit_price"),
-      dataIndex: "unit_price",
-      key: "unit_price",
+      title: t("purchase-rq.field.unit"),
+      dataIndex: "unit.name",
+      key: "unit",
       width: 120,
     },
     {
-      title: t("purchase-rq.field.total_price"),
+      title: t("purchase-rq.field.price"),
       dataIndex: "total_price",
       key: "total_price",
       width: 120,

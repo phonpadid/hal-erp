@@ -29,7 +29,7 @@ const modalConfig = computed(() => {
 
   return {
     title: props.title || (useApproveStyle ? 'ການອະນຸມັດສຳເລັດ!' : 'ການປະຕິເສດສຳເລັດ!'),
-    message: props.message || (useApproveStyle ? 'ອະນຸມັດເອກະສານສຳເລັດແລ້ວ' : 'ປະຕິເສດເອກະສານສຳເລັດແລ້ວ'),
+    message: props.message || (useApproveStyle ? 'ອະນຸມັດເອກະສານສຳເລັດແລ້ວ' : 'ປະຕິເສດເອກະສານສຳເລັດແລ້ວ'), 
     description: props.description || (useApproveStyle
       ? 'ເອກະສານນີ້ຖືກອະນຸມັດໂດຍລາຍເຊັນດິຈິຕອລຂອງທ່ານແລ້ວ ຂັ້ນຕອນຕໍ່ໄປຈະດຳເນີນຕາມຂັ້ນຕອນຕໍ່ໄປ'
       : 'ເອກະສານນີ້ຖືກປະຕິເສດແລ້ວ ຂໍ້ມູນຈະຖືກສົ່ງໃຫ້ຜູ້ທີ່ກ່ຽວພວກຂ້າມະຊາດຮູ້'
@@ -56,8 +56,6 @@ const handleConfirm = () => {
     :title-icon="modalConfig.icon"
     :icon-color="modalConfig.iconColor"
     :title="modalConfig.title"
-    :ok-text="'ສຳເລັດ'"
-    :cancel-text="'ດຳເນີນຕໍ່'"
     :ok-type="actionType === 'approve' ? 'primary' : 'default'"
     class="success-modal"
     @ok="handleConfirm"

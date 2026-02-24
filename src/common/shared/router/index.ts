@@ -121,8 +121,8 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/approval",
-    name: "approval",
+    path: "/approval-rc/:token",
+    name: "approval_rc",
     component: () => import("@/modules/presentation/Admin/components/approval-on-phone/ApprovalOnPhoneDetail.vue"),
     meta: {
       layout: "blank",
@@ -130,9 +130,18 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/approval-pr",
+    path: "/approval-pr/:token",
     name: "approval_pr",
     component: () => import("@/modules/presentation/Admin/components/approval-on-phone/ApprovalPurchaseRequestDetail.vue"),
+    meta: {
+      layout: "blank",
+      requiresAuth: false,
+    },
+  },
+  {
+    path: "/approval-po/:token",
+    name: "approval_po_on_phone",
+    component: () => import("@/modules/presentation/Admin/components/approval-on-phone/ApprovalPurchaseOrderDetail.vue"),
     meta: {
       layout: "blank",
       requiresAuth: false,
