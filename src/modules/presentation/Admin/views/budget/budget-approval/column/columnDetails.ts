@@ -50,8 +50,8 @@ export function columnsApprovalDetails(t: (key: string) => string, userRoles: st
     },
     {
       title: t("budget_approval.table.remark"),
-      dataIndex: "remark",
-      key: "remark",
+      dataIndex: "title",
+      key: "title",
     },
     {
       title: t("budget_approval.table.quantity"),

@@ -26,6 +26,7 @@ export class PurchaseRequestEntity {
   private total: number;
   private items: PurchaseRequestItemEntity[];
   private company: Company | null;
+  private is_created_po: boolean;
   private user_approval: {
     id: number;
     document_id: number;
@@ -76,7 +77,8 @@ export class PurchaseRequestEntity {
     createdAt: string | null = null,
     updatedAt: string | null = null,
     deletedAt: string | null = null,
-    total: number = 0
+    total: number = 0,
+    is_created_po: boolean = false
   ) {
     this.id = id;
     this.documentTypeId = documentTypeId;
@@ -93,6 +95,7 @@ export class PurchaseRequestEntity {
     this.company = company;
     this.user_approval = user_approval;
     this.total = total;
+    this.is_created_po = is_created_po;
     this.items = [];
     this.createdAt = createdAt || this.getCurrentTimestamp();
     this.updatedAt = updatedAt || this.getCurrentTimestamp();
@@ -166,6 +169,10 @@ export class PurchaseRequestEntity {
       return this.user_approval;
     }
     return null;
+  }
+
+  public getIsCreatedPo(): boolean {
+    return this.is_created_po;
   }
   public setUserApproval(userApproval: UserApproval): void {
     this.user_approval = userApproval;

@@ -37,6 +37,22 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
     }
   }
 
+  async findByToken(token: string): Promise<PurchaseOrderEntity | null> {
+    try {
+      const response = (await api.get(`/purchase-orders/by-token?token=${token}`)) as {
+        data: ApiResponse<PurchaseOrderApiModel>;
+      };
+
+      return this.toDomainModel(response.data.data);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response?.status === 404) {
+        return null;
+      }
+      throw this.handleApiError(error, `Failed to find purchase order with token ${token}`);
+    }
+  }
+
   async findAll(params: PaginationParams): Promise<PaginatedResult<PurchaseOrderEntity>> {
     try {
       // console.log("Repository findAll called with params:", params);

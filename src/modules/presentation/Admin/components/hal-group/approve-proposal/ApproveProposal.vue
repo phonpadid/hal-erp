@@ -90,8 +90,8 @@ const showRevenueSection = ref<boolean>(false);
 const showFinalApproval = ref<boolean>(false);
 const isProcessingApproval = ref<boolean>(false);
 const showOtpModal = ref<boolean>(false);
-const otpLoading = ref<boolean>(false);
 const showSignatureModal = ref<boolean>(false);
+const otpLoading = ref<boolean>(false);
 const showSuccessModal = ref<boolean>(false);
 const successActionType = ref<'approve' | 'reject' | undefined>(undefined);
 const pendingApprovalData = ref<{
@@ -543,7 +543,8 @@ const handleApprove = async () => {
               error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
             }
           } else {
-            console.log('✅ No OTP required (step2) - showing signature modal');
+            console.log('✅ No OTP required (step2) - showing Signature modal');
+            // Show Signature modal (signature-only, no OTP)
             showSignatureModal.value = true;
           }
           return;
@@ -594,16 +595,23 @@ const handleApprove = async () => {
       });
 
       // Store pending approval data with actual step ID (1229)
+      const requiresOtpValue = Boolean(currentStep.is_otp === true);
       pendingApprovalData.value = {
         ids: [...selectedRequests.value],
         action: 'approve',
         receiptId,
         stepId: currentStep.id, // This will be 1229
         requiresFile,
-        requiresOTP: currentStep.is_otp // This will be false
+        requiresOTP: requiresOtpValue // Explicitly convert to boolean
       };
 
       console.log('Pending Approval Data:', pendingApprovalData.value);
+      console.log('🔍 About to show modal with:', {
+        requiresOTP: pendingApprovalData.value.requiresOTP,
+        requiresOTPType: typeof pendingApprovalData.value.requiresOTP,
+        Boolean_requiresOTP: Boolean(pendingApprovalData.value.requiresOTP),
+        stepId: pendingApprovalData.value.stepId
+      });
 
       // Explicitly check if OTP is required (must be exactly true)
       if (currentStep.is_otp === true) {
@@ -611,7 +619,9 @@ const handleApprove = async () => {
         try {
           const otpData = await approvalStepStore.sendOtp(currentStep.id);
           if (otpData) {
+            console.log('📲 OTP sent successfully, opening OTP modal');
             showOtpModal.value = true;
+            console.log('📲 showOtpModal.value set to:', showOtpModal.value);
           } else {
             error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
           }
@@ -620,8 +630,10 @@ const handleApprove = async () => {
           error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
         }
       } else {
-        console.log('✅ No OTP required - showing signature modal');
+        console.log('✅ No OTP required - showing Signature modal');
+        // Show Signature modal (signature-only, no OTP)
         showSignatureModal.value = true;
+        console.log('📲 showSignatureModal.value set to:', showSignatureModal.value);
       }
     } catch (err) {
       console.error("Error preparing approval:", err);
@@ -697,7 +709,8 @@ const handleRejectConfirm = async () => {
       error("ຜິດພາດ", "ບໍ່ສາມາດສົ່ງ OTP ໄດ້");
     }
   } else {
-    // Show signature modal for rejection
+    console.log('✅ No OTP required for rejection - showing Signature modal');
+    // Show Signature modal (signature-only, no OTP)
     showSignatureModal.value = true;
   }
 };
@@ -831,17 +844,31 @@ const handleBackToSelection = () => {
   showFinalApproval.value = false;
 };
 
-// Handle OTP confirmation
+// Handle OTP confirmation (for both OTP and signature-only cases)
 const handleOtpConfirm = async (otpCode: string) => {
   if (!pendingApprovalData.value) return;
 
   // Log OTP code for debugging (can be removed in production)
-  console.log('OTP Code received:', otpCode);
+  console.log('OTP/Sig Confirmation Code received:', otpCode, 'requiresOTP:', pendingApprovalData.value.requiresOTP);
 
   otpLoading.value = true;
   try {
+    // If requiresOTP is true, send OTP code, otherwise send empty string
+    const otpToSend = pendingApprovalData.value.requiresOTP ? otpCode : '';
+
+    // Debug: Check what data we have before performing approval
+    console.log('🔍 Approval Confirmation Debug:', {
+      requiresOTP: pendingApprovalData.value.requiresOTP,
+      otpCode: otpToSend,
+      receiptId: pendingApprovalData.value.receiptId,
+      stepId: pendingApprovalData.value.stepId,
+      willCallApprovalHalGroup: !pendingApprovalData.value.requiresOTP,
+      approval_id_will_be_sent: pendingApprovalData.value.stepId,
+      full_pending_data: pendingApprovalData.value
+    });
+
     // Use the real approval API
-    await performApproval(otpCode);
+    await performApproval(otpToSend);
 
     // Store action type before clearing data
     successActionType.value = pendingApprovalData.value?.action || undefined;
@@ -850,8 +877,12 @@ const handleOtpConfirm = async (otpCode: string) => {
     showOtpModal.value = false;
     showSuccessModal.value = true;
   } catch (err) {
-    console.error("OTP verification failed:", err);
-    error("ການຢັ້ງຢືນ OTP ລົ້ມເຫລວ", "ກະລຸນາລອງ OTP ໃໝ່ອີກຄັ້ງ");
+    console.error("OTP/Signature verification failed:", err);
+    if (pendingApprovalData.value?.requiresOTP) {
+      error("ການຢັ້ງຢືນ OTP ລົ້ມເຫລວ", "ກະລຸນາລອງ OTP ໃໝ່ອີກຄັ້ງ");
+    } else {
+      error("ການຢືນຢັນລາຍເຊັນລົ້ມເຫລວ", "ກະລຸນາລອງອີກຄັ້ງ");
+    }
   } finally {
     otpLoading.value = false;
   }
@@ -863,47 +894,45 @@ const handleOtpClose = () => {
   pendingApprovalData.value = null;
 };
 
-// Handle modal close (for both OTP and Signature modals)
-
-
-// Handle signature confirmation
+// Handle Signature modal confirm
 const handleSignatureConfirm = async () => {
-  try {
-    otpLoading.value = true;
+  if (!pendingApprovalData.value) return;
 
-    // Debug: Check what data we have before performing approval
+  console.log('Signature Confirmation received, requiresOTP:', pendingApprovalData.value.requiresOTP);
+
+  otpLoading.value = true;
+  try {
+    // For signature-only case, no OTP code needed
     console.log('🔍 Signature Confirmation Debug:', {
-      requiresOTP: pendingApprovalData.value?.requiresOTP,
-      receiptId: pendingApprovalData.value?.receiptId,
-      stepId: pendingApprovalData.value?.stepId,
-      willCallApprovalHalGroup: !pendingApprovalData.value?.requiresOTP,
-      approval_id_will_be_sent: pendingApprovalData.value?.stepId, // This should be 1253, not 148
+      requiresOTP: false,
+      receiptId: pendingApprovalData.value.receiptId,
+      stepId: pendingApprovalData.value.stepId,
+      willCallApprovalHalGroup: true,
+      approval_id_will_be_sent: pendingApprovalData.value.stepId,
       full_pending_data: pendingApprovalData.value
     });
 
-    // Clear warning before calling API
-    console.warn('⚠️ ABOUT TO CALL API - CHECKING FINAL PARAMETERS:');
-    console.warn('✅ Expected API call: /api/approve-step/' + pendingApprovalData.value?.stepId);
-    console.warn('❌ Wrong API call would be: /api/approve-step/' + pendingApprovalData.value?.receiptId);
-
-    // Perform approval after signature confirmation
-    await performApproval();
+    // Use the real approval API with empty string for OTP
+    await performApproval('');
 
     // Store action type before clearing data
     successActionType.value = pendingApprovalData.value?.action || undefined;
 
+    // Success - Show success modal
     showSignatureModal.value = false;
     showSuccessModal.value = true;
   } catch (err) {
-    console.error(err);
-    error("ການຢືນຢັນລາຍເຊັນລົ້ມເຫລວ");
+    console.error("Signature verification failed:", err);
+    error("ການຢືນຢັນລາຍເຊັນລົ້ມເຫລວ", "ກະລຸນາລອງອີກຄັ້ງ");
   } finally {
     otpLoading.value = false;
   }
 };
 
+// Handle Signature modal close
 const handleSignatureClose = () => {
   showSignatureModal.value = false;
+  pendingApprovalData.value = null;
 };
 
 // Handle success modal confirmation
@@ -1377,20 +1406,25 @@ const handleRejectCancel = () => {
       </div>
     </UiModal>
 
-    <!-- OTP Modal -->
+    <!-- OTP Modal (for is_otp=true cases only) -->
     <OtpModal
-      :visible="showOtpModal"
-      :title="pendingApprovalData?.action === 'reject' ? 'ຢືນຢັນການປະຕິເສດ' : 'ຢືນຢັນການອະນຸມັດ'"
+      v-if="showOtpModal && pendingApprovalData"
+      :visible="true"
+      :title="pendingApprovalData.action === 'reject' ? 'ຢືນຢັນການປະຕິເສດ' : 'ຢືນຢັນການອະນຸມັດ'"
+      :approval-step-id="pendingApprovalData.stepId || null"
+      :is-otp="true"
       :loading="otpLoading"
+      :key="`otp-modal-${pendingApprovalData.stepId}-true`"
       @confirm="handleOtpConfirm"
       @close="handleOtpClose"
       @resend="handleOtpResend"
     />
 
-    <!-- Signature Modal -->
+    <!-- Signature Modal (for is_otp=false cases only) -->
     <SignatureModal
-      :visible="showSignatureModal"
-      :title="pendingApprovalData?.action === 'reject' ? 'ຢືນຢັນການປະຕິເສດ' : 'ຢືນຢັນການອະນຸມັດ'"
+      v-if="showSignatureModal && pendingApprovalData"
+      :visible="true"
+      :title="pendingApprovalData.action === 'reject' ? 'ຢືນຢັນການປະຕິເສດ' : 'ຢືນຢັນການອະນຸມັດ'"
       :loading="otpLoading"
       @confirm="handleSignatureConfirm"
       @close="handleSignatureClose"

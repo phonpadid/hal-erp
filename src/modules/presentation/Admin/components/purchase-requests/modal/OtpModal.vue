@@ -25,7 +25,17 @@ const props = defineProps<{
   title: string;
   approvalStepId?: number | null;
   loading?: boolean;
+  is_otp?: boolean;
 }>();
+
+// 🔍 Debug: เฝ้าดูการเปลี่ยนแปลงของ props
+watch(() => props.is_otp, (newVal, oldVal) => {
+  console.log('🔍 OtpModal props.is_otp changed:', { oldVal, newVal });
+});
+
+watch(() => props.visible, (newVal) => {
+  console.log('🔍 OtpModal props.visible changed:', { newVal, is_otp: props.is_otp });
+});
 
 const emit = defineEmits<{
   (e: "confirm", otpValue: string): void;
@@ -70,20 +80,34 @@ const isOtpComplete = computed(() => {
 watch(
   () => props.visible,
   (newVisible) => {
+    console.log('🔍 OtpModal visibility changed:', {
+      newVisible,
+      is_otp: props.is_otp,
+      type: typeof props.is_otp,
+      approvalStepId: props.approvalStepId
+    });
+
     if (!newVisible) {
       // Reset state when modal closes
       confirmOTP.value = false;
       otpValue.value = Array(6).fill("");
       resendCooldown.value = false;
-    } else if (newVisible && !confirmOTP.value) {
-      // เมื่อโมดัลแสดง ให้โฟกัสที่ช่องแรก
-      nextTick(() => {
-        const firstInput = otpInputRefs.value[0];
-        if (firstInput) {
-          const inputElement = firstInput.$el.querySelector("input") || firstInput.$el;
-          inputElement?.focus();
-        }
-      });
+    } else if (newVisible) {
+      // ✅ แก้ไข: ใช้ !props.is_otp แทน === false เพื่อ handle undefined/null
+      if (!props.is_otp) {
+        console.log('⚠️ Skipping OTP because is_otp is false/undefined. Value:', props.is_otp);
+        confirmOTP.value = true;
+      } else if (!confirmOTP.value) {
+        console.log('✅ Showing OTP form. is_otp =', props.is_otp);
+        // เมื่อโมดัลแสดง ให้โฟกัสที่ช่องแรก
+        nextTick(() => {
+          const firstInput = otpInputRefs.value[0];
+          if (firstInput) {
+            const inputElement = firstInput.$el.querySelector("input") || firstInput.$el;
+            inputElement?.focus();
+          }
+        });
+      }
     }
   }
 );
@@ -112,7 +136,7 @@ const handleOtpKeydownEvent = async (event: KeyboardEvent, index: number) => {
   const key = event.key;
 
   if (key === "Enter") {
-    if (!confirmOTP.value && isOtpComplete.value) {
+    if (!confirmOTP.value && (!props.is_otp || isOtpComplete.value)) {
       event.preventDefault();
       confirmOtpStep();
     } else if (confirmOTP.value) {
@@ -156,6 +180,15 @@ const handleOtpKeydownEvent = async (event: KeyboardEvent, index: number) => {
 };
 
 const confirmOtpStep = () => {
+  // ✅ แก้ไข: ใช้ !props.is_otp แทน === false
+  if (!props.is_otp) {
+    console.log('⚠️ confirmOtpStep: Skipping OTP because is_otp is false/undefined');
+    confirmOTP.value = true;
+    return;
+  }
+
+  // Otherwise, check if OTP is complete
+  console.log('✅ confirmOtpStep: Checking if OTP is complete');
   if (isOtpComplete.value) {
     confirmOTP.value = true;
   }
@@ -330,10 +363,10 @@ const handleImageError = (event: Event) => {
         <button
           v-if="!confirmOTP"
           @click="confirmOtpStep"
-          :disabled="!isOtpComplete || props.loading"
+          :disabled="(props.is_otp && !isOtpComplete) || props.loading"
           :class="[
             'flex-1 px-4 py-2 rounded-lg transition-colors flex items-center justify-center',
-            isOtpComplete && !props.loading
+            (!props.is_otp || isOtpComplete) && !props.loading
               ? 'bg-red-600 text-white hover:bg-red-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed',
           ]"

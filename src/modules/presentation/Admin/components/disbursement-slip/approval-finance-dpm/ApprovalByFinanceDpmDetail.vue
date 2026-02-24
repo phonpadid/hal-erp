@@ -397,7 +397,7 @@ onMounted(async () => {
                 style="max-width: 100%; max-height: 100%;" />
             </div>
             <!-- Show upload button only if user can upload -->
-            <div v-if="check && isAwaitingUser"
+            <div v-if="check && isAwaitingUser && isUserPendingApprover"
               class="flex flex-col items-center justify-center w-[190px] h-[120px] border border-dashed bg-gray-100/60 border-gray-300 rounded-md hover:border-red-500 transition cursor-pointer"
               @click="createModalVisible = true">
               <Icon icon="mdi:upload" class="text-2xl text-gray-400 mb-1" />

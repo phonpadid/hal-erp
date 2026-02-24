@@ -138,8 +138,20 @@
             </template>
             <template #image="{ record }">
               <span>
+                <!-- Check if it's a PDF file by checking if URL contains po_file_name path -->
+                <a
+                  v-if="record.getQuotationImageUrl() && record.getQuotationImageUrl().includes('po_file_name/')"
+                  :href="record.getQuotationImageUrl()"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-2 px-3 py-2 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200"
+                >
+                  <Icon icon="material-symbols:lab-profile-outline-rounded" class="text-red-600 text-2xl" />
+                  <span class="text-xs text-red-700 font-medium">ເບິງຂໍ້ມູນໃບສະເໜີ</span>
+                </a>
+                <!-- Display image for non-PDF files -->
                 <a-image
-                  v-if="record.getQuotationImageUrl()"
+                  v-else-if="record.getQuotationImageUrl()"
                   :src="record.getQuotationImageUrl()"
                   alt="Product Image"
                   :width="50"
@@ -185,7 +197,7 @@
               <div class="flex flex-col items-center">
                 <!-- Step Title -->
                 <p class="text-slate-500 text-sm mb-2 text-center">
-                  {{ getStepTitle(index) }}
+                  {{ getStepTitle(index, step) }}
                 </p>
 
                 <!-- Signature Display - Fixed Container -->
@@ -213,10 +225,17 @@
                   <template v-if="step.approver">
                     <p class="font-medium">{{ step.approver.username }}</p>
                     <p class="text-xs text-gray-500">{{ step.position?.name || "-" }}</p>
+                    <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
+                    <p v-if="step.approved_at" class="text-xs text-blue-500 mt-1">
+                      {{ formatDate(step.approved_at) }}
+                    </p>
                   </template>
-                  <template v-else-if="step.doc_approver?.[0]?.user">
+                  <template v-else>
                     <p class="text-xs text-gray-500">
                       {{ t("purchase-rq.pending") }}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                      {{ step.doc_approver?.[0]?.department?.name || "-" }}
                     </p>
                   </template>
                 </div>
@@ -270,12 +289,15 @@
   </UiModal>
   <!-- OTP Modal -->
   <OtpModal
-    :visible="isOtpModalVisible"
+    v-if="isOtpModalVisible"
+    :visible="true"
     :title="t('purchase-rq.otp-verification')"
     :approval-step-id="currentApprovalStep?.id"
+    :is-otp="currentPoIsOtp"
     :loading="confirmLoading"
+    :key="`otp-modal-po-${currentPoStepId}-${currentPoIsOtp}`"
     @confirm="handleOtpConfirm"
-    @close="handleModalCancel"
+    @close="handleOtpClose"
     @resend="handleResendOtp"
   />
   <!-- Signature Modal -->
@@ -285,21 +307,27 @@
     :visible="isSignatureModalVisible"
     :confirm-loading="confirmLoading"
     @update:visible="isSignatureModalVisible = $event"
-    @ok="handleSuccessConfirm"
+    @ok="handleSignatureConfirm"
     @cancel="handleModalCancel"
   >
     <div>
-      <div>
-        <p>{{ userInfo.name }} {{ userInfo.department }}</p>
+      <div class="flex gap-2 items-center">
+        <span class="font-medium">{{ userInfo.name }}</span>
+        <span class="text-sm text-gray-600">{{ userInfo.department }}</span>
       </div>
 
       <div>
         <p class="text-xl font-bold">ລາຍເຊັນ</p>
         <p>ລາຍເຊັນຂອງທ່ານຈະຖືກນຳໃຊ້ໃນການຢືນຢັນເອກະສານ</p>
 
-        <!-- Signature Pad -->
-        <div class="flex justify-center w-full">
-          <img src="/public/2.png" class="w-52" />
+        <!-- Signature Display - User's actual signature -->
+        <div class="flex justify-center w-full mt-4">
+          <img
+            :src="userSignature"
+            alt="Digital Signature"
+            class="max-w-[270px] max-h-[120px] object-contain"
+            @error="handleImageError"
+          />
         </div>
       </div>
     </div>
@@ -393,7 +421,7 @@
 
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch, nextTick } from "vue";
 import { columnsApprovalDetails } from "../../views/budget/budget-approval/column/columnDetails";
 import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -448,6 +476,10 @@ const authStore = useAuthStore();
 const { userRoles } = storeToRefs(authStore);
 const reportExcelPoStore = useReportPoStore();
 
+// ✅ เพิ่ม state สำหรับ OTP (เหมือนกับ PR)
+const currentPoIsOtp = ref<boolean>(false);
+const currentPoStepId = ref<number | null>(null);
+
 // Super Admin Authentication Check
 const isSuperAdmin = computed(() => {
   return userRoles.value.includes('super-admin');
@@ -462,7 +494,7 @@ const hasApprovalAccess = computed(() => {
     return false;
   }
 
-  
+
 
   // Super admins always have approval access
   if (isSuperAdmin.value) {
@@ -553,11 +585,13 @@ const showShopDetails = (record: any) => {
   selectedShopId.value = record.getId();
   isShopDrawerVisible.value = true;
 };
-const getStepTitle = (index: number) => {
+const getStepTitle = (index: number, step: any) => {
   if (index === 0) {
     return t("purchase-rq.proposer");
   }
-  return `${t("purchase-rq.approver")} ${index}`;
+  // ໃຊ້ຊື່ແຜນກຈາກ doc_approver[0].department.name
+  const deptName = step.doc_approver?.[0]?.department?.name;
+  return deptName || `${t("purchase-rq.approver")} ${index}`;
 };
 
 // ລາຄາ
@@ -689,7 +723,7 @@ const currentApprovalStep = computed(() => {
         step.step_number === nextStepNumber
     );
 
-   
+
 
     // ✅ For Super Admins: Check if they are explicitly authorized in doc_approver OR if no specific approvers are set
     if (pendingStep) {
@@ -713,10 +747,10 @@ const currentApprovalStep = computed(() => {
       });
 
       if (isExplicitlyAuthorized) {
-       
+
         return pendingStep;
       } else {
-        
+
         return null;
       }
     }
@@ -734,12 +768,12 @@ const currentApprovalStep = computed(() => {
   const isPORequester = poRequester === userData.username;
   const isPOFirstStep = approvalSteps.value.some(step => step.step_number === 0 && step.status_id === 1);
 
-  
+
 
   // ✅ ຖ້າເປັນ requester ແລະ step ທຳອິດຍັງບໍ່ອະນຸມັດ → ໃຫ້ອະນຸມັດໄດ້
   if (isPORequester && isPOFirstStep) {
     const firstStep = approvalSteps.value.find(step => step.step_number === 0);
-   
+
     return firstStep || null;
   }
 
@@ -754,7 +788,7 @@ const currentApprovalStep = computed(() => {
   );
 
   if (!pendingStep) {
-   
+
     return null;
   }
 
@@ -832,7 +866,7 @@ const canApprove = computed(() => {
       return userMatches || departmentMatches; // For Company Admin, allow username OR department match
     });
 
-    
+
 
     return isExplicitlyAuthorized;
   }
@@ -852,7 +886,7 @@ const canApprove = computed(() => {
     previousStep.status_id === 2 &&
     previousStep.step_number === currentStep.step_number - 1;
 
-  
+
 
   return canApprove;
 });
@@ -862,7 +896,7 @@ const isFullyApproved = computed(() => {
     return false;
   }
 
-  
+
 
   // ✅ ຖ້າມີ step ທີ່ຖືກປະຕິເສດ -> ບໍ່ຖືກອະນຸມັດຄົບ
   const hasRejectedStep = approvalSteps.value.some(step => step.status_id === 3);
@@ -873,13 +907,13 @@ const isFullyApproved = computed(() => {
   // ✅ ເຊ็คວ່າທຸກ step ມີສະຖານະ APPROVED (status_id === 2)
   const allStepsApproved = approvalSteps.value.every(step => step.status_id === 2);
 
-  
+
 
   return allStepsApproved;
 });
 
 const customButtons = computed(() => {
-  
+
 
   // ✅ ເພີ່ກວດສອບສະຖານະພິເສດຂອງ PO Requester ທີ່ຕ້ອງອະນຸມັດຂັ້ນຕອນທຳອິດ
   const userDataStr = localStorage.getItem("userData");
@@ -957,7 +991,7 @@ const customButtons = computed(() => {
 
   // ✅ ຖ້າເປັນ PO Requester ແລະມີ current step (ຂັ້ນຕອນທຳອິດ) → ແສດງປຸ່ມອະນຸມັດ
   if (isPORequester && isPOFirstStep && currentApprovalStep.value) {
-    
+
 
     return [
       {
@@ -1055,6 +1089,15 @@ const signatureData = ref("");
 const open = ref<boolean>(false);
 const selectedData = ref<string | null>(null);
 const purchaseOrderId = route.params.id as string;
+
+// ✅ เพิ่ม watch หลังจากที่ประกาศตัวแปรแล้ว
+watch(() => currentPoIsOtp.value, (newVal) => {
+  console.log('🔍 [PO] currentPoIsOtp.value changed:', newVal);
+});
+
+watch(() => isOtpModalVisible.value, (newVal) => {
+  console.log('🔍 [PO] isOtpModalVisible.value changed to:', newVal, 'currentPoIsOtp.value =', currentPoIsOtp.value);
+});
 const onChooseDocumentType = () => {
   selectedData.value = purchaseOrderId;
   open.value = true;
@@ -1135,9 +1178,44 @@ const handlePrint = () => {
   window.print();
 };
 
-const userInfo = {
-  name: "ນາງ ປາກາລີ ລາຊະບູລີ",
-  department: "ພະແນກໄອທີ, ພະບໍລິມາດ",
+// ✅ Get user info from auth store instead of static data
+const userInfo = computed(() => {
+  const userData = authStore.user;
+  const department = orderDetails.value?.getDepartment()?.name || "";
+
+  return {
+    name: userData?.getUsername() || "ບໍ່ພົບຜູ້ໃຊ້",
+    department: department,
+  };
+});
+
+// ✅ Get user signature from auth store or localStorage
+const userSignature = computed(() => {
+  // Try to get signature from auth store user data first
+  if (authStore.user?.getSignature()) {
+    return authStore.user.getSignature();
+  }
+
+  // Fallback to localStorage directly
+  try {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      return parsedData.signature;
+    }
+  } catch (error) {
+    console.error('Error parsing userData from localStorage:', error);
+  }
+
+  // Fallback to default signature image if no signature found
+  return '/2.png';
+});
+
+// ✅ Handle signature image error
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  // Fallback to default signature image if user signature fails to load
+  img.src = '/2.png';
 };
 
 const handleOtpConfirm = async (otpCode: string) => {
@@ -1183,7 +1261,7 @@ const handleOtpConfirm = async (otpCode: string) => {
       if (currentApprovalStep.value.step_number === 0) {
         // console.log("🔄 First step approved, redirecting to PR list...");
         // ຖ້າເປັນຂັ້ນຕອນທໍາອິດ ໃຫ້ກັບໄປຫນ້າ PR list
-          router.push({ name: "purchase-requests" }); // ປັ່ຽນຊື່ route ໃຫ້ຖືກຕ້ອງ
+          router.push({ name: "approval_department_panak" }); // ປັ່ຽນຊື່ route ໃຫ້ຖືກຕ້ອງ
       }
     }
   } catch (err) {
@@ -1216,43 +1294,35 @@ const handleApprove = async () => {
 
     // ✅ ກວດສອບຂັ້ນຕອນກ່ອນສົ່ງ OTP
     const isFirstStep = currentApprovalStep.value.step_number === 0;
-   
+
+    console.log('🔍 [PO] handleApprove: currentApprovalStep.is_otp =', currentApprovalStep.value.is_otp);
 
     if (currentApprovalStep.value.is_otp) {
+      // ✅ ตั้งค่า is_otp ก่อนเปิด modal
+      console.log('🔍 [PO] STEP 1: Setting currentPoIsOtp.value =', currentApprovalStep.value.is_otp);
+      currentPoIsOtp.value = currentApprovalStep.value.is_otp;
+      currentPoStepId.value = currentApprovalStep.value.id;
+
+      // รอ Vue update
+      await nextTick();
+
+      console.log('🔍 [PO] STEP 2: After nextTick, currentPoIsOtp.value =', currentPoIsOtp.value);
+
+      // ส่ง OTP
       const otpResult = await approvalStepStore.sendOtp(currentApprovalStep.value.id);
       if (otpResult) {
+        // รอ Vue update อีกครั้ง
+        await nextTick();
+        console.log('🔍 [PO] STEP 3: Opening modal, currentPoIsOtp.value =', currentPoIsOtp.value);
         isOtpModalVisible.value = true;
       }
       return false;
     } else {
-      const payload = {
-        type: "po" as const,
-        statusId: Number(approvedStatusId.value),
-        remark: "ຢືນຢັນສຳເລັດ",
-        approvalStepId: Number(currentApprovalStep.value.id),
-        is_otp: false,
-        purchase_order_items: purchaseOrderItemsPayload,
-        files: [],
-      };
-
-      const documentId = route.params.id as string;
-      const success = await approvalStepStore.submitApprovalDepartMent(documentId, payload);
-
-      if (success) {
-        isApproveModalVisible.value = false;
-        isSuccessModalVisible.value = true;
-        isApproved.value = true;
-
-        // ✅ ກວດສອບວ່າເປັນຂັ້ນຕອນທໍາອິດ ຫຼືບໍ່ (ຖ້າບໍ່ຕ້ອງການ OTP)
-        if (isFirstStep) {
-          // console.log("🔄 First step approved (no OTP), redirecting to PR list...");
-            router.push({ name: "purchase-requests" });      
-        }
-
-        return true;
-      }
+      // ✅ When is_otp: false, show signature modal first for confirmation
+      console.log('🔍 [PO] is_otp is false, showing signature modal for confirmation');
+      isSignatureModalVisible.value = true;
+      return false;
     }
-    return false;
   } catch (err) {
     console.error("Error in handleApprove:", err);
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
@@ -1320,15 +1390,56 @@ const documentDetails = {
 
 /********************************************************** */
 const handleSignatureConfirm = async () => {
+  if (!orderDetails.value || !currentApprovalStep.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນເອກະສານ");
+    return;
+  }
+
+  if (!approvedStatusId.value) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບສະຖານະການອະນຸມັດ");
+    return;
+  }
+
   try {
     confirmLoading.value = true;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    isSignatureModalVisible.value = false;
-    isSuccessModalVisible.value = true;
-    success("ການຢືນຢັນສຳເລັດ");
+
+    // ✅ Prepare purchase order items payload
+    const purchaseOrderItemsPayload = Object.keys(selectedBudgets.value).map((itemId) => {
+      const budgetData = selectedBudgets.value[itemId];
+      return {
+        id: Number(budgetData.purchaseOrderItemId),
+        budget_item_id: budgetData.budgetId,
+      };
+    });
+
+    // ✅ Submit approval with is_otp: false
+    const payload = {
+      type: "po" as const,
+      statusId: Number(approvedStatusId.value),
+      remark: "ຢືນຢັນສຳເລັດ",
+      approvalStepId: Number(currentApprovalStep.value.id),
+      is_otp: false,
+      purchase_order_items: purchaseOrderItemsPayload,
+      files: [],
+    };
+
+    const documentId = route.params.id as string;
+    const success = await approvalStepStore.submitApprovalDepartMent(documentId, payload);
+
+    if (success) {
+      isSignatureModalVisible.value = false;
+      isSuccessModalVisible.value = true;
+      isApproved.value = true;
+
+      // ✅ Check if it's the first step - redirect to list
+      const isFirstStep = currentApprovalStep.value.step_number === 0;
+      if (isFirstStep) {
+        router.push({ name: "purchase-requests" });
+      }
+    }
   } catch (err) {
-    console.error(err);
-    error("ການຢືນຢັນລາຍເຊັນລົ້ມເຫລວ");
+    console.error("Error in handleSignatureConfirm:", err);
+    error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
   } finally {
     confirmLoading.value = false;
   }
@@ -1359,6 +1470,14 @@ const handleModalCancel = () => {
   isSignatureModalVisible.value = false;
   isSuccessModalVisible.value = false;
   signatureData.value = "";
+};
+
+// ✅ เพิ่ม function สำหรับปิด OTP modal
+const handleOtpClose = () => {
+  console.log('🔍 [PO] Modal closed, reset currentPoIsOtp to false');
+  isOtpModalVisible.value = false;
+  currentPoIsOtp.value = false;
+  currentPoStepId.value = null;
 };
 </script>
 <style scoped>

@@ -1,0 +1,486 @@
+{
+    "status_code": 200,
+    "message": "ການດຳເນີນການສຳເລັດ",
+    "data": {
+        "id": 160,
+        "purchase_request_id": 471,
+        "po_number": "0002/ກງ/ກງ",
+        "order_date": "10-02-2026 16:24:56",
+        "expired_date": "11-02-2026 07:00:00",
+        "purposes": "fff",
+        "is_created_rc": false,
+        "created_at": "10-02-2026 16:24:56",
+        "updated_at": "10-02-2026 16:24:56",
+        "sub_total": 12000000,
+        "vat": 600000,
+        "total": 12600000,
+        "step": true,
+        "purchase_request": {
+            "id": 471,
+            "document_id": 782,
+            "pr_number": "0050/ກງ",
+            "requested_date": "10-02-2026 14:24:48",
+            "expired_date": "11-02-2026 07:00:00",
+            "purposes": "fff",
+            "is_created_po": false,
+            "created_at": "10-02-2026 14:24:48",
+            "updated_at": "10-02-2026 14:24:48",
+            "total": 12000000,
+            "step": false,
+            "document": {
+                "id": 782,
+                "document_number": "D-E4F149",
+                "title": "",
+                "description": "fff",
+                "total_amount": 0,
+                "department_id": 59,
+                "requester_id": 115,
+                "document_type_id": "33",
+                "created_at": "10-02-2026 14:24:48",
+                "updated_at": "10-02-2026 14:24:48",
+                "department": {
+                    "id": 59,
+                    "code": "ກງ",
+                    "name": "ການເງິນ",
+                    "department_head_id": 0,
+                    "created_at": "09-12-2025 14:26:17",
+                    "updated_at": "09-12-2025 15:12:33",
+                    "department_head": null,
+                    "company": null
+                },
+                "document_type": {
+                    "id": "33",
+                    "code": "DT-PR-0001",
+                    "name": "ໃບສະເໜີ",
+                    "created_at": "25-09-2025 15:39:55",
+                    "updated_at": "25-09-2025 15:39:55"
+                },
+                "requester": {
+                    "id": 115,
+                    "username": "tou",
+                    "email": "haltecherpproject@gmail.com",
+                    "tel": "2096473509",
+                    "created_at": "09-12-2025 14:44:03",
+                    "updated_at": "13-02-2026 09:57:56",
+                    "user_signature": {
+                        "id": "93",
+                        "user_id": 115,
+                        "signature": "user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
+                        "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
+                        "created_at": "18-02-2026 09:35:10",
+                        "updated_at": "Invalid date"
+                    },
+                    "roles": [],
+                    "permissions": [],
+                    "user_types": []
+                },
+                "position": [
+                    {
+                        "id": 68,
+                        "name": "ພະນັກງານ",
+                        "created_at": "18-02-2026 09:35:10",
+                        "updated_at": "Invalid date",
+                        "company": null
+                    }
+                ],
+                "company": null
+            },
+            "company": null,
+            "user_approval": null,
+            "purchase_request_item": [
+                {
+                    "id": 476,
+                    "purchase_request_id": 471,
+                    "title": "ຄອມພີວເຕີ່ Mac M3",
+                    "file_name": "pr_file_name/019c4670-4360-76bc-a169-e2c88bd7f593-1770708288352",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019c4670-4360-76bc-a169-e2c88bd7f593-1770708288352",
+                    "quantity": 1,
+                    "unit_id": "34",
+                    "quota_company_id": 0,
+                    "price": 12000000,
+                    "total_price": 12000000,
+                    "remark": "f",
+                    "created_at": "10-02-2026 14:24:48",
+                    "updated_at": "10-02-2026 14:24:48",
+                    "unit": {
+                        "id": "34",
+                        "name": "ໜ່ວຍ",
+                        "created_at": "20-11-2025 11:01:13",
+                        "updated_at": "20-11-2025 11:01:13"
+                    },
+                    "quota_company": null
+                }
+            ]
+        },
+        "document": {
+            "id": 783,
+            "document_number": "D-5EBC64",
+            "title": "",
+            "description": "",
+            "total_amount": 0,
+            "department_id": 59,
+            "requester_id": 115,
+            "document_type_id": "34",
+            "created_at": "10-02-2026 16:24:56",
+            "updated_at": "10-02-2026 16:24:56",
+            "department": {
+                "id": 59,
+                "code": "ກງ",
+                "name": "ການເງິນ",
+                "department_head_id": 0,
+                "created_at": "09-12-2025 14:26:17",
+                "updated_at": "09-12-2025 15:12:33",
+                "department_head": null,
+                "company": null
+            },
+            "document_type": {
+                "id": "34",
+                "code": "DT-PO-0001",
+                "name": "ໃບອະນຸມັດຈັດຊື້",
+                "created_at": "25-09-2025 15:40:46",
+                "updated_at": "25-09-2025 15:40:46"
+            },
+            "requester": {
+                "id": 115,
+                "username": "tou",
+                "email": "haltecherpproject@gmail.com",
+                "tel": "2096473509",
+                "created_at": "09-12-2025 14:44:03",
+                "updated_at": "13-02-2026 09:57:56",
+                "user_signature": {
+                    "id": "93",
+                    "user_id": 115,
+                    "signature": "user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
+                    "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
+                    "created_at": "09-12-2025 14:44:03",
+                    "updated_at": "09-12-2025 14:44:03"
+                },
+                "roles": [],
+                "permissions": [],
+                "user_types": []
+            },
+            "position": [
+                {
+                    "id": 68,
+                    "name": "ພະນັກງານ",
+                    "created_at": "09-12-2025 14:30:23",
+                    "updated_at": "09-12-2025 14:30:23",
+                    "company": null
+                }
+            ],
+            "company": {
+                "id": 22,
+                "name": "Hal-tech",
+                "logo": "company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019b0200-3818-738b-89da-989f47e9e15a-1765265127448",
+                "tel": "2055889858",
+                "email": "haltech@gmail.com",
+                "address": "ບ້ານຈອມມະນີ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ",
+                "created_at": "09-12-2025 14:25:27",
+                "updated_at": "09-12-2025 14:25:27"
+            }
+        },
+        "user_approval": {
+            "id": 686,
+            "document_id": 783,
+            "status_id": 1,
+            "created_at": "10-02-2026 16:24:57",
+            "updated_at": "10-02-2026 16:24:57",
+            "document_status": {
+                "id": 1,
+                "name": "PENDING",
+                "created_at": "25-07-2025 07:02:32",
+                "updated_at": "25-07-2025 07:02:32"
+            },
+            "approval_step": [
+                {
+                    "id": 1518,
+                    "user_approval_id": 686,
+                    "step_number": 0,
+                    "approver_id": 115,
+                    "approved_at": "10-02-2026 16:25:22",
+                    "status_id": 2,
+                    "remark": "ຢືນຢັນສຳເລັດ",
+                    "requires_file_upload": false,
+                    "is_otp": true,
+                    "created_at": "10-02-2026 16:24:57",
+                    "updated_at": "10-02-2026 16:25:22",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "25-07-2025 07:02:32",
+                        "updated_at": "25-07-2025 07:02:32"
+                    },
+                    "approver": {
+                        "id": 115,
+                        "username": "tou",
+                        "email": "haltecherpproject@gmail.com",
+                        "tel": "2096473509",
+                        "created_at": "09-12-2025 14:44:03",
+                        "updated_at": "13-02-2026 09:57:56",
+                        "user_signature": {
+                            "id": "93",
+                            "user_id": 115,
+                            "signature": "user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
+                            "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
+                            "created_at": "18-02-2026 09:35:10",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 68,
+                        "name": "ພະນັກງານ",
+                        "created_at": "09-12-2025 14:30:23",
+                        "updated_at": "09-12-2025 14:30:23",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 1653,
+                            "user_approval_step_id": 1518,
+                            "user_id": 115,
+                            "created_at": "10-02-2026 16:24:57",
+                            "updated_at": "10-02-2026 16:24:57",
+                            "user": {
+                                "id": 115,
+                                "username": "tou",
+                                "email": "haltecherpproject@gmail.com",
+                                "tel": "2096473509",
+                                "created_at": "09-12-2025 14:44:03",
+                                "updated_at": "13-02-2026 09:57:56",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 59,
+                                "code": "ກງ",
+                                "name": "ການເງິນ",
+                                "department_head_id": 0,
+                                "created_at": "09-12-2025 14:26:17",
+                                "updated_at": "09-12-2025 15:12:33",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 1519,
+                    "user_approval_id": 686,
+                    "step_number": 1,
+                    "approver_id": 0,
+                    "approved_at": null,
+                    "status_id": 1,
+                    "remark": "",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "10-02-2026 16:25:22",
+                    "updated_at": "10-02-2026 16:25:22",
+                    "document_status": {
+                        "id": 1,
+                        "name": "PENDING",
+                        "created_at": "25-07-2025 07:02:32",
+                        "updated_at": "25-07-2025 07:02:32"
+                    },
+                    "approver": null,
+                    "position": null,
+                    "doc_approver": [
+                        {
+                            "id": 1654,
+                            "user_approval_step_id": 1519,
+                            "user_id": 119,
+                            "created_at": "10-02-2026 16:25:22",
+                            "updated_at": "10-02-2026 16:25:22",
+                            "user": {
+                                "id": 119,
+                                "username": "budget",
+                                "email": "lingkp20@gmail.com",
+                                "tel": "2052145591",
+                                "created_at": "09-12-2025 16:04:41",
+                                "updated_at": "17-02-2026 14:15:03",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 62,
+                                "code": "ງປມ",
+                                "name": "ງົບປະມານ",
+                                "department_head_id": 0,
+                                "created_at": "09-12-2025 14:27:36",
+                                "updated_at": "09-02-2026 10:07:19",
+                                "department_head": null,
+                                "company": null
+                            }
+                        },
+                        {
+                            "id": 1655,
+                            "user_approval_step_id": 1519,
+                            "user_id": 120,
+                            "created_at": "10-02-2026 16:25:22",
+                            "updated_at": "10-02-2026 16:25:22",
+                            "user": {
+                                "id": 120,
+                                "username": "budget_head",
+                                "email": "budgethead@gmail.com",
+                                "tel": "2052145598",
+                                "created_at": "09-12-2025 16:07:35",
+                                "updated_at": "09-02-2026 10:15:48",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 62,
+                                "code": "ງປມ",
+                                "name": "ງົບປະມານ",
+                                "department_head_id": 0,
+                                "created_at": "09-12-2025 14:27:36",
+                                "updated_at": "09-02-2026 10:07:19",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        "purchase_order_item": [
+            {
+                "id": 170,
+                "purchase_order_id": 160,
+                "purchase_request_item_id": 476,
+                "budget_item_id": 0,
+                "remark": "f",
+                "quantity": 1,
+                "price": 12000000,
+                "total": 12000000,
+                "vat_total": 600000,
+                "total_with_vat": 12600000,
+                "is_vat": true,
+                "created_at": "10-02-2026 16:24:56",
+                "updated_at": "10-02-2026 16:24:56",
+                "budget_item": null,
+                "purchase_request_item": {
+                    "id": 476,
+                    "purchase_request_id": 471,
+                    "title": "ຄອມພີວເຕີ່ Mac M3",
+                    "file_name": "pr_file_name/019c4670-4360-76bc-a169-e2c88bd7f593-1770708288352",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019c4670-4360-76bc-a169-e2c88bd7f593-1770708288352",
+                    "quantity": 1,
+                    "unit_id": "34",
+                    "quota_company_id": 0,
+                    "price": 12000000,
+                    "total_price": 12000000,
+                    "remark": "f",
+                    "created_at": "10-02-2026 14:24:48",
+                    "updated_at": "10-02-2026 14:24:48",
+                    "unit": {
+                        "id": "34",
+                        "name": "ໜ່ວຍ",
+                        "created_at": "20-11-2025 11:01:13",
+                        "updated_at": "20-11-2025 11:01:13"
+                    },
+                    "quota_company": {
+                        "id": 30,
+                        "year": "2026-01-01",
+                        "qty": 100,
+                        "vendor_product_id": "11",
+                        "company_id": 22,
+                        "created_at": "07-01-2026 16:36:04",
+                        "updated_at": "07-01-2026 16:36:04",
+                        "vendor_product": {
+                            "id": "11",
+                            "vendor_id": "21",
+                            "product_id": 1,
+                            "vendor": {
+                                "id": "21",
+                                "name": "ຮ້ານ COMCOM1"
+                            },
+                            "product": {
+                                "id": 1,
+                                "name": "ຄອມພີວເຕີ່ Mac M3"
+                            },
+                            "price": "12000000.00",
+                            "created_at": "25-11-2025 15:16:43",
+                            "updated_at": "25-11-2025 15:16:43"
+                        },
+                        "Product": {
+                            "id": 1,
+                            "name": "ຄອມພີວເຕີ່ Mac M3",
+                            "description": "Ram (16GB, SSD 520GB)",
+                            "product_type_id": 1,
+                            "unit_id": "34",
+                            "status": "active",
+                            "created_at": "31-10-2025 10:04:10",
+                            "updated_at": "20-11-2025 11:01:27"
+                        },
+                        "vendor": {
+                            "id": 21,
+                            "name": "ຮ້ານ COMCOM1",
+                            "contact_info": "2029999391",
+                            "created_at": "25-11-2025 15:15:15",
+                            "updated_at": "25-11-2025 15:15:25"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 155,
+                        "purchase_order_item_id": 170,
+                        "vendor_id": 21,
+                        "vendor_bank_account_id": 35,
+                        "filename": "po_file_name/019c46de-41b7-7302-879d-aad68a254b7c-1770715496887",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019c46de-41b7-7302-879d-aad68a254b7c-1770715496887",
+                        "reason": "dddd",
+                        "selected": true,
+                        "created_at": "10-02-2026 16:24:57",
+                        "updated_at": "10-02-2026 16:24:57",
+                        "vendor": {
+                            "id": 21,
+                            "name": "ຮ້ານ COMCOM1",
+                            "contact_info": "2029999391",
+                            "created_at": "25-11-2025 15:15:15",
+                            "updated_at": "25-11-2025 15:15:25"
+                        },
+                        "vendor_bank_account": {
+                            "id": 35,
+                            "vendor_id": 21,
+                            "currency_id": 6,
+                            "account_name": "LDB MR",
+                            "bank_id": 44,
+                            "account_number": "16000299383820001",
+                            "is_selected": true,
+                            "created_at": "25-11-2025 15:15:15",
+                            "updated_at": "17-12-2025 16:55:19",
+                            "vendor": null,
+                            "currency": {
+                                "id": 6,
+                                "code": "THB",
+                                "name": "Thai Baht",
+                                "created_at": "06-06-2025 14:06:51",
+                                "updated_at": "23-07-2025 11:06:47"
+                            },
+                            "bank": {
+                                "id": 44,
+                                "short_name": "BCEL One",
+                                "name": "ທະນາຄານ ການຄ້າຕ່າງປະເທດລາວ",
+                                "logo": "BANK_IMAGE_REPOSITORY/01999df1-6fd7-722c-8ede-f97d448fd387-1759291469783",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/01999df1-6fd7-722c-8ede-f97d448fd387-1759291469783",
+                                "created_at": "01-10-2025 09:36:51",
+                                "updated_at": "01-10-2025 11:04:30"
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

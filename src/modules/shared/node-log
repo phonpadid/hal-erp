@@ -1,0 +1,27 @@
+Fetching receipt with ID: 161 instead of receipt_number: 161
+ApproveProposal.vue:71 👤 Current logged in user: {id: 2, username: 'super-admin', email: 'super-admin@example.com', tel: '2078982880', department_name: null, …}
+ApproveProposal.vue:769 🔍 User Approval Check: {userId: 2, requestId: '161', receiptId: 161, approvalSteps: Proxy(Array), canApprove: true}
+ApproveProposal.vue:455 Current approval step ID: 1662
+ApproveProposal.vue:456 Current approval step: Proxy(Object) {id: 1662, user_approval_id: 733, step_number: 2, approver_id: 0, approved_at: null, …}
+ApproveProposal.vue:457 Next approvers: Proxy(Array) {0: {…}}
+ApproveProposal.vue:458 Requires file upload: false
+ApproveProposal.vue:459 Requires OTP: false
+ApproveProposal.vue:460 ----------------------------------
+ApproveProposal.vue:461 All approval steps:
+ApproveProposal.vue:463 Step 0: id=1661, status_id=2, step_number=1
+ApproveProposal.vue:463 Step 1: id=1660, status_id=2, step_number=0
+ApproveProposal.vue:463 Step 2: id=1662, status_id=1, step_number=2
+ApproveProposal.vue:479 🔍 Looking for approval steps...
+ApproveProposal.vue:480 User ID: 2
+ApproveProposal.vue:481 Approval Steps: Proxy(Array) {0: {…}, 1: {…}, 2: {…}}
+ApproveProposal.vue:485 Checking step 1661: {status_id: 2, doc_approvers: Array(1)}
+ApproveProposal.vue:485 Checking step 1660: {status_id: 2, doc_approvers: Array(1)}
+ApproveProposal.vue:485 Checking step 1662: {status_id: 1, doc_approvers: Array(1)}
+ApproveProposal.vue:497 Found current step: Proxy(Object) {id: 1662, user_approval_id: 733, step_number: 2, approver_id: 0, approved_at: null, …}
+ApproveProposal.vue:576 === APPROVAL DEBUG ===
+ApproveProposal.vue:577 Current Step: {id: 1662, step_number: 2, is_otp: false, is_otp_type: 'boolean', requires_file_upload: false}
+ApproveProposal.vue:587 🔍 OTP Check: {currentStep.is_otp: false, currentStep.is_otp === true: false, typeof currentStep.is_otp: 'boolean', willShowOtpModal: false, willShowSignatureModal: true}
+ApproveProposal.vue:606 Pending Approval Data: Proxy(Object) {ids: Array(1), action: 'approve', receiptId: 161, stepId: 1662, requiresFile: false, …}
+ApproveProposal.vue:607 🔍 About to show OtpModal with: {requiresOTP: false, requiresOTPType: 'boolean', Boolean_requiresOTP: false, stepId: 1662}
+ApproveProposal.vue:631 ✅ No OTP required - showing signature modal with is_otp=false
+ApproveProposal.vue:634 📲 showOtpModal.value set to: true
