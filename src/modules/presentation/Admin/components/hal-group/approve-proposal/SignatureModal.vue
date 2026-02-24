@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { Icon } from "@iconify/vue";
+import { computed } from "vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { useI18n } from "vue-i18n";
-import { getUserApv } from "@/modules/shared/utils/get-user.login";
+import { useAuthStore } from "@/modules/presentation/Admin/stores/authentication/auth.store";
 
 const props = defineProps<{
   visible: boolean;
@@ -18,24 +16,46 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const user = computed(() => getUserApv());
+const authStore = useAuthStore();
 
-// Get signature from localStorage
-const userSignature = ref<string>("");
-const signatureError = ref<string>("");
+// Get user signature from auth store or localStorage
+const userSignature = computed(() => {
+  // Try to get signature from auth store user data first
+  if (authStore.user?.getSignature()) {
+    return authStore.user.getSignature();
+  }
 
-onMounted(() => {
-  // Get signature from localStorage
+  // Fallback to localStorage directly
   try {
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem('userData');
     if (userData) {
-      const parsedUser = JSON.parse(userData);
-      userSignature.value = parsedUser.signature || "";
+      const parsedData = JSON.parse(userData);
+      return parsedData.signature;
     }
   } catch (error) {
-    console.error("Error loading signature from localStorage:", error);
-    signatureError.value = "ບໍ່ສາມາດໂຫຼດລາຍເຊັນຈາກລະບົບ";
+    console.error('Error parsing userData from localStorage:', error);
   }
+
+  // Fallback to default signature image if no signature found
+  return '/2.png';
+});
+
+// Get user name for display
+const displayUserName = computed(() => {
+  if (authStore.user?.getUsername()) {
+    return authStore.user.getUsername();
+  }
+  // Fallback to localStorage
+  try {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      return parsedData.username || parsedData.name || "ບໍ່ພົບຜູ້ໃຊ້";
+    }
+  } catch (error) {
+    console.error('Error parsing userData from localStorage:', error);
+  }
+  return "ບໍ່ພົບຜູ້ໃຊ້";
 });
 
 const handleConfirm = () => {
@@ -45,88 +65,97 @@ const handleConfirm = () => {
 const handleClose = () => {
   emit("close");
 };
+
+// Handle signature image error
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  // Fallback to default signature image if user signature fails to load
+  img.src = '/2.png';
+};
 </script>
 
 <template>
   <UiModal
     :title="title || 'ຢືນຢັນລາຍເຊັນ'"
     :visible="visible"
-    :confirm-loading="loading"
-    @update:visible="handleClose"
-    @ok="handleConfirm"
+    :footer="null"
+    @cancel="handleClose"
   >
-    <div class="space-y-6">
-      <!-- User Info -->
-      <div class="text-center text-sm flex items-center justify-center gap-2">
-        <p class="font-medium">{{ user?.username || "ຜູ້ໃຊ້ລະບົບ" }}</p>
-        <span class="text-gray-400">•</span>
-        <p class="text-gray-600">{{ user?.department_name || "" }}</p>
+    <div class="mt-4 px-2">
+      <!-- User Info Header -->
+      <div class="text-center text-sm flex items-center justify-start gap-2 mb-4">
+        <p class="font-medium">{{ displayUserName }}</p>
+        <span class="-mt-3 ml-1 text-bold">•</span>
+        <p>ອຳນວຍການ</p>
       </div>
 
-      <!-- Signature Display -->
-      <div class="space-y-3">
-        <p class="text-start font-medium text-gray-900">
-          ລາຍເຊັນດິຈິຕອລ
+      <!-- Signature Confirmation Section -->
+      <div class="mb-6">
+        <p class="text-start mb-2 font-bold">{{ t("purchase-rq.signature") }}</p>
+        <p class="text-start text-sm text-gray-600 mb-4">
+          {{ t("purchase-rq.message") }}
         </p>
 
-        <!-- Error State -->
-        <div v-if="signatureError" class="text-center text-red-500 p-4 border border-red-200 rounded-lg bg-red-50">
-          {{ signatureError }}
+        <!-- Signature Display - Clickable -->
+        <div
+          class="flex justify-center gap-2 bg-gray-100 rounded-md ring-1 ring-gray-300 p-4 cursor-pointer hover:bg-gray-200 transition-colors"
+          @click="handleConfirm"
+          title="Click to confirm signature"
+        >
+          <img
+            :src="userSignature"
+            alt="Digital Signature"
+            class="max-w-[270px] max-h-[120px] object-contain pointer-events-none"
+            @error="handleImageError"
+          />
         </div>
-
-        <!-- No Signature State -->
-        <div v-else-if="!userSignature" class="text-center text-gray-500 p-4 border border-gray-200 rounded-lg bg-gray-50">
-          ບໍ່ພົບລາຍເຊັນ ກະລຸນາຕັ້ງລາຍເຊັນໃນລະບົບ
-        </div>
-
-        <!-- Signature Display -->
-        <div v-else class="flex justify-center">
-          <div
-            class="bg-gray-100 rounded-md ring-1 ring-gray-300 p-4 hover:bg-gray-200 transition-colors cursor-pointer"
-            @click="handleConfirm"
-          >
-            <img
-              :src="userSignature"
-              alt="Digital Signature"
-              class="max-w-[270px] max-h-[120px] object-contain"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Instructions -->
-      <div class="text-center text-sm text-gray-600">
-        <p>ກະລຸນາກົດທີ່ລາຍເຊັນ ຫຼື ປຸ່ມ "ຢືນຢັນ" ເພື່ອອະນຸມັດເອກະສານນີ້</p>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex justify-center gap-3 pt-4">
+      <div class="flex gap-3">
+        <!-- Back/Cancel Button -->
         <button
           @click="handleClose"
-          class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+          :disabled="props.loading"
+          class="flex-1 px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Icon icon="ant-design:close-outlined" class="text-lg" />
-          ຍົກເລີກ
+          {{ t("purchase-rq.btn.cancel") }}
         </button>
 
+        <!-- Confirm Button -->
         <button
-          :disabled="!userSignature || loading"
           @click="handleConfirm"
+          :disabled="props.loading"
           :class="[
-            'px-6 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 shadow-lg',
-            userSignature && !loading
-              ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 transform hover:scale-105'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            'flex-1 px-4 py-2 rounded-lg transition-colors flex items-center justify-center',
+            !props.loading
+              ? 'bg-red-600 text-white hover:bg-red-700'
+              : 'bg-red-400 text-white cursor-not-allowed',
           ]"
         >
-          <span v-if="loading" class="mr-2">
-            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <span v-if="props.loading" class="mr-2">
+            <svg
+              class="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
           </span>
-          <Icon v-if="!loading" icon="ant-design:check-circle-outlined" class="text-lg" />
-          ຢືນຢັນການ{{ (title || '').includes('ປະຕິເສດ') ? 'ປະຕິເສດ' : 'ອະນຸມັດ' }}
+          {{ t("purchase-rq.btn.confirm") }}
         </button>
       </div>
     </div>

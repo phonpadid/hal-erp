@@ -20,8 +20,12 @@ const uploadedFileName = ref<string>("");
 const uploadLoading = ref(false);
 
 const beforeUpload = async (file: File) => {
-  if (file.type !== "application/pdf") {
-    message.error("ກະລຸນາເລືອກ PDF ເທົ່ານັ້ນ");
+  // ✅ รองรับทั้ง PDF และรูปภาพ
+  const isPdf = file.type === "application/pdf";
+  const isImage = file.type.startsWith("image/");
+
+  if (!isPdf && !isImage) {
+    message.error("ກະລຸນາເລືອກ PDF ຫຼື ຮູບພາບ (JPG, PNG, etc.) ເທົ່ານັ້ນ");
     return Upload.LIST_IGNORE;
   }
 
@@ -85,7 +89,7 @@ const handleRemove = () => {
     v-model:file-list="fileList"
     :before-upload="beforeUpload"
     :show-upload-list="false"
-    accept=".pdf,application/pdf"
+    accept=".pdf,application/pdf,image/*,.jpg,.jpeg,.png,.gif,.webp"
     :multiple="false"
     :max-count="1"
     :disabled="disabled || uploadLoading"
@@ -130,7 +134,7 @@ const handleRemove = () => {
           ຄິກຫຼືລາກໄຟລ໌ມາວາງທີ່ນີ່
         </div>
         <div class="hint-pdf">
-          ຮອງຮັບໄຟລ໌ PDF ເທົ່ານັ້ນ (ສູງສຸດ 10MB)
+          ຮອງຮັບໄຟລ໌ PDF ແລະ ຮູບພາບ (ສູງສຸດ 10MB)
         </div>
       </div>
     </div>
