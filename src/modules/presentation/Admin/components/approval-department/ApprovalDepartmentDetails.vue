@@ -827,12 +827,14 @@ const canCreatePaymentDocument = computed(() => {
   if (!allStepsApproved) {
     return false;
   }
-  const lastStep = [...approvalSteps.value].sort((a, b) => b.step_number - a.step_number)[0];
 
-  const isAuthorized = lastStep.doc_approver?.some((approver) => {
-    const userMatches = approver.user?.username === userData.username;
-    const departmentMatches = approver.department?.name === userData.department_name;
-    return userMatches && departmentMatches;
+  // Check if user is in any step's doc_approver (not just the last step)
+  const isAuthorized = approvalSteps.value.some((step) => {
+    return step.doc_approver?.some((approver) => {
+      const userMatches = approver.user?.username === userData.username;
+      const departmentMatches = approver.department?.name === userData.department_name;
+      return userMatches && departmentMatches;
+    });
   });
 
   return isAuthorized;
