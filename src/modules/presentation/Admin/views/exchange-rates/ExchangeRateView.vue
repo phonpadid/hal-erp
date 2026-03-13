@@ -290,7 +290,7 @@ const changeValue = () => {
           clearable
         />
 
-        <UiButton
+        <!-- <UiButton
           v-if="canCreateExchangeRate"
           type="primary"
           icon="ant-design:plus-outlined"
@@ -298,7 +298,7 @@ const changeValue = () => {
           colorClass="text-white flex items-center"
         >
           {{ t("button.add") }}
-        </UiButton>
+        </UiButton> -->
       </div>
     </div>
 
