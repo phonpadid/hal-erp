@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 // --- IMPORTS ---
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { Ref } from "vue";
 import { DatePicker, message, Select as ASelect } from "ant-design-vue";
 import dayjs from "dayjs";
@@ -32,11 +32,11 @@ import type {
 // --- STORES ---
 import { useUnitStore } from "../../stores/unit.store";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
-import { departmenUsertStore } from "../../stores/departments/department-user.store";
 import { useQuotaStore } from "../../stores/quotas/quota.store";
 import { useVendorStore } from "../../stores/vendors/vendor.store";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 import { Icon } from "@iconify/vue";
+import { useAuthStore } from "@/modules/presentation/Admin/stores/authentication/auth.store";
 
 // --- SCRIPT LOGIC ---
 const { t } = useI18n();
@@ -53,7 +53,7 @@ const props = defineProps<{
 
 const purchaseRequestStore = usePurchaseRequestsStore();
 const unitStore = useUnitStore();
-const userLocal = departmenUsertStore();
+const authStore = useAuthStore();
 const quotaStore = useQuotaStore();
 const vendorStore = useVendorStore();
 
@@ -64,6 +64,11 @@ const vendors = computed(() => vendorStore.activeVendors);
 
 // Store quota selections for each item
 const itemQuotaSelections = ref<Record<number, string>>({});
+
+// Search state for quota
+const quotaSearchTerm = ref<string>("");
+const searchTimeout = ref<NodeJS.Timeout | null>(null);
+const isSearchingQuota = ref<boolean>(false);
 
 // Helper function to extract year from date string
 const extractYear = (dateString: string): string => {
@@ -154,36 +159,10 @@ const handleItemQuotaChange = (index: number, quotaId: string) => {
   }
 };
 
-// Get quota details for specific item
-const getItemQuotaDetails = (index: number) => {
-  const quotaId = itemQuotaSelections.value[index];
-  if (!quotaId) return null;
-
-  const quota = quotaStore.quotas.find(q => q.getId() === quotaId);
-  if (!quota) return null;
-
-  const quotaEntity = quota as any;
-  const vendorProduct = quotaEntity.vendor_product;
-  const product = quotaEntity.product || vendorProduct?.product;
-
-  return {
-    id: quota.getId(),
-    productName: product?.name || "N/A",
-    productDescription: product?.description || "",
-    qty: quota.getQty(),
-    year: extractYear(quota.getYear()),
-    price: vendorProduct?.price || "0",
-    productType: product?.product_type?.name || "",
-  };
-};
-
 // Check if item has quota selected
 const hasItemQuota = (index: number) => {
   return !!itemQuotaSelections.value[index];
 };
-
-const userPosition = ref("ພະແນກການເງິນ, ພະນັກງານ");
-const departmentUser = userLocal.currentDpmUser;
 
 onMounted(async () => {
   // console.log("PurchaseForm: Starting data fetch...");
@@ -194,7 +173,7 @@ onMounted(async () => {
 
   // console.log("PurchaseForm: Fetching quotas...");
   try {
-    await quotaStore.fetchQuotas({ page: 1, limit: 1000 });
+    await quotaStore.searchQuotas({}, { page: 1, limit: 1000 });
     // console.log("PurchaseForm: Quotas fetched successfully:", quotaStore.quotas.length);
   } catch (error) {
     console.error("PurchaseForm: Failed to fetch quotas:", error);
@@ -305,23 +284,63 @@ function getFormData() {
 // Fetch quotas by selected vendor
 const fetchQuotasByVendor = async (vendorId: string) => {
   if (!vendorId) {
-    // If no vendor selected, fetch all quotas
-    await quotaStore.fetchQuotas({ page: 1, limit: 1000 });
+    // If no vendor selected, fetch all quotas with search
+    isSearchingQuota.value = true;
+    try {
+      await quotaStore.searchQuotas({
+        search: quotaSearchTerm.value || undefined,
+      }, { page: 1, limit: 1000 });
+    } finally {
+      isSearchingQuota.value = false;
+    }
     return;
   }
 
   try {
-    // console.log("Fetching quotas for vendor:", vendorId);
-    await quotaStore.fetchQuotas({
-      page: 1,
-      limit: 1000,
-      vendor_id: Number(vendorId)
-    });
+    isSearchingQuota.value = true;
+    await quotaStore.searchQuotas({
+      vendor_id: Number(vendorId),
+      search: quotaSearchTerm.value || undefined,
+    }, { page: 1, limit: 1000 });
     // console.log("Quotas fetched for vendor:", quotaStore.quotas.length);
   } catch (error) {
     console.error("Error fetching quotas for vendor:", error);
     message.error("ບໍ່ສາມາດໂຫຼດຂໍ້ມູນ Quota ຕາມຮ້ານຄ້ານີ້ໄດ້");
+  } finally {
+    isSearchingQuota.value = false;
   }
+};
+
+// Handle quota search with debounce (triggered by InputSelect @search event)
+const handleQuotaSearch = (searchValue: string) => {
+  quotaSearchTerm.value = searchValue;
+
+  // Clear existing timeout
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
+  }
+
+  // Set new timeout for debounce (500ms)
+  searchTimeout.value = setTimeout(async () => {
+    try {
+      isSearchingQuota.value = true;
+      if (selectedVendorId.value) {
+        await quotaStore.searchQuotas({
+          vendor_id: Number(selectedVendorId.value),
+          search: searchValue || undefined,
+        }, { page: 1, limit: 1000 });
+      } else {
+        await quotaStore.searchQuotas({
+          search: searchValue || undefined,
+        }, { page: 1, limit: 1000 });
+      }
+    } catch (error) {
+      console.error("Error searching quotas:", error);
+      message.error("ບໍ່ສາມາດຄົ້ນຫາ Quota ໄດ້");
+    } finally {
+      isSearchingQuota.value = false;
+    }
+  }, 500);
 };
 
 // Handle vendor selection change
@@ -438,6 +457,13 @@ const formattedPrice = (index: number) =>
     },
   });
 
+// Cleanup timeout on component unmount
+onUnmounted(() => {
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value);
+  }
+});
+
 defineExpose({
   validateForm,
   getFormData,
@@ -459,9 +485,9 @@ defineExpose({
             {{ t("purchase-rq.field.proposer", "ໃບສະເໜີ") }}
           </h2>
           <div class="flex items-center gap-2 text-gray-600">
-            <span>{{ departmentUser?.getUser()?.getUsername() }}</span>
+            <span>{{ authStore.user?.getUsername() }}</span>
             <span>•</span>
-            <span>{{ userPosition }}</span>
+            <span>{{ authStore.user?.getDepartmentName() }}</span>
           </div>
         </div>
       </div>
@@ -624,12 +650,16 @@ defineExpose({
               <Icon icon="mdi:package-variant" class="text-green-600" />
               ເລືອກ Quota ສິນຄ້າ (ລາຍການທີ່ {{ index + 1 }})
             </p>
+
             <InputSelect
               v-model="itemQuotaSelections[index]"
               :options="quotaOptions"
-              placeholder="ເລືອກ Quota ສິນຄ້າ"
+              placeholder="ຄົ້ນຫາ ເລືອກ Quota ສິນຄ້າ..."
+              :loading="isSearchingQuota"
+              :filter-option="false"
               class="w-full mb-3"
               @update:value="(quotaId: string) => handleItemQuotaChange(index, quotaId)"
+              @search="handleQuotaSearch"
             />
 
             <!-- Quota Details Display -->
