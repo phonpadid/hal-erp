@@ -2,6 +2,14 @@
 import { computed } from "vue";
 import type { PropType } from "vue";
 
+// Define types
+interface SelectOption {
+  label: string;
+  value: string | number;
+}
+
+type FilterOption = boolean | ((input: string, option: SelectOption) => boolean);
+
 // --- Props Definition ---
 const props = defineProps({
   modelValue: {
@@ -9,7 +17,7 @@ const props = defineProps({
     default: null,
   },
   options: {
-    type: Array as PropType<{ label: string; value: string | number }[]>,
+    type: Array as PropType<SelectOption[]>,
     default: () => [],
   },
   lang: {
@@ -37,10 +45,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  filterOption: {
+    type: [Boolean, Function] as PropType<FilterOption>,
+    default: true,
+  },
 });
 
 // --- Emits Definition ---
-const emit = defineEmits(["update:modelValue", "change"]);
+const emit = defineEmits(["update:modelValue", "change", "search"]);
 
 const textByLang = {
   lo: "ກະລຸນາເລືอกຂໍ້ມູນ",
@@ -76,9 +88,11 @@ const value = computed({
     :loading="loading"
     :disabled="disabled"
     :options="options"
+    :filter-option="filterOption"
     allow-clear
     :dropdown-match-select-width="false"
     show-search
     class="custom-select"
+    @search="(value: string) => emit('search', value)"
   />
 </template>

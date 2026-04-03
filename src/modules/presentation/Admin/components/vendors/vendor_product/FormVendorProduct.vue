@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, defineProps, defineEmits, watch, computed } from "vue";
+import { ref, reactive, watch, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type {
   VendorProductInterface,
@@ -186,7 +186,7 @@ defineExpose({
               :disabled="loading"
               type="text"
               inputmode="numeric"
-              @keydown="(e) => NumberOnly(e, formattedPrice)"
+              @keydown="(e) => NumberOnly(e, (formState.price || 0).toString())"
             />
           </UiFormItem>
         </div>
