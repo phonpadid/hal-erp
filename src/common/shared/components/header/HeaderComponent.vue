@@ -121,7 +121,7 @@ const props = withDefaults(defineProps<Props>(), {
   headerTitle: "ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ",
   breadcrumbItems: () => ["ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ", "ອະນຸມັດ"],
   documentPrefix: "ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ",
-  documentNumber: "0036/ພລ - ວັນທີ",
+  documentNumber: "",
   documentDate: "2025-03-26",
   actionButtons: () => [],
   // Default visibility settings
