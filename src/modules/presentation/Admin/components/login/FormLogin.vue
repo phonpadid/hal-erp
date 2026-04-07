@@ -50,7 +50,7 @@ const submitHandler = async () => {
       <a href="#" class="flex flex-col items-center mb-6 text-2xl font-semibold">
         <img
           class="w-16 h-16 mr-2 mb-2 object-contain rounded-full"
-          src="/src/common/shared/assets/images/logo-Hal-ERP.png"
+          src="/src/common/shared/assets/images/log-hallogictic.jpeg"
           alt="logo"
         />
         <span>HAL Logistics Group ERP</span>
