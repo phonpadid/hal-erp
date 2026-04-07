@@ -20,9 +20,6 @@ const loading = ref(true);
 
 // Default/fallback values
 const profileImage = ref("/public/Profile-PNG-File.png");
-const userName = ref("ທ້າວສຸກີ້");
-const userPosition = ref("ພະແນກການເງິນ, ພະນັກງານ");
-const department = ref("ພະແນກການເງິນ");
 const imageList = ["/public/1.png", "/public/1.png"];
 
 interface Props {
@@ -47,11 +44,11 @@ const displayData = computed(() => {
     purpose:
       step2Data?.purpose || "ມີການຈັດຊື້ ເນື່ອງຈາກວ່າປະຈຸບັນນີ້ມີພະນັກງານເຂົ້າມາເພີ່ມໃໝ່ 5 ຄົນ",
     items: step2Data?.addMore || dataMenu,
-    images: imageList, // You might want to get this from addMore[].fileName
+    images: imageList,
     signature: "/public/2.png",
-    userName: userName.value,
-    userPosition: userPosition.value,
-    department: department.value,
+    userName: requesterInfo.value?.username || "",
+    userPosition: `${positionInfo.value?.name || ""} - ${departmentInfo.value?.name || ""}`,
+    department: departmentInfo.value?.name || "",
     profileImage: profileImage.value,
   };
 });

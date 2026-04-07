@@ -10,6 +10,7 @@ import { getCustomSteps } from "./PurchaseRqStep";
 import type { ButtonType } from "@/modules/shared/buttonType";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useI18n } from "vue-i18n";
+import { formatDate } from "@/modules/shared/formatdate";
 
 /***************************************************/
 const { t } = useI18n();
@@ -215,9 +216,10 @@ const actionButtons = computed<ActionButton[]>(() => {
       :header-title="t('purchase-rq.field.proposal')"
       :breadcrumb-items="[t('purchase-rq.field.proposal'), t('purchase-rq.description')]"
       :document-prefix="t('purchase-rq.field.proposal')"
-      :document-number="`${t('purchase-rq.field.pr_number')} 0036/ພລ - ${t('purchase-rq.date')}`"
-      :document-date="'2025-03-26'"
+      :document-date="formatDate(new Date())"
+
     />
+    
 
     <progress-steps-component
       class="mt-4"
