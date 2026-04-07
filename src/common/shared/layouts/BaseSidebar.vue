@@ -37,7 +37,7 @@ onMounted(() => {
   >
     <div class="flex flex-row items-center gap-2 mt-4 ml-4">
       <img
-        src="/src/common/shared/assets/images/hal-ico.BdfhlqWu.png"
+        src="/src/common/shared/assets/images/log-hallogictic.jpeg"
         alt="logo"
         class="w-16 h-16 rounded-full"
       />
