@@ -268,7 +268,7 @@ onMounted(async () => {
         />
       </template>
       <template #po_number="{ record }">
-        <span class="font-semibold">{{ record.getPurchaseRequest()?.pr_number }}</span>
+        <span class="font-semibold">{{ record.po_number }}</span>
       </template>
 
       <template #requester="{ record }">
