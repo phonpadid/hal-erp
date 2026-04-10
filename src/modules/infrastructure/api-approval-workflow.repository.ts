@@ -139,6 +139,7 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
       model.id.toString(),
       model.name,
       model.code ?? '',
+      model.categoryId,
       model.created_at ?? '',
       model.updated_at ?? ''
     );

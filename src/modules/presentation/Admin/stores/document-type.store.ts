@@ -155,6 +155,7 @@ export const useDocumentTypeStore = defineStore("document-type", () => {
       id: parseInt(documentType.getId()),
       name: documentType.getname(),
       code: documentType.getcode(),
+      categoryId: documentType.getCategoryId() || undefined,
       created_at: documentType.getCreatedAt(),
       updated_at: documentType.getUpdatedAt(),
       deleted_at: documentType.getDeletedAt(),

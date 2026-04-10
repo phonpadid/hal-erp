@@ -4,6 +4,7 @@ export class DocumentTypeEntity {
   private id: string;
   private name: string;
   private code: string;
+  private categoryId: number | null;
   private createdAt: string;
   private updatedAt: string;
   private deletedAt: string | null;
@@ -12,13 +13,15 @@ export class DocumentTypeEntity {
     id: string,
     name: string,
     code: string,
-    createdAt: string,
-    updatedAt: string,
+    categoryId: number | null = null,
+    createdAt: string = "",
+    updatedAt: string = "",
     deletedAt: string | null = null
   ) {
     this.id = id;
     this.name = name;
     this.code = code;
+    this.categoryId = categoryId;
     this.createdAt = formatDate(createdAt);
     this.updatedAt = formatDate(updatedAt);
     this.deletedAt = deletedAt !== null ? formatDate(deletedAt) : null;
@@ -34,6 +37,10 @@ export class DocumentTypeEntity {
 
   public getcode(): string {
     return this.code;
+  }
+
+  public getCategoryId(): number | null {
+    return this.categoryId;
   }
 
   public getCreatedAt(): string {
@@ -61,6 +68,12 @@ export class DocumentTypeEntity {
     this.code = code;
     this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
+
+  public updateCategoryId(categoryId: number | null): void {
+    this.categoryId = categoryId;
+    this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
+  }
+
   public delete(): void {
     this.deletedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
     this.updatedAt = this.deletedAt;
@@ -71,8 +84,8 @@ export class DocumentTypeEntity {
     this.updatedAt = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
-  public static create(id: string, name: string, code: string): DocumentTypeEntity {
+  public static create(id: string, name: string, code: string, categoryId: number | null = null): DocumentTypeEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-    return new DocumentTypeEntity(id, name, code, now, now, null);
+    return new DocumentTypeEntity(id, name, code, categoryId, now, now, null);
   }
 }

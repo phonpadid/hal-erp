@@ -81,7 +81,7 @@ const extractYear = (dateString: string): string => {
 // Computed property for quota options showing quota info with product details
 const quotaOptions = computed(() => {
   const quotas = quotaStore.quotas;
-  return quotas.map(quota => {
+  return quotas.map((quota) => {
     const quotaEntity = quota as any;
     const quotaId = quota.getId();
     const qty = quota.getQty();
@@ -112,7 +112,7 @@ const quotaOptions = computed(() => {
 const selectedQuotaDetails = computed(() => {
   if (!selectedQuotaId.value) return null;
 
-  const quota = quotaStore.quotas.find(q => q.getId() === selectedQuotaId.value);
+  const quota = quotaStore.quotas.find((q) => q.getId() === selectedQuotaId.value);
   if (!quota) return null;
 
   const quotaEntity = quota as any;
@@ -135,7 +135,7 @@ const handleItemQuotaChange = (index: number, quotaId: string) => {
   itemQuotaSelections.value[index] = quotaId;
 
   if (quotaId) {
-    const quota = quotaStore.quotas.find(q => q.getId() === quotaId);
+    const quota = quotaStore.quotas.find((q) => q.getId() === quotaId);
     if (quota) {
       const quotaEntity = quota as any;
       const vendorProduct = quotaEntity.vendor_product;
@@ -147,7 +147,7 @@ const handleItemQuotaChange = (index: number, quotaId: string) => {
       item.unit_id = product?.unit_id || "";
       // Convert price from string to number for validation
       const priceString = vendorProduct?.price || "0";
-      const cleanedPrice = priceString.replace(/,/g, ''); // Remove commas if any
+      const cleanedPrice = priceString.replace(/,/g, ""); // Remove commas if any
       item.price = parseFloat(cleanedPrice) || 0;
 
       // console.log(`Auto-filled item ${index} with quota data:`, {
@@ -205,6 +205,7 @@ const populateForm = (entity: PurchaseRequestEntity) => {
     totalPrice: item.getTotalPrice(),
     remark: item.getRemark(),
     file_name: item.getFileName() || "",
+    fileType: item.getFileType() || '',
     images: item.file_name_url ? [item.file_name_url] : [],
   }));
 };
@@ -227,27 +228,31 @@ const modalUpload = (index: number) => {
 
 const handleImageUpload = async (files: File[]) => {
   if (files.length === 0) return;
+  
   const file = files[0];
+  const isPdf = file.type === 'application/pdf'; // ✅ declare ตรงนี้
+
   const uploadData = new FormData();
-  uploadData.append("image", file);
+  uploadData.append("image", file); // ✅ ใช้ "image" เสมอ — service จัดการให้
 
   uploadLoading.value = true;
   try {
     const response = await uploadFile(uploadData);
-    const filename = response.fileName;
+    const filename = response.fileName; // ✅ service return { fileName: "..." } ถูกแล้ว
 
     if (filename) {
       const currentItem = formState.value.addMore[currentUploadIndex.value];
-      currentItem.file_name = filename;
+      currentItem.file_name = filename; // ✅ "Purchase_requests_-_HAL_ERP_System-xxx.pdf"
+      currentItem.fileType = isPdf ? 'pdf' : 'image'; // ✅ declare แล้วข้างบน
       const url = URL.createObjectURL(file);
-      currentItem.images.push(url);
+      currentItem.images = [url]; // ✅ replace แทน push เพื่อไม่ให้ซ้ำ
       createModalVisible.value = false;
     } else {
       throw new Error("Filename not found in API response.");
     }
   } catch (error) {
     console.error("File upload failed:", error);
-    message.error("ອັບໂຫລດຮູບພາບບໍ່ສຳເລັດ");
+    message.error("ອັບໂຫລດໄຟລ໌ບໍ່ສຳເລັດ");
   } finally {
     uploadLoading.value = false;
   }
@@ -280,16 +285,18 @@ function getFormData() {
   return formState.value;
 }
 
-
 // Fetch quotas by selected vendor
 const fetchQuotasByVendor = async (vendorId: string) => {
   if (!vendorId) {
     // If no vendor selected, fetch all quotas with search
     isSearchingQuota.value = true;
     try {
-      await quotaStore.searchQuotas({
-        search: quotaSearchTerm.value || undefined,
-      }, { page: 1, limit: 1000 });
+      await quotaStore.searchQuotas(
+        {
+          search: quotaSearchTerm.value || undefined,
+        },
+        { page: 1, limit: 1000 },
+      );
     } finally {
       isSearchingQuota.value = false;
     }
@@ -298,10 +305,13 @@ const fetchQuotasByVendor = async (vendorId: string) => {
 
   try {
     isSearchingQuota.value = true;
-    await quotaStore.searchQuotas({
-      vendor_id: Number(vendorId),
-      search: quotaSearchTerm.value || undefined,
-    }, { page: 1, limit: 1000 });
+    await quotaStore.searchQuotas(
+      {
+        vendor_id: Number(vendorId),
+        search: quotaSearchTerm.value || undefined,
+      },
+      { page: 1, limit: 1000 },
+    );
     // console.log("Quotas fetched for vendor:", quotaStore.quotas.length);
   } catch (error) {
     console.error("Error fetching quotas for vendor:", error);
@@ -325,14 +335,20 @@ const handleQuotaSearch = (searchValue: string) => {
     try {
       isSearchingQuota.value = true;
       if (selectedVendorId.value) {
-        await quotaStore.searchQuotas({
-          vendor_id: Number(selectedVendorId.value),
-          search: searchValue || undefined,
-        }, { page: 1, limit: 1000 });
+        await quotaStore.searchQuotas(
+          {
+            vendor_id: Number(selectedVendorId.value),
+            search: searchValue || undefined,
+          },
+          { page: 1, limit: 1000 },
+        );
       } else {
-        await quotaStore.searchQuotas({
-          search: searchValue || undefined,
-        }, { page: 1, limit: 1000 });
+        await quotaStore.searchQuotas(
+          {
+            search: searchValue || undefined,
+          },
+          { page: 1, limit: 1000 },
+        );
       }
     } catch (error) {
       console.error("Error searching quotas:", error);
@@ -474,38 +490,43 @@ defineExpose({
 <template>
   <div class="px-4 mb-[4rem] max-w-7xl mx-auto">
     <!-- Header section -->
-    <UiForm ref="formRef" :model="formState" :rules="CreatePRValidate(t)" class="bg-white rounded-lg shadow-sm p-4">
-       <div class="flex justify-between items-center mb-2 bg-white p-4 rounded-lg shadow-sm">
-      <div class="flex items-center gap-4">
-        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100">
-          <Icon icon="mdi:user" class="text-4xl text-blue-600" />
-        </div>
-        <div class="info">
-          <h2 class="text-xl font-semibold mb-1">
-            {{ t("purchase-rq.field.proposer", "ໃບສະເໜີ") }}
-          </h2>
-          <div class="flex items-center gap-2 text-gray-600">
-            <span>{{ authStore.user?.getUsername() }}</span>
-            <span>•</span>
-            <span>{{ authStore.user?.getDepartmentName() }}</span>
+    <UiForm
+      ref="formRef"
+      :model="formState"
+      :rules="CreatePRValidate(t)"
+      class="bg-white rounded-lg shadow-sm p-4"
+    >
+      <div class="flex justify-between items-center mb-2 bg-white p-4 rounded-lg shadow-sm">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100">
+            <Icon icon="mdi:user" class="text-4xl text-blue-600" />
+          </div>
+          <div class="info">
+            <h2 class="text-xl font-semibold mb-1">
+              {{ t("purchase-rq.field.proposer", "ໃບສະເໜີ") }}
+            </h2>
+            <div class="flex items-center gap-2 text-gray-600">
+              <span>{{ authStore.user?.getUsername() }}</span>
+              <span>•</span>
+              <span>{{ authStore.user?.getDepartmentName() }}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <UiFormItem
-        :label="t('purchase-rq.field.date_rq', 'ເລືອກວັນທີ')"
-        name="expired_date"
-        required
-        class="w-[300px]"
-      >
-        <DatePicker
-          v-model:value="formState.expired_date"
-          class="w-full"
-          :placeholder="t('purchase-rq.phd.rq_date', 'ເລືອກວັນທີ')"
-        />
-      </UiFormItem>
-    </div>
-    <!-- Main Form -->
+        <UiFormItem
+          :label="t('purchase-rq.field.date_rq', 'ເລືອກວັນທີ')"
+          name="expired_date"
+          required
+          class="w-[300px]"
+        >
+          <DatePicker
+            v-model:value="formState.expired_date"
+            class="w-full"
+            :placeholder="t('purchase-rq.phd.rq_date', 'ເລືອກວັນທີ')"
+          />
+        </UiFormItem>
+      </div>
+      <!-- Main Form -->
 
       <!-- Purpose section -->
       <div class="mb-4">
@@ -532,10 +553,10 @@ defineExpose({
               v-model="selectedVendorId"
               :options="[
                 { value: '', label: 'ເລືອກຮ້ານຄ້າ' },
-                ...vendors.map(vendor => ({
+                ...vendors.map((vendor) => ({
                   value: vendor.getId(),
-                  label: vendor.getname()
-                }))
+                  label: vendor.getname(),
+                })),
               ]"
               placeholder="ເລືອກຮ້ານຄ້າ"
               class="w-full"
@@ -572,42 +593,59 @@ defineExpose({
               ລາຍລະອຽດ Quota (Global)
             </h4>
           </div>
-          <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200 p-3">
+          <div
+            class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200 p-3"
+          >
             <div class="flex flex-wrap items-center gap-4 text-sm">
               <!-- Product Name -->
               <div class="flex items-center gap-2">
                 <span class="text-xs text-gray-500 font-medium">ສິນຄ້າ:</span>
-                <span class="font-semibold text-gray-900">{{ selectedQuotaDetails.productName }}</span>
+                <span class="font-semibold text-gray-900">{{
+                  selectedQuotaDetails.productName
+                }}</span>
               </div>
 
               <!-- Year -->
               <div class="flex items-center gap-2">
                 <span class="text-xs text-gray-500 font-medium">ປີ:</span>
-                <span class="font-semibold text-gray-700 bg-white px-2 py-1 rounded">{{ selectedQuotaDetails.year }}</span>
+                <span class="font-semibold text-gray-700 bg-white px-2 py-1 rounded">{{
+                  selectedQuotaDetails.year
+                }}</span>
               </div>
 
               <!-- Quantity -->
               <div class="flex items-center gap-2">
                 <span class="text-xs text-gray-500 font-medium">ຈຳນວນ:</span>
-                <span class="font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">{{ selectedQuotaDetails.qty }} ຊຸດ</span>
+                <span class="font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded"
+                  >{{ selectedQuotaDetails.qty }} ຊຸດ</span
+                >
               </div>
 
               <!-- Price -->
               <div class="flex items-center gap-2">
                 <span class="text-xs text-gray-500 font-medium">ລາຄາ:</span>
-                <span class="font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">{{ parseInt(selectedQuotaDetails.price).toLocaleString() }} ກີບ</span>
+                <span class="font-semibold text-green-600 bg-green-50 px-2 py-1 rounded"
+                  >{{ parseInt(selectedQuotaDetails.price).toLocaleString() }} ກີບ</span
+                >
               </div>
 
               <!-- Product Type -->
               <div v-if="selectedQuotaDetails.productType" class="flex items-center gap-2">
                 <span class="text-xs text-gray-500 font-medium">ປະເພດ:</span>
-                <span class="font-medium text-gray-700 bg-gray-50 px-2 py-1 rounded text-xs">{{ selectedQuotaDetails.productType }}</span>
+                <span class="font-medium text-gray-700 bg-gray-50 px-2 py-1 rounded text-xs">{{
+                  selectedQuotaDetails.productType
+                }}</span>
               </div>
             </div>
 
             <!-- Product Description (if exists) -->
-            <div v-if="selectedQuotaDetails.productDescription" class="mt-2 pt-2 border-t border-blue-100">
-              <p class="text-xs text-gray-600 italic">{{ selectedQuotaDetails.productDescription }}</p>
+            <div
+              v-if="selectedQuotaDetails.productDescription"
+              class="mt-2 pt-2 border-t border-blue-100"
+            >
+              <p class="text-xs text-gray-600 italic">
+                {{ selectedQuotaDetails.productDescription }}
+              </p>
             </div>
           </div>
         </div>
@@ -708,22 +746,34 @@ defineExpose({
               </p>
               <div class="aspect-video relative rounded-lg overflow-hidden group">
                 <template v-if="item.images.length > 0">
-                  <a-image
-                    :src="item.images[0]"
-                    class="w-full h-full object-cover"
-                  />
-                  <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
+                  <!-- ✅ PDF preview -->
+                  <div
+                    v-if="item.fileType === 'pdf'"
+                    class="w-full h-full flex flex-col items-center justify-center bg-red-50 rounded-lg border border-red-200"
+                  >
+                    <Icon icon="mdi:file-pdf-box" class="text-5xl text-red-500 mb-2" />
+                    <p class="text-xs text-gray-600 px-2 text-center font-medium">
+                      {{ item.fileType }}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">PDF Document</p>
+                  </div>
+
+                  <!-- ✅ Image preview (เดิม) -->
+                  <a-image v-else :src="item.images[0]" class="w-full h-full object-cover" />
+
+                  <!-- Hover overlay (เดิม ไม่เปลี่ยน) -->
+                  <div
+                    class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2"
+                  >
                     <button
                       class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
                       @click="modalUpload(index)"
-                      title="Change image"
                     >
                       <Icon icon="mdi:camera" class="text-xl text-gray-700" />
                     </button>
                     <button
                       class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
                       @click="deleteImage(index, 0)"
-                      title="Delete image"
                     >
                       <Icon icon="mdi:trash-can" class="text-xl text-red-600" />
                     </button>
@@ -735,8 +785,8 @@ defineExpose({
                   @click="modalUpload(index)"
                 >
                   <Icon icon="mdi:cloud-upload" class="text-4xl text-blue-600 mb-2" />
-                  <p class="text-sm font-medium">ອັບໂຫລດຮູບພາບ</p>
-                  <p class="text-xs text-gray-500">ຮູບຕົວຢ່າງຂອງສິນຄ້າ (ຖ້າມີ)</p>
+                  <p class="text-sm font-medium">ອັບໂຫລດຮູບພາບ ຫຼື PDF</p>
+                  <p class="text-xs text-gray-500">ຮູບຕົວຢ່າງຂອງສິນຄ້າ ຫຼື PDF</p>
                 </div>
               </div>
             </div>
@@ -790,8 +840,8 @@ defineExpose({
                 v-model="formattedPrice(index).value"
                 :placeholder="t('purchase-rq.phd.price', 'ເຊັ່ນ 25,000,000')"
                 @keypress="NumberOnly"
-                :disabled="hasItemQuota(index)"
               />
+              <!-- :disabled="hasItemQuota(index)" -->
             </UiFormItem>
 
             <UiFormItem

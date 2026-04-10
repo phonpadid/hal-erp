@@ -1,7 +1,6 @@
-// ในไฟล์ formstate.ts
-
 import { ref } from "vue";
 import type { Dayjs } from "dayjs";
+
 export interface AddMoreItem {
   id?: number | string | null;
   totalPrice: number;
@@ -10,7 +9,8 @@ export interface AddMoreItem {
   unit_id: number | undefined;
   price: number | undefined;
   images: string[];
-  file_name: string;
+  file_name: string;           // ✅ เก็บ filename จริงจาก API เช่น "Purchase_requests_-_xxx.pdf"
+  fileType: 'image' | 'pdf' | ''; // ✅ แยก field สำหรับเช็ค type
   remark: string;
 }
 
@@ -21,7 +21,6 @@ export interface FormState {
   addMore: AddMoreItem[];
 }
 
-// 2. สร้างฟังก์ชันสำหรับ new item ให้ตรงกับ Interface
 const createNewItem = (): AddMoreItem => ({
   id: null,
   title: "",
@@ -29,12 +28,12 @@ const createNewItem = (): AddMoreItem => ({
   unit_id: undefined,
   price: undefined,
   images: [],
-  file_name: "",
+  file_name: "",    // ✅ ค่าเริ่มต้นเป็น string ว่าง
+  fileType: '',     // ✅ ค่าเริ่มต้นเป็น string ว่าง
   remark: "",
   totalPrice: 0,
 });
 
-// 3. กำหนด state เริ่มต้นให้ถูกต้อง
 export const formState = ref<FormState>({
   requested_date: undefined,
   expired_date: undefined,
@@ -42,15 +41,12 @@ export const formState = ref<FormState>({
   addMore: [createNewItem()],
 });
 
-// 4. แก้ไข moreFunction ให้ถูกต้อง
 export const moreFunction = () => {
   formState.value.addMore.push(createNewItem());
 };
 
-// Type สำหรับส่งข้อมูลระหว่าง Step (อาจจะจำเป็นในไฟล์อื่น)
 export type Step1Data = {
   document_type_id?: string;
 };
 
-// เราจะใช้ FormState เป็น Step2Data โดยตรง หรือจะสร้างใหม่ก็ได้
 export type Step2Data = FormState;

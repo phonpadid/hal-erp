@@ -1,43 +1,33 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
-import { UploadOutlined } from "@ant-design/icons-vue";
+import { UploadOutlined, FilePdfOutlined } from "@ant-design/icons-vue";
 
-// Props
 defineProps<{
   visible: boolean;
   loading?: boolean;
 }>();
 
-// Emits
 const emit = defineEmits<{
   (e: "update:visible", value: boolean): void;
   (e: "upload", files: File[]): void;
 }>();
 
-// State
 const selectedFiles = ref<File[]>([]);
 const previewUrls = ref<string[]>([]);
+const fileTypes = ref<string[]>([]); // track type per file
 const dragOver = ref(false);
 const fileInputRef = ref<HTMLInputElement>();
 
-// Handle file select from input
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
-  const files = target.files;
-  if (files && files.length > 0) {
-    processFiles(files);
-  }
+  if (target.files && target.files.length > 0) processFiles(target.files);
 };
 
-// Handle drag drop
 const handleDrop = (event: DragEvent) => {
   event.preventDefault();
   dragOver.value = false;
-  const files = event.dataTransfer?.files;
-  if (files && files.length > 0) {
-    processFiles(files);
-  }
+  if (event.dataTransfer?.files?.length) processFiles(event.dataTransfer.files);
 };
 
 const handleDragOver = (event: DragEvent) => {
@@ -45,90 +35,92 @@ const handleDragOver = (event: DragEvent) => {
   dragOver.value = true;
 };
 
-const handleDragLeave = () => {
-  dragOver.value = false;
-};
+const handleDragLeave = () => { dragOver.value = false; };
 
-// Handle multiple files
 const processFiles = (files: FileList | File[]) => {
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/svg+xml'];
-  const maxSize = 5 * 1024 * 1024; // 5MB
+  // ✅ เพิ่ม PDF ใน allowed types
+  const allowedTypes = [
+    'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/svg+xml',
+    'application/pdf'
+  ];
+  const maxSize = 10 * 1024 * 1024; // ขยายเป็น 10MB สำหรับ PDF
 
   selectedFiles.value = [];
   previewUrls.value = [];
+  fileTypes.value = [];
 
   Array.from(files).forEach((file) => {
     if (!allowedTypes.includes(file.type)) {
-      alert(`❌ ${file.name} is not a valid image.`);
+      alert(`❌ ${file.name} ບໍ່ແມ່ນໄຟລ໌ທີ່ຮອງຮັບ (ຮູບພາບ ຫຼື PDF)`);
       return;
     }
     if (file.size > maxSize) {
-      alert(`❌ ${file.name} exceeds 5MB.`);
+      alert(`❌ ${file.name} ເກີນ 10MB`);
       return;
     }
 
     selectedFiles.value.push(file);
+    fileTypes.value.push(file.type);
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      previewUrls.value.push(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    if (file.type === 'application/pdf') {
+      // PDF ไม่มี preview รูป ใช้ placeholder
+      previewUrls.value.push('pdf');
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewUrls.value.push(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   });
 };
 
-// Trigger input
-const triggerFileInput = () => {
-  fileInputRef.value?.click();
-};
+const triggerFileInput = () => fileInputRef.value?.click();
 
-// Upload - emit files to parent
 const handleUpload = () => {
   if (selectedFiles.value.length > 0) {
-    // console.log('Emitting upload event with files:', selectedFiles.value);
     emit('upload', selectedFiles.value);
-    // Clear after successful upload
     clearSelectedFiles();
   }
 };
 
-// Clear selected files and previews
 const clearSelectedFiles = () => {
   selectedFiles.value = [];
   previewUrls.value = [];
+  fileTypes.value = [];
   if (fileInputRef.value) fileInputRef.value.value = '';
 };
 
-// Reset on close - clear in ALL cases
 const handleModalClose = (val: boolean) => {
-  // Always clear when modal closes (regardless of val)
   clearSelectedFiles();
   emit('update:visible', val);
 };
 
-// Remove selected file
 const removeFile = (index: number) => {
   selectedFiles.value.splice(index, 1);
   previewUrls.value.splice(index, 1);
+  fileTypes.value.splice(index, 1);
 };
+
+const isPdf = (index: number) => fileTypes.value[index] === 'application/pdf';
 </script>
 
 <template>
   <UiModal
-    title="ຮູບພາບຕົວຢ່າງ"
+    title="ອັບໂຫຼດໄຟລ໌"
     :visible="visible"
     :confirm-loading="loading"
     :footer="null"
     @update:visible="handleModalClose"
   >
     <div class="space-y-4">
-      <p class="text-slate-600">ກະລຸນາເລືອກຮູບພາບສິນຄ້າທີ່ຈະອັບໂຫຼດ</p>
+      <p class="text-slate-600">ກະລຸນາເລືອກຮູບພາບ ຫຼື ໄຟລ໌ PDF ທີ່ຈະອັບໂຫຼດ</p>
 
-      <!-- Hidden input -->
+      <!-- Hidden input — accept images + PDF -->
       <input
         ref="fileInputRef"
         type="file"
-        accept="image/*"
+        accept="image/*,application/pdf"
         multiple
         style="display: none"
         @change="handleFileSelect"
@@ -146,14 +138,27 @@ const removeFile = (index: number) => {
         @dragover="handleDragOver"
         @dragleave="handleDragLeave"
       >
-        <!-- Show image previews -->
+        <!-- Previews -->
         <div v-if="previewUrls.length" class="flex flex-wrap justify-center gap-3 p-4">
           <div
             v-for="(url, index) in previewUrls"
             :key="index"
             class="w-[140px] h-[100px] rounded-md relative overflow-hidden shadow border group"
           >
-            <img :src="url" class="w-full h-full object-cover" />
+            <!-- PDF preview -->
+            <div
+              v-if="isPdf(index)"
+              class="w-full h-full flex flex-col items-center justify-center bg-red-50"
+            >
+              <FilePdfOutlined class="text-3xl text-red-500 mb-1" />
+              <p class="text-xs text-gray-600 px-2 truncate w-full text-center">
+                {{ selectedFiles[index]?.name }}
+              </p>
+            </div>
+
+            <!-- Image preview -->
+            <img v-else :src="url" class="w-full h-full object-cover" />
+
             <!-- Remove button -->
             <button
               class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity"
@@ -171,13 +176,14 @@ const removeFile = (index: number) => {
           </p>
           <p class="font-medium">Click to upload file</p>
           <p class="text-sm text-gray-500">ຫຼື ລາກໄຟລ໌ມາວາງທີ່ນີ້</p>
-          <p class="text-xs text-gray-400 mt-1">SVG, PNG, JPG, GIF, ≤ 5MB</p>
+          <!-- ✅ อัปเดต hint -->
+          <p class="text-xs text-gray-400 mt-1">SVG, PNG, JPG, GIF, PDF ≤ 10MB</p>
         </div>
       </div>
 
-      <!-- File count info -->
+      <!-- File count -->
       <div v-if="selectedFiles.length" class="text-sm text-gray-600 text-center">
-        ເລືອກແລ້ວ {{ selectedFiles.length }} ຮູບ
+        ເລືອກແລ້ວ {{ selectedFiles.length }} ໄຟລ໌
       </div>
 
       <!-- Action buttons -->
