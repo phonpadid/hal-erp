@@ -63,11 +63,12 @@ watch(
 
       const params = {
         page: 1,
-        limit: 10,
+        limit: 100, // Show all document types
         column: 'id',
         sort_order: 'DESC' as const,
         search: '', // Empty search for now
-        company_id: newCompanyId
+        company_id: newCompanyId,
+        category: 'PR', // Filter to show only PR document types
       };
       await store.fetchdocumentType(params);
     }
@@ -89,11 +90,12 @@ onMounted(async () => {
 
   const params = {
     page: 1,
-    limit: 10,
+    limit: 100, // Show all document types
     column: 'id',
     sort_order: 'DESC' as const,
     search: '', // Empty search for now
-    company_id: effectiveCompanyId.value || undefined
+    company_id: effectiveCompanyId.value || undefined,
+    category: 'PR', // Filter to show only PR document types
   };
 
 

@@ -28,6 +28,7 @@ export class ApiDocumentTypeRepository implements DocumentTypeRepository {
         sortDirection: params.sortDirection,
         include_deleted: includeDeleted,
         company_id: params.company_id,
+        category: params.category,
       };
 
       // console.log("📤 API Params being sent:", apiParams);
@@ -122,6 +123,7 @@ export class ApiDocumentTypeRepository implements DocumentTypeRepository {
       documentType.id.toString(),
       documentType.name,
       documentType.code || "",
+      documentType.category_id || documentType.categoryId || null,
       documentType.created_at || "",
       documentType.updated_at || "",
       documentType.deleted_at || null

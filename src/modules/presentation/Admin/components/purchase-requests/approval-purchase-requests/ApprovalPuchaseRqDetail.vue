@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import type { ButtonType } from "@/modules/shared/buttonType";
@@ -115,6 +115,7 @@ const isOtpModalVisible = ref(false);
 const isSuccessModalVisible = ref(false);
 const confirmLoading = ref(false);
 const modalAction = ref(""); // 'approve' or 'reject'
+const successModalAction = ref("");
 const approval = ref(false);
 const isRejectModalVisible = ref(false);
 const rejectReason = ref("");
@@ -194,7 +195,6 @@ const customButtons = computed(() => {
       onClick: async () => {
         modalAction.value = "approve";
         await handleApprove();
-        modalAction.value = "";
       },
     },
   ];
@@ -234,7 +234,10 @@ const handleCreatePO = () => {
     return;
   }
 
-  console.log('🔄 [PR Approval] Redirecting to Create PO page for PR:', requestDetail.value.getId());
+  console.log(
+    "🔄 [PR Approval] Redirecting to Create PO page for PR:",
+    requestDetail.value.getId(),
+  );
 
   // Navigate to PO creation page with PR ID
   router.push({
@@ -312,8 +315,10 @@ const customButtonSuccess = computed(() => {
 });
 
 const handleApprove = async () => {
+  console.log("🔍 modalAction:", modalAction.value);
   isApproveModalVisible.value = false;
-
+  modalAction.value = "approve";
+  successModalAction.value = "approve";
   const currentStep = currentApprovalStep.value;
   if (!currentStep?.id) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ປັจຈຸບັນ");
@@ -337,6 +342,7 @@ const handleApprove = async () => {
 };
 
 const handleOtpConfirm = async (otpCode: string) => {
+  console.log("🔍 modalAction:", modalAction.value);
   if (modalAction.value === "reject") {
     await handleOtpRejectConfirm(otpCode);
     return;
@@ -381,7 +387,9 @@ const handleOtpConfirm = async (otpCode: string) => {
     const success = await approvalStepStore.submitApproval(documentId, payload);
     if (success) {
       isOtpModalVisible.value = false;
-
+      await nextTick();
+      showSuccessModal("approve");
+      successModalAction.value = "approve";
       // ✅ Reload PR data to get updated approval steps
       const updatedPR = await purchaseRequestStore.fetchById(documentId);
       if (updatedPR) {
@@ -455,6 +463,8 @@ const handleReject = async () => {
   //   error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາລະບຸເຫດຜົນໃນການປະຕິເສດ");
   //   return;
   // }
+  modalAction.value = "reject";
+  successModalAction.value = "reject";
 
   if (!rejectedStatusId.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນສະຖານະ 'Rejected' ໃນລະບົບ");
@@ -493,6 +503,9 @@ const handleReject = async () => {
       if (success) {
         isRejectModalVisible.value = false;
         rejectReason.value = "";
+        showSuccessModal("reject");
+        successModalAction.value = "reject";
+        await nextTick();
         isSuccessModalVisible.value = true;
       }
       return;
@@ -534,6 +547,9 @@ const handleOtpRejectConfirm = async (otpCode: string) => {
     if (success) {
       isOtpModalVisible.value = false;
       rejectReason.value = "";
+      showSuccessModal("reject");
+      successModalAction.value = "reject";
+      await nextTick();
       isSuccessModalVisible.value = true;
     }
   } catch (err) {
@@ -546,9 +562,9 @@ const handleOtpRejectConfirm = async (otpCode: string) => {
 const handleSuccessConfirm = async () => {
   confirmLoading.value = true;
   try {
-    // ปิด Success Modal
     isSuccessModalVisible.value = false;
     modalAction.value = "";
+    successModalAction.value = "";
     approval.value = true;
   } catch (err) {
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
@@ -572,34 +588,63 @@ const handleToggle = () => {
   toggle.value = !toggle.value;
   localStorage.setItem("toggle", toggle.value.toString());
 };
-
-// Dynamic success modal content based on action
-const successModalProps = computed(() => {
-  if (modalAction.value === "") {
-    return {
-      message: t("modal.success.title"),
-      description: t("modal.success.description"),
-      iconName: "mdi:check-decagram",
-      iconColor: "text-green-500",
-      buttonText: t("purchase-rq.btn.confirm"),
-    };
+const goBack = () => {
+  router.back();
+};
+// ฟังก์ชัน helper
+// แทนที่ successModalProps computed ด้วย ref ธรรมดา
+const successModalMessage = ref(t("modal.success.title"));
+const successModalDescription = ref(t("modal.success.description"));
+const successModalIcon = ref("mdi:check-decagram");
+const successModalIconColor = ref("text-green-500");
+const showSuccessModal = (type: "approve" | "reject") => {
+  if (type === "reject") {
+    successModalMessage.value = t("modal.refused.title");
+    successModalDescription.value = t("modal.refused.description");
+    successModalIcon.value = "mdi:close-circle";
+    successModalIconColor.value = "text-red-500";
   } else {
-    return {
-      message: t("modal.refused.title"),
-      description: t("modal.refused.description"),
-      iconName: "mdi:close-circle",
-      iconColor: "text-red-500",
-      buttonText: t("purchase-rq.btn.confirm"),
-    };
+    successModalMessage.value = t("modal.success.title");
+    successModalDescription.value = t("modal.success.description");
+    successModalIcon.value = "mdi:check-decagram";
+    successModalIconColor.value = "text-green-500";
   }
-});
+  isSuccessModalVisible.value = true;
+};
 
+// const successModalProps = computed(() => {
+//   console.log("🔍 successModalAction:", successModalAction.value); // ← ดูค่าตรงนี้
+
+//   if (successModalAction.value === "reject") {
+//     console.log("→ แสดง: ปฏิเสด");
+//     return {
+//       message: t("modal.refused.title"),
+//       description: t("modal.refused.description"),
+//       iconName: "mdi:close-circle",
+//       iconColor: "text-red-500",
+//       buttonText: t("purchase-rq.btn.confirm"),
+//     };
+//   } else {
+//     console.log("→ แสดง: อนุมัต");
+//     return {
+//       message: t("modal.success.title"),
+//       description: t("modal.success.description"),
+//       iconName: "mdi:check-decagram",
+//       iconColor: "text-green-500",
+//       buttonText: t("purchase-rq.btn.confirm"),
+//     };
+//   }
+// });
+
+// watch(modalAction, (newVal) => {
+//   if (newVal === "") {
+//     approval.value = true;
+//   } else {
+//     approval.value = false;
+//   }
+// });
 watch(modalAction, (newVal) => {
-  if (newVal === "") {
-    approval.value = true;
-  } else {
-    approval.value = false; // optional if you need to reset
-  }
+  approval.value = newVal !== "reject";
 });
 
 onMounted(async () => {
@@ -625,10 +670,18 @@ onMounted(async () => {
 <template>
   <div class="container mx-auto py-1 px-0">
     <!-- Header Component -->
+
     <div
       class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem]"
       :class="topbarStyle"
     >
+      <UiButton
+        icon="mdi:arrow-left"
+        size="small"
+        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
       <header-component
         @toggle="handleToggle"
         :header-title="t('purchase-rq.approval_proposal')"
@@ -651,12 +704,10 @@ onMounted(async () => {
         <!-- Company and User Info in Same Row -->
         <div class="info flex items-center justify-between px-6 gap-4 mb-4">
           <!-- Company Information (Left) -->
-          <div class="company-section flex flex-col " v-if="companyInfo">
+          <div class="company-section flex flex-col" v-if="companyInfo">
             <h3 class="text-xl font-semibold text-green-700 mb-2">ບໍລິສັດ</h3>
             <div class="flex items-center gap-4">
-              <div
-                class="flex items-center justify-center w-14 h-14 rounded-full bg-green-100"
-              >
+              <div class="flex items-center justify-center w-14 h-14 rounded-full bg-green-100">
                 <img
                   v-if="companyInfo.logo_url"
                   :src="companyInfo.logo_url"
@@ -673,7 +724,6 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-          
 
           <!-- User Information (Center) -->
           <div class="user-section flex flex-col flex-1">
@@ -725,19 +775,35 @@ onMounted(async () => {
               <span class="text-green-500">₭ {{ formatPrice(record.getPrice()) }}</span>
             </template>
             <template #total="{ record }">
-              <span class="text-red-500">₭ {{ formatPrice(record.total || record.price * record.quantity) }}</span>
+              <span class="text-red-500"
+                >₭ {{ formatPrice(record.total || record.price * record.quantity) }}</span
+              >
             </template>
             <template #image="{ record }">
-              <a-image
-                v-if="record.file_name_url"
-                :src="record.file_name_url"
-                alt="example"
-                :width="50"
-                :height="50"
-                :preview="true"
-                class="rounded-lg shadow-sm"
-              />
-              <span v-else class="text-gray-400 italic">No Image</span>
+              <!-- ไม่มีไฟล์ -->
+              <span v-if="!record.file_name_url" class="text-gray-400 italic">ບໍ່ມີ</span>
+
+              <!-- PDF หรือ รูปภาพ — แสดงเป็นข้อความกดได้ -->
+
+              <a
+                v-else
+                :href="record.file_name_url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-1 text-blue-500 hover:text-blue-700 hover:underline transition-colors cursor-pointer"
+              >
+                <div class="flex items-center text-blue-500">
+                  <Icon
+                    :icon="
+                      record.file_name_url?.toLowerCase().endsWith('.pdf')
+                        ? 'mdi:file-pdf-box'
+                        : 'mdi:file-image-outline'
+                    "
+                    class="text-lg"
+                  />
+                  <span class="text-xs font-medium">ເບິ່ງຂໍ້ມູນເອກະສານ</span>
+                </div>
+              </a>
             </template>
           </Table>
           <div class="price-summary grid grid-cols-[auto_150px] gap-2 px-6 text-right">
@@ -747,7 +813,7 @@ onMounted(async () => {
             </div>
 
             <div class="font-medium text-slate-600">{{ t("purchase-rq.field.amounts") }}:</div>
-            <div class="font-semibold md:text-lg text-sm  text-red-500">
+            <div class="font-semibold md:text-lg text-sm text-red-500">
               {{ formatPrice(totalAmount) }}₭
             </div>
           </div>
@@ -769,9 +835,7 @@ onMounted(async () => {
                 </p>
 
                 <!-- Signature Display - Fixed Container -->
-                <div
-                  class="w-[120px] h-[80px] flex items-center justify-center"
-                >
+                <div class="w-[120px] h-[80px] flex items-center justify-center">
                   <template v-if="step.status_id === 2 && step.approver?.user_signature">
                     <!-- Approved signature -->
                     <img
@@ -824,13 +888,24 @@ onMounted(async () => {
     />
 
     <!-- Success Modal -->
-    <SuccessModal
+    <!-- <SuccessModal
       v-model:visible="isSuccessModalVisible"
       :message="successModalProps.message"
       :description="successModalProps.description"
       :icon-name="successModalProps.iconName"
       :icon-color="successModalProps.iconColor"
       :button-text="successModalProps.buttonText"
+      :loading="confirmLoading"
+      @confirm="handleSuccessConfirm"
+      @cancel="handleSuccessCancel"
+    /> -->
+    <SuccessModal
+      v-model:visible="isSuccessModalVisible"
+      :message="successModalMessage"
+      :description="successModalDescription"
+      :icon-name="successModalIcon"
+      :icon-color="successModalIconColor"
+      :button-text="t('purchase-rq.btn.confirm')"
       :loading="confirmLoading"
       @confirm="handleSuccessConfirm"
       @cancel="handleSuccessCancel"
