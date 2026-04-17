@@ -1,0 +1,2586 @@
+{
+    "status_code": 200,
+    "message": "Operation completed successfully",
+    "data": {
+        "id": 10,
+        "purchase_request_id": 78,
+        "po_number": "0002/ຈຊຈ/ບຫ",
+        "order_date": "09-04-2026 14:15:19",
+        "expired_date": "09-04-2026 00:00:00",
+        "purposes": "ສະເໜີປັບປຸ່ງ, ປ່ຽນແປ່ງ, ແກ້ໄຂສາຂາປະຈຳສາຂານະຄອນຫຼວງພາຍໃນ ເດືອນ 3 ຄັ້ງທີ່ 1, ເພາະເປັນພາບລັກການບໍລິການ ແລະ ອຳນວຍຄວາມສະດວກໃຫ້ແກ່ພະນັກງານປະຈຳສາຂາ. ຈຶ່ງຂໍສະເໜີໃຫ້ປ່ຽນໃໝ່. ເຊິ່ງມີລາຍຊື່ດັ່ງລຸ່ມນີ້:",
+        "is_created_rc": false,
+        "created_at": "09-04-2026 14:15:19",
+        "updated_at": "09-04-2026 14:15:19",
+        "sub_total": 17800000,
+        "vat": 0,
+        "total": 17800000,
+        "step": false,
+        "purchase_request": {
+            "id": 78,
+            "document_id": 90,
+            "pr_number": "0005/ບຫ",
+            "requested_date": "09-04-2026 11:33:02",
+            "expired_date": "09-04-2026 00:00:00",
+            "purposes": "ສະເໜີປັບປຸ່ງ, ປ່ຽນແປ່ງ, ແກ້ໄຂສາຂາປະຈຳສາຂານະຄອນຫຼວງພາຍໃນ ເດືອນ 3 ຄັ້ງທີ່ 1, ເພາະເປັນພາບລັກການບໍລິການ ແລະ ອຳນວຍຄວາມສະດວກໃຫ້ແກ່ພະນັກງານປະຈຳສາຂາ. ຈຶ່ງຂໍສະເໜີໃຫ້ປ່ຽນໃໝ່. ເຊິ່ງມີລາຍຊື່ດັ່ງລຸ່ມນີ້:",
+            "is_created_po": false,
+            "created_at": "09-04-2026 11:33:02",
+            "updated_at": "09-04-2026 11:33:02",
+            "total": 17800000,
+            "step": false,
+            "document": {
+                "id": 90,
+                "document_number": "D-047801",
+                "title": "",
+                "description": "ສະເໜີປັບປຸ່ງ, ປ່ຽນແປ່ງ, ແກ້ໄຂສາຂາປະຈຳສາຂານະຄອນຫຼວງພາຍໃນ ເດືອນ 3 ຄັ້ງທີ່ 1, ເພາະເປັນພາບລັກການບໍລິການ ແລະ ອຳນວຍຄວາມສະດວກໃຫ້ແກ່ພະນັກງານປະຈຳສາຂາ. ຈຶ່ງຂໍສະເໜີໃຫ້ປ່ຽນໃໝ່. ເຊິ່ງມີລາຍຊື່ດັ່ງລຸ່ມນີ້:",
+                "total_amount": 0,
+                "department_id": 19,
+                "requester_id": 72,
+                "document_type_id": "1",
+                "created_at": "09-04-2026 11:33:02",
+                "updated_at": "09-04-2026 11:33:02",
+                "department": {
+                    "id": 19,
+                    "code": "ບຫ",
+                    "name": "ພະແນກບໍລິຫານ",
+                    "department_head_id": 0,
+                    "created_at": "21-01-2026 10:27:51",
+                    "updated_at": "08-04-2026 09:36:27",
+                    "department_head": null,
+                    "company": null
+                },
+                "document_type": {
+                    "id": "1",
+                    "code": "DT-001",
+                    "name": "ໃບສະເໜີ",
+                    "created_at": "21-01-2026 10:20:45",
+                    "updated_at": "10-04-2026 19:49:23"
+                },
+                "requester": {
+                    "id": 72,
+                    "username": "Sodsai",
+                    "email": "sodsai@gmail.com",
+                    "tel": "2092223884",
+                    "created_at": "11-03-2026 15:42:04",
+                    "updated_at": "09-04-2026 13:59:34",
+                    "user_signature": {
+                        "id": "62",
+                        "user_id": 72,
+                        "signature": "user_signature/019d52c6-bae6-774b-a987-49c2b0a95f13-1775210248934",
+                        "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019d52c6-bae6-774b-a987-49c2b0a95f13-1775210248934",
+                        "created_at": "17-04-2026 10:41:47",
+                        "updated_at": "Invalid date"
+                    },
+                    "roles": [],
+                    "permissions": [],
+                    "user_types": []
+                },
+                "position": [
+                    {
+                        "id": 66,
+                        "name": "ຫົວໜ້າໜ່ວຍງານຕຶກອາຄານ",
+                        "created_at": "17-04-2026 10:41:47",
+                        "updated_at": "Invalid date",
+                        "company": null
+                    }
+                ],
+                "company": null
+            },
+            "company": null,
+            "user_approval": null,
+            "purchase_request_item": [
+                {
+                    "id": 104,
+                    "purchase_request_id": 78,
+                    "title": "ລ້າງແອ ແລະ ຄ່າສິນເປືອງເດີນທາງ",
+                    "file_name": "pr_file_name/019d7083-d9c5-72df-a275-5c5ea934544a-1775709182405",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-d9c5-72df-a275-5c5ea934544a-1775709182405",
+                    "quantity": 6,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 500000,
+                    "total_price": 3000000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:02",
+                    "updated_at": "09-04-2026 11:33:02",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 105,
+                    "purchase_request_id": 78,
+                    "title": "ສ້ອມແປງກ້ອງວົງຈອນ",
+                    "file_name": "pr_file_name/019d7083-db99-7578-92f1-ab5f260d600b-1775709182873",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-db99-7578-92f1-ab5f260d600b-1775709182873",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 400000,
+                    "total_price": 400000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:02",
+                    "updated_at": "09-04-2026 11:33:02",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 106,
+                    "purchase_request_id": 78,
+                    "title": "Balan ແປງສັນຍານກ້ອງ",
+                    "file_name": "pr_file_name/019d7083-dc3f-733c-8ac8-61a690aa85d3-1775709183039",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-dc3f-733c-8ac8-61a690aa85d3-1775709183039",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 350000,
+                    "total_price": 350000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 107,
+                    "purchase_request_id": 78,
+                    "title": "ລ້າງແອ ແລະ ຄ່າສິນເປືອງເດີນທາງ (ເດີນທາງໄກ ສາຂາ ສົງເປືອຍ)",
+                    "file_name": "pr_file_name/019d7083-dcdc-771e-989e-d8826d94d4fb-1775709183196",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-dcdc-771e-989e-d8826d94d4fb-1775709183196",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 600000,
+                    "total_price": 600000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 108,
+                    "purchase_request_id": 78,
+                    "title": "ດອກໄຟຍາວ LED",
+                    "file_name": "pr_file_name/019d7083-dd72-702c-925c-150e78b0d574-1775709183346",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-dd72-702c-925c-150e78b0d574-1775709183346",
+                    "quantity": 4,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 450000,
+                    "total_price": 1800000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 109,
+                    "purchase_request_id": 78,
+                    "title": "ສະກ໋ອດດຳ ດອກຢາງ ນ໋ອດ ແລະ ສາຍໄຟ",
+                    "file_name": "",
+                    "file_name_url": "",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 100000,
+                    "total_price": 100000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 110,
+                    "purchase_request_id": 78,
+                    "title": "ຍ້າຍ ແລະ ຕິດຕັ້ງກ້ອງ",
+                    "file_name": "pr_file_name/019d7083-de20-716b-bccc-bd20ce39250e-1775709183520",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-de20-716b-bccc-bd20ce39250e-1775709183520",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 500000,
+                    "total_price": 500000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 111,
+                    "purchase_request_id": 78,
+                    "title": "ມ້າງ ແລະ ຕິດຕັ້ງຊັກໂຄກ",
+                    "file_name": "pr_file_name/019d7083-dec2-7344-b398-94990316b569-1775709183682",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-dec2-7344-b398-94990316b569-1775709183682",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 5500000,
+                    "total_price": 5500000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 112,
+                    "purchase_request_id": 78,
+                    "title": "ສາຍສີດຊຳລະ",
+                    "file_name": "",
+                    "file_name_url": "",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 600000,
+                    "total_price": 600000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 113,
+                    "purchase_request_id": 78,
+                    "title": "ສ້ອມແປງປະຕູແກ້ວ ປັບຊົກ",
+                    "file_name": "pr_file_name/019d7083-df5f-757e-a765-1d9c4e262498-1775709183839",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-df5f-757e-a765-1d9c4e262498-1775709183839",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 2000000,
+                    "total_price": 2000000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 114,
+                    "purchase_request_id": 78,
+                    "title": "ສ້ອມແປງປະຕູແກ້ວປ່ຽນກຸນແຈ",
+                    "file_name": "pr_file_name/019d7083-dfff-74e8-8c4a-8bf808e417b5-1775709183999",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-dfff-74e8-8c4a-8bf808e417b5-1775709183999",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 2350000,
+                    "total_price": 2350000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:04",
+                    "updated_at": "09-04-2026 11:33:04",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                },
+                {
+                    "id": 115,
+                    "purchase_request_id": 78,
+                    "title": "ຕິດຕັ້ງດອກໄຟວົງເດືອນ",
+                    "file_name": "pr_file_name/019d7083-e09c-71fa-9e7c-774f01e33c10-1775709184156",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-e09c-71fa-9e7c-774f01e33c10-1775709184156",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 600000,
+                    "total_price": 600000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:04",
+                    "updated_at": "09-04-2026 11:33:04",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": null
+                }
+            ]
+        },
+        "document": {
+            "id": 91,
+            "document_number": "D-903090",
+            "title": "",
+            "description": "",
+            "total_amount": 0,
+            "department_id": 27,
+            "requester_id": 23,
+            "document_type_id": "2",
+            "created_at": "09-04-2026 14:15:19",
+            "updated_at": "09-04-2026 14:15:19",
+            "department": {
+                "id": 27,
+                "code": "ຈຊຈ",
+                "name": "ໜ່ວຍງານຈັດຊື້",
+                "department_head_id": 0,
+                "created_at": "03-02-2026 14:56:24",
+                "updated_at": "08-04-2026 09:36:10",
+                "department_head": null,
+                "company": null
+            },
+            "document_type": {
+                "id": "2",
+                "code": "DT-002",
+                "name": "ໃບອະນຸມັດຈັດຊື້",
+                "created_at": "21-01-2026 10:22:26",
+                "updated_at": "10-04-2026 19:49:17"
+            },
+            "requester": {
+                "id": 23,
+                "username": "Thidaphet",
+                "email": "kaitocksitthisack22@gmil.com",
+                "tel": "2055315172",
+                "created_at": "03-02-2026 15:17:18",
+                "updated_at": "07-04-2026 11:13:57",
+                "user_signature": {
+                    "id": "13",
+                    "user_id": 23,
+                    "signature": "user_signature/019d6197-248f-7362-bdc4-64c280cc785d-1775458788495",
+                    "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019d6197-248f-7362-bdc4-64c280cc785d-1775458788495",
+                    "created_at": "03-02-2026 15:17:18",
+                    "updated_at": "06-04-2026 13:59:49"
+                },
+                "roles": [],
+                "permissions": [],
+                "user_types": []
+            },
+            "position": [
+                {
+                    "id": 67,
+                    "name": "ວິຊາການຈັດຊື້",
+                    "created_at": "12-03-2026 10:41:47",
+                    "updated_at": "12-03-2026 10:41:47",
+                    "company": null
+                }
+            ],
+            "company": {
+                "id": 1,
+                "name": "Hal Logistics ",
+                "logo": "company_logo/019d6105-8d90-76fc-bf6e-9ec59e3127ee-1775449247120",
+                "logo_url": "https://d2ugbgqq0wz1xr.cloudfront.net/company_logo/019d6105-8d90-76fc-bf6e-9ec59e3127ee-1775449247120",
+                "tel": "2022033449",
+                "email": "phimmasonejoe55@gmail.com",
+                "address": "ໄຟແດງຫຼັກ5 (ຈອມມະນີ)",
+                "created_at": "21-01-2026 09:59:52",
+                "updated_at": "06-04-2026 11:20:47"
+            }
+        },
+        "user_approval": {
+            "id": 83,
+            "document_id": 91,
+            "status_id": 1,
+            "created_at": "09-04-2026 14:15:22",
+            "updated_at": "09-04-2026 14:15:22",
+            "document_status": {
+                "id": 1,
+                "name": "PENDING",
+                "created_at": "22-01-2026 14:06:18",
+                "updated_at": "22-01-2026 14:06:18"
+            },
+            "approval_step": [
+                {
+                    "id": 241,
+                    "user_approval_id": 83,
+                    "step_number": 0,
+                    "approver_id": 23,
+                    "approved_at": "09-04-2026 14:16:12",
+                    "status_id": 2,
+                    "remark": "ຢືນຢັນສຳເລັດ",
+                    "requires_file_upload": false,
+                    "is_otp": true,
+                    "created_at": "09-04-2026 14:15:22",
+                    "updated_at": "09-04-2026 14:16:12",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "22-01-2026 14:06:18",
+                        "updated_at": "22-01-2026 14:06:18"
+                    },
+                    "approver": {
+                        "id": 23,
+                        "username": "Thidaphet",
+                        "email": "kaitocksitthisack22@gmil.com",
+                        "tel": "2055315172",
+                        "created_at": "03-02-2026 15:17:18",
+                        "updated_at": "07-04-2026 11:13:57",
+                        "user_signature": {
+                            "id": "13",
+                            "user_id": 23,
+                            "signature": "user_signature/019d6197-248f-7362-bdc4-64c280cc785d-1775458788495",
+                            "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019d6197-248f-7362-bdc4-64c280cc785d-1775458788495",
+                            "created_at": "17-04-2026 10:41:47",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 67,
+                        "name": "ວິຊາການຈັດຊື້",
+                        "created_at": "12-03-2026 10:41:47",
+                        "updated_at": "12-03-2026 10:41:47",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 201,
+                            "user_approval_step_id": 241,
+                            "user_id": 23,
+                            "created_at": "09-04-2026 14:15:22",
+                            "updated_at": "09-04-2026 14:15:22",
+                            "user": {
+                                "id": 23,
+                                "username": "Thidaphet",
+                                "email": "kaitocksitthisack22@gmil.com",
+                                "tel": "2055315172",
+                                "created_at": "03-02-2026 15:17:18",
+                                "updated_at": "07-04-2026 11:13:57",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 27,
+                                "code": "ຈຊຈ",
+                                "name": "ໜ່ວຍງານຈັດຊື້",
+                                "department_head_id": 0,
+                                "created_at": "03-02-2026 14:56:24",
+                                "updated_at": "08-04-2026 09:36:10",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 242,
+                    "user_approval_id": 83,
+                    "step_number": 1,
+                    "approver_id": 18,
+                    "approved_at": "09-04-2026 14:21:03",
+                    "status_id": 2,
+                    "remark": "ຢືນຢັນສຳເລັດ",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "09-04-2026 14:16:12",
+                    "updated_at": "09-04-2026 14:21:03",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "22-01-2026 14:06:18",
+                        "updated_at": "22-01-2026 14:06:18"
+                    },
+                    "approver": {
+                        "id": 18,
+                        "username": "Sitthikone",
+                        "email": "phimmasonejoe55@gmail.com",
+                        "tel": "2022033449",
+                        "created_at": "03-02-2026 14:09:46",
+                        "updated_at": "10-04-2026 09:31:32",
+                        "user_signature": {
+                            "id": "8",
+                            "user_id": 18,
+                            "signature": "user_signature/019d6126-f86c-7392-8046-ba6d73d4c213-1775451437164",
+                            "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019d6126-f86c-7392-8046-ba6d73d4c213-1775451437164",
+                            "created_at": "17-04-2026 10:41:47",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 1,
+                        "name": "ຫົວໜ້າພະແນກບໍລິຫານ",
+                        "created_at": "21-01-2026 10:02:20",
+                        "updated_at": "21-01-2026 10:02:20",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 202,
+                            "user_approval_step_id": 242,
+                            "user_id": 18,
+                            "created_at": "09-04-2026 14:16:12",
+                            "updated_at": "09-04-2026 14:16:12",
+                            "user": {
+                                "id": 18,
+                                "username": "Sitthikone",
+                                "email": "phimmasonejoe55@gmail.com",
+                                "tel": "2022033449",
+                                "created_at": "03-02-2026 14:09:46",
+                                "updated_at": "10-04-2026 09:31:32",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 19,
+                                "code": "ບຫ",
+                                "name": "ພະແນກບໍລິຫານ",
+                                "department_head_id": 0,
+                                "created_at": "21-01-2026 10:27:51",
+                                "updated_at": "08-04-2026 09:36:27",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 243,
+                    "user_approval_id": 83,
+                    "step_number": 2,
+                    "approver_id": 20,
+                    "approved_at": "13-04-2026 15:07:28",
+                    "status_id": 2,
+                    "remark": "ຢືນຢັນສຳເລັດ",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "09-04-2026 14:21:03",
+                    "updated_at": "13-04-2026 15:07:28",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "22-01-2026 14:06:18",
+                        "updated_at": "22-01-2026 14:06:18"
+                    },
+                    "approver": {
+                        "id": 20,
+                        "username": "Malaiphone",
+                        "email": "malaiphone272@gmail.com",
+                        "tel": "22892896",
+                        "created_at": "03-02-2026 14:28:25",
+                        "updated_at": "06-04-2026 14:13:37",
+                        "user_signature": {
+                            "id": "10",
+                            "user_id": 20,
+                            "signature": "user_signature/019d61a3-ca4e-7254-85ff-9d62954130ef-1775459617358",
+                            "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019d61a3-ca4e-7254-85ff-9d62954130ef-1775459617358",
+                            "created_at": "17-04-2026 10:41:47",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 2,
+                        "name": "ຮັກສາການ ຫົວໜ້າພະແນກ ງົບປະມານ",
+                        "created_at": "21-01-2026 10:02:30",
+                        "updated_at": "05-03-2026 10:40:04",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 203,
+                            "user_approval_step_id": 243,
+                            "user_id": 20,
+                            "created_at": "09-04-2026 14:21:03",
+                            "updated_at": "09-04-2026 14:21:03",
+                            "user": {
+                                "id": 20,
+                                "username": "Malaiphone",
+                                "email": "malaiphone272@gmail.com",
+                                "tel": "22892896",
+                                "created_at": "03-02-2026 14:28:25",
+                                "updated_at": "06-04-2026 14:13:37",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 23,
+                                "code": "BG",
+                                "name": "ພະແນກງົບປະມານ",
+                                "department_head_id": 0,
+                                "created_at": "21-01-2026 10:30:39",
+                                "updated_at": "03-02-2026 14:38:47",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 285,
+                    "user_approval_id": 83,
+                    "step_number": 3,
+                    "approver_id": 0,
+                    "approved_at": null,
+                    "status_id": 1,
+                    "remark": "",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "13-04-2026 15:07:28",
+                    "updated_at": "13-04-2026 15:07:28",
+                    "document_status": {
+                        "id": 1,
+                        "name": "PENDING",
+                        "created_at": "22-01-2026 14:06:18",
+                        "updated_at": "22-01-2026 14:06:18"
+                    },
+                    "approver": null,
+                    "position": null,
+                    "doc_approver": [
+                        {
+                            "id": 252,
+                            "user_approval_step_id": 285,
+                            "user_id": 9,
+                            "created_at": "13-04-2026 15:07:29",
+                            "updated_at": "13-04-2026 15:07:29",
+                            "user": {
+                                "id": 9,
+                                "username": "Sisavanh",
+                                "email": "sisavanh@halgroup.la",
+                                "tel": "2052225559",
+                                "created_at": "21-01-2026 15:49:37",
+                                "updated_at": "21-01-2026 15:49:37",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": null
+                        }
+                    ]
+                }
+            ]
+        },
+        "purchase_order_item": [
+            {
+                "id": 20,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 104,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 6,
+                "price": 500000,
+                "total": 3000000,
+                "vat_total": 0,
+                "total_with_vat": 3000000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:19",
+                "updated_at": "13-04-2026 15:07:28",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 104,
+                    "purchase_request_id": 78,
+                    "title": "ລ້າງແອ ແລະ ຄ່າສິນເປືອງເດີນທາງ",
+                    "file_name": "pr_file_name/019d7083-d9c5-72df-a275-5c5ea934544a-1775709182405",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-d9c5-72df-a275-5c5ea934544a-1775709182405",
+                    "quantity": 6,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 500000,
+                    "total_price": 3000000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:02",
+                    "updated_at": "09-04-2026 11:33:02",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 94,
+                        "year": "2026-01-01",
+                        "qty": 300,
+                        "vendor_product_id": "95",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:13:13",
+                        "updated_at": "09-04-2026 11:13:13",
+                        "vendor_product": {
+                            "id": "95",
+                            "vendor_id": "13",
+                            "product_id": 108,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 108,
+                                "name": "ລ້າງແອ ແລະ ຄ່າສິນເປືອງເດີນທາງ"
+                            },
+                            "price": "500000.00",
+                            "created_at": "09-04-2026 11:05:19",
+                            "updated_at": "09-04-2026 11:05:19"
+                        },
+                        "Product": {
+                            "id": 108,
+                            "name": "ລ້າງແອ ແລະ ຄ່າສິນເປືອງເດີນທາງ",
+                            "description": "ລ້າງ ແລະ ກວດເຊັກ",
+                            "product_type_id": 20,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "08-04-2026 14:23:49",
+                            "updated_at": "08-04-2026 14:29:39"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 20,
+                        "purchase_order_item_id": 20,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-6f44-775b-bf2a-57bae2f6957f-1775718920004",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-6f44-775b-bf2a-57bae2f6957f-1775718920004",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:21",
+                        "updated_at": "09-04-2026 14:15:21",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 21,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 106,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 1,
+                "price": 350000,
+                "total": 350000,
+                "vat_total": 0,
+                "total_with_vat": 350000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:21",
+                "updated_at": "13-04-2026 15:07:28",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 106,
+                    "purchase_request_id": 78,
+                    "title": "Balan ແປງສັນຍານກ້ອງ",
+                    "file_name": "pr_file_name/019d7083-dc3f-733c-8ac8-61a690aa85d3-1775709183039",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-dc3f-733c-8ac8-61a690aa85d3-1775709183039",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 350000,
+                    "total_price": 350000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 95,
+                        "year": "2026-01-01",
+                        "qty": 300,
+                        "vendor_product_id": "97",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:13:27",
+                        "updated_at": "09-04-2026 11:13:27",
+                        "vendor_product": {
+                            "id": "97",
+                            "vendor_id": "13",
+                            "product_id": 113,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 113,
+                                "name": "Balan ແປງສັນຍານກ້ອງ"
+                            },
+                            "price": "350000.00",
+                            "created_at": "09-04-2026 11:06:35",
+                            "updated_at": "09-04-2026 11:06:35"
+                        },
+                        "Product": {
+                            "id": 113,
+                            "name": "Balan ແປງສັນຍານກ້ອງ",
+                            "description": "ເຄື່ອງມື Balan ແປງສັນຍານຮັບສັນຍານກ້ອງ",
+                            "product_type_id": 40,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "08-04-2026 14:52:50",
+                            "updated_at": "08-04-2026 14:52:50"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 21,
+                        "purchase_order_item_id": 21,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-7349-72f2-8b58-28fa48fb7231-1775718921033",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-7349-72f2-8b58-28fa48fb7231-1775718921033",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:21",
+                        "updated_at": "09-04-2026 14:15:21",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 22,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 107,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 1,
+                "price": 600000,
+                "total": 600000,
+                "vat_total": 0,
+                "total_with_vat": 600000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:21",
+                "updated_at": "13-04-2026 15:07:28",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 107,
+                    "purchase_request_id": 78,
+                    "title": "ລ້າງແອ ແລະ ຄ່າສິນເປືອງເດີນທາງ (ເດີນທາງໄກ ສາຂາ ສົງເປືອຍ)",
+                    "file_name": "pr_file_name/019d7083-dcdc-771e-989e-d8826d94d4fb-1775709183196",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-dcdc-771e-989e-d8826d94d4fb-1775709183196",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 600000,
+                    "total_price": 600000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 96,
+                        "year": "2026-01-01",
+                        "qty": 300,
+                        "vendor_product_id": "98",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:13:40",
+                        "updated_at": "09-04-2026 11:13:40",
+                        "vendor_product": {
+                            "id": "98",
+                            "vendor_id": "13",
+                            "product_id": 111,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 111,
+                                "name": "ລ້າງແອ ແລະ ຄ່າສິນເປືອງເດີນທາງ (ເດີນທາງໄກ ສາຂາ ສົງເປືອຍ)"
+                            },
+                            "price": "600000.00",
+                            "created_at": "09-04-2026 11:07:01",
+                            "updated_at": "09-04-2026 11:07:01"
+                        },
+                        "Product": {
+                            "id": 111,
+                            "name": "ລ້າງແອ ແລະ ຄ່າສິນເປືອງເດີນທາງ (ເດີນທາງໄກ ສາຂາ ສົງເປືອຍ)",
+                            "description": "ລ້າງແອ ແລະ ກວດເຊັກ",
+                            "product_type_id": 20,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "08-04-2026 14:40:59",
+                            "updated_at": "08-04-2026 14:40:59"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 22,
+                        "purchase_order_item_id": 22,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-74ea-7779-bbd6-5078311bff82-1775718921450",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-74ea-7779-bbd6-5078311bff82-1775718921450",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:21",
+                        "updated_at": "09-04-2026 14:15:21",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 23,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 108,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 4,
+                "price": 450000,
+                "total": 1800000,
+                "vat_total": 0,
+                "total_with_vat": 1800000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:21",
+                "updated_at": "13-04-2026 15:07:29",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 108,
+                    "purchase_request_id": 78,
+                    "title": "ດອກໄຟຍາວ LED",
+                    "file_name": "pr_file_name/019d7083-dd72-702c-925c-150e78b0d574-1775709183346",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-dd72-702c-925c-150e78b0d574-1775709183346",
+                    "quantity": 4,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 450000,
+                    "total_price": 1800000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 97,
+                        "year": "2026-01-01",
+                        "qty": 300,
+                        "vendor_product_id": "99",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:13:48",
+                        "updated_at": "09-04-2026 11:13:48",
+                        "vendor_product": {
+                            "id": "99",
+                            "vendor_id": "13",
+                            "product_id": 114,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 114,
+                                "name": "ດອກໄຟຍາວ LED"
+                            },
+                            "price": "450000.00",
+                            "created_at": "09-04-2026 11:08:04",
+                            "updated_at": "09-04-2026 11:08:04"
+                        },
+                        "Product": {
+                            "id": 114,
+                            "name": "ດອກໄຟຍາວ LED",
+                            "description": "ຕິດຕັ້ງດອກໄຟ ແລະ ຄ່າແຮງງານ",
+                            "product_type_id": 38,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "08-04-2026 14:59:58",
+                            "updated_at": "08-04-2026 14:59:58"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 23,
+                        "purchase_order_item_id": 23,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-7578-75dd-a1f7-a2c1c81a2cd1-1775718921592",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-7578-75dd-a1f7-a2c1c81a2cd1-1775718921592",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:21",
+                        "updated_at": "09-04-2026 14:15:21",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 24,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 109,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 1,
+                "price": 100000,
+                "total": 100000,
+                "vat_total": 0,
+                "total_with_vat": 100000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:21",
+                "updated_at": "13-04-2026 15:07:29",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 109,
+                    "purchase_request_id": 78,
+                    "title": "ສະກ໋ອດດຳ ດອກຢາງ ນ໋ອດ ແລະ ສາຍໄຟ",
+                    "file_name": "",
+                    "file_name_url": "",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 100000,
+                    "total_price": 100000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 99,
+                        "year": "2026-01-01",
+                        "qty": 300,
+                        "vendor_product_id": "100",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:14:19",
+                        "updated_at": "09-04-2026 11:14:19",
+                        "vendor_product": {
+                            "id": "100",
+                            "vendor_id": "13",
+                            "product_id": 115,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 115,
+                                "name": "ສະກ໋ອດດຳ ດອກຢາງ ນ໋ອດ ແລະ ສາຍໄຟ"
+                            },
+                            "price": "100000.00",
+                            "created_at": "09-04-2026 11:08:38",
+                            "updated_at": "09-04-2026 11:08:38"
+                        },
+                        "Product": {
+                            "id": 115,
+                            "name": "ສະກ໋ອດດຳ ດອກຢາງ ນ໋ອດ ແລະ ສາຍໄຟ",
+                            "description": "ອຸປະກອນເສີມໃສ່ດອກໄຟ",
+                            "product_type_id": 38,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "08-04-2026 15:01:27",
+                            "updated_at": "08-04-2026 15:01:27"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 24,
+                        "purchase_order_item_id": 24,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-7601-770a-8ea5-bbe60069da4c-1775718921729",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-7601-770a-8ea5-bbe60069da4c-1775718921729",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:21",
+                        "updated_at": "09-04-2026 14:15:21",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 25,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 110,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 1,
+                "price": 500000,
+                "total": 500000,
+                "vat_total": 0,
+                "total_with_vat": 500000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:21",
+                "updated_at": "13-04-2026 15:07:29",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 110,
+                    "purchase_request_id": 78,
+                    "title": "ຍ້າຍ ແລະ ຕິດຕັ້ງກ້ອງ",
+                    "file_name": "pr_file_name/019d7083-de20-716b-bccc-bd20ce39250e-1775709183520",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-de20-716b-bccc-bd20ce39250e-1775709183520",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 500000,
+                    "total_price": 500000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 100,
+                        "year": "2026-01-01",
+                        "qty": 300,
+                        "vendor_product_id": "101",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:14:26",
+                        "updated_at": "09-04-2026 11:14:26",
+                        "vendor_product": {
+                            "id": "101",
+                            "vendor_id": "13",
+                            "product_id": 136,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 136,
+                                "name": "ຍ້າຍ ແລະ ຕິດຕັ້ງກ້ອງ"
+                            },
+                            "price": "500000.00",
+                            "created_at": "09-04-2026 11:09:18",
+                            "updated_at": "09-04-2026 11:09:18"
+                        },
+                        "Product": {
+                            "id": 136,
+                            "name": "ຍ້າຍ ແລະ ຕິດຕັ້ງກ້ອງ",
+                            "description": "ຍ້າຍ ແລະ ຕິດຕັ້ງກ້ອງໃຫມ່",
+                            "product_type_id": 40,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "09-04-2026 10:48:59",
+                            "updated_at": "09-04-2026 10:48:59"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 25,
+                        "purchase_order_item_id": 25,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-768e-76ce-bb98-18cff6b3667b-1775718921870",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-768e-76ce-bb98-18cff6b3667b-1775718921870",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:21",
+                        "updated_at": "09-04-2026 14:15:21",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 26,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 111,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 1,
+                "price": 5500000,
+                "total": 5500000,
+                "vat_total": 0,
+                "total_with_vat": 5500000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:22",
+                "updated_at": "13-04-2026 15:07:29",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 111,
+                    "purchase_request_id": 78,
+                    "title": "ມ້າງ ແລະ ຕິດຕັ້ງຊັກໂຄກ",
+                    "file_name": "pr_file_name/019d7083-dec2-7344-b398-94990316b569-1775709183682",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-dec2-7344-b398-94990316b569-1775709183682",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 5500000,
+                    "total_price": 5500000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 101,
+                        "year": "2026-01-01",
+                        "qty": 100,
+                        "vendor_product_id": "102",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:14:39",
+                        "updated_at": "09-04-2026 11:14:39",
+                        "vendor_product": {
+                            "id": "102",
+                            "vendor_id": "13",
+                            "product_id": 137,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 137,
+                                "name": "ມ້າງ ແລະ ຕິດຕັ້ງຊັກໂຄກ"
+                            },
+                            "price": "5500000.00",
+                            "created_at": "09-04-2026 11:09:51",
+                            "updated_at": "09-04-2026 11:09:51"
+                        },
+                        "Product": {
+                            "id": 137,
+                            "name": "ມ້າງ ແລະ ຕິດຕັ້ງຊັກໂຄກ",
+                            "description": "ມ້າງອັນເກົ່າໃຊ້ງານບໍ່ໄດ້ອອກແລ້ວຕິດຕັ້ງອັນໃຫມ່",
+                            "product_type_id": 41,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "09-04-2026 10:51:29",
+                            "updated_at": "09-04-2026 10:52:04"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 26,
+                        "purchase_order_item_id": 26,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-7715-75cb-848f-9b67a41f4dec-1775718922005",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-7715-75cb-848f-9b67a41f4dec-1775718922005",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:22",
+                        "updated_at": "09-04-2026 14:15:22",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 27,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 112,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 1,
+                "price": 600000,
+                "total": 600000,
+                "vat_total": 0,
+                "total_with_vat": 600000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:22",
+                "updated_at": "13-04-2026 15:07:29",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 112,
+                    "purchase_request_id": 78,
+                    "title": "ສາຍສີດຊຳລະ",
+                    "file_name": "",
+                    "file_name_url": "",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 600000,
+                    "total_price": 600000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 102,
+                        "year": "2026-01-01",
+                        "qty": 200,
+                        "vendor_product_id": "103",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:14:50",
+                        "updated_at": "09-04-2026 11:14:50",
+                        "vendor_product": {
+                            "id": "103",
+                            "vendor_id": "13",
+                            "product_id": 138,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 138,
+                                "name": "ສາຍສີດຊຳລະ"
+                            },
+                            "price": "600000.00",
+                            "created_at": "09-04-2026 11:10:11",
+                            "updated_at": "09-04-2026 11:10:11"
+                        },
+                        "Product": {
+                            "id": 138,
+                            "name": "ສາຍສີດຊຳລະ",
+                            "description": "ມ້າງອັນເກົ່າອອກແລ້ວຕິດຕັ້ງສາຍສີດຊຳລະໃຫມ່",
+                            "product_type_id": 41,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "09-04-2026 10:53:15",
+                            "updated_at": "09-04-2026 10:53:15"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 27,
+                        "purchase_order_item_id": 27,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-779c-70b4-8d62-53687eda5cca-1775718922140",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-779c-70b4-8d62-53687eda5cca-1775718922140",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:22",
+                        "updated_at": "09-04-2026 14:15:22",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 28,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 113,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 1,
+                "price": 2000000,
+                "total": 2000000,
+                "vat_total": 0,
+                "total_with_vat": 2000000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:22",
+                "updated_at": "13-04-2026 15:07:29",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 113,
+                    "purchase_request_id": 78,
+                    "title": "ສ້ອມແປງປະຕູແກ້ວ ປັບຊົກ",
+                    "file_name": "pr_file_name/019d7083-df5f-757e-a765-1d9c4e262498-1775709183839",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-df5f-757e-a765-1d9c4e262498-1775709183839",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 2000000,
+                    "total_price": 2000000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:03",
+                    "updated_at": "09-04-2026 11:33:03",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 103,
+                        "year": "2026-01-01",
+                        "qty": 300,
+                        "vendor_product_id": "104",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:14:59",
+                        "updated_at": "09-04-2026 11:14:59",
+                        "vendor_product": {
+                            "id": "104",
+                            "vendor_id": "13",
+                            "product_id": 139,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 139,
+                                "name": "ສ້ອມແປງປະຕູແກ້ວ ປັບຊົກ"
+                            },
+                            "price": "2000000.00",
+                            "created_at": "09-04-2026 11:10:39",
+                            "updated_at": "09-04-2026 11:10:39"
+                        },
+                        "Product": {
+                            "id": 139,
+                            "name": "ສ້ອມແປງປະຕູແກ້ວ ປັບຊົກ",
+                            "description": "ສ້ອມແປງປະຕູແກ້ວມ້າງແລ້ວປັບຊົກໃຫ້ປະຕູມັດປິດແຈບ",
+                            "product_type_id": 44,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "09-04-2026 10:55:29",
+                            "updated_at": "09-04-2026 10:55:29"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 28,
+                        "purchase_order_item_id": 28,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-7828-774a-a1b6-ac0d10cd8e41-1775718922280",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-7828-774a-a1b6-ac0d10cd8e41-1775718922280",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:22",
+                        "updated_at": "09-04-2026 14:15:22",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 29,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 114,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 1,
+                "price": 2350000,
+                "total": 2350000,
+                "vat_total": 0,
+                "total_with_vat": 2350000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:22",
+                "updated_at": "13-04-2026 15:07:29",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 114,
+                    "purchase_request_id": 78,
+                    "title": "ສ້ອມແປງປະຕູແກ້ວປ່ຽນກຸນແຈ",
+                    "file_name": "pr_file_name/019d7083-dfff-74e8-8c4a-8bf808e417b5-1775709183999",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-dfff-74e8-8c4a-8bf808e417b5-1775709183999",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 2350000,
+                    "total_price": 2350000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:04",
+                    "updated_at": "09-04-2026 11:33:04",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 104,
+                        "year": "2026-01-01",
+                        "qty": 300,
+                        "vendor_product_id": "105",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:15:07",
+                        "updated_at": "09-04-2026 11:15:07",
+                        "vendor_product": {
+                            "id": "105",
+                            "vendor_id": "13",
+                            "product_id": 140,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 140,
+                                "name": "ສ້ອມແປງປະຕູແກ້ວປ່ຽນກຸນແຈ"
+                            },
+                            "price": "2350000.00",
+                            "created_at": "09-04-2026 11:10:58",
+                            "updated_at": "09-04-2026 11:10:58"
+                        },
+                        "Product": {
+                            "id": 140,
+                            "name": "ສ້ອມແປງປະຕູແກ້ວປ່ຽນກຸນແຈ",
+                            "description": "ສ້ອມແປງປະຕູແກ້ວປ່ຽນຊຸດກຸນແຈ",
+                            "product_type_id": 44,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "09-04-2026 10:56:18",
+                            "updated_at": "09-04-2026 10:56:18"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 29,
+                        "purchase_order_item_id": 29,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-78b2-773d-9b3b-cd9fc444a8d9-1775718922418",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-78b2-773d-9b3b-cd9fc444a8d9-1775718922418",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:22",
+                        "updated_at": "09-04-2026 14:15:22",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 30,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 115,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 1,
+                "price": 600000,
+                "total": 600000,
+                "vat_total": 0,
+                "total_with_vat": 600000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:22",
+                "updated_at": "13-04-2026 15:07:29",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 115,
+                    "purchase_request_id": 78,
+                    "title": "ຕິດຕັ້ງດອກໄຟວົງເດືອນ",
+                    "file_name": "pr_file_name/019d7083-e09c-71fa-9e7c-774f01e33c10-1775709184156",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-e09c-71fa-9e7c-774f01e33c10-1775709184156",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 600000,
+                    "total_price": 600000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:04",
+                    "updated_at": "09-04-2026 11:33:04",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 105,
+                        "year": "2026-01-01",
+                        "qty": 300,
+                        "vendor_product_id": "106",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:15:15",
+                        "updated_at": "09-04-2026 11:15:15",
+                        "vendor_product": {
+                            "id": "106",
+                            "vendor_id": "13",
+                            "product_id": 141,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 141,
+                                "name": "ຕິດຕັ້ງດອກໄຟວົງເດືອນ"
+                            },
+                            "price": "600000.00",
+                            "created_at": "09-04-2026 11:11:17",
+                            "updated_at": "09-04-2026 11:11:17"
+                        },
+                        "Product": {
+                            "id": 141,
+                            "name": "ຕິດຕັ້ງດອກໄຟວົງເດືອນ",
+                            "description": "ປ່ຽນດອກໄຟວົງເດືອນໃຫຍ່",
+                            "product_type_id": 38,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "09-04-2026 10:58:47",
+                            "updated_at": "09-04-2026 10:58:47"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 30,
+                        "purchase_order_item_id": 30,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-793b-72fa-8237-6ae0b8c57e6a-1775718922555",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-793b-72fa-8237-6ae0b8c57e6a-1775718922555",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:22",
+                        "updated_at": "09-04-2026 14:15:22",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 31,
+                "purchase_order_id": 10,
+                "purchase_request_item_id": 105,
+                "budget_item_id": 13,
+                "remark": "",
+                "quantity": 1,
+                "price": 400000,
+                "total": 400000,
+                "vat_total": 0,
+                "total_with_vat": 400000,
+                "is_vat": false,
+                "created_at": "09-04-2026 14:15:22",
+                "updated_at": "13-04-2026 15:07:29",
+                "budget_item": {
+                    "id": 13,
+                    "name": "ລາຍ ຈ່າຍສາຂາຫຼັກ ",
+                    "budget_account_id": 77,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "06-03-2026 15:56:27",
+                    "updated_at": "06-03-2026 15:56:27",
+                    "budget_account": {
+                        "id": 77,
+                        "code": "BA-1B3CD8",
+                        "name": "ຄ່າບໍລິຫານທົ່ວໄປ",
+                        "department_id": 19,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "06-03-2026 15:04:42",
+                        "updated_at": "08-03-2026 11:20:12",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 105,
+                    "purchase_request_id": 78,
+                    "title": "ສ້ອມແປງກ້ອງວົງຈອນ",
+                    "file_name": "pr_file_name/019d7083-db99-7578-92f1-ab5f260d600b-1775709182873",
+                    "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019d7083-db99-7578-92f1-ab5f260d600b-1775709182873",
+                    "quantity": 1,
+                    "unit_id": "9",
+                    "quota_company_id": 0,
+                    "price": 400000,
+                    "total_price": 400000,
+                    "remark": "",
+                    "created_at": "09-04-2026 11:33:02",
+                    "updated_at": "09-04-2026 11:33:02",
+                    "unit": {
+                        "id": "9",
+                        "name": "ຊຸດ",
+                        "created_at": "21-01-2026 10:11:32",
+                        "updated_at": "21-01-2026 10:11:32"
+                    },
+                    "quota_company": {
+                        "id": 106,
+                        "year": "2026-01-01",
+                        "qty": 300,
+                        "vendor_product_id": "96",
+                        "company_id": 1,
+                        "created_at": "09-04-2026 11:21:05",
+                        "updated_at": "09-04-2026 11:21:05",
+                        "vendor_product": {
+                            "id": "96",
+                            "vendor_id": "13",
+                            "product_id": 112,
+                            "vendor": {
+                                "id": "13",
+                                "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ "
+                            },
+                            "product": {
+                                "id": 112,
+                                "name": "ສ້ອມແປງກ້ອງວົງຈອນ"
+                            },
+                            "price": "400000.00",
+                            "created_at": "09-04-2026 11:06:23",
+                            "updated_at": "09-04-2026 11:06:23"
+                        },
+                        "Product": {
+                            "id": 112,
+                            "name": "ສ້ອມແປງກ້ອງວົງຈອນ",
+                            "description": "ແປງກ້ອງ ແລະ ແຮງງານ",
+                            "product_type_id": 40,
+                            "unit_id": "9",
+                            "status": "active",
+                            "created_at": "08-04-2026 14:47:31",
+                            "updated_at": "08-04-2026 14:47:31"
+                        },
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 31,
+                        "purchase_order_item_id": 31,
+                        "vendor_id": 13,
+                        "vendor_bank_account_id": 15,
+                        "filename": "po_file_name/019d7118-79c7-7322-8e03-a0f9f8633dd8-1775718922695",
+                        "filename_url": "https://d2ugbgqq0wz1xr.cloudfront.net/po_file_name/019d7118-79c7-7322-8e03-a0f9f8633dd8-1775718922695",
+                        "reason": "",
+                        "selected": true,
+                        "created_at": "09-04-2026 14:15:22",
+                        "updated_at": "09-04-2026 14:15:22",
+                        "vendor": {
+                            "id": 13,
+                            "name": "ບໍລິສັດ ເຄພັສ ວິສະວະກຳ ຈຳກັດຜູ້ດຽວ ",
+                            "contact_info": "020 98888318",
+                            "created_at": "08-04-2026 10:28:57",
+                            "updated_at": "08-04-2026 10:30:06"
+                        },
+                        "vendor_bank_account": {
+                            "id": 15,
+                            "vendor_id": 13,
+                            "currency_id": 4,
+                            "account_name": "MR KONEMANY KANLAYA",
+                            "bank_id": 4,
+                            "account_number": "0300100410059820",
+                            "is_selected": true,
+                            "created_at": "08-04-2026 10:36:02",
+                            "updated_at": "09-04-2026 10:57:05",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 4,
+                                "short_name": "LDB LAK",
+                                "name": "LAO DEVELOPMENT BANK LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "logoUrl": "https://d2ugbgqq0wz1xr.cloudfront.net/BANK_IMAGE_REPOSITORY/019d6b21-e8bd-754b-8005-3df792d5265d-1775618877629",
+                                "created_at": "15-01-2026 14:38:08",
+                                "updated_at": "10-04-2026 10:02:14"
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}
