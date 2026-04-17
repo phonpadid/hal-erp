@@ -474,7 +474,7 @@ const activeItemRecord = ref<any>(null);
 const loading = ref(true);
 const visibleBudget = ref(false);
 const authStore = useAuthStore();
-const { userRoles } = storeToRefs(authStore);
+const { userRoles, isAdmin } = storeToRefs(authStore);
 const reportExcelPoStore = useReportPoStore();
 
 // ✅ เพิ่ม state สำหรับ OTP (เหมือนกับ PR)
@@ -502,6 +502,11 @@ const hasApprovalAccess = computed(() => {
 
   // Super admins always have approval access
   if (isSuperAdmin.value) {
+    return true;
+  }
+
+  // Admin users also have approval access
+  if (isAdmin.value) {
     return true;
   }
 
