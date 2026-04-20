@@ -82,7 +82,17 @@
     "min_price": "Minimum price is 1",
     "max_price": "Price cannot exceed 12 digits",
     "max_title": "Title must be at most 255 characters",
-     "images_required":"images not required"
+     "images_required":"images not required",
+    "deleteFailed": "Delete failed",
+    "cannotDeleteApproved": "Cannot delete approved or rejected proposals"
+  },
+  "success": {
+    "title": "Success",
+    "deleted": "Proposal deleted successfully"
+  },
+  "alert": {
+    "confirm": "Confirm deletion",
+    "message": "Are you sure you want to delete this proposal?"
   },
   "btn": {
     "add_title": "add",
