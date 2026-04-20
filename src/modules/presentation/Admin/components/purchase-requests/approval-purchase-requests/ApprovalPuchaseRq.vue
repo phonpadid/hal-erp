@@ -12,10 +12,13 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import { useDocumentStatusStore } from "../../../stores/document-status.store";
+import UiModal from "@/common/shared/components/Modal/UiModal.vue";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 
 /**********************************************************/
 const { t } = useI18n();
 const { push } = useRouter();
+const { success, error: showError } = useNotification();
 const purchaseRequestStore = usePurchaseRequestsStore();
 const docTypeStore = useDocumentTypeStore();
 const loading = ref(false);
@@ -24,6 +27,11 @@ const pageSize = ref(10);
 const selectedDocType = ref("all");
 const selectedStatus = ref("all");
 const documentStatusStore = useDocumentStatusStore();
+
+// Delete modal state
+const deleteModalVisible = ref(false);
+const deleteLoading = ref(false);
+const selectedDeleteId = ref<string | null>(null);
 
 /********************************************************* */
 const docItem = computed(() => [
@@ -121,8 +129,49 @@ const getStatusColor = (status: string) => {
   }
 };
 
+const canDelete = (status: string) => {
+  return status === "PENDING";
+};
+
 const details = (id: string) => {
   push({ name: "apv_purchase_request_detail", params: { id: id } });
+};
+
+const showDeleteModal = (id: string) => {
+  // Find the record to check its status
+  const record = purchaseRequestStore.requests.find(req => req.getId() === id);
+  if (!canDelete(record?.getStatus() || "")) {
+    showError(t("purchase-rq.error.deleteFailed"), t("purchase-rq.error.cannotDeleteApproved"));
+    return;
+  }
+
+  selectedDeleteId.value = id;
+  deleteModalVisible.value = true;
+};
+
+const handleDeleteConfirm = async () => {
+  if (!selectedDeleteId.value) return;
+
+  try {
+    deleteLoading.value = true;
+    const successDelete = await purchaseRequestStore.remove(selectedDeleteId.value);
+
+    if (successDelete) {
+      success(
+        t("purchase-rq.success.title"),
+        t("purchase-rq.success.deleted")
+      );
+      deleteModalVisible.value = false;
+      await fetchData();
+    } else {
+      showError(t("purchase-rq.error.deleteFailed"), "Failed to delete purchase request");
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    showError(t("purchase-rq.error.deleteFailed"), errorMessage);
+  } finally {
+    deleteLoading.value = false;
+  }
 };
 
 const handleTableChange = (pagination: any) => {
@@ -220,8 +269,8 @@ onMounted(async () => {
         row-key="id"
       >
         <template #status="{ record }">
-          <UiTag :color="getStatusColor(record.status)" class="rounded-full">
-            {{ record.status }}
+          <UiTag :color="getStatusColor(record.getStatus())" class="rounded-full">
+            {{ record.getStatus() }}
           </UiTag>
         </template>
         <template #username="{ record }">
@@ -237,18 +286,44 @@ onMounted(async () => {
           <span class="text-gray-600">{{ record.getDocumentType()?.name }}</span>
         </template>
         <template #actions="{ record }">
-          <div class="flex items-center justify-center gap-2">
+          <div class="flex items-center justify-start gap-2">
             <UiButton
               type="link"
               icon="ant-design:eye-outlined"
-              color-class="flex items-center text-red-500 hover:!text-red-800"
-              @click="details(record.id)"
+              color-class="flex items-center text-blue-500 hover:!text-blue-800"
+              @click="details(record.getId())"
             >
               {{ t("purchase-rq.description") }}
+            </UiButton>
+            <UiButton
+              v-if="canDelete(record.getStatus())"
+              type="link"
+              icon="material-symbols-light:delete-outline"
+              color-class="flex items-center text-red-500 hover:!text-red-800"
+              @click="showDeleteModal(record.getId())"
+            >
+              {{ t("purchase-rq.btn.dl_title") }}
             </UiButton>
           </div>
         </template>
       </Table>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <UiModal
+      :title="t('purchase-rq.alert.confirm')"
+      :visible="deleteModalVisible"
+      :confirm-loading="deleteLoading"
+      title-icon="material-symbols-light:warning-outline"
+      icon-color="#ff4d4f"
+      @update:visible="deleteModalVisible = $event"
+      @ok="handleDeleteConfirm"
+      @cancel="deleteModalVisible = false"
+      ok-text="ຢືນຢັນ"
+      ok-type="primary"
+      :danger="true"
+    >
+      <p>{{ t("purchase-rq.alert.message") }}</p>
+    </UiModal>
   </div>
 </template>

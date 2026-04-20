@@ -225,7 +225,7 @@
                 <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
                   <template v-if="step.approver">
                     <p class="font-medium">{{ step.approver.username }}</p>
-                    <p class="text-xs text-gray-500">{{ step.position?.name || "-" }}</p>
+                    <p class="text-xs text-gray-500">{{ step.position?.name || "ຜູ້ອຳນວຍການ" }}</p>
                     <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
                     <p v-if="step.approved_at" class="text-xs text-blue-500 mt-1">
                       {{ formatDate(step.approved_at) }}
@@ -236,7 +236,12 @@
                       {{ t("purchase-rq.pending") }}
                     </p>
                     <p class="text-xs text-gray-400 mt-1">
-                      {{ step.doc_approver?.[0]?.department?.name || "-" }}
+                      {{
+                        (step.doc_approver?.[0]?.user?.username === "Sisavanh" ||
+                         step.doc_approver?.[0]?.user?.username === "sisavanh")
+                          ? "ຜູ້ອຳນວຍການ"
+                          : (step.doc_approver?.[0]?.department?.name || "-")
+                      }}
                     </p>
                   </template>
                 </div>
@@ -247,7 +252,7 @@
         <div>
           <span class="font-medium">{{ $t("disbursement.field.doc_attachment") }}</span>
           <HeaderComponent
-            header-title="ໃບສະເໜີຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ"
+            :header-title="prHeaderTitle"
             header-title-color="blue-600"
             prefix-icon="mdi:file-document-outline"
             suffix-icon="mdi:arrow-top-right"
@@ -402,7 +407,7 @@
   </UiModal>
   <UiDrawer
     v-model:open="visible"
-    title="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ - ເລກທີ 0044/ຈຊນ.ນວ/ບຫ - ວັນທີ 26 ມີນາ 2025"
+    :title="prDrawerTitle"
     placement="right"
     :width="1050"
   >
@@ -451,6 +456,7 @@ import PrintPurchaseOrder from "./PrintPurchaseOrder.vue";
 import BudgetApprovalDrawer from "../budget-approval/BudgetApprovalDrawer.vue";
 import SelectDocumentTypeModal from "../receipt/modal/SelectDocumentTypeModal.vue";
 import OtpModal from "../purchase-requests/modal/OtpModal.vue";
+import dayjs from "dayjs";
 
 /********************************************************* */
 const purchaseOrderStore = usePurchaseOrderStore();
@@ -599,6 +605,11 @@ const getStepTitle = (index: number, step: any) => {
     return t("purchase-rq.proposer");
   }
   // ໃຊ້ຊື່ແຜນກຈາກ doc_approver[0].department.name
+  // ກວດສອບວ່າເປັນ user Sisavanh ຫຼື ບໍ່, ຖ້າໃຊ້ໃຫ້ສະແດງ "ผู้อำนวยการ"
+  const username = step.doc_approver?.[0]?.user?.username;
+  if (username === "Sisavanh" || username === "sisavanh") {
+    return "ຜູ້ອຳນວຍການ";
+  }
   const deptName = step.doc_approver?.[0]?.department?.name;
   return deptName || `${t("purchase-rq.approver")} ${index}`;
 };
@@ -680,6 +691,71 @@ const documentStatus = computed(() => {
   };
 });
 
+// Helper function to format date in Lao format
+const formatDateInLao = (dateString: string | null): string => {
+  if (!dateString) return '';
+
+  // Parse the date from "DD-MM-YYYY HH:mm:ss" format
+  const parsedDate = dayjs(dateString, 'DD-MM-YYYY HH:mm:ss');
+
+  if (!parsedDate.isValid()) {
+    return '';
+  }
+
+  const day = parsedDate.date();
+  const month = parsedDate.month() + 1; // month() is 0-indexed
+  const year = parsedDate.year();
+
+  // Lao month names
+  const laoMonths = [
+    'ມັງກອນ',   // January
+    'ກຸມພາ',     // February
+    'ມີນາ',       // March
+    'ເມສາ',       // April
+    'ພຶດສະພາ',   // May
+    'ມິຖຸນາ',     // June
+    'ກໍລະກົດ',   // July
+    'ສິງຫາ',       // August
+    'ກັນຍາ',       // September
+    'ຕຸລາ',       // October
+    'ພະຈິກ',       // November
+    'ທັນວາ'        // December
+  ];
+
+  const monthName = laoMonths[month - 1];
+
+  return `ວັນທີ ${day} ${monthName} ${year}`;
+};
+
+// Computed property for PR header title
+const prHeaderTitle = computed(() => {
+  const purchaseRequest = orderDetails.value?.getPurchaseRequest();
+  const prNumber = purchaseRequest?.pr_number || '';
+  const departmentName = orderDetails.value?.getDepartment()?.name || '';
+  const documentTypeName = purchaseRequest?.document?.document_type?.name || '';
+
+  if (prNumber && departmentName) {
+    return `${documentTypeName} - ເລກທີ ${prNumber}`;
+  }
+
+  return documentTypeName || 'ໃບສະເໜີຈັດຊື້';
+});
+
+// Computed property for PR drawer title
+const prDrawerTitle = computed(() => {
+  const purchaseRequest = orderDetails.value?.getPurchaseRequest();
+  const prNumber = purchaseRequest?.pr_number || '';
+  const departmentName = orderDetails.value?.getDepartment()?.name || '';
+  const requestedDate = purchaseRequest?.requested_date || null;
+  const formattedDate = formatDateInLao(requestedDate);
+  const documentTypeName = purchaseRequest?.document?.document_type?.name || '';
+
+  if (prNumber && departmentName) {
+    return `${documentTypeName} - ເລກທີ ${prNumber} - ${formattedDate}`;
+  }
+
+  return documentTypeName || 'ໃບສະເໜີຈັດຊື້';
+});
 
 const handleResendOtp = async () => {
   if (!currentApprovalStep.value) {
