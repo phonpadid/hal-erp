@@ -177,7 +177,7 @@ const isPdf = (index: number) => fileTypes.value[index] === 'application/pdf';
           <p class="font-medium">Click to upload file</p>
           <p class="text-sm text-gray-500">ຫຼື ລາກໄຟລ໌ມາວາງທີ່ນີ້</p>
           <!-- ✅ อัปเดต hint -->
-          <p class="text-xs text-gray-400 mt-1">SVG, PNG, JPG, GIF, PDF ≤ 10MB</p>
+          <p class="text-xs text-gray-400 mt-1">SVG, PNG, JPG, GIF, PDF ≤ 999K</p>
         </div>
       </div>
 
