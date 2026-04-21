@@ -1,193 +1,179 @@
-import { VendorProductEntity } from "../../domain/entities/vendor-products/vendor-product.entity";
 import type { VendorProductRepository } from "@/modules/domain/repository/vendor-products/vendor-product.repository";
-import type { VendorProductApiModel, CreateVendorProductApiRequest, UpdateVendorProductApiRequest } from "@/modules/interfaces/vendor-products/vendor-product.interface";
+import type { VendorProductCreateInterface, VendorProductUpdateInterface } from "@/modules/interfaces/vendors/vendor_product/vendor-product.interface";
+import { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
+import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { api } from "@/common/config/axios/axios";
+import type { AxiosError } from "axios";
 
 export class ApiVendorProductRepository implements VendorProductRepository {
   private readonly baseUrl = "/vendor-products";
 
-  private toDomainModel(apiModel: VendorProductApiModel): VendorProductEntity {
-    return VendorProductEntity.fromApiResponse(apiModel);
+  private toDomainModel(apiData: any): VendorProductEntity {
+    const vendorName = apiData.vendor?.name || apiData.vendor_name;
+    const productName = apiData.product?.name || apiData.product_name;
+    const currency = apiData.currency ? {
+      id: apiData.currency.id.toString(),
+      code: apiData.currency.code,
+      name: apiData.currency.name,
+    } : null;
+
+    return VendorProductEntity.fromApiResponse({
+      ...apiData,
+      vendor_name: vendorName,
+      product_name: productName,
+    });
   }
 
-  private toCreateApiRequest(entity: VendorProductEntity): CreateVendorProductApiRequest {
-    return {
-      vendor_id: entity.getVendorId(),
-      product_id: entity.getProductId(),
-      product_name: entity.getProductName(),
-    };
-  }
-
-  private toUpdateApiRequest(entity: VendorProductEntity): UpdateVendorProductApiRequest {
-    return {
-      vendor_id: entity.getVendorId(),
-      product_id: entity.getProductId(),
-      product_name: entity.getProductName(),
-    };
-  }
-
-  async getAll(options?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    vendor_id?: number;
-    product_id?: number;
-    includeDeleted?: boolean;
-  }): Promise<{
-    vendor_products: VendorProductEntity[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
+  async findAll(
+    params: PaginationParams = { page: 1, limit: 10 },
+    vendorId?: number,
+    productId?: number,
+    includeDeleted: boolean = false
+  ): Promise<PaginatedResult<VendorProductEntity>> {
     try {
-      const params = new URLSearchParams();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const queryParams: any = {
+        page: params.page || 1,
+        limit: params.limit || 10,
+        search: params.search || "",
+        sort_by: params.sortBy,
+        sortDirection: params.sortDirection,
+        include_deleted: includeDeleted,
+      };
 
-      if (options?.page) params.append("page", options.page.toString());
-      if (options?.limit) params.append("limit", options.limit.toString());
-      if (options?.search) params.append("search", options.search);
-      if (options?.vendor_id) params.append("vendor_id", options.vendor_id.toString());
-      if (options?.product_id) params.append("product_id", options.product_id.toString());
-      if (options?.includeDeleted) params.append("include_deleted", "false");
+      if (vendorId) {
+        queryParams.vendor_id = vendorId;
+      }
 
-      const response = await api.get(`${this.baseUrl}?${params.toString()}`);
+      if (productId) {
+        queryParams.product_id = productId;
+      }
 
-      // Handle different possible response structures
-      const data = response.data;
-      let vendorProducts = [];
-      let total = 0;
-      let page = options?.page || 1;
-      let limit = options?.limit || 10;
+      const response = await api.get(this.baseUrl, { params: queryParams });
 
-      if (Array.isArray(data)) {
-        // Direct array response
-        vendorProducts = data.map((vendorProduct: VendorProductApiModel) => this.toDomainModel(vendorProduct));
-        total = data.length;
-      } else if (data.data && Array.isArray(data.data)) {
-        // Paginated response with data property
-        vendorProducts = data.data.map((vendorProduct: VendorProductApiModel) => this.toDomainModel(vendorProduct));
-        total = data.total || data.data.length;
-        page = data.page || page;
-        limit = data.limit || limit;
-      } else {
-        console.warn("Unexpected API response structure:", data);
-        throw new Error("Invalid API response structure");
+      if (!response.data || !response.data.data || !response.data.pagination) {
+        throw new Error("Invalid response format from API");
       }
 
       return {
-        vendor_products: vendorProducts,
-        total,
-        page,
-        limit,
+        data: response.data.data.map((vendorProduct: unknown) => this.toDomainModel(vendorProduct)),
+        total: response.data.pagination.total || 0,
+        page: response.data.pagination.page || 1,
+        limit: response.data.pagination.limit || 10,
+        totalPages: response.data.pagination.total_pages || 0,
       };
     } catch (error) {
-      console.error("VendorProduct API Error Details:", {
-        baseUrl: this.baseUrl,
-        options,
-        error: error,
-      });
-
-      if (error instanceof Error) {
-        throw new Error(`Failed to fetch vendor products: ${error.message}`);
-      }
-      throw new Error("Failed to fetch vendor products");
+      this.handleApiError(error, "Failed to fetch vendor products list");
     }
   }
 
-  async getById(id: string, includeDeleted?: boolean): Promise<VendorProductEntity | null> {
+  async findById(id: string): Promise<VendorProductEntity | null> {
     try {
-      const params = includeDeleted ? "?include_deleted=true" : "";
-      const response = await api.get(`${this.baseUrl}/${id}${params}`);
-      return this.toDomainModel(response.data);
+      const response = await api.get(`${this.baseUrl}/${id}`);
+      return this.toDomainModel(response.data.data);
     } catch (error) {
-      console.error("VendorProduct fetch error:", error);
+      const axiosError = error as AxiosError;
+      if (axiosError.response?.status === 404) {
+        return null;
+      }
+      this.handleApiError(error, `Failed to find vendor product with id ${id}`);
+    }
+  }
+
+  async findByVendorId(vendorId: number): Promise<VendorProductEntity[]> {
+    try {
+      const response = await api.get(this.baseUrl, {
+        params: { vendor_id: vendorId, limit: 1000 },
+      });
+
+      return response.data.data.map((vendorProduct: unknown) => this.toDomainModel(vendorProduct));
+    } catch (error) {
+      console.error(`Error finding vendor products by vendor id '${vendorId}':`, error);
+      return [];
+    }
+  }
+
+  async findByProductId(productId: number): Promise<VendorProductEntity[]> {
+    try {
+      const response = await api.get(this.baseUrl, {
+        params: { product_id: productId, limit: 1000 },
+      });
+
+      return response.data.data.map((vendorProduct: unknown) => this.toDomainModel(vendorProduct));
+    } catch (error) {
+      console.error(`Error finding vendor products by product id '${productId}':`, error);
+      return [];
+    }
+  }
+
+  async findByVendorAndProduct(vendorId: number, productId: number): Promise<VendorProductEntity | null> {
+    try {
+      const response = await api.get(this.baseUrl, {
+        params: { vendor_id: vendorId, product_id: productId, limit: 1 },
+      });
+
+      if (response.data.data.length === 0) {
+        return null;
+      }
+
+      return this.toDomainModel(response.data.data[0]);
+    } catch (error) {
+      console.error(`Error finding vendor product by vendor '${vendorId}' and product '${productId}':`, error);
       return null;
     }
   }
 
-  async create(vendorProduct: VendorProductEntity): Promise<VendorProductEntity> {
+  async create(vendorProductData: VendorProductCreateInterface): Promise<VendorProductEntity> {
     try {
-      const response = await api.post(this.baseUrl, this.toCreateApiRequest(vendorProduct));
-      return this.toDomainModel(response.data);
+      const response = await api.post(this.baseUrl, vendorProductData);
+      return this.toDomainModel(response.data.data);
     } catch (error) {
-      console.error("VendorProduct create error:", error);
-      throw error instanceof Error ? error : new Error("Failed to create vendor product");
+      this.handleApiError(error, "Failed to create vendor product");
     }
   }
 
-  async update(id: string, vendorProduct: VendorProductEntity): Promise<VendorProductEntity> {
+  async update(id: string, vendorProductData: VendorProductUpdateInterface): Promise<VendorProductEntity> {
     try {
-      const response = await api.put(`${this.baseUrl}/${id}`, this.toUpdateApiRequest(vendorProduct));
-      return this.toDomainModel(response.data);
+      const response = await api.put(`${this.baseUrl}/${id}`, vendorProductData);
+      return this.toDomainModel(response.data.data);
     } catch (error) {
-      console.error("VendorProduct update error:", error);
-      throw error instanceof Error ? error : new Error("Failed to update vendor product");
+      this.handleApiError(error, `Failed to update vendor product with id ${id}`);
     }
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<boolean> {
     try {
       await api.delete(`${this.baseUrl}/${id}`);
+      return true;
     } catch (error) {
-      console.error("VendorProduct delete error:", error);
-      throw error instanceof Error ? error : new Error("Failed to delete vendor product");
+      this.handleApiError(error, `Failed to delete vendor product with id ${id}`);
     }
   }
 
   async restore(id: string): Promise<VendorProductEntity> {
     try {
       const response = await api.post(`${this.baseUrl}/${id}/restore`);
-      return this.toDomainModel(response.data);
+      return this.toDomainModel(response.data.data);
     } catch (error) {
-      console.error("VendorProduct restore error:", error);
-      throw error instanceof Error ? error : new Error("Failed to restore vendor product");
+      this.handleApiError(error, `Failed to restore vendor product with id ${id}`);
     }
   }
 
-  async exists(vendor_id: number, product_id: number): Promise<boolean> {
-    try {
-      const params = new URLSearchParams();
-      params.append("vendor_id", vendor_id.toString());
-      params.append("product_id", product_id.toString());
+  private handleApiError(error: unknown, defaultMessage: string): never {
+    const axiosError = error as AxiosError<{
+      message?: string;
+      status_code?: number;
+    }>;
 
-      const response = await api.get(`${this.baseUrl}/exists?${params.toString()}`);
-      return response.data.exists;
-    } catch (error) {
-      console.log("VendorProduct exists check error:", error);
-      return false;
-    }
-  }
-
-  async getByVendorId(vendorId: number): Promise<VendorProductEntity[]> {
-    try {
-      const response = await api.get(`${this.baseUrl}/vendor/${vendorId}`);
-      const data = response.data;
-
-      if (Array.isArray(data)) {
-        return data.map((vendorProduct: VendorProductApiModel) => this.toDomainModel(vendorProduct));
-      } else if (data.data && Array.isArray(data.data)) {
-        return data.data.map((vendorProduct: VendorProductApiModel) => this.toDomainModel(vendorProduct));
-      }
-      return [];
-    } catch (error) {
-      console.error("VendorProduct getByVendorId error:", error);
-      return [];
-    }
-  }
-
-  async getByProductId(productId: number): Promise<VendorProductEntity[]> {
-    try {
-      const response = await api.get(`${this.baseUrl}/product/${productId}`);
-      const data = response.data;
-
-      if (Array.isArray(data)) {
-        return data.map((vendorProduct: VendorProductApiModel) => this.toDomainModel(vendorProduct));
-      } else if (data.data && Array.isArray(data.data)) {
-        return data.data.map((vendorProduct: VendorProductApiModel) => this.toDomainModel(vendorProduct));
-      }
-      return [];
-    } catch (error) {
-      console.error("VendorProduct getByProductId error:", error);
-      return [];
+    if (axiosError.response) {
+      const serverMessage = axiosError.response.data?.message || defaultMessage;
+      throw new Error(serverMessage);
+    } else if (axiosError.request) {
+      throw new Error(
+        `Network Error: The request was made but no response was received. Please check your connection.`
+      );
+    } else {
+      throw new Error(`${defaultMessage}: ${(error as Error).message || "Unknown error"}`);
     }
   }
 }

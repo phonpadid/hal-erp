@@ -1,6 +1,6 @@
 import type { VendorProductUpdateInterface } from "@/modules/interfaces/vendors/vendor_product/vendor-product.interface";
-import type { VendorProductEntity } from "@/modules/domain/entities/vendors/vendor_product/vendor-product.entity";
-import type { VendorProductRepository } from "@/modules/domain/repository/vendors/vendor_product/vendor-product.repository";
+import type { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
+import type { VendorProductRepository } from "@/modules/domain/repository/vendor-products/vendor-product.repository";
 
 export class UpdateVendorProductUseCase {
   constructor(private vendorProductRepository: VendorProductRepository) {}

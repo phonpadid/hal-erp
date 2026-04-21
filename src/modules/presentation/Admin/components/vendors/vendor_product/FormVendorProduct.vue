@@ -7,6 +7,7 @@ import type {
 } from "@/modules/interfaces/vendors/vendor_product/vendor-product.interface";
 import type { ProductInterface } from "@/modules/interfaces/product.interface";
 import { useProductStore } from "@/modules/presentation/Admin/stores/product.store";
+import { currencyStore } from "@/modules/presentation/Admin/stores/currency.store";
 import { createVendorProductValidation } from "../../../views/vendors/vendor_product/validations/vendor-product.validation";
 import { formatPrice, parsePrice, NumberOnly } from "@/modules/shared/utils/format-price";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
@@ -17,7 +18,7 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 interface Props {
   vendorProduct?: VendorProductInterface | null;
   isEditMode: boolean;
-  vendorId: string;
+  vendorId: number;
   loading: boolean;
 }
 
@@ -32,14 +33,16 @@ const emit = defineEmits<Emits>();
 
 const { t } = useI18n();
 const productStore = useProductStore();
+const currencyStoreInstance = currencyStore();
 
 // Form ref
 const formRef = ref();
 
 // Form state
 const formState = reactive({
-  product_id: undefined as string | undefined,
+  product_id: undefined as number | undefined,
   price: 0,
+  currency_id: undefined as number | undefined,
 });
 
 // Formatted price for display
@@ -79,6 +82,10 @@ const vendorProductRules = computed(() => {
 const products = ref<ProductInterface[]>([]);
 const productsLoading = ref(false);
 
+// Currencies for dropdown
+const currencies = ref<Array<{ id: number; name: string; code: string }>>([]);
+const currenciesLoading = ref(false);
+
 // Load products for dropdown
 const loadProducts = async () => {
   productsLoading.value = true;
@@ -102,10 +109,29 @@ const loadProducts = async () => {
   }
 };
 
+// Load currencies for dropdown
+const loadCurrencies = async () => {
+  currenciesLoading.value = true;
+  try {
+    await currencyStoreInstance.fetchCurrencies({ page: 1, limit: 1000 });
+    // Convert CurrencyEntity to interface
+    currencies.value = currencyStoreInstance.currencies.map(currency => ({
+      id: parseInt(currency.getId() || "0"),
+      name: currency.getName(),
+      code: currency.getCode(),
+    })).filter(c => c.id > 0);
+  } catch (err) {
+    console.error("Failed to load currencies:", err);
+  } finally {
+    currenciesLoading.value = false;
+  }
+};
+
 // Reset form function - defined before watch
 const resetForm = () => {
-  formState.product_id = undefined as string | undefined;
+  formState.product_id = undefined as number | undefined;
   formState.price = 0;
+  formState.currency_id = undefined as number | undefined;
 };
 
 // Initialize form when vendorProduct prop changes
@@ -115,6 +141,7 @@ watch(
     if (newVendorProduct) {
       formState.product_id = newVendorProduct.product_id;
       formState.price = newVendorProduct.price;
+      formState.currency_id = newVendorProduct.currency_id ?? undefined;
     } else {
       resetForm();
     }
@@ -122,17 +149,19 @@ watch(
   { immediate: true }
 );
 
-// Load products on mount
+// Load products and currencies on mount
 loadProducts();
+loadCurrencies();
 
 const submitForm = async () => {
   try {
     await formRef.value.submitForm();
-    
+
     const formData: VendorProductCreateInterface = {
       vendor_id: props.vendorId,
       product_id: formState.product_id!,
       price: formState.price,
+      currency_id: formState.currency_id,
     };
     emit("submit", formData);
   } catch (error) {
@@ -187,6 +216,27 @@ defineExpose({
               type="text"
               inputmode="numeric"
               @keydown="(e) => NumberOnly(e, (formState.price || 0).toString())"
+            />
+          </UiFormItem>
+
+          <!-- Currency -->
+          <UiFormItem
+            :label="t('vendor-product.form.currency')"
+            name="currency_id"
+          >
+            <UiSelect
+              v-model="formState.currency_id"
+              :placeholder="t('vendor-product.form.selectCurrency')"
+              :disabled="loading || currenciesLoading"
+              :options="currencies.map(currency => ({
+                value: currency.id,
+                label: `${currency.name} (${currency.code})`,
+              }))"
+              :filter-option="(input: string, option: any) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              "
+              show-search
+              allow-clear
             />
           </UiFormItem>
         </div>

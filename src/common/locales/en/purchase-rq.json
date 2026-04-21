@@ -24,7 +24,8 @@
     "amount": "Total balance",
     "amounts": "Total amounts",
     "purposes": "Purposes",
-    "unit":"Unit"
+    "unit":"Unit",
+    "filter_type": "Filter type"
   },
   "created": "Create proposal",
   "search": "Search",
@@ -35,6 +36,10 @@
   "otp-verification": "Patterns such as",
   "date": "Date",
   "all": "All",
+  "filter_type": {
+    "all": "All proposals",
+    "only_user": "My proposals"
+  },
   "status": {
     "pending": "Pending",
     "approved": "Approved",

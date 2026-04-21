@@ -19,6 +19,7 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 const { hasPermission } = usePermissions();
 const { t } = useI18n();
 const selectedDepartment = ref<string | null>(null);
+const selectedType = ref("all");
 const router = useRouter();
 const purchaseOrderStore = usePurchaseOrderStore();
 const departmentStoreInstance = departmentStore();
@@ -69,6 +70,12 @@ const departmentOptions = computed(() => {
 
   return [allOption, ...options];
 });
+
+// Filter type options
+const filterTypeOptions = computed(() => [
+  { value: "all", label: t("purchase-rq.filter_type.all") },
+  { value: "only_user", label: t("purchase-rq.filter_type.only_user") },
+]);
 
 const getStatusColor = (status: string) => {
   switch (status?.toUpperCase()) {
@@ -146,6 +153,11 @@ const fetchData = async () => {
       apiParams.order_date = formattedDate;
     }
 
+    // เพิ่ม type parameter ทุกครั้ง (all หรือ only_user)
+    if (selectedType.value) {
+      apiParams.type = selectedType.value;
+    }
+
     await purchaseOrderStore.fetchAll(apiParams);
   } finally {
     loading.value = false;
@@ -173,10 +185,8 @@ onMounted(async () => {
   // Fetch ALL departments data
   await fetchAllDepartments();
 
-   await purchaseOrderStore.fetchAll({ 
-    page: currentPage.value, 
-    limit: pageSize.value 
-  });
+  // Fetch initial data with type=all
+  await fetchData();
 });
 </script>
 
@@ -218,6 +228,16 @@ onMounted(async () => {
   <!-- Filters section -->
   <div class="bg-white p-2 rounded-lg shadow-sm">
     <div class="flex items-center gap-4">
+      <!-- Filter Type Select -->
+      <div class="w-48">
+        <InputSelect
+          v-model:modelValue="selectedType"
+          :options="filterTypeOptions"
+          placeholder="ປະເພດການກັ່ນຕອງ"
+          @change="handleSearch"
+        />
+      </div>
+
       <!-- Department Select using data from departmentStore -->
       <div class="w-64">
         <InputSelect
