@@ -1,10 +1,18 @@
 import { formatDate } from "@/modules/shared/formatdate";
 
+export interface CurrencyInterface {
+  id: string;
+  code: string;
+  name: string;
+}
+
 export class VendorProductEntity {
   private id: string;
   private vendor_id: string;
   private product_id: string;
   private price: number;
+  private currency_id: string;
+  private currency: CurrencyInterface | null;
   private created_at: string;
   private updated_at: string;
   private deleted_at: string | null;
@@ -14,14 +22,18 @@ export class VendorProductEntity {
     vendor_id: string,
     product_id: string,
     price: number,
+    currency_id: string,
     created_at: string,
     updated_at: string,
-    deleted_at: string | null = null
+    deleted_at: string | null = null,
+    currency: CurrencyInterface | null = null
   ) {
     this.id = id;
     this.vendor_id = vendor_id;
     this.product_id = product_id;
     this.price = price;
+    this.currency_id = currency_id;
+    this.currency = currency;
     this.created_at = formatDate(created_at);
     this.updated_at = formatDate(updated_at);
     this.deleted_at = deleted_at !== null ? formatDate(deleted_at) : null;
@@ -41,6 +53,14 @@ export class VendorProductEntity {
 
   public getPrice(): number {
     return this.price;
+  }
+
+  public getCurrencyId(): string {
+    return this.currency_id;
+  }
+
+  public getCurrency(): CurrencyInterface | null {
+    return this.currency;
   }
 
   public getCreatedAt(): string {
@@ -74,6 +94,11 @@ export class VendorProductEntity {
     this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
+  public updateCurrencyId(currency_id: string): void {
+    this.currency_id = currency_id;
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
+  }
+
   public delete(): void {
     this.deleted_at = new Date().toISOString().replace("T", " ").substring(0, 19);
     this.updated_at = this.deleted_at;
@@ -88,9 +113,10 @@ export class VendorProductEntity {
     id: string,
     vendor_id: string,
     product_id: string,
-    price: number
+    price: number,
+    currency_id: string
   ): VendorProductEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
-    return new VendorProductEntity(id, vendor_id, product_id, price, now, now, null);
+    return new VendorProductEntity(id, vendor_id, product_id, price, currency_id, now, now, null);
   }
 }

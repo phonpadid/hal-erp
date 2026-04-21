@@ -26,6 +26,7 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const selectedDocType = ref("all");
 const selectedStatus = ref("all");
+const selectedType = ref("all");
 const documentStatusStore = useDocumentStatusStore();
 
 // Delete modal state
@@ -48,6 +49,11 @@ const documentStatusItem = computed(() => [
     value: item.getId(),
     label: item.getName(),
   })),
+]);
+
+const filterTypeItem = computed(() => [
+  { value: "all", label: t("purchase-rq.filter_type.all") },
+  { value: "only_user", label: t("purchase-rq.filter_type.only_user") },
 ]);
 const handleSearch = () => {
   currentPage.value = 1;
@@ -77,6 +83,11 @@ const fetchData = async () => {
 
     if (selectedStatus.value && selectedStatus.value !== "all") {
       apiParams.status_id = selectedStatus.value;
+    }
+
+    // เพิ่ม type parameter ทุกครั้ง (all หรือ only_user)
+    if (selectedType.value) {
+      apiParams.type = selectedType.value;
     }
 
     await purchaseRequestStore.fetchAll(apiParams);
@@ -210,6 +221,18 @@ onMounted(async () => {
 
       <div class="search flex flex-col md:flex-row justify-between gap-[14rem] mt-4">
         <div class="input flex flex-col md:flex-row gap-4 flex-1">
+          <div class="search-by-type w-full">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ t("purchase-rq.field.filter_type") }}
+            </label>
+            <InputSelect
+              v-model="selectedType"
+              :options="filterTypeItem"
+              :placeholder="t('purchase-rq.all')"
+              class="w-full"
+              @change="handleSearch"
+            />
+          </div>
           <div class="search-by-doc-type w-full">
             <label class="block text-sm font-medium text-gray-700 mb-1">
               {{ t("purchase-rq.field.doc_type") }}

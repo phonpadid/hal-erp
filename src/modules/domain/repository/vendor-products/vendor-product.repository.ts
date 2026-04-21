@@ -1,33 +1,41 @@
-import { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
+import type { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
+import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
 export interface VendorProductRepository {
-  getAll(options?: {
-    page?: number;
-    limit?: number;
-    search?: string;
+  findAll(
+    params?: PaginationParams,
+    vendorId?: number,
+    productId?: number,
+    includeDeleted?: boolean
+  ): Promise<PaginatedResult<VendorProductEntity>>;
+
+  findById(id: string): Promise<VendorProductEntity | null>;
+
+  findByVendorId(vendorId: number): Promise<VendorProductEntity[]>;
+
+  findByProductId(productId: number): Promise<VendorProductEntity[]>;
+
+  findByVendorAndProduct(vendorId: number, productId: number): Promise<VendorProductEntity | null>;
+
+  create(vendorProductData: {
+    vendor_id: number;
+    product_id: number;
+    product_name?: string;
+    vendor_name?: string;
+    price: number;
+    currency_id?: number;
+  }): Promise<VendorProductEntity>;
+
+  update(id: string, vendorProductData: {
     vendor_id?: number;
     product_id?: number;
-    includeDeleted?: boolean;
-  }): Promise<{
-    vendor_products: VendorProductEntity[];
-    total: number;
-    page: number;
-    limit: number;
-  }>;
+    product_name?: string;
+    vendor_name?: string;
+    price?: number;
+    currency_id?: number;
+  }): Promise<VendorProductEntity>;
 
-  getById(id: string, includeDeleted?: boolean): Promise<VendorProductEntity | null>;
-
-  create(vendorProduct: VendorProductEntity): Promise<VendorProductEntity>;
-
-  update(id: string, vendorProduct: VendorProductEntity): Promise<VendorProductEntity>;
-
-  delete(id: string): Promise<void>;
+  delete(id: string): Promise<boolean>;
 
   restore(id: string): Promise<VendorProductEntity>;
-
-  exists(vendor_id: number, product_id: number): Promise<boolean>;
-
-  getByVendorId(vendorId: number): Promise<VendorProductEntity[]>;
-
-  getByProductId(productId: number): Promise<VendorProductEntity[]>;
 }

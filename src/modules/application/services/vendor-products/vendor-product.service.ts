@@ -1,5 +1,5 @@
 import type { VendorProductRepository } from "@/modules/domain/repository/vendor-products/vendor-product.repository";
-import { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
+import type { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
 import type { CreateVendorProductDTO, UpdateVendorProductDTO } from "@/modules/application/dtos/vendor-products/vendor-product.dto";
 
 export interface VendorProductService {
@@ -30,17 +30,11 @@ export class VendorProductServiceImpl implements VendorProductService {
   constructor(private vendorProductRepository: VendorProductRepository) {}
 
   async createVendorProduct(data: CreateVendorProductDTO): Promise<VendorProductEntity> {
-    const vendorProduct = VendorProductEntity.create({
-      vendor_id: data.vendor_id,
-      product_id: data.product_id,
-      product_name: data.product_name,
-    });
-
-    return await this.vendorProductRepository.create(vendorProduct);
+    return await this.vendorProductRepository.create(data);
   }
 
   async getVendorProductById(id: string): Promise<VendorProductEntity | null> {
-    return await this.vendorProductRepository.getById(id);
+    return await this.vendorProductRepository.findById(id);
   }
 
   async getVendorProducts(params: {
@@ -56,22 +50,33 @@ export class VendorProductServiceImpl implements VendorProductService {
     page: number;
     limit: number;
   }> {
-    return await this.vendorProductRepository.getAll(params);
+    const paginationParams = {
+      page: params.page || 1,
+      limit: params.limit || 10,
+      search: params.search,
+    };
+
+    const result = await this.vendorProductRepository.findAll(
+      paginationParams,
+      params.vendor_id,
+      params.product_id
+    );
+
+    return {
+      vendor_products: result.data,
+      total: result.total ?? 0,
+      page: result.page ?? 1,
+      limit: result.limit ?? 10,
+    };
   }
 
   async updateVendorProduct(id: string, data: UpdateVendorProductDTO): Promise<VendorProductEntity> {
-    const existingVendorProduct = await this.vendorProductRepository.getById(id);
+    const existingVendorProduct = await this.vendorProductRepository.findById(id);
     if (!existingVendorProduct) {
       throw new Error("Vendor product not found");
     }
 
-    const updatedVendorProduct = existingVendorProduct.update({
-      vendor_id: data.vendor_id,
-      product_id: data.product_id,
-      product_name: data.product_name,
-    });
-
-    return await this.vendorProductRepository.update(id, updatedVendorProduct);
+    return await this.vendorProductRepository.update(id, data);
   }
 
   async deleteVendorProduct(id: string): Promise<void> {
@@ -83,14 +88,15 @@ export class VendorProductServiceImpl implements VendorProductService {
   }
 
   async checkVendorProductExists(vendor_id: number, product_id: number): Promise<boolean> {
-    return await this.vendorProductRepository.exists(vendor_id, product_id);
+    const result = await this.vendorProductRepository.findByVendorAndProduct(vendor_id, product_id);
+    return result !== null;
   }
 
   async getVendorProductsByVendorId(vendorId: number): Promise<VendorProductEntity[]> {
-    return await this.vendorProductRepository.getByVendorId(vendorId);
+    return await this.vendorProductRepository.findByVendorId(vendorId);
   }
 
   async getVendorProductsByProductId(productId: number): Promise<VendorProductEntity[]> {
-    return await this.vendorProductRepository.getByProductId(productId);
+    return await this.vendorProductRepository.findByProductId(productId);
   }
 }
