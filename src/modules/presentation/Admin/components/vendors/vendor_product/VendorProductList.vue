@@ -6,7 +6,6 @@ import type { VendorProductEntity } from "@/modules/domain/entities/vendor-produ
 import { useVendorProductStore } from "@/modules/presentation/Admin/stores/vendors/vendor-product.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useProductStore } from "@/modules/presentation/Admin/stores/product.store";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import FormVendorProduct from "./FormVendorProduct.vue";
@@ -80,6 +79,16 @@ const columns = computed(() => [
   },
 ]);
 
+// Helper function to format date for display
+const formatDate = (date: Date | null | undefined): string => {
+  if (!date) return '-';
+  try {
+    return isNaN(date.getTime()) ? '-' : date.toISOString().split('T')[0];
+  } catch {
+    return '-';
+  }
+};
+
 // Table data source
 const dataSource = computed(() =>
   vendorProducts.value.map(vendorProduct => {
@@ -91,8 +100,8 @@ const dataSource = computed(() =>
       price: vendorProduct.getPrice(),
       currency_id: vendorProduct.getCurrencyId(),
       currency: currency,
-      created_at: vendorProduct.getCreatedAt(),
-      updated_at: vendorProduct.getUpdatedAt(),
+      created_at: formatDate(vendorProduct.getCreatedAt()),
+      updated_at: formatDate(vendorProduct.getUpdatedAt()),
       vendorProduct: vendorProduct,
     };
   })
@@ -165,6 +174,16 @@ const getProductName = (productId: number): string => {
   return product ? product.getName() : `Product ${productId}`;
 };
 
+// Helper function to safely convert Date to ISO string
+const toSafeISOString = (date: Date | null | undefined): string => {
+  if (!date) return '';
+  try {
+    return isNaN(date.getTime()) ? '' : date.toISOString();
+  } catch {
+    return '';
+  }
+};
+
 // Modal handlers
 const showCreateModal = () => {
   selectedVendorProduct.value = null;
@@ -180,9 +199,9 @@ const showEditModal = (vendorProduct: VendorProductEntity) => {
     price: vendorProduct.getPrice(),
     currency_id: vendorProduct.getCurrencyId(),
     currency: vendorProduct.getCurrency() || undefined,
-    created_at: vendorProduct.getCreatedAt().toISOString(),
-    updated_at: vendorProduct.getUpdatedAt().toISOString(),
-    deleted_at: vendorProduct.getDeletedAt()?.toISOString(),
+    created_at: toSafeISOString(vendorProduct.getCreatedAt()),
+    updated_at: toSafeISOString(vendorProduct.getUpdatedAt()),
+    deleted_at: toSafeISOString(vendorProduct.getDeletedAt()),
   };
   isEditMode.value = true;
   modalVisible.value = true;
@@ -196,9 +215,9 @@ const showDeleteModal = (vendorProduct: VendorProductEntity) => {
     price: vendorProduct.getPrice(),
     currency_id: vendorProduct.getCurrencyId(),
     currency: vendorProduct.getCurrency() || undefined,
-    created_at: vendorProduct.getCreatedAt().toISOString(),
-    updated_at: vendorProduct.getUpdatedAt().toISOString(),
-    deleted_at: vendorProduct.getDeletedAt()?.toISOString(),
+    created_at: toSafeISOString(vendorProduct.getCreatedAt()),
+    updated_at: toSafeISOString(vendorProduct.getUpdatedAt()),
+    deleted_at: toSafeISOString(vendorProduct.getDeletedAt()),
   };
   deleteModalVisible.value = true;
 };
@@ -313,16 +332,21 @@ const handleDeleteConfirm = async () => {
         <template #actions="{record}">
           <div class="flex items-center justify-center gap-2">
             <UiButton
-              size="small"
+              icon="material-symbols-light:edit-square-sharp"
               @click="showEditModal(record.vendorProduct)"
-              class="flex items-center justify-center text-orange-500 hover:text-orange-600 hover:bg-orange-50"
-            > <EditOutlined /> </UiButton>
-            <UiButton
               size="small"
+              shape="circle"
+              class="flex items-center justify-center text-blue-500 hover:!text-blue-900 hover:!bg-blue-50"
+            />
+            <UiButton
+              icon="material-symbols-light:delete-outline-sharp"
               danger
               @click="showDeleteModal(record.vendorProduct)"
+              size="small"
+              shape="circle"
               class="flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50"
-            ><DeleteOutlined/> </UiButton>
+
+            ></UiButton>
           </div>
         </template>
       <!-- </template> -->

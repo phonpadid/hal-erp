@@ -193,7 +193,7 @@ defineExpose({
               :placeholder="t('vendor-product.form.selectProduct')"
               :disabled="loading || productsLoading"
               :options="products.map(product => ({
-                value: product.id.toString(),
+                value: product.id,
                 label: product.name,
               }))"
               :filter-option="(input: string, option: any) =>
