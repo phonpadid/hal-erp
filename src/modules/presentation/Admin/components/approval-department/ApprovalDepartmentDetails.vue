@@ -1191,18 +1191,7 @@ const onChooseDocumentType = () => {
 };
 
 const getPurchaseOrderRemark = computed(() => {
-  if (
-    orderDetails.value &&
-    orderDetails.value.getPurchaseOrderItem &&
-    orderDetails.value.getPurchaseOrderItem().length > 0
-  ) {
-    return orderDetails.value.getPurchaseOrderItem()[0].getRemark();
-  }
-
-  return (
-    orderDetails.value?.getPurchaseRequest()?.purchase_request_item?.[0]?.remark ||
-    "ທົດລອງລະບົບບັນທຶກ"
-  );
+  return orderDetails.value?.getPurposes() || "ທົດລອງລະບົບບັນທຶກ";
 });
 
 const getPurchaseOrderQuantity = computed(() => {

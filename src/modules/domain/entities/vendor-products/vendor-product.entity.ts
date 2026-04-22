@@ -88,6 +88,13 @@ export class VendorProductEntity {
     return new VendorProductEntity(props);
   }
 
+  // Helper to safely parse date from API response
+  private static parseDate(dateValue: any): Date {
+    if (!dateValue) return new Date();
+    const parsed = new Date(dateValue);
+    return isNaN(parsed.getTime()) ? new Date() : parsed;
+  }
+
   // Static method to create from API response
   public static fromApiResponse(apiData: any): VendorProductEntity {
     // Handle both old and new API response formats
@@ -103,9 +110,9 @@ export class VendorProductEntity {
       price: parseFloat(apiData.price) || 0,
       currency_id: apiData.currency_id ? Number(apiData.currency_id) : undefined,
       currency: apiData.currency || null,
-      created_at: apiData.created_at ? new Date(apiData.created_at) : new Date(),
-      updated_at: apiData.updated_at ? new Date(apiData.updated_at) : new Date(),
-      deleted_at: apiData.deleted_at ? new Date(apiData.deleted_at) : null,
+      created_at: this.parseDate(apiData.created_at),
+      updated_at: this.parseDate(apiData.updated_at),
+      deleted_at: apiData.deleted_at ? this.parseDate(apiData.deleted_at) : null,
     });
   }
 
