@@ -1,6 +1,6 @@
-import type { VendorProductRepository } from "@/modules/domain/repository/vendors/vendor_product/vendor-product.repository";
+import type { VendorProductRepository } from "@/modules/domain/repository/vendor-products/vendor-product.repository";
 import type { VendorProductCreateInterface, VendorProductUpdateInterface } from "@/modules/interfaces/vendors/vendor_product/vendor-product.interface";
-import type { VendorProductEntity } from "@/modules/domain/entities/vendors/vendor_product/vendor-product.entity";
+import type { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
 export class VendorProductServiceImpl {
@@ -8,8 +8,8 @@ export class VendorProductServiceImpl {
 
   async getAllVendorProducts(
     params: PaginationParams,
-    vendorId?: string,
-    productId?: string
+    vendorId?: number,
+    productId?: number
   ): Promise<PaginatedResult<VendorProductEntity>> {
     return await this.vendorProductRepository.findAll(params, vendorId, productId);
   }
@@ -18,17 +18,17 @@ export class VendorProductServiceImpl {
     return await this.vendorProductRepository.findById(id);
   }
 
-  async getVendorProductsByVendorId(vendorId: string): Promise<VendorProductEntity[]> {
+  async getVendorProductsByVendorId(vendorId: number): Promise<VendorProductEntity[]> {
     return await this.vendorProductRepository.findByVendorId(vendorId);
   }
 
-  async getVendorProductsByProductId(productId: string): Promise<VendorProductEntity[]> {
+  async getVendorProductsByProductId(productId: number): Promise<VendorProductEntity[]> {
     return await this.vendorProductRepository.findByProductId(productId);
   }
 
   async getVendorProductByVendorAndProduct(
-    vendorId: string,
-    productId: string
+    vendorId: number,
+    productId: number
   ): Promise<VendorProductEntity | null> {
     return await this.vendorProductRepository.findByVendorAndProduct(vendorId, productId);
   }

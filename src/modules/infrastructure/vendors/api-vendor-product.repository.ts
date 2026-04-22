@@ -2,7 +2,7 @@ import type {
   VendorProductCreateInterface,
   VendorProductUpdateInterface,
 } from "@/modules/interfaces/vendors/vendor_product/vendor-product.interface";
-import { VendorProductEntity } from "@/modules/domain/entities/vendors/vendor_product/vendor-product.entity";
+import { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
 import type { VendorProductRepository } from "@/modules/domain/repository/vendors/vendor_product/vendor-product.repository";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 import { api } from "@/common/config/axios/axios";
@@ -13,8 +13,8 @@ export class ApiVendorProductRepository implements VendorProductRepository {
 
   async findAll(
     params: PaginationParams = { page: 1, limit: 10 },
-    vendorId?: string,
-    productId?: string,
+    vendorId?: number,
+    productId?: number,
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<VendorProductEntity>> {
     try {
@@ -67,7 +67,7 @@ export class ApiVendorProductRepository implements VendorProductRepository {
     }
   }
 
-  async findByVendorId(vendorId: string): Promise<VendorProductEntity[]> {
+  async findByVendorId(vendorId: number): Promise<VendorProductEntity[]> {
     try {
       const response = await api.get(this.baseUrl, {
         params: { vendor_id: vendorId, limit: 1000 },
@@ -80,7 +80,7 @@ export class ApiVendorProductRepository implements VendorProductRepository {
     }
   }
 
-  async findByProductId(productId: string): Promise<VendorProductEntity[]> {
+  async findByProductId(productId: number): Promise<VendorProductEntity[]> {
     try {
       const response = await api.get(this.baseUrl, {
         params: { product_id: productId, limit: 1000 },
@@ -93,7 +93,7 @@ export class ApiVendorProductRepository implements VendorProductRepository {
     }
   }
 
-  async findByVendorAndProduct(vendorId: string, productId: string): Promise<VendorProductEntity | null> {
+  async findByVendorAndProduct(vendorId: number, productId: number): Promise<VendorProductEntity | null> {
     try {
       const response = await api.get(this.baseUrl, {
         params: { vendor_id: vendorId, product_id: productId, limit: 1 },
@@ -148,15 +148,22 @@ export class ApiVendorProductRepository implements VendorProductRepository {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private toDomainModel(vendorProduct: any): VendorProductEntity {
-    return new VendorProductEntity(
-      vendorProduct.id.toString(),
-      vendorProduct.vendor_id.toString(),
-      vendorProduct.product_id.toString(),
-      Number(vendorProduct.price),
-      vendorProduct.created_at || "",
-      vendorProduct.updated_at || "",
-      vendorProduct.deleted_at || null
-    );
+    // Handle both old and new API response formats
+    const vendorName = vendorProduct.vendor?.name || vendorProduct.vendor_name;
+    const productName = vendorProduct.product?.name || vendorProduct.product_name;
+
+    const currency = vendorProduct.currency ? {
+      id: vendorProduct.currency.id?.toString() || vendorProduct.currency.id.toString(),
+      code: vendorProduct.currency.code,
+      name: vendorProduct.currency.name,
+    } : null;
+
+    return VendorProductEntity.fromApiResponse({
+      ...vendorProduct,
+      vendor_name: vendorName,
+      product_name: productName,
+      currency: currency,
+    });
   }
 
   private handleApiError(error: unknown, defaultMessage: string): never {

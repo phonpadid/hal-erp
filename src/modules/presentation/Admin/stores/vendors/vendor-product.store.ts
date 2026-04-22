@@ -1,15 +1,12 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { Ref } from "vue";
-import type {
-  VendorProductInterface,
-  VendorProductCreateInterface,
-  VendorProductUpdateInterface,
-} from "@/modules/interfaces/vendors/vendor_product/vendor-product.interface";
-import type { VendorProductEntity } from "@/modules/domain/entities/vendors/vendor_product/vendor-product.entity";
+import type { VendorProductInterface } from "@/modules/interfaces/vendors/vendor_product/vendor-product.interface";
+import type { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
 import type { PaginationParams } from "@/modules/shared/pagination";
-import { VendorProductServiceImpl } from "@/modules/application/services/vendors/vendor_product/vendor-product.service";
-import { ApiVendorProductRepository } from "@/modules/infrastructure/vendors/api-vendor-product.repository";
+import type { CreateVendorProductDTO, UpdateVendorProductDTO } from "@/modules/application/dtos/vendor-products/vendor-product.dto";
+import { VendorProductServiceImpl } from "@/modules/application/services/vendor-products/vendor-product.service";
+import { ApiVendorProductRepository } from "@/modules/infrastructure/vendor-products/api-vendor-product.repository";
 // import { ApiVendorProductRepository } from "@/modules/infrastructure/vendors/api-vendor-product.repository";
 
 // Create vendor-product service instance
@@ -46,20 +43,26 @@ export const useVendorProductStore = defineStore("vendorProduct", () => {
   // Actions
   const fetchVendorProducts = async (
     params: PaginationParams = { page: 1, limit: 10 },
-    vendorId?: string,
-    productId?: string
+    vendorId?: number,
+    productId?: number
   ) => {
     loading.value = true;
     error.value = null;
 
     try {
-      const result = await vendorProductService.getAllVendorProducts(params, vendorId, productId);
-      vendorProducts.value = result.data;
+      const result = await vendorProductService.getVendorProducts({
+        page: params.page,
+        limit: params.limit,
+        search: params.search,
+        vendor_id: vendorId,
+        product_id: productId,
+      });
+      vendorProducts.value = result.vendor_products;
       pagination.value = {
-        page: result.page ?? 1,
-        limit: result.limit ?? 10,
-        total: result.total ?? 0,
-        totalPages: result.totalPages ?? 0,
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: 0,
       };
     } catch (err) {
       error.value = err as Error;
@@ -85,7 +88,7 @@ export const useVendorProductStore = defineStore("vendorProduct", () => {
     }
   };
 
-  const fetchVendorProductsByVendorId = async (vendorId: string) => {
+  const fetchVendorProductsByVendorId = async (vendorId: number) => {
     loading.value = true;
     error.value = null;
 
@@ -101,7 +104,7 @@ export const useVendorProductStore = defineStore("vendorProduct", () => {
     }
   };
 
-  const createVendorProduct = async (vendorProductData: VendorProductCreateInterface) => {
+  const createVendorProduct = async (vendorProductData: CreateVendorProductDTO) => {
     loading.value = true;
     error.value = null;
 
@@ -117,7 +120,7 @@ export const useVendorProductStore = defineStore("vendorProduct", () => {
     }
   };
 
-  const updateVendorProduct = async (id: string, vendorProductData: VendorProductUpdateInterface) => {
+  const updateVendorProduct = async (id: string, vendorProductData: UpdateVendorProductDTO) => {
     loading.value = true;
     error.value = null;
 
@@ -145,14 +148,12 @@ export const useVendorProductStore = defineStore("vendorProduct", () => {
     error.value = null;
 
     try {
-      const result = await vendorProductService.deleteVendorProduct(id);
-      if (result) {
-        const index = vendorProducts.value.findIndex((vp) => vp.getId() === id);
-        if (index !== -1) {
-          vendorProducts.value[index].delete();
-        }
+      await vendorProductService.deleteVendorProduct(id);
+      const index = vendorProducts.value.findIndex((vp) => vp.getId() === id);
+      if (index !== -1) {
+        const deletedProduct = vendorProducts.value[index].softDelete();
+        vendorProducts.value[index] = deletedProduct;
       }
-      return result;
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -162,14 +163,21 @@ export const useVendorProductStore = defineStore("vendorProduct", () => {
   };
 
   const vendorProductEntityToInterface = (vendorProduct: VendorProductEntity): VendorProductInterface => {
+    const currency = vendorProduct.getCurrency();
     return {
       id: vendorProduct.getId(),
       vendor_id: vendorProduct.getVendorId(),
       product_id: vendorProduct.getProductId(),
       price: vendorProduct.getPrice(),
-      created_at: vendorProduct.getCreatedAt(),
-      updated_at: vendorProduct.getUpdatedAt(),
-      deleted_at: vendorProduct.getDeletedAt(),
+      currency_id: vendorProduct.getCurrencyId(),
+      currency: currency ? {
+        id: currency.id,
+        code: currency.code,
+        name: currency.name,
+      } : undefined,
+      created_at: vendorProduct.getCreatedAt().toISOString(),
+      updated_at: vendorProduct.getUpdatedAt().toISOString(),
+      deleted_at: vendorProduct.getDeletedAt()?.toISOString(),
     };
   };
 

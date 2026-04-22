@@ -387,7 +387,7 @@ defineExpose({ open, close, reset, setSelectedType });
               class="w-full border-amber-100 text-xs"
               :rows="2"
               :show-count="true"
-              :maxlength="300"
+              :maxlength="1000"
             />
           </UiFormItem>
         </div>

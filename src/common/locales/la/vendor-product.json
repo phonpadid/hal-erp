@@ -15,13 +15,16 @@
   "table": {
     "product": "ສິນຄ້າ",
     "price": "ລາຄາ",
+    "currency": "ສະກຸນເງິນ",
     "createdAt": "ວັນທີເພີ່ມ"
   },
   "form": {
     "product": "ສິນຄ້າ",
     "selectProduct": "ເລືອກສິນຄ້າ",
     "price": "ລາຄາ",
-    "pricePlaceholder": "ປ້ອນລາຄາ"
+    "pricePlaceholder": "ປ້ອນລາຄາ",
+    "currency": "ສະກຸນເງິນ",
+    "selectCurrency": "ເລືອກສະກຸນເງິນ"
   },
   "modal": {
     "create": "ເພີ່ມສິນຄ້າຜູ້ຈັດຊື້",

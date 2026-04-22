@@ -3,12 +3,21 @@ const generateId = () => {
   return 'vendor_product_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9);
 };
 
+export interface CurrencyInterface {
+  id: string;
+  code: string;
+  name: string;
+}
+
 export class VendorProductEntity {
   private readonly id: string;
   private readonly vendor_id: number;
   private readonly product_id: number;
   private readonly product_name?: string;
   private readonly vendor_name?: string;
+  private readonly price: number;
+  private readonly currency_id?: number;
+  private readonly currency?: CurrencyInterface | null;
   private readonly created_at: Date;
   private readonly updated_at: Date;
   private readonly deleted_at: Date | null;
@@ -19,6 +28,9 @@ export class VendorProductEntity {
     product_id: number;
     product_name?: string;
     vendor_name?: string;
+    price: number;
+    currency_id?: number;
+    currency?: CurrencyInterface | null;
     created_at: Date;
     updated_at: Date;
     deleted_at: Date | null;
@@ -28,6 +40,9 @@ export class VendorProductEntity {
     this.product_id = props.product_id;
     this.product_name = props.product_name;
     this.vendor_name = props.vendor_name;
+    this.price = props.price;
+    this.currency_id = props.currency_id;
+    this.currency = props.currency;
     this.created_at = props.created_at;
     this.updated_at = props.updated_at;
     this.deleted_at = props.deleted_at;
@@ -38,6 +53,8 @@ export class VendorProductEntity {
     product_id: number;
     product_name?: string;
     vendor_name?: string;
+    price: number;
+    currency_id?: number;
   }): VendorProductEntity {
     const now = new Date();
     return new VendorProductEntity({
@@ -46,6 +63,9 @@ export class VendorProductEntity {
       product_id: props.product_id,
       product_name: props.product_name,
       vendor_name: props.vendor_name,
+      price: props.price,
+      currency_id: props.currency_id,
+      currency: null,
       created_at: now,
       updated_at: now,
       deleted_at: null,
@@ -58,6 +78,9 @@ export class VendorProductEntity {
     product_id: number;
     product_name?: string;
     vendor_name?: string;
+    price: number;
+    currency_id?: number;
+    currency?: CurrencyInterface | null;
     created_at: Date;
     updated_at: Date;
     deleted_at: Date | null;
@@ -77,6 +100,9 @@ export class VendorProductEntity {
       product_id: apiData.product_id,
       product_name: productName,
       vendor_name: vendorName,
+      price: parseFloat(apiData.price) || 0,
+      currency_id: apiData.currency_id ? Number(apiData.currency_id) : undefined,
+      currency: apiData.currency || null,
       created_at: apiData.created_at ? new Date(apiData.created_at) : new Date(),
       updated_at: apiData.updated_at ? new Date(apiData.updated_at) : new Date(),
       deleted_at: apiData.deleted_at ? new Date(apiData.deleted_at) : null,
@@ -88,6 +114,8 @@ export class VendorProductEntity {
     product_id?: number;
     product_name?: string;
     vendor_name?: string;
+    price?: number;
+    currency_id?: number;
   }): VendorProductEntity {
     return new VendorProductEntity({
       id: this.id,
@@ -95,6 +123,9 @@ export class VendorProductEntity {
       product_id: props.product_id ?? this.product_id,
       product_name: props.product_name ?? this.product_name,
       vendor_name: props.vendor_name ?? this.vendor_name,
+      price: props.price ?? this.price,
+      currency_id: props.currency_id ?? this.currency_id,
+      currency: this.currency,
       created_at: this.created_at,
       updated_at: new Date(),
       deleted_at: this.deleted_at,
@@ -108,9 +139,28 @@ export class VendorProductEntity {
       product_id: this.product_id,
       product_name: this.product_name,
       vendor_name: this.vendor_name,
+      price: this.price,
+      currency_id: this.currency_id,
+      currency: this.currency,
       created_at: this.created_at,
       updated_at: new Date(),
       deleted_at: new Date(),
+    });
+  }
+
+  public restore(): VendorProductEntity {
+    return new VendorProductEntity({
+      id: this.id,
+      vendor_id: this.vendor_id,
+      product_id: this.product_id,
+      product_name: this.product_name,
+      vendor_name: this.vendor_name,
+      price: this.price,
+      currency_id: this.currency_id,
+      currency: this.currency,
+      created_at: this.created_at,
+      updated_at: new Date(),
+      deleted_at: null,
     });
   }
 
@@ -133,6 +183,18 @@ export class VendorProductEntity {
 
   public getVendorName(): string | undefined {
     return this.vendor_name;
+  }
+
+  public getPrice(): number {
+    return this.price;
+  }
+
+  public getCurrencyId(): number | undefined {
+    return this.currency_id;
+  }
+
+  public getCurrency(): CurrencyInterface | null {
+    return this.currency || null;
   }
 
   public getCreatedAt(): Date {
@@ -161,6 +223,10 @@ export class VendorProductEntity {
 
     if (this.product_id <= 0) {
       errors.push("Invalid product ID");
+    }
+
+    if (this.price <= 0) {
+      errors.push("Price must be greater than 0");
     }
 
     return errors;
