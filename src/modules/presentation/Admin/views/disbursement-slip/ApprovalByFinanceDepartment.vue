@@ -21,6 +21,7 @@ import {
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import type { Dayjs } from "dayjs";
 import { departmentStore } from "../../stores/departments/department.store";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 const { t } = useI18n();
 const { push } = useRouter();
 const dpmStore = departmentStore();
@@ -42,6 +43,7 @@ const filterTypeOptions = computed(() => [
 const filterDate = ref<Dayjs | undefined>(undefined);
 const filterDepartment = ref<string | undefined>("all");
 const filterType = ref<string>("all");
+const isPaginationChanging = ref<boolean>(false);
 const statusCards = computed(() => {
   const map: Record<
     string,
@@ -135,25 +137,40 @@ const searchByDate = async () => {
 };
 
 const handleTableChange = async (pagination: TablePaginationType) => {
-  rStore.setPagination({
-    page: pagination.current || 1,
-    limit: pagination.pageSize || 10,
-    total: pagination.total ?? 0,
-  });
-  await loadReceipt();
+  isPaginationChanging.value = true;
+  loading.value = true;
+  try {
+    rStore.setPagination({
+      page: pagination.current || 1,
+      limit: pagination.pageSize || 10,
+      total: pagination.total ?? 0,
+    });
+
+    await rStore.fetchAll({
+      page: pagination.current || 1,
+      limit: pagination.pageSize || 10,
+      order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
+      department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
+      type: filterType.value,
+    });
+  } catch (error) {
+    console.log(error);
+  } finally {
+    isPaginationChanging.value = false;
+    loading.value = false;
+  }
 };
 // Function to fetch receipts with filters
 const loadFilteredReceipts = async () => {
   loading.value = true;
   try {
     await rStore.fetchAll({
-      page: 1,
+      page: rStore.pagination.page,
       limit: rStore.pagination.limit,
       order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
       department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
       type: filterType.value,
     });
-    rStore.setPagination({ ...rStore.pagination, page: 1 });
   } catch (error) {
     console.log(error);
   } finally {
@@ -161,7 +178,9 @@ const loadFilteredReceipts = async () => {
   }
 };
 watch([filterDate, filterDepartment, filterType], () => {
-  loadFilteredReceipts();
+  if (!isPaginationChanging.value) {
+    loadFilteredReceipts();
+  }
 });
 onMounted(async () => {
   await loadReceipt();
@@ -272,6 +291,21 @@ onMounted(async () => {
             :icon="getStatusIcon(getDocumentStatus(record))"
             :text="getStatusText(getDocumentStatus(record))"
           />
+        </template>
+        <template #current_approver="{ record }">
+          <span :class="record.user_last_approval === null ? 'text-green-600 font-semibold' : 'text-blue-600'">
+            {{ record.user_last_approval === null ? 'APPROVED' : record.user_last_approval }}
+          </span>
+        </template>
+        <template #total="{ record }">
+          <span class="font-semibold text-red-600">
+            {{ formatPrice(record.total ) }} ₭
+          </span>
+        </template>
+        <template #receipt_number="{ record }">
+          <span class="font-semibold text-blue-600">
+            {{(record.receipt_number ) }} 
+          </span>
         </template>
         <template #actions="{ record }">
           <div class="flex items-center justify-center gap-2">

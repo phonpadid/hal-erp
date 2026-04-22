@@ -49,6 +49,7 @@ export interface ReciptQueryDto {
   currency_totals: ICurrencyTotal[];
   document: IDocument;
   user_approval: UserApprovalDTO;
+  user_last_approval: string | null;
 
 
   remark: string;

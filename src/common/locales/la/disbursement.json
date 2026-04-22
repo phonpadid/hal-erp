@@ -4,6 +4,7 @@
         "created_by": "ສ້າງໂດຍ",
         "created_at": "ວັນທີສ້າງ",
         "status": "ສະຖານະ",
+        "current_approver": "ຜູ້ອະນຸມັດປະຈຸບັນ",
         "manage": "ຈັດການ",
         "branch": "ສາຂາ",
         "departmentt": "ພະແນກ",
@@ -12,7 +13,9 @@
         "remark": "ໝາຍເຫດ",
         "addition_pay": "ຈຳນວນເງິນຈ່າຍເພີ່ມ",
         "doc_attachment": "ເອກະສານຕິດຂັດ",
-        "detail": "ລາຍລະອຽດ"
+        "detail": "ລາຍລະອຽດ",
+        "total": "ຈຳນວນເງີນລວມ",
+        "receipt_number": "ເລກທີເອກະສານ"
     },
     "vendor": {
         "title": "ຂໍ້ມູນຮ້ານ",

@@ -83,6 +83,12 @@
               <span>{{ record.getRemark() }}</span>
             </template>
 
+            <template #vendorReason="{ record }">
+              <span class="text-gray-600 text-sm">
+                {{ record.getSelectedVendor()?.getReason() || '-' }}
+              </span>
+            </template>
+
             <template #quantity="{ record }">
               <span>{{ record.getQuantity() }}</span>
             </template>
@@ -895,34 +901,9 @@ const canCreatePaymentDocument = computed(() => {
     return false;
   }
 
-  // Super admins and company admins can create payment documents when fully approved
-  if (hasApprovalAccess.value) {
-    const allStepsApproved = approvalSteps.value.every((step) => step.status_id === 2);
-    return allStepsApproved;
-  }
-
-  const userDataStr = localStorage.getItem("userData");
-  const userData = userDataStr ? JSON.parse(userDataStr) : null;
-
-  if (!userData) {
-    return false;
-  }
-
+  // Allow all users to create payment documents when fully approved
   const allStepsApproved = approvalSteps.value.every((step) => step.status_id === 2);
-  if (!allStepsApproved) {
-    return false;
-  }
-
-  // Check if user is in any step's doc_approver (not just the last step)
-  const isAuthorized = approvalSteps.value.some((step) => {
-    return step.doc_approver?.some((approver) => {
-      const userMatches = approver.user?.username === userData.username;
-      const departmentMatches = approver.department?.name === userData.department_name;
-      return userMatches && departmentMatches;
-    });
-  });
-
-  return isAuthorized;
+  return allStepsApproved;
 });
 
 const getPreviousApprovedStep = computed(() => {

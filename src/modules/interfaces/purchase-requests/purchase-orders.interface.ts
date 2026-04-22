@@ -80,6 +80,8 @@ export interface PurchaseOrderApiModel {
   purposes?: string;
 
   purchase_request_id: number;
+  user_last_approval?: string | null;
+  document_status?: any;
   document: {
     id?: number;
     description: string | null;
