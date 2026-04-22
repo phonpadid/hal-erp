@@ -14,14 +14,31 @@ export class ApiReceiptRepository implements ReceiptRepository {
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<ReciptQueryDto>> {
     try {
+      // Build params object and filter out undefined values
+      const requestParams: Record<string, string | number | boolean> = {
+        page: params.page || 1,
+        limit: params.limit || 10,
+        column: "id",
+        company_id: params?.company_id || "",
+        include_deleted: includeDeleted,
+      };
+
+      // Only add these params if they have values
+      if (params?.order_date) requestParams.order_date = params.order_date;
+      if (params?.department_id) requestParams.department_id = params.department_id;
+      if (params?.type) requestParams.type = params.type;
+
+      console.log('📤 API Request params:', requestParams);
+
       const response = await api.get(this.baseUrl, {
-        params: {
-          limit: params.limit || 10,
-          column: "id",
-          company_id: params?.company_id || "",
-          include_deleted: includeDeleted,
-        },
+        params: requestParams,
       });
+
+      console.log('📥 API Response:', {
+        dataCount: response.data.data?.length,
+        pagination: response.data.pagination,
+      });
+
       const result = response.data.data;
       return {
         data: result,

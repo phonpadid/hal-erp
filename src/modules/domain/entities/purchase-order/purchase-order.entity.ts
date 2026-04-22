@@ -65,6 +65,8 @@ export class PurchaseOrderEntity {
   private items: any[];
   private purchase_order_item: PurchaseOrderItemDataEntity[];
   private readonly budget_item_id: number;
+  private user_last_approval: string | null;
+  private document_status: any;
   private createdBy: string;
   private createdAt: string;
   private updatedBy: string;
@@ -83,6 +85,8 @@ export class PurchaseOrderEntity {
     purchase_order_item: PurchaseOrderItemDataEntity[],
     purposes: string,
     budget_item_id: number,
+    user_last_approval: string | null,
+    document_status: any,
     createdBy: string,
     createdAt: string,
     updatedBy: string,
@@ -102,6 +106,8 @@ export class PurchaseOrderEntity {
     this.items = items;
     this.purchase_order_item = purchase_order_item;
     this.budget_item_id = budget_item_id;
+    this.user_last_approval = user_last_approval;
+    this.document_status = document_status;
     this.purchaseRequest = purchaseRequest;
     this.user_approval = user_approval;
     this.createdBy = createdBy;
@@ -201,6 +207,8 @@ export class PurchaseOrderEntity {
       purchaseOrderItems,
       purposes,
       data.budget_item_id || 0,
+      data.user_last_approval || null,
+      data.document_status || null,
       data.created_by || "N/A",
       createdAt,
       data.updated_by || "N/A",
@@ -285,6 +293,12 @@ export class PurchaseOrderEntity {
   }
   public getPurposes(): string {
     return this.purposes;
+  }
+  public getUserLastApproval(): string | null {
+    return this.user_last_approval;
+  }
+  public getDocumentStatus(): any {
+    return this.document_status;
   }
   public getQuotationImageUrl(): string | null {
     if (this.purchase_order_item && this.purchase_order_item.length > 0) {

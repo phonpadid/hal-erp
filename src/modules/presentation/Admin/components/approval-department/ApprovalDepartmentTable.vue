@@ -8,12 +8,14 @@ import { usePurchaseOrderStore } from "@/modules/presentation/Admin/stores/purch
 import { formatDate } from "@/modules/shared/formatdate";
 import { departmentStore } from "../../stores/departments/department.store";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import DatePicker from "@/common/shared/components/Datepicker/DatePicker.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import { Icon } from "@iconify/vue";
 
 /******************************************************** */
 const { hasPermission } = usePermissions();
@@ -288,15 +290,26 @@ onMounted(async () => {
         />
       </template>
       <template #po_number="{ record }">
-        <span class="font-semibold">{{ record.po_number }}</span>
+        <span class="font-semibold text-blue-600">{{ record.po_number }}</span>
       </template>
 
       <template #requester="{ record }">
         <span>{{ record.getRequester()?.username }}</span>
       </template>
+      <template #total="{ record }">
+        <span class="text-red-600">{{formatPrice( record.getTotal()) }} ₭</span>
+      </template>
 
       <template #created_at="{ record }">
         <span>{{ formatDate(record.getCreatedAt()) }}</span>
+      </template>
+      <template #current_approver="{ record }">
+        <UiTag
+          v-if="record.getUserLastApproval()"
+          :text="record.getUserLastApproval()"
+          color="blue"
+        />
+        <span v-else class="text-blue-400"><div class="flex items-center"><Icon icon="solar:clipboard-check-bold"/>ສຳເລັດ</div></span>
       </template>
       <template #action="{ record }">
         <UiButton
