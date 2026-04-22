@@ -189,6 +189,8 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
       total: data.total || 0,
       purposes: data.purposes || data.purchase_request?.purposes || "N/A",
       purchase_request_id: data.purchase_request_id,
+      user_last_approval: data.user_last_approval || null,
+      document_status: data.document_status || null,
       document: {
         description: data.document?.description,
         documentTypeId: Number(data.document?.documentTypeId),
