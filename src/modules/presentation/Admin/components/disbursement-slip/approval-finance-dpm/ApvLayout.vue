@@ -77,15 +77,15 @@ const goBack = () => {
 
 const customButtons = computed(() => {
   const buttons = [
-    {
-      label: exportLoading.value ? "ກຳລັງດາວໂຫຼດ..." : "ໄຟລ໌ Excel",
-      icon: exportLoading.value ? "ant-design:loading-outlined" : "ant-design:file-excel-outlined",
-      class: `bg-green-700 text-white hover:text-red-50 flex items-center gap-1 hover:bg-green-800 mr-4 ${exportLoading.value ? 'opacity-75 cursor-not-allowed' : ''}`,
-      type: "" as ButtonType,
-      onClick: handleExportExcel,
-      disabled: exportLoading.value,
-      loading: exportLoading.value
-    },
+    // {
+    //   label: exportLoading.value ? "ກຳລັງດາວໂຫຼດ..." : "ໄຟລ໌ Excel",
+    //   icon: exportLoading.value ? "ant-design:loading-outlined" : "ant-design:file-excel-outlined",
+    //   class: `bg-green-700 text-white hover:text-red-50 flex items-center gap-1 hover:bg-green-800 mr-4 ${exportLoading.value ? 'opacity-75 cursor-not-allowed' : ''}`,
+    //   type: "" as ButtonType,
+    //   onClick: handleExportExcel,
+    //   disabled: exportLoading.value,
+    //   loading: exportLoading.value
+    // },
     {
       label: "print",
       icon: "ant-design:printer-outlined",
