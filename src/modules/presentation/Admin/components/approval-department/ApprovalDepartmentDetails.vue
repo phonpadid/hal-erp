@@ -37,30 +37,30 @@
           </div>
         </div>
         <!-- ຂໍ້ມຸນຜູ້ສະເໜີ -->
-        <div>
+        <div class="space-y-4">
           <h4>{{ t("purchase_orders.Proposal") }}</h4>
-          <div class="grid grid-cols-4">
-            <div class="grid grid-rows-2">
-              <h5>{{ t("purchase_orders.quantity") }}</h5>
-              <span class="text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="flex flex-col gap-1">
+              <h5 class="font-medium text-gray-700">{{ t("purchase_orders.quantity") }}</h5>
+              <span class="text-sm text-gray-600">
                 {{ getPurchaseOrderQuantity }}
               </span>
             </div>
-            <div class="grid grid-rows-2">
-              <h5>{{ t("purchase_orders.department") }}</h5>
-              <span class="text-sm">{{ orderDetails?.getDepartment()?.name || "ພະແນກໄອທີ" }}</span>
+            <div class="flex flex-col gap-1">
+              <h5 class="font-medium text-gray-700">{{ t("purchase_orders.department") }}</h5>
+              <span class="text-sm text-gray-600">{{ orderDetails?.getDepartment()?.name || "ພະແນກໄອທີ" }}</span>
             </div>
-            <div class="grid grid-rows-2">
-              <h5>{{ t("purchase_orders.agency") }}</h5>
-              <span class="text-sm">{{
+            <div class="flex flex-col gap-1">
+              <h5 class="font-medium text-gray-700">{{ t("purchase_orders.agency") }}</h5>
+              <span class="text-sm text-gray-600">{{
                 orderDetails?.getPosition()?.[0]?.name || "ຝ່າຍພັດທະນາລະບົບ"
               }}</span>
             </div>
-            <div class="grid grid-rows-2">
-              <h4 class="text-base font-semibold mb-2">
+            <div class="flex flex-col gap-1 lg:col-span-1">
+              <h4 class="text-base font-semibold text-gray-800">
                 {{ t("purchase_orders.Objectivesanditems") }}
               </h4>
-              <span class="text-gray-600">
+              <span class="text-sm text-gray-600 leading-relaxed break-words">
                 {{ getPurchaseOrderRemark }}
               </span>
             </div>
