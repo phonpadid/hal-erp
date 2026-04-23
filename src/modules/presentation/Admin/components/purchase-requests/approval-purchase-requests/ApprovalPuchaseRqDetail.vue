@@ -144,13 +144,13 @@ const handleExport = async () => {
 const customButtons = computed(() => {
   // Base buttons for everyone
   const baseButtons = [
-    {
-      label: "Export",
-      icon: "ant-design:file-excel-outlined",
-      class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
-      type: "default" as ButtonType,
-      onClick: handleExport,
-    },
+    // {
+    //   label: "Export",
+    //   icon: "ant-design:file-excel-outlined",
+    //   class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
+    //   type: "default" as ButtonType,
+    //   onClick: handleExport,
+    // },
     {
       label: "Print",
       icon: "ant-design:printer-outlined",
@@ -284,13 +284,13 @@ const handlePrint = () => {
 
 const customButtonSuccess = computed(() => {
   const buttons = [
-    {
-      label: "Export",
-      icon: "ant-design:file-excel-outlined",
-      class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
-      type: "default" as ButtonType,
-      onClick: handleExport,
-    },
+    // {
+    //   label: "Export",
+    //   icon: "ant-design:file-excel-outlined",
+    //   class: "bg-white flex items-center gap-2 hover:bg-gray-100 mr-4",
+    //   type: "default" as ButtonType,
+    //   onClick: handleExport,
+    // },
     {
       label: "print",
       icon: "ant-design:printer-outlined",

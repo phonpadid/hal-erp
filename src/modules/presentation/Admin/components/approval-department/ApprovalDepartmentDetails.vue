@@ -1013,13 +1013,13 @@ const customButtons = computed(() => {
   // ✅ ຖ້າອະນຸມັດຄົບແລ້ວ ແລະ ເປັນ user ທີ່ມີສິດສ້າງໃບເບີກຈ່າຍ (ມາກ່ອນເສມອດ!)
   if (canCreatePaymentDocument.value && isFullyApproved.value) {
     return [
-      {
-        label: "Export",
-        icon: "ant-design:file-excel-outlined",
-        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
-        type: "default" as ButtonType,
-        onClick: handleExport,
-      },
+      // {
+      //   label: "Export",
+      //   icon: "ant-design:file-excel-outlined",
+      //   class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+      //   type: "default" as ButtonType,
+      //   onClick: handleExport,
+      // },
       {
         label: "Print",
         icon: "ant-design:printer-outlined",
@@ -1040,13 +1040,13 @@ const customButtons = computed(() => {
   // ✅ ແສດງປຸ່ມ Export ແລະ Print ເມື່ອອະນຸມັດສຳເລັດຫຼື ເອກະສານອະນຸມັດຄົບແລ້ວ
   if (isApproved.value || isFullyApproved.value) {
     return [
-      {
-        label: "Export",
-        icon: "ant-design:file-excel-outlined",
-        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
-        type: "default" as ButtonType,
-        onClick: handleExport,
-      },
+      // {
+      //   label: "Export",
+      //   icon: "ant-design:file-excel-outlined",
+      //   class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+      //   type: "default" as ButtonType,
+      //   onClick: handleExport,
+      // },
       {
         label: "Print",
         icon: "ant-design:printer-outlined",
@@ -1062,13 +1062,13 @@ const customButtons = computed(() => {
 
 
     return [
-      {
-        label: "Export",
-        icon: "ant-design:file-excel-outlined",
-        class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
-        type: "default" as ButtonType,
-        onClick: handleExport,
-      },
+      // {
+      //   label: "Export",
+      //   icon: "ant-design:file-excel-outlined",
+      //   class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
+      //   type: "default" as ButtonType,
+      //   onClick: handleExport,
+      // },
       {
         label: "Print",
         icon: "ant-design:printer-outlined",
@@ -1109,13 +1109,13 @@ const customButtons = computed(() => {
   }
 
   return [
-    {
-      label: "Export",
-      icon: "ant-design:file-excel-outlined",
-      class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
-      type: "default" as ButtonType,
-      onClick: handleExport,
-    },
+    // {
+    //   label: "Export",
+    //   icon: "ant-design:file-excel-outlined",
+    //   class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
+    //   type: "default" as ButtonType,
+    //   onClick: handleExport,
+    // },
     {
       label: "Print",
       icon: "ant-design:printer-outlined",
