@@ -57,7 +57,7 @@ export const useVendorStore = defineStore("vendor", () => {
   const totalInactiveVendors = computed(() => inactiveVendors.value.length);
 
   // Actions
-  const fetchVendors = async (params: PaginationParams = { page: 1, limit: 10 }) => {
+  const fetchVendors = async (params: PaginationParams = { page: 1, limit: 1000 }) => {
     loading.value = true;
     error.value = null;
 
