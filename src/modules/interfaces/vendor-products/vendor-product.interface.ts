@@ -4,7 +4,13 @@ export interface VendorProductApiModel {
   product_id: number;
   product_name?: string;
   vendor_name?: string;
-  price?: string;
+  price: string;
+  currency_id?: number;
+  currency?: {
+    id: number;
+    code: string;
+    name: string;
+  };
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
@@ -22,10 +28,14 @@ export interface CreateVendorProductApiRequest {
   vendor_id: number;
   product_id: number;
   product_name?: string;
+  price: number;
+  currency_id?: number;
 }
 
 export interface UpdateVendorProductApiRequest {
   vendor_id?: number;
   product_id?: number;
   product_name?: string;
+  price?: number;
+  currency_id?: number;
 }

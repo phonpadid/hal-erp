@@ -74,9 +74,9 @@ export function columnsApprovalDetails(t: (key: string) => string, userRoles: st
       key: "Shop",
     },
     {
-      title: t("purchase_qequest.table.note"),
-      dataIndex: "remark",
-      key: "remark",
+      title: t("budget_approval.table.reason"),
+      dataIndex: "vendorReason",
+      key: "vendorReason",
     },
   ];
 

@@ -25,6 +25,7 @@ export interface PaginationParams {
   // Additional parameters for document types
   column?: string;
   sort_order?: "asc" | "desc" | "ASC" | "DESC";
+  category?: string; // Filter by document category (PR, PO, RECEIPT)
 }
 
 export interface APIResponse<T> {

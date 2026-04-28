@@ -1,5 +1,5 @@
 <script setup lang="ts" name="EditVendorProductModal.vue">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -64,9 +64,9 @@ const loadVendorProduct = async (id: string) => {
     const vendorProduct = await vendorProductStore.fetchVendorProductById(id);
     if (vendorProduct) {
       formState.value = {
-        vendor_id: vendorProduct.getVendorId(),
-        product_id: vendorProduct.getProductId(),
-        product_name: vendorProduct.getProductName() || "",
+        vendor_id: Number(vendorProduct.getVendorId()),
+        product_id: Number(vendorProduct.getProductId()),
+        product_name: "", // Entity เก่าไม่มี product_name
       };
     }
   } catch (error) {
@@ -106,7 +106,7 @@ const submitForm = async () => {
     }
 
     const formData: UpdateVendorProductDTO = {
-      id: props.vendorProductId,
+      // id: props.vendorProductId,
       vendor_id: Number(formState.value.vendor_id),
       product_id: Number(formState.value.product_id),
       product_name: formState.value.product_name || undefined,

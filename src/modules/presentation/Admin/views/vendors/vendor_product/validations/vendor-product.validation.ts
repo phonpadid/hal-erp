@@ -1,8 +1,9 @@
 interface ValidationState {
   isEditMode: boolean;
   formState?: {
-    product_id?: string;
+    product_id?: number;
     price?: number;
+    currency_id?: number;
   };
 }
 
@@ -33,8 +34,11 @@ export const createVendorProductValidation = (
     // },
   ];
 
+  const currencyRules: never[] = []; // Currency is optional, no rules needed
+
   return {
     product_id: productRules,
     price: priceRules,
+    currency_id: currencyRules,
   };
 };

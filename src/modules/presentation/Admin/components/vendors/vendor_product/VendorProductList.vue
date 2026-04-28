@@ -2,11 +2,10 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { VendorProductInterface } from "@/modules/interfaces/vendors/vendor_product/vendor-product.interface";
-import type { VendorProductEntity } from "@/modules/domain/entities/vendors/vendor_product/vendor-product.entity";
+import type { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
 import { useVendorProductStore } from "@/modules/presentation/Admin/stores/vendors/vendor-product.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useProductStore } from "@/modules/presentation/Admin/stores/product.store";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons-vue";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import FormVendorProduct from "./FormVendorProduct.vue";
@@ -16,7 +15,7 @@ import Table from "@/common/shared/components/table/Table.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 
 interface Props {
-  vendorId: string;
+  vendorId: number;
 }
 
 const props = defineProps<Props>();
@@ -55,6 +54,12 @@ const columns = computed(() => [
     width: "20%",
   },
   {
+    title: t("vendor-product.table.currency"),
+    dataIndex: "currency",
+    key: "currency",
+    width: "20%",
+  },
+  {
     title: t("vendor-product.table.createdAt"),
     dataIndex: "created_at",
     key: "created_at",
@@ -74,17 +79,32 @@ const columns = computed(() => [
   },
 ]);
 
+// Helper function to format date for display
+const formatDate = (date: Date | null | undefined): string => {
+  if (!date) return '-';
+  try {
+    return isNaN(date.getTime()) ? '-' : date.toISOString().split('T')[0];
+  } catch {
+    return '-';
+  }
+};
+
 // Table data source
 const dataSource = computed(() =>
-  vendorProducts.value.map(vendorProduct => ({
-    key: vendorProduct.getId(),
-    id: vendorProduct.getId(),
-    product_name: getProductName(vendorProduct.getProductId()),
-    price: vendorProduct.getPrice(),
-    created_at: vendorProduct.getCreatedAt(),
-    updated_at: vendorProduct.getUpdatedAt(),
-    vendorProduct: vendorProduct,
-  }))
+  vendorProducts.value.map(vendorProduct => {
+    const currency = vendorProduct.getCurrency();
+    return {
+      key: vendorProduct.getId(),
+      id: vendorProduct.getId(),
+      product_name: getProductName(vendorProduct.getProductId()),
+      price: vendorProduct.getPrice(),
+      currency_id: vendorProduct.getCurrencyId(),
+      currency: currency,
+      created_at: formatDate(vendorProduct.getCreatedAt()),
+      updated_at: formatDate(vendorProduct.getUpdatedAt()),
+      vendorProduct: vendorProduct,
+    };
+  })
 );
 
 // Load vendor products and products on mount
@@ -149,9 +169,19 @@ const loadProducts = async () => {
 };
 
 // Helper function to get product name by ID
-const getProductName = (productId: string): string => {
-  const product = productStore.activeProducts.find(p => p.getId() === productId);
+const getProductName = (productId: number): string => {
+  const product = productStore.activeProducts.find(p => parseInt(p.getId()) === productId);
   return product ? product.getName() : `Product ${productId}`;
+};
+
+// Helper function to safely convert Date to ISO string
+const toSafeISOString = (date: Date | null | undefined): string => {
+  if (!date) return '';
+  try {
+    return isNaN(date.getTime()) ? '' : date.toISOString();
+  } catch {
+    return '';
+  }
 };
 
 // Modal handlers
@@ -167,9 +197,11 @@ const showEditModal = (vendorProduct: VendorProductEntity) => {
     vendor_id: vendorProduct.getVendorId(),
     product_id: vendorProduct.getProductId(),
     price: vendorProduct.getPrice(),
-    created_at: vendorProduct.getCreatedAt(),
-    updated_at: vendorProduct.getUpdatedAt(),
-    deleted_at: vendorProduct.getDeletedAt(),
+    currency_id: vendorProduct.getCurrencyId(),
+    currency: vendorProduct.getCurrency() || undefined,
+    created_at: toSafeISOString(vendorProduct.getCreatedAt()),
+    updated_at: toSafeISOString(vendorProduct.getUpdatedAt()),
+    deleted_at: toSafeISOString(vendorProduct.getDeletedAt()),
   };
   isEditMode.value = true;
   modalVisible.value = true;
@@ -181,9 +213,11 @@ const showDeleteModal = (vendorProduct: VendorProductEntity) => {
     vendor_id: vendorProduct.getVendorId(),
     product_id: vendorProduct.getProductId(),
     price: vendorProduct.getPrice(),
-    created_at: vendorProduct.getCreatedAt(),
-    updated_at: vendorProduct.getUpdatedAt(),
-    deleted_at: vendorProduct.getDeletedAt(),
+    currency_id: vendorProduct.getCurrencyId(),
+    currency: vendorProduct.getCurrency() || undefined,
+    created_at: toSafeISOString(vendorProduct.getCreatedAt()),
+    updated_at: toSafeISOString(vendorProduct.getUpdatedAt()),
+    deleted_at: toSafeISOString(vendorProduct.getDeletedAt()),
   };
   deleteModalVisible.value = true;
 };
@@ -201,7 +235,7 @@ const handleModalCancel = () => {
   modalVisible.value = false;
 };
 
-const handleFormSubmit = async (formData: { vendor_id: string; product_id: string; price: number }) => {
+const handleFormSubmit = async (formData: { vendor_id: number; product_id: number; price: number; currency_id?: number }) => {
   try {
     if (isEditMode.value && selectedVendorProduct.value) {
       await vendorProductStore.updateVendorProduct(selectedVendorProduct.value.id, formData);
@@ -277,20 +311,42 @@ const handleDeleteConfirm = async () => {
           <span class="text-gray-900">{{ formatPrice(record.price) }}</span>
         </template>
 
+          <!-- Currency Column -->
+        <template #currency="{record}">
+          <span class="text-gray-900">
+            {{ record.currency?.name && record.currency?.code ? `${record.currency.name} (${record.currency.code})` : record.currency_id || '-' }}
+          </span>
+        </template>
+
+        <!-- Created At Column -->
+        <template #created_at="{record}">
+          <span class="text-gray-600">{{ record.created_at }}</span>
+        </template>
+
+        <!-- Updated At Column -->
+        <template #updated_at="{record}">
+          <span class="text-gray-600">{{ record.updated_at }}</span>
+        </template>
+
         <!-- Actions Column -->
         <template #actions="{record}">
           <div class="flex items-center justify-center gap-2">
             <UiButton
-              size="small"
+              icon="material-symbols-light:edit-square-sharp"
               @click="showEditModal(record.vendorProduct)"
-              class="flex items-center justify-center text-orange-500 hover:text-orange-600 hover:bg-orange-50"
-            > <EditOutlined /> </UiButton>
-            <UiButton
               size="small"
+              shape="circle"
+              class="flex items-center justify-center text-blue-500 hover:!text-blue-900 hover:!bg-blue-50"
+            />
+            <UiButton
+              icon="material-symbols-light:delete-outline-sharp"
               danger
               @click="showDeleteModal(record.vendorProduct)"
+              size="small"
+              shape="circle"
               class="flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50"
-            ><DeleteOutlined/> </UiButton>
+
+            ></UiButton>
           </div>
         </template>
       <!-- </template> -->
@@ -331,7 +387,7 @@ const handleDeleteConfirm = async () => {
       ok-type="primary"
       :danger="true"
     >
-      <p>{{ $t("vendor-product.modal.deleteConfirm", { name: getProductName(selectedVendorProduct?.product_id || '') }) }}</p>
+      <p>{{ $t("vendor-product.modal.deleteConfirm", { name: getProductName(selectedVendorProduct?.product_id || 0) }) }}</p>
       <p class="text-red-500">{{ $t("vendor-product.modal.deleteWarning") }}</p>
     </UiModal>
   </div>

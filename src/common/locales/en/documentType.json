@@ -8,7 +8,9 @@
     "name": "Name",
     "namePlaceholder": "Enter document type name",
     "code": "Code",
-    "codePlaceholder": "Enter document type code"
+    "codePlaceholder": "Enter document type code",
+    "category": "Category",
+    "categoryPlaceholder": "Select document category"
   },
   "table": {
     "name": "Name",
@@ -31,7 +33,9 @@
     "nameMax": "Name cannot exceed 100 characters",
     "codeRequired": "Code is required",
     "codeMin": "Code must be at least 2 characters",
-    "codeMax": "Code cannot exceed 50 characters"
+    "codeMax": "Code cannot exceed 50 characters",
+    "codePattern": "Code cannot contain special characters: & * $ # ( ) @ ! ~ + .",
+    "categoryIdMustBeNumber": "Category ID must be a number"
   },
   "status": {
     "active": "Active",

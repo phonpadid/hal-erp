@@ -68,7 +68,7 @@ const goBack = () => {
 
     <!-- Vendor Details -->
     <div v-else-if="vendor" class="space-y-0">
-      <VendorProductList :vendor-id="vendorId" />
+      <VendorProductList :vendor-id="parseInt(vendorId)" />
     </div>
 
     <!-- Error State -->

@@ -1,5 +1,5 @@
 <script setup lang="ts" name="CreateVendorProductModal.vue">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -20,6 +20,7 @@ const formState = ref({
   vendor_id: null as number | null,
   product_id: null as number | null,
   product_name: "",
+  price: null as number | null,
 });
 
 const props = defineProps<{
@@ -63,6 +64,7 @@ const resetForm = () => {
     vendor_id: null,
     product_id: null,
     product_name: "",
+    price: null,
   };
   formRef.value?.resetFields();
 };
@@ -87,6 +89,7 @@ const submitForm = async () => {
       vendor_id: Number(formState.value.vendor_id),
       product_id: Number(formState.value.product_id),
       product_name: formState.value.product_name || undefined,
+      price: Number(formState.value.price) || 0,
     };
 
     await vendorProductStore.createVendorProduct(formData);
@@ -155,6 +158,20 @@ onMounted(async () => {
             v-model="formState.product_name"
             size="large"
             :placeholder="t('vendor-products.fields.product_name_placeholder')"
+          />
+        </UiFormItem>
+
+        <UiFormItem
+          :label="t('vendor-products.fields.price')"
+          name="price"
+          required
+        >
+          <UiInput
+            :model-value="formState.price ?? 0"
+            @update:model-value="formState.price = Number($event)"
+            type="number"
+            size="large"
+            :placeholder="t('vendor-products.fields.price_placeholder')"
           />
         </UiFormItem>
       </div>

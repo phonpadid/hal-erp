@@ -15,13 +15,16 @@
   "table": {
     "product": "Product",
     "price": "Price",
+    "currency": "Currency",
     "createdAt": "Added Date"
   },
   "form": {
     "product": "Product",
     "selectProduct": "Select a product",
     "price": "Price",
-    "pricePlaceholder": "Enter price"
+    "pricePlaceholder": "Enter price",
+    "currency": "Currency",
+    "selectCurrency": "Select a currency"
   },
   "modal": {
     "create": "Add Vendor Product",

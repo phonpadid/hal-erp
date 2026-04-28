@@ -391,6 +391,9 @@ const handleConfirmSignature = async (remark?: string) => {
     submitLoading.value = true;
     showSignatureModal.value = false;
 
+    // Calculate total quantity from items
+    const totalQuantity = dataInfo.value.items.reduce((sum, item) => sum + (Number(item?.quantity || 1)), 0);
+
     // Prepare payload
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const payload: Record<string, any> = {
@@ -398,6 +401,7 @@ const handleConfirmSignature = async (remark?: string) => {
       statusId: isRejectAction.value ? 3 : 2, // 3 = REJECTED, 2 = APPROVED
       remark: isRejectAction.value ? (remark || "ປະຕິເສດ") : "ຢືນຢັນສຳເລັດ",
       is_otp: false,
+      total_quantity: totalQuantity, // Add total quantity for email display
     };
 
     // Add account_code if role is account-admin or account-user
@@ -604,6 +608,19 @@ const handleCloseModal = () => {
                 </template>
               </template>
             </a-table>
+          </div>
+
+          <!-- Total Quantity Display -->
+          <div class="total-section">
+            <div class="total-item">
+              <span class="total-label">ຈຳນວນລາຍການລວມ:</span>
+              <span class="total-value">{{ dataInfo.items.reduce((sum, item) => sum + (Number(item?.quantity || 1)), 0) }}</span>
+            </div>
+            <div class="total-item">
+              <span class="total-label">ຈຳນວນລາຄາລວມ:</span>
+              <span class="total-value">{{ dataInfo.items.reduce((sum, item) => sum + (Number(item?.price || 0) * Number(item?.quantity || 1)), 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 4 }) }}</span>
+            </div>
+            
           </div>
         </div>
 
@@ -1147,6 +1164,148 @@ const handleCloseModal = () => {
 
 .table-wrapper::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* ===== Total Section ===== */
+.total-section {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.5rem;
+  background: #f1f5f9;
+  border-radius: 0.375rem;
+  border: 1px solid #e2e8f0;
+}
+
+@media (min-width: 480px) {
+  .total-section {
+    margin-top: 1rem;
+    padding: 0.875rem 0.75rem;
+    border-radius: 0.5rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .total-section {
+    margin-top: 1.25rem;
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .total-section {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .total-section {
+    margin-top: 1.75rem;
+    padding: 1.5rem;
+  }
+}
+
+.total-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.375rem 0;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .total-item {
+    padding: 0.5rem 0;
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .total-item {
+    padding: 0.625rem 0;
+  }
+}
+
+.total-item:not(:last-child) {
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 0.375rem;
+  padding-bottom: 0.625rem;
+}
+
+@media (min-width: 640px) {
+  .total-item:not(:last-child) {
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+.total-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+}
+
+@media (min-width: 480px) {
+  .total-label {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .total-label {
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .total-label {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .total-label {
+    font-size: 1rem;
+  }
+}
+
+.total-value {
+  font-size: 0.8125rem;
+  color: #dc2626;
+  font-weight: 600;
+  text-align: right;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 480px) {
+  .total-value {
+    font-size: 0.875rem;
+    min-width: 120px;
+  }
+}
+
+@media (min-width: 640px) {
+  .total-value {
+    font-size: 0.9375rem;
+    min-width: 140px;
+  }
+}
+
+@media (min-width: 768px) {
+  .total-value {
+    font-size: 1rem;
+    min-width: 160px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .total-value {
+    font-size: 1.125rem;
+    min-width: 180px;
+  }
 }
 
 /* ===== Responsive Table Styles ===== */

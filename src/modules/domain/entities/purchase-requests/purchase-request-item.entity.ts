@@ -5,6 +5,7 @@ export class PurchaseRequestItemEntity {
   private id: string | null;
   private title: string;
   private file_name: string | null; // Changed to array as requested
+  private fileType!: 'image' | 'pdf' | ''; // New field to track file type
   public file_name_url: string | null;
   private quantity: number;
   private unit_id: string;
@@ -64,9 +65,15 @@ export class PurchaseRequestItemEntity {
     return this.file_name;
   }
 
+  public getFileType(): 'image' | 'pdf' | '' {
+    return this.fileType;
+  }
+
   public getQuantity(): number {
     return this.quantity;
   }
+
+
 
   public getUnitId(): string {
     return this.unit_id;

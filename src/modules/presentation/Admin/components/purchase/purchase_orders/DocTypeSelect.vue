@@ -59,11 +59,12 @@ watch(
 
       const params = {
         page: 1,
-        limit: 10,
+        limit: 100,
         column: 'id',
         sort_order: 'DESC' as const,
         search: '', // Empty search for now
-        company_id: newCompanyId
+        company_id: newCompanyId,
+        category: 'PO', // Filter to show only PO document types
       };
 
       // console.log("🎯 PO DocTypeSelect - Fetching with params:", params);
@@ -98,11 +99,12 @@ onMounted(async () => {
 
   const params = {
     page: 1,
-    limit: 10,
+    limit: 100,
     column: 'id',
     sort_order: 'DESC' as const,
     search: '', // Empty search for now
-    company_id: effectiveCompanyId.value || undefined
+    company_id: effectiveCompanyId.value || undefined,
+    category: 'PO', // Filter to show only PO document types
   };
 
   // console.log("🎯 PO DocTypeSelect.onMounted - Initial fetch with params:", params);

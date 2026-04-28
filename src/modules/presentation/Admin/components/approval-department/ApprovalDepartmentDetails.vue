@@ -6,6 +6,7 @@
         class="fixed px-6 py-4 top-0 z-40 h-auto bg-white shadow-sm transition-all duration-150 mt-[4rem]"
         :class="topbarStyle"
       >
+    <UiButton icon="mdi:arrow-left" size="small" class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white" @click="goBack">ກັບຄືນ</UiButton>
         <header-component
           header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
           :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
@@ -36,30 +37,30 @@
           </div>
         </div>
         <!-- ຂໍ້ມຸນຜູ້ສະເໜີ -->
-        <div>
+        <div class="space-y-4">
           <h4>{{ t("purchase_orders.Proposal") }}</h4>
-          <div class="grid grid-cols-4">
-            <div class="grid grid-rows-2">
-              <h5>{{ t("purchase_orders.quantity") }}</h5>
-              <span class="text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="flex flex-col gap-1">
+              <h5 class="font-medium text-gray-700">{{ t("purchase_orders.quantity") }}</h5>
+              <span class="text-sm text-gray-600">
                 {{ getPurchaseOrderQuantity }}
               </span>
             </div>
-            <div class="grid grid-rows-2">
-              <h5>{{ t("purchase_orders.department") }}</h5>
-              <span class="text-sm">{{ orderDetails?.getDepartment()?.name || "ພະແນກໄອທີ" }}</span>
+            <div class="flex flex-col gap-1">
+              <h5 class="font-medium text-gray-700">{{ t("purchase_orders.department") }}</h5>
+              <span class="text-sm text-gray-600">{{ orderDetails?.getDepartment()?.name || "ພະແນກໄອທີ" }}</span>
             </div>
-            <div class="grid grid-rows-2">
-              <h5>{{ t("purchase_orders.agency") }}</h5>
-              <span class="text-sm">{{
+            <div class="flex flex-col gap-1">
+              <h5 class="font-medium text-gray-700">{{ t("purchase_orders.agency") }}</h5>
+              <span class="text-sm text-gray-600">{{
                 orderDetails?.getPosition()?.[0]?.name || "ຝ່າຍພັດທະນາລະບົບ"
               }}</span>
             </div>
-            <div class="grid grid-rows-2">
-              <h4 class="text-base font-semibold mb-2">
+            <div class="flex flex-col gap-1 lg:col-span-1">
+              <h4 class="text-base font-semibold text-gray-800">
                 {{ t("purchase_orders.Objectivesanditems") }}
               </h4>
-              <span class="text-gray-600">
+              <span class="text-sm text-gray-600 leading-relaxed break-words">
                 {{ getPurchaseOrderRemark }}
               </span>
             </div>
@@ -80,6 +81,12 @@
 
             <template #remark="{ record }">
               <span>{{ record.getRemark() }}</span>
+            </template>
+
+            <template #vendorReason="{ record }">
+              <span class="text-gray-600 text-sm">
+                {{ record.getSelectedVendor()?.getReason() || '-' }}
+              </span>
             </template>
 
             <template #quantity="{ record }">
@@ -224,7 +231,7 @@
                 <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
                   <template v-if="step.approver">
                     <p class="font-medium">{{ step.approver.username }}</p>
-                    <p class="text-xs text-gray-500">{{ step.position?.name || "-" }}</p>
+                    <p class="text-xs text-gray-500">{{ step.position?.name || "ຜູ້ອຳນວຍການ" }}</p>
                     <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
                     <p v-if="step.approved_at" class="text-xs text-blue-500 mt-1">
                       {{ formatDate(step.approved_at) }}
@@ -235,7 +242,12 @@
                       {{ t("purchase-rq.pending") }}
                     </p>
                     <p class="text-xs text-gray-400 mt-1">
-                      {{ step.doc_approver?.[0]?.department?.name || "-" }}
+                      {{
+                        (step.doc_approver?.[0]?.user?.username === "Sisavanh" ||
+                         step.doc_approver?.[0]?.user?.username === "sisavanh")
+                          ? "ຜູ້ອຳນວຍການ"
+                          : (step.doc_approver?.[0]?.department?.name || "-")
+                      }}
                     </p>
                   </template>
                 </div>
@@ -246,7 +258,7 @@
         <div>
           <span class="font-medium">{{ $t("disbursement.field.doc_attachment") }}</span>
           <HeaderComponent
-            header-title="ໃບສະເໜີຈັດຊື້ - ເລກທີ 0036/ຈຊ/ຮລຕ/ນຄຫຼ"
+            :header-title="prHeaderTitle"
             header-title-color="blue-600"
             prefix-icon="mdi:file-document-outline"
             suffix-icon="mdi:arrow-top-right"
@@ -401,7 +413,7 @@
   </UiModal>
   <UiDrawer
     v-model:open="visible"
-    title="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ - ເລກທີ 0044/ຈຊນ.ນວ/ບຫ - ວັນທີ 26 ມີນາ 2025"
+    :title="prDrawerTitle"
     placement="right"
     :width="1050"
   >
@@ -450,6 +462,7 @@ import PrintPurchaseOrder from "./PrintPurchaseOrder.vue";
 import BudgetApprovalDrawer from "../budget-approval/BudgetApprovalDrawer.vue";
 import SelectDocumentTypeModal from "../receipt/modal/SelectDocumentTypeModal.vue";
 import OtpModal from "../purchase-requests/modal/OtpModal.vue";
+import dayjs from "dayjs";
 
 /********************************************************* */
 const purchaseOrderStore = usePurchaseOrderStore();
@@ -473,7 +486,7 @@ const activeItemRecord = ref<any>(null);
 const loading = ref(true);
 const visibleBudget = ref(false);
 const authStore = useAuthStore();
-const { userRoles } = storeToRefs(authStore);
+const { userRoles, isAdmin } = storeToRefs(authStore);
 const reportExcelPoStore = useReportPoStore();
 
 // ✅ เพิ่ม state สำหรับ OTP (เหมือนกับ PR)
@@ -485,6 +498,9 @@ const isSuperAdmin = computed(() => {
   return userRoles.value.includes('super-admin');
 });
 
+const goBack = () => {
+  router.back();
+};
 // Enhanced access control function for approval workflow
 const hasApprovalAccess = computed(() => {
   const userDataStr = localStorage.getItem("userData");
@@ -498,6 +514,11 @@ const hasApprovalAccess = computed(() => {
 
   // Super admins always have approval access
   if (isSuperAdmin.value) {
+    return true;
+  }
+
+  // Admin users also have approval access
+  if (isAdmin.value) {
     return true;
   }
 
@@ -590,6 +611,11 @@ const getStepTitle = (index: number, step: any) => {
     return t("purchase-rq.proposer");
   }
   // ໃຊ້ຊື່ແຜນກຈາກ doc_approver[0].department.name
+  // ກວດສອບວ່າເປັນ user Sisavanh ຫຼື ບໍ່, ຖ້າໃຊ້ໃຫ້ສະແດງ "ผู้อำนวยการ"
+  const username = step.doc_approver?.[0]?.user?.username;
+  if (username === "Sisavanh" || username === "sisavanh") {
+    return "ຜູ້ອຳນວຍການ";
+  }
   const deptName = step.doc_approver?.[0]?.department?.name;
   return deptName || `${t("purchase-rq.approver")} ${index}`;
 };
@@ -671,6 +697,71 @@ const documentStatus = computed(() => {
   };
 });
 
+// Helper function to format date in Lao format
+const formatDateInLao = (dateString: string | null): string => {
+  if (!dateString) return '';
+
+  // Parse the date from "DD-MM-YYYY HH:mm:ss" format
+  const parsedDate = dayjs(dateString, 'DD-MM-YYYY HH:mm:ss');
+
+  if (!parsedDate.isValid()) {
+    return '';
+  }
+
+  const day = parsedDate.date();
+  const month = parsedDate.month() + 1; // month() is 0-indexed
+  const year = parsedDate.year();
+
+  // Lao month names
+  const laoMonths = [
+    'ມັງກອນ',   // January
+    'ກຸມພາ',     // February
+    'ມີນາ',       // March
+    'ເມສາ',       // April
+    'ພຶດສະພາ',   // May
+    'ມິຖຸນາ',     // June
+    'ກໍລະກົດ',   // July
+    'ສິງຫາ',       // August
+    'ກັນຍາ',       // September
+    'ຕຸລາ',       // October
+    'ພະຈິກ',       // November
+    'ທັນວາ'        // December
+  ];
+
+  const monthName = laoMonths[month - 1];
+
+  return `ວັນທີ ${day} ${monthName} ${year}`;
+};
+
+// Computed property for PR header title
+const prHeaderTitle = computed(() => {
+  const purchaseRequest = orderDetails.value?.getPurchaseRequest();
+  const prNumber = purchaseRequest?.pr_number || '';
+  const departmentName = orderDetails.value?.getDepartment()?.name || '';
+  const documentTypeName = purchaseRequest?.document?.document_type?.name || '';
+
+  if (prNumber && departmentName) {
+    return `${documentTypeName} - ເລກທີ ${prNumber}`;
+  }
+
+  return documentTypeName || 'ໃບສະເໜີຈັດຊື້';
+});
+
+// Computed property for PR drawer title
+const prDrawerTitle = computed(() => {
+  const purchaseRequest = orderDetails.value?.getPurchaseRequest();
+  const prNumber = purchaseRequest?.pr_number || '';
+  const departmentName = orderDetails.value?.getDepartment()?.name || '';
+  const requestedDate = purchaseRequest?.requested_date || null;
+  const formattedDate = formatDateInLao(requestedDate);
+  const documentTypeName = purchaseRequest?.document?.document_type?.name || '';
+
+  if (prNumber && departmentName) {
+    return `${documentTypeName} - ເລກທີ ${prNumber} - ${formattedDate}`;
+  }
+
+  return documentTypeName || 'ໃບສະເໜີຈັດຊື້';
+});
 
 const handleResendOtp = async () => {
   if (!currentApprovalStep.value) {
@@ -810,34 +901,9 @@ const canCreatePaymentDocument = computed(() => {
     return false;
   }
 
-  // Super admins and company admins can create payment documents when fully approved
-  if (hasApprovalAccess.value) {
-    const allStepsApproved = approvalSteps.value.every((step) => step.status_id === 2);
-    return allStepsApproved;
-  }
-
-  const userDataStr = localStorage.getItem("userData");
-  const userData = userDataStr ? JSON.parse(userDataStr) : null;
-
-  if (!userData) {
-    return false;
-  }
-
+  // Allow all users to create payment documents when fully approved
   const allStepsApproved = approvalSteps.value.every((step) => step.status_id === 2);
-  if (!allStepsApproved) {
-    return false;
-  }
-
-  // Check if user is in any step's doc_approver (not just the last step)
-  const isAuthorized = approvalSteps.value.some((step) => {
-    return step.doc_approver?.some((approver) => {
-      const userMatches = approver.user?.username === userData.username;
-      const departmentMatches = approver.department?.name === userData.department_name;
-      return userMatches && departmentMatches;
-    });
-  });
-
-  return isAuthorized;
+  return allStepsApproved;
 });
 
 const getPreviousApprovedStep = computed(() => {
@@ -947,13 +1013,13 @@ const customButtons = computed(() => {
   // ✅ ຖ້າອະນຸມັດຄົບແລ້ວ ແລະ ເປັນ user ທີ່ມີສິດສ້າງໃບເບີກຈ່າຍ (ມາກ່ອນເສມອດ!)
   if (canCreatePaymentDocument.value && isFullyApproved.value) {
     return [
-      {
-        label: "Export",
-        icon: "ant-design:file-excel-outlined",
-        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
-        type: "default" as ButtonType,
-        onClick: handleExport,
-      },
+      // {
+      //   label: "Export",
+      //   icon: "ant-design:file-excel-outlined",
+      //   class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+      //   type: "default" as ButtonType,
+      //   onClick: handleExport,
+      // },
       {
         label: "Print",
         icon: "ant-design:printer-outlined",
@@ -974,13 +1040,13 @@ const customButtons = computed(() => {
   // ✅ ແສດງປຸ່ມ Export ແລະ Print ເມື່ອອະນຸມັດສຳເລັດຫຼື ເອກະສານອະນຸມັດຄົບແລ້ວ
   if (isApproved.value || isFullyApproved.value) {
     return [
-      {
-        label: "Export",
-        icon: "ant-design:file-excel-outlined",
-        class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
-        type: "default" as ButtonType,
-        onClick: handleExport,
-      },
+      // {
+      //   label: "Export",
+      //   icon: "ant-design:file-excel-outlined",
+      //   class: "bg-green-600 flex items-center gap-2 hover:bg-green-800 mr-4",
+      //   type: "default" as ButtonType,
+      //   onClick: handleExport,
+      // },
       {
         label: "Print",
         icon: "ant-design:printer-outlined",
@@ -996,13 +1062,13 @@ const customButtons = computed(() => {
 
 
     return [
-      {
-        label: "Export",
-        icon: "ant-design:file-excel-outlined",
-        class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
-        type: "default" as ButtonType,
-        onClick: handleExport,
-      },
+      // {
+      //   label: "Export",
+      //   icon: "ant-design:file-excel-outlined",
+      //   class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
+      //   type: "default" as ButtonType,
+      //   onClick: handleExport,
+      // },
       {
         label: "Print",
         icon: "ant-design:printer-outlined",
@@ -1043,13 +1109,13 @@ const customButtons = computed(() => {
   }
 
   return [
-    {
-      label: "Export",
-      icon: "ant-design:file-excel-outlined",
-      class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
-      type: "default" as ButtonType,
-      onClick: handleExport,
-    },
+    // {
+    //   label: "Export",
+    //   icon: "ant-design:file-excel-outlined",
+    //   class: "bg-green-500 flex items-center gap-2 hover:bg-green-600 mr-4",
+    //   type: "default" as ButtonType,
+    //   onClick: handleExport,
+    // },
     {
       label: "Print",
       icon: "ant-design:printer-outlined",
@@ -1106,18 +1172,7 @@ const onChooseDocumentType = () => {
 };
 
 const getPurchaseOrderRemark = computed(() => {
-  if (
-    orderDetails.value &&
-    orderDetails.value.getPurchaseOrderItem &&
-    orderDetails.value.getPurchaseOrderItem().length > 0
-  ) {
-    return orderDetails.value.getPurchaseOrderItem()[0].getRemark();
-  }
-
-  return (
-    orderDetails.value?.getPurchaseRequest()?.purchase_request_item?.[0]?.remark ||
-    "ທົດລອງລະບົບບັນທຶກ"
-  );
+  return orderDetails.value?.getPurposes() || "ທົດລອງລະບົບບັນທຶກ";
 });
 
 const getPurchaseOrderQuantity = computed(() => {

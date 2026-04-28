@@ -12,10 +12,20 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "requester",
       key: "requester",
     },
+     {
+      title: t("purchase_orders.table.total"),
+      dataIndex: "total",
+      key: "total",
+    },
     {
       title: t("purchase_orders.table.created_at"),
       dataIndex: "created_at",
       key: "created_at",
+    },
+    {
+      title: "ຜູ້ອະນຸມັດປະຈຸບັນ",
+      dataIndex: "current_approver",
+      key: "current_approver",
     },
     {
       title: t("purchase_orders.table.status"),

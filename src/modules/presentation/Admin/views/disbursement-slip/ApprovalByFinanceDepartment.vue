@@ -21,6 +21,7 @@ import {
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import type { Dayjs } from "dayjs";
 import { departmentStore } from "../../stores/departments/department.store";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 const { t } = useI18n();
 const { push } = useRouter();
 const dpmStore = departmentStore();
@@ -32,8 +33,17 @@ const dpmOption = computed(() => [
     label: item.getName(),
   })),
 ]);
+
+// Filter type options
+const filterTypeOptions = computed(() => [
+  { value: "all", label: t("purchase-rq.filter_type.all") },
+  { value: "only_user", label: t("purchase-rq.filter_type.only_user") },
+]);
+
 const filterDate = ref<Dayjs | undefined>(undefined);
 const filterDepartment = ref<string | undefined>("all");
+const filterType = ref<string>("all");
+const isPaginationChanging = ref<boolean>(false);
 const statusCards = computed(() => {
   const map: Record<
     string,
@@ -98,9 +108,9 @@ const loadReceipt = async (): Promise<void> => {
   try {
     loading.value = true;
     await rStore.fetchAll({
-      // ⬅ add await here
       page: rStore.pagination.page,
       limit: rStore.pagination.limit,
+      type: filterType.value,
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
@@ -116,6 +126,7 @@ const searchByDate = async () => {
       page: 1,
       limit: rStore.pagination.limit,
       order_date: filterDate.value ? filterDate.value.toISOString().split("T")[0] : undefined,
+      type: filterType.value,
     });
     rStore.setPagination({ ...rStore.pagination, page: 1 });
   } catch (error) {
@@ -126,32 +137,50 @@ const searchByDate = async () => {
 };
 
 const handleTableChange = async (pagination: TablePaginationType) => {
-  rStore.setPagination({
-    page: pagination.current || 1,
-    limit: pagination.pageSize || 10,
-    total: pagination.total ?? 0,
-  });
-  await loadReceipt();
+  isPaginationChanging.value = true;
+  loading.value = true;
+  try {
+    rStore.setPagination({
+      page: pagination.current || 1,
+      limit: pagination.pageSize || 10,
+      total: pagination.total ?? 0,
+    });
+
+    await rStore.fetchAll({
+      page: pagination.current || 1,
+      limit: pagination.pageSize || 10,
+      order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
+      department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
+      type: filterType.value,
+    });
+  } catch (error) {
+    console.log(error);
+  } finally {
+    isPaginationChanging.value = false;
+    loading.value = false;
+  }
 };
 // Function to fetch receipts with filters
 const loadFilteredReceipts = async () => {
   loading.value = true;
   try {
     await rStore.fetchAll({
-      page: 1,
+      page: rStore.pagination.page,
       limit: rStore.pagination.limit,
       order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
       department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
+      type: filterType.value,
     });
-    rStore.setPagination({ ...rStore.pagination, page: 1 });
   } catch (error) {
     console.log(error);
   } finally {
     loading.value = false;
   }
 };
-watch([filterDate, filterDepartment], () => {
-  loadFilteredReceipts();
+watch([filterDate, filterDepartment, filterType], () => {
+  if (!isPaginationChanging.value) {
+    loadFilteredReceipts();
+  }
 });
 onMounted(async () => {
   await loadReceipt();
@@ -185,6 +214,19 @@ onMounted(async () => {
         class="search flex md:w-[56rem] flex-col md:flex-row justify-between gap-[14rem]"
       >
         <div class="input flex flex-col md:flex-row gap-4 flex-1">
+          <div class="search-by-type w-full">
+            <label
+              for=""
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >{{ t("purchase-rq.field.filter_type") }}</label
+            >
+            <InputSelect
+              :options="filterTypeOptions"
+              v-model="filterType"
+              placeholder="ປະເພດການກັ່ນຕອງ"
+              class="w-full"
+            />
+          </div>
           <div class="search-by-doc-type w-full">
             <label
               for=""
@@ -249,6 +291,21 @@ onMounted(async () => {
             :icon="getStatusIcon(getDocumentStatus(record))"
             :text="getStatusText(getDocumentStatus(record))"
           />
+        </template>
+        <template #current_approver="{ record }">
+          <span :class="record.user_last_approval === null ? 'text-green-600 font-semibold' : 'text-blue-600'">
+            {{ record.user_last_approval === null ? 'APPROVED' : record.user_last_approval }}
+          </span>
+        </template>
+        <template #total="{ record }">
+          <span class="font-semibold text-red-600">
+            {{ formatPrice(record.total ) }} ₭
+          </span>
+        </template>
+        <template #receipt_number="{ record }">
+          <span class="font-semibold text-blue-600">
+            {{(record.receipt_number ) }} 
+          </span>
         </template>
         <template #actions="{ record }">
           <div class="flex items-center justify-center gap-2">

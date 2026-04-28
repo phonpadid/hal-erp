@@ -2,7 +2,7 @@ import type {
   VendorProductCreateInterface,
   VendorProductUpdateInterface,
 } from "@/modules/interfaces/vendors/vendor_product/vendor-product.interface";
-import { VendorProductEntity } from "@/modules/domain/entities/vendors/vendor_product/vendor-product.entity";
+import { VendorProductEntity } from "@/modules/domain/entities/vendor-products/vendor-product.entity";
 import type { VendorProductRepository } from "@/modules/domain/repository/vendors/vendor_product/vendor-product.repository";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
 
@@ -18,18 +18,19 @@ export class MockVendorProductRepository implements VendorProductRepository {
   private initializeMockData() {
     // Add some sample vendor products for testing
     const mockData = [
-      { vendor_id: "1", product_id: "1", price: 1500000 },
-      { vendor_id: "1", product_id: "2", price: 2500000 },
-      { vendor_id: "2", product_id: "1", price: 1200000 },
+      { vendor_id: 1, product_id: 1, price: 1500000 },
+      { vendor_id: 1, product_id: 2, price: 2500000 },
+      { vendor_id: 2, product_id: 1, price: 1200000 },
     ];
 
     mockData.forEach(data => {
-      const vendorProduct = VendorProductEntity.create(
-        this.nextId.toString(),
-        data.vendor_id,
-        data.product_id,
-        data.price
-      );
+      const vendorProduct = VendorProductEntity.create({
+        vendor_id: data.vendor_id,
+        product_id: data.product_id,
+        product_name: `Product ${data.product_id}`,
+        vendor_name: `Vendor ${data.vendor_id}`,
+        price: data.price,
+      });
       this.vendorProducts.push(vendorProduct);
       this.nextId++;
     });
@@ -37,8 +38,8 @@ export class MockVendorProductRepository implements VendorProductRepository {
 
   async findAll(
     params: PaginationParams = { page: 1, limit: 10 },
-    vendorId?: string,
-    productId?: string,
+    vendorId?: number,
+    productId?: number,
     includeDeleted: boolean = false
   ): Promise<PaginatedResult<VendorProductEntity>> {
     let filteredProducts = this.vendorProducts;
@@ -62,8 +63,8 @@ export class MockVendorProductRepository implements VendorProductRepository {
     if (params.search) {
       const searchTerm = params.search.toLowerCase();
       filteredProducts = filteredProducts.filter(vp =>
-        vp.getVendorId().toLowerCase().includes(searchTerm) ||
-        vp.getProductId().toLowerCase().includes(searchTerm)
+        vp.getVendorId().toString().toLowerCase().includes(searchTerm) ||
+        vp.getProductId().toString().toLowerCase().includes(searchTerm)
       );
     }
 
@@ -91,15 +92,15 @@ export class MockVendorProductRepository implements VendorProductRepository {
     return vendorProduct || null;
   }
 
-  async findByVendorId(vendorId: string): Promise<VendorProductEntity[]> {
+  async findByVendorId(vendorId: number): Promise<VendorProductEntity[]> {
     return this.vendorProducts.filter(vp => vp.getVendorId() === vendorId && !vp.isDeleted());
   }
 
-  async findByProductId(productId: string): Promise<VendorProductEntity[]> {
+  async findByProductId(productId: number): Promise<VendorProductEntity[]> {
     return this.vendorProducts.filter(vp => vp.getProductId() === productId && !vp.isDeleted());
   }
 
-  async findByVendorAndProduct(vendorId: string, productId: string): Promise<VendorProductEntity | null> {
+  async findByVendorAndProduct(vendorId: number, productId: number): Promise<VendorProductEntity | null> {
     const vendorProduct = this.vendorProducts.find(
       vp => vp.getVendorId() === vendorId &&
              vp.getProductId() === productId &&
@@ -115,12 +116,14 @@ export class MockVendorProductRepository implements VendorProductRepository {
       throw new Error("Vendor product relationship already exists");
     }
 
-    const vendorProduct = VendorProductEntity.create(
-      this.nextId.toString(),
-      vendorProductData.vendor_id,
-      vendorProductData.product_id,
-      vendorProductData.price
-    );
+    const vendorProduct = VendorProductEntity.create({
+      vendor_id: vendorProductData.vendor_id,
+      product_id: vendorProductData.product_id,
+      product_name: `Product ${vendorProductData.product_id}`,
+      vendor_name: `Vendor ${vendorProductData.vendor_id}`,
+      price: vendorProductData.price,
+      currency_id: vendorProductData.currency_id,
+    });
 
     this.vendorProducts.push(vendorProduct);
     this.nextId++;
@@ -138,19 +141,16 @@ export class MockVendorProductRepository implements VendorProductRepository {
       throw new Error("Cannot update deleted vendor product");
     }
 
-    if (vendorProductData.vendor_id !== undefined) {
-      vendorProduct.updateVendorId(vendorProductData.vendor_id);
+    // Create updated version using the update method
+    const updatedProduct = vendorProduct.update(vendorProductData);
+
+    // Replace in array
+    const index = this.vendorProducts.findIndex(vp => vp.getId() === id);
+    if (index !== -1) {
+      this.vendorProducts[index] = updatedProduct;
     }
 
-    if (vendorProductData.product_id !== undefined) {
-      vendorProduct.updateProductId(vendorProductData.product_id);
-    }
-
-    if (vendorProductData.price !== undefined) {
-      vendorProduct.updatePrice(vendorProductData.price);
-    }
-
-    return vendorProduct;
+    return updatedProduct;
   }
 
   async delete(id: string): Promise<boolean> {
@@ -163,7 +163,15 @@ export class MockVendorProductRepository implements VendorProductRepository {
       throw new Error("Vendor product is already deleted");
     }
 
-    vendorProduct.delete();
+    // Create deleted version using softDelete method
+    const deletedProduct = vendorProduct.softDelete();
+
+    // Replace in array
+    const index = this.vendorProducts.findIndex(vp => vp.getId() === id);
+    if (index !== -1) {
+      this.vendorProducts[index] = deletedProduct;
+    }
+
     return true;
   }
 
@@ -177,7 +185,15 @@ export class MockVendorProductRepository implements VendorProductRepository {
       throw new Error("Vendor product is not deleted");
     }
 
-    vendorProduct.restore();
-    return vendorProduct;
+    // Create restored version using restore method
+    const restoredProduct = vendorProduct.restore();
+
+    // Replace in array
+    const index = this.vendorProducts.findIndex(vp => vp.getId() === id);
+    if (index !== -1) {
+      this.vendorProducts[index] = restoredProduct;
+    }
+
+    return restoredProduct;
   }
 }

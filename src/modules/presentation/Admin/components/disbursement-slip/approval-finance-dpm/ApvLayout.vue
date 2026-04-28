@@ -16,6 +16,7 @@ import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import { rejectRule } from "./modals/rejected.schema";
+import { useRouter } from "vue-router";
 const approvalStepStore = useApprovalStepStore();
 const receiptStore = useReceiptStore();
 const { error } = useNotification();
@@ -69,18 +70,22 @@ const modalAction = ref(""); // 'approve' or 'reject'
 const approval = ref(false);
 const isRejectModalVisible = ref(false);
 const otpLoading = ref(false);
+const router = useRouter();
+const goBack = () => {
+  router.back();
+};
 
 const customButtons = computed(() => {
   const buttons = [
-    {
-      label: exportLoading.value ? "ກຳລັງດາວໂຫຼດ..." : "ໄຟລ໌ Excel",
-      icon: exportLoading.value ? "ant-design:loading-outlined" : "ant-design:file-excel-outlined",
-      class: `bg-green-700 text-white hover:text-red-50 flex items-center gap-1 hover:bg-green-800 mr-4 ${exportLoading.value ? 'opacity-75 cursor-not-allowed' : ''}`,
-      type: "" as ButtonType,
-      onClick: handleExportExcel,
-      disabled: exportLoading.value,
-      loading: exportLoading.value
-    },
+    // {
+    //   label: exportLoading.value ? "ກຳລັງດາວໂຫຼດ..." : "ໄຟລ໌ Excel",
+    //   icon: exportLoading.value ? "ant-design:loading-outlined" : "ant-design:file-excel-outlined",
+    //   class: `bg-green-700 text-white hover:text-red-50 flex items-center gap-1 hover:bg-green-800 mr-4 ${exportLoading.value ? 'opacity-75 cursor-not-allowed' : ''}`,
+    //   type: "" as ButtonType,
+    //   onClick: handleExportExcel,
+    //   disabled: exportLoading.value,
+    //   loading: exportLoading.value
+    // },
     {
       label: "print",
       icon: "ant-design:printer-outlined",
@@ -332,6 +337,7 @@ const handleReject = async (): Promise<void> => {
       class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem]"
       :class="topbarStyle"
     >
+    <UiButton icon="mdi:arrow-left" size="small" class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white" @click="goBack">ກັບຄືນ</UiButton>
       <header-component
         :header-title="t('menu-sidebar.receipt')"
         :breadcrumb-items="[

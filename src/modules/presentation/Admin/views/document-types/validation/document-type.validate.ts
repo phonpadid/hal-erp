@@ -60,7 +60,8 @@ export const createDocumentTypeValidation = (
 
         if (state.isEditMode) return Promise.resolve();
 
-        if (!/^[A-Z0-9-_]+$/.test(value)) {
+        // Disallow special characters: & * $ # ( ) @ ! ~ + .
+        if (/[&*$#()@!~+.]/.test(value)) {
           return Promise.reject(t("documentType.validation.codePattern"));
         }
         return Promise.resolve();

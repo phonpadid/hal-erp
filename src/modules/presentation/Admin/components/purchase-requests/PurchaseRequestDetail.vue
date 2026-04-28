@@ -159,6 +159,15 @@ const handleToggle = () => {
             </template>
             <template #image="{ record }">
               <span v-if="!record.file_name_url">ບໍ່ມີ</span>
+              <a
+                v-else-if="record.file_name_url?.toLowerCase().endsWith('.pdf')"
+                :href="record.file_name_url"
+                target="_blank"
+                class="flex items-center gap-1 text-red-500 hover:text-red-600"
+              >
+                <Icon icon="mdi:file-pdf-box" class="text-2xl" />
+    <span class="text-xs">ເປີດ PDF</span>
+  </a>
               <a-image
                 v-else
                 :src="record.file_name_url"
@@ -166,6 +175,7 @@ const handleToggle = () => {
                 style="max-width: 50px; max-height: 50px; border-radius: 6px"
                 :preview="true"
               />
+
             </template>
           </Table>
           <div class="total flex items-center md:justify-end justify-start gap-4">

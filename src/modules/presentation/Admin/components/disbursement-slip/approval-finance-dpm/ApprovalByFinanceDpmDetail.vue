@@ -51,6 +51,7 @@ const formState = ref({
   files: [] as { file_name: string }[],
 });
 
+
 const uploadedImages = ref<string[]>([]); // keep previews only
 const uploadCompleted = ref(false); // <-- add this
 

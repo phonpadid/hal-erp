@@ -50,7 +50,7 @@ const directCompanyData = computed(() => {
 
 const companyId = computed(() => directCompanyData.value?.id || null);
 onMounted(async () => {
-  await store.fetchdocumentType({ page: 1, limit: 1000, company_id: companyId.value });
+  await store.fetchdocumentType({ page: 1, limit: 1000, company_id: companyId.value, category: 'RECEIPT' });
 })
 </script>
 

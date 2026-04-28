@@ -8,17 +8,20 @@ import { usePurchaseOrderStore } from "@/modules/presentation/Admin/stores/purch
 import { formatDate } from "@/modules/shared/formatdate";
 import { departmentStore } from "../../stores/departments/department.store";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
+import { formatPrice } from "@/modules/shared/utils/format-price";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import DatePicker from "@/common/shared/components/Datepicker/DatePicker.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import { Icon } from "@iconify/vue";
 
 /******************************************************** */
 const { hasPermission } = usePermissions();
 const { t } = useI18n();
 const selectedDepartment = ref<string | null>(null);
+const selectedType = ref("all");
 const router = useRouter();
 const purchaseOrderStore = usePurchaseOrderStore();
 const departmentStoreInstance = departmentStore();
@@ -69,6 +72,12 @@ const departmentOptions = computed(() => {
 
   return [allOption, ...options];
 });
+
+// Filter type options
+const filterTypeOptions = computed(() => [
+  { value: "all", label: t("purchase-rq.filter_type.all") },
+  { value: "only_user", label: t("purchase-rq.filter_type.only_user") },
+]);
 
 const getStatusColor = (status: string) => {
   switch (status?.toUpperCase()) {
@@ -146,6 +155,11 @@ const fetchData = async () => {
       apiParams.order_date = formattedDate;
     }
 
+    // เพิ่ม type parameter ทุกครั้ง (all หรือ only_user)
+    if (selectedType.value) {
+      apiParams.type = selectedType.value;
+    }
+
     await purchaseOrderStore.fetchAll(apiParams);
   } finally {
     loading.value = false;
@@ -173,10 +187,8 @@ onMounted(async () => {
   // Fetch ALL departments data
   await fetchAllDepartments();
 
-   await purchaseOrderStore.fetchAll({ 
-    page: currentPage.value, 
-    limit: pageSize.value 
-  });
+  // Fetch initial data with type=all
+  await fetchData();
 });
 </script>
 
@@ -218,6 +230,16 @@ onMounted(async () => {
   <!-- Filters section -->
   <div class="bg-white p-2 rounded-lg shadow-sm">
     <div class="flex items-center gap-4">
+      <!-- Filter Type Select -->
+      <div class="w-48">
+        <InputSelect
+          v-model:modelValue="selectedType"
+          :options="filterTypeOptions"
+          placeholder="ປະເພດການກັ່ນຕອງ"
+          @change="handleSearch"
+        />
+      </div>
+
       <!-- Department Select using data from departmentStore -->
       <div class="w-64">
         <InputSelect
@@ -268,15 +290,26 @@ onMounted(async () => {
         />
       </template>
       <template #po_number="{ record }">
-        <span class="font-semibold">{{ record.po_number }}</span>
+        <span class="font-semibold text-blue-600">{{ record.po_number }}</span>
       </template>
 
       <template #requester="{ record }">
         <span>{{ record.getRequester()?.username }}</span>
       </template>
+      <template #total="{ record }">
+        <span class="text-red-600">{{formatPrice( record.getTotal()) }} ₭</span>
+      </template>
 
       <template #created_at="{ record }">
         <span>{{ formatDate(record.getCreatedAt()) }}</span>
+      </template>
+      <template #current_approver="{ record }">
+        <UiTag
+          v-if="record.getUserLastApproval()"
+          :text="record.getUserLastApproval()"
+          color="blue"
+        />
+        <span v-else class="text-blue-400"><div class="flex items-center"><Icon icon="solar:clipboard-check-bold"/>ສຳເລັດ</div></span>
       </template>
       <template #action="{ record }">
         <UiButton

@@ -2,13 +2,17 @@ export interface CreateVendorProductDTO {
   vendor_id: number;
   product_id: number;
   product_name?: string;
+  price: number;
+  currency_id?: number;
 }
 
 export interface UpdateVendorProductDTO {
-  id: string;
+  // id: string;
   vendor_id?: number;
   product_id?: number;
   product_name?: string;
+  price?: number;
+  currency_id?: number;
 }
 
 export interface VendorProductResponseDTO {
@@ -17,6 +21,13 @@ export interface VendorProductResponseDTO {
   product_id: number;
   product_name?: string;
   vendor_name?: string;
+  price: number;
+  currency_id?: number;
+  currency?: {
+    id: number;
+    code: string;
+    name: string;
+  };
   created_at: Date;
   updated_at: Date;
   deleted_at: Date | null;

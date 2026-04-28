@@ -4,6 +4,7 @@
         "created_by": "Created by",
         "created_at": "Created at",
         "status": "Status",
+        "current_approver": "Current Approver",
         "manage": "Manage",
         "branch": "Branch",
         "departmentt": "Department",
@@ -12,7 +13,9 @@
         "remark": "Remark",
         "addition_pay": "Additional payment amount",
         "doc_attachment": "Document attachment",
-        "detail": "detail"
+        "detail": "detail",
+        "total": "Total",
+        "receipt_number": "Receipt Number"
     },
     "vendor": {
         "title": "Store Info",
