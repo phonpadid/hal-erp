@@ -9,8 +9,8 @@ export function columns(t: (key: string) => string): Column[] {
     },
     {
       title: t("purchase-rq.field.pr_number"),
-      dataIndex: "pr_number",
-      key: "pr_number",
+      dataIndex: "receipt_number",
+      key: "receipt_number",
     },
     // {
     //   title: t("purchase-rq.field.qty"),

@@ -11,6 +11,10 @@ const budgetAcc = computed(
     () => props.receipt?.receipt_item[0]?.purchase_order_item?.budget_item?.budget_account
 );
 
+const vendorBankAccount = computed(
+    () => props.receipt?.receipt_item[0]?.purchase_order_item?.selected_vendor[0]?.vendor_bank_account
+);
+
 const formatDate = (dateString: string) => {
     if (!dateString) return '';
     const [date] = dateString.split(' ');
@@ -68,6 +72,10 @@ const formatDate = (dateString: string) => {
                 <div class="budget-row" v-if="receipt?.account_code">
                     <span class="section-label">Account Number/ເລກທີບັນຊີ:</span>
                     <span class="budget-value">{{ receipt?.account_code }}</span>
+                </div>
+                 <div class="budget-row" v-if="vendorBankAccount?.account_name || vendorBankAccount?.account_number">
+                    <span class="section-label">Shop account/ບັນຊີຮ້ານຄ້າ:</span>
+                    <span class="budget-value">{{ vendorBankAccount?.account_name }} - {{ vendorBankAccount?.account_number }}</span>
                 </div>
             </div>
 
