@@ -844,6 +844,10 @@ onMounted(async () => {
                       class="max-w-[110px] max-h-[70px] object-contain"
                     />
                   </template>
+                  <template v-else-if="step.status_id === 3">
+                    <!-- Rejected -->
+                    <Icon icon="mdi:close-circle-outline" class="text-red-500 text-5xl" />
+                  </template>
                   <template v-else-if="step.status_id === 1">
                     <!-- Pending signature -->
                     <span class="text-gray-400 text-sm text-center px-2">
@@ -858,8 +862,20 @@ onMounted(async () => {
                     <p class="font-medium">{{ step.approver.username }}</p>
                     <p class="text-xs text-gray-500">{{ step.position?.name || "-" }}</p>
                     <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
-                    <p v-if="step.approved_at" class="text-xs text-blue-500 mt-1">
+                    <p
+                      v-if="step.approved_at"
+                      class="text-xs mt-1"
+                      :class="step.status_id === 3 ? 'text-red-500' : 'text-blue-500'"
+                    >
                       {{ formatDate(step.approved_at) }}
+                    </p>
+                    <!-- ✅ ສະແດງເຫດຜົນປະຕິເສດ -->
+                    <p
+                      v-if="step.status_id === 3 && step.remark"
+                      class="text-xs text-red-600 mt-1 max-w-[160px] break-words bg-red-50 px-2 py-1 rounded"
+                      :title="step.remark"
+                    >
+                      {{ step.remark }}
                     </p>
                   </template>
                   <template v-else-if="step.doc_approver?.[0]?.user">
@@ -923,7 +939,7 @@ onMounted(async () => {
         <p>{{ t("modal.description") }}</p>
         <div>
           <p class="mb-2 font-semibold">{{ t("modal.reason") }}</p>
-          <Textarea :modelValue="rejectReason" :placeholder="t('modal.enter_reason')" :rows="4" />
+          <Textarea v-model="rejectReason" :placeholder="t('modal.enter_reason')" :rows="4" />
         </div>
       </div>
       <template #footer>
