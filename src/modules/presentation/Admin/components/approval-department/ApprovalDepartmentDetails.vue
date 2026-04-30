@@ -219,6 +219,10 @@
                       class="max-w-[110px] max-h-[70px] object-contain"
                     />
                   </template>
+                  <template v-else-if="step.status_id === 3">
+                    <!-- Rejected -->
+                    <Icon icon="mdi:close-circle-outline" class="text-red-500 text-5xl" />
+                  </template>
                   <template v-else-if="step.status_id === 1">
                     <!-- Pending signature -->
                     <span class="text-gray-400 text-sm text-center px-2">
@@ -233,8 +237,20 @@
                     <p class="font-medium">{{ step.approver.username }}</p>
                     <p class="text-xs text-gray-500">{{ step.position?.name || "ຜູ້ອຳນວຍການ" }}</p>
                     <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
-                    <p v-if="step.approved_at" class="text-xs text-blue-500 mt-1">
+                    <p
+                      v-if="step.approved_at"
+                      class="text-xs mt-1"
+                      :class="step.status_id === 3 ? 'text-red-500' : 'text-blue-500'"
+                    >
                       {{ formatDate(step.approved_at) }}
+                    </p>
+                    <!-- ✅ ສະແດງເຫດຜົນປະຕິເສດ -->
+                    <p
+                      v-if="step.status_id === 3 && step.remark"
+                      class="text-xs text-red-600 mt-1 max-w-[160px] break-words bg-red-50 px-2 py-1 rounded"
+                      :title="step.remark"
+                    >
+                      {{ step.remark }}
                     </p>
                   </template>
                   <template v-else>
@@ -364,14 +380,13 @@
     @ok="handleSuccessConfirm"
     @cancel="handleModalCancel"
   >
-    <div>
-      <div>
-        <Icon icon="mdi:check-decagram" class="text-green-500 text-6xl mx-auto mt-4" />
-        <p>ອະນຸມັດສຳເລັດ</p>
-        <span
-          >ອະນຸມັດຄຳຂໍຈັດຊື້ຂອງທ່ານສຳເລັດ ຂໍ້ມູນຈະຖືກສົ່ງໄປຫາພະແນກການເງິນເພື່ອອະນຸມັດຂໍ້ມູນ</span
-        >
-      </div>
+    <div class="text-center py-6">
+      <Icon
+        :icon="successModalIcon"
+        :class="[successModalIconColor, 'text-6xl mx-auto mb-4']"
+      />
+      <h3 class="text-lg font-semibold mb-3 text-gray-800">{{ successModalMessage }}</h3>
+      <p class="text-sm text-gray-600 leading-relaxed px-4">{{ successModalDescription }}</p>
     </div>
     <template #footer>
       <div class="flex">
@@ -1158,6 +1173,54 @@ const open = ref<boolean>(false);
 const selectedData = ref<string | null>(null);
 const purchaseOrderId = route.params.id as string;
 
+// ✅ Success modal state — สลับ approve / reject
+const successModalAction = ref<"approve" | "reject">("approve");
+const successModalMessage = ref("ອະນຸມັດສຳເລັດ");
+const successModalDescription = ref(
+  "ອະນຸມັດຄຳຂໍຈັດຊື້ຂອງທ່ານສຳເລັດ ຂໍ້ມູນຈະຖືກສົ່ງໄປຫາພະແນກການເງິນເພື່ອອະນຸມັດຂໍ້ມູນ",
+);
+const successModalIcon = ref("mdi:check-decagram");
+const successModalIconColor = ref("text-green-500");
+
+const showSuccessModal = (type: "approve" | "reject") => {
+  successModalAction.value = type;
+  if (type === "reject") {
+    successModalMessage.value = "ປະຕິເສດສຳເລັດ";
+    successModalDescription.value = "ປະຕິເສດຄຳຂໍຈັດຊື້ສຳເລັດ ຂໍ້ມູນຈະຖືກສົ່ງກັບໄປໃຫ້ຜູ້ສະເໜີ";
+    successModalIcon.value = "mdi:close-circle";
+    successModalIconColor.value = "text-red-500";
+  } else {
+    successModalMessage.value = "ອະນຸມັດສຳເລັດ";
+    successModalDescription.value =
+      "ອະນຸມັດຄຳຂໍຈັດຊື້ຂອງທ່ານສຳເລັດ ຂໍ້ມູນຈະຖືກສົ່ງໄປຫາພະແນກການເງິນເພື່ອອະນຸມັດຂໍ້ມູນ";
+    successModalIcon.value = "mdi:check-decagram";
+    successModalIconColor.value = "text-green-500";
+  }
+  isSuccessModalVisible.value = true;
+};
+
+// ✅ Validate ກ່ອນອະນຸມັດ — ຖ້າ user ສາມາດເລືອກງົບປະມານໄດ້ ຕ້ອງເລືອກຄົບທຸກລາຍການ
+const validateBudgetSelection = (): boolean => {
+  if (!canManageBudget.value) return true;
+
+  const items = orderDetails.value?.getPurchaseOrderItem() ?? [];
+  if (!items.length) return true;
+
+  const missing = items.filter((item) => {
+    const id = item.getId();
+    return !selectedBudgets.value[id]?.budgetId;
+  });
+
+  if (missing.length > 0) {
+    error(
+      "ກະລຸນາເລືອກລະຫັດງົບປະມານ",
+      `ຍັງມີ ${missing.length} ລາຍການທີ່ບໍ່ໄດ້ເລືອກງົບປະມານ ກະລຸນາເລືອກໃຫ້ຄົບກ່ອນອະນຸມັດ`,
+    );
+    return false;
+  }
+  return true;
+};
+
 // ✅ เพิ่ม watch หลังจากที่ประกาศตัวแปรแล้ว
 watch(() => currentPoIsOtp.value, (newVal) => {
   console.log('🔍 [PO] currentPoIsOtp.value changed:', newVal);
@@ -1311,8 +1374,8 @@ const handleOtpConfirm = async (otpCode: string) => {
 
     if (success) {
       isOtpModalVisible.value = false;
-      isSuccessModalVisible.value = true;
       isApproved.value = true;
+      showSuccessModal("approve");
 
       // ✅ ກວດສອບວ່າເປັນຂັ້ນຕອນທໍາອິດ (step 0) ຫຼືບໍ່
       if (currentApprovalStep.value.step_number === 0) {
@@ -1337,6 +1400,11 @@ const handleApprove = async () => {
 
   if (!approvedStatusId.value) {
     error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບສະຖານະການອະນຸມັດ");
+    return false;
+  }
+
+  // ✅ ກວດສອບການເລືອກງົບປະມານກ່ອນເປີດ modal/ສົ່ງ OTP
+  if (!validateBudgetSelection()) {
     return false;
   }
 
@@ -1402,34 +1470,38 @@ const handleReject = async () => {
     return;
   }
 
+  // ✅ ໃຊ້ currentApprovalStep ຂອງ user ປັດຈຸບັນ ບໍ່ແມ່ນ approval_step[0]
+  const currentStep = currentApprovalStep.value;
+  if (!currentStep?.id) {
+    error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step ປັດຈຸບັນ");
+    return;
+  }
+
   try {
-    const userApproval = orderDetails.value.getUserApproval();
-    if (!userApproval?.approval_step?.[0]?.id) {
-      error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ Approval Step");
-      return;
-    }
-
-    const approvalStepId = userApproval.approval_step[0].id;
-
+    confirmLoading.value = true;
     const documentId = route.params.id as string;
-    const payload = {
-      type: "po" as const,
+    const payload: SubmitApprovalStepInterface = {
+      type: "po",
       statusId: Number(rejectedStatusId.value),
       remark: rejectReason.value,
-      approvalStepId: Number(approvalStepId),
+      approvalStepId: Number(currentStep.id),
+      is_otp: false,
+      purchase_order_items: [],
+      files: [],
     };
 
-    // console.log("Sending payload Reject:", payload);
+    const success = await approvalStepStore.submitApprovalDepartMent(documentId, payload);
 
-    const success = await approvalStepStore.submitApproval(documentId, payload);
-    router.push({ name: "approval_department_panak" });
     if (success) {
       isRejectModalVisible.value = false;
       rejectReason.value = "";
+      showSuccessModal("reject");
     }
   } catch (err) {
     console.error("Error in handleReject:", err);
     error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+  } finally {
+    confirmLoading.value = false;
   }
 };
 
@@ -1485,8 +1557,8 @@ const handleSignatureConfirm = async () => {
 
     if (success) {
       isSignatureModalVisible.value = false;
-      isSuccessModalVisible.value = true;
       isApproved.value = true;
+      showSuccessModal("approve");
 
       // ✅ Check if it's the first step - redirect to list
       const isFirstStep = currentApprovalStep.value.step_number === 0;
