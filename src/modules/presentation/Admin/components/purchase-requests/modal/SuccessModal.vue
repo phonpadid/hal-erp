@@ -2,7 +2,7 @@
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import { Icon } from "@iconify/vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const confirmLoading = ref(false);
 
@@ -15,7 +15,7 @@ const props = defineProps<{
   iconColor?: string;
   buttonText?: string;
   loading?: boolean;
-  hideConfirmButton?: boolean; 
+  hideConfirmButton?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -24,13 +24,16 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
-// Default values
-const defaultTitle = props.title || "";
-const defaultMessage = props.message || "ອະນຸມັດສຳເລັດ1";
-const defaultDescription = props.description || "ອະນຸມັດຄຳຂໍຈັດຊື້ຂອງທ່ານສຳເລັດ ຂໍ້ມູນຈະຖືກສົ່ງໄປຫາພະແນກການເງິນເພື່ອອະນຸມັດຂໍ້ມູນ";
-const defaultIconName = props.iconName || "mdi:check-decagram";
-const defaultIconColor = props.iconColor || "text-green-500";
-const defaultButtonText = props.buttonText || "ຢືນຢັນ111";
+const defaultTitle = computed(() => props.title || "");
+const defaultMessage = computed(() => props.message || "ອະນຸມັດສຳເລັດ");
+const defaultDescription = computed(
+  () =>
+    props.description ||
+    "ອະນຸມັດຄຳຂໍຈັດຊື້ຂອງທ່ານສຳເລັດ ຂໍ້ມູນຈະຖືກສົ່ງໄປຫາພະແນກການເງິນເພື່ອອະນຸມັດຂໍ້ມູນ",
+);
+const defaultIconName = computed(() => props.iconName || "mdi:check-decagram");
+const defaultIconColor = computed(() => props.iconColor || "text-green-500");
+const defaultButtonText = computed(() => props.buttonText || "ຢືນຢັນ");
 
 const handleSuccessConfirm = async () => {
   confirmLoading.value = true;
