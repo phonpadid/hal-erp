@@ -33,7 +33,7 @@ const isValid = computed(() => {
 const fetchData = async () => {
   const budgetType = selectedValue.value === "1" ? "expenditure" : "advance";
   // console.log("Fetching budget items with departmentId:", props.departmentId);
-  await budgetItemStore.getAllReport({ page: 1, limit: 10 }, budgetType, props.departmentId);
+  await budgetItemStore.getAllReport({ page: 1, limit: 1000 }, budgetType, props.departmentId);
 };
 
 const filteredBudgetData = computed<any[]>(() => {
