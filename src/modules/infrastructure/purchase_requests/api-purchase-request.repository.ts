@@ -170,6 +170,22 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
     }
   }
 
+  async exportExcel(startDate?: string, endDate?: string): Promise<Blob> {
+    try {
+      const params: Record<string, string> = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
+      const response = await api.get(`/purchase-requests/export-excel`, {
+        params,
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      this.handleApiError(error, "Failed to export purchase requests");
+    }
+  }
+
   private toApiModel(input: PurchaseRequestEntity): any {
     return {
       document: {

@@ -22,8 +22,10 @@ import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import type { Dayjs } from "dayjs";
 import { departmentStore } from "../../stores/departments/department.store";
 import { formatPrice } from "@/modules/shared/utils/format-price";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 const { t } = useI18n();
 const { push } = useRouter();
+const { success, error: showError } = useNotification();
 const dpmStore = departmentStore();
 const rStore = useReceiptStore();
 const dpmOption = computed(() => [
@@ -44,6 +46,30 @@ const filterDate = ref<Dayjs | undefined>(undefined);
 const filterDepartment = ref<string | undefined>("all");
 const filterType = ref<string>("all");
 const isPaginationChanging = ref<boolean>(false);
+
+// Export Excel state
+const exportStartDate = ref<string | undefined>(undefined);
+const exportEndDate = ref<string | undefined>(undefined);
+const exportLoading = ref(false);
+
+const handleExportExcel = async () => {
+  try {
+    exportLoading.value = true;
+    const startDate = exportStartDate.value || undefined;
+    const endDate = exportEndDate.value || undefined;
+    const ok = await rStore.exportExcelAll(startDate, endDate);
+    if (ok) {
+      success(t("purchase-rq.success.title"), t("purchase-rq.export.success"));
+    } else {
+      showError(t("purchase-rq.export.failed"), rStore.error?.message || "");
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    showError(t("purchase-rq.export.failed"), errorMessage);
+  } finally {
+    exportLoading.value = false;
+  }
+};
 const statusCards = computed(() => {
   const map: Record<
     string,
@@ -263,6 +289,42 @@ onMounted(async () => {
             </UiButton>
           </div>
         </div>
+      </div>
+
+      <!-- Export Excel section -->
+      <div class="mt-4 flex flex-col md:flex-row gap-4 items-end">
+        <div class="w-full md:w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t("purchase-rq.export.start_date") }}
+          </label>
+          <DatePicker
+            v-model:value="exportStartDate"
+            :placeholder="t('purchase-rq.export.start_date')"
+            value-format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </div>
+        <div class="w-full md:w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t("purchase-rq.export.end_date") }}
+          </label>
+          <DatePicker
+            v-model:value="exportEndDate"
+            :placeholder="t('purchase-rq.export.end_date')"
+            value-format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </div>
+        <UiButton
+          type="primary"
+          icon="ant-design:file-excel-outlined"
+          :loading="exportLoading"
+          color-class="flex items-center justify-center gap-2 !bg-green-600 !border-green-600 hover:!bg-green-700"
+          class="w-full md:w-auto px-6"
+          @click="handleExportExcel"
+        >
+          <span>{{ t("purchase-rq.btn.export_excel") }}</span>
+        </UiButton>
       </div>
     </div>
 

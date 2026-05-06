@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, reactive, ref } from "vue";
+import { computed, nextTick, reactive, ref } from "vue";
 import type { Ref } from "vue";
 import type { PaginationParams } from "@/modules/shared/pagination";
 import { ApiReceiptRepository } from "@/modules/infrastructure/api-receipt.repository";
@@ -34,6 +34,8 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     totalPages: 0,
   });
   const counts = ref<Record<string, number>>({});
+  const printData = ref<unknown>(null);
+  const printMode = ref<"about_receipt" | "all_document">("about_receipt");
   // Getters
   // Actions
   const fetchAll = async (params: PaginationParams = { page: 1, limit: 10 }) => {
@@ -238,6 +240,70 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     }
   };
 
+  const exportExcelAll = async (startDate?: string, endDate?: string): Promise<boolean> => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const blob = await serice.exportExcelAll(startDate, endDate);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const today = new Date().toISOString().split('T')[0];
+      link.setAttribute('download', `receipts-${today}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      return true;
+    } catch (err) {
+      error.value = err as Error;
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const waitForImages = (root: Document | HTMLElement = document) => {
+    const images = Array.from(root.querySelectorAll("img"));
+    const pending = images.filter((img) => !img.complete);
+    if (pending.length === 0) return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      let remaining = pending.length;
+      const done = () => {
+        remaining -= 1;
+        if (remaining <= 0) resolve();
+      };
+      pending.forEach((img) => {
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    });
+  };
+
+  const printReceipt = async (
+    id: string,
+    type: "about_receipt" | "all_document"
+  ) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const data = await serice.print(id, type);
+      printMode.value = type;
+      printData.value = data;
+      await nextTick();
+      await waitForImages(document);
+      window.print();
+      return true;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const setPagination = (newPagination: { page: number; limit: number; total: number }) => {
     pagination.value.page = newPagination.page || 1;
     pagination.value.limit = newPagination.limit || 10;
@@ -263,6 +329,10 @@ export const useReceiptStore = defineStore("receipt-store", () => {
     updated,
     deleted,
     exportExcel,
+    exportExcelAll,
+    printReceipt,
+    printData,
+    printMode,
     status,
     receiptsData,
     reportMenu,

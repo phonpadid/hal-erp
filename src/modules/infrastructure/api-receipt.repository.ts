@@ -203,6 +203,33 @@ export class ApiReceiptRepository implements ReceiptRepository {
     }
   }
 
+  async exportExcelAll(startDate?: string, endDate?: string): Promise<Blob> {
+    try {
+      const params: Record<string, string> = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
+      const response = await api.get(`${this.baseUrl}/export-excel`, {
+        params,
+        responseType: 'blob',
+      });
+      return response.data;
+    } catch (error) {
+      this.handleApiError(error, "Failed to export receipts");
+    }
+  }
+
+  async print(id: string, type: "about_receipt" | "all_document"): Promise<unknown> {
+    try {
+      const response = await api.get(`${this.baseUrl}/print/${id}`, {
+        params: { print: type },
+      });
+      return response.data?.data ?? response.data;
+    } catch (error) {
+      this.handleApiError(error, `Failed to print receipt with id ${id}`);
+    }
+  }
+
   private toDomainModel(input: ReciptQueryDto): ReceiptEntity {
 
     // Create an array of ReceiptItemEntity instances

@@ -11,5 +11,7 @@ export interface ReceiptService {
   update(id: string, input: UpdateReceiptDTO[]): Promise<ReceiptEntity>;
   reportMenu(type: string): Promise<IReportReceiptCount>;
   exportExcel(id: string): Promise<Blob>;
+  exportExcelAll(startDate?: string, endDate?: string): Promise<Blob>;
+  print(id: string, type: "about_receipt" | "all_document"): Promise<unknown>;
   delete(id: string): Promise<boolean>;
 }

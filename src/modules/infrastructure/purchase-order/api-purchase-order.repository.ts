@@ -110,6 +110,22 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
       throw this.handleApiError(error, `Failed to delete purchase order with id ${id}`);
     }
   }
+
+  async exportExcel(startDate?: string, endDate?: string): Promise<Blob> {
+    try {
+      const params: Record<string, string> = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
+      const response = await api.get(`/purchase-orders/export-excel`, {
+        params,
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleApiError(error, "Failed to export purchase orders");
+    }
+  }
   private toApiModel(input: PurchaseOrderEntity): PurchaseOrderApiModel {
     const currentTimestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
     const currentUser = "phonpadid";
