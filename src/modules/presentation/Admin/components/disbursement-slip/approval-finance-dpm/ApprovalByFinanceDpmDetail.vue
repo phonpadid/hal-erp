@@ -22,9 +22,15 @@ import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import type { ISelectVendor } from "@/modules/application/dtos/receipt.dto";
 import VendorDrawer from "./drawers/VendorDrawer.vue";
 import Print from "./modals/Print.vue";
+import UiModal from "@/common/shared/components/Modal/UiModal.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
+import { Radio } from "ant-design-vue";
 const openPropoval = ref(false);
 const openAppropoval = ref(false);
 const openVendor = ref(false);
+const printModalVisible = ref(false);
+const printType = ref<"about_receipt" | "all_document">("about_receipt");
+const printLoading = ref(false);
 const { t } = useI18n();
 const { params } = useRoute();
 const receiptId = params.id as string;
@@ -232,7 +238,25 @@ const vendorInfo = (data: ISelectVendor) => {
   openVendor.value = true;
 };
 const openPrintModal = () => {
-  window.print();
+  printType.value = "about_receipt";
+  printModalVisible.value = true;
+};
+
+const handlePrintConfirm = async () => {
+  if (!receiptId) {
+    message.error("ບໍ່ພົບລະຫັດໃບເບີກຈ່າຍ");
+    return;
+  }
+  try {
+    printLoading.value = true;
+    await rStore.printReceipt(receiptId, printType.value);
+    printModalVisible.value = false;
+  } catch (err) {
+    console.error("Print error:", err);
+    message.error("ບໍ່ສາມາດພິມເອກະສານໄດ້");
+  } finally {
+    printLoading.value = false;
+  }
 };
 
 // Function to reset uploaded images after successful approval
@@ -508,11 +532,36 @@ onMounted(async () => {
       placement="right" :width="1185">
       <ApprovalDrawer :id="selectedId" />
     </UiDrawer>
+
+    <UiModal
+      title="ເລືອກຮູບແບບການພິມ"
+      title-icon="ant-design:printer-outlined"
+      :visible="printModalVisible"
+      :width="460"
+      @update:visible="printModalVisible = $event"
+      @ok="handlePrintConfirm"
+      @cancel="printModalVisible = false"
+    >
+      <div class="py-2">
+        <Radio.Group v-model:value="printType" class="flex flex-col gap-3">
+          <Radio value="about_receipt">ສະເພາະໃບເບີກຈ່າຍ (Receipt)</Radio>
+          <Radio value="all_document">ທັງໝົດ (PR + PO + Receipt)</Radio>
+        </Radio.Group>
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <UiButton type="default" @click="printModalVisible = false">ຍົກເລີກ</UiButton>
+          <UiButton type="primary" :loading="printLoading" @click="handlePrintConfirm">ພິມ</UiButton>
+        </div>
+      </template>
+    </UiModal>
   </div>
   <div class="print-only">
-
-    <!-- v-if="printModalVisible" -->
-    <Print :receipt="rStore.currentReceipts"></Print>
+    <Print
+      :receipt="rStore.currentReceipts"
+      :data="rStore.printData"
+      :mode="rStore.printMode"
+    />
   </div>
 </template>
 <style scoped>

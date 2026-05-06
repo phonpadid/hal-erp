@@ -66,6 +66,14 @@ export class ReceiptServiceImpl implements ReceiptService {
     return await this.repo.exportExcel(id);
   }
 
+  async exportExcelAll(startDate?: string, endDate?: string): Promise<Blob> {
+    return await this.repo.exportExcelAll(startDate, endDate);
+  }
+
+  async print(id: string, type: "about_receipt" | "all_document"): Promise<unknown> {
+    return await this.repo.print(id, type);
+  }
+
   async delete(id: string): Promise<boolean> {
     return await this.deleteUseCase.execute(id);
   }

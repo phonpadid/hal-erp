@@ -49,4 +49,8 @@ export class PurchaseRequestServiceImpl implements PurchaseRequestService {
   async delete(id: string): Promise<boolean> {
     return await this.deleteUseCase.execute(id);
   }
+
+  async exportExcel(startDate?: string, endDate?: string): Promise<Blob> {
+    return await this.approvalFlowRepo.exportExcel(startDate, endDate);
+  }
 }

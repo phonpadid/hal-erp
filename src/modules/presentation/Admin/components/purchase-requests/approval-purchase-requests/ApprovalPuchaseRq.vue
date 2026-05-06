@@ -14,6 +14,7 @@ import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import { useDocumentStatusStore } from "../../../stores/document-status.store";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { DatePicker as AntDatePicker } from "ant-design-vue";
 
 /**********************************************************/
 const { t } = useI18n();
@@ -33,6 +34,30 @@ const documentStatusStore = useDocumentStatusStore();
 const deleteModalVisible = ref(false);
 const deleteLoading = ref(false);
 const selectedDeleteId = ref<string | null>(null);
+
+// Export Excel state
+const exportStartDate = ref<string | undefined>(undefined);
+const exportEndDate = ref<string | undefined>(undefined);
+const exportLoading = ref(false);
+
+const handleExportExcel = async () => {
+  try {
+    exportLoading.value = true;
+    const startDate = exportStartDate.value || undefined;
+    const endDate = exportEndDate.value || undefined;
+    const ok = await purchaseRequestStore.exportExcel(startDate, endDate);
+    if (ok) {
+      success(t("purchase-rq.success.title"), t("purchase-rq.export.success"));
+    } else {
+      showError(t("purchase-rq.export.failed"), purchaseRequestStore.error || "");
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    showError(t("purchase-rq.export.failed"), errorMessage);
+  } finally {
+    exportLoading.value = false;
+  }
+};
 
 /********************************************************* */
 const docItem = computed(() => [
@@ -278,6 +303,42 @@ onMounted(async () => {
             {{ t("purchase-rq.created") }}
           </UiButton>
         </div>
+      </div>
+
+      <!-- Export Excel section -->
+      <div class="mt-4 flex flex-col md:flex-row gap-4 items-end">
+        <div class="w-full md:w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t("purchase-rq.export.start_date") }}
+          </label>
+          <AntDatePicker
+            v-model:value="exportStartDate"
+            :placeholder="t('purchase-rq.export.start_date')"
+            value-format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </div>
+        <div class="w-full md:w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t("purchase-rq.export.end_date") }}
+          </label>
+          <AntDatePicker
+            v-model:value="exportEndDate"
+            :placeholder="t('purchase-rq.export.end_date')"
+            value-format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </div>
+        <UiButton
+          type="primary"
+          icon="ant-design:file-excel-outlined"
+          :loading="exportLoading"
+          color-class="flex items-center justify-center gap-2 !bg-green-600 !border-green-600 hover:!bg-green-700"
+          class="w-full md:w-auto px-6"
+          @click="handleExportExcel"
+        >
+          <span>{{ t("purchase-rq.btn.export_excel") }}</span>
+        </UiButton>
       </div>
     </div>
 

@@ -12,4 +12,5 @@ export interface PurchaseRequestRepository {
   ): Promise<PaginatedResult<PurchaseRequestEntity>>;
   update(id: string, payload: any): Promise<PurchaseRequestEntity>;
   delete(id: string): Promise<boolean>;
+  exportExcel(startDate?: string, endDate?: string): Promise<Blob>;
 }
