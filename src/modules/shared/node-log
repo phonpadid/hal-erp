@@ -1,2 +1,0 @@
-1.ผมมี api สำลับ print receipt ครับ URL : http://134.209.101.30:3000/api/receipts/print/:receipt_id?print=all_document
-เวลาเรากด print มันจะมีให้เลือก about_receipt (เฉพาะเอกสาร), all_document (ทั้งหมด). สำลับ receipt_id ส่งละหัด details ทีเวลาเรากดเข้าไป ส่งไป เมือเวลาเรากดปุ่ม print
