@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { columns } from "../../views/approval-department/column/cloumn";
 import { useI18n } from "vue-i18n";
 import { usePurchaseOrderStore } from "@/modules/presentation/Admin/stores/purchase_requests/purchase-order";
@@ -25,11 +25,28 @@ const { success, error: showError } = useNotification();
 const selectedDepartment = ref<string | null>(null);
 const selectedType = ref("all");
 const router = useRouter();
+const route = useRoute();
 const purchaseOrderStore = usePurchaseOrderStore();
 const departmentStoreInstance = departmentStore();
-const currentPage = ref(1);
-const pageSize = ref(10);
+const queryPage = Number(route.query.page);
+const queryLimit = Number(route.query.limit);
+const currentPage = ref(
+  Number.isFinite(queryPage) && queryPage > 0 ? queryPage : purchaseOrderStore.pagination.page
+);
+const pageSize = ref(
+  Number.isFinite(queryLimit) && queryLimit > 0 ? queryLimit : purchaseOrderStore.pagination.limit
+);
 const loading = ref(false);
+
+const syncPaginationToUrl = () => {
+  router.replace({
+    query: {
+      ...route.query,
+      page: String(currentPage.value),
+      limit: String(pageSize.value),
+    },
+  });
+};
 const dates = reactive<{ startDate: string | null; endDate: string | null }>({
   startDate: null,
   endDate: null,
@@ -154,14 +171,15 @@ const getDocumentStatus = (record: any) => {
 
 const handleSearch = async () => {
   currentPage.value = 1;
+  syncPaginationToUrl();
   await fetchData();
 };
 
 const handleTableChange = async (pagination: any) => {
-  // Create a pagination params object
-  currentPage.value = pagination.current;
-  pageSize.value = pagination.pageSize;
-  fetchData();
+  currentPage.value = pagination.current ?? 1;
+  pageSize.value = pagination.pageSize ?? 10;
+  syncPaginationToUrl();
+  await fetchData();
 };
 
 const fetchData = async () => {

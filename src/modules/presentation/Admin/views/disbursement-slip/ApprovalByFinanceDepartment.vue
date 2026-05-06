@@ -7,7 +7,7 @@ import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import { computed, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { columns } from "./column";
 import { DatePicker } from "ant-design-vue";
 const loading = ref<boolean>(false);
@@ -24,10 +24,39 @@ import { departmentStore } from "../../stores/departments/department.store";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 const { t } = useI18n();
-const { push } = useRouter();
+const router = useRouter();
+const { push } = router;
+const route = useRoute();
 const { success, error: showError } = useNotification();
 const dpmStore = departmentStore();
 const rStore = useReceiptStore();
+
+const queryPage = Number(route.query.page);
+const queryLimit = Number(route.query.limit);
+if (Number.isFinite(queryPage) && queryPage > 0) {
+  rStore.setPagination({
+    page: queryPage,
+    limit:
+      Number.isFinite(queryLimit) && queryLimit > 0 ? queryLimit : rStore.pagination.limit,
+    total: rStore.pagination.total,
+  });
+} else if (Number.isFinite(queryLimit) && queryLimit > 0) {
+  rStore.setPagination({
+    page: rStore.pagination.page,
+    limit: queryLimit,
+    total: rStore.pagination.total,
+  });
+}
+
+const syncPaginationToUrl = () => {
+  router.replace({
+    query: {
+      ...route.query,
+      page: String(rStore.pagination.page),
+      limit: String(rStore.pagination.limit),
+    },
+  });
+};
 const dpmOption = computed(() => [
   { value: "all", label: "ທັງໝົດ" }, // This is the "All" option
   ...dpmStore.departments.map((item) => ({
@@ -130,31 +159,24 @@ const details = async (id: string) => {
     console.error('Error fetching receipt details:', error);
   }
 };
-const loadReceipt = async (): Promise<void> => {
-  try {
-    loading.value = true;
-    await rStore.fetchAll({
-      page: rStore.pagination.page,
-      limit: rStore.pagination.limit,
-      type: filterType.value,
-    });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.log(error);
-  } finally {
-    loading.value = false;
-  }
-};
-const searchByDate = async () => {
+const buildFilterParams = (page: number, limit: number) => ({
+  page,
+  limit,
+  order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
+  department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
+  type: filterType.value,
+});
+
+const loadFilteredReceipts = async (resetPage = false) => {
   loading.value = true;
   try {
-    await rStore.fetchAll({
-      page: 1,
-      limit: rStore.pagination.limit,
-      order_date: filterDate.value ? filterDate.value.toISOString().split("T")[0] : undefined,
-      type: filterType.value,
-    });
-    rStore.setPagination({ ...rStore.pagination, page: 1 });
+    const page = resetPage ? 1 : rStore.pagination.page;
+    const limit = rStore.pagination.limit;
+    if (resetPage) {
+      rStore.setPagination({ ...rStore.pagination, page: 1 });
+      syncPaginationToUrl();
+    }
+    await rStore.fetchAll(buildFilterParams(page, limit));
   } catch (error) {
     console.log(error);
   } finally {
@@ -162,23 +184,24 @@ const searchByDate = async () => {
   }
 };
 
+const searchByDate = async () => {
+  await loadFilteredReceipts(true);
+};
+
 const handleTableChange = async (pagination: TablePaginationType) => {
   isPaginationChanging.value = true;
   loading.value = true;
   try {
+    const page = pagination.current ?? 1;
+    const limit = pagination.pageSize ?? 10;
     rStore.setPagination({
-      page: pagination.current || 1,
-      limit: pagination.pageSize || 10,
+      page,
+      limit,
       total: pagination.total ?? 0,
     });
+    syncPaginationToUrl();
 
-    await rStore.fetchAll({
-      page: pagination.current || 1,
-      limit: pagination.pageSize || 10,
-      order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
-      department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
-      type: filterType.value,
-    });
+    await rStore.fetchAll(buildFilterParams(page, limit));
   } catch (error) {
     console.log(error);
   } finally {
@@ -186,30 +209,14 @@ const handleTableChange = async (pagination: TablePaginationType) => {
     loading.value = false;
   }
 };
-// Function to fetch receipts with filters
-const loadFilteredReceipts = async () => {
-  loading.value = true;
-  try {
-    await rStore.fetchAll({
-      page: rStore.pagination.page,
-      limit: rStore.pagination.limit,
-      order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
-      department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
-      type: filterType.value,
-    });
-  } catch (error) {
-    console.log(error);
-  } finally {
-    loading.value = false;
-  }
-};
+
 watch([filterDate, filterDepartment, filterType], () => {
   if (!isPaginationChanging.value) {
-    loadFilteredReceipts();
+    loadFilteredReceipts(true);
   }
 });
+
 onMounted(async () => {
-  await loadReceipt();
   await loadFilteredReceipts();
   await dpmStore.fetchDepartment({ page: 1, limit: 1000 });
 });
@@ -337,6 +344,7 @@ onMounted(async () => {
           current: rStore.pagination.page,
           pageSize: rStore.pagination.limit,
           total: rStore.pagination.total,
+          showSizeChanger: true,
         }"
         :loading="loading"
         row-key="id"

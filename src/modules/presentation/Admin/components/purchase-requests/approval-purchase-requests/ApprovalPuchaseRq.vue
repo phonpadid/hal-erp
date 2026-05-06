@@ -3,7 +3,7 @@
 import { useI18n } from "vue-i18n";
 import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
 import { computed, onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useDocumentTypeStore } from "../../../stores/document-type.store";
 import { columns } from "../../../views/purchase-requests/column";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -18,17 +18,35 @@ import { DatePicker as AntDatePicker } from "ant-design-vue";
 
 /**********************************************************/
 const { t } = useI18n();
-const { push } = useRouter();
+const router = useRouter();
+const { push } = router;
+const route = useRoute();
 const { success, error: showError } = useNotification();
 const purchaseRequestStore = usePurchaseRequestsStore();
 const docTypeStore = useDocumentTypeStore();
 const loading = ref(false);
-const currentPage = ref(1);
-const pageSize = ref(10);
+const queryPage = Number(route.query.page);
+const queryLimit = Number(route.query.limit);
+const currentPage = ref(
+  Number.isFinite(queryPage) && queryPage > 0 ? queryPage : purchaseRequestStore.pagination.page
+);
+const pageSize = ref(
+  Number.isFinite(queryLimit) && queryLimit > 0 ? queryLimit : purchaseRequestStore.pagination.limit
+);
 const selectedDocType = ref("all");
 const selectedStatus = ref("all");
 const selectedType = ref("all");
 const documentStatusStore = useDocumentStatusStore();
+
+const syncPaginationToUrl = () => {
+  router.replace({
+    query: {
+      ...route.query,
+      page: String(currentPage.value),
+      limit: String(pageSize.value),
+    },
+  });
+};
 
 // Delete modal state
 const deleteModalVisible = ref(false);
@@ -82,6 +100,7 @@ const filterTypeItem = computed(() => [
 ]);
 const handleSearch = () => {
   currentPage.value = 1;
+  syncPaginationToUrl();
   fetchData();
 };
 
@@ -211,8 +230,9 @@ const handleDeleteConfirm = async () => {
 };
 
 const handleTableChange = (pagination: any) => {
-  currentPage.value = pagination.current;
-  pageSize.value = pagination.pageSize;
+  currentPage.value = pagination.current ?? 1;
+  pageSize.value = pagination.pageSize ?? 10;
+  syncPaginationToUrl();
   fetchData();
 };
 
