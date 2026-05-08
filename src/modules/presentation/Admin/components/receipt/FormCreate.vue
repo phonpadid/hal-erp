@@ -25,6 +25,12 @@ import type { ISelectVendor } from "@/modules/application/dtos/receipt.dto";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 const purchaseOrderStore = usePurchaseOrderStore();
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
+
+// ✅ ສະກຸນເງິນຂອງລາຍການທຳອິດ (ໃຊ້ສຳລັບສະແດງລວມ)
+const itemCurrencyCode = computed(() => {
+  const items = orderDetails.value?.getPurchaseOrderItem() ?? [];
+  return items[0]?.getItemCurrencyCode() || "LAK";
+});
 const { error } = useNotification();
 const rStore = useReceiptStore();
 const user = computed(() => getUserApv());
@@ -420,7 +426,7 @@ const create_text = computed(() => t('receipt.title.create'))
           </template>
           <template #total="{ record }">
             <span class="font-medium">
-              {{ record.total.toLocaleString() }} ₭
+              {{ record.total.toLocaleString() }} {{ record.getItemCurrencyCode() }}
             </span>
           </template>
           <template #vendor="{record}">
@@ -443,7 +449,7 @@ const create_text = computed(() => t('receipt.title.create'))
           <div class="lable mt-8">
             <!-- <p>₭ {{ formatPrice(orderDetails?.sub_total ?? 0) }}</p>
             <p class="-mt-4"> ₭ {{ formatPrice(orderDetails?.vat ?? 0) }}</p> -->
-            <p class="-mt-4">₭ {{ formatPrice(orderDetails?.getPurchaseRequest().total) }}</p>
+            <p class="-mt-4">{{ formatPrice(orderDetails?.getPurchaseRequest().total) }} {{ itemCurrencyCode }}</p>
           </div>
         </div>
 

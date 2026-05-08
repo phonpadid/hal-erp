@@ -91,7 +91,12 @@ const departmentInfo = computed(() => requestDetail.value?.getDepartment());
 const positionInfo = computed(() => requestDetail.value?.getPosition());
 const companyInfo = computed(() => requestDetail.value?.getCompany());
 const items = computed(() => requestDetail.value?.getItems() ?? []);
-const totalAmount = computed(() => requestDetail.value?.getTotal() ?? 0);
+const totalInLak = computed(
+  () =>
+    (requestDetail.value as any)?.total_in_lak ||
+    requestDetail.value?.getTotal() ||
+    0,
+);
 const getStepTitle = (index: number, step: any) => {
   if (index === 0) {
     return t("purchase-rq.proposer");
@@ -772,11 +777,18 @@ onMounted(async () => {
               <span>{{ index + 1 }}</span>
             </template>
             <template #price="{ record }">
-              <span class="text-green-500">₭ {{ formatPrice(record.getPrice()) }}</span>
+              <span class="text-green-500"
+                >{{ formatPrice(record.getPrice()) }} {{ record.currency?.code || "LAK" }}</span
+              >
             </template>
             <template #total="{ record }">
               <span class="text-red-500"
-                >₭ {{ formatPrice(record.total || record.price * record.quantity) }}</span
+                >{{
+                  formatPrice(
+                    record.total_in_lak ?? record.total_price ?? record.price * record.quantity,
+                  )
+                }}
+                ₭</span
               >
             </template>
             <template #image="{ record }">
@@ -809,12 +821,12 @@ onMounted(async () => {
           <div class="price-summary grid grid-cols-[auto_150px] gap-2 px-6 text-right">
             <div class="font-medium text-slate-600">{{ t("purchase-rq.field.total_price") }}:</div>
             <div class="font-semibold md:text-lg text-sm text-green-500">
-              {{ formatPrice(requestDetail?.getTotal()) }}₭
+              {{ formatPrice(totalInLak) }}₭
             </div>
 
             <div class="font-medium text-slate-600">{{ t("purchase-rq.field.amounts") }}:</div>
             <div class="font-semibold md:text-lg text-sm text-red-500">
-              {{ formatPrice(totalAmount) }}₭
+              {{ formatPrice(totalInLak) }}₭
             </div>
           </div>
         </div>

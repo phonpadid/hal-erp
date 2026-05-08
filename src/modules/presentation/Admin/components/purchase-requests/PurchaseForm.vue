@@ -92,18 +92,11 @@ const quotaOptions = computed(() => {
     const product = quotaEntity.product || vendorProduct?.product;
     const productName = product?.name || `ສິນຄ້າ #${quota.getVendorProductId()}`;
     const price = vendorProduct?.price || "0";
-
-    // console.log("Processing quota:", {
-    //   id: quotaId,
-    //   productName,
-    //   qty,
-    //   year,
-    //   price
-    // });
+    const currencyCode = vendorProduct?.currency?.code || "LAK";
 
     return {
       value: quotaId,
-      label: `${productName} - ${year} (${qty} ຊຸດ) - ${parseInt(price).toLocaleString()} ກີບ`,
+      label: `${productName} - ${year} (${qty} ຊຸດ) - ${parseInt(price).toLocaleString()} ${currencyCode}`,
     };
   });
 });
@@ -126,6 +119,7 @@ const selectedQuotaDetails = computed(() => {
     qty: quota.getQty(),
     year: extractYear(quota.getYear()),
     price: vendorProduct?.price || "0",
+    currencyCode: vendorProduct?.currency?.code || "LAK",
     productType: product?.product_type?.name || "",
   };
 });
@@ -625,7 +619,7 @@ defineExpose({
               <div class="flex items-center gap-2">
                 <span class="text-xs text-gray-500 font-medium">ລາຄາ:</span>
                 <span class="font-semibold text-green-600 bg-green-50 px-2 py-1 rounded"
-                  >{{ parseInt(selectedQuotaDetails.price).toLocaleString() }} ກີບ</span
+                  >{{ parseInt(selectedQuotaDetails.price).toLocaleString() }} {{ selectedQuotaDetails.currencyCode }}</span
                 >
               </div>
 
@@ -859,12 +853,12 @@ defineExpose({
       </div>
 
       <!-- Total section -->
-      <div class="flex justify-end items-center mt-8 pt-4 border-t">
+      <!-- <div class="flex justify-end items-center mt-8 pt-4 border-t">
         <div class="bg-gray-50 px-6 py-4 rounded-lg">
           <p class="text-gray-600 mb-1">{{ t("purchase-rq.field.amount", "ຍອດລວມສຸດທິ") }}</p>
           <p class="text-red-600 font-bold text-2xl">{{ formatPrice(totalPrice) }} LAK</p>
         </div>
-      </div>
+      </div> -->
     </UiForm>
   </div>
 

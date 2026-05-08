@@ -30,6 +30,8 @@ export class PurchaseOrderEntity {
   private sub_total: number;
   private vat: number;
   private total: number;
+  private total_in_lak: number;
+  private is_created_rc: boolean;
   private purchaseRequestId: number;
   private document: PurchaseOrderDocument;
   private purposes: string;
@@ -79,6 +81,7 @@ export class PurchaseOrderEntity {
     sub_total: number,
     vat: number,
     total: number,
+    total_in_lak: number,
     purchaseRequestId: number,
     document: PurchaseOrderDocument,
     items: PurchaseOrderItemEntity[],
@@ -93,13 +96,16 @@ export class PurchaseOrderEntity {
     updatedAt: string,
     deletedAt: string | null = null,
     purchaseRequest?: any,
-    user_approval: any = null
+    user_approval: any = null,
+    is_created_rc: boolean = false
   ) {
     this.id = id;
     this.po_number = po_number;
     this.sub_total = sub_total;
     this.vat = vat;
     this.total = total;
+    this.total_in_lak = total_in_lak;
+    this.is_created_rc = is_created_rc;
     this.purchaseRequestId = purchaseRequestId;
     this.document = document;
     this.purposes = purposes;
@@ -127,6 +133,7 @@ export class PurchaseOrderEntity {
     const sub_total = data.sub_total || 0;
     const vat = data.vat || 0;
     const total = data.total || 0;
+    const total_in_lak = data.total_in_lak ?? data.total ?? 0;
     // console.log("Sub Total:", sub_total, "VAT:", vat, "Total:", total);
     // console.log("Purchase Request Data:", data.purchase_request);
     // console.log("Purposes from Purchase Request:", data.purchase_request?.purposes);
@@ -201,6 +208,7 @@ export class PurchaseOrderEntity {
       sub_total,
       vat,
       total,
+      total_in_lak,
       purchaseRequestId,
       document,
       items,
@@ -215,7 +223,8 @@ export class PurchaseOrderEntity {
       updatedAt,
       data.deleted_at || null,
       data.purchase_request,
-      data.user_approval
+      data.user_approval,
+      Boolean(data.is_created_rc)
     );
   }
 
@@ -238,6 +247,12 @@ export class PurchaseOrderEntity {
   }
   public getTotal(): number {
     return this.total;
+  }
+  public getTotalInLak(): number {
+    return this.total_in_lak;
+  }
+  public getIsCreatedRc(): boolean {
+    return this.is_created_rc;
   }
   public getPurchaseRequestId(): number {
     return this.purchaseRequestId;

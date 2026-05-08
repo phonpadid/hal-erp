@@ -99,6 +99,7 @@ export class ApiReceiptRepository implements ReceiptRepository {
         account_code: input.account_code,
         files: input.files && input.files.length > 0 ? input.files.map((file) => file) : undefined,
         remark: input.remark,
+        rate: input.rate && input.rate.length > 0 ? input.rate : undefined,
       };
 
       // Filter out null, undefined, and empty values
@@ -127,6 +128,7 @@ export class ApiReceiptRepository implements ReceiptRepository {
         account_code: input.account_code,
         files: input.files && input.files.length > 0 ? input.files.map((file) => file) : undefined,
         remark: input.remark,
+        rate: input.rate && input.rate.length > 0 ? input.rate : undefined,
       };
 
       // Filter out null, undefined, and empty values
