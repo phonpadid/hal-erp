@@ -25,6 +25,7 @@
     "amounts": "Total amounts",
     "purposes": "Purposes",
     "unit":"Unit",
+    "currency": "Currency",
     "filter_type": "Filter type"
   },
   "created": "Create proposal",

@@ -94,10 +94,14 @@
             </template>
 
             <template #price="{ record }">
-              <span class="text-green-500">{{ formatPrice(record.getPrice()) }} ₭</span>
+              <span class="text-green-500"
+                >{{ formatPrice(record.getPrice()) }} {{ record.getItemCurrencyCode() }}</span
+              >
             </template>
             <template #total="{ record }">
-              <span class="text-red-500">{{ formatPrice(record.getTotal()) }} ₭</span>
+              <span class="text-red-500"
+                >{{ formatPrice(record.getTotal()) }} {{ record.getItemCurrencyCode() }}</span
+              >
             </template>
             <template #id_name="{ record }">
               <span class="text-gray-600">
@@ -177,15 +181,15 @@
           <div>
             <div v-if="orderDetails">
               <div class="grid grid-cols-[auto_130px] gap-2 text-right">
-                <div class="font-medium">ລາຄາລວມ:</div>
-                <div class="text-green-500">{{ formatPrice(getTotalAmount) }} ₭</div>
+                <!-- <div class="font-medium">ລາຄາລວມ:</div>
+                <div class="text-green-500">{{ formatPrice(getTotalAmount) }} ₭</div> -->
 
                 <div class="font-medium">ພາສີມູນຄ່າເພີ່ມ (VAT):</div>
                 <div class="text-yellow-500">{{ formatPrice(orderDetails.getVat()) }} ₭</div>
 
                 <div class="font-medium">ລາຄາລວມທັງໝົດ:</div>
                 <div class="text-red-500 font-bold">
-                  {{ formatPrice(orderDetails.getTotal()) }} ₭
+                  {{ formatPrice(orderDetails.getTotalInLak() || orderDetails.getTotal()) }} ₭
                 </div>
               </div>
             </div>
@@ -1027,7 +1031,7 @@ const customButtons = computed(() => {
 
   // ✅ ຖ້າອະນຸມັດຄົບແລ້ວ ແລະ ເປັນ user ທີ່ມີສິດສ້າງໃບເບີກຈ່າຍ (ມາກ່ອນເສມອດ!)
   if (canCreatePaymentDocument.value && isFullyApproved.value) {
-    return [
+    const buttons = [
       // {
       //   label: "Export",
       //   icon: "ant-design:file-excel-outlined",
@@ -1042,14 +1046,20 @@ const customButtons = computed(() => {
         type: "default" as ButtonType,
         onClick: handlePrint,
       },
-      {
+    ];
+
+    // ✅ ສະແດງປຸ່ມ "ສ້າງໃບເບີກຈ່າຍ" ສະເພາະຕອນທີ່ຍັງບໍ່ໄດ້ສ້າງ (is_created_rc === false)
+    if (!orderDetails.value?.getIsCreatedRc()) {
+      buttons.push({
         label: `ສ້າງໃບເບີກຈ່າຍ`,
         type: "primary" as ButtonType,
         onClick: () => {
           onChooseDocumentType();
         },
-      },
-    ];
+      } as any);
+    }
+
+    return buttons;
   }
 
   // ✅ ແສດງປຸ່ມ Export ແລະ Print ເມື່ອອະນຸມັດສຳເລັດຫຼື ເອກະສານອະນຸມັດຄົບແລ້ວ

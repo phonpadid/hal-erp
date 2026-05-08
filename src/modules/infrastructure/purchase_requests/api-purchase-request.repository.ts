@@ -17,6 +17,8 @@ interface PurchaseRequestItemApiModel {
   unit_id: number;
   price: number;
   total_price: number;
+  rate?: number;
+  total_in_lak?: number;
   remark: string;
   quota_company_id?: number;
   quota_company?: {
@@ -27,6 +29,11 @@ interface PurchaseRequestItemApiModel {
       created_at: string;
       updated_at: string;
     };
+  };
+  currency?: {
+    id: number;
+    code: string;
+    name: string;
   };
   unit?: { name: string };
 }
@@ -68,6 +75,7 @@ interface PurchaseRequestApiModel {
     };
   };
   total: number;
+  total_in_lak?: number;
   company?: {
     id: number;
     name: string;
@@ -260,6 +268,18 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
           (purchaseRequestItem as any).vendor = item.quota_company.vendor;
         }
 
+        const quotaCurrency = item.quota_company?.vendor_product?.currency;
+        if (quotaCurrency || item.currency) {
+          (purchaseRequestItem as any).currency = quotaCurrency || item.currency;
+        }
+
+        if (item.total_in_lak !== undefined && item.total_in_lak !== null) {
+          (purchaseRequestItem as any).total_in_lak = item.total_in_lak;
+        }
+        if (item.rate !== undefined && item.rate !== null) {
+          (purchaseRequestItem as any).rate = item.rate;
+        }
+
         return purchaseRequestItem;
       });
       purchaseRequest.setItems(items);
@@ -267,6 +287,9 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
 
     if (data.total) {
       purchaseRequest.setTotal(data.total);
+    }
+    if (data.total_in_lak !== undefined && data.total_in_lak !== null) {
+      (purchaseRequest as any).total_in_lak = data.total_in_lak;
     }
     // console.log('API Response user_approval:', data.user_approval);
     return purchaseRequest;
