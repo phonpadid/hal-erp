@@ -754,6 +754,8 @@ watch(
         total_price: item.getTotalPrice(),
         remark: item.getRemark(),
         file_name_url: item.getFileNameUrl(),
+        currency: (item as any).currency ?? null,
+        total_in_lak: (item as any).total_in_lak ?? null,
       }));
       // console.log("purchaseItems after watch update:", purchaseItems.value);
     } else {

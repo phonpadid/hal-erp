@@ -19,12 +19,22 @@ import UploadSlipModal from "./modals/UploadSlipModal.vue";
 import { uploadFile } from "@/modules/application/services/upload.service";
 import { message } from "ant-design-vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
+import InputNumber from "@/common/shared/components/Input/InputNumber.vue";
 import type { ISelectVendor } from "@/modules/application/dtos/receipt.dto";
 import VendorDrawer from "./drawers/VendorDrawer.vue";
 import Print from "./modals/Print.vue";
+import UiModal from "@/common/shared/components/Modal/UiModal.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
+import { Radio } from "ant-design-vue";
+import { useExchangeRateStore } from "../../../stores/exchange-rate.store";
+import type { ExchangeRateEntity } from "@/modules/domain/entities/exchange-rate.entities";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 const openPropoval = ref(false);
 const openAppropoval = ref(false);
 const openVendor = ref(false);
+const printModalVisible = ref(false);
+const printType = ref<"about_receipt" | "all_document">("about_receipt");
+const printLoading = ref(false);
 const { t } = useI18n();
 const { params } = useRoute();
 const receiptId = params.id as string;
@@ -46,6 +56,117 @@ const isRole = computed(() =>
       role.includes(UserRoleEnum.ACCOUNT_USER)
   )
 );
+const isFinanceRole = computed(() =>
+  userRole.value.some(
+    (role) =>
+      role.includes(UserRoleEnum.FINANCE_ADMIN) ||
+      role.includes(UserRoleEnum.FINANCE_USER)
+  )
+);
+
+// Currency exchange (finance department only)
+const erStore = useExchangeRateStore();
+const { success: notifySuccess, error: notifyError } = useNotification();
+
+// Display every exchange rate whose target currency is LAK
+const TO_CODE = "LAK";
+
+const codeToFlag = (code?: string): string => {
+  const map: Record<string, string> = {
+    LAK: "la",
+    THB: "th",
+    USD: "us",
+    CNY: "cn",
+    VND: "vn",
+    EUR: "eu",
+    JPY: "jp",
+    KRW: "kr",
+    GBP: "gb",
+    SGD: "sg",
+    MYR: "my",
+    KHR: "kh",
+    AUD: "au",
+    HKD: "hk",
+  };
+  return map[(code || "").toUpperCase()] ?? "un";
+};
+
+const filteredExchangeRates = computed(() =>
+  erStore.exchangeRate.filter((er) => {
+    if (er.isDeleted()) return false;
+    const fromCode = er.getFromCurrency()?.getCode().toUpperCase();
+    const toCode = er.getToCurrency()?.getCode().toUpperCase();
+    if (!fromCode || !toCode || fromCode === toCode) return false;
+    return toCode === TO_CODE;
+  })
+);
+
+const editingId = ref<string | null>(null);
+const editRateValue = ref<number | null>(null);
+const savingRate = ref(false);
+
+const startEditRate = (rate: ExchangeRateEntity) => {
+  editingId.value = rate.getId();
+  editRateValue.value = Number(rate.getRate());
+};
+
+const cancelEditRate = () => {
+  editingId.value = null;
+  editRateValue.value = null;
+};
+
+const saveEditRate = async (rate: ExchangeRateEntity) => {
+  if (!editRateValue.value || Number(editRateValue.value) <= 0) {
+    notifyError("ຜິດພາດ", "ກະລຸນາປ້ອນອັດຕາແລກປ່ຽນທີ່ຖືກຕ້ອງ");
+    return;
+  }
+  savingRate.value = true;
+  try {
+    const id = String(rate.getId());
+    await erStore.updated(id, {
+      id,
+      from_currency_id: Number(rate.getFromCurrencyId()),
+      to_currency_id: Number(rate.getToCurrencyId()),
+      rate: Number(editRateValue.value),
+      is_active: "true",
+    });
+    notifySuccess(
+      t("exchange-rate.message.title"),
+      t("exchange-rate.message.update")
+    );
+    cancelEditRate();
+    await erStore.fetchAll({ page: 1, limit: 1000 });
+  } catch (err) {
+    notifyError("ຜິດພາດ", (err as Error).message);
+  } finally {
+    savingRate.value = false;
+  }
+};
+
+// Show exchange-rate editor only on the FIRST pending step.
+// Once that step is approved, the rate is considered "already entered"
+// so subsequent approvers don't see this section again.
+const showFinanceRate = computed(() => {
+  if (!isFinanceRole.value || !isUserPendingApprover.value) return false;
+
+  const steps = rStore.currentReceipts?.user_approval?.approval_step ?? [];
+  if (!steps.length) return false;
+
+  const userId = user.value?.id;
+  const userStep = steps.find(
+    (step) =>
+      step.status_id === 1 &&
+      step.doc_approver?.some((doc) => doc.user?.id === userId)
+  );
+  if (!userStep) return false;
+
+  // Lowest step_number among still-pending steps
+  const firstPending = [...steps]
+    .filter((s) => s.status_id === 1)
+    .sort((a, b) => a.step_number - b.step_number)[0];
+
+  return userStep.step_number === firstPending?.step_number;
+});
 
 const formState = ref({
   files: [] as { file_name: string }[],
@@ -120,11 +241,19 @@ const isUserPendingApprover = computed(() => {
       step.doc_approver?.some((doc) => doc.user?.id === userId)
   );
 });
-const check = computed(() =>
-  rStore.currentReceipts?.user_approval?.approval_step?.some(
-    (step) => step.requires_file_upload
-  )
-);
+// Upload UI must only appear when the CURRENT user's pending step
+// has been explicitly configured with requires_file_upload === true.
+const check = computed(() => {
+  const userId = user.value?.id;
+  if (!userId) return false;
+  const steps = rStore.currentReceipts?.user_approval?.approval_step ?? [];
+  return steps.some(
+    (step) =>
+      step.status_id === 1 &&
+      step.requires_file_upload === true &&
+      step.doc_approver?.some((doc) => doc.user?.id === userId)
+  );
+});
 const userNextApprove = computed(() =>
   rStore.currentReceipts?.user_approval?.approval_step?.map((step) => ({
     status: [
@@ -164,6 +293,8 @@ const dataHead = computed(() => ({
   form_ref: formRef.value,
   exist_access: rStore.currentReceipts?.account_code ? true : false,
   role: isRole.value,
+  finance_role: isFinanceRole.value,
+  show_finance_rate: showFinanceRate.value,
   rId: Number(receiptId),
   no: rStore.currentReceipts?.receipt_number,
   isApproved: isUserPendingApprover.value ?? false,
@@ -191,9 +322,7 @@ const dataHead = computed(() => ({
   is_otp: rStore.currentReceipts?.user_approval?.approval_step?.some(
     (step) => step.status_id === 1 && step.is_otp
   ),
-  is_upload: rStore.currentReceipts?.user_approval?.approval_step?.some(
-    (step) => step.status_id === 1 && step.requires_file_upload
-  ),
+  is_upload: check.value,
 
   approver_info: userNextApprove.value,
 }));
@@ -232,7 +361,25 @@ const vendorInfo = (data: ISelectVendor) => {
   openVendor.value = true;
 };
 const openPrintModal = () => {
-  window.print();
+  printType.value = "about_receipt";
+  printModalVisible.value = true;
+};
+
+const handlePrintConfirm = async () => {
+  if (!receiptId) {
+    message.error("ບໍ່ພົບລະຫັດໃບເບີກຈ່າຍ");
+    return;
+  }
+  try {
+    printLoading.value = true;
+    await rStore.printReceipt(receiptId, printType.value);
+    printModalVisible.value = false;
+  } catch (err) {
+    console.error("Print error:", err);
+    message.error("ບໍ່ສາມາດພິມເອກະສານໄດ້");
+  } finally {
+    printLoading.value = false;
+  }
 };
 
 // Function to reset uploaded images after successful approval
@@ -244,7 +391,10 @@ const resetUploadedImages = () => {
 };
 
 onMounted(async () => {
-  await rStore.fetchById(receiptId);
+  await Promise.all([
+    rStore.fetchById(receiptId),
+    erStore.fetchAll({ page: 1, limit: 1000 }),
+  ]);
   uploadedImages.value.forEach((url) => {
     if (url.startsWith("blob:")) {
       URL.revokeObjectURL(url);
@@ -316,6 +466,93 @@ onMounted(async () => {
           </div>
         </div>
 
+        <!-- Finance Department: Exchange Rate Editor -->
+        <div
+          v-if="showFinanceRate && filteredExchangeRates.length"
+          class="exchange-rate-card bg-white rounded-md shadow-sm px-3 py-3 mb-3 mx-2"
+        >
+          <div class="flex items-center gap-2 mb-3">
+            <Icon icon="mdi:swap-horizontal-bold" class="text-base text-green-600" />
+            <h2 class="text-sm font-semibold">
+              {{ t("exchange-rate.title") }}
+            </h2>
+          </div>
+
+          <div class="rate-list">
+            <div
+              v-for="rate in filteredExchangeRates"
+              :key="rate.getId() ?? ''"
+              class="rate-row"
+            >
+              <!-- Currency pair (fixed width) -->
+              <div class="pair">
+                <div class="curr-chip">
+                  <Icon
+                    :icon="`circle-flags:${codeToFlag(rate.getFromCurrency()?.getCode())}`"
+                    class="flag-icon"
+                  />
+                  <span class="curr-code">{{ rate.getFromCurrency()?.getCode() }}</span>
+                </div>
+                <Icon icon="mdi:arrow-right-bold" class="pair-arrow" />
+                <div class="curr-chip">
+                  <Icon
+                    :icon="`circle-flags:${codeToFlag(rate.getToCurrency()?.getCode())}`"
+                    class="flag-icon"
+                  />
+                  <span class="curr-code">{{ rate.getToCurrency()?.getCode() }}</span>
+                </div>
+              </div>
+
+              <!-- Rate value cell (flex grow) -->
+              <div class="rate-cell">
+                <InputNumber
+                  v-if="editingId === rate.getId()"
+                  v-model="editRateValue"
+                  :min="0"
+                  size="middle"
+                  class="rate-input"
+                />
+                <div v-else class="rate-display">
+                  {{ formatPrice(rate.getRate()) }}
+                </div>
+              </div>
+
+              <!-- Action cell (fixed width) -->
+              <div class="action-cell">
+                <template v-if="editingId === rate.getId()">
+                  <button
+                    type="button"
+                    class="action-btn save-btn"
+                    :disabled="savingRate"
+                    @click="saveEditRate(rate)"
+                  >
+                    <Icon icon="mdi:check" />
+                    ບັນທຶກ
+                  </button>
+                  <button
+                    type="button"
+                    class="action-btn cancel-btn"
+                    :disabled="savingRate"
+                    @click="cancelEditRate"
+                  >
+                    <Icon icon="mdi:close" />
+                    ຍົກເລີກ
+                  </button>
+                </template>
+                <button
+                  v-else
+                  type="button"
+                  class="action-btn edit-btn"
+                  @click="startEditRate(rate)"
+                >
+                  <Icon icon="mdi:pencil-outline" />
+                  ແກ້ໄຂ
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="table -space-y-0 mb-2 w-full px-2 shadow-sm rounded-md">
           <h2 class="text-md font-semibold">
             {{ t("purchase-rq.field.title") }}
@@ -341,7 +578,14 @@ onMounted(async () => {
               <span>₭ {{ formatPrice(record.price) }}</span>
             </template> -->
               <template v-if="column.key === 'price'">
-                <span>₭ {{ formatPrice(record.price) }}</span>
+                <span
+                  >{{ formatPrice(record.price) }}
+                  {{
+                    record.purchase_order_item?.purchase_request_item?.currency?.code
+                    || record.currency?.code
+                    || "LAK"
+                  }}</span
+                >
               </template>
               <template v-if="column.key === 'vendor'">
                 <span @click="
@@ -508,11 +752,36 @@ onMounted(async () => {
       placement="right" :width="1185">
       <ApprovalDrawer :id="selectedId" />
     </UiDrawer>
+
+    <UiModal
+      title="ເລືອກຮູບແບບການພິມ"
+      title-icon="ant-design:printer-outlined"
+      :visible="printModalVisible"
+      :width="460"
+      @update:visible="printModalVisible = $event"
+      @ok="handlePrintConfirm"
+      @cancel="printModalVisible = false"
+    >
+      <div class="py-2">
+        <Radio.Group v-model:value="printType" class="flex flex-col gap-3">
+          <Radio value="about_receipt">ສະເພາະໃບເບີກຈ່າຍ (Receipt)</Radio>
+          <Radio value="all_document">ທັງໝົດ (PR + PO + Receipt)</Radio>
+        </Radio.Group>
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <UiButton type="default" @click="printModalVisible = false">ຍົກເລີກ</UiButton>
+          <UiButton type="primary" :loading="printLoading" @click="handlePrintConfirm">ພິມ</UiButton>
+        </div>
+      </template>
+    </UiModal>
   </div>
   <div class="print-only">
-
-    <!-- v-if="printModalVisible" -->
-    <Print :receipt="rStore.currentReceipts"></Print>
+    <Print
+      :receipt="rStore.currentReceipts"
+      :data="rStore.printData"
+      :mode="rStore.printMode"
+    />
   </div>
 </template>
 <style scoped>
@@ -520,6 +789,162 @@ onMounted(async () => {
   background: white;
   border-radius: 0.5rem;
 }
+
+/* Exchange Rate UI */
+.exchange-rate-card {
+  border: 1px solid #f1f5f9;
+}
+
+.rate-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.rate-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: #f9fafb;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  min-height: 48px;
+}
+
+.pair {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.curr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.curr-code {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.pair-arrow {
+  font-size: 1.1rem;
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.flag-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.rate-cell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.rate-display {
+  width: 100%;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: right;
+  padding: 0 0.75rem;
+}
+
+.rate-input {
+  width: 100%;
+}
+
+.rate-input :deep(.ant-input-number) {
+  width: 100% !important;
+}
+
+.action-cell {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.edit-btn {
+  background: #fff;
+  border: 1px solid #d1d5db;
+  color: #2563eb;
+}
+
+.edit-btn:hover {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.save-btn {
+  background: #16a34a;
+  border: 1px solid #16a34a;
+  color: #fff;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: #15803d;
+  border-color: #15803d;
+}
+
+.cancel-btn {
+  background: #fff;
+  border: 1px solid #d1d5db;
+  color: #6b7280;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+@media (max-width: 640px) {
+  .rate-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .rate-display {
+    text-align: left;
+    padding: 0;
+  }
+
+  .action-cell {
+    justify-content: flex-start;
+  }
+}
+
 
 @media print {
   .no-print {

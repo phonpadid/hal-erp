@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { columns } from "../../views/approval-department/column/cloumn";
 import { useI18n } from "vue-i18n";
 import { usePurchaseOrderStore } from "@/modules/presentation/Admin/stores/purchase_requests/purchase-order";
@@ -16,22 +16,69 @@ import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import DatePicker from "@/common/shared/components/Datepicker/DatePicker.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { Icon } from "@iconify/vue";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 
 /******************************************************** */
 const { hasPermission } = usePermissions();
 const { t } = useI18n();
+const { success, error: showError } = useNotification();
 const selectedDepartment = ref<string | null>(null);
 const selectedType = ref("all");
 const router = useRouter();
+const route = useRoute();
 const purchaseOrderStore = usePurchaseOrderStore();
 const departmentStoreInstance = departmentStore();
-const currentPage = ref(1);
-const pageSize = ref(10);
+const queryPage = Number(route.query.page);
+const queryLimit = Number(route.query.limit);
+const currentPage = ref(
+  Number.isFinite(queryPage) && queryPage > 0 ? queryPage : purchaseOrderStore.pagination.page
+);
+const pageSize = ref(
+  Number.isFinite(queryLimit) && queryLimit > 0 ? queryLimit : purchaseOrderStore.pagination.limit
+);
 const loading = ref(false);
-const dates = reactive({
+
+const syncPaginationToUrl = () => {
+  router.replace({
+    query: {
+      ...route.query,
+      page: String(currentPage.value),
+      limit: String(pageSize.value),
+    },
+  });
+};
+const dates = reactive<{ startDate: string | null; endDate: string | null }>({
   startDate: null,
   endDate: null,
 });
+
+// Export Excel state
+const exportLoading = ref(false);
+
+const toIsoDate = (value: string | null | undefined): string | undefined => {
+  if (!value) return undefined;
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? undefined : d.toISOString().split("T")[0];
+};
+
+const handleExportExcel = async () => {
+  try {
+    exportLoading.value = true;
+    const startDate = toIsoDate(dates.startDate);
+    const endDate = toIsoDate(dates.endDate);
+    const ok = await purchaseOrderStore.exportExcel(startDate, endDate);
+    if (ok) {
+      success(t("purchase-rq.success.title"), t("purchase-rq.export.success"));
+    } else {
+      showError(t("purchase-rq.export.failed"), purchaseOrderStore.error || "");
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    showError(t("purchase-rq.export.failed"), errorMessage);
+  } finally {
+    exportLoading.value = false;
+  }
+};
 /************************Check Button Show******************************* */
 const canViewDetails = computed(() => hasPermission('read-department-approver'));
 
@@ -124,14 +171,15 @@ const getDocumentStatus = (record: any) => {
 
 const handleSearch = async () => {
   currentPage.value = 1;
+  syncPaginationToUrl();
   await fetchData();
 };
 
 const handleTableChange = async (pagination: any) => {
-  // Create a pagination params object
-  currentPage.value = pagination.current;
-  pageSize.value = pagination.pageSize;
-  fetchData();
+  currentPage.value = pagination.current ?? 1;
+  pageSize.value = pagination.pageSize ?? 10;
+  syncPaginationToUrl();
+  await fetchData();
 };
 
 const fetchData = async () => {
@@ -150,9 +198,9 @@ const fetchData = async () => {
     }
 
     // เพิ่ม order_date ถ้ามีการเลือกวันที่ (ใช้แค่ startDate)
-    if (dates.startDate) {
-      const formattedDate = new Date(dates.startDate).toISOString().split('T')[0];
-      apiParams.order_date = formattedDate;
+    const startIso = toIsoDate(dates.startDate);
+    if (startIso) {
+      apiParams.order_date = startIso;
     }
 
     // เพิ่ม type parameter ทุกครั้ง (all หรือ only_user)
@@ -251,11 +299,12 @@ onMounted(async () => {
         />
       </div>
 
-      <!-- Date Range Picker -->
+      <!-- Shared Date Range Picker (ใช้ร่วมกันระหว่างการกรองและ Export Excel) -->
       <div class="flex-grow">
         <DatePicker
           v-model:modelValueStart="dates.startDate"
-          :cols="8"
+          v-model:modelValueEnd="dates.endDate"
+          :cols="12"
         />
       </div>
 
@@ -267,6 +316,17 @@ onMounted(async () => {
         color-class="flex items-center "
       >
         ຄົ້ນຫາ
+      </UiButton>
+
+      <!-- Export Excel Button (ใช้ช่วงวันที่จากตัวกรองด้านบน) -->
+      <UiButton
+        type="primary"
+        icon="ant-design:file-excel-outlined"
+        :loading="exportLoading"
+        color-class="flex items-center gap-2 !bg-green-600 !border-green-600 hover:!bg-green-700"
+        @click="handleExportExcel"
+      >
+        <span>{{ t("purchase-rq.btn.export_excel") }}</span>
       </UiButton>
     </div>
   </div>

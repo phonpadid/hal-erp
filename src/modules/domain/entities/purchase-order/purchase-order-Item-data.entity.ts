@@ -21,6 +21,7 @@ export class PurchaseOrderItemDataEntity {
   private readonly selected_vendor: SelectedVendorEntity[];
   private readonly purchase_request_item: any; // เพิ่มเพื่อเก็บข้อมูล purchase_request_item
   private readonly unit: UnitEntity;
+  private readonly item_currency: any;
 
   constructor(data: any, purchaseRequestItems?: any[]) {
     this.id = data.id;
@@ -51,6 +52,11 @@ export class PurchaseOrderItemDataEntity {
     this.updated_at = data.updated_at || "";
     this.budget_item = data.budget_item;
     this.unit = data.unit;
+    this.item_currency =
+      this.purchase_request_item?.currency ||
+      data.purchase_request_item?.currency ||
+      data.currency ||
+      null;
 
     // เก็บข้อมูล purchase_request_item สำหรับใช้ในการแสดงผล
     if (purchaseRequestItems && data.purchase_request_item_id) {
@@ -242,6 +248,14 @@ export class PurchaseOrderItemDataEntity {
   public getCurrencyName(): string {
     const currency = this.getCurrency();
     return currency ? currency.name : "Lao Kip";
+  }
+
+  public getItemCurrency(): any {
+    return this.item_currency;
+  }
+
+  public getItemCurrencyCode(): string {
+    return this.item_currency?.code || this.getCurrencyCode();
   }
 }
 

@@ -13,8 +13,10 @@ import type {
   StatusSummary,
 } from "@/modules/interfaces/purchase-requests/purchase-request.interface";
 import { ApiPurchaseRequestRepository } from "@/modules/infrastructure/purchase_requests/api-purchase-request.repository";
+import { PurchaseRequestServiceImpl } from "@/modules/application/services/purchase-request.service";
 
 const repository = new ApiPurchaseRequestRepository();
+const service = new PurchaseRequestServiceImpl(repository);
 
 export const usePurchaseRequestsStore = defineStore("purchaseRequests", () => {
   const requests = ref<PurchaseRequestEntity[]>([]);
@@ -147,6 +149,29 @@ export const usePurchaseRequestsStore = defineStore("purchaseRequests", () => {
     }
   }
 
+  async function exportExcel(startDate?: string, endDate?: string): Promise<boolean> {
+    loading.value = true;
+    error.value = null;
+    try {
+      const blob = await service.exportExcel(startDate, endDate);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      const today = new Date().toISOString().split("T")[0];
+      link.setAttribute("download", `purchase-requests-${today}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      return true;
+    } catch (err: any) {
+      error.value = err.message || "Failed to export purchase requests.";
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   return {
     requests,
     loading,
@@ -159,5 +184,6 @@ export const usePurchaseRequestsStore = defineStore("purchaseRequests", () => {
     create,
     update,
     remove,
+    exportExcel,
   };
 });

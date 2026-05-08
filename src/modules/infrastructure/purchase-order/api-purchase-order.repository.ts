@@ -110,6 +110,22 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
       throw this.handleApiError(error, `Failed to delete purchase order with id ${id}`);
     }
   }
+
+  async exportExcel(startDate?: string, endDate?: string): Promise<Blob> {
+    try {
+      const params: Record<string, string> = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
+      const response = await api.get(`/purchase-orders/export-excel`, {
+        params,
+        responseType: "blob",
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleApiError(error, "Failed to export purchase orders");
+    }
+  }
   private toApiModel(input: PurchaseOrderEntity): PurchaseOrderApiModel {
     const currentTimestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
     const currentUser = "phonpadid";
@@ -187,7 +203,9 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
       sub_total: data.sub_total || 0,
       vat: data.vat || 0,
       total: data.total || 0,
+      total_in_lak: data.total_in_lak ?? data.total ?? 0,
       purposes: data.purposes || data.purchase_request?.purposes || "N/A",
+      is_created_rc: data.is_created_rc ?? false,
       purchase_request_id: data.purchase_request_id,
       user_last_approval: data.user_last_approval || null,
       document_status: data.document_status || null,

@@ -77,7 +77,11 @@ export interface PurchaseOrderApiModel {
   sub_total?: number;
   vat?: number;
   total?: number;
+  total_in_lak?: number;
+  sub_total_in_lak?: number;
+  vat_total_in_lak?: number;
   purposes?: string;
+  is_created_rc?: boolean;
 
   purchase_request_id: number;
   user_last_approval?: string | null;
@@ -173,4 +177,10 @@ export interface PurchaseItem {
   total_price: number;
   remark: string | null;
   file_name_url: string | null;
+  currency?: {
+    id: number;
+    code: string;
+    name: string;
+  } | null;
+  total_in_lak?: number | null;
 }
