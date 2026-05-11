@@ -13,6 +13,7 @@ import { halGroupRoutes } from "@/modules/presentation/Admin/router/hal-group.ro
 import { productRoutes } from "@/modules/presentation/Admin/router/productRoutes";
 
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import { useGlobalSearchStore } from "@/modules/presentation/Admin/stores/global-search.store";
 import { positionRoutes } from "@/modules/presentation/Admin/router/positionRountes";
 import { userRoutes } from "@/modules/presentation/Admin/router/userRoutes";
 import { departmentApproverRoutes } from "@/modules/presentation/Admin/router/departments/department-approver.routers";
@@ -157,6 +158,14 @@ const router = createRouter({
 // router.beforeEach(authGuard);
 router.beforeEach(authGuard);
 router.beforeEach(permissionGuard);
+
+// Reset global search keyword on route change so each page loads its own data fresh
+router.beforeEach((to, from, next) => {
+  if (to.path !== from.path) {
+    useGlobalSearchStore().clear();
+  }
+  next();
+});
 
 
 // Add title setting

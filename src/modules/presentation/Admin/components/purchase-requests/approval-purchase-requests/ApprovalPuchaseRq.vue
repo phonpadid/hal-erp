@@ -27,7 +27,8 @@ const { success, error: showError } = useNotification();
 const purchaseRequestStore = usePurchaseRequestsStore();
 const docTypeStore = useDocumentTypeStore();
 const globalSearchStore = useGlobalSearchStore();
-const { trimmedKeyword: globalSearchKeyword } = storeToRefs(globalSearchStore);
+const { trimmedKeyword: globalSearchKeyword, trigger: globalSearchTrigger } =
+  storeToRefs(globalSearchStore);
 const loading = ref(false);
 const queryPage = Number(route.query.page);
 const queryLimit = Number(route.query.limit);
@@ -148,7 +149,7 @@ const fetchData = async () => {
   }
 };
 
-watch(globalSearchKeyword, () => {
+watch(globalSearchTrigger, () => {
   currentPage.value = 1;
   syncPaginationToUrl();
   fetchData();
