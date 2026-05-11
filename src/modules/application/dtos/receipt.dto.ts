@@ -103,6 +103,11 @@ export interface IApprovalReceiptDto {
   files?: {
     file_name: string
   }[]
+  rate?: {
+    from_currency_id: number;
+    to_currency_id: number;
+    rate: number;
+  }[]
 }
 
 export interface IPurchaseOrderItem {

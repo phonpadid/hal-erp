@@ -46,4 +46,8 @@ export class PurchaseOrderServiceImpl implements PurchaseOrderService {
   async delete(id: number): Promise<boolean> {
     return await this.deleteUseCase.execute(id);
   }
+
+  async exportExcel(startDate?: string, endDate?: string): Promise<Blob> {
+    return await this.purchaseOrderRepo.exportExcel(startDate, endDate);
+  }
 }

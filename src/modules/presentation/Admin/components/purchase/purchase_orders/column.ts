@@ -33,7 +33,8 @@ export const columns = (t: (key: string) => string): TableColumnType<any>[] => [
     title: t("purchase_qequest.table.total_price"),
     dataIndex: "total_price",
     key: "total_price",
-    customRender: ({ text }) => formatCurrency(text),
+    customRender: ({ text, record }) =>
+      `${formatNumber(text)} ${record?.currency?.code || "LAK"}`,
   },
   {
     title: t("purchase_qequest.table.remark"),
@@ -58,5 +59,13 @@ const formatCurrency = (value: number) => {
     style: "currency",
     currency: "LAK",
     minimumFractionDigits: 0,
+  }).format(value);
+};
+
+const formatNumber = (value: number) => {
+  if (value === undefined || value === null) return "";
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 4,
   }).format(value);
 };

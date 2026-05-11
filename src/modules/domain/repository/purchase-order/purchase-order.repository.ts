@@ -7,4 +7,5 @@ export interface PurchaseOrderRepository {
   findAll(params: PaginationParams): Promise<PaginatedResult<PurchaseOrderEntity>>;
   update(id: number, purchaseOrder: PurchaseOrderEntity): Promise<PurchaseOrderEntity>;
   delete(id: number): Promise<boolean>;
+  exportExcel(startDate?: string, endDate?: string): Promise<Blob>;
 }

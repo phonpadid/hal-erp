@@ -7,7 +7,7 @@ import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import { computed, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { columns } from "./column";
 import { DatePicker } from "ant-design-vue";
 const loading = ref<boolean>(false);
@@ -22,10 +22,46 @@ import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import type { Dayjs } from "dayjs";
 import { departmentStore } from "../../stores/departments/department.store";
 import { formatPrice } from "@/modules/shared/utils/format-price";
+import { useNotification } from "@/modules/shared/utils/useNotification";
+import { useGlobalSearchStore } from "../../stores/global-search.store";
+import { storeToRefs } from "pinia";
 const { t } = useI18n();
-const { push } = useRouter();
+const router = useRouter();
+const { push } = router;
+const route = useRoute();
+const { success, error: showError } = useNotification();
 const dpmStore = departmentStore();
 const rStore = useReceiptStore();
+const globalSearchStore = useGlobalSearchStore();
+const { trimmedKeyword: globalSearchKeyword, trigger: globalSearchTrigger } =
+  storeToRefs(globalSearchStore);
+
+const queryPage = Number(route.query.page);
+const queryLimit = Number(route.query.limit);
+if (Number.isFinite(queryPage) && queryPage > 0) {
+  rStore.setPagination({
+    page: queryPage,
+    limit:
+      Number.isFinite(queryLimit) && queryLimit > 0 ? queryLimit : rStore.pagination.limit,
+    total: rStore.pagination.total,
+  });
+} else if (Number.isFinite(queryLimit) && queryLimit > 0) {
+  rStore.setPagination({
+    page: rStore.pagination.page,
+    limit: queryLimit,
+    total: rStore.pagination.total,
+  });
+}
+
+const syncPaginationToUrl = () => {
+  router.replace({
+    query: {
+      ...route.query,
+      page: String(rStore.pagination.page),
+      limit: String(rStore.pagination.limit),
+    },
+  });
+};
 const dpmOption = computed(() => [
   { value: "all", label: "ທັງໝົດ" }, // This is the "All" option
   ...dpmStore.departments.map((item) => ({
@@ -44,6 +80,30 @@ const filterDate = ref<Dayjs | undefined>(undefined);
 const filterDepartment = ref<string | undefined>("all");
 const filterType = ref<string>("all");
 const isPaginationChanging = ref<boolean>(false);
+
+// Export Excel state
+const exportStartDate = ref<string | undefined>(undefined);
+const exportEndDate = ref<string | undefined>(undefined);
+const exportLoading = ref(false);
+
+const handleExportExcel = async () => {
+  try {
+    exportLoading.value = true;
+    const startDate = exportStartDate.value || undefined;
+    const endDate = exportEndDate.value || undefined;
+    const ok = await rStore.exportExcelAll(startDate, endDate);
+    if (ok) {
+      success(t("purchase-rq.success.title"), t("purchase-rq.export.success"));
+    } else {
+      showError(t("purchase-rq.export.failed"), rStore.error?.message || "");
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    showError(t("purchase-rq.export.failed"), errorMessage);
+  } finally {
+    exportLoading.value = false;
+  }
+};
 const statusCards = computed(() => {
   const map: Record<
     string,
@@ -104,31 +164,25 @@ const details = async (id: string) => {
     console.error('Error fetching receipt details:', error);
   }
 };
-const loadReceipt = async (): Promise<void> => {
-  try {
-    loading.value = true;
-    await rStore.fetchAll({
-      page: rStore.pagination.page,
-      limit: rStore.pagination.limit,
-      type: filterType.value,
-    });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.log(error);
-  } finally {
-    loading.value = false;
-  }
-};
-const searchByDate = async () => {
+const buildFilterParams = (page: number, limit: number) => ({
+  page,
+  limit,
+  order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
+  department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
+  type: filterType.value,
+  search: globalSearchKeyword.value || undefined,
+});
+
+const loadFilteredReceipts = async (resetPage = false) => {
   loading.value = true;
   try {
-    await rStore.fetchAll({
-      page: 1,
-      limit: rStore.pagination.limit,
-      order_date: filterDate.value ? filterDate.value.toISOString().split("T")[0] : undefined,
-      type: filterType.value,
-    });
-    rStore.setPagination({ ...rStore.pagination, page: 1 });
+    const page = resetPage ? 1 : rStore.pagination.page;
+    const limit = rStore.pagination.limit;
+    if (resetPage) {
+      rStore.setPagination({ ...rStore.pagination, page: 1 });
+      syncPaginationToUrl();
+    }
+    await rStore.fetchAll(buildFilterParams(page, limit));
   } catch (error) {
     console.log(error);
   } finally {
@@ -136,23 +190,24 @@ const searchByDate = async () => {
   }
 };
 
+const searchByDate = async () => {
+  await loadFilteredReceipts(true);
+};
+
 const handleTableChange = async (pagination: TablePaginationType) => {
   isPaginationChanging.value = true;
   loading.value = true;
   try {
+    const page = pagination.current ?? 1;
+    const limit = pagination.pageSize ?? 10;
     rStore.setPagination({
-      page: pagination.current || 1,
-      limit: pagination.pageSize || 10,
+      page,
+      limit,
       total: pagination.total ?? 0,
     });
+    syncPaginationToUrl();
 
-    await rStore.fetchAll({
-      page: pagination.current || 1,
-      limit: pagination.pageSize || 10,
-      order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
-      department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
-      type: filterType.value,
-    });
+    await rStore.fetchAll(buildFilterParams(page, limit));
   } catch (error) {
     console.log(error);
   } finally {
@@ -160,30 +215,14 @@ const handleTableChange = async (pagination: TablePaginationType) => {
     loading.value = false;
   }
 };
-// Function to fetch receipts with filters
-const loadFilteredReceipts = async () => {
-  loading.value = true;
-  try {
-    await rStore.fetchAll({
-      page: rStore.pagination.page,
-      limit: rStore.pagination.limit,
-      order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
-      department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
-      type: filterType.value,
-    });
-  } catch (error) {
-    console.log(error);
-  } finally {
-    loading.value = false;
-  }
-};
-watch([filterDate, filterDepartment, filterType], () => {
+
+watch([filterDate, filterDepartment, filterType, globalSearchTrigger], () => {
   if (!isPaginationChanging.value) {
-    loadFilteredReceipts();
+    loadFilteredReceipts(true);
   }
 });
+
 onMounted(async () => {
-  await loadReceipt();
   await loadFilteredReceipts();
   await dpmStore.fetchDepartment({ page: 1, limit: 1000 });
 });
@@ -264,6 +303,42 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+
+      <!-- Export Excel section -->
+      <div class="mt-4 flex flex-col md:flex-row gap-4 items-end">
+        <div class="w-full md:w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t("purchase-rq.export.start_date") }}
+          </label>
+          <DatePicker
+            v-model:value="exportStartDate"
+            :placeholder="t('purchase-rq.export.start_date')"
+            value-format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </div>
+        <div class="w-full md:w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t("purchase-rq.export.end_date") }}
+          </label>
+          <DatePicker
+            v-model:value="exportEndDate"
+            :placeholder="t('purchase-rq.export.end_date')"
+            value-format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </div>
+        <UiButton
+          type="primary"
+          icon="ant-design:file-excel-outlined"
+          :loading="exportLoading"
+          color-class="flex items-center justify-center gap-2 !bg-green-600 !border-green-600 hover:!bg-green-700"
+          class="w-full md:w-auto px-6"
+          @click="handleExportExcel"
+        >
+          <span>{{ t("purchase-rq.btn.export_excel") }}</span>
+        </UiButton>
+      </div>
     </div>
 
     <!-- Table -->
@@ -275,6 +350,7 @@ onMounted(async () => {
           current: rStore.pagination.page,
           pageSize: rStore.pagination.limit,
           total: rStore.pagination.total,
+          showSizeChanger: true,
         }"
         :loading="loading"
         row-key="id"

@@ -8,4 +8,5 @@ export interface PurchaseOrderService {
   getAll(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<PurchaseOrderEntity>>;
   update(id: number, input: UpdatePurchaseOrderDTO): Promise<PurchaseOrderEntity>;
   delete(id: number): Promise<boolean>;
+  exportExcel(startDate?: string, endDate?: string): Promise<Blob>;
 }

@@ -2,28 +2,29 @@
     "status_code": 200,
     "message": "Operation completed successfully",
     "data": {
-        "id": 544,
-        "document_id": 899,
-        "pr_number": "0087/ກງ",
-        "requested_date": "30-04-2026 21:25:47",
-        "expired_date": "30-04-2026 07:00:00",
-        "purposes": "test",
+        "id": 552,
+        "document_id": 924,
+        "pr_number": "0095/ກງ",
+        "requested_date": "08-05-2026 23:36:43",
+        "expired_date": "08-05-2026 07:00:00",
+        "purposes": "computer ",
         "is_created_po": false,
-        "created_at": "30-04-2026 21:25:47",
-        "updated_at": "30-04-2026 21:25:47",
-        "total": 12000,
-        "step": true,
+        "created_at": "08-05-2026 23:36:43",
+        "updated_at": "08-05-2026 23:36:43",
+        "total": 30000000,
+        "total_in_lak": 30000000,
+        "step": false,
         "document": {
-            "id": 899,
-            "document_number": "D-664A7C",
+            "id": 924,
+            "document_number": "D-2F926A",
             "title": "",
-            "description": "test",
+            "description": "computer ",
             "total_amount": 0,
             "department_id": 59,
             "requester_id": 115,
-            "document_type_id": "33",
-            "created_at": "30-04-2026 21:25:47",
-            "updated_at": "30-04-2026 21:25:47",
+            "document_type_id": "45",
+            "created_at": "08-05-2026 23:36:43",
+            "updated_at": "08-05-2026 23:36:43",
             "department": {
                 "id": 59,
                 "code": "ກງ",
@@ -35,11 +36,11 @@
                 "company": null
             },
             "document_type": {
-                "id": "33",
-                "code": "DT-TT",
-                "name": "ໃບສະເໜີ",
-                "created_at": "25-09-2025 22:39:55",
-                "updated_at": "09-04-2026 22:13:06"
+                "id": "45",
+                "code": "DT-GG",
+                "name": "ໃບສະເໜີເພີ່ມທຶນຄ່າເຊີHALPAY",
+                "created_at": "11-04-2026 00:38:50",
+                "updated_at": "27-04-2026 23:09:32"
             },
             "requester": {
                 "id": 115,
@@ -53,7 +54,7 @@
                     "user_id": 115,
                     "signature": "user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
                     "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
-                    "created_at": "30-04-2026 14:27:25",
+                    "created_at": "08-05-2026 16:48:15",
                     "updated_at": "Invalid date"
                 },
                 "roles": [],
@@ -64,7 +65,7 @@
                 {
                     "id": 68,
                     "name": "ພະນັກງານ",
-                    "created_at": "30-04-2026 14:27:25",
+                    "created_at": "08-05-2026 16:48:15",
                     "updated_at": "Invalid date",
                     "company": null
                 }
@@ -93,30 +94,30 @@
             "updated_at": "09-12-2025 21:25:27"
         },
         "user_approval": {
-            "id": 792,
-            "document_id": 899,
-            "status_id": 3,
-            "created_at": "30-04-2026 21:25:48",
-            "updated_at": "30-04-2026 21:26:59",
+            "id": 809,
+            "document_id": 924,
+            "status_id": 2,
+            "created_at": "08-05-2026 23:36:43",
+            "updated_at": "08-05-2026 23:39:55",
             "document_status": {
-                "id": 3,
-                "name": "REJECTED",
+                "id": 2,
+                "name": "APPROVED",
                 "created_at": "25-07-2025 14:02:32",
                 "updated_at": "25-07-2025 14:02:32"
             },
             "approval_step": [
                 {
-                    "id": 1859,
-                    "user_approval_id": 792,
+                    "id": 1920,
+                    "user_approval_id": 809,
                     "step_number": 0,
                     "approver_id": 115,
-                    "approved_at": "30-04-2026 21:26:05",
+                    "approved_at": "08-05-2026 23:37:02",
                     "status_id": 2,
                     "remark": "ຢືນຢັນສຳເລັດ",
                     "requires_file_upload": false,
                     "is_otp": true,
-                    "created_at": "30-04-2026 21:25:48",
-                    "updated_at": "30-04-2026 21:26:05",
+                    "created_at": "08-05-2026 23:36:43",
+                    "updated_at": "08-05-2026 23:37:02",
                     "document_status": {
                         "id": 2,
                         "name": "APPROVED",
@@ -135,7 +136,7 @@
                             "user_id": 115,
                             "signature": "user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
                             "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0211-3c50-7328-9e90-cab79a10603b-1765266242640",
-                            "created_at": "30-04-2026 14:27:25",
+                            "created_at": "08-05-2026 16:48:15",
                             "updated_at": "Invalid date"
                         },
                         "roles": [],
@@ -151,11 +152,11 @@
                     },
                     "doc_approver": [
                         {
-                            "id": 2097,
-                            "user_approval_step_id": 1859,
+                            "id": 2198,
+                            "user_approval_step_id": 1920,
                             "user_id": 115,
-                            "created_at": "30-04-2026 21:25:48",
-                            "updated_at": "30-04-2026 21:25:48",
+                            "created_at": "08-05-2026 23:36:43",
+                            "updated_at": "08-05-2026 23:36:43",
                             "user": {
                                 "id": 115,
                                 "username": "tou",
@@ -182,20 +183,20 @@
                     ]
                 },
                 {
-                    "id": 1860,
-                    "user_approval_id": 792,
+                    "id": 1921,
+                    "user_approval_id": 809,
                     "step_number": 1,
                     "approver_id": 116,
-                    "approved_at": "30-04-2026 21:26:59",
-                    "status_id": 3,
-                    "remark": "ຂໍ້ມູນບໍ່ຖືກຕ້ອງກະລຸນາກວດສອບຂໍ້ມູນຄືນ",
+                    "approved_at": "08-05-2026 23:39:55",
+                    "status_id": 2,
+                    "remark": "Approved",
                     "requires_file_upload": false,
                     "is_otp": false,
-                    "created_at": "30-04-2026 21:26:05",
-                    "updated_at": "30-04-2026 21:26:59",
+                    "created_at": "08-05-2026 23:37:02",
+                    "updated_at": "08-05-2026 23:39:55",
                     "document_status": {
-                        "id": 3,
-                        "name": "REJECTED",
+                        "id": 2,
+                        "name": "APPROVED",
                         "created_at": "25-07-2025 14:02:32",
                         "updated_at": "25-07-2025 14:02:32"
                     },
@@ -211,7 +212,7 @@
                             "user_id": 116,
                             "signature": "user_signature/019b0212-cdc0-756f-850a-c892101b81c5-1765266345408",
                             "signature_url": "https://d2ugbgqq0wz1xr.cloudfront.net/user_signature/019b0212-cdc0-756f-850a-c892101b81c5-1765266345408",
-                            "created_at": "30-04-2026 14:27:25",
+                            "created_at": "08-05-2026 16:48:15",
                             "updated_at": "Invalid date"
                         },
                         "roles": [],
@@ -227,11 +228,11 @@
                     },
                     "doc_approver": [
                         {
-                            "id": 2098,
-                            "user_approval_step_id": 1860,
+                            "id": 2199,
+                            "user_approval_step_id": 1921,
                             "user_id": 116,
-                            "created_at": "30-04-2026 21:26:05",
-                            "updated_at": "30-04-2026 21:26:05",
+                            "created_at": "08-05-2026 23:37:02",
+                            "updated_at": "08-05-2026 23:37:02",
                             "user": {
                                 "id": 116,
                                 "username": "tou_head",
@@ -261,19 +262,21 @@
         },
         "purchase_request_item": [
             {
-                "id": 548,
-                "purchase_request_id": 544,
-                "title": "ດອກໄຟ",
-                "file_name": "pr_file_name/019ddd47-90a4-729d-88a6-26a5a762c010-1777533948067",
-                "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019ddd47-90a4-729d-88a6-26a5a762c010-1777533948067",
+                "id": 559,
+                "purchase_request_id": 552,
+                "title": "ຄອມພີວເຕີ່ Mac M3",
+                "file_name": "pr_file_name/019e06f2-4cfd-710a-a2a3-6c5486c587c2-1778233003261",
+                "file_name_url": "https://d2ugbgqq0wz1xr.cloudfront.net/pr_file_name/019e06f2-4cfd-710a-a2a3-6c5486c587c2-1778233003261",
                 "quantity": 1,
                 "unit_id": "34",
                 "quota_company_id": 0,
-                "price": 12000,
-                "total_price": 12000,
-                "remark": "ຊື້ແກັດປະຈຳປີ 2026",
-                "created_at": "30-04-2026 21:25:48",
-                "updated_at": "30-04-2026 21:25:48",
+                "price": 1000,
+                "total_price": 1000,
+                "rate": 30000,
+                "total_in_lak": 30000000,
+                "remark": "",
+                "created_at": "08-05-2026 23:36:43",
+                "updated_at": "08-05-2026 23:36:43",
                 "unit": {
                     "id": "34",
                     "name": "ໜ່ວຍ",
@@ -281,52 +284,52 @@
                     "updated_at": "20-11-2025 18:01:13"
                 },
                 "currency": {
-                    "id": 1,
-                    "code": "LAK",
-                    "name": "Lao Kip",
-                    "created_at": "06-06-2025 20:53:41",
-                    "updated_at": "06-06-2025 21:05:12"
+                    "id": 3,
+                    "code": "USD",
+                    "name": "USDT",
+                    "created_at": "24-11-2025 21:55:27",
+                    "updated_at": "07-05-2026 18:23:33"
                 },
                 "quota_company": {
-                    "id": 33,
+                    "id": 36,
                     "year": "2026-01-01",
                     "qty": 100,
-                    "vendor_product_id": "15",
+                    "vendor_product_id": "22",
                     "company_id": 22,
-                    "created_at": "08-01-2026 21:35:01",
-                    "updated_at": "08-01-2026 21:35:01",
+                    "created_at": "07-05-2026 18:24:04",
+                    "updated_at": "07-05-2026 18:24:04",
                     "vendor_product": {
-                        "id": "15",
-                        "vendor_id": "28",
-                        "product_id": 6,
+                        "id": "22",
+                        "vendor_id": "30",
+                        "product_id": 1,
                         "vendor": {
-                            "id": "28",
-                            "name": "Comcom"
+                            "id": "30",
+                            "name": "NOME"
                         },
                         "product": {
-                            "id": 6,
-                            "name": "ດອກໄຟ"
+                            "id": 1,
+                            "name": "ຄອມພີວເຕີ່ Mac M3"
                         },
-                        "price": "12000.00",
-                        "created_at": "04-12-2025 22:11:29",
-                        "updated_at": "04-12-2025 22:11:29"
+                        "price": "1000.00",
+                        "created_at": "07-05-2026 18:23:07",
+                        "updated_at": "07-05-2026 18:23:07"
                     },
                     "Product": {
-                        "id": 6,
-                        "name": "ດອກໄຟ",
-                        "description": "goods",
-                        "product_type_id": 22,
+                        "id": 1,
+                        "name": "ຄອມພີວເຕີ່ Mac M3",
+                        "description": "Ram (16GB, SSD 520GB)",
+                        "product_type_id": 1,
                         "unit_id": "34",
                         "status": "active",
-                        "created_at": "26-11-2025 23:47:13",
-                        "updated_at": "26-11-2025 23:47:13"
+                        "created_at": "31-10-2025 17:04:10",
+                        "updated_at": "20-11-2025 18:01:27"
                     },
                     "vendor": {
-                        "id": 28,
-                        "name": "Comcom",
-                        "contact_info": "2054678934",
-                        "created_at": "28-11-2025 22:53:19",
-                        "updated_at": "04-12-2025 22:09:36"
+                        "id": 30,
+                        "name": "NOME",
+                        "contact_info": "2098678549",
+                        "created_at": "21-04-2026 20:52:20",
+                        "updated_at": "21-04-2026 20:52:20"
                     }
                 }
             }

@@ -2,8 +2,8 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
-import { computed, onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useDocumentTypeStore } from "../../../stores/document-type.store";
 import { columns } from "../../../views/purchase-requests/column";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -14,25 +14,73 @@ import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import { useDocumentStatusStore } from "../../../stores/document-status.store";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { DatePicker as AntDatePicker } from "ant-design-vue";
+import { useGlobalSearchStore } from "../../../stores/global-search.store";
+import { storeToRefs } from "pinia";
 
 /**********************************************************/
 const { t } = useI18n();
-const { push } = useRouter();
+const router = useRouter();
+const { push } = router;
+const route = useRoute();
 const { success, error: showError } = useNotification();
 const purchaseRequestStore = usePurchaseRequestsStore();
 const docTypeStore = useDocumentTypeStore();
+const globalSearchStore = useGlobalSearchStore();
+const { trimmedKeyword: globalSearchKeyword, trigger: globalSearchTrigger } =
+  storeToRefs(globalSearchStore);
 const loading = ref(false);
-const currentPage = ref(1);
-const pageSize = ref(10);
+const queryPage = Number(route.query.page);
+const queryLimit = Number(route.query.limit);
+const currentPage = ref(
+  Number.isFinite(queryPage) && queryPage > 0 ? queryPage : purchaseRequestStore.pagination.page
+);
+const pageSize = ref(
+  Number.isFinite(queryLimit) && queryLimit > 0 ? queryLimit : purchaseRequestStore.pagination.limit
+);
 const selectedDocType = ref("all");
 const selectedStatus = ref("all");
 const selectedType = ref("all");
 const documentStatusStore = useDocumentStatusStore();
 
+const syncPaginationToUrl = () => {
+  router.replace({
+    query: {
+      ...route.query,
+      page: String(currentPage.value),
+      limit: String(pageSize.value),
+    },
+  });
+};
+
 // Delete modal state
 const deleteModalVisible = ref(false);
 const deleteLoading = ref(false);
 const selectedDeleteId = ref<string | null>(null);
+
+// Export Excel state
+const exportStartDate = ref<string | undefined>(undefined);
+const exportEndDate = ref<string | undefined>(undefined);
+const exportLoading = ref(false);
+
+const handleExportExcel = async () => {
+  try {
+    exportLoading.value = true;
+    const startDate = exportStartDate.value || undefined;
+    const endDate = exportEndDate.value || undefined;
+    const ok = await purchaseRequestStore.exportExcel(startDate, endDate);
+    if (ok) {
+      success(t("purchase-rq.success.title"), t("purchase-rq.export.success"));
+    } else {
+      showError(t("purchase-rq.export.failed"), purchaseRequestStore.error || "");
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    showError(t("purchase-rq.export.failed"), errorMessage);
+  } finally {
+    exportLoading.value = false;
+  }
+};
 
 /********************************************************* */
 const docItem = computed(() => [
@@ -57,6 +105,7 @@ const filterTypeItem = computed(() => [
 ]);
 const handleSearch = () => {
   currentPage.value = 1;
+  syncPaginationToUrl();
   fetchData();
 };
 
@@ -90,11 +139,21 @@ const fetchData = async () => {
       apiParams.type = selectedType.value;
     }
 
+    if (globalSearchKeyword.value) {
+      apiParams.search = globalSearchKeyword.value;
+    }
+
     await purchaseRequestStore.fetchAll(apiParams);
   } finally {
     loading.value = false;
   }
 };
+
+watch(globalSearchTrigger, () => {
+  currentPage.value = 1;
+  syncPaginationToUrl();
+  fetchData();
+});
 
 const statusCounts = computed(() => {
   return purchaseRequestStore.statusSummary.reduce((acc, current) => {
@@ -186,8 +245,9 @@ const handleDeleteConfirm = async () => {
 };
 
 const handleTableChange = (pagination: any) => {
-  currentPage.value = pagination.current;
-  pageSize.value = pagination.pageSize;
+  currentPage.value = pagination.current ?? 1;
+  pageSize.value = pagination.pageSize ?? 10;
+  syncPaginationToUrl();
   fetchData();
 };
 
@@ -278,6 +338,42 @@ onMounted(async () => {
             {{ t("purchase-rq.created") }}
           </UiButton>
         </div>
+      </div>
+
+      <!-- Export Excel section -->
+      <div class="mt-4 flex flex-col md:flex-row gap-4 items-end">
+        <div class="w-full md:w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t("purchase-rq.export.start_date") }}
+          </label>
+          <AntDatePicker
+            v-model:value="exportStartDate"
+            :placeholder="t('purchase-rq.export.start_date')"
+            value-format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </div>
+        <div class="w-full md:w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t("purchase-rq.export.end_date") }}
+          </label>
+          <AntDatePicker
+            v-model:value="exportEndDate"
+            :placeholder="t('purchase-rq.export.end_date')"
+            value-format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </div>
+        <UiButton
+          type="primary"
+          icon="ant-design:file-excel-outlined"
+          :loading="exportLoading"
+          color-class="flex items-center justify-center gap-2 !bg-green-600 !border-green-600 hover:!bg-green-700"
+          class="w-full md:w-auto px-6"
+          @click="handleExportExcel"
+        >
+          <span>{{ t("purchase-rq.btn.export_excel") }}</span>
+        </UiButton>
       </div>
     </div>
 

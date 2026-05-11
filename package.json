@@ -50,5 +50,12 @@
     "vite-plugin-vue-devtools": "^7.7.2",
     "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^2.2.8"
-  }
+  },
+  "pnpm": {
+  "onlyBuiltDependencies": [
+    "@parcel/watcher",
+    "core-js",
+    "esbuild"
+  ]
+}
 }

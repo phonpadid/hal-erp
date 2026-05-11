@@ -38,6 +38,7 @@ const props = defineProps<{
     type?: string;
     files?: { file_name: string }[];
     account_code?: string;
+    rate?: { from_currency_id: number; to_currency_id: number; rate: number }[];
     uploadCompleted?: boolean;
     formState?: { files: { file_name: string }[] };
     uploadedImages?: string[];
@@ -178,6 +179,9 @@ const finalConfirm = async () => {
           is_otp: props.is_otp,
           account_code: props.dataHead.account_code || "",
           files: props.dataHead.files || [],
+          rate: props.dataHead.rate && props.dataHead.rate.length > 0
+            ? props.dataHead.rate
+            : undefined,
           otp: otp,
           approval_id: approvalStepStore.otpResponse?.approval_id,
         });

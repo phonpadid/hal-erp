@@ -25,6 +25,7 @@
     "amounts": "Total amounts",
     "purposes": "Purposes",
     "unit":"Unit",
+    "currency": "Currency",
     "filter_type": "Filter type"
   },
   "created": "Create proposal",
@@ -106,6 +107,13 @@
     "confirm": "Comfirm",
     "approval": "Approval",
     "back":"Back",
-    "create_po": "Create PO"
+    "create_po": "Create PO",
+    "export_excel": "Export Excel"
+  },
+  "export": {
+    "start_date": "Start Date",
+    "end_date": "End Date",
+    "success": "Exported successfully",
+    "failed": "Export failed"
   }
 }

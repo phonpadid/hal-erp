@@ -27,6 +27,7 @@ export class ApiReceiptRepository implements ReceiptRepository {
       if (params?.order_date) requestParams.order_date = params.order_date;
       if (params?.department_id) requestParams.department_id = params.department_id;
       if (params?.type) requestParams.type = params.type;
+      if (params?.search) requestParams.search = params.search;
 
       console.log('📤 API Request params:', requestParams);
 
@@ -99,6 +100,7 @@ export class ApiReceiptRepository implements ReceiptRepository {
         account_code: input.account_code,
         files: input.files && input.files.length > 0 ? input.files.map((file) => file) : undefined,
         remark: input.remark,
+        rate: input.rate && input.rate.length > 0 ? input.rate : undefined,
       };
 
       // Filter out null, undefined, and empty values
@@ -127,6 +129,7 @@ export class ApiReceiptRepository implements ReceiptRepository {
         account_code: input.account_code,
         files: input.files && input.files.length > 0 ? input.files.map((file) => file) : undefined,
         remark: input.remark,
+        rate: input.rate && input.rate.length > 0 ? input.rate : undefined,
       };
 
       // Filter out null, undefined, and empty values
@@ -200,6 +203,33 @@ export class ApiReceiptRepository implements ReceiptRepository {
       return response.data;
     } catch (error) {
       this.handleApiError(error, `Failed to export receipt with id ${id}`);
+    }
+  }
+
+  async exportExcelAll(startDate?: string, endDate?: string): Promise<Blob> {
+    try {
+      const params: Record<string, string> = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
+      const response = await api.get(`${this.baseUrl}/export-excel`, {
+        params,
+        responseType: 'blob',
+      });
+      return response.data;
+    } catch (error) {
+      this.handleApiError(error, "Failed to export receipts");
+    }
+  }
+
+  async print(id: string, type: "about_receipt" | "all_document"): Promise<unknown> {
+    try {
+      const response = await api.get(`${this.baseUrl}/print/${id}`, {
+        params: { print: type },
+      });
+      return response.data?.data ?? response.data;
+    } catch (error) {
+      this.handleApiError(error, `Failed to print receipt with id ${id}`);
     }
   }
 
