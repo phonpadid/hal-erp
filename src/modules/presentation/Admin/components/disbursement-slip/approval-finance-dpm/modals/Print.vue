@@ -387,8 +387,8 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                         <td class="value">{{ formatDateOnly(receipt?.created_at) }}</td>
                         <td class="label">Expected Date<br />ວັນທີຕ້ອງການ:</td>
                         <td class="value">{{ formatDateOnly(receipt?.receipt_date) }}</td>
-                        <td class="label">PR No./ເລກທີ:</td>
-                        <td class="value">{{ receipt?.pr_number }}</td>
+                        <td class="label">PO No./ເລກທີ:</td>
+                        <td class="value">{{ receipt?.po_number }}</td>
                     </tr>
                 </table>
 
