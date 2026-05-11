@@ -6,11 +6,28 @@ import { DownOutlined } from "@ant-design/icons-vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Tooltip } from "ant-design-vue";
 import UiModal from "../components/Modal/UiModal.vue";
+import InputSearch from "../components/Input/InputSearch.vue";
+import { useGlobalSearchStore } from "@/modules/presentation/Admin/stores/global-search.store";
+import { storeToRefs } from "pinia";
 import router from "../router/index";
 
 const emit = defineEmits<{ toggle: [] }>();
 const { success } = useNotification();
 const { t, locale } = useI18n();
+
+const globalSearchStore = useGlobalSearchStore();
+const { keyword: globalSearchKeyword } = storeToRefs(globalSearchStore);
+const searchInput = ref<string>(globalSearchKeyword.value);
+
+watch(globalSearchKeyword, (value) => {
+  if (value !== searchInput.value) {
+    searchInput.value = value;
+  }
+});
+
+const handleGlobalSearch = (value: string) => {
+  globalSearchStore.setKeyword(value);
+};
 const currentLang = ref<string>("");
 const data = localStorage.getItem("userData");
 const parsed = data ? JSON.parse(data) : null;
@@ -72,13 +89,24 @@ watch(locale, updateCurrentLang);
   <header
     class="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 bg-white transition-all pr-10"
   >
-    <Icon
-      icon="lucide-align-justify"
-      width="24"
-      height="24"
-      class="cursor-pointer"
-      @click="emit('toggle')"
-    />
+    <div class="flex items-center gap-4 flex-1">
+      <Icon
+        icon="lucide-align-justify"
+        width="24"
+        height="24"
+        class="cursor-pointer"
+        @click="emit('toggle')"
+      />
+
+      <!-- Global search (PR / PO / Receipt) -->
+      <div class="global-search w-full max-w-[420px]">
+        <InputSearch
+          v-model="searchInput"
+          :placeholder="t('common.searchPlaceholder')"
+          @search="handleGlobalSearch"
+        />
+      </div>
+    </div>
 
     <!-- change langue  -->
     <div class="header-action-container flex items-center gap-4">
