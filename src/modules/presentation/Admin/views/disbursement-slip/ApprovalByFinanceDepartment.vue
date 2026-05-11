@@ -23,6 +23,8 @@ import type { Dayjs } from "dayjs";
 import { departmentStore } from "../../stores/departments/department.store";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { useGlobalSearchStore } from "../../stores/global-search.store";
+import { storeToRefs } from "pinia";
 const { t } = useI18n();
 const router = useRouter();
 const { push } = router;
@@ -30,6 +32,8 @@ const route = useRoute();
 const { success, error: showError } = useNotification();
 const dpmStore = departmentStore();
 const rStore = useReceiptStore();
+const globalSearchStore = useGlobalSearchStore();
+const { trimmedKeyword: globalSearchKeyword } = storeToRefs(globalSearchStore);
 
 const queryPage = Number(route.query.page);
 const queryLimit = Number(route.query.limit);
@@ -165,6 +169,7 @@ const buildFilterParams = (page: number, limit: number) => ({
   order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
   department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
   type: filterType.value,
+  search: globalSearchKeyword.value || undefined,
 });
 
 const loadFilteredReceipts = async (resetPage = false) => {
@@ -210,7 +215,7 @@ const handleTableChange = async (pagination: TablePaginationType) => {
   }
 };
 
-watch([filterDate, filterDepartment, filterType], () => {
+watch([filterDate, filterDepartment, filterType, globalSearchKeyword], () => {
   if (!isPaginationChanging.value) {
     loadFilteredReceipts(true);
   }

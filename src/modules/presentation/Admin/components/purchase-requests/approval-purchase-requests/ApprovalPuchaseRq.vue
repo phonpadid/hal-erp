@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { usePurchaseRequestsStore } from "../../../stores/purchase_requests/purchase-requests.store";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDocumentTypeStore } from "../../../stores/document-type.store";
 import { columns } from "../../../views/purchase-requests/column";
@@ -15,6 +15,8 @@ import { useDocumentStatusStore } from "../../../stores/document-status.store";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { DatePicker as AntDatePicker } from "ant-design-vue";
+import { useGlobalSearchStore } from "../../../stores/global-search.store";
+import { storeToRefs } from "pinia";
 
 /**********************************************************/
 const { t } = useI18n();
@@ -24,6 +26,8 @@ const route = useRoute();
 const { success, error: showError } = useNotification();
 const purchaseRequestStore = usePurchaseRequestsStore();
 const docTypeStore = useDocumentTypeStore();
+const globalSearchStore = useGlobalSearchStore();
+const { trimmedKeyword: globalSearchKeyword } = storeToRefs(globalSearchStore);
 const loading = ref(false);
 const queryPage = Number(route.query.page);
 const queryLimit = Number(route.query.limit);
@@ -134,11 +138,21 @@ const fetchData = async () => {
       apiParams.type = selectedType.value;
     }
 
+    if (globalSearchKeyword.value) {
+      apiParams.search = globalSearchKeyword.value;
+    }
+
     await purchaseRequestStore.fetchAll(apiParams);
   } finally {
     loading.value = false;
   }
 };
+
+watch(globalSearchKeyword, () => {
+  currentPage.value = 1;
+  syncPaginationToUrl();
+  fetchData();
+});
 
 const statusCounts = computed(() => {
   return purchaseRequestStore.statusSummary.reduce((acc, current) => {
