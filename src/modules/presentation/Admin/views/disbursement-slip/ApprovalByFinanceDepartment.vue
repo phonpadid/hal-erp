@@ -33,7 +33,8 @@ const { success, error: showError } = useNotification();
 const dpmStore = departmentStore();
 const rStore = useReceiptStore();
 const globalSearchStore = useGlobalSearchStore();
-const { trimmedKeyword: globalSearchKeyword } = storeToRefs(globalSearchStore);
+const { trimmedKeyword: globalSearchKeyword, trigger: globalSearchTrigger } =
+  storeToRefs(globalSearchStore);
 
 const queryPage = Number(route.query.page);
 const queryLimit = Number(route.query.limit);
@@ -215,7 +216,7 @@ const handleTableChange = async (pagination: TablePaginationType) => {
   }
 };
 
-watch([filterDate, filterDepartment, filterType, globalSearchKeyword], () => {
+watch([filterDate, filterDepartment, filterType, globalSearchTrigger], () => {
   if (!isPaginationChanging.value) {
     loadFilteredReceipts(true);
   }

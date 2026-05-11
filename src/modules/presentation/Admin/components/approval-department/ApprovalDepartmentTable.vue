@@ -31,7 +31,8 @@ const route = useRoute();
 const purchaseOrderStore = usePurchaseOrderStore();
 const departmentStoreInstance = departmentStore();
 const globalSearchStore = useGlobalSearchStore();
-const { trimmedKeyword: globalSearchKeyword } = storeToRefs(globalSearchStore);
+const { trimmedKeyword: globalSearchKeyword, trigger: globalSearchTrigger } =
+  storeToRefs(globalSearchStore);
 const queryPage = Number(route.query.page);
 const queryLimit = Number(route.query.limit);
 const currentPage = ref(
@@ -222,7 +223,7 @@ const fetchData = async () => {
   }
 };
 
-watch(globalSearchKeyword, () => {
+watch(globalSearchTrigger, () => {
   currentPage.value = 1;
   syncPaginationToUrl();
   fetchData();
