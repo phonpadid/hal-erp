@@ -1,6 +1,8 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, watch } from "vue";
+import { storeToRefs } from "pinia";
+import { useGlobalSearchStore } from "../../stores/global-search.store";
 import { useRoute, useRouter } from "vue-router";
 import { columns } from "../../views/approval-department/column/cloumn";
 import { useI18n } from "vue-i18n";
@@ -28,6 +30,9 @@ const router = useRouter();
 const route = useRoute();
 const purchaseOrderStore = usePurchaseOrderStore();
 const departmentStoreInstance = departmentStore();
+const globalSearchStore = useGlobalSearchStore();
+const { trimmedKeyword: globalSearchKeyword, trigger: globalSearchTrigger } =
+  storeToRefs(globalSearchStore);
 const queryPage = Number(route.query.page);
 const queryLimit = Number(route.query.limit);
 const currentPage = ref(
@@ -208,11 +213,21 @@ const fetchData = async () => {
       apiParams.type = selectedType.value;
     }
 
+    if (globalSearchKeyword.value) {
+      apiParams.search = globalSearchKeyword.value;
+    }
+
     await purchaseOrderStore.fetchAll(apiParams);
   } finally {
     loading.value = false;
   }
 };
+
+watch(globalSearchTrigger, () => {
+  currentPage.value = 1;
+  syncPaginationToUrl();
+  fetchData();
+});
 
 // Handle department selection change
 const handleDepartmentChange = (value: string | null) => {
