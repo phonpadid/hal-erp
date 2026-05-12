@@ -1,0 +1,40 @@
+{
+    "notify": {
+        "created": "信息创建成功",
+        "update": "信息更新成功",
+        "delete": "信息删除成功"
+    },
+    "alert": {
+        "confirm": "确认删除",
+        "message": "您确定要删除此数据吗",
+        "remark": "此操作一经确认无法撤销。"
+    },
+    "user_apv": {
+        "title": "用户审批信息",
+        "add": "添加用户审批",
+        "header_form": {
+            "add": "用户审批创建表单",
+            "edit": "用户审批更新表单"
+        },
+        "placeholder": {
+            "search": "搜索用户审批信息",
+            "document": "选择文件",
+            "apv_workflow": "选择审批流程",
+            "status": "选择状态"
+        },
+        "error": {
+            "document": "请选择文件",
+            "apv_workflow": "请选择审批流程",
+            "status": "请选择状态"
+        },
+        "field": {
+            "id": "编号",
+            "document": "文件",
+            "apv_workflow": "审批流程",
+            "status": "状态",
+            "created": "创建时间",
+            "updated": "更新时间",
+            "manege": "管理"
+        }
+    }
+}

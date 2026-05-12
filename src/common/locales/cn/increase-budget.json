@@ -1,0 +1,32 @@
+{
+    "title": "预算详情",
+    "title_create": "预算申请创建表单",
+    "title_edit": "编辑信息表单",
+    "add_item": "项目",
+    "createBy": "创建人",
+    "view": "查看文件",
+    "table": {
+      "title": "预算标题",
+      "description": "描述",
+      "file_name": "文件",
+      "allocated_amount": "分配金额",
+      "created_by": "创建人",
+      "import_date": "导入日期",
+      "use_amount": "已使用金额",
+      "balance_amount": "剩余金额"
+    },
+    "phd": {
+      "title": "选择预算标题",
+      "description": "请输入描述",
+      "file_name": "选择文件",
+      "item": "选择项目",
+      "allocated_amount": "请输入分配金额"
+    },
+    "vld": {
+      "title": "请选择预算标题",
+      "file_name": "请选择文件",
+      "allocated_amount": "请输入分配金额",
+      "item": "请选择项目",
+      "max": "分配金额不能超过14位数字"
+    }
+  }

@@ -1,0 +1,13 @@
+{
+  "table": {
+    "number": "编号",
+    "name": "名称",
+    "code": "代码",
+    "quantity": "数量",
+    "unit": "单位",
+    "price": "单价",
+    "total": "总计",
+    "sum": "总和",
+    "kip": "总额(基普)"
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "notify": {
+    "created": "预算账户创建成功",
+    "update": "预算账户更新成功",
+    "delete": "预算账户删除成功"
+  },
+  "alert": {
+    "confirm": "确认删除",
+    "message": "您确定要删除此预算账户吗",
+    "remark": "一经确认此操作无法撤销。"
+  },
+  "title": "预算账户信息",
+  "total": "总计",
+  "item": "项",
+  "add": "添加预算账户",
+  "header_form": {
+    "add": "预算账户创建表单",
+    "edit": "预算账户更新表单"
+  },
+  "placeholder": {
+    "search": "搜索预算账户",
+    "department": "选择部门",
+    "code": "输入预算编码",
+    "name": "输入预算名称",
+    "fiscal_year": "选择会计年度",
+    "allocated_amount": "输入分配金额"
+  },
+  "error": {
+    "department": "请选择部门",
+    "code": "请输入预算编码",
+    "code_format": "预算编码只能包含字母、数字、连字符或下划线",
+    "code_max": "预算编码不能超过50个字符",
+    "name": "请输入预算名称",
+    "name_max": "预算名称不能超过100个字符",
+    "fiscal_year": "请选择会计年度",
+    "allocated_amount": "请输入分配金额",
+    "allocated_amount_format": "分配金额必须为数字，最多保留2位小数",
+    "loadFailed": "加载预算账户失败",
+    "loadDataFailed": "加载数据失败",
+    "loadDepartmentsFailed": "加载部门失败",
+    "saveFailed": "保存预算账户失败",
+    "updateFailed": "更新预算账户失败",
+    "deleteFailed": "删除预算账户失败"
+  },
+  "field": {
+    "department": "部门",
+    "code": "编码",
+    "name": "名称",
+    "fiscal_year": "会计年度",
+    "allocated_amount": "分配金额",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "manage": "管理"
+  },
+  "list": {
+    "title": "预算账户",
+    "search": "搜索预算账户",
+    "add": "添加预算账户",
+    "code": "编码",
+    "name": "名称",
+    "fiscalYear": "会计年度",
+    "allocatedAmount": "分配金额",
+    "increase_amount": "增加金额",
+    "department": "部门",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "actions": "操作",
+    "allocated_amount":"分配金额",
+    "balance_amount":"余额",
+    "used_amount":"已使用金额",
+    "budget_item":"预算项目"
+  },
+  "form": {
+    "department": "部门",
+    "departmentPlaceholder": "选择部门",
+    "code": "预算编码",
+    "codePlaceholder": "输入预算编码",
+    "name": "预算名称",
+    "namePlaceholder": "输入预算名称",
+    "fiscalYear": "会计年度",
+    "fiscalYearPlaceholder": "选择会计年度",
+    "allocatedAmount": "分配金额",
+    "allocatedAmountPlaceholder": "输入分配金额"
+  },
+  "modal": {
+    "title": "添加新预算账户",
+    "editTitle": "编辑预算账户",
+    "deleteTitle": "删除预算账户",
+    "deleteMessage": "您确定要删除预算账户 {name} 吗？",
+    "deleteWarning": "一经确认此操作无法撤销。"
+  },
+  "success": {
+    "title": "成功",
+    "created": "预算账户创建成功",
+    "updated": "预算账户更新成功",
+    "deleted": "预算账户删除成功"
+  },
+  "validation": {
+    "departmentRequired": "请选择部门",
+    "codeRequired": "请输入预算编码",
+    "codeMax": "预算编码不能超过50个字符",
+    "codeFormat": "预算编码只能包含字母、数字、连字符或下划线",
+    "nameRequired": "请输入预算名称",
+    "nameMax": "预算名称不能超过100个字符",
+    "fiscalYearRequired": "请选择会计年度",
+    "allocatedAmountRequired": "请输入分配金额",
+    "allocatedAmountFormat": "分配金额必须为数字，最多保留2位小数"
+  },
+
+  "button": {
+    "add":"申请预算",
+    "save": "保存",
+    "edit": "编辑",
+    "cancel": "取消"
+  }
+}

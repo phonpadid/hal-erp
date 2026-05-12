@@ -1,0 +1,42 @@
+{
+    "notify": {
+        "created": "信息创建成功",
+        "update": "信息更新成功",
+        "delete": "信息删除成功"
+    },
+    "alert": {
+        "confirm": "确认删除",
+        "message": "您确定要删除此数据吗",
+        "remark": "一经确认此操作无法撤销。"
+    },
+    "title": "预算审批规则信息",
+    "total": "总计",
+    "item": "项",
+    "totalPeople": "共有 {count} 位负责人",
+    "add": "添加预算审批规则",
+    "header_form": {
+        "add": "预算审批规则创建表单",
+        "edit": "预算审批规则更新表单"
+    },
+    "placeholder": {
+        "search": "搜索信息",
+        "user": "选择用户",
+        "department": "选择部门"
+    },
+    "error": {
+        "department": "请选择部门",
+        "user": "请选择用户",
+        "max": "请输入最大金额",
+        "min": "请输入最小金额",
+        "max_cannot_min": "不能小于"
+    },
+    "field": {
+        "department": "部门",
+        "user": "用户",
+        "min": "最小金额",
+        "max": "最大金额",
+        "created": "创建时间",
+        "updated": "更新时间",
+        "manege": "管理"
+    }
+}

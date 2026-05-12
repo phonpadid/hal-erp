@@ -1,0 +1,112 @@
+{
+  "title": "公司信息",
+  "add": "添加新公司",
+  "create": "创建公司",
+  "createDescription": "填写您的公司信息并创建管理员账户",
+  "loading": "正在加载公司信息...",
+  "placeholder": {
+    "name": "请输入公司名称",
+    "search": "按公司名称搜索"
+  },
+
+  "field": {
+    "name": "公司名称",
+    "logo": "标志",
+    "tel": "电话",
+    "email": "邮箱",
+    "address": "地址",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "manage": "管理"
+  },
+
+  "notify": {
+    "created": "公司创建成功",
+    "updated": "公司更新成功",
+    "deleted": "公司删除成功"
+  },
+  "validation": {
+    "nameRequired": "名称为必填项",
+    "nameMin": "名称至少需要2个字符",
+    "nameMax": "名称不能超过200个字符",
+    "nameExists": "公司名称已存在",
+    "telRequired": "电话为必填项",
+    "telFormat": "电话必须为8-15位数字",
+    "telExists": "公司电话已存在",
+    "emailRequired": "邮箱为必填项",
+    "emailFormat": "请输入有效的邮箱地址",
+    "emailExists": "公司邮箱已存在",
+    "addressRequired": "地址为必填项",
+    "addressMin": "地址至少需要5个字符",
+    "addressMax": "地址不能超过500个字符",
+    "usernameRequired": "用户名为必填项",
+    "usernameMin": "用户名至少需要3个字符",
+    "usernameMax": "用户名不能超过50个字符",
+    "usernameFormat": "用户名只能包含字母、数字和下划线",
+    "usernameExists": "用户名已存在",
+    "userEmailRequired": "用户邮箱为必填项",
+    "userEmailFormat": "请输入有效的邮箱地址",
+    "userEmailExists": "用户邮箱已存在",
+    "userTelRequired": "用户电话为必填项",
+    "userTelFormat": "用户电话必须为8-15位数字",
+    "userTelExists": "用户电话已存在",
+    "passwordRequired": "密码为必填项",
+    "passwordMin": "密码至少需要6个字符",
+    "confirmPasswordRequired": "确认密码为必填项",
+    "passwordMismatch": "两次输入的密码不一致"
+  },
+  "modal": {
+    "create": "创建公司",
+    "edit": "编辑公司",
+    "delete": "删除公司",
+    "deleteConfirm": "您确定要删除此公司吗?",
+    "deleteWarning": "此操作无法撤销。"
+  },
+  "form": {
+    "companyInfo": "公司信息",
+    "name": "公司名称",
+    "namePlaceholder": "请输入公司名称",
+    "logo": "公司标志",
+    "tel": "电话",
+    "telPlaceholder": "请输入电话号码",
+    "email": "邮箱地址",
+    "emailPlaceholder": "请输入邮箱地址",
+    "address": "地址",
+    "addressPlaceholder": "请输入公司地址",
+    "userSection": "管理员账户信息",
+    "username": "用户名",
+    "usernamePlaceholder": "请输入用户名",
+    "userEmail": "用户邮箱",
+    "userEmailPlaceholder": "请输入用户邮箱",
+    "userTel": "用户电话",
+    "userTelPlaceholder": "请输入用户电话",
+    "password": "密码",
+    "passwordPlaceholder": "请输入密码",
+    "confirmPassword": "确认密码",
+    "confirmPasswordPlaceholder": "请确认密码",
+    "signature": "用户签名",
+    "uploadLogo": "在此上传您的公司标志",
+    "uploadSignature": "在此上传您的用户签名",
+    "companySetup": "公司设置",
+    "companySetupDescription": "完善您的公司资料信息"
+  },
+   "success": {
+    "title": "成功",
+    "created": "公司创建成功",
+    "updated": "公司更新成功",
+    "deleted": "公司删除成功"
+  },
+  "button": {
+    "back": "返回",
+    "cancel": "取消",
+    "createCompany": "创建公司"
+  },
+  "error": {
+    "name": "请输入公司名称",
+    "title": "错误",
+    "loadFailed": "加载公司失败",
+    "createFailed": "创建公司失败",
+    "updateFailed": "更新公司失败",
+    "deleteFailed": "删除公司失败"
+  }
+}

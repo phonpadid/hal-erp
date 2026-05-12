@@ -1,0 +1,16 @@
+{
+  "vendors": {
+    "validation": {
+      "currencyRequired": "请选择币种",
+      "bankNameRequired": "请输入银行名称",
+      "bankNameMax": "银行名称不能超过100个字符",
+      "bankNameInvalidChars": "银行名称包含无效字符",
+      "accountNameRequired": "请输入账户名称",
+      "accountNameMax": "账户名称不能超过100个字符",
+      "accountNameInvalidChars": "账户名称包含无效字符",
+      "accountNumberRequired": "请输入账户号码",
+      "accountNumberMax": "账户号码不能超过50个字符",
+      "accountNumberInvalidChars": "账户号码只能包含数字和连字符"
+    }
+  }
+}

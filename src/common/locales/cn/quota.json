@@ -1,0 +1,94 @@
+{
+  "notify": {
+    "created": "配额创建成功",
+    "update": "配额更新成功",
+    "delete": "配额删除成功"
+  },
+  "alert": {
+    "confirm": "确认删除",
+    "message": "您确定要删除此配额吗",
+    "remark": "此操作一经确认无法撤销。"
+  },
+    "total": "共 {count} 个配额",
+    "title": "配额信息",
+    "add": "添加配额",
+    "edit": "编辑",
+    "delete": "删除",
+    "listQuota": "配额列表",
+    "header_form": {
+      "add": "配额创建表单",
+      "edit": "配额更新表单"
+    },
+    "placeholder": {
+      "search": "搜索配额信息",
+      "company": "选择公司",
+      "vendor": "选择供应商",
+      "product": "选择产品",
+      "quantity": "请输入数量",
+      "year": "请输入年份"
+    },
+    "error": {
+      "company": "请选择公司",
+      "vendor": "请选择供应商",
+      "product": "请选择产品",
+      "quantity": "请输入数量",
+      "year": "请输入年份",
+      "quantity_min": "数量必须大于0",
+      "year_format": "请输入有效年份（例如 2025）"
+    },
+    "field": {
+      "company": "公司",
+      "vendor": "供应商",
+      "product": "产品",
+      "quantity": "数量",
+      "year": "年份",
+      "created_at": "创建时间",
+      "updated_at": "更新时间",
+      "manage": "管理"
+    },
+    "table": {
+      "company": "公司",
+      "vendor": "供应商",
+      "product": "产品",
+      "quantity": "数量",
+      "year": "年份",
+      "createdAt": "创建时间",
+      "updatedAt": "更新时间",
+      "actions": "操作"
+    },
+    "modal": {
+      "create": "新建配额",
+      "edit": "编辑配额",
+      "delete": "删除配额",
+      "deleteConfirm": "您确定要删除此配额吗？",
+      "deleteWarning": "此操作无法撤销！"
+    },
+    "list": {
+      "add": "添加配额",
+      "noData": "未找到配额数据"
+    },
+    "validation": {
+      "companyRequired": "公司为必填项",
+      "vendorRequired": "供应商为必填项",
+      "productRequired": "产品为必填项",
+      "qtyRequired": "数量为必填项",
+      "qtyMin": "数量必须大于0",
+      "yearRequired": "年份为必填项",
+      "yearFormat": "年份必须为 YYYY 格式"
+    },
+    "success": {
+      "title": "成功",
+      "created": "配额创建成功",
+      "updated": "配额更新成功",
+      "deleted": "配额删除成功"
+    },
+    "errors": {
+      "title": "错误",
+      "loadFailed": "加载配额失败",
+      "createFailed": "创建配额失败",
+      "updateFailed": "更新配额失败",
+      "deleteFailed": "删除配额失败",
+      "saveFailed": "保存配额失败",
+      "fillAllFields": "请填写所有必填字段"
+    }
+  }
