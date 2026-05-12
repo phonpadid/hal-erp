@@ -1,0 +1,89 @@
+{
+  "notify": {
+    "created": "预算项目明细创建成功",
+    "update": "预算项目明细更新成功",
+    "delete": "预算项目明细删除成功"
+  },
+  "alert": {
+    "confirm": "确认删除",
+    "message": "您确定要删除此预算项目明细吗",
+    "remark": "一经确认此操作无法撤销。"
+  },
+  "title": "预算项目明细信息",
+  "total": "总计",
+  "item": "项",
+  "add": "添加预算项目明细",
+  "header_form": {
+    "add": "预算项目明细创建表单",
+    "edit": "预算项目明细更新表单"
+  },
+  "placeholder": {
+    "search": "搜索预算项目明细",
+    "budget_item": "选择预算项目"
+  },
+  "error": {
+    "budget_item": "请选择预算项目",
+    "name": "请输入名称",
+    "name_max": "名称不能超过100个字符",
+    "province": "请选择省份",
+    "allocated_amount": "请输入分配金额",
+    "allocated_amount_format": "分配金额必须为数字，最多保留2位小数",
+    "loadFailed": "加载预算项目明细失败",
+    "loadDataFailed": "加载数据失败",
+    "loadBudgetItemsFailed": "加载预算项目失败",
+    "loadProvincesFailed": "加载省份失败",
+    "saveFailed": "保存预算项目明细失败",
+    "updateFailed": "更新预算项目明细失败",
+    "deleteFailed": "删除预算项目明细失败"
+  },
+  "field": {
+    "budget_item": "预算项目",
+    "province": "省份",
+    "name": "名称",
+    "description": "描述",
+    "allocated_amount": "分配金额",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "manage": "管理"
+  },
+  "list": {
+    "title": "预算项目明细",
+    "titleForItem": "项目的预算明细",
+    "search": "搜索预算项目明细",
+    "add": "添加预算项目明细",
+    "name": "名称",
+    "budgetItem": "预算项目",
+    "province": "省份",
+    "description": "描述",
+    "allocatedAmount": "分配金额",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "actions": "操作"
+  },
+  "form": {
+    "budgetItem": "预算项目",
+    "budgetItemPlaceholder": "选择预算项目",
+    "name": "名称",
+    "namePlaceholder": "输入名称",
+    "province": "省份",
+    "provincePlaceholder": "选择省份",
+    "description": "描述",
+    "descriptionPlaceholder": "输入描述",
+    "allocatedAmount": "分配金额",
+    "allocatedAmountPlaceholder": "输入分配金额"
+  },
+  "success": {
+    "title": "成功",
+    "created": "预算项目明细创建成功",
+    "updated": "预算项目明细更新成功",
+    "deleted": "预算项目明细删除成功"
+  },
+  "validation": {
+    "budgetItemRequired": "请选择预算项目",
+    "nameRequired": "请输入名称",
+    "nameMax": "名称不能超过100个字符",
+    "provinceRequired": "请选择省份",
+    "allocatedAmountRequired": "请输入分配金额",
+    "allocatedAmountFormat": "分配金额必须为数字，最多保留2位小数"
+  }
+}

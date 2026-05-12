@@ -1,0 +1,64 @@
+{
+  "list": {
+    "title": "供应商",
+    "search": "搜索",
+    "add": "添加供应商"
+  },
+  "table": {
+    "name": "名称",
+    "contact_info": "联系信息",
+    "created_at": "创建时间",
+    "updated_at": "更新时间",
+    "actions": "操作"
+  },
+  "form": {
+    "name": "名称",
+    "namePlaceholder": "请输入供应商名称",
+    "contactInfo": "联系信息",
+    "contactInfoPlaceholder": "请输入联系信息",
+    "bankAccounts": "添加银行账户",
+    "addBankAccount": "添加银行账户",
+    "currency": "币种",
+    "currencyPlaceholder": "选择币种",
+    "bankName": "银行名称",
+    "bankNamePlaceholder": "请输入银行名称",
+    "accountName": "账户名称",
+    "accountNamePlaceholder": "请输入账户名称",
+    "accountNumber": "账户号码",
+    "accountNumberPlaceholder": "请输入账户号码",
+    "completeBankAccount": " 银行账户添加成功",
+    "bankPlaceholder": "选择银行"
+  },
+  "modal": {
+    "create": "添加供应商",
+    "edit": "编辑供应商",
+    "delete": "删除供应商",
+    "deleteConfirm": "您确定要删除 {name} 吗？",
+    "deleteWarning": "此操作无法撤销"
+  },
+  "validation": {
+    "nameRequired": "请输入名称",
+    "nameMin": "名称至少需要2个字符",
+    "nameMax": "名称不能超过100个字符",
+    "contactInfoRequired": "请输入联系信息",
+    "contactInfoMax": "联系信息不能超过500个字符"
+  },
+  "success": {
+    "title": "成功",
+    "created": "供应商创建成功",
+    "updated": "供应商更新成功",
+    "deleted": "供应商删除成功"
+  },
+  "error": {
+    "saveFailed": "保存供应商失败",
+    "deleteFailed": "删除供应商失败",
+    "loadFailed": "加载供应商失败"
+  },
+  "button": {
+    "edit": "编辑",
+    "save": "保存",
+    "cancel": "取消",
+    "confirm": "确认",
+    "delete": "删除"
+  }
+}

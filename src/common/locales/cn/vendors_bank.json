@@ -1,0 +1,67 @@
+{
+  "list": {
+    "title": "供应商银行账户",
+    "search": "搜索...",
+    "add": "添加银行账户"
+  },
+  "modal": {
+    "title": "添加银行账户",
+    "editTitle": "编辑银行账户",
+    "deleteTitle": "删除银行账户",
+    "deleteMessage": "您确定要删除此银行账户吗？",
+    "deleteSuccess": "成功删除银行账户"
+  },
+  "status": {
+    "active": "启用",
+    "inactive": "禁用"
+  },
+  "form": {
+    "vendor": "供应商",
+    "vendorPlaceholder": "选择供应商",
+    "currency": "币种",
+    "currencyPlaceholder": "选择币种",
+    "bankName": "银行名称",
+    "bankNamePlaceholder": "请输入银行名称",
+    "accountName": "账户名称",
+    "accountNamePlaceholder": "请输入账户名称",
+    "accountNumber": "账户号码",
+    "accountNumberPlaceholder": "请输入账户号码",
+    "isSelected": "是否选中",
+    "bankPlaceholder": "选择银行"
+  },
+  "validation": {
+    "vendorRequired": "请选择供应商",
+    "currencyRequired": "请选择币种",
+    "bankNameRequired": "请输入银行名称",
+    "bankNameMax": "银行名称不能超过100个字符",
+    "accountNameRequired": "请输入账户名称",
+    "accountNameMax": "账户名称不能超过100个字符",
+    "accountNumberRequired": "请输入账户号码",
+    "accountNumberFormat": "账户号码只能包含数字",
+    "accountNumberMax": "账户号码不能超过20位数字"
+  },
+  "success": {
+    "title": "成功",
+    "created": "供应商银行账户创建成功",
+    "updated": "供应商银行账户更新成功",
+    "deleted": "供应商银行账户删除成功"
+  },
+  "error": {
+    "saveFailed": "保存供应商银行账户失败",
+    "deleteFailed": "删除供应商银行账户失败",
+    "loadFailed": "加载供应商银行账户失败"
+  },
+
+
+  "table": {
+    "vendor": "供应商",
+    "currency": "币种",
+    "bankName": "银行名称",
+    "accountName": "账户名称",
+    "accountNumber": "账户号码",
+    "isSelected": "已选中",
+    "createdAt": "创建日期",
+    "updatedAt": "更新日期",
+    "actions": "操作"
+  }
+}

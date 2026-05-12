@@ -1,0 +1,14 @@
+{
+    "success": {
+        "title": "审批完成",
+        "description": "您的采购申请已被批准。信息将转发至财务部门进行进一步审批处理。"
+    },
+    "refused": {
+        "title": "拒绝完成",
+        "description": "您的采购申请已被拒绝。信息将返回给申请人。"
+    },
+    "reason": "原因",
+    "enter_reason": "请输入原因",
+    "err_reason": "请输入原因",
+    "description": "请提供拒绝的原因"
+}

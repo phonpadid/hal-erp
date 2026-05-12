@@ -1,0 +1,102 @@
+{
+  "notify": {
+    "created": "预算项目创建成功",
+    "update": "预算项目更新成功",
+    "delete": "预算项目删除成功"
+  },
+  "alert": {
+    "confirm": "确认删除",
+    "message": "您确定要删除此预算项目吗",
+    "remark": "一经确认此操作无法撤销。"
+  },
+  "title": "预算项目信息",
+  "total": "总计",
+  "item": "项",
+  "add": "添加预算项目",
+  "header_form": {
+    "add": "预算项目创建表单",
+    "edit": "预算项目更新表单"
+  },
+  "placeholder": {
+    "search": "搜索预算项目",
+    "budget_account": "选择预算账户"
+  },
+  "error": {
+    "budget_account": "请选择预算账户",
+    "name": "请输入项目名称",
+    "name_max": "项目名称不能超过100个字符",
+    "allocated_amount": "请输入分配金额",
+    "allocated_amount_format": "分配金额必须为数字，最多保留2位小数",
+    "loadFailed": "加载预算项目失败",
+    "loadDataFailed": "加载数据失败",
+    "loadBudgetAccountsFailed": "加载预算账户失败",
+    "saveFailed": "保存预算项目失败",
+    "updateFailed": "更新预算项目失败",
+    "deleteFailed": "删除预算项目失败"
+  },
+  "field": {
+    "budget_account": "预算账户",
+    "name": "名称",
+    "allocated_amount": "分配金额",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "manage": "管理",
+    "itemDetails": "项目明细",
+    "noDetails": "暂无明细",
+    "balance_amount": "余额",
+    "use_amount": "已使用金额"
+
+  },
+  "list": {
+    "title": "预算项目",
+    "titleForAccount": "账户的预算项目",
+    "search": "搜索预算项目",
+    "add": "添加预算项目",
+    "name": "名称",
+    "allocatedAmount": "分配金额",
+    "budgetAccount": "预算账户",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "actions": "操作"
+  },
+  "form": {
+    "budgetAccount": "预算账户",
+    "budgetAccountPlaceholder": "选择预算账户",
+    "name": "项目名称",
+    "namePlaceholder": "输入项目名称",
+    "allocatedAmount": "分配金额",
+    "allocatedAmountPlaceholder": "输入分配金额",
+    "detailsTitle": "预算项目明细",
+    "detailItem": "明细项",
+    "province": "省份",
+    "provincePlaceholder": "选择省份",
+    "description": "描述",
+    "descriptionPlaceholder": "输入描述",
+    "addDetail": "添加明细"
+  },
+  "modal": {
+    "title": "添加新预算项目",
+    "editTitle": "编辑预算项目",
+    "deleteTitle": "删除预算项目",
+    "deleteMessage": "您确定要删除预算项目 {name} 吗？",
+    "deleteWarning": "一经确认此操作无法撤销。"
+  },
+  "success": {
+    "title": "成功",
+    "created": "预算项目创建成功",
+    "updated": "预算项目更新成功",
+    "deleted": "预算项目删除成功"
+  },
+  "validation": {
+    "budgetAccountRequired": "请选择预算账户",
+    "nameRequired": "请输入项目名称",
+    "nameMax": "项目名称不能超过100个字符",
+    "allocatedAmountRequired": "请输入分配金额",
+    "allocatedAmountFormat": "分配金额必须为数字，最多保留2位小数",
+    "detailsRequired": "至少需要一个预算项目",
+    "provinceRequired": "项目 {index} 必须填写省份",
+    "detailAllocatedAmountRequired": "项目 {index} 必须填写分配金额",
+    "detailAllocatedAmountFormat": "项目 {index} 的分配金额必须为数字，最多保留2位小数",
+    "error": "验证错误"
+  }
+}

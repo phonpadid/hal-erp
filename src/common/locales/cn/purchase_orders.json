@@ -1,0 +1,28 @@
+{
+  "table": {
+    "order_number": "订单编号",
+    "name": "名称",
+    "created_at": "创建时间",
+    "status": "状态",
+    "action": "操作",
+    "total": "总计"
+  },
+  "agency":"代理机构",
+  "quantity":"数量",
+  "department":"部门",
+  "Objectivesanditems":"目的与项目",
+  "Proposal":"申请单",
+  "p_orders":"创建采购审批信息",
+  "list":"项目列表",
+    "card_title": {
+    "title": "采购申请标题",
+    "padding": "处理中",
+    "success": "成功",
+    "refused": "已拒绝"
+  },
+  "field":{
+    "purchase_order":"采购订单",
+    "po_number":"采购订单编号"
+  }
+
+}
