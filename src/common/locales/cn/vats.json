@@ -1,0 +1,59 @@
+{
+  "title": "增值税信息",
+  "add": "添加新增值税",
+  "header_form": {
+    "add": "添加新增值税",
+    "edit": "更新增值税",
+    "delete": {
+      "title": "确认删除",
+      "content": "您确定要删除吗",
+      "description": "此操作无法撤销"
+    }
+  },
+  "placeholder": {
+    "amount": "请输入增值税金额",
+    "search": "按增值税金额搜索"
+  },
+  "field": {
+    "amount": "增值税金额",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "manage": "管理"
+  },
+  "notify": {
+    "created": "信息创建成功",
+    "updated": "信息更新成功",
+    "deleted": "信息删除成功"
+  },
+  "validation": {
+    "amountRequired": "金额为必填项",
+    "amountMin": "金额必须大于0",
+    "amountMax": "金额不能超过100",
+    "amountPattern": "金额必须为有效数字"
+  },
+  "modal": {
+    "create": "创建增值税",
+    "edit": "编辑增值税",
+    "delete": "删除增值税",
+    "deleteConfirm": "您确定要删除增值税吗？",
+    "deleteWarning": "此操作无法撤销。"
+  },
+  "form": {
+    "amount": "金额",
+    "amountPlaceholder": "请输入增值税金额"
+  },
+  "success": {
+    "title": "成功",
+    "created": "增值税创建成功",
+    "updated": "增值税更新成功",
+    "deleted": "增值税删除成功"
+  },
+  "error": {
+    "amount": "请输入增值税金额",
+    "title": "错误",
+    "loadFailed": "加载增值税失败",
+    "createFailed": "创建增值税失败",
+    "updateFailed": "更新增值税失败",
+    "deleteFailed": "删除增值税失败"
+  }
+}

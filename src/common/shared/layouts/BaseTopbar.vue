@@ -36,6 +36,7 @@ const email = parsed?.email || "";
 const lang = computed(() => [
   { name: t("lang.en"), value: "en", icon: "/en.png" },
   { name: t("lang.la"), value: "la", icon: "/lo.png" },
+  { name: t("lang.cn"), value: "cn", icon: "/cn.png" },
 ]);
 
 const showLogoutModal = ref(false);
@@ -115,7 +116,12 @@ watch(locale, updateCurrentLang);
           class="ant-dropdown-link flex items-center ring-1 ring-slate-200 shadow-sm px-2 h-8 rounded-full bg-slate-50 gap-2"
           @click.prevent
         >
-          <img :src="locale === 'la' ? '/lo.png' : '/en.png'" alt="flag" width="20" height="20" />
+          <img
+            :src="locale === 'la' ? '/lo.png' : locale === 'cn' ? '/cn.png' : '/en.png'"
+            alt="flag"
+            width="20"
+            height="20"
+          />
           <span class="text-[14px] leading-none">{{ currentLang }}</span>
           <DownOutlined :style="{ fontSize: '12px' }" />
         </a>

@@ -1,0 +1,22 @@
+{
+  "list": {
+    "title": "权限列表",
+    "add": "添加权限",
+    "search": "搜索权限...",
+    "permissionname": "权限名称",
+    "displayName": "显示名称",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "actions": "操作",
+    "status": "状态"
+  },
+  "title": "权限",
+  "assignPermissions": "分配权限",
+  "module": "模块",
+  "action": "操作",
+  "description": "描述",
+  "selectAll": "全选",
+  "selectNone": "取消全选",
+  "saveSuccess": "权限保存成功",
+  "saveFailed": "权限保存失败"
+}

@@ -1,0 +1,87 @@
+{
+  "title": "管理公司用户",
+  "add": "添加新用户",
+  "create": "创建用户",
+  "createDescription": "填写用户信息以创建新用户账户",
+  "editDescription": "编辑用户信息",
+  "selectCompany": "选择公司",
+  "selectCompanyFirst": "请先选择公司",
+  "selectCompanyDescription": "选择您要管理用户账户的公司",
+  "backToCompanies": "返回公司列表",
+  "viewCompanies": "查看所有公司",
+  "description": "管理公司内的用户账户",
+  "form": {
+    "userInfo": "用户信息",
+    "username": "用户名",
+    "usernamePlaceholder": "请输入用户名",
+    "email": "用户邮箱",
+    "emailPlaceholder": "请输入用户邮箱",
+    "tel": "用户电话号码",
+    "telPlaceholder": "请输入用户电话号码",
+    "password": "密码",
+    "passwordPlaceholder": "请输入密码",
+    "confirmPassword": "确认密码",
+    "confirmPasswordPlaceholder": "请确认密码",
+    "signature": "用户签名",
+    "roles": "角色",
+    "rolesPlaceholder": "请选择角色",
+    "permissions": "权限",
+    "permissionsPlaceholder": "请选择权限",
+    "signatureUpload": "上传用户签名图片"
+  },
+  "placeholder": {
+    "search": "按用户名或邮箱搜索"
+  },
+  "field": {
+    "username": "用户名",
+    "email": "用户邮箱",
+    "tel": "用户电话号码",
+    "roles": "角色",
+    "permissions": "权限",
+    "signature": "用户签名",
+    "created": "创建时间",
+    "manage": "管理"
+  },
+  "validation": {
+    "usernameRequired": "用户名为必填项",
+    "usernameMin": "用户名至少需要3个字符",
+    "usernameMax": "用户名不能超过50个字符",
+    "usernameFormat": "用户名只能由字母、数字和下划线组成",
+    "usernameExists": "该用户名已被使用",
+    "userEmailRequired": "用户邮箱为必填项",
+    "userEmailFormat": "请输入有效的邮箱地址",
+    "userEmailExists": "该用户邮箱已被使用",
+    "userTelRequired": "用户电话号码为必填项",
+    "userTelFormat": "用户电话号码必须为8-15位数字",
+    "userTelExists": "该用户电话号码已被使用",
+    "passwordRequired": "密码为必填项",
+    "passwordMin": "密码至少需要6个字符",
+    "confirmPasswordRequired": "确认密码为必填项",
+    "passwordMismatch": "两次输入的密码不一致",
+    "rolesRequired": "请至少选择1个角色",
+    "permissionsRequired": "请至少选择1个权限"
+  },
+  "modal": {
+    "create": "创建用户",
+    "edit": "编辑用户",
+    "delete": "删除用户",
+    "deleteConfirm": "您确定要删除此用户吗?",
+    "deleteWarning": "此操作无法撤销。"
+  },
+  "success": {
+    "title": "成功",
+    "created": "用户账户创建成功",
+    "updated": "用户账户更新成功",
+    "deleted": "用户账户删除成功"
+  },
+  "button": {
+    "create": "创建用户"
+  },
+  "error": {
+    "title": "错误",
+    "loadFailed": "加载用户账户数据失败",
+    "createFailed": "创建用户账户失败",
+    "updateFailed": "更新用户账户失败",
+    "deleteFailed": "删除用户账户失败"
+  }
+}

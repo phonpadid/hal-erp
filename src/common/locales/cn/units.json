@@ -1,0 +1,64 @@
+{
+  "title": "单位信息",
+  "add": "添加新单位",
+  "header_form": {
+    "add": "添加新单位",
+    "edit": "更新单位",
+    "delete": {
+      "title": "确认删除",
+      "content": "您确定要删除吗",
+      "description": "此操作无法撤销"
+    }
+  },
+  "placeholder": {
+    "name": "请输入单位名称",
+    "search": "按单位名称搜索"
+  },
+
+  "field": {
+    "name": "单位名称",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "manage": "管理"
+  },
+  "notify": {
+    "created": "信息创建成功",
+    "updated": "信息更新成功",
+    "deleted": "信息删除成功"
+  },
+  "validation": {
+    "nameRequired": "名称为必填项",
+    "nameMin": "名称至少需要2个字符",
+    "nameMax": "名称不能超过100个字符",
+    "codeRequired": "编码为必填项",
+    "codeMin": "编码至少需要2个字符",
+    "codeMax": "编码不能超过50个字符"
+  },
+  "modal": {
+    "create": "创建单位",
+    "edit": "编辑单位",
+    "delete": "删除单位",
+    "deleteConfirm": "您确定要删除单位吗？",
+    "deleteWarning": "此操作无法撤销。"
+  },
+  "form": {
+    "name": "单位名称",
+    "namePlaceholder": "请输入单位",
+    "code": "编码",
+    "codePlaceholder": "请输入单位"
+  },
+   "success": {
+    "title": "成功",
+    "created": "单位创建成功",
+    "updated": "单位更新成功",
+    "deleted": "单位删除成功"
+  },
+  "error": {
+    "name": "请输入类别名称",
+    "title": "错误",
+    "loadFailed": "加载单位失败",
+    "createFailed": "创建单位失败",
+    "updateFailed": "更新单位失败",
+    "deleteFailed": "删除单位失败"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "title": "职位信息",
+  "add": "添加新职位",
+  "header_form": {
+    "add": "添加新职位",
+    "edit": "更新职位",
+    "delete": {
+      "title": "确认删除",
+      "content": "您确定要删除吗",
+      "description": "此操作无法撤销"
+    }
+  },
+  "placeholder": {
+    "name": "请输入职位名称",
+    "search": "按职位名称搜索"
+  },
+
+  "field": {
+    "name": "职位名称",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "manage": "管理"
+  },
+  "notify": {
+    "created": "信息创建成功",
+    "updated": "信息更新成功",
+    "deleted": "信息删除成功"
+  },
+  "validation": {
+    "nameRequired": "名称为必填项",
+    "nameMin": "名称至少为2个字符",
+    "nameMax": "名称不能超过100个字符",
+    "codeRequired": "编码为必填项",
+    "codeMin": "编码至少为2个字符",
+    "codeMax": "编码不能超过50个字符"
+  },
+  "modal": {
+    "create": "创建职位",
+    "edit": "编辑职位",
+    "delete": "删除职位",
+    "deleteConfirm": "您确定要删除该职位吗?",
+    "deleteWarning": "此操作无法撤销。"
+  },
+  "form": {
+    "name": "职位名称",
+    "namePlaceholder": "请输入职位",
+    "code": "编码",
+    "codePlaceholder": "请输入职位"
+  },
+  "success": {
+    "title": "成功",
+    "created": "职位创建成功",
+    "updated": "职位更新成功",
+    "deleted": "职位删除成功"
+  },
+  "error": {
+    "name": "请输入类别名称",
+    "title": "错误",
+    "loadFailed": "加载职位失败",
+    "createFailed": "创建职位失败",
+    "updateFailed": "更新职位失败",
+    "deleteFailed": "删除职位失败"
+  }
+}

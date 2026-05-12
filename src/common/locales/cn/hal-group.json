@@ -1,0 +1,64 @@
+{
+  "title": "Hal 集团",
+  "add": "添加 Hal",
+  "overview": " Hal 集团概览",
+  "create": "创建 Hal",
+  "createDescription": "提供 Hal 集团的信息以创建新集团。",
+  "editDescription": "编辑 Hal 集团的信息。",
+  "description": "管理系统内的 Hal 集团。",
+  "followingDescription": "跟踪网络中所有公司的信息和进展。",
+  "filters": "筛选",
+  "showdata": "显示数据:",
+  "overyear": "年度",
+  "proposal":"等待提案审批",
+  "name": "总计",
+  "budget": "预算超支",
+  "budgetused":" 已使用预算",
+  "earlybudget":" 初始预算",
+  "proposals": "提案",
+  "all-employees": "全体员工",
+  "placeholder": {
+    "search": "搜索 Hal 集团"
+  },
+  "form": {
+    "name": "Hal 集团名称",
+    "namePlaceholder": "请输入 Hal 集团名称",
+    "description": "描述",
+    "descriptionPlaceholder": "请输入描述"
+  },
+  "field": {
+    "name": "Hal 集团名称",
+    "description": "描述",
+    "created": "创建时间",
+    "manage": "管理"
+  },
+  "validation": {
+    "nameRequired": "HAL 集团名称为必填项",
+    "nameMin": "HAL 集团名称至少需要2个字符",
+    "nameMax": "HAL 集团名称不能超过100个字符",
+    "descriptionMax": "描述不能超过500个字符"
+  },
+  "modal": {
+    "create": "创建 HAL 集团",
+    "edit": "编辑 HAL 集团",
+    "delete": "删除 HAL 集团",
+    "deleteConfirm": "您确定要删除 HAL 集团 '{name}' 吗?",
+    "deleteWarning": "此操作无法撤销。"
+  },
+  "success": {
+    "title": "成功",
+    "created": "HAL 集团创建成功",
+    "updated": "HAL 集团更新成功",
+    "deleted": "HAL 集团删除成功"
+  },
+  "button": {
+    "create": "创建 HAL 集团"
+  },
+  "error": {
+    "title": "错误",
+    "loadFailed": "加载 HAL 集团数据失败",
+    "createFailed": "创建 HAL 集团失败",
+    "updateFailed": "更新 HAL 集团失败",
+    "deleteFailed": "删除 HAL 集团失败"
+  }
+}

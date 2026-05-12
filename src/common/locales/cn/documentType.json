@@ -1,0 +1,57 @@
+{
+  "list": {
+    "title": "文档类型",
+    "add": "添加文档类型",
+    "search": "搜索文档类型..."
+  },
+  "form": {
+    "name": "名称",
+    "namePlaceholder": "请输入文档类型名称",
+    "code": "代码",
+    "codePlaceholder": "请输入文档类型代码",
+    "category": "类别",
+    "categoryPlaceholder": "请选择文档类别"
+  },
+  "table": {
+    "name": "名称",
+    "code": "代码",
+    "status": "状态",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "actions": "操作"
+  },
+  "modal": {
+    "create": "创建文档类型",
+    "edit": "编辑文档类型",
+    "delete": "删除文档类型",
+    "deleteConfirm": "您确定要删除文档类型 {name} 吗?",
+    "deleteWarning": "此操作无法撤销。"
+  },
+  "validation": {
+    "nameRequired": "名称为必填项",
+    "nameMin": "名称至少需要2个字符",
+    "nameMax": "名称不能超过100个字符",
+    "codeRequired": "代码为必填项",
+    "codeMin": "代码至少需要2个字符",
+    "codeMax": "代码不能超过50个字符",
+    "codePattern": "代码不能包含特殊字符: & * $ # ( ) @ ! ~ + .",
+    "categoryIdMustBeNumber": "类别ID必须为数字"
+  },
+  "status": {
+    "active": "启用",
+    "inactive": "停用"
+  },
+  "success": {
+    "title": "成功",
+    "created": "文档类型创建成功",
+    "updated": "文档类型更新成功",
+    "deleted": "文档类型删除成功"
+  },
+  "error": {
+    "title": "错误",
+    "loadFailed": "加载文档类型失败",
+    "createFailed": "创建文档类型失败",
+    "updateFailed": "更新文档类型失败",
+    "deleteFailed": "删除文档类型失败"
+  }
+}

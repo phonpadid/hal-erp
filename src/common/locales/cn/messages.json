@@ -1,0 +1,12 @@
+{
+    "loading": "加载中...",
+    "err": "出现错误!",
+    "notification": "通知",
+    "error": {
+      "title": "错误",
+      "loadFailed": "加载失败",
+      "createFailed": "创建失败",
+      "updateFailed": "更新失败",
+      "deleteFailed": "删除失败"
+    }
+}

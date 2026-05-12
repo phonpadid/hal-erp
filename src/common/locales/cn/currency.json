@@ -1,0 +1,36 @@
+{
+    "notify": {
+        "created": "信息创建成功",
+        "update": "信息更新成功",
+        "delete": "信息删除成功"
+    },
+    "alert": {
+        "confirm": "确认删除",
+        "message": "您确定要删除此数据吗",
+        "remark": "一旦确认,此操作将无法撤销。"
+    },
+    "title": "货币信息",
+    "total": "总计",
+    "currency": "货币",
+    "add": "添加货币",
+    "header_form": {
+        "add": "货币创建表单",
+        "edit": "货币更新表单"
+    },
+    "placeholder": {
+        "search": "搜索货币信息",
+        "code": "请输入代码",
+        "name": "请输入货币名称"
+    },
+    "error": {
+        "code": "请输入代码",
+        "name": "请输入货币名称"
+    },
+    "field": {
+        "code": "代码",
+        "name": "货币名称",
+        "created": "创建时间",
+        "updated": "更新时间",
+        "manege": "管理"
+    }
+}

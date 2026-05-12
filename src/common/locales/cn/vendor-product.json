@@ -1,0 +1,54 @@
+{
+  "detail": {
+    "title": "供应商详情",
+    "subtitle": "管理供应商信息和产品",
+    "info": "供应商信息"
+  },
+  "list": {
+    "title": "供应商产品",
+    "add": "添加产品",
+    "noData": "未找到该供应商的产品"
+  },
+  "placeholder": {
+    "search": "搜索产品..."
+  },
+  "table": {
+    "product": "产品",
+    "price": "价格",
+    "currency": "币种",
+    "createdAt": "添加日期"
+  },
+  "form": {
+    "product": "产品",
+    "selectProduct": "选择产品",
+    "price": "价格",
+    "pricePlaceholder": "请输入价格",
+    "currency": "币种",
+    "selectCurrency": "选择币种"
+  },
+  "modal": {
+    "create": "添加供应商产品",
+    "edit": "编辑供应商产品",
+    "delete": "删除供应商产品",
+    "deleteConfirm": "您确定要从该供应商移除 {name} 吗？",
+    "deleteWarning": "此操作无法撤销"
+  },
+  "validation": {
+    "productRequired": "请选择产品",
+    "priceRequired": "价格必须大于0",
+    "duplicateProduct": "该产品已添加到此供应商"
+  },
+  "success": {
+    "title": "成功",
+    "created": "供应商产品添加成功",
+    "updated": "供应商产品更新成功",
+    "deleted": "供应商产品移除成功"
+  },
+  "error": {
+    "saveFailed": "保存供应商产品失败",
+    "deleteFailed": "移除供应商产品失败",
+    "loadFailed": "加载供应商产品失败",
+    "notFound": "未找到供应商",
+    "notFoundMessage": "您查找的供应商不存在或已被删除"
+  }
+}
