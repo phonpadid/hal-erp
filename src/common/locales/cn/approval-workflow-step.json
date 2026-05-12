@@ -1,0 +1,63 @@
+{
+  "notify": {
+    "created": "信息创建成功。",
+    "update": "信息更新成功。",
+    "delete": "信息删除成功。"
+  },
+  "alert": {
+    "confirm": "确认删除",
+    "message": "您确定要删除此信息吗？",
+    "remark": "此操作一经确认无法撤销。"
+  },
+  "yes": "是",
+  "no": "否",
+  "title": "审批工作流步骤信息",
+  "total": "总计",
+  "item": "项",
+  "add": "添加信息",
+  "header_form": {
+    "add": "审批工作流步骤创建表单",
+    "edit": "审批工作流步骤更新表单"
+  },
+  "placeholder": {
+    "search": "搜索信息",
+    "approval_workflow": "选择审批工作流",
+    "department": "选择部门",
+    "step_name": "输入步骤名称",
+    "step_number": "输入步骤编号",
+    "user": "选择用户",
+    "type": "选择审批类型"
+  },
+  "error": {
+    "approval_workflow": "请选择审批工作流。",
+    "department": "请选择部门类型。",
+    "step_name": "请输入步骤名称。",
+    "step_number": "请输入步骤编号。",
+    "max_name": "步骤名称不能超过255个字符。",
+    "max_number": "步骤编号不能超过12位数字。",
+    "user": "请选择用户。",
+    "type": "请选择审批类型"
+  },
+  "field": {
+    "approval_workflow": "审批工作流",
+    "department": "部门",
+    "step_name": "步骤名称",
+    "step_number": "步骤编号",
+    "step": "步骤",
+    "type": "审批级别",
+    "requires_file": "需要上传文件",
+    "requires_upload": "需要文件",
+    "isOtp": "需要OTP",
+    "is_otp": "需要发送OTP",
+    "user": "用户",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "manege": "管理"
+  },
+  "enum": {
+    "department": "部门",
+    "specific_user": "指定用户",
+    "department_head": "部门主管",
+    "condition": "条件"
+  }
+}

@@ -1,0 +1,35 @@
+{
+    "title": {
+        "detail": "详情",
+        "select_r": "选择收据类型",
+        "r_type": "收据类型",
+        "budget_code": "预算编码",
+        "account_number": "账户号码",
+        "create": "创建收据",
+        "approval_proposal": "审批提案",
+        "approved": "已批准",
+        "description": "付款凭证审批成功",
+        "success": "成功",
+        "view_store": "查看仓库",
+        "store": "仓库",
+        "total": "总金额",
+        "title": "内容",
+        "id": "序号",
+        "payment_type": "付款方式",
+        "cash": "现金",
+        "transfer": "银行转账",
+        "cheque": "支票",
+        "remark": "备注",
+        "from_dpm": "来源部门",
+        "enter_pur": "请输入用途",
+        "enter_remark": "请输入备注（如有）",
+        "item": "项目"
+    },
+    "total": {
+        "sub_total": "小计",
+        "vat": "增值税",
+        "total": "总计金额"
+    },
+    "address": "地址",
+    "from_company": "来源公司"
+}

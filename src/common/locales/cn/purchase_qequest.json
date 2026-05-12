@@ -1,0 +1,23 @@
+{
+  "table": {
+    "title": "标题",
+    "name": "名称",
+    "number": "编号",
+    "quantity": "数量",
+    "price": "价格",
+    "unit": "单位",
+    "total": "总计",
+    "note": "备注",
+    "total_price": "总价",
+    "image": "图片",
+    "remark": "备注",
+    "action": "操作",
+    "vendor": "供应商",
+    "Shop": "店铺",
+    "sub_total": "小计"
+  },
+  "error":{
+    "document_type_required":"单据类型为必填项"
+
+  }
+}

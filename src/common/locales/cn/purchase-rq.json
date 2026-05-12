@@ -1,0 +1,119 @@
+{
+  "otp_verification": "确认OTP验证码",
+  "field": {
+    "pr_number": "编号",
+    "user": "员工姓名",
+    "proposer": "申请人信息",
+    "position": "职位",
+    "department": "部门",
+    "rq_date": "申请日期",
+    "date_rq": "需求日期",
+    "doc_type": "申请类型",
+    "status": "状态",
+    "manage": "管理",
+    "proposal": "申请单",
+    "proposals": "申请单",
+    "id": "ID",
+    "content": "内容",
+    "qty": "数量",
+    "title": "标题",
+    "total_price":"总价",
+    "price": "价格",
+    "remark": "备注",
+    "img_example": "图片示例或PDF",
+    "amount": "总余额",
+    "amounts": "总金额",
+    "purposes": "用途",
+    "unit":"单位",
+    "currency": "币种",
+    "filter_type": "筛选类型"
+  },
+  "created": "创建申请单",
+  "search": "搜索",
+  "check": "查看",
+  "done": "完成",
+  "description": "详情",
+  "edit": "编辑",
+  "otp-verification": "模式如",
+  "date": "日期",
+  "all": "全部",
+  "filter_type": {
+    "all": "所有申请单",
+    "only_user": "我的申请单"
+  },
+  "status": {
+    "pending": "待审批",
+    "approved": "已批准",
+    "rejected": "已拒绝"
+  },
+  "card_title": {
+    "title": "采购申请标题",
+    "padding": "处理中",
+    "success": "成功",
+    "refused": "已拒绝"
+  },
+  "signature": "签名",
+  "confirm_otp": "确认OTP验证码",
+  "confirm_signature": "确认签名",
+  "check_message": "请查看您短信中的OTP",
+  "content": "6位验证码已发送至您的手机号码",
+  "no_code": "未收到验证码?",
+  "send_again": "重新发送",
+  "message": "您的签名将用于验证文件",
+  "sended": "您的申请单已发送至业务发展部主管",
+  "proposal": "采购审批表",
+  "edit_purchase_request": "编辑采购申请",
+  "proposer": "申请人",
+  "proposer_list": "用途与项目",
+  "approver": "审批人",
+  "approval_proposal": "审批申请单",
+  "pending":"待审批",
+  "phd": {
+    "doc_type": "请选择申请类型",
+    "rq_date": "yyyy - mm - dd",
+    "purpose": "请输入用途",
+    "title": "请输入标题",
+    "qty": "请输入数量",
+    "price": "请输入价格",
+    "remark": "请输入备注",
+    "unit":"单位"
+  },
+  "error": {
+    "rq_date": "请选择日期",
+    "title": "请输入标题",
+    "qty": "请输入数量",
+    "price": "请输入价格",
+    "min_qty": "最小数量为1",
+    "max_qty": "最大数量为12",
+    "min_price": "最小价格为1",
+    "max_price": "价格不能超过12位数字",
+    "max_title": "标题最多255个字符",
+     "images_required":"图片为必填项",
+    "deleteFailed": "删除失败",
+    "cannotDeleteApproved": "无法删除已批准或已拒绝的申请单"
+  },
+  "success": {
+    "title": "成功",
+    "deleted": "申请单删除成功"
+  },
+  "alert": {
+    "confirm": "确认删除",
+    "message": "您确定要删除此申请单吗?"
+  },
+  "btn": {
+    "add_title": "添加",
+    "dl_title": "移除",
+    "cancel": "取消",
+    "confirm": "确认",
+    "approval": "审批",
+    "back":"返回",
+    "create_po": "创建采购订单",
+    "export_excel": "导出Excel"
+  },
+  "export": {
+    "start_date": "开始日期",
+    "end_date": "结束日期",
+    "success": "导出成功",
+    "failed": "导出失败"
+  }
+}

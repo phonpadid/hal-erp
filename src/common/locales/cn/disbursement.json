@@ -1,0 +1,27 @@
+{
+    "field": {
+        "no": "序号",
+        "created_by": "创建人",
+        "created_at": "创建时间",
+        "status": "状态",
+        "current_approver": "当前审批人",
+        "manage": "管理",
+        "branch": "分支",
+        "departmentt": "部门",
+        "budget_code": "预算代码",
+        "price": "价格",
+        "remark": "备注",
+        "addition_pay": "附加付款金额",
+        "doc_attachment": "文档附件",
+        "detail": "详情",
+        "total": "总计",
+        "receipt_number": "收据编号"
+    },
+    "vendor": {
+        "title": "商店信息",
+        "name": "商店",
+        "bank": "银行",
+        "account_name": "账户名称",
+        "account_number": "账户号码"
+    }
+}

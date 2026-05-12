@@ -1,0 +1,75 @@
+{
+  "list": {
+    "title": "部门角色管理",
+    "add": "添加部门角色",
+    "search": "搜索部门角色...",
+    "name": "名称",
+    "department": "部门",
+    "role": "角色",
+    "permissions": "权限",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "actions": "操作",
+    "status": "状态",
+    "tableTitle": "部门角色",
+    "btn": "添加部门角色"
+  },
+  "status": {
+    "active": "启用",
+    "inactive": "已删除"
+  },
+  "form": {
+    "role": "角色",
+    "department": "部门",
+    "permissions": "权限",
+    "create": "创建部门角色",
+    "update": "更新部门角色",
+    "rolePlaceholder": "请选择角色",
+    "departmentPlaceholder": "请选择部门"
+  },
+  "validation": {
+    "roleRequired": "请选择角色",
+    "departmentRequired": "请选择部门",
+    "permissionsRequired": "请至少选择一个权限"
+  },
+  "modal": {
+    "create": "创建新部门角色",
+    "edit": "编辑部门角色",
+    "delete": "删除部门角色",
+    "restore": "恢复部门角色",
+    "deleteConfirm": "您确定要删除部门角色 \"{roleName}\" 吗?",
+    "deleteWarning": "此操作无法撤销。",
+    "restoreConfirm": "您确定要恢复部门角色 \"{roleName}\" 吗?"
+  },
+  "success": {
+    "created": "部门角色创建成功",
+    "updated": "部门角色更新成功",
+    "deleted": "部门角色删除成功",
+    "restored": "部门角色恢复成功"
+  },
+  "confirm": {
+    "deleteTitle": "确认删除部门角色",
+    "deleteMessage": "您确定要删除此部门角色吗?"
+  },
+  "buttons": {
+    "confirm": "确认",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "restore": "恢复"
+  },
+  "error": {
+    "loadFailed": "加载部门角色失败",
+    "saveFailed": "保存部门角色失败",
+    "deleteFailed": "删除部门角色失败",
+    "restoreFailed": "恢复部门角色失败",
+    "duplicateName": "该部门角色已存在"
+  },
+  "messages": {
+    "deleteSuccess": "部门角色删除成功"
+  },
+  "filter": {
+    "allDepartments": "全部",
+    "search": "按部门筛选"
+  }
+}

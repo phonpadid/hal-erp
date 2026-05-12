@@ -1,0 +1,89 @@
+{
+  "title": "产品信息",
+  "add": "添加新产品",
+  "header_form": {
+    "add": "添加新产品",
+    "edit": "更新产品",
+    "delete": {
+      "title": "确认删除",
+      "content": "您确定要删除吗",
+      "description": "此操作无法撤销"
+    }
+  },
+  "placeholder": {
+    "name": "请输入产品名称",
+    "description": "请输入产品描述",
+    "search": "按产品名称搜索"
+  },
+
+  "field": {
+    "name": "产品名称",
+    "description": "描述",
+    "productType": "产品类型",
+    "unit": "单位",
+    "status": "状态",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "manage": "管理"
+  },
+
+  "status": {
+    "active": "启用",
+    "inactive": "停用",
+    "draft": "草稿"
+  },
+
+  "notify": {
+    "created": "产品创建成功",
+    "updated": "产品更新成功",
+    "deleted": "产品删除成功"
+  },
+  "validation": {
+    "nameRequired": "名称为必填项",
+    "nameMin": "名称至少为2个字符",
+    "nameMax": "名称不能超过200个字符",
+    "descriptionRequired": "描述为必填项",
+    "descriptionMin": "描述至少为5个字符",
+    "descriptionMax": "描述不能超过1000个字符",
+    "productTypeRequired": "产品类型为必填项",
+    "productTypeValid": "请选择有效的产品类型"
+  },
+  "modal": {
+    "create": "创建产品",
+    "edit": "编辑产品",
+    "delete": "删除产品",
+    "deleteConfirm": "您确定要删除该产品吗?",
+    "deleteWarning": "此操作无法撤销。"
+  },
+  "form": {
+    "name": "产品名称",
+    "namePlaceholder": "请输入产品名称",
+    "description": "描述",
+    "descriptionPlaceholder": "请输入产品描述",
+    "productType": "产品类型",
+    "productTypePlaceholder": "请选择产品类型",
+    "unit": "单位",
+    "unitPlaceholder": "请选择单位 (可选)"
+  },
+   "success": {
+    "title": "成功",
+    "created": "产品创建成功",
+    "updated": "产品更新成功",
+    "deleted": "产品删除成功"
+  },
+  "error": {
+    "name": "请输入产品名称",
+    "title": "错误",
+    "loadFailed": "加载产品失败",
+    "createFailed": "创建产品失败",
+    "updateFailed": "更新产品失败",
+    "deleteFailed": "删除产品失败"
+  },
+  "edit": {
+    "title": "编辑产品"
+  },
+  "delete": {
+    "title": "删除产品",
+    "confirmation": "您确定要删除 '{name}' 吗?"
+  }
+}

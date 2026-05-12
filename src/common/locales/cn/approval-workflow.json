@@ -1,0 +1,56 @@
+{
+  "addMore": "添加更多表单",
+  "notify": {
+    "created": "信息创建成功。",
+    "update": "信息更新成功。",
+    "delete": "信息删除成功。",
+    "verifySuccess": "验证成功！",
+    "verifyFailed": "验证审批状态失败。"
+  },
+  "advance": "预付款",
+  "expenditure": "支出",
+  "alert": {
+    "confirm": "确认删除",
+    "message": "您确定要删除此信息吗",
+    "remark": "此操作一经确认无法撤销。"
+  },
+  "title": "审批工作流信息",
+  "total": "总计",
+  "item": "项",
+  "add": "添加信息",
+  "header_form": {
+    "add": "审批工作流创建表单",
+    "edit": "审批工作流更新表单"
+  },
+  "placeholder": {
+    "search": "搜索信息",
+    "doc_type": "选择文档类型",
+    "name": "输入名称"
+  },
+  "error": {
+    "name": "请输入名称。",
+    "doc_type": "请选择文档类型。",
+    "type": "请选择类型。",
+    "max_name": "名称不能超过255个字符。"
+  },
+  "field": {
+    "status": "状态",
+    "form_name": "表单",
+    "code": "编码",
+    "doc_type": "文档类型",
+    "type": "类型",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "manege": "管理"
+  },
+  "status": {
+    "approved": "已审批",
+    "pending": "待审批",
+    "unknown": "未知"
+  },
+  "confirm": {
+    "title": "确认状态变更",
+    "toApproved": "您确定要将此记录标记为已审批吗？",
+    "toPending": "您确定要将此记录标记为待审批吗？"
+  }
+}
