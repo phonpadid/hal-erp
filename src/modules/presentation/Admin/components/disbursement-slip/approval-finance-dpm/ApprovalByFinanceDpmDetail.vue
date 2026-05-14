@@ -288,6 +288,38 @@ const checkUpload = computed(() => {
 const isAwaitingUser = computed(() =>
   checkUpload.value.some((u) => u.id === user.value.id)
 );
+// ສະແດງຊື່ຕຳແໜ່ງຢູ່ດ້ານລ່າງລາຍເຊັນຂອງແຕ່ລະ step
+// ກວດສອບວ່າຜູ້ອະນຸມັດເປັນ khamthanom ຫຼື Thipkhouneheuan,
+// ໃຫ້ສະແດງເປັນຫົວໜ້າພະແນກຂອງຜູ້ສະເໜີ (ບໍ່ແມ່ນພະແນກຂອງຜູ້ອະນຸມັດ)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getStepTitle = (index: number, step: any) => {
+  if (index === 0) {
+    return "ຜູ້ສ້າງ";
+  }
+  const username = step?.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName =
+      rStore.currentReceipts?.document?.department?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
+  return step?.doc_approver?.[0]?.department?.name ?? "ຜູ້ອຳນວຍການ";
+};
+// ສະແດງຊື່ຕຳແໜ່ງຢູ່ດ້ານລ່າງລາຍເຊັນ — ສຳລັບ khamthanom/Thipkhouneheuan
+// ໃຫ້ໃຊ້ "ຫົວໜ້າ" + ພະແນກຂອງຜູ້ສະເໜີ ແທນຕຳແໜ່ງເດີມຂອງຜູ້ອະນຸມັດ
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getStepPosition = (step: any) => {
+  const username = step?.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName =
+      rStore.currentReceipts?.document?.department?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
+  return step?.position?.name || "-";
+};
 // map data to show on header tag ແລະ ກວດເງື່ອນໄຂການອະນຸມັດ
 const dataHead = computed(() => ({
   form_ref: formRef.value,
@@ -692,7 +724,7 @@ onMounted(async () => {
             ...(rStore.currentReceipts?.user_approval?.approval_step || []),
           ].sort((a, b) => a.step_number - b.step_number)" :key="index" class="signature-approver text-center">
             <p v-if="step.doc_approver" class="text-slate-500 text-sm font-bold">
-              {{ index === 0 ? "ຜູ້ສ້າງ" : step?.doc_approver[0].department?.name ?? 'ຜູ້ອຳນວຍການ' }}
+              {{ getStepTitle(index, step) }}
               <!-- {{ index === 0 ? "ຜູ້ສ້າງ" : t("purchase-rq.approver") + ' ' + (step.step_number) }} -->
             </p>
 
@@ -706,7 +738,7 @@ onMounted(async () => {
 
             <div class="info text-sm text-slate-600 space-y-1">
               <p>{{ step.approver?.username || "-" }}</p>
-              <p>{{ step.position?.name || "-" }}</p>
+              <p>{{ getStepPosition(step) }}</p>
               <p>{{ step?.approved_at || "-" }}</p>
             </div>
           </div>
