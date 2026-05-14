@@ -1,2 +1,6 @@
-ผมต้องการทำปุ่มค้นหา global PR,PO,Receipt ซึ่งมันจะมีว่า search ซึ่งเราจะออกแบบในส่วนของ Header ที่อยู่ส่วนบนของหน้าท
-มีแค่คุณเอาตัว search ไป filter ใส่ api ของ po,pr and Receipt แล้วมันก้อจะได้เลีย
+ผมต้องการให้ คุนกวดสอบ user ของ khamthanom และ Thipkhouneheuan คือเวลาทีมีการอะนุมัดข้อมูนต่างๆ มันจะมีข้อมูนมาจากหลายๆพะแนก ทีข้อมา
+ชิงผมต้องการให้คุนกวดคือ ตัวอย่าง ถ้ามีการข้อ มาจาก พะแนกพาหะนะ เวลาไป khamthanom เหรือ Thipkhouneheuan มันต้องสะแดงข้อมูนทีอะนุมัดเปันพะแนกนั้น
+อยู่ด้านลางของลายเช่น ตวอย่างจะเปัน ถ้ามีการข้อ มาจาก พะแนกพาหะนะ มันก้อจะกายเปัน ห้วหน้าพะแนก พะแนกพาหะนะ ชิงคุนต้องกวดสอบตั้งแต่ PR,PO and Receipt
+1.PR:ApprovalPuchaseRqDetail.vue
+2.PO:ApprovalDepartmentDetails.vue
+3.Receipt: ApprovalByFinanceDpmDetail.vue

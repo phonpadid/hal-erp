@@ -101,9 +101,30 @@ const getStepTitle = (index: number, step: any) => {
   if (index === 0) {
     return t("purchase-rq.proposer");
   }
+  // ກວດສອບວ່າຜູ້ອະນຸມັດເປັນ khamthanom ຫຼື Thipkhouneheuan,
+  // ໃຫ້ສະແດງເປັນຫົວໜ້າພະແນກຂອງຜູ້ສະເໜີ (ບໍ່ແມ່ນພະແນກຂອງຜູ້ອະນຸມັດ)
+  const username = step.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName = requestDetail.value?.getDepartment()?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
   // ໃຊ້ຊື່ແຜນກຈາກ doc_approver[0].department.name
   const deptName = step.doc_approver?.[0]?.department?.name;
   return deptName || `${t("purchase-rq.approver")} ${index}`;
+};
+// ສະແດງຊື່ຕຳແໜ່ງຢູ່ດ້ານລ່າງລາຍເຊັນ — ສຳລັບ khamthanom/Thipkhouneheuan
+// ໃຫ້ໃຊ້ "ຫົວໜ້າ" + ພະແນກຂອງຜູ້ສະເໜີ ແທນຕຳແໜ່ງເດີມຂອງຜູ້ອະນຸມັດ
+const getStepPosition = (step: any) => {
+  const username = step?.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName = requestDetail.value?.getDepartment()?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
+  return step?.position?.name || "-";
 };
 
 /****************************************** */
@@ -872,7 +893,7 @@ onMounted(async () => {
                 <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
                   <template v-if="step.approver">
                     <p class="font-medium">{{ step.approver.username }}</p>
-                    <p class="text-xs text-gray-500">{{ step.position?.name || "-" }}</p>
+                    <p class="text-xs text-gray-500">{{ getStepPosition(step) }}</p>
                     <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
                     <p
                       v-if="step.approved_at"
