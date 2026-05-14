@@ -239,7 +239,7 @@
                 <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
                   <template v-if="step.approver">
                     <p class="font-medium">{{ step.approver.username }}</p>
-                    <p class="text-xs text-gray-500">{{ step.position?.name || "ຜູ້ອຳນວຍການ" }}</p>
+                    <p class="text-xs text-gray-500">{{ getStepPosition(step) }}</p>
                     <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
                     <p
                       v-if="step.approved_at"
@@ -262,12 +262,7 @@
                       {{ t("purchase-rq.pending") }}
                     </p>
                     <p class="text-xs text-gray-400 mt-1">
-                      {{
-                        (step.doc_approver?.[0]?.user?.username === "Sisavanh" ||
-                         step.doc_approver?.[0]?.user?.username === "sisavanh")
-                          ? "ຜູ້ອຳນວຍການ"
-                          : (step.doc_approver?.[0]?.department?.name || "-")
-                      }}
+                      {{ getPendingStepLabel(step) }}
                     </p>
                   </template>
                 </div>
@@ -629,14 +624,51 @@ const getStepTitle = (index: number, step: any) => {
   if (index === 0) {
     return t("purchase-rq.proposer");
   }
+  const username = step.doc_approver?.[0]?.user?.username;
+  // ກວດສອບວ່າຜູ້ອະນຸມັດເປັນ khamthanom ຫຼື Thipkhouneheuan,
+  // ໃຫ້ສະແດງເປັນຫົວໜ້າພະແນກຂອງຜູ້ສະເໜີ (ບໍ່ແມ່ນພະແນກຂອງຜູ້ອະນຸມັດ)
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName = orderDetails.value?.getDepartment()?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
   // ໃຊ້ຊື່ແຜນກຈາກ doc_approver[0].department.name
   // ກວດສອບວ່າເປັນ user Sisavanh ຫຼື ບໍ່, ຖ້າໃຊ້ໃຫ້ສະແດງ "ผู้อำนวยการ"
-  const username = step.doc_approver?.[0]?.user?.username;
   if (username === "Sisavanh" || username === "sisavanh") {
     return "ຜູ້ອຳນວຍການ";
   }
   const deptName = step.doc_approver?.[0]?.department?.name;
   return deptName || `${t("purchase-rq.approver")} ${index}`;
+};
+// ສະແດງຊື່ຕຳແໜ່ງຢູ່ດ້ານລ່າງລາຍເຊັນ — ສຳລັບ khamthanom/Thipkhouneheuan
+// ໃຫ້ໃຊ້ "ຫົວໜ້າ" + ພະແນກຂອງຜູ້ສະເໜີ ແທນຕຳແໜ່ງເດີມຂອງຜູ້ອະນຸມັດ
+const getStepPosition = (step: any) => {
+  const username = step?.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName = orderDetails.value?.getDepartment()?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
+  if (username === "Sisavanh" || username === "sisavanh") {
+    return step?.position?.name || "ຜູ້ອຳນວຍການ";
+  }
+  return step?.position?.name || "ຜູ້ອຳນວຍການ";
+};
+// ປ້າຍກຳກັບໃຕ້ຂໍ້ຄວາມ "ລໍຖ້າອະນຸມັດ" ສຳລັບ step ທີ່ຍັງບໍ່ໄດ້ອະນຸມັດ
+const getPendingStepLabel = (step: any) => {
+  const username = step?.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName = orderDetails.value?.getDepartment()?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
+  if (username === "Sisavanh" || username === "sisavanh") {
+    return "ຜູ້ອຳນວຍການ";
+  }
+  return step?.doc_approver?.[0]?.department?.name || "-";
 };
 
 // ລາຄາ
