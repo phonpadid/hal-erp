@@ -701,13 +701,15 @@ onMounted(async () => {
       class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem]"
       :class="topbarStyle"
     >
-      <UiButton
-        icon="mdi:arrow-left"
-        size="small"
-        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
-        @click="goBack"
-        >ກັບຄືນ</UiButton
-      >
+      <div class="flex justify-end mb-2">
+        <UiButton
+          icon="mdi:arrow-left"
+          size="small"
+          class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+          @click="goBack"
+          >ກັບຄືນ</UiButton
+        >
+      </div>
       <header-component
         @toggle="handleToggle"
         :header-title="t('purchase-rq.approval_proposal')"
