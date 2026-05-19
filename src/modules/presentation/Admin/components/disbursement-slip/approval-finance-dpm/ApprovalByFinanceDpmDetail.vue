@@ -8,7 +8,7 @@ import { Icon } from "@iconify/vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PropovalDrawer from "./drawers/PropovalDrawer.vue";
 import ApprovalDrawer from "./drawers/ApprovalDrawer.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useReceiptStore } from "../../../stores/receipt.store";
 import {
   getUserApv,
@@ -36,6 +36,8 @@ const printModalVisible = ref(false);
 const printType = ref<"about_receipt" | "all_document">("about_receipt");
 const printLoading = ref(false);
 const { t } = useI18n();
+const router = useRouter();
+const goBack = () => router.back();
 const { params } = useRoute();
 const receiptId = params.id as string;
 const rStore = useReceiptStore();
@@ -436,6 +438,13 @@ onMounted(async () => {
 </script>
 <template>
   <div class="no-print">
+    <div class="flex justify-end mb-2">
+      <UiButton
+       icon="mdi:arrow-left" size="small" class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
+    </div>
     <ApvLayout :dataHead="dataHead" :onPrint="openPrintModal" :onApprovalSuccess="resetUploadedImages"></ApvLayout>
     <div class="mt-[10rem] mb-[5rem]">
       <div class="user-info">

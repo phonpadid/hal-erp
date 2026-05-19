@@ -155,15 +155,27 @@ interface BankOption {
   currencyCode?: string;
 }
 const bankOptions = computed<BankOption[]>(() => {
-  return bankAccount.activeBankAccounts.map((account) => ({
-    value: account.getId(),
-    label: account.getBank()?.name || "",
-    accountName: account.getAccountName(),
-    accountNumber: account.getAccountNumber(),
-    logoUrl: account.getBank()?.logoUrl,
-    bankName: account.getBank()?.name,
-    currencyCode: account.getCurrency()?.code,
-  }));
+  return bankAccount.activeBankAccounts.map((account) => {
+    const bankName = account.getBank()?.name || "";
+    const accountName = account.getAccountName();
+    const accountNumber = account.getAccountNumber();
+    const currencyCode = account.getCurrency()?.code || "";
+    const parts = [
+      accountNumber,
+      accountName,
+      bankName,
+      currencyCode ? `(${currencyCode})` : "",
+    ].filter(Boolean);
+    return {
+      value: account.getId(),
+      label: parts.join(" - "),
+      accountName,
+      accountNumber,
+      logoUrl: account.getBank()?.logoUrl,
+      bankName,
+      currencyCode,
+    };
+  });
 });
 const handleBankChange = (value: string) => {
   const selectedBank = bankAccount.activeBankAccounts.find((account) => account.getId() === value);
@@ -340,18 +352,45 @@ defineExpose({ open, close, reset, setSelectedType });
             placeholder="ເລືອກທະນາຄານທີ່ຕ້ອງການໂອນເງິນ"
             @update:modelValue="handleBankChange"
             class="shadow-sm text-xs"
-          >
-            <template #option="{ option }">
-              <div class="flex flex-col py-0.5">
-                <div class="flex items-center gap-1">
-                  <Icon icon="mdi:bank" class="text-gray-400 text-xs" />
-                  <span class="font-medium text-xs">{{ option.label }}</span>
-                </div>
-                <span class="text-gray-500 text-[10px] ml-5">{{ option.account_number }}</span>
-              </div>
-            </template>
-          </InputSelect>
+          />
         </UiFormItem>
+
+        <div
+          v-if="form.bank"
+          class="bg-white rounded-md p-2 shadow-sm border border-green-50 mt-2"
+        >
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-gradient-to-br from-green-100 to-emerald-100 rounded-md flex items-center justify-center flex-shrink-0">
+              <Icon icon="mdi:bank" class="text-green-600 text-sm" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1">
+                <Icon icon="mdi:account" class="text-gray-400 text-xs flex-shrink-0" />
+                <span class="font-semibold text-gray-800 text-xs truncate">
+                  {{ form.accountName }}
+                </span>
+              </div>
+              <div class="flex items-center gap-1 mt-0.5">
+                <Icon icon="mdi:credit-card-outline" class="text-gray-400 text-xs flex-shrink-0" />
+                <span class="text-gray-600 text-xs truncate font-mono">
+                  {{ form.accountNumber }}
+                </span>
+              </div>
+              <div class="flex items-center gap-1 mt-0.5">
+                <Icon icon="mdi:bank-outline" class="text-gray-400 text-xs flex-shrink-0" />
+                <span class="text-gray-500 text-[11px] truncate">
+                  {{ form.bankName }}
+                </span>
+              </div>
+            </div>
+            <div
+              v-if="form.currencyCode"
+              class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full text-[10px] font-medium flex-shrink-0"
+            >
+              {{ form.currencyCode }}
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Additional Information Section -->

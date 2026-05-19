@@ -13,10 +13,13 @@ import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import { useDocumentStatusStore } from "../../../stores/document-status.store";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
+import QuickApprovalPreviewModal from "@/common/shared/components/Modal/QuickApprovalPreviewModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { DatePicker as AntDatePicker } from "ant-design-vue";
 import { useGlobalSearchStore } from "../../../stores/global-search.store";
 import { storeToRefs } from "pinia";
+import { useApprovalStepStore } from "../../../stores/approval-step.store";
+import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
 
 /**********************************************************/
 const { t } = useI18n();
@@ -30,25 +33,37 @@ const globalSearchStore = useGlobalSearchStore();
 const { trimmedKeyword: globalSearchKeyword, trigger: globalSearchTrigger } =
   storeToRefs(globalSearchStore);
 const loading = ref(false);
-const queryPage = Number(route.query.page);
-const queryLimit = Number(route.query.limit);
-const currentPage = ref(
-  Number.isFinite(queryPage) && queryPage > 0 ? queryPage : purchaseRequestStore.pagination.page
-);
-const pageSize = ref(
-  Number.isFinite(queryLimit) && queryLimit > 0 ? queryLimit : purchaseRequestStore.pagination.limit
-);
-const selectedDocType = ref("all");
-const selectedStatus = ref("all");
-const selectedType = ref("all");
 const documentStatusStore = useDocumentStatusStore();
 
-const syncPaginationToUrl = () => {
+// Read initial state from URL (page/limit/filters)
+const queryPage = Number(route.query.page);
+const queryLimit = Number(route.query.limit);
+if (Number.isFinite(queryPage) && queryPage > 0) {
+  purchaseRequestStore.pagination.page = queryPage;
+}
+if (Number.isFinite(queryLimit) && queryLimit > 0) {
+  purchaseRequestStore.pagination.limit = queryLimit;
+}
+const selectedDocType = ref(
+  typeof route.query.document_type_id === "string" ? route.query.document_type_id : "all"
+);
+const STATUS_USER_NAMES = ["PENDING", "APPROVED", "REJECTED", "CANCELLED"] as const;
+const selectedStatusUserId = ref<string>(
+  typeof route.query.status_user_id === "string" ? route.query.status_user_id : ""
+);
+const selectedType = ref(
+  typeof route.query.type === "string" ? route.query.type : "all"
+);
+
+const syncStateToUrl = () => {
   router.replace({
     query: {
       ...route.query,
-      page: String(currentPage.value),
-      limit: String(pageSize.value),
+      page: String(purchaseRequestStore.pagination.page),
+      limit: String(purchaseRequestStore.pagination.limit),
+      type: selectedType.value,
+      document_type_id: selectedDocType.value !== "all" ? selectedDocType.value : undefined,
+      status_user_id: selectedStatusUserId.value || undefined,
     },
   });
 };
@@ -57,6 +72,49 @@ const syncPaginationToUrl = () => {
 const deleteModalVisible = ref(false);
 const deleteLoading = ref(false);
 const selectedDeleteId = ref<string | null>(null);
+
+// Quick preview modal state
+const approvalStepStore = useApprovalStepStore();
+const previewVisible = ref(false);
+const previewLoading = ref(false);
+const previewSubmitting = ref(false);
+const previewId = ref<string | null>(null);
+const previewDocNumber = ref("");
+const previewPurpose = ref("");
+const previewTotal = ref(0);
+const previewCanApprove = ref(false);
+const previewCurrentStep = ref<{ id: number; is_otp: boolean } | null>(null);
+
+const approvedStatusId = computed(
+  () => documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId()
+);
+const rejectedStatusId = computed(
+  () => documentStatusStore.document_Status.find((s) => s.getName() === "REJECTED")?.getId()
+);
+
+const computeCurrentApprovalStep = (detail: any) => {
+  if (!detail) return null;
+  const userDataStr = localStorage.getItem("userData");
+  const userData = userDataStr ? JSON.parse(userDataStr) : null;
+  if (!userData) return null;
+  const userApproval = detail.getUserApproval?.();
+  const steps = userApproval?.approval_step;
+  if (!Array.isArray(steps)) return null;
+  const pendingStep = steps.find((s: any) => s.status_id === 1);
+  if (!pendingStep?.doc_approver?.length) return null;
+  const isAuthorized = pendingStep.doc_approver.some((approver: any) => {
+    const userMatches = approver.user?.username === userData?.username;
+    const departmentMatches = approver.department?.name === userData?.department_name;
+    return userMatches && departmentMatches;
+  });
+  return isAuthorized ? pendingStep : null;
+};
+
+const hasPendingStep = (detail: any) => {
+  const steps = detail?.getUserApproval?.()?.approval_step;
+  if (!Array.isArray(steps)) return false;
+  return steps.some((s: any) => s.status_id === 1);
+};
 
 // Export Excel state
 const exportStartDate = ref<string | undefined>(undefined);
@@ -91,22 +149,43 @@ const docItem = computed(() => [
   })),
 ]);
 
-const documentStatusItem = computed(() => [
-  { value: "all", label: "ທັງໝົດ" },
-  ...documentStatusStore.document_Status.map((item) => ({
-    value: item.getId(),
-    label: item.getName(),
-  })),
-]);
+const statusUserItem = computed(() =>
+  documentStatusStore.document_Status
+    .filter((s) =>
+      (STATUS_USER_NAMES as readonly string[]).includes(s.getName())
+    )
+    .map((s) => ({
+      value: String(s.getId()),
+      label: t(`purchase-rq.status_user.${s.getName()}`),
+    }))
+);
+
+const pendingStatusId = computed(() => {
+  const item = documentStatusStore.document_Status.find(
+    (s) => s.getName() === "PENDING"
+  );
+  return item ? String(item.getId()) : "";
+});
 
 const filterTypeItem = computed(() => [
   { value: "all", label: t("purchase-rq.filter_type.all") },
   { value: "only_user", label: t("purchase-rq.filter_type.only_user") },
 ]);
 const handleSearch = () => {
-  currentPage.value = 1;
-  syncPaginationToUrl();
-  fetchData();
+  fetchData({ resetPage: true });
+};
+
+const ensureValidStatusUserId = () => {
+  const validIds = statusUserItem.value.map((opt) => opt.value);
+  if (!selectedStatusUserId.value || !validIds.includes(selectedStatusUserId.value)) {
+    selectedStatusUserId.value = pendingStatusId.value;
+  }
+};
+
+const handleStatusUserChange = (value: unknown) => {
+  selectedStatusUserId.value = typeof value === "string" ? value : "";
+  ensureValidStatusUserId();
+  fetchData({ resetPage: true });
 };
 
 const tablePagination = computed(() => ({
@@ -116,43 +195,38 @@ const tablePagination = computed(() => ({
   showSizeChanger: true,
 }));
 
-const fetchData = async () => {
+const fetchData = async ({ resetPage = false }: { resetPage?: boolean } = {}) => {
+  if (resetPage) {
+    purchaseRequestStore.pagination.page = 1;
+  }
   loading.value = true;
   try {
     const apiParams: any = {
-      page: currentPage.value,
-      limit: pageSize.value,
-      column: "id", // เพิ่ม column parameter
+      page: purchaseRequestStore.pagination.page,
+      limit: purchaseRequestStore.pagination.limit,
+      column: "id",
     };
-
-    // เพิ่มเงื่อนไขการค้นหา
     if (selectedDocType.value && selectedDocType.value !== "all") {
       apiParams.document_type_id = selectedDocType.value;
     }
-
-    if (selectedStatus.value && selectedStatus.value !== "all") {
-      apiParams.status_id = selectedStatus.value;
+    if (selectedStatusUserId.value) {
+      apiParams.status_user_id = selectedStatusUserId.value;
     }
-
-    // เพิ่ม type parameter ทุกครั้ง (all หรือ only_user)
     if (selectedType.value) {
       apiParams.type = selectedType.value;
     }
-
     if (globalSearchKeyword.value) {
       apiParams.search = globalSearchKeyword.value;
     }
-
     await purchaseRequestStore.fetchAll(apiParams);
+    syncStateToUrl();
   } finally {
     loading.value = false;
   }
 };
 
 watch(globalSearchTrigger, () => {
-  currentPage.value = 1;
-  syncPaginationToUrl();
-  fetchData();
+  fetchData({ resetPage: true });
 });
 
 const statusCounts = computed(() => {
@@ -203,8 +277,107 @@ const canDelete = (status: string) => {
   return status === "PENDING";
 };
 
-const details = (id: string) => {
-  push({ name: "apv_purchase_request_detail", params: { id: id } });
+const navigateToDetailPage = (id: string, action?: "approve" | "reject") => {
+  push({
+    name: "apv_purchase_request_detail",
+    params: { id },
+    query: action ? { action } : undefined,
+  });
+};
+
+const details = async (id: string) => {
+  previewId.value = id;
+  previewDocNumber.value = "";
+  previewPurpose.value = "";
+  previewTotal.value = 0;
+  previewCanApprove.value = false;
+  previewCurrentStep.value = null;
+  previewLoading.value = true;
+  previewVisible.value = true;
+  try {
+    const detail = await purchaseRequestStore.fetchById(id);
+    if (!detail) {
+      previewVisible.value = false;
+      showError(t("purchase-rq.error.title"), "ບໍ່ພົບຂໍ້ມູນ");
+      return;
+    }
+    // Completed/rejected documents: skip preview and go straight to detail page.
+    if (!hasPendingStep(detail)) {
+      previewVisible.value = false;
+      navigateToDetailPage(id);
+      return;
+    }
+    const currentStep = computeCurrentApprovalStep(detail);
+    previewDocNumber.value = detail.getPrNumber() || "";
+    previewPurpose.value = detail.getPurposes() || "";
+    previewTotal.value = detail.getTotal() || 0;
+    previewCurrentStep.value = currentStep
+      ? { id: Number(currentStep.id), is_otp: currentStep.is_otp === true }
+      : null;
+    previewCanApprove.value = !!currentStep;
+  } catch (err) {
+    previewVisible.value = false;
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    showError(t("purchase-rq.error.title"), errorMessage);
+  } finally {
+    previewLoading.value = false;
+  }
+};
+
+const goToDetail = () => {
+  if (!previewId.value) return;
+  const id = previewId.value;
+  previewVisible.value = false;
+  navigateToDetailPage(id);
+};
+
+const submitDecision = async (
+  action: "approve" | "reject",
+  remark: string
+) => {
+  if (!previewId.value || !previewCurrentStep.value) return;
+  const statusId =
+    action === "approve" ? approvedStatusId.value : rejectedStatusId.value;
+  if (!statusId) {
+    showError(t("purchase-rq.error.title"), "ບໍ່ພົບສະຖານະ");
+    return;
+  }
+  const step = previewCurrentStep.value;
+  // OTP-required steps still need the full detail-page flow (signature/OTP UI).
+  if (step.is_otp) {
+    const id = previewId.value;
+    previewVisible.value = false;
+    navigateToDetailPage(id, action);
+    return;
+  }
+  previewSubmitting.value = true;
+  try {
+    const payload: SubmitApprovalStepInterface = {
+      type: "pr",
+      statusId: Number(statusId),
+      remark,
+      approvalStepId: Number(step.id),
+      is_otp: false,
+    };
+    const ok = await approvalStepStore.submitApproval(previewId.value, payload);
+    if (ok) {
+      previewVisible.value = false;
+      await fetchData({ resetPage: true });
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    showError(t("purchase-rq.error.title"), errorMessage);
+  } finally {
+    previewSubmitting.value = false;
+  }
+};
+
+const handleApproveFromModal = () => {
+  submitDecision("approve", "Approved");
+};
+
+const handleRejectFromModal = (reason: string) => {
+  submitDecision("reject", reason || "Rejected");
 };
 
 const showDeleteModal = (id: string) => {
@@ -232,7 +405,7 @@ const handleDeleteConfirm = async () => {
         t("purchase-rq.success.deleted")
       );
       deleteModalVisible.value = false;
-      await fetchData();
+      await fetchData({ resetPage: true });
     } else {
       showError(t("purchase-rq.error.deleteFailed"), "Failed to delete purchase request");
     }
@@ -245,15 +418,35 @@ const handleDeleteConfirm = async () => {
 };
 
 const handleTableChange = (pagination: any) => {
-  currentPage.value = pagination.current ?? 1;
-  pageSize.value = pagination.pageSize ?? 10;
-  syncPaginationToUrl();
+  purchaseRequestStore.pagination.page = pagination.current ?? 1;
+  purchaseRequestStore.pagination.limit = pagination.pageSize ?? 10;
   fetchData();
 };
+
+// React to browser back/forward (URL query changes from outside)
+watch(
+  () => [route.query.page, route.query.limit] as const,
+  ([qPage, qLimit]) => {
+    const p = Number(qPage);
+    const l = Number(qLimit);
+    let dirty = false;
+    if (Number.isFinite(p) && p > 0 && p !== purchaseRequestStore.pagination.page) {
+      purchaseRequestStore.pagination.page = p;
+      dirty = true;
+    }
+    if (Number.isFinite(l) && l > 0 && l !== purchaseRequestStore.pagination.limit) {
+      purchaseRequestStore.pagination.limit = l;
+      dirty = true;
+    }
+    if (dirty) fetchData();
+  }
+);
 
 onMounted(async () => {
   await docTypeStore.fetchdocumentType({ page: 1, limit: 1000 });
   await documentStatusStore.fetctDocumentStatus({ page: 1, limit: 1000 });
+  // Resolve PENDING id (or validate URL value) only after statuses are loaded.
+  ensureValidStatusUserId();
   await fetchData();
 });
 </script>
@@ -302,7 +495,7 @@ onMounted(async () => {
               :options="docItem"
               :placeholder="t('purchase-rq.all')"
               class="w-full"
-              @clear="fetchData"
+              @change="handleSearch"
             />
           </div>
           <div class="search-by-status w-full">
@@ -310,11 +503,11 @@ onMounted(async () => {
               {{ t("purchase-rq.field.status") }}
             </label>
             <InputSelect
-              v-model="selectedStatus"
-              :options="documentStatusItem"
-              :placeholder="t('purchase-rq.all')"
+              v-model="selectedStatusUserId"
+              :options="statusUserItem"
+              :placeholder="t('purchase-rq.status_user.PENDING')"
               class="w-full"
-              @clear="fetchData"
+              @change="handleStatusUserChange"
             />
           </div>
           <div class="search-button flex items-end">
@@ -404,6 +597,18 @@ onMounted(async () => {
         <template #document_type="{ record }">
           <span class="text-gray-600">{{ record.getDocumentType()?.name }}</span>
         </template>
+        <template #po_status="{ record }">
+          <UiTag
+            v-if="record.getIsCreatedPo()"
+            color="green"
+            class="rounded-full"
+          >
+            ສ້າງໃບສັ່ງຊື້ສຳເລັດ
+          </UiTag>
+          <UiTag v-else color="orange" class="rounded-full">
+            ກະລຸນາສ້າງໃບຈັດຊື້
+          </UiTag>
+        </template>
         <template #actions="{ record }">
           <div class="flex items-center justify-start gap-2">
             <UiButton
@@ -444,5 +649,20 @@ onMounted(async () => {
     >
       <p>{{ t("purchase-rq.alert.message") }}</p>
     </UiModal>
+
+    <!-- Quick Preview Modal -->
+    <QuickApprovalPreviewModal
+      v-model:visible="previewVisible"
+      :loading="previewLoading"
+      :submitting="previewSubmitting"
+      :doc-number="previewDocNumber"
+      doc-number-label="ເລກທີ PR"
+      :purpose="previewPurpose"
+      :total="previewTotal"
+      :can-approve="previewCanApprove"
+      @approve="handleApproveFromModal"
+      @reject="handleRejectFromModal"
+      @details="goToDetail()"
+    />
   </div>
 </template>

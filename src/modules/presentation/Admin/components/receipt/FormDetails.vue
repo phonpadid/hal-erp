@@ -4,8 +4,9 @@ import type { ButtonType } from "@/modules/shared/buttonType";
 import { onMounted, ref } from "vue";
 import { columnsDetailsDirector } from "../../views/director/column/columnDetails";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Table from "@/common/shared/components/table/Table.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
 
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
@@ -19,7 +20,8 @@ const orderDetails = ref<PurchaseOrderEntity | null>(null);
   const { error } = useNotification();
 /********************************************************* */
 const { t } = useI18n();
-// const router = useRouter();
+const router = useRouter();
+const goBack = () => router.back();
 const { params } = useRoute();
 const purchaseOrderId = params.id?.toString();
 const isRejectModalVisible = ref(false);
@@ -84,6 +86,15 @@ onMounted(async () => {
 
 <template>
   <div class="mt-10">
+    <div class="flex justify-end mb-2">
+      <UiButton
+        icon="mdi:arrow-left"
+        size="small"
+        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
+    </div>
     <!-- Header Component -->
     <div>
       <!-- Header component -->

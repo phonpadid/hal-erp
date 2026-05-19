@@ -3,6 +3,8 @@ export interface UserInterface {
   getId(): string;
   id: number;
   username: string;
+  first_name: string | null;
+  last_name: string | null;
   email: string;
   password?: string;
   tel?: string;
@@ -30,6 +32,8 @@ export interface ShowSignature_url{
 
 export interface UserCreatePayload {
   username: string;
+  first_name: string | null;
+  last_name: string | null;
   email: string;
   password?: string;
   tel?: string;
@@ -40,6 +44,8 @@ export interface UserCreatePayload {
 
 export interface UserUpdatePayload {
   username?: string;
+  first_name?: string | null;
+  last_name?: string | null;
   email?: string;
   password?: string;
   tel?: string;
@@ -67,6 +73,8 @@ interface Permission {
 export interface UserAPIResponse {
   id: number;
   username: string;
+  first_name: string | null;
+  last_name: string | null;
   email: string;
   tel?: string;
   created_at: string;

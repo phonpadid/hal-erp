@@ -14,6 +14,8 @@ export const dpmUserFormModel = reactive({
   id: "",
   userId: "",
   username: "",
+  first_name: null as string | null,
+  last_name: null as string | null,
   email: "",
   password: "",
   tel: "",
@@ -251,6 +253,8 @@ export const departmenUsertStore = defineStore("department-user", () => {
   const resetForm = () => {
     dpmUserFormModel.userId = "";
     dpmUserFormModel.username = "";
+    dpmUserFormModel.first_name = null;
+    dpmUserFormModel.last_name = null;
     dpmUserFormModel.email = "";
     dpmUserFormModel.tel = "";
     dpmUserFormModel.password = "";

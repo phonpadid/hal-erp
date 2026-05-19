@@ -38,6 +38,12 @@ export function columns(t: (key: string) => string): Column[] {
       key: "status",
     },
     {
+      title: "ສະຖານະໃບສັ່ງຊື້",
+      dataIndex: "po_status",
+      key: "po_status",
+      align: "center",
+    },
+    {
       title: t("purchase-rq.field.manage"),
       dataIndex: "actions",
       key: "actions",

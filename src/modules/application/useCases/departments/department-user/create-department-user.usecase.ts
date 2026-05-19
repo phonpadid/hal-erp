@@ -25,7 +25,10 @@ export class CreateDepartmentUserUseCase {
       "",
       dpmUserDTO.user.password,
       dpmUserDTO.user.tel,
-
+      [],
+      null,
+      dpmUserDTO.user.first_name ?? null,
+      dpmUserDTO.user.last_name ?? null,
     );
     // console.log('created:', dpmUserDTO);
     const dpmUser = DepartmentUserEntity.create(

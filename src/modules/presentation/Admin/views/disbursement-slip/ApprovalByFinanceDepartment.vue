@@ -6,7 +6,7 @@ import { useI18n } from "vue-i18n";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { columns } from "./column";
 import { DatePicker } from "ant-design-vue";
@@ -19,12 +19,15 @@ import {
   getStatusText,
 } from "@/modules/shared/utils/format-status.util";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
-import type { Dayjs } from "dayjs";
+import dayjs, { type Dayjs } from "dayjs";
 import { departmentStore } from "../../stores/departments/department.store";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useGlobalSearchStore } from "../../stores/global-search.store";
 import { storeToRefs } from "pinia";
+import QuickApprovalPreviewModal from "@/common/shared/components/Modal/QuickApprovalPreviewModal.vue";
+import type { IApprovalReceiptDto } from "@/modules/application/dtos/receipt.dto";
+import { useDocumentStatusStore } from "../../stores/document-status.store";
 const { t } = useI18n();
 const router = useRouter();
 const { push } = router;
@@ -32,36 +35,54 @@ const route = useRoute();
 const { success, error: showError } = useNotification();
 const dpmStore = departmentStore();
 const rStore = useReceiptStore();
+const documentStatusStore = useDocumentStatusStore();
 const globalSearchStore = useGlobalSearchStore();
 const { trimmedKeyword: globalSearchKeyword, trigger: globalSearchTrigger } =
   storeToRefs(globalSearchStore);
 
+// Read initial state from URL (page/limit/filters)
 const queryPage = Number(route.query.page);
 const queryLimit = Number(route.query.limit);
 if (Number.isFinite(queryPage) && queryPage > 0) {
-  rStore.setPagination({
-    page: queryPage,
-    limit:
-      Number.isFinite(queryLimit) && queryLimit > 0 ? queryLimit : rStore.pagination.limit,
-    total: rStore.pagination.total,
-  });
-} else if (Number.isFinite(queryLimit) && queryLimit > 0) {
-  rStore.setPagination({
-    page: rStore.pagination.page,
-    limit: queryLimit,
-    total: rStore.pagination.total,
-  });
+  rStore.pagination.page = queryPage;
 }
+if (Number.isFinite(queryLimit) && queryLimit > 0) {
+  rStore.pagination.limit = queryLimit;
+}
+const filterDepartment = ref<string | undefined>(
+  typeof route.query.department_id === "string" ? route.query.department_id : "all"
+);
+const filterType = ref<string>(
+  typeof route.query.type === "string" ? route.query.type : "all"
+);
+const filterDate = ref<Dayjs | undefined>(
+  typeof route.query.order_date === "string" && route.query.order_date
+    ? dayjs(route.query.order_date)
+    : undefined
+);
+const STATUS_USER_NAMES = ["PENDING", "APPROVED", "REJECTED", "CANCELLED"] as const;
+const filterStatusUserId = ref<string>(
+  typeof route.query.status_user_id === "string" ? route.query.status_user_id : ""
+);
+const isPaginationChanging = ref<boolean>(false);
 
-const syncPaginationToUrl = () => {
+const syncStateToUrl = () => {
   router.replace({
     query: {
       ...route.query,
       page: String(rStore.pagination.page),
       limit: String(rStore.pagination.limit),
+      type: filterType.value,
+      department_id:
+        filterDepartment.value && filterDepartment.value !== "all"
+          ? filterDepartment.value
+          : undefined,
+      order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
+      status_user_id: filterStatusUserId.value || undefined,
     },
   });
 };
+
 const dpmOption = computed(() => [
   { value: "all", label: "ທັງໝົດ" }, // This is the "All" option
   ...dpmStore.departments.map((item) => ({
@@ -76,10 +97,37 @@ const filterTypeOptions = computed(() => [
   { value: "only_user", label: t("purchase-rq.filter_type.only_user") },
 ]);
 
-const filterDate = ref<Dayjs | undefined>(undefined);
-const filterDepartment = ref<string | undefined>("all");
-const filterType = ref<string>("all");
-const isPaginationChanging = ref<boolean>(false);
+// Status user filter options sourced from document-status API, filtered to the
+// fixed set PENDING/APPROVED/REJECTED/CANCELLED. Values are the real IDs.
+const statusUserOptions = computed(() =>
+  documentStatusStore.document_Status
+    .filter((s) =>
+      (STATUS_USER_NAMES as readonly string[]).includes(s.getName())
+    )
+    .map((s) => ({
+      value: String(s.getId()),
+      label: t(`purchase-rq.status_user.${s.getName()}`),
+    }))
+);
+
+const pendingStatusId = computed(() => {
+  const item = documentStatusStore.document_Status.find(
+    (s) => s.getName() === "PENDING"
+  );
+  return item ? String(item.getId()) : "";
+});
+
+const ensureValidStatusUserId = () => {
+  const validIds = statusUserOptions.value.map((opt) => opt.value);
+  if (!filterStatusUserId.value || !validIds.includes(filterStatusUserId.value)) {
+    filterStatusUserId.value = pendingStatusId.value;
+  }
+};
+
+const handleStatusUserChange = (value: unknown) => {
+  filterStatusUserId.value = typeof value === "string" ? value : "";
+  ensureValidStatusUserId();
+};
 
 // Export Excel state
 const exportStartDate = ref<string | undefined>(undefined);
@@ -139,50 +187,160 @@ const statusCards = computed(() => {
   }));
 });
 
+// Quick preview modal state
+const previewVisible = ref(false);
+const previewLoading = ref(false);
+const previewSubmitting = ref(false);
+const previewId = ref<string | null>(null);
+const previewDocNumber = ref("");
+const previewPurpose = ref("");
+const previewTotal = ref(0);
+const previewCanApprove = ref(false);
+const previewCurrentStep = ref<{ id: number; is_otp: boolean } | null>(null);
+const previewAccountCodeSet = ref(false);
+
+const computeCurrentApprovalStep = (receipt: any) => {
+  if (!receipt) return null;
+  const userDataStr = localStorage.getItem("userData");
+  const userData = userDataStr ? JSON.parse(userDataStr) : null;
+  if (!userData) return null;
+  const steps = receipt.user_approval?.approval_step;
+  if (!Array.isArray(steps)) return null;
+  const pendingStep = steps.find((s: any) => s.status_id === 1);
+  if (!pendingStep?.doc_approver?.length) return null;
+  const isAuthorized = pendingStep.doc_approver.some((approver: any) => {
+    const userMatches = approver.user?.username === userData?.username;
+    const departmentMatches = approver.department?.name === userData?.department_name;
+    return userMatches && departmentMatches;
+  });
+  return isAuthorized ? pendingStep : null;
+};
+
+const hasPendingStep = (receipt: any) => {
+  const steps = receipt?.user_approval?.approval_step;
+  if (!Array.isArray(steps)) return false;
+  return steps.some((s: any) => s.status_id === 1);
+};
+
+const navigateToDetailPage = (id: string, action?: "approve" | "reject") => {
+  push({
+    name: "approval-by-finance-department-detail.index",
+    params: { id },
+    query: action ? { action } : undefined,
+  });
+};
+
 const details = async (id: string) => {
+  previewId.value = id;
+  previewDocNumber.value = "";
+  previewPurpose.value = "";
+  previewTotal.value = 0;
+  previewCanApprove.value = false;
+  previewCurrentStep.value = null;
+  previewAccountCodeSet.value = false;
+  previewLoading.value = true;
+  previewVisible.value = true;
   try {
-    // Fetch receipt details by id first
     await rStore.fetchById(id);
-
-    // Check if the receipt has pending approval steps
-    if (rStore.currentReceipts?.user_approval?.approval_step) {
-      const pendingSteps = rStore.currentReceipts.user_approval.approval_step.filter(
-        (step) => step.status_id === 1 // pending status
-      );
-
-      if (pendingSteps.length > 0) {
-        console.log('Document has pending approval steps:', pendingSteps);
-      }
+    const r = rStore.currentReceipts;
+    if (!r) {
+      previewVisible.value = false;
+      showError("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນ");
+      return;
     }
-
-    // Navigate to detail page
-    push({
-      name: "approval-by-finance-department-detail.index",
-      params: { id: id },
-    });
-  } catch (error) {
-    console.error('Error fetching receipt details:', error);
+    if (!hasPendingStep(r)) {
+      previewVisible.value = false;
+      navigateToDetailPage(id);
+      return;
+    }
+    const currentStep = computeCurrentApprovalStep(r);
+    // Steps that require file upload need the full detail-page flow (upload UI).
+    if (currentStep && currentStep.requires_file_upload === true) {
+      previewVisible.value = false;
+      navigateToDetailPage(id);
+      return;
+    }
+    previewDocNumber.value = r.receipt_number || "";
+    previewPurpose.value = r.remark || r.document?.description || "";
+    previewTotal.value = r.total ?? 0;
+    previewCurrentStep.value = currentStep
+      ? { id: Number(currentStep.id), is_otp: currentStep.is_otp === true }
+      : null;
+    previewCanApprove.value = !!currentStep;
+    previewAccountCodeSet.value = !!r.account_code;
+  } catch (err) {
+    previewVisible.value = false;
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    showError("ເກີດຂໍ້ຜິດພາດ", errorMessage);
+  } finally {
+    previewLoading.value = false;
   }
 };
+
+const goToDetail = (action?: "approve" | "reject") => {
+  if (!previewId.value) return;
+  const id = previewId.value;
+  previewVisible.value = false;
+  navigateToDetailPage(id, action);
+};
+
+const submitDecision = async (action: "approve" | "reject", remark: string) => {
+  if (!previewId.value || !previewCurrentStep.value) return;
+  const step = previewCurrentStep.value;
+  // OTP-required steps still need the full detail-page flow (signature/OTP UI).
+  if (step.is_otp) {
+    const id = previewId.value;
+    previewVisible.value = false;
+    navigateToDetailPage(id, action);
+    return;
+  }
+  previewSubmitting.value = true;
+  try {
+    const payload: IApprovalReceiptDto = {
+      type: "r",
+      statusId: action === "approve" ? 2 : 3,
+      remark,
+      is_otp: false,
+      files: [],
+    };
+    if (previewAccountCodeSet.value && rStore.currentReceipts?.account_code) {
+      payload.account_code = rStore.currentReceipts.account_code;
+    }
+    await rStore.approvalReceipt(step.id, payload);
+    success("ສຳເລັດ", action === "approve" ? "ອະນຸມັດສຳເລັດ" : "ປະຕິເສດສຳເລັດ");
+    previewVisible.value = false;
+    await loadFilteredReceipts(true);
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    showError("ເກີດຂໍ້ຜິດພາດ", errorMessage);
+  } finally {
+    previewSubmitting.value = false;
+  }
+};
+
+const handleApproveFromModal = () => submitDecision("approve", "ຢືນຢັນສຳເລັດ");
+const handleRejectFromModal = (reason: string) =>
+  submitDecision("reject", reason || "Rejected");
 const buildFilterParams = (page: number, limit: number) => ({
   page,
   limit,
   order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
   department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
   type: filterType.value,
+  status_user_id: filterStatusUserId.value || undefined,
   search: globalSearchKeyword.value || undefined,
 });
 
 const loadFilteredReceipts = async (resetPage = false) => {
+  if (resetPage) {
+    rStore.pagination.page = 1;
+  }
   loading.value = true;
   try {
-    const page = resetPage ? 1 : rStore.pagination.page;
-    const limit = rStore.pagination.limit;
-    if (resetPage) {
-      rStore.setPagination({ ...rStore.pagination, page: 1 });
-      syncPaginationToUrl();
-    }
-    await rStore.fetchAll(buildFilterParams(page, limit));
+    await rStore.fetchAll(
+      buildFilterParams(rStore.pagination.page, rStore.pagination.limit)
+    );
+    syncStateToUrl();
   } catch (error) {
     console.log(error);
   } finally {
@@ -196,33 +354,56 @@ const searchByDate = async () => {
 
 const handleTableChange = async (pagination: TablePaginationType) => {
   isPaginationChanging.value = true;
-  loading.value = true;
+  rStore.pagination.page = pagination.current ?? 1;
+  rStore.pagination.limit = pagination.pageSize ?? 10;
   try {
-    const page = pagination.current ?? 1;
-    const limit = pagination.pageSize ?? 10;
-    rStore.setPagination({
-      page,
-      limit,
-      total: pagination.total ?? 0,
-    });
-    syncPaginationToUrl();
-
-    await rStore.fetchAll(buildFilterParams(page, limit));
-  } catch (error) {
-    console.log(error);
+    await loadFilteredReceipts();
   } finally {
     isPaginationChanging.value = false;
-    loading.value = false;
   }
 };
 
-watch([filterDate, filterDepartment, filterType, globalSearchTrigger], () => {
-  if (!isPaginationChanging.value) {
-    loadFilteredReceipts(true);
+watch(
+  [filterDate, filterDepartment, filterType, filterStatusUserId, globalSearchTrigger],
+  () => {
+    if (!isPaginationChanging.value) {
+      loadFilteredReceipts(true);
+    }
   }
-});
+);
+
+// React to browser back/forward
+watch(
+  () => [route.query.page, route.query.limit] as const,
+  ([qPage, qLimit]) => {
+    const p = Number(qPage);
+    const l = Number(qLimit);
+    let dirty = false;
+    if (Number.isFinite(p) && p > 0 && p !== rStore.pagination.page) {
+      rStore.pagination.page = p;
+      dirty = true;
+    }
+    if (Number.isFinite(l) && l > 0 && l !== rStore.pagination.limit) {
+      rStore.pagination.limit = l;
+      dirty = true;
+    }
+    if (dirty) loadFilteredReceipts();
+  }
+);
 
 onMounted(async () => {
+  // Load document statuses first so we can resolve the PENDING id before
+  // the initial receipts fetch.
+  if (documentStatusStore.document_Status.length === 0) {
+    await documentStatusStore.fetctDocumentStatus({ page: 1, limit: 1000 });
+  }
+  // Suppress the filter watcher while we resolve the default status id, so
+  // we don't kick off a second fetch.
+  isPaginationChanging.value = true;
+  ensureValidStatusUserId();
+  await nextTick();
+  isPaginationChanging.value = false;
+
   await loadFilteredReceipts();
   await dpmStore.fetchDepartment({ page: 1, limit: 1000 });
 });
@@ -277,6 +458,21 @@ onMounted(async () => {
               v-model="filterDepartment"
               placeholder="ເລືອກພະແນກ"
               class="w-full"
+            />
+          </div>
+          <div class="search-by-status-user w-full">
+            <label
+              for=""
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >{{ t("purchase-rq.field.status") }}</label
+            >
+            <InputSelect
+              :options="statusUserOptions"
+              v-model="filterStatusUserId"
+              :placeholder="t('purchase-rq.status_user.PENDING')"
+              :loading="documentStatusStore.loading"
+              class="w-full"
+              @change="handleStatusUserChange"
             />
           </div>
           <div class="search-by-status w-full">
@@ -380,8 +576,20 @@ onMounted(async () => {
         </template>
         <template #receipt_number="{ record }">
           <span class="font-semibold text-blue-600">
-            {{(record.receipt_number ) }} 
+            {{(record.receipt_number ) }}
           </span>
+        </template>
+        <template #payment_status="{ record }">
+          <UiTag
+            v-if="(record.document_attachment?.length ?? 0) > 0"
+            color="green"
+            class="rounded-full"
+          >
+            ໂອນຈ່າຍສຳເລັດ
+          </UiTag>
+          <UiTag v-else color="orange" class="rounded-full">
+            ຍັງບໍ່ໄດ້ຈ່າຍ
+          </UiTag>
         </template>
         <template #actions="{ record }">
           <div class="flex items-center justify-center gap-2">
@@ -397,5 +605,20 @@ onMounted(async () => {
         </template>
       </Table>
     </div>
+
+    <!-- Quick Preview Modal -->
+    <QuickApprovalPreviewModal
+      v-model:visible="previewVisible"
+      :loading="previewLoading"
+      :submitting="previewSubmitting"
+      :doc-number="previewDocNumber"
+      doc-number-label="ເລກທີໃບຮັບເງິນ"
+      :purpose="previewPurpose"
+      :total="previewTotal"
+      :can-approve="previewCanApprove"
+      @approve="handleApproveFromModal"
+      @reject="handleRejectFromModal"
+      @details="goToDetail()"
+    />
   </div>
 </template>

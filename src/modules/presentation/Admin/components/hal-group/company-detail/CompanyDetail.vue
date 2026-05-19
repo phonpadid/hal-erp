@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Icon } from "@iconify/vue";
 import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
@@ -68,6 +68,8 @@ interface CompanyDetail {
 
 const { warning } = useNotification();
 const route = useRoute();
+const router = useRouter();
+const goBack = () => router.back();
 const receiptStore = useReceiptStore();
 
 // Props
@@ -381,6 +383,15 @@ watch(() => props.companyData, (newCompanyData) => {
 
 <template>
   <div class="company-detail-manager">
+    <div class="flex justify-end mb-2">
+      <UiButton
+        icon="mdi:arrow-left"
+        size="small"
+        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
+    </div>
     <!-- Main Affiliated Company List -->
     <AffiliatedCompany
       v-if="!showDetail"

@@ -44,7 +44,15 @@
   "status": {
     "pending": "待审批",
     "approved": "已批准",
-    "rejected": "已拒绝"
+    "rejected": "已拒绝",
+    "cancelled": "已取消"
+  },
+  "status_user": {
+    "label": "用户状态",
+    "PENDING": "待审批",
+    "APPROVED": "已批准",
+    "REJECTED": "已拒绝",
+    "CANCELLED": "已取消"
   },
   "card_title": {
     "title": "采购申请标题",
