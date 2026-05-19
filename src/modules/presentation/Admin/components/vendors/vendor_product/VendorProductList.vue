@@ -273,7 +273,7 @@ const handleDeleteConfirm = async () => {
 
 <template>
   <div class="vendor-product-list">
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
       <div class="flex-1"></div>
       <div class="flex items-center justify-end gap-2">
         <InputSearch

@@ -239,7 +239,7 @@ onMounted(() => {
       </div>
 
       <!-- Expanded Details -->
-      <div v-if="isExpanded" class="bg-white rounded-lg shadow-sm p-6 mt-6">
+      <div v-if="isExpanded" class="bg-white rounded-lg shadow-sm p-3 sm:p-4 lg:p-6 mt-4 sm:mt-6">
         <h3 class="text-lg font-semibold mb-4">Detailed Information</h3>
 
         <!-- Permission Count -->

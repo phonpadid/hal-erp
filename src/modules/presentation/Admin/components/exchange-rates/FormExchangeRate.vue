@@ -171,7 +171,7 @@ const rateOptions = [
       <!-- Header with remove button for multiple entries -->
       <div
         v-if="formState.addMore.length > 1"
-        class="flex justify-between items-center mb-4"
+        class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4"
       >
         <h4 v-if="index > 0" class="text-lg font-medium">
           {{ $t("exchange-rate.title_from_create") }} ({{ index }})

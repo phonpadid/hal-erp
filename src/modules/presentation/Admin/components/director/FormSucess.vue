@@ -82,7 +82,7 @@ const signatures = [
         document-status-class="text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"
       />
       <!-- Main Content -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+      <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 lg:p-6 mt-4 sm:mt-6">
         <h2>ຂໍ້ມູນສ້າງໃບອານຸມັດຈັດຊື້ - ຈັດຈ້າງ</h2>
         <!-- Requester Information -->
         <div class="flex items-start gap-4 mb-2">

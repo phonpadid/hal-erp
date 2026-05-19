@@ -5,6 +5,7 @@ import { menuItems } from "./menu";
 import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
 
 defineProps<{ toggle: boolean }>();
+const emit = defineEmits<{ close: [] }>();
 
 const { push } = useRouter();
 
@@ -17,6 +18,10 @@ function handleClick({ key, keyPath }: { key: string; keyPath: string[] }) {
   localStorage.setItem("menuKey", JSON.stringify(key));
   localStorage.setItem("subMenuKey", JSON.stringify(keyPath[0]));
   push({ name: key });
+
+  if (typeof window !== "undefined" && window.innerWidth < 768) {
+    emit("close");
+  }
 }
 onMounted(() => {
   const menuKey = localStorage.getItem("menuKey");
@@ -32,16 +37,20 @@ onMounted(() => {
 </script>
 <template>
   <nav
-    class="fixed top-0 left-0 z-50 w-0 h-full overflow-hidden overflow-y-auto transition-all bg-white whitespace-nowrap"
-    :class="{ 'w-[256px] border': toggle }"
+    class="fixed top-0 left-0 z-50 h-full overflow-hidden overflow-y-auto transition-all duration-200 ease-in-out bg-white whitespace-nowrap"
+    :class="[
+      toggle
+        ? 'w-[85vw] sm:w-[320px] md:w-[256px] border shadow-xl md:shadow-none'
+        : 'w-0 border-0',
+    ]"
   >
-    <div class="flex flex-row items-center gap-2 mt-4 ml-4">
+    <div class="flex flex-row items-center gap-2 mt-4 ml-4 pr-4">
       <img
         src="/src/common/shared/assets/images/log-hallogictic.jpeg"
         alt="logo"
-        class="w-16 h-16 rounded-full"
+        class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex-shrink-0"
       />
-      <p class="text-2xl font-sans">HAL ERP</p>
+      <p class="text-xl sm:text-2xl font-sans truncate">HAL ERP</p>
     </div>
     <div class="mt-4">
       <a-menu

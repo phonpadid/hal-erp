@@ -51,7 +51,7 @@ const actionButtons = computed(() => [
 <template>
   <div class="container mx-auto py-1 px-0">
     <div
-      class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem] w-full lg:w-[calc(100%-16rem)] left-0 lg:left-64"
+      class="sticky top-16 z-30 bg-white shadow-sm transition-all duration-150 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3"
     >
       <header-component
         :header-title="t('purchase-rq.edit_purchase_request')"

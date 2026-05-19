@@ -66,6 +66,7 @@ const handleCancel = () => {
     :ok-button-props="okButtonProps"
     :cancel-button-props="cancelButtonProps"
     :destroy-on-close="destroyOnClose"
+    wrap-class-name="ui-modal-responsive"
     @ok="handleOk"
     @cancel="handleCancel"
   >
@@ -100,5 +101,26 @@ const handleCancel = () => {
   gap: 8px;
   font-size: 16px;
   font-weight: 500;
+}
+</style>
+
+<style>
+/* Responsive modal: clamp prop-driven pixel widths on small screens.
+   Global (non-scoped) because ant-design renders the modal outside this
+   component's scope. */
+.ui-modal-responsive .ant-modal {
+  max-width: calc(100vw - 16px);
+}
+
+@media (max-width: 767px) {
+  .ui-modal-responsive .ant-modal {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px auto !important;
+    top: 0 !important;
+  }
+  .ui-modal-responsive .ant-modal-centered .ant-modal {
+    top: 0 !important;
+  }
 }
 </style>

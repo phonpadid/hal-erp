@@ -440,13 +440,13 @@ onMounted(async () => {
   <div class="no-print">
     <div class="flex justify-end mb-2">
       <UiButton
-       icon="mdi:arrow-left" size="small" class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+       icon="mdi:arrow-left" size="small" class="flex mt-2 items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
         @click="goBack"
         >ກັບຄືນ</UiButton
       >
     </div>
     <ApvLayout :dataHead="dataHead" :onPrint="openPrintModal" :onApprovalSuccess="resetUploadedImages"></ApvLayout>
-    <div class="mt-[10rem] mb-[5rem]">
+    <div class="mt-[2rem] mb-[5rem]">
       <div class="user-info">
         <div class="flex gap-[4rem]">
           <div class="u w-full">
