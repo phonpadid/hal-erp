@@ -73,8 +73,7 @@ const handleToggle = () => {
   <div class="container mx-auto py-1 px-0">
     <!-- Fixed Header with Action Buttons -->
     <div
-      class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem]"
-      :class="topbarStyle"
+      class="sticky top-16 z-30 bg-white shadow-sm transition-all duration-150 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3"
     >
       <div class="flex items-center justify-between">
         <div>

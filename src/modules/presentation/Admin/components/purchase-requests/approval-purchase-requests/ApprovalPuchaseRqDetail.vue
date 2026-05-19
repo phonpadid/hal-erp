@@ -698,8 +698,7 @@ onMounted(async () => {
     <!-- Header Component -->
 
     <div
-      class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem]"
-      :class="topbarStyle"
+      class="sticky top-16 z-30 bg-white shadow-sm transition-all duration-150 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3"
     >
       <div class="flex justify-end mb-2">
         <UiButton
@@ -724,9 +723,9 @@ onMounted(async () => {
     </div>
 
     <!-- Main Content -->
-    <div v-if="loading" class="mt-[10rem] text-center">Loading...</div>
+    <div v-if="loading" class="mt-[4rem] text-center">Loading...</div>
 
-    <div class="body mt-[10rem]" v-else-if="requestDetail">
+    <div class="body mt-[2rem]" v-else-if="requestDetail">
       <!-- Company & User Information Section -->
       <div class="user-info shadow-sm py-2">
         <!-- Company and User Info in Same Row -->
@@ -791,7 +790,7 @@ onMounted(async () => {
         </div>
 
         <!-- Items Table Section -->
-        <div class="table -space-y-0 mb-2 w-full px-6 shadow-sm rounded-md">
+        <div class="table -space-y-0 mb-2 w-full px-3 sm:px-4 lg:px-6 shadow-sm rounded-md overflow-x-auto">
           <h2 class="text-md font-semibold">
             {{ t("purchase-rq.field.title") }}
           </h2>

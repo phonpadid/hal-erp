@@ -48,21 +48,25 @@
     </a-breadcrumb>
 
     <!-- Header section with document info and buttons -->
-    <div class="flex justify-between items-center">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
       <!-- Document reference number and date -->
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm sm:text-base">
         <span v-if="showDocumentPrefix" class="text-blue-600">{{ documentPrefix }}</span>
         <span v-if="showDocumentNumber">- {{ documentNumber }}</span>
         <span v-if="showDocumentDate">- {{ documentDate }}</span>
-        <span v-if="showDocumentStatus && documentStatus" :class="['ml-2', documentStatusClass]">
+        <span v-if="showDocumentStatus && documentStatus" :class="['sm:ml-2', documentStatusClass]">
           {{ documentStatus }}
         </span>
       </div>
 
       <!-- Action buttons -->
-      <div v-if="showActionButtons" class="flex gap-2">
+      <div v-if="showActionButtons" class="flex flex-wrap gap-2 sm:justify-end">
         <template v-for="(button, index) in visibleButtons" :key="index">
-          <a-button :type="button.type" @click="button.onClick" :class="button.class">
+          <a-button
+            :type="button.type"
+            @click="button.onClick"
+            :class="['flex-shrink-0', button.class]"
+          >
             <template v-if="button.icon" #icon>
               <Icon :icon="button.icon" />
             </template>

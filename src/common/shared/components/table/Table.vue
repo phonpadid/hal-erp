@@ -1,24 +1,27 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <a-table
-    :columns="columns"
-    :data-source="dataSource"
-    :scroll="{ x: true }"
-    :pagination="pagination"
-    :rowClassName="rowClassName"
-    :loading="loading"
-    :customRow="customRowHandler"
-    @change="
-      (pagination: TablePaginationType, filters: Record<string, string[]>, sorter: SorterResult) =>
-        $emit('change', pagination, filters, sorter)
-    "
-  >
-    <template #bodyCell="{ column, record, index }">
-      <slot :name="column.key" :index="index" :record="record" :column="column">
-        {{ getNestedValue(record, column.dataIndex) }}
-      </slot>
-    </template>
-  </a-table>
+  <div class="ui-table-scroll">
+    <a-table
+      class="ui-table-inner"
+      :columns="columns"
+      :data-source="dataSource"
+      :scroll="{ x: scrollX ?? 'max-content' }"
+      :pagination="pagination"
+      :rowClassName="rowClassName"
+      :loading="loading"
+      :customRow="customRowHandler"
+      @change="
+        (pagination: TablePaginationType, filters: Record<string, string[]>, sorter: SorterResult) =>
+          $emit('change', pagination, filters, sorter)
+      "
+    >
+      <template #bodyCell="{ column, record, index }">
+        <slot :name="column.key" :index="index" :record="record" :column="column">
+          {{ getNestedValue(record, column.dataIndex) }}
+        </slot>
+      </template>
+    </a-table>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -97,3 +100,28 @@ function getNestedValue(record: TableRecord, path?: string | string[]): unknown 
   );
 }
 </script>
+
+<style scoped>
+.ui-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Force cells to size to content so the table actually exceeds the
+   container width and ant-design's horizontal scroll kicks in. Without
+   this, columns without explicit widths get squashed to fit. */
+:deep(.ant-table-thead > tr > th),
+:deep(.ant-table-tbody > tr > td) {
+  white-space: nowrap;
+}
+
+/* On phones, guarantee the table is at least a tablet-width so users can
+   reliably scroll horizontally to see all columns. */
+@media (max-width: 767px) {
+  :deep(.ant-table) {
+    min-width: 720px;
+  }
+}
+</style>

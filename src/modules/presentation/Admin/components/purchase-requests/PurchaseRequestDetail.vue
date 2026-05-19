@@ -104,8 +104,7 @@ const handleToggle = () => {
 <template>
   <div class="container mx-auto py-1 px-0">
     <div
-      class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem]"
-      :class="topbarStyle"
+      class="sticky top-16 z-30 bg-white shadow-sm transition-all duration-150 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3"
     >
       <div class="flex justify-end mb-2">
         <UiButton
@@ -157,7 +156,7 @@ const handleToggle = () => {
           <p class="text-gray-600 text-sm">{{ requestDetail.getPurposes() }}</p>
         </div>
 
-        <div class="table -space-y-0 mb-2 w-full px-6 shadow-sm rounded-md">
+        <div class="table -space-y-0 mb-2 w-full px-3 sm:px-4 lg:px-6 shadow-sm rounded-md overflow-x-auto">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.field.title") }}</h2>
           <Table :columns="columns(t)" :dataSource="items" :pagination="false" row-key="id">
             <template #index="{ index }">

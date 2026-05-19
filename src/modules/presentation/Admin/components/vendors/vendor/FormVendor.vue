@@ -153,7 +153,7 @@ onMounted(async () => {
     <!-- Bank Accounts Section -->
     <template v-if="!isEditMode">
       <div class="bank-accounts-section mt-4">
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
           <h3 class="text-lg font-medium">{{ $t("vendors.form.bankAccounts") }}</h3>
           <UiButton
             type="dashed"

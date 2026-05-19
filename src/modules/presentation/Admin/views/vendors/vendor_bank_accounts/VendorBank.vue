@@ -201,7 +201,7 @@ const handleToggleIsSelected = async (record: VendorBankAccountInterface) => {
         >ກັບຄືນ</UiButton
       >
     </div>
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
       <div>
         <h1 class="text-2xl font-semibold">{{ t("vendors_bank.list.title") }}</h1>
       </div>

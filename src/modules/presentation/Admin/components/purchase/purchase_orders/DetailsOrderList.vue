@@ -8,8 +8,7 @@
     <div v-else>
       <!-- Header component -->
       <div
-        class="fixed px-6 py-4 top-0 z-40 h-auto bg-white shadow-sm transition-all duration-150 mt-[4rem]"
-        :class="topbarStyle"
+        class="sticky top-16 z-30 bg-white shadow-sm transition-all duration-150 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3"
       >
         <div class="flex justify-end mb-2">
           <UiButton
@@ -32,7 +31,7 @@
       </div>
 
       <!-- Main Content -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mt-40">
+      <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 lg:p-6 mt-4 sm:mt-6">
         <h2>ຂໍ້ມູນສ້າງໃບອານຸມັດຈັດຊື້ - ຈັດຈ້າງ</h2>
         <!-- Requester Information -->
         <div class="flex items-start gap-4 mb-2">
@@ -52,7 +51,7 @@
         <!-- ຂໍ້ມຸນຜູ້ສະເໜີ -->
         <div>
           <h4>ສະເໜີ</h4>
-          <div class="grid grid-cols-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
             <div class="grid grid-rows-2">
               <h5>ຂໍ້ສະເໜີເບີກງົບປະມານ</h5>
               <span class="text-sm">{{
