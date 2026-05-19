@@ -1,0 +1,3 @@
+1.ผมต้องการให้คุนเพี่ม status_user_id:pen filter ใน table ให้ผมหนอ่ย ครับ ให้กับ pr,po and receript  PENDING,APPROVED,REJECTED,CANCELLED 
+และ คุนต้องเอา status_user_id ตั้งค่าเริ่มต้นเป็น PENDING เพื่อให้มันโหลดข้อมูลเฉพาะเอกสารที่มีสถานะ PENDING ถ้า user ต้องการค้นข้อมูนอื่นให้มัน
+เลือกเอาเอง

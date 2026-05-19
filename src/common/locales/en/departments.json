@@ -54,6 +54,8 @@
       "field": {
         "department": "Departments / Districts",
         "user": "Username",
+        "first_name": "First Name",
+        "last_name": "Last Name",
         "tel": "Tel",
         "email": "Email",
         "position": "Position",
@@ -71,6 +73,8 @@
       "error": {
         "signature": "Please choose a signature file",
         "user": "Please select a user",
+        "first_name": "Please enter first name",
+        "last_name": "Please enter last name",
         "position": "Please select a position",
         "dpm": "Please select a department",
         "role": "Please select roles",

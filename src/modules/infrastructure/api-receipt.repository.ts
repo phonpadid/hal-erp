@@ -27,6 +27,7 @@ export class ApiReceiptRepository implements ReceiptRepository {
       if (params?.order_date) requestParams.order_date = params.order_date;
       if (params?.department_id) requestParams.department_id = params.department_id;
       if (params?.type) requestParams.type = params.type;
+      if (params?.status_user_id) requestParams.status_user_id = params.status_user_id;
       if (params?.search) requestParams.search = params.search;
 
       console.log('📤 API Request params:', requestParams);

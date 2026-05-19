@@ -146,7 +146,7 @@ const handleOtpConfirm = async (otpCode: string) => {
       // ✅ ຫຼັງຈາກອະນຸມັດຂັ້ນຕອນທໍາອິດສຳເລັດ ໃຫ້ກັບໄປຫນ້າ PR list ໂດຍກົງ
       setTimeout(() => {
         // console.log("🔄 Redirecting to PR list after first step approval...");
-        push({ name: "purchase_request.index" });
+        push({ name: "apv_purchase_request.index" });
       }, 1500);
     } else {
       error("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດຢືນຢັນ OTP ດັ່ງກ່າວ");
@@ -228,7 +228,7 @@ const handleLayoutConfirm = async () => {
 const getStep0Data = () => stepsData[0] as FormState;
 
 const handleDone = () => {
-  push({ name: "purchase_request.index", params: {} });
+  push({ name: "apv_purchase_request.index", params: {} });
 };
 
 // ✅ เพิ่ม function ปิด modal

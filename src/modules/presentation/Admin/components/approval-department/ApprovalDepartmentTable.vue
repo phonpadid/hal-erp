@@ -53,6 +53,10 @@ const selectedDepartment = ref<string | null>(
 const selectedType = ref(
   typeof route.query.type === "string" ? route.query.type : "all"
 );
+const STATUS_USER_NAMES = ["PENDING", "APPROVED", "REJECTED", "CANCELLED"] as const;
+const selectedStatusUserId = ref<string>(
+  typeof route.query.status_user_id === "string" ? route.query.status_user_id : ""
+);
 const loading = ref(false);
 
 const dates = reactive<{ startDate: string | null; endDate: string | null }>({
@@ -78,6 +82,7 @@ const syncStateToUrl = () => {
           ? selectedDepartment.value
           : undefined,
       order_date: toIsoDate(dates.startDate) ?? undefined,
+      status_user_id: selectedStatusUserId.value || undefined,
     },
   });
 };
@@ -308,6 +313,33 @@ const filterTypeOptions = computed(() => [
   { value: "only_user", label: t("purchase-rq.filter_type.only_user") },
 ]);
 
+// Status user filter options sourced from document-status API, filtered to the
+// fixed set PENDING/APPROVED/REJECTED/CANCELLED. Values are the real IDs.
+const statusUserOptions = computed(() =>
+  documentStatusStore.document_Status
+    .filter((s) =>
+      (STATUS_USER_NAMES as readonly string[]).includes(s.getName())
+    )
+    .map((s) => ({
+      value: String(s.getId()),
+      label: t(`purchase-rq.status_user.${s.getName()}`),
+    }))
+);
+
+const pendingStatusId = computed(() => {
+  const item = documentStatusStore.document_Status.find(
+    (s) => s.getName() === "PENDING"
+  );
+  return item ? String(item.getId()) : "";
+});
+
+const ensureValidStatusUserId = () => {
+  const validIds = statusUserOptions.value.map((opt) => opt.value);
+  if (!selectedStatusUserId.value || !validIds.includes(selectedStatusUserId.value)) {
+    selectedStatusUserId.value = pendingStatusId.value;
+  }
+};
+
 const getStatusColor = (status: string) => {
   switch (status?.toUpperCase()) {
     case "PENDING":
@@ -383,6 +415,9 @@ const fetchData = async ({ resetPage = false }: { resetPage?: boolean } = {}) =>
     if (selectedType.value) {
       apiParams.type = selectedType.value;
     }
+    if (selectedStatusUserId.value) {
+      apiParams.status_user_id = selectedStatusUserId.value;
+    }
     if (globalSearchKeyword.value) {
       apiParams.search = globalSearchKeyword.value;
     }
@@ -400,6 +435,12 @@ watch(globalSearchTrigger, () => {
 // Handle department selection change → trigger search immediately
 const handleDepartmentChange = (value: string | null) => {
   selectedDepartment.value = value;
+  fetchData({ resetPage: true });
+};
+
+const handleStatusUserChange = (value: unknown) => {
+  selectedStatusUserId.value = typeof value === "string" ? value : "";
+  ensureValidStatusUserId();
   fetchData({ resetPage: true });
 };
 
@@ -441,6 +482,9 @@ onMounted(async () => {
   if (documentStatusStore.document_Status.length === 0) {
     await documentStatusStore.fetctDocumentStatus({ page: 1, limit: 1000 });
   }
+
+  // Resolve PENDING id (or validate URL value) only after statuses are loaded.
+  ensureValidStatusUserId();
 
   // Fetch initial data with type=all
   await fetchData();
@@ -503,6 +547,17 @@ onMounted(async () => {
           placeholder="ເລືອກພະແນກ"
           @change="handleDepartmentChange"
           :loading="departmentStoreInstance.loading"
+        />
+      </div>
+
+      <!-- Status user filter (PENDING/APPROVED/REJECTED/CANCELLED) -->
+      <div class="w-48">
+        <InputSelect
+          v-model:modelValue="selectedStatusUserId"
+          :options="statusUserOptions"
+          :placeholder="t('purchase-rq.status_user.PENDING')"
+          :loading="documentStatusStore.loading"
+          @change="handleStatusUserChange"
         />
       </div>
 

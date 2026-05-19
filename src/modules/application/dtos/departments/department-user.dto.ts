@@ -43,6 +43,8 @@ export interface DepartmentUserDTO {
 export interface UpdateUserDTO {
   id: string;
   username: string;
+  first_name: string | null;
+  last_name: string | null;
   email: string;
   password: string;
   tel: string;

@@ -32,6 +32,20 @@ export const createUserValidation = (
           trigger: "blur",
         },
       ],
+      first_name: [
+        {
+          required: true,
+          message: t("user.validation.firstNameRequired"),
+          trigger: "blur",
+        },
+      ],
+      last_name: [
+        {
+          required: true,
+          message: t("user.validation.lastNameRequired"),
+          trigger: "blur",
+        },
+      ],
       email: [
         { required: true, message: t("user.validation.emailRequired"), trigger: "blur" },
         { type: "email", message: t("user.validation.emailValid"), trigger: "blur" },

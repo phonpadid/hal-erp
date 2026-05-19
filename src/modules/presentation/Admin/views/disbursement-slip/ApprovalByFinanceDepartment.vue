@@ -6,7 +6,7 @@ import { useI18n } from "vue-i18n";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { columns } from "./column";
 import { DatePicker } from "ant-design-vue";
@@ -27,6 +27,7 @@ import { useGlobalSearchStore } from "../../stores/global-search.store";
 import { storeToRefs } from "pinia";
 import QuickApprovalPreviewModal from "@/common/shared/components/Modal/QuickApprovalPreviewModal.vue";
 import type { IApprovalReceiptDto } from "@/modules/application/dtos/receipt.dto";
+import { useDocumentStatusStore } from "../../stores/document-status.store";
 const { t } = useI18n();
 const router = useRouter();
 const { push } = router;
@@ -34,6 +35,7 @@ const route = useRoute();
 const { success, error: showError } = useNotification();
 const dpmStore = departmentStore();
 const rStore = useReceiptStore();
+const documentStatusStore = useDocumentStatusStore();
 const globalSearchStore = useGlobalSearchStore();
 const { trimmedKeyword: globalSearchKeyword, trigger: globalSearchTrigger } =
   storeToRefs(globalSearchStore);
@@ -58,6 +60,10 @@ const filterDate = ref<Dayjs | undefined>(
     ? dayjs(route.query.order_date)
     : undefined
 );
+const STATUS_USER_NAMES = ["PENDING", "APPROVED", "REJECTED", "CANCELLED"] as const;
+const filterStatusUserId = ref<string>(
+  typeof route.query.status_user_id === "string" ? route.query.status_user_id : ""
+);
 const isPaginationChanging = ref<boolean>(false);
 
 const syncStateToUrl = () => {
@@ -72,6 +78,7 @@ const syncStateToUrl = () => {
           ? filterDepartment.value
           : undefined,
       order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
+      status_user_id: filterStatusUserId.value || undefined,
     },
   });
 };
@@ -89,6 +96,38 @@ const filterTypeOptions = computed(() => [
   { value: "all", label: t("purchase-rq.filter_type.all") },
   { value: "only_user", label: t("purchase-rq.filter_type.only_user") },
 ]);
+
+// Status user filter options sourced from document-status API, filtered to the
+// fixed set PENDING/APPROVED/REJECTED/CANCELLED. Values are the real IDs.
+const statusUserOptions = computed(() =>
+  documentStatusStore.document_Status
+    .filter((s) =>
+      (STATUS_USER_NAMES as readonly string[]).includes(s.getName())
+    )
+    .map((s) => ({
+      value: String(s.getId()),
+      label: t(`purchase-rq.status_user.${s.getName()}`),
+    }))
+);
+
+const pendingStatusId = computed(() => {
+  const item = documentStatusStore.document_Status.find(
+    (s) => s.getName() === "PENDING"
+  );
+  return item ? String(item.getId()) : "";
+});
+
+const ensureValidStatusUserId = () => {
+  const validIds = statusUserOptions.value.map((opt) => opt.value);
+  if (!filterStatusUserId.value || !validIds.includes(filterStatusUserId.value)) {
+    filterStatusUserId.value = pendingStatusId.value;
+  }
+};
+
+const handleStatusUserChange = (value: unknown) => {
+  filterStatusUserId.value = typeof value === "string" ? value : "";
+  ensureValidStatusUserId();
+};
 
 // Export Excel state
 const exportStartDate = ref<string | undefined>(undefined);
@@ -288,6 +327,7 @@ const buildFilterParams = (page: number, limit: number) => ({
   order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
   department_id: filterDepartment.value !== "all" ? filterDepartment.value : undefined,
   type: filterType.value,
+  status_user_id: filterStatusUserId.value || undefined,
   search: globalSearchKeyword.value || undefined,
 });
 
@@ -323,11 +363,14 @@ const handleTableChange = async (pagination: TablePaginationType) => {
   }
 };
 
-watch([filterDate, filterDepartment, filterType, globalSearchTrigger], () => {
-  if (!isPaginationChanging.value) {
-    loadFilteredReceipts(true);
+watch(
+  [filterDate, filterDepartment, filterType, filterStatusUserId, globalSearchTrigger],
+  () => {
+    if (!isPaginationChanging.value) {
+      loadFilteredReceipts(true);
+    }
   }
-});
+);
 
 // React to browser back/forward
 watch(
@@ -349,6 +392,18 @@ watch(
 );
 
 onMounted(async () => {
+  // Load document statuses first so we can resolve the PENDING id before
+  // the initial receipts fetch.
+  if (documentStatusStore.document_Status.length === 0) {
+    await documentStatusStore.fetctDocumentStatus({ page: 1, limit: 1000 });
+  }
+  // Suppress the filter watcher while we resolve the default status id, so
+  // we don't kick off a second fetch.
+  isPaginationChanging.value = true;
+  ensureValidStatusUserId();
+  await nextTick();
+  isPaginationChanging.value = false;
+
   await loadFilteredReceipts();
   await dpmStore.fetchDepartment({ page: 1, limit: 1000 });
 });
@@ -403,6 +458,21 @@ onMounted(async () => {
               v-model="filterDepartment"
               placeholder="ເລືອກພະແນກ"
               class="w-full"
+            />
+          </div>
+          <div class="search-by-status-user w-full">
+            <label
+              for=""
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >{{ t("purchase-rq.field.status") }}</label
+            >
+            <InputSelect
+              :options="statusUserOptions"
+              v-model="filterStatusUserId"
+              :placeholder="t('purchase-rq.status_user.PENDING')"
+              :loading="documentStatusStore.loading"
+              class="w-full"
+              @change="handleStatusUserChange"
             />
           </div>
           <div class="search-by-status w-full">

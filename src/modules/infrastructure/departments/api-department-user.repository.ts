@@ -27,6 +27,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       if (apiModel.user) {
         formData.append("username", apiModel.user.username || "");
         formData.append("email", apiModel.user.email || "");
+        formData.append("firstName", apiModel.user.first_name ?? "");
+        formData.append("lastName", apiModel.user.last_name ?? "");
         if (apiModel.user.password) {
           formData.append("password", apiModel.user.password);
         }
@@ -200,6 +202,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       if (apiModel.user) {
         formData.append("username", apiModel.user.username || "");
         formData.append("email", apiModel.user.email || "");
+        formData.append("firstName", apiModel.user.first_name ?? "");
+        formData.append("lastName", apiModel.user.last_name ?? "");
         if (apiModel.user.password) {
           formData.append("password", apiModel.user.password);
         }
@@ -275,6 +279,8 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
         ? ({
             id: Number(user.getId()),
             username: user.getUsername(),
+            first_name: user.getFirstName?.() ?? null,
+            last_name: user.getLastName?.() ?? null,
             email: user.getEmail(),
             password: user.getPassword(),
             tel: user.getTel(),
@@ -338,6 +344,9 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
     const roleIds = user.roles?.map((role) => role.id) || [];
     const permissionIds = user.permissions?.map((perm) => perm.id) || [];
     const roles = user.roles || [];
+    const anyUser = user as unknown as Record<string, unknown>;
+    const firstName = (user.first_name ?? anyUser.firstName ?? null) as string | null;
+    const lastName = (user.last_name ?? anyUser.lastName ?? null) as string | null;
     return new UserEntity(
       user.id.toString(),
       user.username,
@@ -351,6 +360,9 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       user.password,
       user.tel,
       user.user_types?.map((type) => type) ?? [],
+      user.user_signature ?? null,
+      firstName,
+      lastName,
     );
   }
 
@@ -369,6 +381,9 @@ export class ApiDepartmentUserRepository implements DepartmentUserRepository {
       undefined, // password
       undefined, // tel
       [], // email
+      null, // user_signature
+      null, // first_name
+      null, // last_name
     );
   }
 

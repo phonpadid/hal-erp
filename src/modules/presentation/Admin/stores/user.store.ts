@@ -189,6 +189,8 @@ export const useUserStore = defineStore("user", () => {
      const result = {
       id: parseInt(user.getId()),
       username: user.getUsername(),
+      first_name: user.getFirstName?.() ?? null,
+      last_name: user.getLastName?.() ?? null,
       email: user.getEmail(),
       roleIds: user.getRoleIds(),
       permissionIds: user.getPermissionIds(),

@@ -19,6 +19,10 @@ export class UpdateDepartmentUserUseCase {
       new Date().toISOString(), // Fallback createdAt
       "",
       input.user.tel,
+      [],
+      null,
+      input.user.first_name ?? null,
+      input.user.last_name ?? null,
     );
 
     const dpmUser = DepartmentUserEntity.create(
