@@ -248,7 +248,7 @@ const handleOtpClose = () => {
       @confirm-step="handleLayoutConfirm"
     />
 
-    <div class="px-2 mt-[15rem]">
+    <div class="px-2 ">
       <!-- Step 0 -->
       <DocTypeSelect
         v-if="currentStep === 0"

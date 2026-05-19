@@ -112,7 +112,7 @@ const columns = [
       :action-buttons="customButtons"
     />
 
-    <div id="printable-content" class="bg-white rounded-lg shadow-sm p-6 mt-6">
+    <div id="printable-content" class="bg-white rounded-lg shadow-sm p-3 sm:p-4 lg:p-6 mt-4 sm:mt-6">
       <div class="mb-6">
         <h3 class="text-base font-semibold mb-2">ຈາກຝ່າຍງານ</h3>
         <div class="flex items-center gap-3">
@@ -166,8 +166,8 @@ const columns = [
           </template>
         </Table>
         <div class="flex justify-end mt-4">
-          <div class="w-1/3">
-            <div class="flex justify-between items-center">
+          <div class="w-full sm:w-1/2 lg:w-1/3">
+            <div class="flex flex-wrap justify-between items-center gap-2">
               <span class="font-semibold text-gray-700">ມູນຄ່າລວມທັງໝົດ:</span>
               <span class="font-bold text-lg text-red-600">
                 {{ documentData.grandTotal.toLocaleString() }} ₭

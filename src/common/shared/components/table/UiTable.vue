@@ -122,7 +122,7 @@ const props = defineProps({
   },
   scroll: {
     type: Object as PropType<{ x?: number | string | true; y?: number | string }>,
-    default: () => ({ x: "100%" }),
+    default: () => ({ x: "max-content" }),
   },
   rowKey: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -210,16 +210,35 @@ const getStatusColor = (status: string): string => {
 <style scoped>
 .ui-table-wrapper {
   width: 100%;
-  overflow-x: auto;
+  max-width: 100%;
 }
 
-@media (max-width: 640px) {
-  :deep(.ant-table-content) {
-    overflow-x: auto;
+.ui-table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Force cells to their content width so the table reliably overflows
+   and ant-design's horizontal scroll engages. */
+:deep(.ant-table-thead > tr > th),
+:deep(.ant-table-tbody > tr > td) {
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .ui-table-header {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
+  :deep(.ant-table-content),
   :deep(.ant-table-body) {
-    min-width: 100%;
+    overflow-x: auto !important;
+  }
+
+  :deep(.ant-table) {
+    min-width: 720px;
   }
 }
 </style>

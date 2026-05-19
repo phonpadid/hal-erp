@@ -178,7 +178,7 @@ const getRowClassName = (record: TableRecord) => {
       </div>
     </div>
     <div class="budget-code-section">
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
         <h3>ຂໍ້ມູນງົບປະມານ</h3>
         <div class="flex items-center gap-2" v-if="!selectedBudget">
           <span>ພະແນກພັດທະນາທຸລະກິດ - ລະຫັດງົບປະມານ BD 6600</span>

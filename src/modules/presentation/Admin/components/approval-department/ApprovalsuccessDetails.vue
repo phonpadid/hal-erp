@@ -439,7 +439,7 @@ const handleModalCancel = () => {
     </UiDrawer>
 
     <!-- Main Content -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+    <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 lg:p-6 mt-4 sm:mt-6">
       <h2>ຂໍ້ມູນສ້າງໃບອານຸມັດຈັດຊື້ - ຈັດຈ້າງ</h2>
       <!-- Requester Information -->
       <div class="flex items-start gap-4 mb-2">
