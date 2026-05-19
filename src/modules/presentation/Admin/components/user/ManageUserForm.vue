@@ -31,6 +31,8 @@ const emit = defineEmits<{
     e: "submit",
     data: {
       username: string;
+      first_name: string | null;
+      last_name: string | null;
       email: string;
       password?: string;
       tel?: string;
@@ -45,6 +47,8 @@ const emit = defineEmits<{
 const formRef = ref();
 const formState = reactive({
   username: "",
+  first_name: null as string | null,
+  last_name: null as string | null,
   email: "",
   password: "",
   confirmPassword: "",
@@ -142,6 +146,8 @@ watch(
   (newUser) => {
     if (newUser) {
       formState.username = newUser.username;
+      formState.first_name = newUser.first_name ?? null;
+      formState.last_name = newUser.last_name ?? null;
       formState.email = newUser.email;
       formState.tel = newUser.tel || "";
       formState.roleIds = newUser.roleIds.map(Number);
@@ -160,6 +166,8 @@ watch(
       }
     } else {
       // Reset for create mode
+      formState.first_name = null;
+      formState.last_name = null;
       signatureUploaded.value = false;
       signaturePreview.value = null;
       formState.signature = "";
@@ -187,8 +195,16 @@ const submitForm = async () => {
       signatureValue = "";
     }
 
+    const normalizeName = (value: string | null): string | null => {
+      if (value === null || value === undefined) return null;
+      const trimmed = String(value).trim();
+      return trimmed === "" ? null : trimmed;
+    };
+
     const formData: {
       username: string;
+      first_name: string | null;
+      last_name: string | null;
       email: string;
       password?: string;
       tel?: string;
@@ -197,6 +213,8 @@ const submitForm = async () => {
       signature: string | File;
     } = {
       username: formState.username,
+      first_name: normalizeName(formState.first_name),
+      last_name: normalizeName(formState.last_name),
       email: formState.email,
       tel: formState.tel || undefined,
       roleIds: formState.roleIds.map((id) => Number(id)),
@@ -257,6 +275,22 @@ watch(
             <UiInput
               v-model="formState.username"
               :placeholder="t('user.form.usernamePlaceholder')"
+              :disabled="loading"
+            />
+          </UiFormItem>
+
+          <UiFormItem :label="t('user.form.firstName')" name="first_name" required>
+            <UiInput
+              v-model="formState.first_name"
+              :placeholder="t('user.form.firstNamePlaceholder')"
+              :disabled="loading"
+            />
+          </UiFormItem>
+
+          <UiFormItem :label="t('user.form.lastName')" name="last_name" required>
+            <UiInput
+              v-model="formState.last_name"
+              :placeholder="t('user.form.lastNamePlaceholder')"
               :disabled="loading"
             />
           </UiFormItem>

@@ -44,7 +44,15 @@
   "status": {
     "pending": "Pending",
     "approved": "Approved",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "cancelled": "Cancelled"
+  },
+  "status_user": {
+    "label": "User status",
+    "PENDING": "Pending",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "CANCELLED": "Cancelled"
   },
   "card_title": {
     "title": "Procurement proposal title",

@@ -17,6 +17,7 @@ export interface PaginationParams {
   department_id?: string | number;
   document_type_id?: string | number;
   status_id?: string | number;
+  status_user_id?: string;
   requested_date_start?: string;
   requested_date_end?: string;
   start_date?: string;

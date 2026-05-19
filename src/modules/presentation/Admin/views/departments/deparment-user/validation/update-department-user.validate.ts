@@ -12,6 +12,20 @@ export const updateDpmUserRules = (t: (key: string) => string) => ({
       trigger: ["blur"],
     },
   ],
+  first_name: [
+    {
+      required: true,
+      message: t("departments.dpm_user.error.first_name"),
+      trigger: ["blur"],
+    },
+  ],
+  last_name: [
+    {
+      required: true,
+      message: t("departments.dpm_user.error.last_name"),
+      trigger: ["blur"],
+    },
+  ],
   departmentId: [
     {
       required: true,

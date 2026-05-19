@@ -47,8 +47,9 @@ if (Number.isFinite(queryLimit) && queryLimit > 0) {
 const selectedDocType = ref(
   typeof route.query.document_type_id === "string" ? route.query.document_type_id : "all"
 );
-const selectedStatus = ref(
-  typeof route.query.status_id === "string" ? route.query.status_id : "all"
+const STATUS_USER_NAMES = ["PENDING", "APPROVED", "REJECTED", "CANCELLED"] as const;
+const selectedStatusUserId = ref<string>(
+  typeof route.query.status_user_id === "string" ? route.query.status_user_id : ""
 );
 const selectedType = ref(
   typeof route.query.type === "string" ? route.query.type : "all"
@@ -62,7 +63,7 @@ const syncStateToUrl = () => {
       limit: String(purchaseRequestStore.pagination.limit),
       type: selectedType.value,
       document_type_id: selectedDocType.value !== "all" ? selectedDocType.value : undefined,
-      status_id: selectedStatus.value !== "all" ? selectedStatus.value : undefined,
+      status_user_id: selectedStatusUserId.value || undefined,
     },
   });
 };
@@ -148,19 +149,42 @@ const docItem = computed(() => [
   })),
 ]);
 
-const documentStatusItem = computed(() => [
-  { value: "all", label: "ທັງໝົດ" },
-  ...documentStatusStore.document_Status.map((item) => ({
-    value: item.getId(),
-    label: item.getName(),
-  })),
-]);
+const statusUserItem = computed(() =>
+  documentStatusStore.document_Status
+    .filter((s) =>
+      (STATUS_USER_NAMES as readonly string[]).includes(s.getName())
+    )
+    .map((s) => ({
+      value: String(s.getId()),
+      label: t(`purchase-rq.status_user.${s.getName()}`),
+    }))
+);
+
+const pendingStatusId = computed(() => {
+  const item = documentStatusStore.document_Status.find(
+    (s) => s.getName() === "PENDING"
+  );
+  return item ? String(item.getId()) : "";
+});
 
 const filterTypeItem = computed(() => [
   { value: "all", label: t("purchase-rq.filter_type.all") },
   { value: "only_user", label: t("purchase-rq.filter_type.only_user") },
 ]);
 const handleSearch = () => {
+  fetchData({ resetPage: true });
+};
+
+const ensureValidStatusUserId = () => {
+  const validIds = statusUserItem.value.map((opt) => opt.value);
+  if (!selectedStatusUserId.value || !validIds.includes(selectedStatusUserId.value)) {
+    selectedStatusUserId.value = pendingStatusId.value;
+  }
+};
+
+const handleStatusUserChange = (value: unknown) => {
+  selectedStatusUserId.value = typeof value === "string" ? value : "";
+  ensureValidStatusUserId();
   fetchData({ resetPage: true });
 };
 
@@ -185,8 +209,8 @@ const fetchData = async ({ resetPage = false }: { resetPage?: boolean } = {}) =>
     if (selectedDocType.value && selectedDocType.value !== "all") {
       apiParams.document_type_id = selectedDocType.value;
     }
-    if (selectedStatus.value && selectedStatus.value !== "all") {
-      apiParams.status_id = selectedStatus.value;
+    if (selectedStatusUserId.value) {
+      apiParams.status_user_id = selectedStatusUserId.value;
     }
     if (selectedType.value) {
       apiParams.type = selectedType.value;
@@ -421,6 +445,8 @@ watch(
 onMounted(async () => {
   await docTypeStore.fetchdocumentType({ page: 1, limit: 1000 });
   await documentStatusStore.fetctDocumentStatus({ page: 1, limit: 1000 });
+  // Resolve PENDING id (or validate URL value) only after statuses are loaded.
+  ensureValidStatusUserId();
   await fetchData();
 });
 </script>
@@ -477,11 +503,11 @@ onMounted(async () => {
               {{ t("purchase-rq.field.status") }}
             </label>
             <InputSelect
-              v-model="selectedStatus"
-              :options="documentStatusItem"
-              :placeholder="t('purchase-rq.all')"
+              v-model="selectedStatusUserId"
+              :options="statusUserItem"
+              :placeholder="t('purchase-rq.status_user.PENDING')"
               class="w-full"
-              @change="handleSearch"
+              @change="handleStatusUserChange"
             />
           </div>
           <div class="search-button flex items-end">

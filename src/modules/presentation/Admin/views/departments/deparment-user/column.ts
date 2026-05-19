@@ -23,6 +23,16 @@ export function columns(t: (key: string) => string): Column[] {
       key: "username",
     },
     {
+      title: t("departments.dpm_user.field.first_name"),
+      dataIndex: "user.first_name",
+      key: "first_name",
+    },
+    {
+      title: t("departments.dpm_user.field.last_name"),
+      dataIndex: "user.last_name",
+      key: "last_name",
+    },
+    {
       title: t("departments.dpm_user.field.email"),
       dataIndex: "user.email",
       key: "email",
