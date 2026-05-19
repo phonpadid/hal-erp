@@ -33,6 +33,11 @@ export function columns(t: (key: string) => string): Column[] {
       key: "status",
     },
     {
+      title: "ສະຖານະໃບເບີກຈ່າຍ",
+      dataIndex: "rc_status",
+      key: "rc_status",
+    },
+    {
       title: t("purchase_orders.table.action"),
       dataIndex: "action",
       key: "action",

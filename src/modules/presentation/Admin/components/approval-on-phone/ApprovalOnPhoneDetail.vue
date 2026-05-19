@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { columns } from "./column";
 import { Icon } from "@iconify/vue";
 import ApvLayout from "./ApvLayout.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
 import { uploadFile } from "@/modules/application/services/upload.service";
 import { message } from "ant-design-vue";
@@ -16,6 +17,8 @@ import api from "@/common/config/axios/axios";
 const { success: showSuccess } = useNotification();
 const { error: showError } = useNotification();
 const { t } = useI18n();
+const router = useRouter();
+const goBack = () => router.back();
 const { params } = useRoute();
 const token = params.token as string;
 const rStore = useReceiptStore();
@@ -454,6 +457,15 @@ const handleCloseModal = () => {
 
 <template>
   <div class="no-print">
+    <div class="flex justify-end mb-2">
+      <UiButton
+        icon="mdi:arrow-left"
+        size="small"
+        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
+    </div>
     <ApvLayout />
     <div class="approval-container">
       <!-- Loading State -->

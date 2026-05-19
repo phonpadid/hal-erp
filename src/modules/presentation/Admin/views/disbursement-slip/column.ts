@@ -37,6 +37,12 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "current_approver",
       key: "current_approver",
     },
+    {
+      title: "ສະຖານະການຈ່າຍ",
+      dataIndex: "payment_status",
+      key: "payment_status",
+      align: "center",
+    },
 
     {
       title: t("disbursement.field.manage"),

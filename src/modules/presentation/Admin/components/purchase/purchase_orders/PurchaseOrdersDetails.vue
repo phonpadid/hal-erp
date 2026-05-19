@@ -44,6 +44,7 @@ import { useApprovalStepStore } from "../../../stores/approval-step.store";
 /************************************* */
 const { success, error } = useNotification();
 const router = useRouter();
+const goBack = () => router.back();
 const route = useRoute();
 const currentStep = ref(0);
 const currentStatus = ref<"wait" | "process" | "finish" | "error">("process");
@@ -833,6 +834,15 @@ const handleFileClick = (fileUrl: string, filename: string) => {
 
 <template>
   <div class="container mx-auto p-6">
+    <div class="flex justify-end mb-2">
+      <UiButton
+        icon="mdi:arrow-left"
+        size="small"
+        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
+    </div>
     <!-- Header Section -->
     <header-component
       header-title="ອານຸມັດຈັດຊື້"

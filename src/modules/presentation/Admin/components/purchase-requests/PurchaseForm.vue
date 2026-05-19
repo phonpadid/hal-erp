@@ -817,10 +817,10 @@ defineExpose({
               :name="['addMore', index.toString(), 'unit_id']"
               required
             >
-              <ASelect
+              <InputSelect
                 v-model:value="item.unit_id"
                 :placeholder="t('purchase-rq.phd.unit', 'ເລືອກຫົວໜ່ວຍ')"
-                :options="units.map((unit) => ({ value: unit.getId(), label: unit.getName() }))"
+                :options="units.map((unit) => ({ value: unit.getId(), label: unit.getName() ?? '' }))"
                 :disabled="hasItemQuota(index)"
               />
             </UiFormItem>

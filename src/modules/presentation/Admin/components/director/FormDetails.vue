@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import type { ButtonType } from "@/modules/shared/buttonType";
 import { nextTick, ref } from "vue";
+import { useRouter } from "vue-router";
 import { columnsDetailsDirector } from "../../views/director/column/columnDetails";
 import { useI18n } from "vue-i18n";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -19,6 +20,8 @@ import FormSucess from "./FormSucess.vue";
 
 /********************************************************* */
 const { t } = useI18n();
+const router = useRouter();
+const goBack = () => router.back();
 const { success, error } = useNotification();
 const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
@@ -261,6 +264,15 @@ const handleModalCancel = () => {
     </div>
     <!-- Header Component -->
     <div v-else>
+      <div class="flex justify-end mb-2">
+        <UiButton
+          icon="mdi:arrow-left"
+          size="small"
+          class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+          @click="goBack"
+          >ກັບຄືນ</UiButton
+        >
+      </div>
       <!-- Header component -->
       <header-component
         header-title="ອະນຸມັດຈັດຊື້"
