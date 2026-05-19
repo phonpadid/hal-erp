@@ -694,11 +694,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mx-auto py-1 px-0">
-    <!-- Header Component -->
-
+  <div class="flex flex-col h-[calc(100vh-5rem)]">
+    <!-- Fixed Header Component -->
     <div
-      class="sticky top-16 z-30 bg-white shadow-sm transition-all duration-150 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3"
+      class="flex-shrink-0 bg-white shadow-sm -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3 z-30"
     >
       <div class="flex justify-end mb-2">
         <UiButton
@@ -722,7 +721,8 @@ onMounted(async () => {
       />
     </div>
 
-    <!-- Main Content -->
+    <!-- Scrollable Main Content -->
+    <div class="flex-1 overflow-y-auto pr-1">
     <div v-if="loading" class="mt-[4rem] text-center">Loading...</div>
 
     <div class="body mt-[2rem]" v-else-if="requestDetail">
@@ -924,6 +924,8 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+    </div>
+  </div>
 
     <!-- OTP Modal -->
     <OtpModal
@@ -990,7 +992,6 @@ onMounted(async () => {
     <div class="print-only">
       <PrintPurchaseRequest :purchase-request="requestDetail" />
     </div>
-  </div>
 </template>
 
 <style scoped>

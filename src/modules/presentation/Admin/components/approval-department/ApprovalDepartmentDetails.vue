@@ -1,26 +1,26 @@
 <template>
-  <div class="mt-2">
-    <div>
-      <!-- Header component -->
-      <div
-        class="sticky top-16 z-30 bg-white shadow-sm transition-all duration-150 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3"
-      >
-        <div class="flex justify-end">
-          <UiButton icon="mdi:arrow-left" size="small" class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white" @click="goBack">ກັບຄືນ</UiButton>
-        </div>
-        <header-component
-          header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
-          :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
-          document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
-          :document-number="orderDetails?.getPoNumber() || 'no data'"
-          :document-date="formatDate(orderDetails?.getCreatedAt() ?? new Date())"
-          :action-buttons="customButtons"
-          :document-status="documentStatus.status"
-          :document-status-class="documentStatus.statusClass"
-        />
+  <div class="flex flex-col h-[calc(100vh-5rem)]">
+    <!-- Fixed Header component -->
+    <div
+      class="flex-shrink-0 bg-white shadow-sm -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3 z-30"
+    >
+      <div class="flex justify-end">
+        <UiButton icon="mdi:arrow-left" size="small" class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white" @click="goBack">ກັບຄືນ</UiButton>
       </div>
-      <!-- Main Content -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mt-18">
+      <header-component
+        header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
+        :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
+        document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
+        :document-number="orderDetails?.getPoNumber() || 'no data'"
+        :document-date="formatDate(orderDetails?.getCreatedAt() ?? new Date())"
+        :action-buttons="customButtons"
+        :document-status="documentStatus.status"
+        :document-status-class="documentStatus.statusClass"
+      />
+    </div>
+    <!-- Scrollable Main Content -->
+    <div class="flex-1 overflow-y-auto pr-1">
+      <div class="bg-white rounded-lg shadow-sm p-6">
         <h2>{{ t("purchase_orders.p_orders") }}</h2>
         <!-- Requester Information -->
         <div class="flex items-start gap-4 mb-2">

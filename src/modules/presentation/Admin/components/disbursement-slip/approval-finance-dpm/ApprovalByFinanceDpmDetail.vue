@@ -437,15 +437,22 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div class="no-print">
-    <div class="flex justify-end mb-2">
-      <UiButton
-       icon="mdi:arrow-left" size="small" class="flex mt-2 items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
-        @click="goBack"
-        >ກັບຄືນ</UiButton
-      >
+  <div class="no-print flex flex-col h-[calc(100vh-5rem)]">
+    <!-- Fixed Header -->
+    <div
+      class="flex-shrink-0 bg-white shadow-sm -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3 z-30"
+    >
+      <div class="flex justify-end mb-2">
+        <UiButton
+         icon="mdi:arrow-left" size="small" class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+          @click="goBack"
+          >ກັບຄືນ</UiButton
+        >
+      </div>
+      <ApvLayout :dataHead="dataHead" :onPrint="openPrintModal" :onApprovalSuccess="resetUploadedImages"></ApvLayout>
     </div>
-    <ApvLayout :dataHead="dataHead" :onPrint="openPrintModal" :onApprovalSuccess="resetUploadedImages"></ApvLayout>
+    <!-- Scrollable Body -->
+    <div class="flex-1 overflow-y-auto pr-1">
     <div class="mt-[2rem] mb-[5rem]">
       <div class="user-info">
         <div class="flex gap-[4rem]">
@@ -775,6 +782,7 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
     <!-- //upload modal  -->
     <UploadSlipModal :visible="createModalVisible" :loading="uploadLoading"
