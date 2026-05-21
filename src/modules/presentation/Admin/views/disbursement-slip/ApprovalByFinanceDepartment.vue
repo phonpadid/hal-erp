@@ -78,7 +78,7 @@ const syncStateToUrl = () => {
           ? filterDepartment.value
           : undefined,
       order_date: filterDate.value ? filterDate.value.format("YYYY-MM-DD") : undefined,
-      status_user_id: filterStatusUserId.value || undefined,
+      status_user_id: filterStatusUserId.value || "all",
     },
   });
 };
@@ -118,6 +118,11 @@ const pendingStatusId = computed(() => {
 });
 
 const ensureValidStatusUserId = () => {
+  // "all" sentinel = user explicitly cleared the filter; keep it empty.
+  if (filterStatusUserId.value === "all") {
+    filterStatusUserId.value = "";
+    return;
+  }
   const validIds = statusUserOptions.value.map((opt) => opt.value);
   if (!filterStatusUserId.value || !validIds.includes(filterStatusUserId.value)) {
     filterStatusUserId.value = pendingStatusId.value;
@@ -126,7 +131,6 @@ const ensureValidStatusUserId = () => {
 
 const handleStatusUserChange = (value: unknown) => {
   filterStatusUserId.value = typeof value === "string" ? value : "";
-  ensureValidStatusUserId();
 };
 
 // Export Excel state

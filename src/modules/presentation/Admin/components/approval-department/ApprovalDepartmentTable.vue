@@ -82,7 +82,7 @@ const syncStateToUrl = () => {
           ? selectedDepartment.value
           : undefined,
       order_date: toIsoDate(dates.startDate) ?? undefined,
-      status_user_id: selectedStatusUserId.value || undefined,
+      status_user_id: selectedStatusUserId.value || "all",
     },
   });
 };
@@ -341,6 +341,11 @@ const pendingStatusId = computed(() => {
 });
 
 const ensureValidStatusUserId = () => {
+  // "all" sentinel = user explicitly cleared the filter; keep it empty.
+  if (selectedStatusUserId.value === "all") {
+    selectedStatusUserId.value = "";
+    return;
+  }
   const validIds = statusUserOptions.value.map((opt) => opt.value);
   if (!selectedStatusUserId.value || !validIds.includes(selectedStatusUserId.value)) {
     selectedStatusUserId.value = pendingStatusId.value;
@@ -447,7 +452,6 @@ const handleDepartmentChange = (value: string | null) => {
 
 const handleStatusUserChange = (value: unknown) => {
   selectedStatusUserId.value = typeof value === "string" ? value : "";
-  ensureValidStatusUserId();
   fetchData({ resetPage: true });
 };
 
