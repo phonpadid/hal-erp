@@ -53,7 +53,13 @@
       "passwordRequired": "ລະຫັດຜ່ານຈຳເປັນ",
       "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ",
       "confirmPasswordRequired": "ຢືນຢັນລະຫັດຜ່ານຈຳເປັນ",
-      "passwordMismatch": "ລະຫັດຜ່ານບໍ່ຕົງກັນ"
+      "passwordMismatch": "ລະຫັດຜ່ານບໍ່ຕົງກັນ",
+      "firstNameRequired": "ກະລຸນາປ້ອນຊື່",
+      "firstNameFormat": "ຊື່ຕ້ອງເປັນຕົວໜັງສືເທົ່ານັ້ນ",
+      "firstNameMax": "ຊື່ບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ",
+      "lastNameRequired": "ກະລຸນາປ້ອນນາມສະກຸນ",
+      "lastNameFormat": "ນາມສະກຸນຕ້ອງເປັນຕົວໜັງສືເທົ່ານັ້ນ",
+      "lastNameMax": "ນາມສະກຸນບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ"
     },
   "form": {
     "name": "ຊື່ບໍລິສັດ",
@@ -66,6 +72,10 @@
     "address": "ທີ່ຢູ່",
     "addressPlaceholder": "ປ້ອນທີ່ຢູ່",
     "userSection": "ຂໍ້ມູນບັນຊີຜູ້ດຳເນີນ",
+    "firstName": "ຊື່",
+    "firstNamePlaceholder": "ປ້ອນຊື່",
+    "lastName": "ນາມສະກຸນ",
+    "lastNamePlaceholder": "ປ້ອນນາມສະກຸນ",
     "username": "ຊື່ຜູ້ໃຊ້",
     "usernamePlaceholder": "ປ້ອນຊື່ຜູ້ໃຊ້",
     "userEmail": "ອີເມວຜູ້ໃຊ້",

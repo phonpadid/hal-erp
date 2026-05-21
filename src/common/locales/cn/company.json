@@ -53,7 +53,13 @@
     "passwordRequired": "密码为必填项",
     "passwordMin": "密码至少需要6个字符",
     "confirmPasswordRequired": "确认密码为必填项",
-    "passwordMismatch": "两次输入的密码不一致"
+    "passwordMismatch": "两次输入的密码不一致",
+    "firstNameRequired": "名字为必填项",
+    "firstNameFormat": "名字必须仅包含字母",
+    "firstNameMax": "名字不能超过50个字符",
+    "lastNameRequired": "姓氏为必填项",
+    "lastNameFormat": "姓氏必须仅包含字母",
+    "lastNameMax": "姓氏不能超过50个字符"
   },
   "modal": {
     "create": "创建公司",
@@ -74,6 +80,10 @@
     "address": "地址",
     "addressPlaceholder": "请输入公司地址",
     "userSection": "管理员账户信息",
+    "firstName": "名字",
+    "firstNamePlaceholder": "请输入名字",
+    "lastName": "姓氏",
+    "lastNamePlaceholder": "请输入姓氏",
     "username": "用户名",
     "usernamePlaceholder": "请输入用户名",
     "userEmail": "用户邮箱",

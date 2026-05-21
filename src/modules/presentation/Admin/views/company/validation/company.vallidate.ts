@@ -10,6 +10,8 @@ interface ValidationState {
       username?: string;
       email?: string;
       tel?: string;
+      firstName?: string;
+      lastName?: string;
       password?: string;
       confirm_password?: string;
     };
@@ -194,6 +196,62 @@ export const createCompanyValidation = (
       },
     ];
 
+    userValidation.firstName = [
+      {
+        validator: (_rule: unknown, value: string) => {
+          return new Promise((resolve, reject) => {
+            const actualValue = state.formState?.user?.firstName || value;
+
+            if (!actualValue || actualValue.trim() === '') {
+              reject(new Error(t("company.validation.firstNameRequired")));
+              return;
+            }
+
+            if (!/^[\p{L}\p{M}\s'-]+$/u.test(actualValue)) {
+              reject(new Error(t("company.validation.firstNameFormat")));
+              return;
+            }
+
+            if (actualValue.length > 50) {
+              reject(new Error(t("company.validation.firstNameMax")));
+              return;
+            }
+
+            resolve(true);
+          });
+        },
+        trigger: "blur",
+      },
+    ];
+
+    userValidation.lastName = [
+      {
+        validator: (_rule: unknown, value: string) => {
+          return new Promise((resolve, reject) => {
+            const actualValue = state.formState?.user?.lastName || value;
+
+            if (!actualValue || actualValue.trim() === '') {
+              reject(new Error(t("company.validation.lastNameRequired")));
+              return;
+            }
+
+            if (!/^[\p{L}\p{M}\s'-]+$/u.test(actualValue)) {
+              reject(new Error(t("company.validation.lastNameFormat")));
+              return;
+            }
+
+            if (actualValue.length > 50) {
+              reject(new Error(t("company.validation.lastNameMax")));
+              return;
+            }
+
+            resolve(true);
+          });
+        },
+        trigger: "blur",
+      },
+    ];
+
     userValidation.confirm_password = [
       {
         validator: (_rule: unknown, value: string) => {
@@ -228,6 +286,8 @@ export const createCompanyValidation = (
     "user.username": userValidation.username,
     "user.email": userValidation.email,
     "user.tel": userValidation.tel,
+    "user.firstName": userValidation.firstName,
+    "user.lastName": userValidation.lastName,
     "user.password": userValidation.password,
     "user.confirm_password": userValidation.confirm_password,
   };

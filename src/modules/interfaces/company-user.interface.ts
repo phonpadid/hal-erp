@@ -4,6 +4,10 @@ export interface CompanyUserInterface {
     username: string;
     email: string;
     tel: string;
+    firstName?: string;
+    lastName?: string;
+    first_name?: string;
+    last_name?: string;
     roles?: RoleInterface[];
     user_signature?: {
       signature_url?: string;
@@ -13,6 +17,10 @@ export interface CompanyUserInterface {
   username?: string;
   email?: string;
   tel?: string;
+  firstName?: string;
+  lastName?: string;
+  first_name?: string;
+  last_name?: string;
   signature?: string | null;
   signature_url?: string | null;
   roles?: RoleInterface[];
@@ -27,6 +35,8 @@ export interface CompanyUserCreate {
   username: string;
   email: string;
   tel: string;
+  firstName: string;
+  lastName: string;
   password: string;
   confirm_password: string;
   signature?: string | null;
@@ -39,6 +49,8 @@ export interface CompanyUserUpdate {
   username?: string;
   email?: string;
   tel?: string;
+  firstName?: string;
+  lastName?: string;
   signature?: string | null;
   roleIds?: number[];
   permissionIds?: number[];
@@ -49,6 +61,8 @@ export interface CompanyUserApiModel {
   username: string;
   email: string;
   tel: string;
+  firstName?: string;
+  lastName?: string;
   signature?: string | null;
   signature_url?: string;
   roles?: RoleInterface[];
