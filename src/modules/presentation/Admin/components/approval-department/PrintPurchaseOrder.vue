@@ -4,6 +4,7 @@ import { computed } from "vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { useI18n } from "vue-i18n";
 import { formatDate } from "@/modules/shared/formatdate";
+import { getUserDisplayName, getApprovalStepLabel } from "@/modules/shared/utils/display-user";
 
 const { t } = useI18n();
 
@@ -55,7 +56,7 @@ const shopInfo = computed(() => {
         <tr>
           <td class="label">Staff Name<br />ຊື່ພະນັກງານ:</td>
           <!-- ✅ ใช้จาก document.requester -->
-          <td class="value">{{ purchaseOrder?.document?.requester?.username }}</td>
+          <td class="value">{{ getUserDisplayName(purchaseOrder?.document?.requester) }}</td>
           <td class="label">Position<br />ຕຳແໜ່ງ:</td>
           <!-- ✅ ใช้จาก document.position[0] -->
           <td class="value">{{ purchaseOrder?.document?.position?.[0]?.name }}</td>
@@ -177,7 +178,7 @@ const shopInfo = computed(() => {
             </div>
 
             <div class="signature-name">
-              {{ requesterStep?.approver?.username || "_______________" }}
+              {{ getUserDisplayName(requesterStep?.approver) }}
             </div>
             <div class="signature-position" v-if="requesterStep?.position">
               {{ requesterStep.position.name }}
@@ -186,7 +187,7 @@ const shopInfo = computed(() => {
 
           <!-- ✅ ผู้อนุมัติ (phoud_head, xone, nome) -->
           <td v-for="(step, index) in approvalSteps" :key="step.id" class="signature-cell">
-            <div class="signature-label">ອະນຸມັດໂດຍ {{ index + 1 }}</div>
+            <div class="signature-label">{{ getApprovalStepLabel(step, `ອະນຸມັດໂດຍ ${index + 1}`) }}</div>
 
             <div class="signature-space">
               <img
@@ -198,7 +199,7 @@ const shopInfo = computed(() => {
             </div>
 
             <div class="signature-name">
-              {{ step?.approver?.username || "_______________" }}
+              {{ getUserDisplayName(step?.approver) }}
             </div>
             <div class="signature-position" v-if="step?.position">
               {{ step.position.name }}
@@ -212,6 +213,7 @@ const shopInfo = computed(() => {
 
 <style scoped>
 .print-container {
+  width: 100%;
   max-width: 210mm;
   margin: 0 auto;
   padding: 8px;
@@ -222,6 +224,8 @@ const shopInfo = computed(() => {
   padding: 8mm;
   font-family: "Phetsarath OT", Arial, sans-serif;
   font-size: 11pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .header {
@@ -382,6 +386,9 @@ const shopInfo = computed(() => {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  table-layout: fixed;
 }
 
 .signature-cell {
@@ -389,6 +396,10 @@ const shopInfo = computed(() => {
   text-align: center;
   padding: 10px;
   vertical-align: top;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .signature-label {
@@ -425,10 +436,21 @@ const shopInfo = computed(() => {
 @media print {
   .print-container {
     padding: 0;
+    max-width: none;
+  }
+
+  .items-table thead {
+    display: table-header-group;
+  }
+
+  .items-table tr,
+  .signature-table tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   @page {
-    size: A4;
+    size: auto;
     margin: 10mm;
   }
 }

@@ -15,6 +15,7 @@ import SelectDocumentTypeModal from "./modal/SelectDocumentTypeModal.vue";
 import { usePurchaseOrderStore } from "../../stores/purchase_requests/purchase-order";
 import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
 import { useNotification } from "@/modules/shared/utils/useNotification";
+import { getUserDisplayName } from "@/modules/shared/utils/display-user";
 const purchaseOrderStore = usePurchaseOrderStore();
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
   const { error } = useNotification();
@@ -271,7 +272,7 @@ onMounted(async () => {
               :alt="`signature`"
               class="h-16 mb-2"
             />
-            <p class="font-semibold">{{ orderDetails?.getDocument()?.requester.username }}</p>
+            <p class="font-semibold">{{ getUserDisplayName(orderDetails?.getDocument()?.requester) }}</p>
             <p class="text-gray-600">ຫົວໜ້າພະແນກ</p>
             <!-- <p class="text-gray-600">{{ orderDetails?.getDocument()?.requester}}</p> -->
           </div>

@@ -23,6 +23,7 @@ import InputNumber from "@/common/shared/components/Input/InputNumber.vue";
 import type { ISelectVendor } from "@/modules/application/dtos/receipt.dto";
 import VendorDrawer from "./drawers/VendorDrawer.vue";
 import Print from "./modals/Print.vue";
+import { getUserDisplayName } from "@/modules/shared/utils/display-user";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { Radio } from "ant-design-vue";
@@ -466,7 +467,7 @@ onMounted(async () => {
               </div>
               <div class="detail -space-y-2">
                 <p class="font-medium">
-                  {{ rStore.currentReceipts?.document.requester.username }}
+                  {{ getUserDisplayName(rStore.currentReceipts?.document?.requester) }}
                 </p>
                 <p class="text-gray-600">
                   {{ rStore.currentReceipts?.document?.position[0].name }}
@@ -753,7 +754,7 @@ onMounted(async () => {
             </div>
 
             <div class="info text-sm text-slate-600 space-y-1">
-              <p>{{ step.approver?.username || "-" }}</p>
+              <p>{{ getUserDisplayName(step.approver, "-") }}</p>
               <p>{{ getStepPosition(step) }}</p>
               <p>{{ step?.approved_at || "-" }}</p>
             </div>

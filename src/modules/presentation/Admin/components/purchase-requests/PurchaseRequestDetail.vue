@@ -19,6 +19,7 @@ import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-r
 import { useReportPrStore } from "../../stores/reports/report-pr.store";
 import { formatDate } from "@/modules/shared/formatdate";
 import { Icon } from "@iconify/vue";
+import { getUserDisplayName } from "@/modules/shared/utils/display-user";
 
 const { t } = useI18n();
 const route = useRoute(); // << 3. Get route instance
@@ -141,7 +142,7 @@ const handleToggle = () => {
               <Icon icon="mdi:user" class="text-4xl" />
             </div>
             <div class="detail -space-y-2">
-              <p class="font-medium">{{ requesterInfo?.username }}</p>
+              <p class="font-medium">{{ getUserDisplayName(requesterInfo) }}</p>
               <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
             </div>
           </div>
@@ -211,7 +212,7 @@ const handleToggle = () => {
                 />
               </div>
               <div class="info text-sm text-slate-600 -space-y-2">
-                <p>{{ requesterInfo?.username }}</p>
+                <p>{{ getUserDisplayName(requesterInfo) }}</p>
                 <p>{{ departmentInfo?.name }}</p>
               </div>
             </div>
