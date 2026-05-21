@@ -69,12 +69,7 @@ export const usePurchaseOrderStore = defineStore("purchaseOrders", () => {
   loading.value = true;
   error.value = null;
   try {
-    const result = await repository.findById(id);
-    if (result) {
-      orders.value = [result]; // Update the state
-      return result;
-    }
-    return null;
+    return await repository.findById(id);
   } catch (err: any) {
     error.value = err.message || `Failed to fetch purchase order with id ${id}.`;
     return null;

@@ -19,6 +19,7 @@ import { Icon } from "@iconify/vue";
 import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
 import { useAuthStore } from "../../../stores/authentication/auth.store";
 import { useReportPrStore } from "../../../stores/reports/report-pr.store";
+import { getUserDisplayName } from "@/modules/shared/utils/display-user";
 
 import OtpModal from "../modal/OtpModal.vue";
 import SuccessModal from "../modal/SuccessModal.vue";
@@ -762,7 +763,7 @@ onMounted(async () => {
                 <Icon icon="mdi:user" class="text-6xl" />
               </div>
               <div class="detail -space-y-2">
-                <p class="font-medium">{{ requesterInfo?.username }}</p>
+                <p class="font-medium">{{ getUserDisplayName(requesterInfo) }}</p>
                 <p class="text-gray-600">{{ positionInfo?.name }} - {{ departmentInfo?.name }}</p>
               </div>
             </div>
@@ -893,7 +894,7 @@ onMounted(async () => {
                 <!-- Approver Info -->
                 <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
                   <template v-if="step.approver">
-                    <p class="font-medium">{{ step.approver.username }}</p>
+                    <p class="font-medium">{{ getUserDisplayName(step.approver) }}</p>
                     <p class="text-xs text-gray-500">{{ getStepPosition(step) }}</p>
                     <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
                     <p
