@@ -203,14 +203,21 @@ const computeCurrentApprovalStep = (receipt: any) => {
   if (!receipt) return null;
   const userDataStr = localStorage.getItem("userData");
   const userData = userDataStr ? JSON.parse(userDataStr) : null;
-  if (!userData) return null;
+  if (!userData?.username) return null;
   const steps = receipt.user_approval?.approval_step;
   if (!Array.isArray(steps)) return null;
   const pendingStep = steps.find((s: any) => s.status_id === 1);
   if (!pendingStep?.doc_approver?.length) return null;
+  // Backend-provided next-approver username is authoritative; it handles
+  // approvers whose doc_approver.department is null (e.g. president-level).
+  const userLastApproval = receipt?.user_last_approval ?? null;
+  if (userLastApproval) {
+    return userLastApproval === userData.username ? pendingStep : null;
+  }
   const isAuthorized = pendingStep.doc_approver.some((approver: any) => {
-    const userMatches = approver.user?.username === userData?.username;
-    const departmentMatches = approver.department?.name === userData?.department_name;
+    const userMatches = approver.user?.username === userData.username;
+    const departmentMatches =
+      !approver.department || approver.department?.name === userData?.department_name;
     return userMatches && departmentMatches;
   });
   return isAuthorized ? pendingStep : null;

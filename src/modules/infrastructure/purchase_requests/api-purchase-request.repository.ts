@@ -76,6 +76,7 @@ interface PurchaseRequestApiModel {
   };
   total: number;
   total_in_lak?: number;
+  user_last_approval?: string | null;
   company?: {
     id: number;
     name: string;
@@ -291,6 +292,7 @@ export class ApiPurchaseRequestRepository implements PurchaseRequestRepository {
     if (data.total_in_lak !== undefined && data.total_in_lak !== null) {
       (purchaseRequest as any).total_in_lak = data.total_in_lak;
     }
+    purchaseRequest.setUserLastApproval(data.user_last_approval ?? null);
     // console.log('API Response user_approval:', data.user_approval);
     return purchaseRequest;
   }
