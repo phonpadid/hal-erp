@@ -11,8 +11,9 @@ import type { ButtonType } from "@/modules/shared/buttonType";
 import { useToggleStore } from "../../stores/storage.store";
 import { storeToRefs } from "pinia";
 import Table from "@/common/shared/components/table/Table.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
 // import { printContent } from "./helpers/printer";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { usePurchaseRequestsStore } from "../../stores/purchase_requests/purchase-requests.store";
 import type { PurchaseRequestEntity } from "@/modules/domain/entities/purchase-requests/purchase-request.entity";
 import { useReportPrStore } from "../../stores/reports/report-pr.store";
@@ -21,6 +22,8 @@ import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const route = useRoute(); // << 3. Get route instance
+const router = useRouter();
+const goBack = () => router.back();
 const purchaseRequestStore = usePurchaseRequestsStore(); // << 4. Get store instance
 const exportPrStore = useReportPrStore();
 
@@ -101,9 +104,17 @@ const handleToggle = () => {
 <template>
   <div class="container mx-auto py-1 px-0">
     <div
-      class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem]"
-      :class="topbarStyle"
+      class="sticky top-16 z-30 bg-white shadow-sm transition-all duration-150 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3"
     >
+      <div class="flex justify-end mb-2">
+        <UiButton
+          icon="mdi:arrow-left"
+          size="small"
+          class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+          @click="goBack"
+          >ກັບຄືນ</UiButton
+        >
+      </div>
       <header-component
         @toggle="handleToggle"
         :header-title="t('purchase-rq.field.proposal')"
@@ -145,7 +156,7 @@ const handleToggle = () => {
           <p class="text-gray-600 text-sm">{{ requestDetail.getPurposes() }}</p>
         </div>
 
-        <div class="table -space-y-0 mb-2 w-full px-6 shadow-sm rounded-md">
+        <div class="table -space-y-0 mb-2 w-full px-3 sm:px-4 lg:px-6 shadow-sm rounded-md overflow-x-auto">
           <h2 class="text-md font-semibold">{{ t("purchase-rq.field.title") }}</h2>
           <Table :columns="columns(t)" :dataSource="items" :pagination="false" row-key="id">
             <template #index="{ index }">

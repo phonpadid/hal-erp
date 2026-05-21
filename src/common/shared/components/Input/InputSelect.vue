@@ -89,6 +89,7 @@ const value = computed({
     :disabled="disabled"
     :options="options"
     :filter-option="filterOption"
+    option-filter-prop="label"
     allow-clear
     :dropdown-match-select-width="false"
     show-search

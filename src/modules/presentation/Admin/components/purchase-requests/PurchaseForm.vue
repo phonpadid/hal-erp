@@ -647,7 +647,7 @@ defineExpose({
 
       <!-- Items section -->
       <div v-for="(item, index) in formState.addMore" :key="index" class="mb-6">
-        <div class="flex justify-between items-center mb-4 bg-gray-50 p-4 rounded-lg">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 bg-gray-50 p-3 sm:p-4 rounded-lg">
           <h3 class="text-lg font-semibold flex items-center gap-2">
             <Icon icon="mdi:shopping-outline" class="text-blue-600" />
             {{ t("purchase-rq.card_title.title", "ລາຍການ") }} #{{ index + 1 }}
@@ -817,10 +817,10 @@ defineExpose({
               :name="['addMore', index.toString(), 'unit_id']"
               required
             >
-              <ASelect
+              <InputSelect
                 v-model:value="item.unit_id"
                 :placeholder="t('purchase-rq.phd.unit', 'ເລືອກຫົວໜ່ວຍ')"
-                :options="units.map((unit) => ({ value: unit.getId(), label: unit.getName() }))"
+                :options="units.map((unit) => ({ value: unit.getId(), label: unit.getName() ?? '' }))"
                 :disabled="hasItemQuota(index)"
               />
             </UiFormItem>

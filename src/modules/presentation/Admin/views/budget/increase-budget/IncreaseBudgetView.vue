@@ -138,7 +138,7 @@ onMounted(async () => {
 </script>
 <template>
   <div class="container p-6">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
       <div>
         <h1 class="text-2xl font-semibold">
           {{ $t("increase-budget.title") }}

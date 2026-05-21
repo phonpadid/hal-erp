@@ -80,7 +80,7 @@ const getStepTitle = (index: number, step: any) => {
         </p>
       </div>
 
-      <div class="table -space-y-0 mb-2 w-full px-6 shadow-sm rounded-md">
+      <div class="table -space-y-0 mb-2 w-full px-3 sm:px-4 lg:px-6 shadow-sm rounded-md overflow-x-auto">
         <h2 class="text-md font-semibold">
           {{ t("purchase-rq.field.title") }}
         </h2>

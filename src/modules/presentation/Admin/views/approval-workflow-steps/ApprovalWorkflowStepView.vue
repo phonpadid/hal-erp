@@ -21,7 +21,7 @@ import type { IApprovalWorkflowStepApiModel } from "@/modules/interfaces/approva
 import { useUserStore } from "../../stores/user.store";
 import Radio from "@/common/shared/components/Input/Radio.vue";
 import InputNumber from "@/common/shared/components/Input/InputNumber.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
@@ -30,6 +30,8 @@ const search = ref<string>("");
 const { t } = useI18n();
 const { success, warning } = useNotification();
 const {params} = useRoute()
+const router = useRouter();
+const goBack = () => router.back();
 const id = params.id as string;
 // Form related
 const formRef = ref();
@@ -360,6 +362,15 @@ const saveOrder = async (ids: number[]) => {
 
 <template>
   <div class="list-container p-6">
+    <div class="flex justify-end mb-2">
+      <UiButton
+        icon="mdi:arrow-left"
+        size="small"
+        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
+    </div>
     <div class="mb-6 gap-4">
       <h1 class="text-2xl font-semibold">
         {{ $t("approval-workflow-step.title") }}

@@ -45,6 +45,8 @@ const emit = defineEmits<{
       username: string;
       email: string;
       tel: string;
+      firstName: string;
+      lastName: string;
       password: string;
       confirm_password: string;
       signature?: string | null;
@@ -61,6 +63,8 @@ const formState = reactive({
   username: "",
   email: "",
   tel: "",
+  firstName: "",
+  lastName: "",
   password: "",
   confirm_password: "",
   signature: null as string | null,
@@ -208,6 +212,10 @@ watch(
           username?: string;
           email?: string;
           tel?: string;
+          firstName?: string;
+          lastName?: string;
+          first_name?: string;
+          last_name?: string;
           user_signature?: {
             signature?: string;
             signature_url?: string;
@@ -217,6 +225,10 @@ watch(
         };
         roles?: { id: number; name: string }[];
         permissions?: { id: number }[];
+        firstName?: string;
+        lastName?: string;
+        first_name?: string;
+        last_name?: string;
         signature?: string | null;
         signature_url?: string | null;
       };
@@ -226,6 +238,18 @@ watch(
         formState.username = companyUserAny.user.username || "";
         formState.email = companyUserAny.user.email || "";
         formState.tel = companyUserAny.user.tel || "";
+        formState.firstName =
+          companyUserAny.user.firstName ||
+          companyUserAny.user.first_name ||
+          companyUserAny.firstName ||
+          companyUserAny.first_name ||
+          "";
+        formState.lastName =
+          companyUserAny.user.lastName ||
+          companyUserAny.user.last_name ||
+          companyUserAny.lastName ||
+          companyUserAny.last_name ||
+          "";
 
         // Handle signature from nested structure
         if (companyUserAny.user.user_signature?.signature) {
@@ -251,6 +275,8 @@ watch(
         formState.username = newCompanyUser.username || "";
         formState.email = newCompanyUser.email || "";
         formState.tel = newCompanyUser.tel || "";
+        formState.firstName = newCompanyUser.firstName || newCompanyUser.first_name || "";
+        formState.lastName = newCompanyUser.lastName || newCompanyUser.last_name || "";
         formState.signature = newCompanyUser.signature || null;
 
         // Handle roles and permissions
@@ -268,6 +294,8 @@ watch(
       formState.username = "";
       formState.email = "";
       formState.tel = "";
+      formState.firstName = "";
+      formState.lastName = "";
       formState.password = "";
       formState.confirm_password = "";
       formState.signature = null;
@@ -302,6 +330,8 @@ const submitForm = async () => {
       username: formState.username,
       email: formState.email,
       tel: formState.tel,
+      firstName: formState.firstName,
+      lastName: formState.lastName,
       password: props.isEditMode ? "" : formState.password, // Don't send password in edit mode
       confirm_password: props.isEditMode ? "" : formState.confirm_password, // Don't send confirm_password in edit mode
       signature: signatureUploaded.value ? formState.signature : "", // Send empty string if no new signature uploaded
@@ -452,6 +482,34 @@ defineExpose({
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <!-- First Name -->
+              <UiFormItem :label="$t('company-user.form.firstName')" name="firstName" required>
+                <UiInput
+                  v-model="formState.firstName"
+                  :placeholder="$t('company-user.form.firstNamePlaceholder')"
+                  :disabled="loading"
+                  size="large"
+                >
+                  <template #prefix>
+                    <Icon icon="material-symbols:badge-outline" class="text-gray-400" />
+                  </template>
+                </UiInput>
+              </UiFormItem>
+
+              <!-- Last Name -->
+              <UiFormItem :label="$t('company-user.form.lastName')" name="lastName" required>
+                <UiInput
+                  v-model="formState.lastName"
+                  :placeholder="$t('company-user.form.lastNamePlaceholder')"
+                  :disabled="loading"
+                  size="large"
+                >
+                  <template #prefix>
+                    <Icon icon="material-symbols:badge-outline" class="text-gray-400" />
+                  </template>
+                </UiInput>
+              </UiFormItem>
+
               <!-- Username -->
               <UiFormItem :label="$t('company-user.form.username')" name="username" required>
                 <UiInput

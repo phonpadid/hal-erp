@@ -54,6 +54,8 @@
       "field": {
         "department": "部门 / 区域",
         "user": "用户名",
+        "first_name": "名字",
+        "last_name": "姓氏",
         "tel": "电话",
         "email": "邮箱",
         "position": "职位",
@@ -71,6 +73,8 @@
       "error": {
         "signature": "请选择签名文件",
         "user": "请选择用户",
+        "first_name": "请输入名字",
+        "last_name": "请输入姓氏",
         "position": "请选择职位",
         "dpm": "请选择部门",
         "role": "请选择角色",

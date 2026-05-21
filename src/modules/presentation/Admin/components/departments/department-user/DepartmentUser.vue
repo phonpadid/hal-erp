@@ -159,6 +159,8 @@ const loadDepartmentUser = async () => {
       // 4. update form model
       dpmUserFormModel.userId = userData?.getId() || "";
       dpmUserFormModel.username = userData?.getUsername() || "";
+      dpmUserFormModel.first_name = userData?.getFirstName?.() ?? null;
+      dpmUserFormModel.last_name = userData?.getLastName?.() ?? null;
       dpmUserFormModel.email = userData?.getEmail?.() || "";
       dpmUserFormModel.tel = userData?.getTel?.() || "";
       dpmUserFormModel.position_id = positionData?.getId() || "";
@@ -220,10 +222,18 @@ const handleSubmit = async (): Promise<void> => {
       return;
     }
 
+    const normalizeName = (value: string | null): string | null => {
+      if (value === null || value === undefined) return null;
+      const trimmed = String(value).trim();
+      return trimmed === "" ? null : trimmed;
+    };
+
     const payload = {
       user: {
         id: dpmUserFormModel.userId,
         username: dpmUserFormModel.username,
+        first_name: normalizeName(dpmUserFormModel.first_name),
+        last_name: normalizeName(dpmUserFormModel.last_name),
         email: dpmUserFormModel.email,
         password: dpmUserFormModel.password,
         tel: dpmUserFormModel.tel,
@@ -432,7 +442,7 @@ onUnmounted(() => {
           </UiFormItem>
           <!-- Username + Email -->
           <div class="flex flex-row md:flex-row md:gap-4">
-           
+
             <UiFormItem class="flex-1" :label="t('user.form.username')" name="username" required>
               <UiInput v-model="dpmUserFormModel.username" placeholder="Enter Username" />
             </UiFormItem>
@@ -445,7 +455,22 @@ onUnmounted(() => {
                 v-model="dpmUserFormModel.tel"
                 placeholder="20xx xxx xxx"
               />
-            </UiFormItem>  
+            </UiFormItem>
+          </div>
+          <!-- First Name + Last Name -->
+          <div class="flex flex-row md:flex-row md:gap-4">
+            <UiFormItem class="flex-1" :label="t('user.form.firstName')" name="first_name" required>
+              <UiInput
+                v-model="dpmUserFormModel.first_name"
+                :placeholder="t('user.form.firstNamePlaceholder')"
+              />
+            </UiFormItem>
+            <UiFormItem class="flex-1" :label="t('user.form.lastName')" name="last_name" required>
+              <UiInput
+                v-model="dpmUserFormModel.last_name"
+                :placeholder="t('user.form.lastNamePlaceholder')"
+              />
+            </UiFormItem>
           </div>
           <!-- Telephone -->
           <div class="flex flex-col md:flex-row md:gap-4">

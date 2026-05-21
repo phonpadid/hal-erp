@@ -6,7 +6,7 @@ import type { TablePaginationType } from "@/common/shared/components/table/Table
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useBudgetItemDetailsStore } from "@/modules/presentation/Admin/stores/budget/budget-item-details.store";
 import { columns } from "./column";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -18,6 +18,8 @@ const { t } = useI18n();
 const budgetItemDetailsStore = useBudgetItemDetailsStore();
 const { success, error } = useNotification();
 const route = useRoute();
+const router = useRouter();
+const goBack = () => router.back();
 const { hasPermission } = usePermissions(); 
 
 // check show button permission
@@ -206,7 +208,16 @@ const handleDeleteConfirm = async () => {
 
 <template>
   <div class="budget-item-details-container p-6">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-end mb-2">
+      <UiButton
+        icon="mdi:arrow-left"
+        size="small"
+        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
+    </div>
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
       <div>
         <h1 class="text-2xl font-semibold">{{ pageTitle }}</h1>
       </div>

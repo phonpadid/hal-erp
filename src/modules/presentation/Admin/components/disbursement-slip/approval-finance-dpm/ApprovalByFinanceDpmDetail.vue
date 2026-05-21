@@ -8,7 +8,7 @@ import { Icon } from "@iconify/vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
 import PropovalDrawer from "./drawers/PropovalDrawer.vue";
 import ApprovalDrawer from "./drawers/ApprovalDrawer.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useReceiptStore } from "../../../stores/receipt.store";
 import {
   getUserApv,
@@ -36,6 +36,8 @@ const printModalVisible = ref(false);
 const printType = ref<"about_receipt" | "all_document">("about_receipt");
 const printLoading = ref(false);
 const { t } = useI18n();
+const router = useRouter();
+const goBack = () => router.back();
 const { params } = useRoute();
 const receiptId = params.id as string;
 const rStore = useReceiptStore();
@@ -288,6 +290,38 @@ const checkUpload = computed(() => {
 const isAwaitingUser = computed(() =>
   checkUpload.value.some((u) => u.id === user.value.id)
 );
+// ສະແດງຊື່ຕຳແໜ່ງຢູ່ດ້ານລ່າງລາຍເຊັນຂອງແຕ່ລະ step
+// ກວດສອບວ່າຜູ້ອະນຸມັດເປັນ khamthanom ຫຼື Thipkhouneheuan,
+// ໃຫ້ສະແດງເປັນຫົວໜ້າພະແນກຂອງຜູ້ສະເໜີ (ບໍ່ແມ່ນພະແນກຂອງຜູ້ອະນຸມັດ)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getStepTitle = (index: number, step: any) => {
+  if (index === 0) {
+    return "ຜູ້ສ້າງ";
+  }
+  const username = step?.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName =
+      rStore.currentReceipts?.document?.department?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
+  return step?.doc_approver?.[0]?.department?.name ?? "ຜູ້ອຳນວຍການ";
+};
+// ສະແດງຊື່ຕຳແໜ່ງຢູ່ດ້ານລ່າງລາຍເຊັນ — ສຳລັບ khamthanom/Thipkhouneheuan
+// ໃຫ້ໃຊ້ "ຫົວໜ້າ" + ພະແນກຂອງຜູ້ສະເໜີ ແທນຕຳແໜ່ງເດີມຂອງຜູ້ອະນຸມັດ
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getStepPosition = (step: any) => {
+  const username = step?.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName =
+      rStore.currentReceipts?.document?.department?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
+  return step?.position?.name || "-";
+};
 // map data to show on header tag ແລະ ກວດເງື່ອນໄຂການອະນຸມັດ
 const dataHead = computed(() => ({
   form_ref: formRef.value,
@@ -403,9 +437,23 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div class="no-print">
-    <ApvLayout :dataHead="dataHead" :onPrint="openPrintModal" :onApprovalSuccess="resetUploadedImages"></ApvLayout>
-    <div class="mt-[10rem] mb-[5rem]">
+  <div class="no-print flex flex-col h-[calc(100vh-5rem)]">
+    <!-- Fixed Header -->
+    <div
+      class="flex-shrink-0 bg-white shadow-sm -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3 z-30"
+    >
+      <div class="flex justify-end mb-2">
+        <UiButton
+         icon="mdi:arrow-left" size="small" class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+          @click="goBack"
+          >ກັບຄືນ</UiButton
+        >
+      </div>
+      <ApvLayout :dataHead="dataHead" :onPrint="openPrintModal" :onApprovalSuccess="resetUploadedImages"></ApvLayout>
+    </div>
+    <!-- Scrollable Body -->
+    <div class="flex-1 overflow-y-auto pr-1">
+    <div class="mt-[2rem] mb-[5rem]">
       <div class="user-info">
         <div class="flex gap-[4rem]">
           <div class="u w-full">
@@ -692,7 +740,7 @@ onMounted(async () => {
             ...(rStore.currentReceipts?.user_approval?.approval_step || []),
           ].sort((a, b) => a.step_number - b.step_number)" :key="index" class="signature-approver text-center">
             <p v-if="step.doc_approver" class="text-slate-500 text-sm font-bold">
-              {{ index === 0 ? "ຜູ້ສ້າງ" : step?.doc_approver[0].department?.name ?? 'ຜູ້ອຳນວຍການ' }}
+              {{ getStepTitle(index, step) }}
               <!-- {{ index === 0 ? "ຜູ້ສ້າງ" : t("purchase-rq.approver") + ' ' + (step.step_number) }} -->
             </p>
 
@@ -706,7 +754,7 @@ onMounted(async () => {
 
             <div class="info text-sm text-slate-600 space-y-1">
               <p>{{ step.approver?.username || "-" }}</p>
-              <p>{{ step.position?.name || "-" }}</p>
+              <p>{{ getStepPosition(step) }}</p>
               <p>{{ step?.approved_at || "-" }}</p>
             </div>
           </div>
@@ -734,6 +782,7 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
     <!-- //upload modal  -->
     <UploadSlipModal :visible="createModalVisible" :loading="uploadLoading"

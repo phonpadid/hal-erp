@@ -2,7 +2,7 @@
 import { computed, defineProps, defineEmits } from "vue";
 
 interface UiInputProps {
-  modelValue: string | number;
+  modelValue: string | number | null;
   placeholder?: string;
   type?: string;
   size?: "small" | "middle" | "large";
@@ -18,7 +18,7 @@ interface UiInputProps {
 
 const props = defineProps<UiInputProps>();
 const emit = defineEmits<{
-  "update:modelValue": [value: string | number];
+  "update:modelValue": [value: string | number | null];
   input: [value: string];
   change: [event: Event];
   keydown: [event: KeyboardEvent];
@@ -53,7 +53,7 @@ const handlePaste = (e: ClipboardEvent) => {
 
 <template>
   <a-input
-    :value="modelValue"
+    :value="modelValue ?? ''"
     :placeholder="placeholder"
     :type="type"
     :size="size"

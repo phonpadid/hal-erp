@@ -90,7 +90,13 @@ export class ApiUserRepository implements UserRepository {
 
   async create(userData: UserCreatePayload): Promise<UserEntity> {
     try {
-      const response = await api.post(this.baseUrl, userData);
+      const { first_name, last_name, ...rest } = userData;
+      const apiData = {
+        ...rest,
+        firstName: first_name ?? "",
+        lastName: last_name ?? "",
+      };
+      const response = await api.post(this.baseUrl, apiData);
       return this.toDomainModel(response.data.data);
     } catch (error) {
       this.handleApiError(error, "Failed to create user");
@@ -99,8 +105,11 @@ export class ApiUserRepository implements UserRepository {
 
   async update(id: string, userData: UserUpdatePayload): Promise<UserEntity> {
     try {
+      const { first_name, last_name, ...rest } = userData;
       const apiData = {
-        ...userData,
+        ...rest,
+        firstName: first_name ?? "",
+        lastName: last_name ?? "",
         roles: userData.roleIds,
         permissions: userData.permissionIds,
       };
@@ -168,7 +177,7 @@ export class ApiUserRepository implements UserRepository {
     const permissionIds = data.permissions?.map((perm: any) => perm.id) || [];
     const userSignature = data.user_signature || null;
 
-   
+
 
     const entity = new UserEntity(
       data.id.toString(),
@@ -184,6 +193,8 @@ export class ApiUserRepository implements UserRepository {
       data.tel,
       [],
       userSignature,
+      data.first_name ?? data.firstName ?? null,
+      data.last_name ?? data.lastName ?? null,
     );
 
     // Don't override user_signature if it's already set correctly in constructor

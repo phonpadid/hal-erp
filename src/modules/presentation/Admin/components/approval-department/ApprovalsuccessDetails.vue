@@ -4,6 +4,7 @@ import type { ButtonType } from "@/modules/shared/buttonType";
 import { nextTick, ref } from "vue";
 import { columnsDetails } from "../../views/approval-department/column/columnDetails";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { purchaseRequestData } from "@/modules/shared/utils/purchaseRequestDetails";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import Table from "@/common/shared/components/table/Table.vue";
@@ -17,6 +18,8 @@ import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Icon } from "@iconify/vue";
 /********************************************************* */
 const { t } = useI18n();
+const router = useRouter();
+const goBack = () => router.back();
 const { success, error } = useNotification();
 const isApproveModalVisible = ref(false);
 const isRejectModalVisible = ref(false);
@@ -232,6 +235,15 @@ const handleModalCancel = () => {
 
 <template>
   <div class="mt-10">
+    <div class="flex justify-end mb-2">
+      <UiButton
+        icon="mdi:arrow-left"
+        size="small"
+        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
+    </div>
     <!-- Header Component -->
     <header-component
       header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
@@ -427,7 +439,7 @@ const handleModalCancel = () => {
     </UiDrawer>
 
     <!-- Main Content -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+    <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 lg:p-6 mt-4 sm:mt-6">
       <h2>ຂໍ້ມູນສ້າງໃບອານຸມັດຈັດຊື້ - ຈັດຈ້າງ</h2>
       <!-- Requester Information -->
       <div class="flex items-start gap-4 mb-2">

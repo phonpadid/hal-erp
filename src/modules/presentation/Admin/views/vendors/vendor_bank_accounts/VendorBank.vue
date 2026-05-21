@@ -12,9 +12,11 @@ import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import VendorBankAccountForm from "@/modules/presentation/Admin/components/vendors/vendor_bank_accounts/FormVendorBank.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
+const router = useRouter();
+const goBack = () => router.back();
 const { t } = useI18n();
 const vendorBankAccountStore = useVendorBankAccountStore();
 const { success, error, warning } = useNotification();
@@ -190,7 +192,16 @@ const handleToggleIsSelected = async (record: VendorBankAccountInterface) => {
 
 <template>
   <div class="vendor-bank-account-container p-6">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-end mb-2">
+      <UiButton
+        icon="mdi:arrow-left"
+        size="small"
+        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
+    </div>
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
       <div>
         <h1 class="text-2xl font-semibold">{{ t("vendors_bank.list.title") }}</h1>
       </div>

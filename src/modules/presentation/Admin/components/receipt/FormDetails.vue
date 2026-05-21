@@ -4,8 +4,9 @@ import type { ButtonType } from "@/modules/shared/buttonType";
 import { onMounted, ref } from "vue";
 import { columnsDetailsDirector } from "../../views/director/column/columnDetails";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Table from "@/common/shared/components/table/Table.vue";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
 
 import HeaderComponent from "@/common/shared/components/header/HeaderComponent.vue";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
@@ -19,7 +20,8 @@ const orderDetails = ref<PurchaseOrderEntity | null>(null);
   const { error } = useNotification();
 /********************************************************* */
 const { t } = useI18n();
-// const router = useRouter();
+const router = useRouter();
+const goBack = () => router.back();
 const { params } = useRoute();
 const purchaseOrderId = params.id?.toString();
 const isRejectModalVisible = ref(false);
@@ -84,6 +86,15 @@ onMounted(async () => {
 
 <template>
   <div class="mt-10">
+    <div class="flex justify-end mb-2">
+      <UiButton
+        icon="mdi:arrow-left"
+        size="small"
+        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+        @click="goBack"
+        >ກັບຄືນ</UiButton
+      >
+    </div>
     <!-- Header Component -->
     <div>
       <!-- Header component -->
@@ -98,7 +109,7 @@ onMounted(async () => {
         document-status-class="text-orange-500 font-medium ml-2 bg-orange-50 px-3 py-1 rounded-full"
       />
       <!-- Main Content -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+      <div class="bg-white rounded-lg shadow-sm p-3 sm:p-4 lg:p-6 mt-4 sm:mt-6">
         <h2>ຂໍ້ມູນສ້າງໃບອານຸມັດຈັດຊື້ - ຈັດຈ້າງ</h2>
         <!-- Requester Information -->
         <div class="flex items-start gap-4 mb-2">
@@ -117,7 +128,7 @@ onMounted(async () => {
         <!-- ຂໍ້ມຸນຜູ້ສະເໜີ -->
         <div>
           <h4>ສະເໜີ</h4>
-          <div class="grid grid-cols-4" v-for="item in orderDetails?.getPurchaseOrderItem()" :key="item.getId()">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2" v-for="item in orderDetails?.getPurchaseOrderItem()" :key="item.getId()">
             <div class="grid grid-rows-2">
               <h5>ຂໍ້ສະເໜີເບີກງົບປະມານ</h5>
               <span class="text-sm">{{item.getTitle()}}</span>
@@ -181,7 +192,7 @@ onMounted(async () => {
         <!-- ວິເຄາະການຈັດຊື້ -->
         <div v-for="(item, index) in orderDetails?.getPurchaseOrderItem()" :key="index" >
           <h4>ວິເຄາະການຈັດຊື້</h4>
-          <div class="text-gray-600 gap-4 grid grid-cols-6">
+          <div class="text-gray-600 gap-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             <span>ຮ້ານທີເລືອກ</span>
             <span>{{item.getSelectedVendor()?.getVendor().name}}</span>
           </div>
@@ -231,18 +242,18 @@ onMounted(async () => {
         <!-- ຂໍ້ມູນບັນຊີທະນາຄານ -->
         <div class="mb-6">
           <h4 class="text-base font-semibold mb-4">ຂໍ້ມູນບັນຊີຮ້ານ</h4>
-          <div class="grid grid-cols-4 mb-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-2">
             <span class="">ທະນາຄານ:</span>
             <span class="text-gray-600 flex items-center gap-2">
               <img :src="orderDetails?.getBankLogo() ?? ''" class="w-8 h-8" alt="" />
               <span>{{orderDetails?.getBankName()}}</span>
             </span>
           </div>
-          <div class="grid grid-cols-4 mb-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-2">
             <span class="">ຊືບັນຊີ:</span>
             <span class="text-gray-600">{{orderDetails?.getAccountName()}}</span>
           </div>
-          <div class="grid grid-cols-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
             <span class="flex gap-1 items-center">
               <p>ເລກບັນຊີ</p>
               <p class="text-sm rounded-full py-1 w-14 flex justify-center items-center bg-gray-200/70">{{ orderDetails?.getCurrencyCode() }}</p>

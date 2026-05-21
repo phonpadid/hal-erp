@@ -4,6 +4,8 @@ import { formatDate } from "@/modules/shared/formatdate";
 export class UserEntity implements UserInterface {
   public id: number;
   public username: string ;
+  public first_name: string | null;
+  public last_name: string | null;
   public email: string;
   public password?: string;
   public tel?: string;
@@ -34,13 +36,17 @@ export class UserEntity implements UserInterface {
     tel?: string,
     user_type?: string[] | [],
     user_signature?: ShowSignature_url | null,
+    first_name: string | null = null,
+    last_name: string | null = null,
 
   ) {
-    
+
 
     this.privateId = id;
     this.id = parseInt(id);
     this.username = username;
+    this.first_name = first_name ?? null;
+    this.last_name = last_name ?? null;
     this.email = email;
     this.roleIds = roleIds;
     this.roles = roles;
@@ -62,7 +68,7 @@ export class UserEntity implements UserInterface {
       this.user_signature = null;
       this.signature = "";
     }
- 
+
   }
 
   public getId(): string {
@@ -71,6 +77,14 @@ export class UserEntity implements UserInterface {
 
   public getUsername(): string {
     return this.username;
+  }
+
+  public getFirstName(): string | null {
+    return this.first_name;
+  }
+
+  public getLastName(): string | null {
+    return this.last_name;
   }
 
   public getEmail(): string {
@@ -123,6 +137,16 @@ export class UserEntity implements UserInterface {
     this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
   }
 
+  public updateFirstName(first_name: string | null): void {
+    this.first_name = first_name;
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
+  }
+
+  public updateLastName(last_name: string | null): void {
+    this.last_name = last_name;
+    this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
+  }
+
   public updateEmail(email: string): void {
     this.email = email;
     this.updated_at = new Date().toISOString().replace("T", " ").substring(0, 19);
@@ -164,7 +188,9 @@ export class UserEntity implements UserInterface {
     password: string,
     roleIds: number[],
     permissionIds: number[],
-    tel?: string
+    tel?: string,
+    first_name: string | null = null,
+    last_name: string | null = null,
   ): UserEntity {
     const now = new Date().toISOString().replace("T", " ").substring(0, 19);
     return new UserEntity(
@@ -180,6 +206,9 @@ export class UserEntity implements UserInterface {
       password,
       tel,
       [],
+      null,
+      first_name,
+      last_name,
     );
   }
   public static fromAPI(data: UserAPIResponse): UserEntity {
@@ -197,6 +226,8 @@ export class UserEntity implements UserInterface {
       data.tel,
       [],
       data.user_signature || null,
+      data.first_name ?? null,
+      data.last_name ?? null,
     );
 
     // Set permissions for interface compliance

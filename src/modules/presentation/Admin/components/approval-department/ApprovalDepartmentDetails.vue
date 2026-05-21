@@ -1,25 +1,26 @@
 <template>
-  <div class="mt-10">
-    <div>
-      <!-- Header component -->
-      <div
-        class="fixed px-6 py-4 top-0 z-40 h-auto bg-white shadow-sm transition-all duration-150 mt-[4rem]"
-        :class="topbarStyle"
-      >
-    <UiButton icon="mdi:arrow-left" size="small" class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white" @click="goBack">ກັບຄືນ</UiButton>
-        <header-component
-          header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
-          :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
-          document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
-          :document-number="orderDetails?.getPoNumber() || 'no data'"
-          :document-date="formatDate(orderDetails?.getCreatedAt() ?? new Date())"
-          :action-buttons="customButtons"
-          :document-status="documentStatus.status"
-          :document-status-class="documentStatus.statusClass"
-        />
+  <div class="flex flex-col h-[calc(100vh-5rem)]">
+    <!-- Fixed Header component -->
+    <div
+      class="flex-shrink-0 bg-white shadow-sm -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3 z-30"
+    >
+      <div class="flex justify-end">
+        <UiButton icon="mdi:arrow-left" size="small" class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white" @click="goBack">ກັບຄືນ</UiButton>
       </div>
-      <!-- Main Content -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mt-36">
+      <header-component
+        header-title="ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ"
+        :breadcrumb-items="['ຄຳຮ້ອງຂໍ້ - ຈັດຈ້າງ', 'ອານຸມັດ']"
+        document-prefix="ໃບສະເໜີຈັດຊື້ - ຈັດຈ້າງ"
+        :document-number="orderDetails?.getPoNumber() || 'no data'"
+        :document-date="formatDate(orderDetails?.getCreatedAt() ?? new Date())"
+        :action-buttons="customButtons"
+        :document-status="documentStatus.status"
+        :document-status-class="documentStatus.statusClass"
+      />
+    </div>
+    <!-- Scrollable Main Content -->
+    <div class="flex-1 overflow-y-auto pr-1">
+      <div class="bg-white rounded-lg shadow-sm p-6">
         <h2>{{ t("purchase_orders.p_orders") }}</h2>
         <!-- Requester Information -->
         <div class="flex items-start gap-4 mb-2">
@@ -239,7 +240,7 @@
                 <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
                   <template v-if="step.approver">
                     <p class="font-medium">{{ step.approver.username }}</p>
-                    <p class="text-xs text-gray-500">{{ step.position?.name || "ຜູ້ອຳນວຍການ" }}</p>
+                    <p class="text-xs text-gray-500">{{ getStepPosition(step) }}</p>
                     <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
                     <p
                       v-if="step.approved_at"
@@ -262,12 +263,7 @@
                       {{ t("purchase-rq.pending") }}
                     </p>
                     <p class="text-xs text-gray-400 mt-1">
-                      {{
-                        (step.doc_approver?.[0]?.user?.username === "Sisavanh" ||
-                         step.doc_approver?.[0]?.user?.username === "sisavanh")
-                          ? "ຜູ້ອຳນວຍການ"
-                          : (step.doc_approver?.[0]?.department?.name || "-")
-                      }}
+                      {{ getPendingStepLabel(step) }}
                     </p>
                   </template>
                 </div>
@@ -629,14 +625,51 @@ const getStepTitle = (index: number, step: any) => {
   if (index === 0) {
     return t("purchase-rq.proposer");
   }
+  const username = step.doc_approver?.[0]?.user?.username;
+  // ກວດສອບວ່າຜູ້ອະນຸມັດເປັນ khamthanom ຫຼື Thipkhouneheuan,
+  // ໃຫ້ສະແດງເປັນຫົວໜ້າພະແນກຂອງຜູ້ສະເໜີ (ບໍ່ແມ່ນພະແນກຂອງຜູ້ອະນຸມັດ)
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName = orderDetails.value?.getDepartment()?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
   // ໃຊ້ຊື່ແຜນກຈາກ doc_approver[0].department.name
   // ກວດສອບວ່າເປັນ user Sisavanh ຫຼື ບໍ່, ຖ້າໃຊ້ໃຫ້ສະແດງ "ผู้อำนวยการ"
-  const username = step.doc_approver?.[0]?.user?.username;
   if (username === "Sisavanh" || username === "sisavanh") {
     return "ຜູ້ອຳນວຍການ";
   }
   const deptName = step.doc_approver?.[0]?.department?.name;
   return deptName || `${t("purchase-rq.approver")} ${index}`;
+};
+// ສະແດງຊື່ຕຳແໜ່ງຢູ່ດ້ານລ່າງລາຍເຊັນ — ສຳລັບ khamthanom/Thipkhouneheuan
+// ໃຫ້ໃຊ້ "ຫົວໜ້າ" + ພະແນກຂອງຜູ້ສະເໜີ ແທນຕຳແໜ່ງເດີມຂອງຜູ້ອະນຸມັດ
+const getStepPosition = (step: any) => {
+  const username = step?.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName = orderDetails.value?.getDepartment()?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
+  if (username === "Sisavanh" || username === "sisavanh") {
+    return step?.position?.name || "ຜູ້ອຳນວຍການ";
+  }
+  return step?.position?.name || "ຜູ້ອຳນວຍການ";
+};
+// ປ້າຍກຳກັບໃຕ້ຂໍ້ຄວາມ "ລໍຖ້າອະນຸມັດ" ສຳລັບ step ທີ່ຍັງບໍ່ໄດ້ອະນຸມັດ
+const getPendingStepLabel = (step: any) => {
+  const username = step?.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName = orderDetails.value?.getDepartment()?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
+  if (username === "Sisavanh" || username === "sisavanh") {
+    return "ຜູ້ອຳນວຍການ";
+  }
+  return step?.doc_approver?.[0]?.department?.name || "-";
 };
 
 // ລາຄາ

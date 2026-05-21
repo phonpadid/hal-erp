@@ -54,6 +54,40 @@ export function createCompanyUserValidation(
         trigger: "blur",
       },
     ],
+    firstName: [
+      {
+        required: true,
+        message: t("company-user.validation.firstNameRequired"),
+        trigger: "blur",
+      },
+      {
+        pattern: /^[\p{L}\p{M}\s'-]+$/u,
+        message: t("company-user.validation.firstNameFormat"),
+        trigger: "blur",
+      },
+      {
+        max: 50,
+        message: t("company-user.validation.firstNameMax"),
+        trigger: "blur",
+      },
+    ],
+    lastName: [
+      {
+        required: true,
+        message: t("company-user.validation.lastNameRequired"),
+        trigger: "blur",
+      },
+      {
+        pattern: /^[\p{L}\p{M}\s'-]+$/u,
+        message: t("company-user.validation.lastNameFormat"),
+        trigger: "blur",
+      },
+      {
+        max: 50,
+        message: t("company-user.validation.lastNameMax"),
+        trigger: "blur",
+      },
+    ],
     password: [
       {
         required: !state.isEditMode,

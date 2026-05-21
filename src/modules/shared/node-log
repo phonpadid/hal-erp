@@ -1,2 +1,674 @@
-ผมต้องการทำปุ่มค้นหา global PR,PO,Receipt ซึ่งมันจะมีว่า search ซึ่งเราจะออกแบบในส่วนของ Header ที่อยู่ส่วนบนของหน้าท
-มีแค่คุณเอาตัว search ไป filter ใส่ api ของ po,pr and Receipt แล้วมันก้อจะได้เลีย
+{
+    "status_code": 200,
+    "message": "Operation completed successfully",
+    "data": {
+        "id": 197,
+        "purchase_request_id": 445,
+        "po_number": "0174/ຈຊຈ/WH",
+        "order_date": "20-05-2026 09:11:36",
+        "expired_date": "18-05-2026 07:00:00",
+        "purposes": "ຂໍສະເໜີຈັດຊື້ແທ່ງນໍ້າມັນ 50.000Lລາຄາ 95,000,000ກີບ (ຈ່າຍມັດຈໍາແລ້ວ 10,000,000ກີບ) ຍັງຄ້າງຊໍາລະ 85,000,000ກີບ",
+        "is_created_rc": false,
+        "created_at": "20-05-2026 09:11:36",
+        "updated_at": "20-05-2026 09:11:36",
+        "sub_total": 85000000,
+        "vat": 0,
+        "total": 85000000,
+        "sub_total_in_lak": 85000000,
+        "vat_total_in_lak": 0,
+        "total_in_lak": 85000000,
+        "step": false,
+        "purchase_request": {
+            "id": 445,
+            "document_id": 787,
+            "pr_number": "0266/WH",
+            "requested_date": "18-05-2026 14:33:55",
+            "expired_date": "18-05-2026 07:00:00",
+            "purposes": "ຂໍສະເໜີຈັດຊື້ແທ່ງນໍ້າມັນ 50.000Lລາຄາ 95,000,000ກີບ (ຈ່າຍມັດຈໍາແລ້ວ 10,000,000ກີບ) ຍັງຄ້າງຊໍາລະ 85,000,000ກີບ",
+            "is_created_po": false,
+            "created_at": "18-05-2026 14:33:55",
+            "updated_at": "18-05-2026 14:33:55",
+            "total": 85000000,
+            "total_in_lak": 85000000,
+            "step": false,
+            "document": {
+                "id": 787,
+                "document_number": "D-154AFF",
+                "title": "",
+                "description": "ຂໍສະເໜີຈັດຊື້ແທ່ງນໍ້າມັນ 50.000Lລາຄາ 95,000,000ກີບ (ຈ່າຍມັດຈໍາແລ້ວ 10,000,000ກີບ) ຍັງຄ້າງຊໍາລະ 85,000,000ກີບ",
+                "total_amount": 0,
+                "department_id": 25,
+                "requester_id": 76,
+                "document_type_id": "1",
+                "created_at": "18-05-2026 14:33:55",
+                "updated_at": "18-05-2026 14:33:55",
+                "department": {
+                    "id": 25,
+                    "code": "WH",
+                    "name": "ຄວບຄຸມການຈັດສົ່ງ ແລະ ສູນຄັດແຍກ",
+                    "department_head_id": 0,
+                    "created_at": "21-01-2026 10:31:49",
+                    "updated_at": "27-04-2026 16:24:03",
+                    "department_head": null,
+                    "company": null
+                },
+                "document_type": {
+                    "id": "1",
+                    "code": "DT-001",
+                    "name": "ໃບສະເໜີຈັດຊື້-ຈັດຈ້າງ",
+                    "created_at": "21-01-2026 10:20:45",
+                    "updated_at": "17-04-2026 11:29:37"
+                },
+                "requester": {
+                    "id": 76,
+                    "username": "Mee",
+                    "first_name": "ນາງ ລັດຕະນາ",
+                    "last_name": "ແກ່ນຈັນ",
+                    "email": "Lattanakenchan@gmail.com",
+                    "tel": "2092506936",
+                    "created_at": "20-03-2026 09:08:33",
+                    "updated_at": "19-05-2026 16:48:11",
+                    "user_signature": {
+                        "id": "66",
+                        "user_id": 76,
+                        "signature": "user_signature/019d6752-d828-745e-a97d-af58ca85a5bd-1775554975784",
+                        "signature_url": "https://d2yoz59x0pj04q.cloudfront.net/user_signature/019d6752-d828-745e-a97d-af58ca85a5bd-1775554975784",
+                        "created_at": "21-05-2026 14:32:25",
+                        "updated_at": "Invalid date"
+                    },
+                    "roles": [],
+                    "permissions": [],
+                    "user_types": []
+                },
+                "position": [
+                    {
+                        "id": 84,
+                        "name": "ບໍລິຫານສູນ",
+                        "created_at": "21-05-2026 14:32:25",
+                        "updated_at": "Invalid date",
+                        "company": null
+                    }
+                ],
+                "company": null
+            },
+            "company": null,
+            "user_approval": null,
+            "purchase_request_item": [
+                {
+                    "id": 750,
+                    "purchase_request_id": 445,
+                    "title": "ແທ່ງນໍ້າມັນ50.000Lວັດສະດຸທີ່ໃຊ້ແຜ່ນເຫຼັກ5mm",
+                    "file_name": "pr_file_name/019e3a01-78cf-725f-b87e-98ce2cf08880-1779089635535",
+                    "file_name_url": "https://d2yoz59x0pj04q.cloudfront.net/pr_file_name/019e3a01-78cf-725f-b87e-98ce2cf08880-1779089635535",
+                    "quantity": 1,
+                    "unit_id": "7",
+                    "quota_company_id": 0,
+                    "price": 85000000,
+                    "total_price": 85000000,
+                    "rate": 1,
+                    "total_in_lak": 85000000,
+                    "remark": "",
+                    "created_at": "18-05-2026 14:33:55",
+                    "updated_at": "18-05-2026 14:33:55",
+                    "unit": {
+                        "id": "7",
+                        "name": "ໜ່ວຍ",
+                        "created_at": "21-01-2026 10:11:16",
+                        "updated_at": "21-01-2026 10:11:16"
+                    },
+                    "currency": {
+                        "id": 4,
+                        "code": "LAK",
+                        "name": "KIP",
+                        "created_at": "21-01-2026 11:02:37",
+                        "updated_at": "16-03-2026 15:43:17"
+                    },
+                    "quota_company": null
+                }
+            ],
+            "user_last_approval": null
+        },
+        "document": {
+            "id": 880,
+            "document_number": "D-401787",
+            "title": "",
+            "description": "",
+            "total_amount": 0,
+            "department_id": 27,
+            "requester_id": 22,
+            "document_type_id": "2",
+            "created_at": "20-05-2026 09:11:36",
+            "updated_at": "20-05-2026 09:11:36",
+            "department": {
+                "id": 27,
+                "code": "ຈຊຈ",
+                "name": "ໜ່ວຍງານຈັດຊື້",
+                "department_head_id": 0,
+                "created_at": "03-02-2026 14:56:24",
+                "updated_at": "08-04-2026 09:36:10",
+                "department_head": null,
+                "company": null
+            },
+            "document_type": {
+                "id": "2",
+                "code": "DT-002",
+                "name": "ໃບອະນຸມັດຈັດຊື້",
+                "created_at": "21-01-2026 10:22:26",
+                "updated_at": "10-04-2026 19:49:17"
+            },
+            "requester": {
+                "id": 22,
+                "username": "Phongtavanh",
+                "first_name": null,
+                "last_name": null,
+                "email": "Alexbtv2000@gmail.com",
+                "tel": "2059555718",
+                "created_at": "03-02-2026 15:01:29",
+                "updated_at": "20-05-2026 10:06:29",
+                "user_signature": {
+                    "id": "12",
+                    "user_id": 22,
+                    "signature": "user_signature/019ce53c-8c2f-73cd-b7f2-2c82c5874072-1773372476463",
+                    "signature_url": "https://d2yoz59x0pj04q.cloudfront.net/user_signature/019ce53c-8c2f-73cd-b7f2-2c82c5874072-1773372476463",
+                    "created_at": "03-02-2026 15:01:29",
+                    "updated_at": "13-03-2026 10:27:56"
+                },
+                "roles": [],
+                "permissions": [],
+                "user_types": []
+            },
+            "position": [
+                {
+                    "id": 13,
+                    "name": "ຫົວໜ້າໜ່ວຍງານຈັດຊື້-ຈັດຈ້າງ",
+                    "created_at": "03-02-2026 15:00:43",
+                    "updated_at": "03-02-2026 15:00:43",
+                    "company": null
+                }
+            ],
+            "company": {
+                "id": 1,
+                "name": "Hal Logistics ",
+                "logo": "company_logo/019d6105-8d90-76fc-bf6e-9ec59e3127ee-1775449247120",
+                "logo_url": "https://d2yoz59x0pj04q.cloudfront.net/company_logo/019d6105-8d90-76fc-bf6e-9ec59e3127ee-1775449247120",
+                "tel": "2022033449",
+                "email": "phimmasonejoe55@gmail.com",
+                "address": "ໄຟແດງຫຼັກ5 (ຈອມມະນີ)",
+                "created_at": "21-01-2026 09:59:52",
+                "updated_at": "06-04-2026 11:20:47"
+            }
+        },
+        "user_approval": {
+            "id": 725,
+            "document_id": 880,
+            "status_id": 1,
+            "created_at": "20-05-2026 09:11:36",
+            "updated_at": "20-05-2026 09:11:36",
+            "document_status": {
+                "id": 1,
+                "name": "PENDING",
+                "created_at": "22-01-2026 14:06:18",
+                "updated_at": "22-01-2026 14:06:18"
+            },
+            "approval_step": [
+                {
+                    "id": 2243,
+                    "user_approval_id": 725,
+                    "step_number": 0,
+                    "approver_id": 22,
+                    "approved_at": "20-05-2026 09:11:55",
+                    "status_id": 2,
+                    "remark": "ຢືນຢັນສຳເລັດ",
+                    "requires_file_upload": false,
+                    "is_otp": true,
+                    "created_at": "20-05-2026 09:11:36",
+                    "updated_at": "20-05-2026 09:11:55",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "22-01-2026 14:06:18",
+                        "updated_at": "22-01-2026 14:06:18"
+                    },
+                    "approver": {
+                        "id": 22,
+                        "username": "Phongtavanh",
+                        "first_name": null,
+                        "last_name": null,
+                        "email": "Alexbtv2000@gmail.com",
+                        "tel": "2059555718",
+                        "created_at": "03-02-2026 15:01:29",
+                        "updated_at": "20-05-2026 10:06:29",
+                        "user_signature": {
+                            "id": "12",
+                            "user_id": 22,
+                            "signature": "user_signature/019ce53c-8c2f-73cd-b7f2-2c82c5874072-1773372476463",
+                            "signature_url": "https://d2yoz59x0pj04q.cloudfront.net/user_signature/019ce53c-8c2f-73cd-b7f2-2c82c5874072-1773372476463",
+                            "created_at": "21-05-2026 14:32:25",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 13,
+                        "name": "ຫົວໜ້າໜ່ວຍງານຈັດຊື້-ຈັດຈ້າງ",
+                        "created_at": "03-02-2026 15:00:43",
+                        "updated_at": "03-02-2026 15:00:43",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 2652,
+                            "user_approval_step_id": 2243,
+                            "user_id": 22,
+                            "created_at": "20-05-2026 09:11:36",
+                            "updated_at": "20-05-2026 09:11:36",
+                            "user": {
+                                "id": 22,
+                                "username": "Phongtavanh",
+                                "first_name": null,
+                                "last_name": null,
+                                "email": "Alexbtv2000@gmail.com",
+                                "tel": "2059555718",
+                                "created_at": "03-02-2026 15:01:29",
+                                "updated_at": "20-05-2026 10:06:29",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 27,
+                                "code": "ຈຊຈ",
+                                "name": "ໜ່ວຍງານຈັດຊື້",
+                                "department_head_id": 0,
+                                "created_at": "03-02-2026 14:56:24",
+                                "updated_at": "08-04-2026 09:36:10",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 2244,
+                    "user_approval_id": 725,
+                    "step_number": 1,
+                    "approver_id": 92,
+                    "approved_at": "20-05-2026 09:36:09",
+                    "status_id": 2,
+                    "remark": "ຢືນຢັນສຳເລັດ",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "20-05-2026 09:11:55",
+                    "updated_at": "20-05-2026 09:36:09",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "22-01-2026 14:06:18",
+                        "updated_at": "22-01-2026 14:06:18"
+                    },
+                    "approver": {
+                        "id": 92,
+                        "username": "Thipkhounheuane",
+                        "first_name": null,
+                        "last_name": null,
+                        "email": "tadadm78978929@gmail.com",
+                        "tel": "2078978929",
+                        "created_at": "13-05-2026 15:00:19",
+                        "updated_at": "19-05-2026 15:40:37",
+                        "user_signature": {
+                            "id": "84",
+                            "user_id": 92,
+                            "signature": "user_signature/019e2059-d53a-7448-b88f-d81d63b544a5-1778659218746",
+                            "signature_url": "https://d2yoz59x0pj04q.cloudfront.net/user_signature/019e2059-d53a-7448-b88f-d81d63b544a5-1778659218746",
+                            "created_at": "21-05-2026 14:32:25",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 85,
+                        "name": "ຫົວໜ້າພະແນກ ບໍລິຫານ ແລະ ບຸກຄະລາກອນ",
+                        "created_at": "13-05-2026 14:34:38",
+                        "updated_at": "13-05-2026 14:34:38",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 2653,
+                            "user_approval_step_id": 2244,
+                            "user_id": 92,
+                            "created_at": "20-05-2026 09:11:55",
+                            "updated_at": "20-05-2026 09:11:55",
+                            "user": {
+                                "id": 92,
+                                "username": "Thipkhounheuane",
+                                "first_name": null,
+                                "last_name": null,
+                                "email": "tadadm78978929@gmail.com",
+                                "tel": "2078978929",
+                                "created_at": "13-05-2026 15:00:19",
+                                "updated_at": "19-05-2026 15:40:37",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 19,
+                                "code": "ບຫ",
+                                "name": "ພະແນກບໍລິຫານ",
+                                "department_head_id": 0,
+                                "created_at": "21-01-2026 10:27:51",
+                                "updated_at": "13-05-2026 15:02:21",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 2247,
+                    "user_approval_id": 725,
+                    "step_number": 2,
+                    "approver_id": 20,
+                    "approved_at": "20-05-2026 10:23:31",
+                    "status_id": 2,
+                    "remark": "ຢືນຢັນສຳເລັດ",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "20-05-2026 09:36:09",
+                    "updated_at": "20-05-2026 10:23:31",
+                    "document_status": {
+                        "id": 2,
+                        "name": "APPROVED",
+                        "created_at": "22-01-2026 14:06:18",
+                        "updated_at": "22-01-2026 14:06:18"
+                    },
+                    "approver": {
+                        "id": 20,
+                        "username": "Malaiphone",
+                        "first_name": null,
+                        "last_name": null,
+                        "email": "malaiphone272@gmail.com",
+                        "tel": "2022892896",
+                        "created_at": "03-02-2026 14:28:25",
+                        "updated_at": "21-05-2026 08:55:13",
+                        "user_signature": {
+                            "id": "10",
+                            "user_id": 20,
+                            "signature": "user_signature/019d61a3-ca4e-7254-85ff-9d62954130ef-1775459617358",
+                            "signature_url": "https://d2yoz59x0pj04q.cloudfront.net/user_signature/019d61a3-ca4e-7254-85ff-9d62954130ef-1775459617358",
+                            "created_at": "21-05-2026 14:32:25",
+                            "updated_at": "Invalid date"
+                        },
+                        "roles": [],
+                        "permissions": [],
+                        "user_types": []
+                    },
+                    "position": {
+                        "id": 2,
+                        "name": "ຮັກສາການ ຫົວໜ້າພະແນກ ງົບປະມານ",
+                        "created_at": "21-01-2026 10:02:30",
+                        "updated_at": "05-03-2026 10:40:04",
+                        "company": null
+                    },
+                    "doc_approver": [
+                        {
+                            "id": 2656,
+                            "user_approval_step_id": 2247,
+                            "user_id": 20,
+                            "created_at": "20-05-2026 09:36:09",
+                            "updated_at": "20-05-2026 09:36:09",
+                            "user": {
+                                "id": 20,
+                                "username": "Malaiphone",
+                                "first_name": null,
+                                "last_name": null,
+                                "email": "malaiphone272@gmail.com",
+                                "tel": "2022892896",
+                                "created_at": "03-02-2026 14:28:25",
+                                "updated_at": "21-05-2026 08:55:13",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": {
+                                "id": 23,
+                                "code": "BG",
+                                "name": "ພະແນກງົບປະມານ",
+                                "department_head_id": 0,
+                                "created_at": "21-01-2026 10:30:39",
+                                "updated_at": "03-02-2026 14:38:47",
+                                "department_head": null,
+                                "company": null
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": 2295,
+                    "user_approval_id": 725,
+                    "step_number": 3,
+                    "approver_id": 0,
+                    "approved_at": null,
+                    "status_id": 1,
+                    "remark": "",
+                    "requires_file_upload": false,
+                    "is_otp": false,
+                    "created_at": "20-05-2026 10:23:31",
+                    "updated_at": "20-05-2026 10:23:31",
+                    "document_status": {
+                        "id": 1,
+                        "name": "PENDING",
+                        "created_at": "22-01-2026 14:06:18",
+                        "updated_at": "22-01-2026 14:06:18"
+                    },
+                    "approver": null,
+                    "position": null,
+                    "doc_approver": [
+                        {
+                            "id": 2704,
+                            "user_approval_step_id": 2295,
+                            "user_id": 9,
+                            "created_at": "20-05-2026 10:23:31",
+                            "updated_at": "20-05-2026 10:23:31",
+                            "user": {
+                                "id": 9,
+                                "username": "Sisavanh",
+                                "first_name": null,
+                                "last_name": null,
+                                "email": "sisavanh@halgroup.la",
+                                "tel": "2052225559",
+                                "created_at": "21-01-2026 15:49:37",
+                                "updated_at": "21-01-2026 15:49:37",
+                                "user_signature": null,
+                                "roles": [],
+                                "permissions": [],
+                                "user_types": []
+                            },
+                            "department": null
+                        }
+                    ]
+                }
+            ]
+        },
+        "purchase_order_item": [
+            {
+                "id": 424,
+                "purchase_order_id": 197,
+                "purchase_request_item_id": 750,
+                "budget_item_id": 56,
+                "remark": "",
+                "quantity": 1,
+                "price": 85000000,
+                "total": 85000000,
+                "vat_total": 0,
+                "total_with_vat": 85000000,
+                "rate": 1,
+                "total_in_lak": 85000000,
+                "vat_in_lak": 0,
+                "is_vat": false,
+                "created_at": "20-05-2026 09:11:36",
+                "updated_at": "20-05-2026 10:23:31",
+                "budget_item": {
+                    "id": 56,
+                    "name": "ເງິນບໍລິຫານສູນຄັດແຍກ ທົວປະເທດ",
+                    "budget_account_id": 86,
+                    "allocated_amount": 0,
+                    "use_amount": 0,
+                    "balance_amount": 0,
+                    "description": "",
+                    "created_at": "16-03-2026 10:33:15",
+                    "updated_at": "16-03-2026 10:33:15",
+                    "budget_account": {
+                        "id": 86,
+                        "code": "BA-4ADCDD",
+                        "name": "ງົບ ອຸປະກອນ ຄ່າແຮງງານ ສ້ອມແປງສູນຄັດແຍກ",
+                        "department_id": 25,
+                        "company_id": 0,
+                        "fiscal_year": 2026,
+                        "allocated_amount": null,
+                        "total_budget": null,
+                        "increase_amount": 0,
+                        "used_amount": 0,
+                        "balance_amount": 0,
+                        "type": "expenditure",
+                        "created_at": "16-03-2026 10:23:36",
+                        "updated_at": "16-03-2026 10:23:36",
+                        "department": null,
+                        "company": null
+                    }
+                },
+                "purchase_request_item": {
+                    "id": 750,
+                    "purchase_request_id": 445,
+                    "title": "ແທ່ງນໍ້າມັນ50.000Lວັດສະດຸທີ່ໃຊ້ແຜ່ນເຫຼັກ5mm",
+                    "file_name": "pr_file_name/019e3a01-78cf-725f-b87e-98ce2cf08880-1779089635535",
+                    "file_name_url": "https://d2yoz59x0pj04q.cloudfront.net/pr_file_name/019e3a01-78cf-725f-b87e-98ce2cf08880-1779089635535",
+                    "quantity": 1,
+                    "unit_id": "7",
+                    "quota_company_id": 0,
+                    "price": 85000000,
+                    "total_price": 85000000,
+                    "rate": 1,
+                    "total_in_lak": 85000000,
+                    "remark": "",
+                    "created_at": "18-05-2026 14:33:55",
+                    "updated_at": "18-05-2026 14:33:55",
+                    "unit": {
+                        "id": "7",
+                        "name": "ໜ່ວຍ",
+                        "created_at": "21-01-2026 10:11:16",
+                        "updated_at": "21-01-2026 10:11:16"
+                    },
+                    "currency": null,
+                    "quota_company": {
+                        "id": 445,
+                        "year": "2026-01-01",
+                        "qty": 1,
+                        "vendor_product_id": "439",
+                        "company_id": 1,
+                        "created_at": "13-05-2026 10:40:09",
+                        "updated_at": "13-05-2026 10:40:09",
+                        "vendor_product": {
+                            "id": "439",
+                            "vendor_id": "127",
+                            "product_id": 440,
+                            "vendor": {
+                                "id": "127",
+                                "name": "ໂຮງງານແຊັມປ່ຽນການຊ່າງ"
+                            },
+                            "product": {
+                                "id": 440,
+                                "name": "ແທ່ງນໍ້າມັນ50.000Lວັດສະດຸທີ່ໃຊ້ແຜ່ນເຫຼັກ5mm"
+                            },
+                            "price": "85000000.00",
+                            "created_at": "13-05-2026 10:37:46",
+                            "updated_at": "13-05-2026 10:37:46"
+                        },
+                        "Product": {
+                            "id": 440,
+                            "name": "ແທ່ງນໍ້າມັນ50.000Lວັດສະດຸທີ່ໃຊ້ແຜ່ນເຫຼັກ5mm",
+                            "description": "ລາຄານີ້ແມ່ນລວມທັງວັດຖຸ ແລະ ແຮງງານຂອງຜູ້ຮັບເໝົາທັງໝົດ\nໝາຍເຫດ:ຮັບປະກັນແທ່ງພ້ອມຮັບປະກັນການຮົ່ວຊຶມເປັນເວລາ1ປີ\nໝາຍເຫດ:ລາຄານີ້ບໍ່ລວມຄ່າສົ່ງ",
+                            "product_type_id": 182,
+                            "unit_id": "7",
+                            "status": "active",
+                            "created_at": "13-05-2026 09:44:22",
+                            "updated_at": "13-05-2026 09:44:22"
+                        },
+                        "vendor": {
+                            "id": 127,
+                            "name": "ໂຮງງານແຊັມປ່ຽນການຊ່າງ",
+                            "contact_info": "02023133314",
+                            "created_at": "13-05-2026 10:35:26",
+                            "updated_at": "13-05-2026 10:35:26"
+                        }
+                    }
+                },
+                "selected_vendor": [
+                    {
+                        "id": 424,
+                        "purchase_order_item_id": 424,
+                        "vendor_id": 127,
+                        "vendor_bank_account_id": 141,
+                        "filename": "po_file_name/019e4327-18e4-739d-9bef-fda2738d8eac-1779243096292",
+                        "filename_url": "https://d2yoz59x0pj04q.cloudfront.net/po_file_name/019e4327-18e4-739d-9bef-fda2738d8eac-1779243096292",
+                        "reason": "ຂໍສະເໜີຈັດຊື້ແທ່ງນໍ້າມັນ 50.000Lລາຄາ 95,000,000ກີບ (ຈ່າຍມັດຈໍາແລ້ວ 10,000,000ກີບ) ຍັງຕ້ອງໄດ້ຊໍາລະ 85,000,000ກີບ",
+                        "selected": true,
+                        "created_at": "20-05-2026 09:11:36",
+                        "updated_at": "20-05-2026 09:11:36",
+                        "vendor": {
+                            "id": 127,
+                            "name": "ໂຮງງານແຊັມປ່ຽນການຊ່າງ",
+                            "contact_info": "02023133314",
+                            "created_at": "13-05-2026 10:35:26",
+                            "updated_at": "13-05-2026 10:35:26"
+                        },
+                        "vendor_bank_account": {
+                            "id": 141,
+                            "vendor_id": 127,
+                            "currency_id": 4,
+                            "account_name": "ລັດສະຫວັນເພົາວິເສດ",
+                            "bank_id": 9,
+                            "account_number": "096120000055480001",
+                            "is_selected": false,
+                            "created_at": "13-05-2026 10:35:26",
+                            "updated_at": "13-05-2026 10:35:26",
+                            "vendor": null,
+                            "currency": {
+                                "id": 4,
+                                "code": "LAK",
+                                "name": "KIP",
+                                "created_at": "21-01-2026 11:02:37",
+                                "updated_at": "16-03-2026 15:43:17"
+                            },
+                            "bank": {
+                                "id": 9,
+                                "short_name": "BCEL LAK",
+                                "name": "BANQUE POUR LE COMMERCE EXTERIEUR LAO PUBLIC LAK",
+                                "logo": "BANK_IMAGE_REPOSITORY/019d7062-08e0-77d5-a6d2-7bbf61d4eb70-1775706966240",
+                                "logoUrl": "https://d2yoz59x0pj04q.cloudfront.net/BANK_IMAGE_REPOSITORY/019d7062-08e0-77d5-a6d2-7bbf61d4eb70-1775706966240",
+                                "created_at": "09-04-2026 10:56:06",
+                                "updated_at": "09-04-2026 11:02:36"
+                            }
+                        }
+                    }
+                ],
+                "currency": {
+                    "id": 4,
+                    "code": "LAK",
+                    "name": "KIP",
+                    "created_at": "21-01-2026 11:02:37",
+                    "updated_at": "16-03-2026 15:43:17"
+                }
+            }
+        ],
+        "user_last_approval": "Sisavanh"
+    }
+}

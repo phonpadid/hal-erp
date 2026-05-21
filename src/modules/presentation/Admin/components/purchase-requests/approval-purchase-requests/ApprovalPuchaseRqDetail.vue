@@ -101,9 +101,30 @@ const getStepTitle = (index: number, step: any) => {
   if (index === 0) {
     return t("purchase-rq.proposer");
   }
+  // ກວດສອບວ່າຜູ້ອະນຸມັດເປັນ khamthanom ຫຼື Thipkhouneheuan,
+  // ໃຫ້ສະແດງເປັນຫົວໜ້າພະແນກຂອງຜູ້ສະເໜີ (ບໍ່ແມ່ນພະແນກຂອງຜູ້ອະນຸມັດ)
+  const username = step.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName = requestDetail.value?.getDepartment()?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
   // ໃຊ້ຊື່ແຜນກຈາກ doc_approver[0].department.name
   const deptName = step.doc_approver?.[0]?.department?.name;
   return deptName || `${t("purchase-rq.approver")} ${index}`;
+};
+// ສະແດງຊື່ຕຳແໜ່ງຢູ່ດ້ານລ່າງລາຍເຊັນ — ສຳລັບ khamthanom/Thipkhouneheuan
+// ໃຫ້ໃຊ້ "ຫົວໜ້າ" + ພະແນກຂອງຜູ້ສະເໜີ ແທນຕຳແໜ່ງເດີມຂອງຜູ້ອະນຸມັດ
+const getStepPosition = (step: any) => {
+  const username = step?.doc_approver?.[0]?.user?.username;
+  if (username === "khamthanom" || username === "Thipkhouneheuan") {
+    const requesterDeptName = requestDetail.value?.getDepartment()?.name;
+    if (requesterDeptName) {
+      return `ຫົວໜ້າ${requesterDeptName}`;
+    }
+  }
+  return step?.position?.name || "-";
 };
 
 /****************************************** */
@@ -673,20 +694,20 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mx-auto py-1 px-0">
-    <!-- Header Component -->
-
+  <div class="flex flex-col h-[calc(100vh-5rem)]">
+    <!-- Fixed Header Component -->
     <div
-      class="fixed px-6 py-4 top-0 z-20 bg-white shadow-sm transition-all duration-150 mt-[4rem]"
-      :class="topbarStyle"
+      class="flex-shrink-0 bg-white shadow-sm -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 py-3 mb-3 z-30"
     >
-      <UiButton
-        icon="mdi:arrow-left"
-        size="small"
-        class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
-        @click="goBack"
-        >ກັບຄືນ</UiButton
-      >
+      <div class="flex justify-end mb-2">
+        <UiButton
+          icon="mdi:arrow-left"
+          size="small"
+          class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
+          @click="goBack"
+          >ກັບຄືນ</UiButton
+        >
+      </div>
       <header-component
         @toggle="handleToggle"
         :header-title="t('purchase-rq.approval_proposal')"
@@ -700,10 +721,11 @@ onMounted(async () => {
       />
     </div>
 
-    <!-- Main Content -->
-    <div v-if="loading" class="mt-[10rem] text-center">Loading...</div>
+    <!-- Scrollable Main Content -->
+    <div class="flex-1 overflow-y-auto pr-1">
+    <div v-if="loading" class="mt-[4rem] text-center">Loading...</div>
 
-    <div class="body mt-[10rem]" v-else-if="requestDetail">
+    <div class="body mt-[2rem]" v-else-if="requestDetail">
       <!-- Company & User Information Section -->
       <div class="user-info shadow-sm py-2">
         <!-- Company and User Info in Same Row -->
@@ -768,7 +790,7 @@ onMounted(async () => {
         </div>
 
         <!-- Items Table Section -->
-        <div class="table -space-y-0 mb-2 w-full px-6 shadow-sm rounded-md">
+        <div class="table -space-y-0 mb-2 w-full px-3 sm:px-4 lg:px-6 shadow-sm rounded-md overflow-x-auto">
           <h2 class="text-md font-semibold">
             {{ t("purchase-rq.field.title") }}
           </h2>
@@ -872,7 +894,7 @@ onMounted(async () => {
                 <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
                   <template v-if="step.approver">
                     <p class="font-medium">{{ step.approver.username }}</p>
-                    <p class="text-xs text-gray-500">{{ step.position?.name || "-" }}</p>
+                    <p class="text-xs text-gray-500">{{ getStepPosition(step) }}</p>
                     <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
                     <p
                       v-if="step.approved_at"
@@ -902,6 +924,8 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+    </div>
+  </div>
 
     <!-- OTP Modal -->
     <OtpModal
@@ -968,7 +992,6 @@ onMounted(async () => {
     <div class="print-only">
       <PrintPurchaseRequest :purchase-request="requestDetail" />
     </div>
-  </div>
 </template>
 
 <style scoped>

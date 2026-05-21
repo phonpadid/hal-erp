@@ -68,7 +68,15 @@
   "status": {
     "pending": "ກຳລັງລໍຖ້າ",
     "approved": "ອະນຸມັດ",
-    "rejected": "ປະຕິເສດ"
+    "rejected": "ປະຕິເສດ",
+    "cancelled": "ຍົກເລີກ"
+  },
+  "status_user": {
+    "label": "ສະຖານະຜູ້ໃຊ້",
+    "PENDING": "ກຳລັງລໍຖ້າ",
+    "APPROVED": "ອະນຸມັດ",
+    "REJECTED": "ປະຕິເສດ",
+    "CANCELLED": "ຍົກເລີກ"
   },
   "phd": {
     "doc_type": "ເລືອກປະເພດໃບສະເໜີ",
