@@ -62,6 +62,8 @@ const handleFormSubmit = async (formData: {
   username: string;
   email: string;
   tel: string;
+  firstName: string;
+  lastName: string;
   password: string;
   confirm_password: string;
   signature?: string | null;
@@ -77,6 +79,8 @@ const handleFormSubmit = async (formData: {
         username: formData.username,
         email: formData.email,
         tel: formData.tel,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         signature: formData.signature,
         roleIds: formData.roleIds,
         permissionIds: formData.permissionIds,

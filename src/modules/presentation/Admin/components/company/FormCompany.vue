@@ -20,6 +20,8 @@ const props = defineProps<{
           username: string;
           email: string;
           tel: string;
+          firstName?: string;
+          lastName?: string;
           signature?: string | null;
           signature_url?: string;
         };
@@ -41,6 +43,8 @@ const emit = defineEmits<{
         username: string;
         email: string;
         tel: string;
+        firstName: string;
+        lastName: string;
         password: string;
         confirm_password: string;
         signature?: string | null;
@@ -62,6 +66,8 @@ const formState = reactive({
     username: "",
     email: "",
     tel: "",
+    firstName: "",
+    lastName: "",
     password: "",
     confirm_password: "",
     signature: null as string | null,
@@ -131,6 +137,8 @@ watch(
         formState.user.username = newCompany.user.username || "";
         formState.user.email = newCompany.user.email || "";
         formState.user.tel = newCompany.user.tel || "";
+        formState.user.firstName = newCompany.user.firstName || "";
+        formState.user.lastName = newCompany.user.lastName || "";
         formState.user.signature = newCompany.user.signature || null;
 
         // Set signature preview if signature_url is available
@@ -148,6 +156,8 @@ watch(
       formState.user.username = "";
       formState.user.email = "";
       formState.user.tel = "";
+      formState.user.firstName = "";
+      formState.user.lastName = "";
       formState.user.password = "";
       formState.user.confirm_password = "";
       formState.user.signature = null;
@@ -413,6 +423,34 @@ defineExpose({
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <!-- First Name -->
+              <UiFormItem :label="$t('company.form.firstName')" name="user.firstName" required>
+                <UiInput
+                  v-model="formState.user.firstName"
+                  :placeholder="$t('company.form.firstNamePlaceholder')"
+                  :disabled="loading"
+                  size="large"
+                >
+                  <template #prefix>
+                    <Icon icon="material-symbols:badge-outline" class="text-gray-400" />
+                  </template>
+                </UiInput>
+              </UiFormItem>
+
+              <!-- Last Name -->
+              <UiFormItem :label="$t('company.form.lastName')" name="user.lastName" required>
+                <UiInput
+                  v-model="formState.user.lastName"
+                  :placeholder="$t('company.form.lastNamePlaceholder')"
+                  :disabled="loading"
+                  size="large"
+                >
+                  <template #prefix>
+                    <Icon icon="material-symbols:badge-outline" class="text-gray-400" />
+                  </template>
+                </UiInput>
+              </UiFormItem>
+
               <!-- Username -->
               <UiFormItem :label="$t('company.form.username')" name="user.username" required>
                 <UiInput

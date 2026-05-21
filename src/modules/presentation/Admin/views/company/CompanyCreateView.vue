@@ -28,6 +28,8 @@ const handleFormSubmit = async (formData: {
     username: string;
     email: string;
     tel: string;
+    firstName: string;
+    lastName: string;
     password: string;
     confirm_password: string;
     signature?: string | null;

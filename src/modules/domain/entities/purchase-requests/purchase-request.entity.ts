@@ -55,6 +55,8 @@ export class PurchaseRequestEntity {
     }>;
   } | null = null;
 
+  private user_last_approval: string | null = null;
+
   private createdAt: string | null;
   private updatedAt: string | null;
   private deletedAt: string | null;
@@ -173,6 +175,14 @@ export class PurchaseRequestEntity {
 
   public getIsCreatedPo(): boolean {
     return this.is_created_po;
+  }
+
+  public getUserLastApproval(): string | null {
+    return this.user_last_approval;
+  }
+
+  public setUserLastApproval(value: string | null): void {
+    this.user_last_approval = value ?? null;
   }
   public setUserApproval(userApproval: UserApproval): void {
     this.user_approval = userApproval;

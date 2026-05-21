@@ -8,6 +8,12 @@ interface Column {
 export function columns(t: (key: string) => string): Column[] {
   return [
     {
+      title: t("departments.dpm.field.manege"),
+      dataIndex: "actions",
+      key: "actions",
+      align: "center",
+    },
+    {
       title: t("departments.dpm_user.field.signature"),
       dataIndex: "signature_file_url",
       key: "signature_file",
@@ -57,11 +63,6 @@ export function columns(t: (key: string) => string): Column[] {
       dataIndex: "updated_at",
       key: "updated_at",
     },
-    {
-      title: t("departments.dpm.field.manege"),
-      dataIndex: "actions",
-      key: "actions",
-      align: "center",
-    },
+    
   ];
 }
