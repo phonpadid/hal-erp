@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
+import { getUserDisplayName, getApprovalStepLabel } from "@/modules/shared/utils/display-user";
 
 const props = defineProps<{
     /** Legacy: receipt object passed directly (used when no API JSON yet) */
@@ -116,7 +117,7 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                 <table class="info-table">
                     <tr>
                         <td class="label">Staff Name<br />ຊື່ພະນັກງານ:</td>
-                        <td class="value">{{ purchaseRequest?.document?.requester?.username }}</td>
+                        <td class="value">{{ getUserDisplayName(purchaseRequest?.document?.requester) }}</td>
                         <td class="label">Position<br />ຕຳແໜ່ງ:</td>
                         <td class="value">
                             {{ purchaseRequest?.document?.position?.[0]?.name }}
@@ -195,7 +196,7 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                                     class="signature-img" />
                             </div>
                             <div class="signature-name">
-                                {{ prRequester?.approver?.username || "_______________" }}
+                                {{ getUserDisplayName(prRequester?.approver) }}
                             </div>
                             <div class="signature-position" v-if="prRequester?.position">
                                 {{ prRequester.position.name }}
@@ -203,14 +204,14 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                         </td>
                         <td v-for="(step, index) in prApprovers" :key="`pr-sig-${step.id ?? index}`"
                             class="signature-cell">
-                            <div class="signature-label">ອະນຸມັດໂດຍ {{ index + 1 }}</div>
+                            <div class="signature-label">{{ getApprovalStepLabel(step, `ອະນຸມັດໂດຍ ${index + 1}`) }}</div>
                             <div class="signature-space">
                                 <img v-if="step?.approver?.user_signature?.signature_url"
                                     :src="step.approver.user_signature.signature_url" alt="signature"
                                     class="signature-img" />
                             </div>
                             <div class="signature-name">
-                                {{ step?.approver?.username || "_______________" }}
+                                {{ getUserDisplayName(step?.approver) }}
                             </div>
                             <div class="signature-position" v-if="step?.position">
                                 {{ step.position.name }}
@@ -232,7 +233,7 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                 <table class="info-table">
                     <tr>
                         <td class="label">Staff Name<br />ຊື່ພະນັກງານ:</td>
-                        <td class="value">{{ purchaseOrder?.document?.requester?.username }}</td>
+                        <td class="value">{{ getUserDisplayName(purchaseOrder?.document?.requester) }}</td>
                         <td class="label">Position<br />ຕຳແໜ່ງ:</td>
                         <td class="value">
                             {{ purchaseOrder?.document?.position?.[0]?.name }}
@@ -339,7 +340,7 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                                     class="signature-img" />
                             </div>
                             <div class="signature-name">
-                                {{ poRequester?.approver?.username || "_______________" }}
+                                {{ getUserDisplayName(poRequester?.approver) }}
                             </div>
                             <div class="signature-position" v-if="poRequester?.position">
                                 {{ poRequester.position.name }}
@@ -347,14 +348,14 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                         </td>
                         <td v-for="(step, index) in poApprovers" :key="`po-sig-${step.id ?? index}`"
                             class="signature-cell">
-                            <div class="signature-label">ອະນຸມັດໂດຍ {{ index + 1 }}</div>
+                            <div class="signature-label">{{ getApprovalStepLabel(step, `ອະນຸມັດໂດຍ ${index + 1}`) }}</div>
                             <div class="signature-space">
                                 <img v-if="step?.approver?.user_signature?.signature_url"
                                     :src="step.approver.user_signature.signature_url" alt="signature"
                                     class="signature-img" />
                             </div>
                             <div class="signature-name">
-                                {{ step?.approver?.username || "_______________" }}
+                                {{ getUserDisplayName(step?.approver) }}
                             </div>
                             <div class="signature-position" v-if="step?.position">
                                 {{ step.position.name }}
@@ -376,7 +377,7 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                 <table class="info-table">
                     <tr>
                         <td class="label">Staff Name<br />ຊື່ພະນັກງານ:</td>
-                        <td class="value">{{ receipt?.document?.requester?.username }}</td>
+                        <td class="value">{{ getUserDisplayName(receipt?.document?.requester) }}</td>
                         <td class="label">Position<br />ຕຳແໜ່ງ:</td>
                         <td class="value">{{ receipt?.document?.position?.[0]?.name }}</td>
                         <td class="label">Department<br />ພະແນກ:</td>
@@ -462,7 +463,9 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                         <td v-for="(step, index) in receiptSteps" :key="`r-sig-${step.id ?? index}`"
                             class="signature-cell">
                             <div class="signature-label">
-                                {{ index === 0 ? "ສະເໜີໂດຍ" : "ອະນຸມັດໂດຍ" }}
+                                {{ index === 0
+                                  ? "ສະເໜີໂດຍ"
+                                  : getApprovalStepLabel(step, "ອະນຸມັດໂດຍ") }}
                             </div>
                             <div class="signature-space">
                                 <img v-if="step?.approver?.user_signature?.signature_url"
@@ -470,7 +473,10 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                                     class="signature-img" />
                             </div>
                             <div class="signature-name">
-                                {{ step?.approver?.username || "_______________" }}
+                                {{ getUserDisplayName(step?.approver) }}
+                            </div>
+                            <div class="signature-position" v-if="step?.position">
+                                {{ step.position.name }}
                             </div>
                         </td>
                     </tr>
@@ -482,6 +488,7 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
 
 <style scoped>
 .print-container {
+    width: 100%;
     max-width: 210mm;
     margin: 0 auto;
     padding: 8px;
@@ -496,6 +503,11 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
 .print-page:last-child {
     page-break-after: auto;
     break-after: auto;
+}
+
+.print-page .doc {
+    page-break-inside: avoid;
+    break-inside: avoid;
 }
 
 .doc {
@@ -687,6 +699,9 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    table-layout: fixed;
 }
 
 .signature-cell {
@@ -694,6 +709,10 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
     text-align: center;
     padding: 10px;
     vertical-align: top;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    page-break-inside: avoid;
+    break-inside: avoid;
 }
 
 .signature-label {
@@ -730,10 +749,31 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
 @media print {
     .print-container {
         padding: 0;
+        max-width: none;
+    }
+
+    .print-page {
+        page-break-after: always;
+        break-after: page;
+    }
+
+    .print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+
+    .items-table thead {
+        display: table-header-group;
+    }
+
+    .items-table tr,
+    .signature-table tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
 
     @page {
-        size: A4;
+        size: auto;
         margin: 10mm;
     }
 }

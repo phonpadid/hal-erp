@@ -74,7 +74,7 @@ export const useAuthStore = defineStore("auth", () => {
       }
 
       success("ສຳເລັດ", "ເຂົ້າສູ່ລະບົບສຳເລັດແລ້ວ");
-      router.push("/dashboard");
+      router.push("/approval-purchase-requests");
     } catch (err) {
       error.value = err as Error;
       // showError("ຜິດພາດ", (err as Error).message);
