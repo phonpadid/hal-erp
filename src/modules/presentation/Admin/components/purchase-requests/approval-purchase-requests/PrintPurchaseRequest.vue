@@ -4,6 +4,7 @@ import { computed } from "vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { useI18n } from "vue-i18n";
 import { formatDate } from "@/modules/shared/formatdate";
+import { getUserDisplayName, getApprovalStepLabel } from "@/modules/shared/utils/display-user";
 
 const { t } = useI18n();
 
@@ -43,7 +44,7 @@ const requesterStep = computed(() => {
         <tr>
           <td class="label">Staff Name<br />ຊື່ພະນັກງານ:</td>
 
-          <td class="value">{{ purchaseRequest?.getRequester()?.username }}</td>
+          <td class="value">{{ getUserDisplayName(purchaseRequest?.getRequester()) }}</td>
           <td class="label">Position<br />ຕຳແໜ່ງ:</td>
 
           <td class="value">{{ purchaseRequest?.getPosition()?.name }}</td>
@@ -130,7 +131,7 @@ const requesterStep = computed(() => {
             </div>
 
             <div class="signature-name">
-              {{ requesterStep?.approver?.username || "_______________" }}
+              {{ getUserDisplayName(requesterStep?.approver) }}
             </div>
             <div class="signature-position" v-if="requesterStep?.position">
               {{ requesterStep.position.name }}
@@ -138,7 +139,7 @@ const requesterStep = computed(() => {
           </td>
 
           <td v-for="(step, index) in approvalSteps" :key="step.id" class="signature-cell">
-            <div class="signature-label">ອະນຸມັດໂດຍ {{ index + 1 }}</div>
+            <div class="signature-label">{{ getApprovalStepLabel(step, `ອະນຸມັດໂດຍ ${index + 1}`) }}</div>
 
             <div class="signature-space">
               <img
@@ -150,7 +151,7 @@ const requesterStep = computed(() => {
             </div>
 
             <div class="signature-name">
-              {{ step?.approver?.username || "_______________" }}
+              {{ getUserDisplayName(step?.approver) }}
             </div>
             <div class="signature-position" v-if="step?.position">
               {{ step.position.name }}
@@ -163,6 +164,7 @@ const requesterStep = computed(() => {
 </template>
 <style scoped>
 .print-container {
+  width: 100%;
   max-width: 210mm;
   margin: 0 auto;
   padding: 8px;
@@ -173,6 +175,8 @@ const requesterStep = computed(() => {
   padding: 8mm;
   font-family: "Phetsarath OT", Arial, sans-serif;
   font-size: 11pt;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .header {
@@ -328,6 +332,9 @@ const requesterStep = computed(() => {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  table-layout: fixed;
 }
 
 .signature-cell {
@@ -335,6 +342,10 @@ const requesterStep = computed(() => {
   text-align: center;
   padding: 10px;
   vertical-align: top;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .signature-label {
@@ -371,10 +382,21 @@ const requesterStep = computed(() => {
 @media print {
   .print-container {
     padding: 0;
+    max-width: none;
+  }
+
+  .items-table thead {
+    display: table-header-group;
+  }
+
+  .items-table tr,
+  .signature-table tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   @page {
-    size: A4;
+    size: auto;
     margin: 10mm;
   }
 }

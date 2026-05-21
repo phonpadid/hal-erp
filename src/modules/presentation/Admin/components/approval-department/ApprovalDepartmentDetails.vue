@@ -30,7 +30,7 @@
             <Icon icon="mdi:user" class="text-6xl" />
           </div>
           <div>
-            <h4>{{ orderDetails?.getRequester()?.username || documentDetails.requester.name }}</h4>
+            <h4>{{ getUserDisplayName(orderDetails?.getRequester(), documentDetails?.requester?.name || "") }}</h4>
             <p class="text-gray-600">
               {{ orderDetails?.getDepartment()?.name || "ພະແນກໄອທີ" }},
               {{ orderDetails?.getPosition()?.[0]?.name || "ພະນັກງານພັດທະນາລະບົບ" }}
@@ -239,7 +239,7 @@
                 <!-- Approver Info -->
                 <div class="info text-sm text-slate-600 mt-2 text-center min-w-[120px]">
                   <template v-if="step.approver">
-                    <p class="font-medium">{{ step.approver.username }}</p>
+                    <p class="font-medium">{{ getUserDisplayName(step.approver) }}</p>
                     <p class="text-xs text-gray-500">{{ getStepPosition(step) }}</p>
                     <!-- ເພີ່ມວັນທີເວລາອະນຸມັດ -->
                     <p
@@ -472,6 +472,7 @@ import { useApprovalStepStore } from "../../stores/approval-step.store";
 import { useDocumentStatusStore } from "../../stores/document-status.store";
 import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
 import { useAuthStore } from "../../stores/authentication/auth.store";
+import { getUserDisplayName } from "@/modules/shared/utils/display-user";
 import { useReportPoStore } from "../../stores/reports/report-po.store";
 import PrintPurchaseOrder from "./PrintPurchaseOrder.vue";
 import BudgetApprovalDrawer from "../budget-approval/BudgetApprovalDrawer.vue";
