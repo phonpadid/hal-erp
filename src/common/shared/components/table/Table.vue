@@ -55,7 +55,6 @@ export interface SorterResult {
   columnKey?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   columns: Column[];
   dataSource: TableRecord[];
@@ -64,6 +63,8 @@ const props = defineProps<{
   scrollX?: number;
   scrollY?: number;
   rowClassName?: string | ((record: TableRecord, index?: number) => string);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  customRow?: (record: TableRecord, index?: number) => Record<string, any>;
 }>();
 
 const emit = defineEmits<{
@@ -76,10 +77,13 @@ const emit = defineEmits<{
   (e: "row-click", record: TableRecord): void;
 }>();
 
-// ฟังก์ชันที่จะเพิ่ม event handler ให้กับแถว
-const customRowHandler = (record: TableRecord) => {
+const customRowHandler = (record: TableRecord, index?: number) => {
+  const extra = props.customRow ? props.customRow(record, index) : {};
+  const extraOnClick = extra.onClick as ((e: MouseEvent) => void) | undefined;
   return {
-    onClick: () => {
+    ...extra,
+    onClick: (e: MouseEvent) => {
+      extraOnClick?.(e);
       emit("row-click", record);
     },
   };
