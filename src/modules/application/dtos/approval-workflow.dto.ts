@@ -35,3 +35,8 @@ export interface ApprovalWorkflowDTO {
 export interface ApprovalStatusDto {
   status: string;
 }
+
+export interface SendApprovalMailDto {
+  approver_user_id: number;
+  description?: string;
+}

@@ -8,6 +8,7 @@ import Table from "@/common/shared/components/table/Table.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
+import Textarea from "@/common/shared/components/Input/Textarea.vue";
 import { useI18n } from "vue-i18n";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
 import { apvStepRules } from "./validation/approval-workflow.validate";
@@ -17,6 +18,7 @@ import { useDocumentTypeStore } from "../../stores/document-type.store";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import type { ApprovalWorkflowApiModel } from "@/modules/interfaces/approval-workflow.interface";
 import { approvalWorkflowStore } from "../../stores/approval-workflow.store";
+import { useUserStore } from "../../stores/user.store";
 import { useRouter } from "vue-router";
 import { Modal } from "ant-design-vue";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
@@ -36,6 +38,7 @@ const loading = ref<boolean>(false);
 const selectedData = ref<ApprovalWorkflowApiModel | null>(null);
 const docTypeStore = useDocumentTypeStore();
 const store = approvalWorkflowStore();
+const userStore = useUserStore();
 const { push } = useRouter()
 const docTypeItems = computed(() =>
   docTypeStore.documentTypes.map((item) => ({
@@ -43,11 +46,36 @@ const docTypeItems = computed(() =>
     label: item.getname(),
   }))
 );
+const userOptions = computed(() =>
+  userStore.users.map((user) => ({
+    value: Number(user.getId()),
+    label: user.getEmail() ? `${user.getUsername()} (${user.getEmail()})` : user.getUsername(),
+  }))
+);
 // Form model
 const formModel = reactive({
   name: "",
   document_type_id: "",
 });
+
+// Send mail modal state
+const sendMailModalVisible = ref<boolean>(false);
+const sendMailLoading = ref<boolean>(false);
+const sendMailFormRef = ref();
+const sendMailForm = reactive({
+  approver_user_id: undefined as number | undefined,
+  description: "" as string,
+});
+const sendMailTargetId = ref<number | null>(null);
+const sendMailRules = computed(() => ({
+  approver_user_id: [
+    {
+      required: true,
+      message: t("approval-workflow.send_mail.approver_required"),
+      trigger: "change",
+    },
+  ],
+}));
 
 const canCreateStep = hasPermission('create-approval-workflow' )&& !isSuperAdmin.value && !isAdmin.value;
 const canEditStep = hasPermission('update-approval-workflow') && !isSuperAdmin.value && !isAdmin.value;
@@ -165,6 +193,40 @@ watch(search, async (newValue) => {
   }
 })
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+const openSendMailModal = (record: any) => {
+  sendMailTargetId.value = Number(record.id);
+  sendMailForm.approver_user_id = undefined;
+  sendMailForm.description = "";
+  sendMailModalVisible.value = true;
+};
+
+const handleSendMail = async (): Promise<void> => {
+  if (sendMailTargetId.value == null) return;
+  try {
+    await sendMailFormRef.value?.submitForm?.();
+  } catch {
+    return;
+  }
+  if (!sendMailForm.approver_user_id) return;
+
+  sendMailLoading.value = true;
+  try {
+    await store.sendApprovalMail(sendMailTargetId.value, {
+      approver_user_id: sendMailForm.approver_user_id,
+      description: sendMailForm.description,
+    });
+    success(t("approval-workflow.send_mail.success"));
+    sendMailModalVisible.value = false;
+    await loadData();
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("approval-workflow.send_mail.failed"), errorMessage);
+  } finally {
+    sendMailLoading.value = false;
+  }
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const verify = async (record: any) => {
   Modal.confirm({
     title: t("approval-workflow.confirm.title"),
@@ -203,6 +265,7 @@ onMounted(async () => {
   });
   await loadData();
   await docTypeStore.fetchdocumentType();
+  await userStore.fetchUsers({ page: 1, limit: 1000 });
 });
 </script>
 
@@ -258,6 +321,16 @@ onMounted(async () => {
                 : 'text-gray-500'
           ].join(' ')">
           </UiButton>
+          <UiButton
+            v-if="canEditStep && record.status === 'pending'"
+            icon="ant-design:mail-outlined"
+            size="small"
+            shape="circle"
+            @click="openSendMailModal(record)"
+            colorClass="flex items-center justify-center text-blue-500"
+            :title="t('approval-workflow.send_mail.button')"
+          >
+          </UiButton>
           <UiButton v-if="canViewStep" icon="ant-design:eye-outlined" size="small" shape="circle" @click="info(record.id)"
             colorClass="flex items-center justify-center text-sky-500">
           </UiButton>
@@ -295,6 +368,47 @@ onMounted(async () => {
       <p class="text-red-500">
         {{ t("departments.alert.remark") }}
       </p>
+    </UiModal>
+
+    <!-- Send Approval Mail Modal -->
+    <UiModal
+      :title="t('approval-workflow.send_mail.title')"
+      :visible="sendMailModalVisible"
+      :confirm-loading="sendMailLoading"
+      @update:visible="sendMailModalVisible = $event"
+      @ok="handleSendMail"
+      @cancel="sendMailModalVisible = false"
+      :okText="t('approval-workflow.send_mail.button')"
+      :cancelText="t('button.cancel')"
+      okType="primary"
+    >
+      <UiForm ref="sendMailFormRef" :model="sendMailForm" :rules="sendMailRules">
+        <UiFormItem
+          :label="t('approval-workflow.send_mail.approver_label')"
+          name="approver_user_id"
+          required
+        >
+          <InputSelect
+            v-model="sendMailForm.approver_user_id"
+            :options="userOptions"
+            :placeholder="t('approval-workflow.send_mail.approver_placeholder')"
+          />
+        </UiFormItem>
+        <UiFormItem
+          :label="t('approval-workflow.send_mail.description_label')"
+          name="description"
+        >
+          <Textarea
+            v-model="sendMailForm.description"
+            :placeholder="t('approval-workflow.send_mail.description_placeholder')"
+            :rows="4"
+            :maxLength="1000"
+          />
+          <p class="text-xs text-gray-500 mt-1">
+            {{ t('approval-workflow.send_mail.description_hint') }}
+          </p>
+        </UiFormItem>
+      </UiForm>
     </UiModal>
   </div>
 </template>
