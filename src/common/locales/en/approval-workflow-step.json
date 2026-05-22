@@ -2,7 +2,8 @@
   "notify": {
     "created": "Information created successfully.",
     "update": "Information updated successfully.",
-    "delete": "Information deleted successfully."
+    "delete": "Information deleted successfully.",
+    "reorder": "Information reordered successfully."
   },
   "alert": {
     "confirm": "Confirm Deletion",
