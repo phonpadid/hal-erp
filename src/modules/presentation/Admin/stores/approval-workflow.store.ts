@@ -8,6 +8,7 @@ import { ApprovalWorkflowEntity } from "@/modules/domain/entities/approval-workf
 import type {
   ApprovalStatusDto,
   CreateApprovalWorkflowDTO,
+  SendApprovalMailDto,
   UpdateApprovalWorkflowDTO,
 } from "@/modules/application/dtos/approval-workflow.dto";
 
@@ -135,6 +136,21 @@ export const approvalWorkflowStore = defineStore("approval-workflow", () => {
     }
   };
 
+  const sendApprovalMail = async (id: number, data: SendApprovalMailDto) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const res = await apvWorkflowService.sendApprovalMail(id, data);
+      return res;
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
   const remove = async (id: string) => {
     loading.value = true;
     error.value = null;
@@ -181,7 +197,8 @@ export const approvalWorkflowStore = defineStore("approval-workflow", () => {
     fetchById,
     update,
     remove,
-    approvalStatus
+    approvalStatus,
+    sendApprovalMail
   };
 }
 );

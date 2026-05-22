@@ -1,0 +1,22 @@
+{
+  "loading": {
+    "title": "Processing approval...",
+    "desc": "Please wait a moment"
+  },
+  "success": {
+    "title": "Approved successfully",
+    "desc": "You have approved",
+    "redirect": "Redirecting to the login page in {seconds} second(s)...",
+    "go_login": "Go to login page"
+  },
+  "error": {
+    "title": "Failed",
+    "invalid_link": "Invalid link. Please check the link in the email again.",
+    "expired": "The link has expired or is invalid. Please request a new link.",
+    "already_approved": "This item has already been approved.",
+    "forbidden": "You do not have permission to approve this item.",
+    "not_found": "Item not found.",
+    "bad_request": "Bad request.",
+    "unknown": "An error occurred. Please try again."
+  }
+}
