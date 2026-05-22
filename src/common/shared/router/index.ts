@@ -148,6 +148,16 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: false,
     },
   },
+  {
+    path: "/approve",
+    name: "approve_by_token",
+    component: () => import("@/modules/presentation/Admin/views/approval-workflows/ApproveByTokenPage.vue"),
+    meta: {
+      title: "Approve",
+      layout: "blank",
+      requiresAuth: false,
+    },
+  },
 ];
 
 const router = createRouter({

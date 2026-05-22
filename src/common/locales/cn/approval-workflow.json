@@ -52,5 +52,17 @@
     "title": "确认状态变更",
     "toApproved": "您确定要将此记录标记为已审批吗？",
     "toPending": "您确定要将此记录标记为待审批吗？"
+  },
+  "send_mail": {
+    "button": "发送审批邮件",
+    "title": "发送邮件给审批人",
+    "approver_label": "选择审批人",
+    "approver_placeholder": "请选择用户",
+    "approver_required": "请选择审批人",
+    "description_label": "文档说明",
+    "description_placeholder": "描述此文档的内容，让审批人了解上下文...",
+    "description_hint": "此说明将显示在发送给审批人的邮件中",
+    "success": "邮件发送成功",
+    "failed": "邮件发送失败"
   }
 }

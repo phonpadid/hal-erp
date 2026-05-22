@@ -52,5 +52,17 @@
     "title": "Confirm status change",
     "toApproved": "Are you sure you want to mark this record as approved?",
     "toPending": "Are you sure you want to mark this record as pending?"
+  },
+  "send_mail": {
+    "button": "Send approval email",
+    "title": "Send email to approver",
+    "approver_label": "Select approver",
+    "approver_placeholder": "Please select a user",
+    "approver_required": "Please select an approver",
+    "description_label": "Document description",
+    "description_placeholder": "Describe what this document is about so the approver understands the context...",
+    "description_hint": "This text will be shown in the email sent to the approver",
+    "success": "Email sent successfully",
+    "failed": "Failed to send email"
   }
 }
