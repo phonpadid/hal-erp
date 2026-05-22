@@ -22,6 +22,8 @@ interface Props {
   currentStep: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   stepsData: Record<number, any>;
+  isCreating?: boolean;
+  prCreated?: boolean;
 }
 
 const isFormValid = computed(() => {
@@ -117,7 +119,7 @@ const actionButtons = computed<ActionButton[]>(() => {
           label: t("purchase-rq.btn.cancel"),
           onClick: () => goBack(),
           show: true,
-          disabled: false,
+          disabled: props.isCreating || props.prCreated,
           class: "button-hover",
           type: undefined,
         },
@@ -125,7 +127,8 @@ const actionButtons = computed<ActionButton[]>(() => {
           label: t("purchase-rq.btn.confirm"),
           onClick: async () => await handleConfirm(props.stepsData),
           show: true,
-          disabled: false,
+          disabled: props.isCreating || props.prCreated,
+          loading: props.isCreating,
           class: "button-hover",
           type: "primary" as ButtonType,
         },

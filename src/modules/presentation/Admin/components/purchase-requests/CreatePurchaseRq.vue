@@ -77,6 +77,7 @@ const approvalStepStore = useApprovalStepStore();
 const { error } = useNotification();
 const confirmLoading = ref(false);
 const otpSending = ref(false);
+const isCreating = ref(false);
 const newlyCreatedDocumentId = ref<string | null>(null);
 const currentApprovalStepId = ref<number | null>(null);
 
@@ -160,6 +161,11 @@ const handleOtpConfirm = async (otpCode: string) => {
 
 const handleLayoutConfirm = async () => {
   if (currentStep.value === 1 && purchaseFormRef.value) {
+    // ✅ ປ້ອງກັນການກົດສ້າງຊ້ຳ: ຖ້າກຳລັງສ້າງຢູ່ ຫຼື ສ້າງສຳເລັດແລ້ວ ໃຫ້ຢຸດທັນທີ
+    if (isCreating.value || newlyCreatedDocumentId.value) {
+      return;
+    }
+    isCreating.value = true;
     try {
       const newDocumentData = await purchaseFormRef.value.handleSave();
 
@@ -221,6 +227,8 @@ const handleLayoutConfirm = async () => {
       }
     } catch (err) {
       error("ເກີດຂໍ້ຜິດພາດ", (err as Error).message);
+    } finally {
+      isCreating.value = false;
     }
   }
 };
@@ -245,6 +253,8 @@ const handleOtpClose = () => {
     <PuchaseRqLayout
       v-model:current-step="currentStep"
       :steps-data="stepsData"
+      :is-creating="isCreating"
+      :pr-created="!!newlyCreatedDocumentId"
       @confirm-step="handleLayoutConfirm"
     />
 
