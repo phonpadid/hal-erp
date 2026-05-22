@@ -272,7 +272,8 @@ const onCancel = () => {
                 :type="button.type"
                 :class="[button.class, { 'opacity-50 cursor-not-allowed': button.disabled }]"
                 @click="handleButtonClick(button)"
-                :disabled="button.disabled"
+                :disabled="button.disabled || button.loading"
+                :loading="button.loading"
               >
                 <template v-if="button.icon" #icon>
                   <Icon :icon="button.icon" />
@@ -285,7 +286,8 @@ const onCancel = () => {
               :type="button.type"
               :class="[button.class, { 'opacity-50 cursor-not-allowed': button.disabled }]"
               @click="handleButtonClick(button)"
-              :disabled="button.disabled"
+              :disabled="button.disabled || button.loading"
+              :loading="button.loading"
             >
               <template v-if="button.icon" #icon>
                 <Icon :icon="button.icon" />
