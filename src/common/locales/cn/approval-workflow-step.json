@@ -2,7 +2,9 @@
   "notify": {
     "created": "信息创建成功。",
     "update": "信息更新成功。",
-    "delete": "信息删除成功。"
+    "delete": "信息删除成功。",
+    "reorder": "信息重新排序成功。"
+
   },
   "alert": {
     "confirm": "确认删除",

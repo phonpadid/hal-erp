@@ -18,6 +18,7 @@ import { departmentStore } from "../../stores/departments/department.store";
 import { NumberOnly } from "@/modules/shared/utils/format-price";
 import { approvalWorkflowStepStore } from "../../stores/approval-workflow-step.store";
 import type { IApprovalWorkflowStepApiModel } from "@/modules/interfaces/approval-workflow-step.interface";
+import { ApprovalWorkflowStepEntity } from "@/modules/domain/entities/approval-workflows-step.entity";
 import { useUserStore } from "../../stores/user.store";
 import Radio from "@/common/shared/components/Input/Radio.vue";
 import InputNumber from "@/common/shared/components/Input/InputNumber.vue";
@@ -40,7 +41,7 @@ const isEdit = ref<boolean>(false);
 const deleteModalVisible = ref<boolean>(false);
 const loading = ref<boolean>(false);
 const selectedData = ref<IApprovalWorkflowStepApiModel | null>(null);
-const draggedItem = ref<IApprovalWorkflowStepApiModel | null>(null);
+const draggedItem = ref<ApprovalWorkflowStepEntity | null>(null);
 const dragOverIndex = ref<number | null>(null);
 
 // check button show permission
@@ -49,7 +50,7 @@ const canEditStep = hasPermission('update-approval-workflow-step') && !isSuperAd
 const canDeleteStep = hasPermission('delete-approval-workflow-step') && !isSuperAdmin.value && !isAdmin.value;
 
 // Drag and drop handlers
-const handleDragStart = (event: DragEvent, record: IApprovalWorkflowStepApiModel) => {
+const handleDragStart = (event: DragEvent, record: ApprovalWorkflowStepEntity) => {
   // Check permission before allowing drag
   if (!canEditStep) {
     event.preventDefault();
@@ -59,7 +60,7 @@ const handleDragStart = (event: DragEvent, record: IApprovalWorkflowStepApiModel
   draggedItem.value = record;
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/html', String(record.id) || '');
+    event.dataTransfer.setData('text/html', record.getId() ?? '');
   }
 };
 
@@ -92,8 +93,9 @@ const handleDrop = async (event: DragEvent, dropIndex: number) => {
 
   if (!draggedItem.value) return;
 
+  const draggedId = draggedItem.value.getId();
   const allSteps = [...apvWorkflowStepStore.approval_workflow_steps];
-  const draggedIndex = allSteps.findIndex(step => step.getId() === String(draggedItem.value?.id));
+  const draggedIndex = allSteps.findIndex(step => step.getId() === draggedId);
 
   if (draggedIndex === dropIndex || draggedIndex === -1) return;
 
@@ -413,7 +415,7 @@ const saveOrder = async (ids: number[]) => {
       row-key="getId"
       :loading="store.loading"
       @change="handleTableChange"
-      :custom-row="canEditStep ? (record: any, index: number) => ({
+      :custom-row="canEditStep ? (record: any, index?: number) => ({
         draggable: true,
         onDragstart: (e: DragEvent) => handleDragStart(e, record),
         onDragover: (e: DragEvent) => handleDragOver(e, index!),
@@ -426,7 +428,7 @@ const saveOrder = async (ids: number[]) => {
       }) : undefined"
     >
       <template #drag="{ record }" v-if="canEditStep">
-        <div class="drag-handle" :class="{ 'dragging': draggedItem?.id === record.getId() }">
+        <div class="drag-handle" :class="{ 'dragging': draggedItem?.getId() === record.getId() }">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="cursor-move">
             <path d="M7 19a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM7 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM7 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM17 19a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM17 13a2 2 0 1 1 0-4 2 2 0 0 1 0 6zM17 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
           </svg>
