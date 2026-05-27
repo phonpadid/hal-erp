@@ -1,5 +1,6 @@
 import type {
   UserChangePasswordPayload,
+  UserChangeMyPasswordPayload,
   UserCreatePayload,
   UserUpdatePayload,
 } from "./../../../interfaces/user.interface";
@@ -97,7 +98,12 @@ export const useUserStore = defineStore("user", () => {
       loading.value = false;
     }
   };
-  const resetPassword = async (id: string, old_password: string, new_password: string) => {
+  const resetPassword = async (
+    id: string,
+    old_password: string,
+    new_password: string,
+    confirm_password?: string
+  ) => {
     loading.value = true;
     error.value = null;
 
@@ -105,6 +111,7 @@ export const useUserStore = defineStore("user", () => {
       const changePasswordDTO: UserChangePasswordPayload = {
         old_password: old_password,
         new_password: new_password,
+        confirm_password: confirm_password ?? new_password,
       };
 
       const updatedUser = await userService.changePasswordUser(id, changePasswordDTO);
@@ -120,6 +127,21 @@ export const useUserStore = defineStore("user", () => {
       }
 
       return userEntityToInterface(updatedUser);
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // Change Current User's Own Password (uses JWT, no id)
+  const changeMyPassword = async (payload: UserChangeMyPasswordPayload) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      await userService.changeMyPassword(payload);
     } catch (err) {
       error.value = err as Error;
       throw err;
@@ -252,6 +274,7 @@ export const useUserStore = defineStore("user", () => {
     updateUser,
     deleteUser,
     resetPassword,
+    changeMyPassword,
 
     resetState,
   };

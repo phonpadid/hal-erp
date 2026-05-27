@@ -2,6 +2,7 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 import type {
   ApprovalStatusDto,
   CreateApprovalWorkflowDTO,
+  SendApprovalMailDto,
   UpdateApprovalWorkflowDTO,
 } from "../../dtos/approval-workflow.dto";
 import type { ApprovalWorkflowEntity } from "@/modules/domain/entities/approval-workflows.entity";
@@ -15,5 +16,6 @@ export interface ApprovalWorkflowService {
   ): Promise<PaginatedResult<ApprovalWorkflowEntity>>;
   update(id: string, input: UpdateApprovalWorkflowDTO): Promise<ApprovalWorkflowEntity>;
   approvalStatus(id: number, input: ApprovalStatusDto): Promise<ApprovalStatusDto>;
+  sendApprovalMail(id: number, input: SendApprovalMailDto): Promise<ApprovalWorkflowEntity>;
   delete(id: string): Promise<boolean>;
 }

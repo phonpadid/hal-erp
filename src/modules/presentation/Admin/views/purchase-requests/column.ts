@@ -33,6 +33,16 @@ export function columns(t: (key: string) => string): Column[] {
       key: "document_type",
     },
     {
+      title: t("purchase-rq.field.amount"),
+      dataIndex: "total",
+      key: "total",
+    },
+    {
+      title: "ຜູ້ອະນຸມັດປະຈຸບັນ",
+      dataIndex: "current_approver",
+      key: "current_approver",
+    },
+    {
       title: t("purchase-rq.field.status"),
       dataIndex: "status",
       key: "status",

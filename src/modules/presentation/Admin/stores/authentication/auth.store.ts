@@ -5,7 +5,11 @@ import type { Ref } from "vue";
 import { AuthServiceImpl } from "@/modules/application/services/auth/auth.service";
 import { ApiAuthRepository } from "@/modules/infrastructure/auth/api-auth.repository";
 import { AuthEntity } from "@/modules/domain/entities/auth/auth.entity";
-import type { LoginDTO } from "@/modules/application/dtos/auth/auth.dto";
+import type {
+  LoginDTO,
+  ForgotPasswordDTO,
+  ResetPasswordDTO,
+} from "@/modules/application/dtos/auth/auth.dto";
 import { useRouter } from "vue-router";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 
@@ -78,6 +82,34 @@ export const useAuthStore = defineStore("auth", () => {
     } catch (err) {
       error.value = err as Error;
       // showError("ຜິດພາດ", (err as Error).message);
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const forgotPassword = async (payload: ForgotPasswordDTO) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      return await authService.forgotPassword(payload);
+    } catch (err) {
+      error.value = err as Error;
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const resetPassword = async (payload: ResetPasswordDTO) => {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      return await authService.resetPassword(payload);
+    } catch (err) {
+      error.value = err as Error;
       throw err;
     } finally {
       loading.value = false;
@@ -195,6 +227,8 @@ export const useAuthStore = defineStore("auth", () => {
     error,
     login,
     logout,
+    forgotPassword,
+    resetPassword,
     checkSession,
     isSuperAdmin,
     isAdmin,

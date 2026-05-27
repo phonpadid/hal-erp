@@ -8,7 +8,7 @@ import { ApprovalWorkflowEntity } from "../domain/entities/approval-workflows.en
 import type { ApprovalWorkflowApiModel } from "../interfaces/approval-workflow.interface";
 import type { DoucmentTypeInterface } from "../interfaces/documenet-type.interface";
 import { DocumentTypeEntity } from "../domain/entities/document-type.entities";
-import type { ApprovalStatusDto } from "../application/dtos/approval-workflow.dto";
+import type { ApprovalStatusDto, SendApprovalMailDto } from "../application/dtos/approval-workflow.dto";
 
 export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository {
   async create(input: ApprovalWorkflowEntity): Promise<ApprovalWorkflowEntity> {
@@ -97,6 +97,24 @@ export class ApiApprovalWorkflowRepository implements ApprovalWorkflowRepository
         throw error
       }
     }
+
+  async sendApprovalMail(id: number, input: SendApprovalMailDto): Promise<ApprovalWorkflowEntity> {
+    try {
+      const payload: Record<string, unknown> = {
+        approver_user_id: input.approver_user_id,
+      };
+      if (input.description && input.description.trim() !== "") {
+        payload.description = input.description.trim();
+      }
+      const response = (await api.post(
+        `/approval-workflows/${id}/send-approval-mail`,
+        payload
+      )) as { data: ApiResponse<ApprovalWorkflowApiModel> };
+      return this.toDomainModel(response.data.data);
+    } catch (error) {
+      return this.handleApiError(error, "Failed to send approval mail");
+    }
+  }
 
   private toApiModel(input: ApprovalWorkflowEntity): ApprovalWorkflowApiModel {
     return {

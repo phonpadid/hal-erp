@@ -1,0 +1,22 @@
+{
+  "loading": {
+    "title": "正在处理审批...",
+    "desc": "请稍候"
+  },
+  "success": {
+    "title": "审批成功",
+    "desc": "您已审批",
+    "redirect": "{seconds} 秒后将跳转到登录页面...",
+    "go_login": "前往登录页面"
+  },
+  "error": {
+    "title": "失败",
+    "invalid_link": "链接无效，请重新检查邮件中的链接。",
+    "expired": "链接已过期或无效，请重新申请链接。",
+    "already_approved": "此项目已被审批。",
+    "forbidden": "您无权审批此项目。",
+    "not_found": "未找到该项目。",
+    "bad_request": "请求无效。",
+    "unknown": "发生错误，请重试。"
+  }
+}

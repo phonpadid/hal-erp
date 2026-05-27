@@ -3,6 +3,7 @@ import type {
   UserCreatePayload,
   UserUpdatePayload,
   UserChangePasswordPayload,
+  UserChangeMyPasswordPayload,
 } from "./../interfaces/user.interface";
 import { UserEntity } from "@/modules/domain/entities/user.entities";
 import type { UserRepository } from "@/modules/domain/repository/user.repository";
@@ -124,18 +125,14 @@ export class ApiUserRepository implements UserRepository {
   async changePassword(
     id: string,
     changePasswordDTO: UserChangePasswordPayload
-  ): Promise<UserEntity | null> {
+  ): Promise<void> {
     try {
-      const response = await api.put(`${this.baseUrl}/change-password/${id}`, {
+      await api.put(`${this.baseUrl}/change-password/${id}`, {
         old_password: changePasswordDTO.old_password,
         new_password: changePasswordDTO.new_password,
+        confirm_password:
+          changePasswordDTO.confirm_password ?? changePasswordDTO.new_password,
       });
-
-      if (!response.data || !response.data.data) {
-        throw new Error("Invalid response format from server");
-      }
-
-      return this.toDomainModel(response.data.data);
     } catch (error) {
       const axiosError = error as AxiosError<{ message?: string }>;
 
@@ -158,6 +155,34 @@ export class ApiUserRepository implements UserRepository {
       }
 
       this.handleApiError(error, `Failed to change password for user with id ${id}`);
+    }
+  }
+
+  async changeMyPassword(passwordData: UserChangeMyPasswordPayload): Promise<void> {
+    try {
+      await api.put(`${this.baseUrl}/change-password`, {
+        old_password: passwordData.old_password,
+        new_password: passwordData.new_password,
+        confirm_password: passwordData.confirm_password,
+      });
+    } catch (error) {
+      const axiosError = error as AxiosError<{ message?: string; errorKey?: string }>;
+
+      if (axiosError.response) {
+        const data = axiosError.response.data;
+        const errorKey = data?.errorKey;
+        const message = data?.message;
+
+        if (errorKey) {
+          const err = new Error(message || errorKey) as Error & { errorKey?: string };
+          err.errorKey = errorKey;
+          throw err;
+        }
+
+        throw new Error(message || "Failed to change password");
+      }
+
+      this.handleApiError(error, "Failed to change password");
     }
   }
 

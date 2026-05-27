@@ -8,5 +8,12 @@ export const authRoutes: RouteRecordRaw[] = [
     component: () => import("@/modules/presentation/Admin/views/authentication/Login.vue"),
     meta: { requiresAuth: false },
   },
+  {
+    path: "/reset-password",
+    name: "reset-password",
+    component: () =>
+      import("@/modules/presentation/Admin/views/authentication/ResetPassword.vue"),
+    meta: { requiresAuth: false, layout: "blank", title: "Reset password" },
+  },
 ];
 
