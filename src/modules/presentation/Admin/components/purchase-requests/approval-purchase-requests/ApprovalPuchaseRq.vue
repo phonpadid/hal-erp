@@ -20,6 +20,8 @@ import { useGlobalSearchStore } from "../../../stores/global-search.store";
 import { storeToRefs } from "pinia";
 import { useApprovalStepStore } from "../../../stores/approval-step.store";
 import type { SubmitApprovalStepInterface } from "@/modules/interfaces/approval-step.interface";
+import { formatPrice } from "@/modules/shared/utils/format-price";
+import { Icon } from "@iconify/vue";
 
 /**********************************************************/
 const { t } = useI18n();
@@ -607,6 +609,21 @@ onMounted(async () => {
         </template>
         <template #document_type="{ record }">
           <span class="text-gray-600">{{ record.getDocumentType()?.name }}</span>
+        </template>
+        <template #total="{ record }">
+          <span class="text-red-600">{{ formatPrice(record.getTotal()) }} ₭</span>
+        </template>
+        <template #current_approver="{ record }">
+          <UiTag
+            v-if="record.getUserLastApproval()"
+            :text="record.getUserLastApproval()"
+            color="blue"
+          />
+          <span v-else class="text-blue-400">
+            <div class="flex items-center">
+              <Icon icon="solar:clipboard-check-bold" />ສຳເລັດ
+            </div>
+          </span>
         </template>
         <template #po_status="{ record }">
           <UiTag

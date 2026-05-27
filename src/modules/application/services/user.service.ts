@@ -2,6 +2,7 @@ import type {
   UserCreatePayload,
   UserUpdatePayload,
   UserChangePasswordPayload,
+  UserChangeMyPasswordPayload,
 } from "./../../interfaces/user.interface";
 import type { UserRepository } from "@/modules/domain/repository/user.repository";
 import type { UserEntity } from "@/modules/domain/entities/user.entities";
@@ -17,6 +18,7 @@ export interface UserServices {
   createUser(userData: UserCreatePayload): Promise<UserEntity>;
   updateUser(id: string, userData: UserUpdatePayload): Promise<UserEntity>;
   changePasswordUser(id: string, userData: UserChangePasswordPayload): Promise<UserEntity>;
+  changeMyPassword(userData: UserChangeMyPasswordPayload): Promise<void>;
   deleteUser(id: string): Promise<boolean>;
 }
 
@@ -33,11 +35,12 @@ export class UserServiceImpl implements UserServices {
     if (user.isDeleted()) {
       throw new Error(`Cannot change password for deleted user with id ${id}`);
     }
-    const updatedUser = await this.userRepository.changePassword(id, userData);
-    if (!updatedUser) {
-      throw new Error(`Failed to change password for user with id ${id}`);
-    }
-    return updatedUser;
+    await this.userRepository.changePassword(id, userData);
+    return user;
+  }
+
+  async changeMyPassword(userData: UserChangeMyPasswordPayload): Promise<void> {
+    await this.userRepository.changeMyPassword(userData);
   }
 
   async getAllUsers(

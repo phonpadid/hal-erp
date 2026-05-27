@@ -4,6 +4,16 @@ export interface LoginDTO {
   password: string;
 }
 
+export interface ForgotPasswordDTO {
+  email: string;
+}
+
+export interface ResetPasswordDTO {
+  token: string;
+  new_password: string;
+  confirm_password: string;
+}
+
 export interface UserDTO {
   id: number;
   username: string;

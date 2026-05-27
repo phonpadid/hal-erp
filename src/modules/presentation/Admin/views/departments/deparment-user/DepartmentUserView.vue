@@ -150,7 +150,11 @@ const hideChangePasswordModal = () => {
   selectedUser.value = null;
 };
 
-const handleResetPassword = async (data: { old_password: string; new_password: string }) => {
+const handleResetPassword = async (data: {
+  old_password: string;
+  new_password: string;
+  confirm_password: string;
+}) => {
   if (!selectedUser.value?.user?.id) {
     warning("ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນຜູ້ໃຊ້");
     return;
@@ -162,7 +166,8 @@ const handleResetPassword = async (data: { old_password: string; new_password: s
     await userStore.resetPassword(
       selectedUser.value.user.id.toString(),
       data.old_password,
-      data.new_password
+      data.new_password,
+      data.confirm_password
     );
 
     success("ສຳເລັດ", "ປ່ຽນລະຫັດຜ່ານສຳເລັດ");

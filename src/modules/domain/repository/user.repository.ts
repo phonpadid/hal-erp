@@ -2,6 +2,7 @@ import type {
   UserCreatePayload,
   UserUpdatePayload,
   UserChangePasswordPayload,
+  UserChangeMyPasswordPayload,
 } from "./../../interfaces/user.interface";
 import type { UserEntity } from "../entities/user.entities";
 import type { PaginationParams, PaginatedResult } from "@/modules/shared/pagination";
@@ -9,7 +10,8 @@ import type { PaginationParams, PaginatedResult } from "@/modules/shared/paginat
 export interface UserRepository {
   findAll(params: PaginationParams, includeDeleted?: boolean): Promise<PaginatedResult<UserEntity>>;
   findById(id: string): Promise<UserEntity | null>;
-  changePassword(id: string, passwordData: UserChangePasswordPayload): Promise<UserEntity | null>;
+  changePassword(id: string, passwordData: UserChangePasswordPayload): Promise<void>;
+  changeMyPassword(passwordData: UserChangeMyPasswordPayload): Promise<void>;
   findByUsername(username: string): Promise<UserEntity | null>;
   findByEmail(email: string): Promise<UserEntity | null>;
   create(userData: UserCreatePayload): Promise<UserEntity>;

@@ -16,11 +16,8 @@ export class ChangePasswordUserUseCase {
     if (user.isDeleted()) {
       throw new Error(`Cannot changepassword deleted user with id ${id}`);
     }
-    // Update user
-    const updatedUser = await this.userRepository.changePassword(id, userData);
-    if (!updatedUser) {
-      throw new Error(`Failed to change password for user with id ${id}`);
-    }
-    return updatedUser;
+    // Update password (API returns only a success message, no user payload)
+    await this.userRepository.changePassword(id, userData);
+    return user;
   }
 }

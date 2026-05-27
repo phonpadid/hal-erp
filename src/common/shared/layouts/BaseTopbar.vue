@@ -6,6 +6,7 @@ import { DownOutlined } from "@ant-design/icons-vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Tooltip } from "ant-design-vue";
 import UiModal from "../components/Modal/UiModal.vue";
+import ChangeMyPasswordModal from "../components/Modal/ChangeMyPasswordModal.vue";
 import InputSearch from "../components/Input/InputSearch.vue";
 import { useGlobalSearchStore } from "@/modules/presentation/Admin/stores/global-search.store";
 import { storeToRefs } from "pinia";
@@ -42,6 +43,11 @@ const lang = computed(() => [
 const showLogoutModal = ref(false);
 const confirmLoading = ref(false);
 const showMobileSearch = ref(false);
+const showChangePasswordModal = ref(false);
+
+function openChangePassword() {
+  showChangePasswordModal.value = true;
+}
 
 function handleLogout() {
   showLogoutModal.value = true;
@@ -160,17 +166,33 @@ watch(locale, updateCurrentLang);
           height="22"
         />
       </div>
-      <Tooltip :title="email" color="red" key="color">
-        <div class="profile hidden sm:flex gap-1 items-center max-w-[160px]">
-          <img
-            src="/public/Profile-PNG-File.png"
-            width="32"
-            height="32"
-            alt=""
-          />
-          <span class="text-[14px] truncate hidden md:inline">{{ username }}</span>
-        </div>
-      </Tooltip>
+      <a-dropdown :trigger="['click']">
+        <Tooltip color="red" key="color" placement="bottom">
+          <!-- :title="email"  -->
+          <div
+            class="profile flex gap-1 items-center max-w-[160px] cursor-pointer px-1 rounded-full hover:bg-slate-100"
+          >
+            <img
+              src="/public/Profile-PNG-File.png"
+              width="32"
+              height="32"
+              alt=""
+            />
+            <span class="text-[14px] truncate hidden md:inline">{{ username }}</span>
+          </div>
+        </Tooltip>
+
+        <template #overlay>
+          <a-menu>
+            <a-menu-item key="change-password" @click="openChangePassword">
+              <div class="flex items-center gap-2">
+                <Icon icon="mdi:lock-reset" width="18" height="18" />
+                <span>{{ t("menu-sidebar.change_password.tooltip") }}</span>
+              </div>
+            </a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
 
       <div
         class="profile flex items-center cursor-pointer p-1"
@@ -190,6 +212,11 @@ watch(locale, updateCurrentLang);
       >
         {{ t("menu-sidebar.logout.description") }}
       </UiModal>
+
+      <ChangeMyPasswordModal
+        :visible="showChangePasswordModal"
+        @update:visible="showChangePasswordModal = $event"
+      />
     </div>
   </header>
 

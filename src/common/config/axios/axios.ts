@@ -61,6 +61,15 @@ authAxios.interceptors.response.use(
         return Promise.reject(error);
       }
 
+      // Public password-recovery endpoints: let the page handle its own errors
+      // (e.g. 401 invalid/expired token on reset-password must not auto-logout)
+      if (
+        config.url.includes("/users/forgot-password") ||
+        config.url.includes("/users/reset-password")
+      ) {
+        return Promise.reject(error);
+      }
+
       switch (status) {
         // case 400:
         //   Modal.warning({
