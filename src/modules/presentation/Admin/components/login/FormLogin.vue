@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/modules/presentation/Admin/stores/authentication/auth.store";
 import Button from "@/common/shared/components/button/UiButton.vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiForm from "@/common/shared/components/Form/UiForm.vue";
 import UiInputPassword from "@/common/shared/components/Input/UiInputPassword.vue";
+import ForgotPasswordModal from "./ForgotPasswordModal.vue";
 
+const { t } = useI18n();
 const formRef = ref<InstanceType<typeof UiForm>>();
 const authStore = useAuthStore();
 const isLoading = ref(false);
+const showForgotPasswordModal = ref(false);
 
 const formState = reactive({
   username: "",
@@ -76,6 +80,16 @@ const submitHandler = async () => {
                 :disabled="isLoading"
               />
             </UiFormItem>
+            <div class="flex justify-end -mt-3 mb-2">
+              <button
+                type="button"
+                class="text-[13px] text-red-600 hover:text-red-800 hover:underline focus:outline-none"
+                :disabled="isLoading"
+                @click="showForgotPasswordModal = true"
+              >
+                {{ t("menu-sidebar.forgot_password.link") }}
+              </button>
+            </div>
             <UiFormItem>
               <Button
                 type="primary"
@@ -92,6 +106,11 @@ const submitHandler = async () => {
         </div>
       </div>
     </div>
+
+    <ForgotPasswordModal
+      :visible="showForgotPasswordModal"
+      @update:visible="showForgotPasswordModal = $event"
+    />
   </section>
 </template>
 

@@ -1,6 +1,10 @@
 // src/modules/application/services/auth/auth.service.ts
 import type { AuthRepository } from "@/modules/domain/repository/auth/auth.repository";
-import type { LoginDTO } from "@/modules/application/dtos/auth/auth.dto";
+import type {
+  LoginDTO,
+  ForgotPasswordDTO,
+  ResetPasswordDTO,
+} from "@/modules/application/dtos/auth/auth.dto";
 import type { AuthEntity } from "@/modules/domain/entities/auth/auth.entity";
 
 export class AuthServiceImpl {
@@ -11,5 +15,11 @@ export class AuthServiceImpl {
   }
   async logout(): Promise<void> {
     return this.authRepository.logout();
+  }
+  async forgotPassword(payload: ForgotPasswordDTO): Promise<{ message: string }> {
+    return this.authRepository.forgotPassword(payload);
+  }
+  async resetPassword(payload: ResetPasswordDTO): Promise<{ message: string }> {
+    return this.authRepository.resetPassword(payload);
   }
 }

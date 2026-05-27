@@ -57,6 +57,13 @@ export interface UserUpdatePayload {
 export interface UserChangePasswordPayload {
   old_password?: string;
   new_password: string;
+  confirm_password?: string;
+}
+
+export interface UserChangeMyPasswordPayload {
+  old_password: string;
+  new_password: string;
+  confirm_password: string;
 }
 export interface Role {
   id: number;

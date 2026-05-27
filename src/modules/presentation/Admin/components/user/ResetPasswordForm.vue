@@ -13,7 +13,10 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "submit", data: { old_password: string; new_password: string }): void;
+  (
+    e: "submit",
+    data: { old_password: string; new_password: string; confirm_password: string }
+  ): void;
 }>();
 
 const formRef = ref();
@@ -50,6 +53,7 @@ const submitForm = async () => {
     emit("submit", {
       old_password: formState.old_password,
       new_password: formState.new_password,
+      confirm_password: formState.confirm_password,
     });
   } catch (error) {
     console.error("Form validation failed:", error);
@@ -64,13 +68,13 @@ defineExpose({
 
 <template>
   <UiForm ref="formRef" :model="formState" :rules="rules">
-    <UiFormItem :label="t('user.form.currentPassword')" name="old_password" required>
+    <!-- <UiFormItem :label="t('user.form.currentPassword')" name="old_password" required>
       <UiInputPassword
         v-model="formState.old_password"
         :placeholder="t('user.form.currentPasswordPlaceholder')"
         :disabled="loading"
       />
-    </UiFormItem>
+    </UiFormItem> -->
 
     <UiFormItem :label="t('user.form.newPassword')" name="new_password" required>
       <UiInputPassword

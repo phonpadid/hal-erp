@@ -162,7 +162,11 @@ const handleFormSubmit = async (formData: UserCreatePayload) => {
   }
 };
 
-const handleResetPassword = async (data: { old_password: string; new_password: string }) => {
+const handleResetPassword = async (data: {
+  old_password: string;
+  new_password: string;
+  confirm_password: string;
+}) => {
   if (!selectedUser.value) return;
 
   try {
@@ -171,7 +175,8 @@ const handleResetPassword = async (data: { old_password: string; new_password: s
     await userStore.resetPassword(
       selectedUser.value.id.toString(),
       data.old_password,
-      data.new_password
+      data.new_password,
+      data.confirm_password
     );
     success(t("user.success.title"), t("user.success.passwordReset"));
     resetPasswordModalVisible.value = false;
