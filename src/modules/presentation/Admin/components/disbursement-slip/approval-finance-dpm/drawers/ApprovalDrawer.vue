@@ -92,6 +92,36 @@ onMounted( async () => {
               <template v-if="column.key === 'id'">
                 <span>{{ index + 1}}</span>
               </template>
+                <template v-if="column.key === 'image'">
+              <span>
+                <!-- Check if it's a PDF file by checking if URL contains po_file_name path -->
+                <a
+                  v-if="record.getQuotationImageUrl() && record.getQuotationImageUrl().includes('po_file_name/')"
+                  :href="record.getQuotationImageUrl()"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-2 px-3 py-2 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200"
+                >
+                  <Icon icon="material-symbols:lab-profile-outline-rounded" class="text-red-600 text-2xl" />
+                  <span class="text-xs text-red-700 font-medium">ເບິງຂໍ້ມູນໃບສະເໜີ</span>
+                </a>
+                <!-- Display image for non-PDF files -->
+                <a-image
+                  v-else-if="record.getQuotationImageUrl()"
+                  :src="record.getQuotationImageUrl()"
+                  alt="Product Image"
+                  :width="50"
+                  :height="50"
+                  :preview="true"
+                />
+                <img
+                  v-else
+                  src="/public/5.png"
+                  alt="Default Image"
+                  class="w-12 h-12 object-cover"
+                />
+              </span>
+            </template>
               <template v-if="column.key === 'unit'">
                 <span>{{ record.purchase_request_item.unit.name }}</span>
               </template>

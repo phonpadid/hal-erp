@@ -34,6 +34,11 @@ export function columnTitle(t: (key: string) => string): Column[] {
       key: "id",
     },
     {
+      title: "ໃບສະເໜີລາຄາ",
+      dataIndex: "image",
+      key: "image",
+    },
+     {
       title: "ເນື້ອໃນລາຍການ",
       dataIndex: "title",
       key: "title",
