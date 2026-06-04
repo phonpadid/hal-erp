@@ -17,7 +17,8 @@
     "sub_total": "Sub Total"
   },
   "error":{
-    "document_type_required":"document type not required"
-   
+    "document_type_required":"document type not required",
+    "remark_required":"remark not required"
+
   }
 }
