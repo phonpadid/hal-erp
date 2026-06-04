@@ -523,16 +523,24 @@ defineExpose({
       <!-- Main Form -->
 
       <!-- Purpose section -->
-      <div class="mb-4">
-        <h3 class="text-lg font-medium mb-4">
-          {{ t("purchase-rq.field.proposals", "ວັດຖຸປະສົງ") }}
-        </h3>
-        <Textarea
+       <UiFormItem
+          :label="t('purchase-rq.field.proposals', 'ວັດຖຸປະສົງ')"
+          name="purpose"
+          required
+          class="w-full"
+        >
+          <Textarea
           v-model="formState.purpose"
           :placeholder="t('purchase-rq.phd.purpose', 'ລະບຸວັດຖຸປະສົງໃນການຂໍຊື້')"
           class="w-full min-h-[100px]"
         />
-      </div>
+        </UiFormItem>
+      <!-- <div class="mb-4">
+        <h3 class="text-lg font-medium mb-4">
+          {{ t("purchase-rq.field.proposals", "ວັດຖຸປະສົງ") }}
+        </h3>
+        
+      </div> -->
 
       <!-- Vendor & Quota section -->
       <div class="mb-6">
@@ -736,7 +744,7 @@ defineExpose({
             <!-- Image upload section (moved below quota) -->
             <div class="mt-4">
               <p class="text-sm font-medium mb-3 text-gray-700">
-                {{ t("purchase-rq.field.img_example", "ຮູບตົວຢ່າງ") }}
+               <span class="text-red-500">*</span> {{ t("purchase-rq.field.img_example", "ຮູບตົວຢ່າງ") }}
               </p>
               <div class="aspect-video relative rounded-lg overflow-hidden group">
                 <template v-if="item.images.length > 0">
@@ -840,6 +848,7 @@ defineExpose({
 
             <UiFormItem
               class="col-span-2"
+              required
               :label="t('purchase-rq.field.remark', 'ໝາຍເຫດ')"
               :name="['addMore', index.toString(), 'remark']"
             >
@@ -869,3 +878,4 @@ defineExpose({
     @upload="handleImageUpload"
   />
 </template>
+

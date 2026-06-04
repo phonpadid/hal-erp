@@ -87,9 +87,25 @@ export const CreatePRValidate = (t: (key: string) => string) => {
             trigger: "blur",
           },
         ],
+        unit_id: [
+          {
+            required: true,
+            message: t("purchase-rq.error.unit_id_required"),
+            trigger: "blur",
+          },
+        ],
+        remark: [
+          {
+            required: true,
+            message: t("purchase-rq.error.remark_required"),
+            trigger: "blur",
+          },
+        ],
+
       };
     });
   }
 
   return rules;
 };
+

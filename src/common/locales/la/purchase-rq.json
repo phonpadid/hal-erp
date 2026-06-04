@@ -101,7 +101,7 @@
     "images_required": "ຮູບພາບບໍ່ຄວນຫວ່າງ",
     "deleteFailed": "ການລົບລົ້ມເຫຼວ",
     "cannotDeleteApproved": "ບໍ່ສາມາດລົບໃບສະເໜີທີ່ອະນຸມັດ ຫຼື ປະຕິເສດແລ້ວ",
-    "unit_id_required": "ຫົວໜ່ວຍຕ້ອງຖືກລົງລະບຽບ",
+    "unit_id_required": "ກະລຸນາເລືອກຫົວໜ່ວຍ",
      "remark_required":"ໝາຍເຫດບໍ່ຄວນຫວ່າງ"
      
   },

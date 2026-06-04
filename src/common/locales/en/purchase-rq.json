@@ -98,7 +98,9 @@
     "max_title": "Title must be at most 255 characters",
      "images_required":"images not required",
     "deleteFailed": "Delete failed",
-    "cannotDeleteApproved": "Cannot delete approved or rejected proposals"
+    "cannotDeleteApproved": "Cannot delete approved or rejected proposals",
+    "unit_id_required": "Unit is required"
+    
   },
   "success": {
     "title": "Success",

@@ -17,7 +17,7 @@
     "sub_total": "ລາຄາລວມ"
   },
   "error":{
-    "document_type_required":"ປະເພດເອກະສານບໍ່ຄວນວ່າງ",
+    "document_type_required":"ກະລຸນາປ້ອນຈຸດປະສົ່ງໃບສະເໜີ",
     "images_required":"ຮູບພາບບໍ່ຄວນຫວ່າງ"
   }
 }
