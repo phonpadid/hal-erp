@@ -103,6 +103,7 @@
     "cannotDeleteApproved": "ບໍ່ສາມາດລົບໃບສະເໜີທີ່ອະນຸມັດ ຫຼື ປະຕິເສດແລ້ວ",
     "unit_id_required": "ຫົວໜ່ວຍຕ້ອງຖືກລົງລະບຽບ",
      "remark_required":"ໝາຍເຫດບໍ່ຄວນຫວ່າງ"
+     
   },
   "success": {
     "title": "ສຳເລັດ",
