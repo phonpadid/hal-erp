@@ -15,7 +15,7 @@ import UiTag from "@/common/shared/components/tag/UiTag.vue";
 import UiAvatar from "@/common/shared/components/UiAvatar/UiAvatar.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
-import DatePicker from "@/common/shared/components/Datepicker/DatePicker.vue";
+import { DatePicker } from "ant-design-vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import QuickApprovalPreviewModal from "@/common/shared/components/Modal/QuickApprovalPreviewModal.vue";
 import { Icon } from "@iconify/vue";
@@ -58,6 +58,8 @@ const selectedStatusUserId = ref<string>(
   typeof route.query.status_user_id === "string" ? route.query.status_user_id : ""
 );
 const loading = ref(false);
+const exportStartDate = ref<string | undefined>(undefined);
+const exportEndDate = ref<string | undefined>(undefined);
 
 const dates = reactive<{ startDate: string | null; endDate: string | null }>({
   startDate: typeof route.query.order_date === "string" ? route.query.order_date : null,
@@ -93,8 +95,8 @@ const exportLoading = ref(false);
 const handleExportExcel = async () => {
   try {
     exportLoading.value = true;
-    const startDate = toIsoDate(dates.startDate);
-    const endDate = toIsoDate(dates.endDate);
+    const startDate = exportStartDate.value || undefined;
+    const endDate = exportEndDate.value || undefined;
     const ok = await purchaseOrderStore.exportExcel(startDate, endDate);
     if (ok) {
       success(t("purchase-rq.success.title"), t("purchase-rq.export.success"));
@@ -573,13 +575,28 @@ onMounted(async () => {
       </div>
 
       <!-- Shared Date Range Picker (ใช้ร่วมกันระหว่างการกรองและ Export Excel) -->
-      <div class="flex-grow">
-        <DatePicker
-          v-model:modelValueStart="dates.startDate"
-          v-model:modelValueEnd="dates.endDate"
-          :cols="12"
-        />
-      </div>
+     <div class="w-full md:w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t("purchase-rq.export.start_date") }}
+          </label>
+          <DatePicker
+            v-model:value="exportStartDate"
+            :placeholder="t('purchase-rq.export.start_date')"
+            value-format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </div>
+        <div class="w-full md:w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ t("purchase-rq.export.end_date") }}
+          </label>
+          <DatePicker
+            v-model:value="exportEndDate"
+            :placeholder="t('purchase-rq.export.end_date')"
+            value-format="YYYY-MM-DD"
+            class="w-full"
+          />
+        </div>
 
       <!-- Search Button -->
       <UiButton
