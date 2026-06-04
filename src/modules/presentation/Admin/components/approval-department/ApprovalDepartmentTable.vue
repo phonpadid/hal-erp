@@ -573,9 +573,21 @@ onMounted(async () => {
           @change="handleStatusUserChange"
         />
       </div>
+      <!-- Search Button -->
+      <UiButton
+        type="primary"
+        icon="ant-design:search-outlined"
+        @click="handleSearch"
+        color-class="flex items-center "
+      >
+        ຄົ້ນຫາ
+      </UiButton>
 
-      <!-- Shared Date Range Picker (ใช้ร่วมกันระหว่างการกรองและ Export Excel) -->
-     <div class="w-full md:w-48">
+     
+    </div>
+     <!-- Export Excel section -->
+      <div class="mt-4 flex flex-col md:flex-row gap-4 items-end">
+        <div class="w-full md:w-48">
           <label class="block text-sm font-medium text-gray-700 mb-1">
             {{ t("purchase-rq.export.start_date") }}
           </label>
@@ -597,28 +609,17 @@ onMounted(async () => {
             class="w-full"
           />
         </div>
-
-      <!-- Search Button -->
-      <UiButton
-        type="primary"
-        icon="ant-design:search-outlined"
-        @click="handleSearch"
-        color-class="flex items-center "
-      >
-        ຄົ້ນຫາ
-      </UiButton>
-
-      <!-- Export Excel Button (ใช้ช่วงวันที่จากตัวกรองด้านบน) -->
-      <UiButton
-        type="primary"
-        icon="ant-design:file-excel-outlined"
-        :loading="exportLoading"
-        color-class="flex items-center gap-2 !bg-green-600 !border-green-600 hover:!bg-green-700"
-        @click="handleExportExcel"
-      >
-        <span>{{ t("purchase-rq.btn.export_excel") }}</span>
-      </UiButton>
-    </div>
+        <UiButton
+          type="primary"
+          icon="ant-design:file-excel-outlined"
+          :loading="exportLoading"
+          color-class="flex items-center justify-center gap-2 !bg-green-600 !border-green-600 hover:!bg-green-700"
+          class="w-full md:w-auto px-6"
+          @click="handleExportExcel"
+        >
+          <span>{{ t("purchase-rq.btn.export_excel") }}</span>
+        </UiButton>
+      </div>
   </div>
 
   <!-- Table section -->
