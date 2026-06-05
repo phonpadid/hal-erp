@@ -102,12 +102,12 @@ onMounted(async () => {
   await Promise.all([
     productTypeStore.fetchProductTypes({
       page: 1,
-      limit: 100, // Get all product types for dropdown
+      limit: 1000, // Get all product types for dropdown
       search: "",
     }),
     unitStore.fetchUnits({
       page: 1,
-      limit: 100, // Get all units for dropdown
+      limit: 1000, // Get all units for dropdown
       search: "",
     }),
   ]);
