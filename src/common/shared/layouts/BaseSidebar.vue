@@ -50,7 +50,7 @@ onMounted(() => {
         alt="logo"
         class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex-shrink-0"
       />
-      <span class="text-lg sm:text-lg font-sans truncate">HAL ERP</span>
+      <span class="text-lg sm:text-lg font-sans truncate">HAL ERP Logistics</span>
     </div>
     <div class="mt-4">
       <a-menu
