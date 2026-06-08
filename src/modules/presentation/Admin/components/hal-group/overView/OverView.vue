@@ -1,16 +1,18 @@
-\
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive, nextTick, watch } from "vue";
+import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
+import { Tabs } from "ant-design-vue";
+import { Icon } from "@iconify/vue";
+
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import UiFormItem from "@/common/shared/components/Form/UiFormItem.vue";
 import UiSelect from "@/common/shared/components/Input/InputSelect.vue";
-import { Icon } from "@iconify/vue";
-import { Tabs } from "ant-design-vue";
+
 import AffiliatedCompany from "../affiliated-company/AffiliatedCompany.vue";
 import ApproveProposal from "../approve-proposal/ApproveProposal.vue";
 import CompanyDetail from "../company-detail/CompanyDetail.vue";
+
 import { ReportCompanyService } from "@/modules/application/services/reports/report-company.service";
 import { useReportHalStore } from "@/modules/presentation/Admin/stores/reports/report-hal.store";
 import { departmentStore } from "@/modules/presentation/Admin/stores/departments/department.store";
@@ -19,7 +21,25 @@ import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.sto
 import { useCompanyReportStore } from "@/modules/presentation/Admin/stores/company-report.store";
 import type { CompanyReportData } from "@/modules/infrastructure/reports/report-company.repository";
 
-// Interface for company data
+import {
+  SummaryCard,
+  MoneyText,
+  CompanyCard,
+  BudgetUsageChart,
+  EmptyState,
+  LoadingSpinner,
+  SectionHeader,
+  useCompanyTheme,
+  useDashboardFormat,
+  OVER_BUDGET_PALETTE,
+  WITHIN_BUDGET_PALETTE,
+  type ThemeColor,
+} from "../_shared";
+import type { AffiliatedCompanyRecord } from "../affiliated-company/AffiliatedCompany.vue";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────────────────────
 interface Company {
   id: number;
   name: string;
@@ -27,35 +47,25 @@ interface Company {
   proposalCount: number;
   budget: number;
   budgetUsed: number;
-  color: string;
+  color: ThemeColor;
   userCount: number;
   allocated_amount: number;
   balance_amount: number;
   approvalWorkflowCount: number;
 }
 
-// Interface for affiliated company data (matching AffiliatedCompany.vue)
-interface AffiliatedCompany {
-  id: number;
-  name: string;
-  logo: string;
-  proposalCount: number;
-  budget: number;
-  budgetUsed: number;
-  color: string;
-  status: "active" | "inactive" | "pending";
-  contractType: "annual" | "project" | "service";
-  establishedYear: number;
-  employees: number;
-  registrationNumber: string;
-}
+// `AffiliatedCompanyRecord` is the canonical shape coming back from the
+// `/company-reports/with-receipts` endpoint via AffiliatedCompany.vue.
+type ViewDetailsPayload = Company | AffiliatedCompanyRecord;
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Dependencies
+// ─────────────────────────────────────────────────────────────────────────────
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { warning } = useNotification();
 
-// Services
 const reportCompanyService = new ReportCompanyService();
 const reportHalStore = useReportHalStore();
 const department = departmentStore();
@@ -63,19 +73,24 @@ const companyReportsStore = useCompanyReportsStore();
 const receiptStore = useReceiptStore();
 const companyReportStore = useCompanyReportStore();
 
-// State
-const loading = ref<boolean>(false);
-const pageLoading = ref<boolean>(false); // Global page loading
-const tabLoading = ref<{ [key: string]: boolean }>({});
-const searchKeyword = ref<string>("");
-const activeTab = ref<string>("1");
-const selectedCompany = ref<Company | null>(null);
-const showCompanyDetail = ref<boolean>(false);
-const selectedDetailCompany = ref<Company | null>(null);
-const companies = ref<Company[]>([]);
-const tabDataLoaded = ref<{ [key: string]: boolean }>({});
+const { colorAtIndex } = useCompanyTheme();
+const { formatPercent, safeRatio } = useDashboardFormat();
 
-// Filter state
+// ─────────────────────────────────────────────────────────────────────────────
+// UI state
+// ─────────────────────────────────────────────────────────────────────────────
+const loading = ref(false);
+const pageLoading = ref(false);
+const tabLoading = ref<Record<string, boolean>>({});
+const tabDataLoaded = ref<Record<string, boolean>>({});
+const activeTab = ref("1");
+
+const searchKeyword = ref("");
+const selectedCompany = ref<Company | null>(null);
+const selectedDetailCompany = ref<Company | null>(null);
+const showCompanyDetail = ref(false);
+const companies = ref<Company[]>([]);
+
 const filters = reactive({
   year: new Date().getFullYear(),
   company: "all",
@@ -83,213 +98,190 @@ const filters = reactive({
   dateRange: [] as string[],
 });
 
-// Generate years for filter
+// ─────────────────────────────────────────────────────────────────────────────
+// Filter option lists
+// ─────────────────────────────────────────────────────────────────────────────
 const currentYear = new Date().getFullYear();
-const years = computed(() => {
-  const yearOptions = [];
-  for (let year = currentYear - 5; year <= currentYear + 2; year++) {
-    yearOptions.push({ value: year, label: `${year}` });
-  }
-  return yearOptions;
-});
+const years = computed(() =>
+  Array.from({ length: 8 }, (_, i) => {
+    const year = currentYear - 5 + i;
+    return { value: year, label: `${year}` };
+  }),
+);
 
-// Company options
 const companyOptions = computed(() => {
-  const options = [{ value: "all", label: "ທຸກບໍລິສັດ" }];
-
-  // Add companies from the companies data with both ID and name
-  const uniqueCompanies = [...new Map(companies.value.map((c) => [c.id, c])).values()];
-  uniqueCompanies.forEach((company) => {
-    options.push({ value: company.id.toString(), label: company.name });
-  });
-
-  return options;
+  const unique = [...new Map(companies.value.map((c) => [c.id, c])).values()];
+  return [
+    { value: "all", label: "ທຸກບໍລິສັດ" },
+    ...unique.map((c) => ({ value: c.id.toString(), label: c.name })),
+  ];
 });
 
-// Department options
 const departmentOptions = computed(() => {
-  const options = [{ value: "all", label: "ທຸກພະແນກ" }];
-
-  // Add departments from store
-  if (department.departments && department.departments.length > 0) {
-    department.departments.forEach((dept) => {
-      options.push({
-        value: dept.getId(),
-        label: dept.getName() || `ພະແນກ ${dept.getId()}`,
-      });
-    });
-  } else {
-    // Mock departments if no data available
-    const mockDepartments = [
-      { value: "1", label: "ພະແນກບໍລິຫານ" },
-      { value: "2", label: "ພະແນກຊື້" },
-      { value: "3", label: "ພະແນກຂາຍ" },
-      { value: "4", label: "ພະແນກບັນຊີ" },
-      { value: "5", label: "ພະແນກການຜະລິດ" },
-      { value: "6", label: "ພະແນກ IT" },
-      { value: "7", label: "ພະແນກຊີການລູກຄ້າ" },
+  const head = [{ value: "all", label: "ທຸກພະແນກ" }];
+  if (department.departments?.length) {
+    return [
+      ...head,
+      ...department.departments.map((d) => ({
+        value: d.getId(),
+        label: d.getName() || `ພະແນກ ${d.getId()}`,
+      })),
     ];
-    options.push(...mockDepartments);
   }
-
-  return options;
+  return head;
 });
 
-// Get filtered companies based on filters
+const getCompanyLabel = (value: string): string =>
+  companyOptions.value.find((c) => c.value === value)?.label ?? value;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Derived data — single source of truth for budget summaries
+// ─────────────────────────────────────────────────────────────────────────────
 const filteredCompanies = computed(() => {
-  let filtered = [...companies.value];
-
-  // Filter by company if not "all"
+  let list = companies.value;
   if (filters.company !== "all") {
-    filtered = filtered.filter((company) => company.name.includes(filters.company));
+    list = list.filter((c) => c.name.includes(filters.company));
   }
-
-  // Filter by search keyword
   if (searchKeyword.value) {
     const keyword = searchKeyword.value.toLowerCase();
-    filtered = filtered.filter((company) => company.name.toLowerCase().includes(keyword));
+    list = list.filter((c) => c.name.toLowerCase().includes(keyword));
   }
-
-  return filtered;
+  return list;
 });
 
-// Get over budget companies
 const overBudgetCompanies = computed(() => {
-  // Use data from budgetReport API if available, otherwise fallback to filtered companies
-  const budgetOverruns = reportHalStore.getBudgetOverruns();
-  if (budgetOverruns?.budget) {
-    const colors = ["red", "orange", "yellow", "purple", "pink"];
-    return budgetOverruns.budget.map((item, index) => ({
+  const apiOverruns = reportHalStore.getBudgetOverruns()?.budget;
+  if (apiOverruns) {
+    return apiOverruns.map((item, index) => ({
       id: item.id,
       name: item.name,
       logo: item.logo,
-      allocated_amount: item.allocated_amount,
-      budgetUsed: item.total,
       budget: item.allocated_amount,
-      color: colors[index % colors.length],
+      budgetUsed: item.total,
+      color: colorAtIndex(index, OVER_BUDGET_PALETTE),
     }));
   }
-  return filteredCompanies.value.filter((company) => company.budgetUsed >= company.budget);
+  return filteredCompanies.value
+    .filter((c) => c.budgetUsed >= c.budget)
+    .map((c) => ({ id: c.id, name: c.name, logo: c.logo, budget: c.budget, budgetUsed: c.budgetUsed, color: c.color }));
 });
 
-// Get within budget companies
 const withinBudgetCompanies = computed(() => {
-  // Use data from budgetReport API if available, otherwise fallback to filtered companies
-  const withinBudget = reportHalStore.getWithinBudget();
-  if (withinBudget?.budget) {
-    const colors = ["green", "blue", "teal", "indigo", "cyan"];
-    return withinBudget.budget.map((item, index) => ({
+  const apiWithin = reportHalStore.getWithinBudget()?.budget;
+  if (apiWithin) {
+    return apiWithin.map((item, index) => ({
       id: item.id,
       name: item.name,
       logo: item.logo,
-      allocated_amount: item.allocated_amount,
-      budgetUsed: item.total,
       budget: item.allocated_amount,
-      color: colors[index % colors.length],
+      budgetUsed: item.total,
+      color: colorAtIndex(index, WITHIN_BUDGET_PALETTE),
     }));
   }
-  return filteredCompanies.value.filter((company) => company.budgetUsed < company.budget);
+  return filteredCompanies.value
+    .filter((c) => c.budgetUsed < c.budget)
+    .map((c) => ({ id: c.id, name: c.name, logo: c.logo, budget: c.budget, budgetUsed: c.budgetUsed, color: c.color }));
 });
 
-// Statistics data
-const statistics = reactive({
-  totalGroups: 0,
-  activeGroups: 0,
-  inactiveGroups: 0,
-  thisMonthCreated: 0,
-  totalMembers: 0,
-  avgMembersPerGroup: 0,
+const halState = computed(() => reportHalStore.getHalGroupStateData());
+
+const halSummary = computed(() => {
+  const data = halState.value;
+  const totalBudget = data?.total_budget ?? 0;
+  const totalUsed = data?.totalUsedAmount ?? 0;
+  const remaining = totalBudget - totalUsed;
+  const list = filteredCompanies.value;
+  const proposalTotal = list.reduce((sum, c) => sum + c.proposalCount, 0);
+  const budgetTotal = list.reduce((sum, c) => sum + c.budget, 0);
+
+  return {
+    pendingReceipts: data?.totalReceiptsPadding ?? 0,
+    totalReceipts: data?.totalReceipts ?? 0,
+    totalBudget,
+    totalUsed,
+    remaining,
+    totalUsers: data?.totalUsers ?? 0,
+    avgProposalsPerCompany: list.length ? Math.round(proposalTotal / list.length) : 0,
+    avgBudgetPerCompany: list.length ? budgetTotal / list.length : 0,
+    usagePercent: Math.round(safeRatio(totalUsed, totalBudget) * 100),
+    remainingPercent: Math.round(safeRatio(remaining, totalBudget) * 100),
+    proposalTotal,
+  };
 });
 
-// Calculate statistics
-const calculateStatistics = () => {
-  const filtered = filteredCompanies.value;
-
-  statistics.totalGroups = filtered.length;
-  statistics.activeGroups = filtered.filter((c) => c.budgetUsed < c.budget * 0.8).length;
-  statistics.inactiveGroups = filtered.filter((c) => c.budgetUsed >= c.budget * 0.8).length;
-
-  // Groups created this month
-  statistics.thisMonthCreated = Math.floor(filtered.length * 0.3); // Mock calculation
-
-  statistics.totalMembers = filtered.reduce((sum, company) => sum + company.proposalCount, 0);
-  statistics.avgMembersPerGroup =
-    filtered.length > 0 ? Math.round(statistics.totalMembers / filtered.length) : 0;
-};
-
-// Transform API data to Company interface
-const transformCompanyData = (apiData: CompanyReportData): Company[] => {
-  const colors = [
-    "blue",
-    "green",
-    "yellow",
-    "purple",
-    "orange",
-    "red",
-    "teal",
-    "indigo",
-    "pink",
-    "cyan",
-  ];
-
-  return apiData.data.map((company, index) => ({
+// ─────────────────────────────────────────────────────────────────────────────
+// Data loading
+// ─────────────────────────────────────────────────────────────────────────────
+const transformCompanyData = (apiData: CompanyReportData): Company[] =>
+  apiData.data.map((company, index) => ({
     id: company.companyId,
     name: company.companyName,
-    logo: company.logo || "mdi:domain", // Use company logo from API or default icon
+    logo: company.logo || "mdi:domain",
     proposalCount: company.approvalWorkflowCount,
-    budget: company.allocated_amount || company.total_budget, // Use allocated_amount as the budget limit
+    budget: company.allocated_amount || company.total_budget,
     budgetUsed: company.totalUsedAmount,
-    color: colors[index % colors.length],
+    color: colorAtIndex(index),
     userCount: company.userCount,
     allocated_amount: company.allocated_amount,
     balance_amount: company.balance_amount,
     approvalWorkflowCount: company.approvalWorkflowCount,
   }));
+
+const loadDepartments = async () => {
+  if (department.departments.length === 0) {
+    try {
+      await department.fetchDepartment({ page: 1, limit: 100 });
+    } catch (error) {
+      console.error("Error loading departments:", error);
+    }
+  }
 };
 
-// Load data for specific tab
+const loadBudgetReport = async () => {
+  try {
+    await reportHalStore.fetchReportHalGroupsMonthlyBudget({
+      fiscal_year: filters.year,
+      company_id: filters.company !== "all" ? Number.parseInt(filters.company, 10) : undefined,
+      departmentId: filters.departmentId !== "all" ? filters.departmentId : undefined,
+    });
+  } catch (error) {
+    console.error("Error loading budget report:", error);
+    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນງົບປະມານໄດ້");
+  }
+};
+
+const loadHalGroupState = async () => {
+  try {
+    await reportHalStore.fetchReportHalGroupState();
+  } catch (error) {
+    console.error("Error loading HAL group state:", error);
+    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນສະຖານະ HAL Group ໄດ້");
+  }
+};
+
 const loadTabData = async (tabKey: string) => {
-  if (tabDataLoaded.value[tabKey]) return; // Already loaded
+  if (tabDataLoaded.value[tabKey]) return;
 
   tabLoading.value[tabKey] = true;
   try {
-    switch (tabKey) {
-      case "1": // Overview Tab
-        // Load company data
-        const reportData = await reportCompanyService.getReportCompany();
-        companies.value = transformCompanyData(reportData);
-        calculateStatistics();
-
-        // Load departments for filters
-        await loadDepartments();
-
-        // Load budget report data for charts
-        await loadBudgetReport();
-
-        // Load HAL group state data
-        await loadHalGroupState();
-        break;
-
-      case "2": // Approve Documents Tab
-        // Only load all receipts if no company is selected
-        // If a company is selected, ApproveProposal component will handle loading via its watch
-        if (!selectedCompany.value) {
-          await receiptStore.fetchAll({ page: 1, limit: 10000 });
-        }
-        break;
-
-      case "3": // Affiliated Companies Tab
-        // Load company report statistics for Tab 3
-        await companyReportStore.fetchReportStatistics();
-
-        // Load companies with receipts for Tab 3 Table
-        await companyReportStore.fetchCompaniesWithReceipts({
+    if (tabKey === "1") {
+      const reportData = await reportCompanyService.getReportCompany();
+      companies.value = transformCompanyData(reportData);
+      await Promise.all([loadDepartments(), loadBudgetReport(), loadHalGroupState()]);
+    } else if (tabKey === "2") {
+      if (!selectedCompany.value) {
+        await receiptStore.fetchAll({ page: 1, limit: 10000 });
+      }
+    } else if (tabKey === "3") {
+      await Promise.all([
+        companyReportStore.fetchReportStatistics(),
+        companyReportStore.fetchCompaniesWithReceipts({
           page: 1,
           limit: 10,
           sort_by: "created_at",
           sort_order: "DESC",
-        });
-        break;
+        }),
+      ]);
     }
     tabDataLoaded.value[tabKey] = true;
   } catch (error) {
@@ -300,16 +292,12 @@ const loadTabData = async (tabKey: string) => {
   }
 };
 
-// Load initial data (just basic data needed for page initialization)
 const loadInitialData = async () => {
   pageLoading.value = true;
   try {
-    // Initialize filters from URL query params
-    if (route.query.year) filters.year = parseInt(route.query.year as string);
+    if (route.query.year) filters.year = Number.parseInt(route.query.year as string, 10);
     if (route.query.company) filters.company = route.query.company as string;
-
-    // Only load the most essential data first
-    await loadTabData("1"); // Load Overview tab data by default
+    await loadTabData("1");
   } catch (error) {
     console.error("Error loading initial data:", error);
     warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນເບື້ອຕົ້ນໄດ້");
@@ -318,95 +306,41 @@ const loadInitialData = async () => {
   }
 };
 
-// Load departments data
-const loadDepartments = async () => {
-  try {
-    // Try to fetch departments from store
-    if (department.departments.length === 0) {
-      await department.fetchDepartment({ page: 1, limit: 100 });
-    }
-  } catch (error) {
-    console.error("Error loading departments:", error);
-    // Silently fail - will use mock departments
-  }
-};
-
-// Load budget report data
-const loadBudgetReport = async () => {
-  try {
-    await reportHalStore.fetchReportHalGroupsMonthlyBudget({
-      fiscal_year: filters.year,
-      company_id: filters.company !== "all" ? parseInt(filters.company) : undefined,
-      departmentId: filters.departmentId !== "all" ? filters.departmentId : undefined,
-    });
-  } catch (error) {
-    console.error("Error loading budget report:", error);
-    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນງົບປະມານໄດ້");
-  }
-};
-
-// Load HAL group state data
-const loadHalGroupState = async () => {
-  try {
-    await reportHalStore.fetchReportHalGroupState();
-  } catch (error) {
-    console.error("Error loading HAL group state:", error);
-    warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນສະຖານະ HAL Group ໄດ້");
-  }
-};
-
-// Handle filter changes
+// ─────────────────────────────────────────────────────────────────────────────
+// Event handlers
+// ─────────────────────────────────────────────────────────────────────────────
 const handleFilterChange = async () => {
-  calculateStatistics();
-
-  // Load budget report data when filters change
   await loadBudgetReport();
-
-  // Update selectedCompany when company filter changes
   if (filters.company !== "all") {
     const company = companies.value.find((c) => c.name.includes(filters.company));
-    if (company) {
-      selectedCompany.value = company;
-    }
+    selectedCompany.value = company ?? null;
   } else {
     selectedCompany.value = null;
   }
-
-  // Update URL with query params
   router.push({
     query: {
       ...route.query,
-      year: filters.year,
+      year: String(filters.year),
       company: filters.company,
       departmentId: filters.departmentId,
     },
   });
 };
 
-// Show company details with pending documents
 const showCompanyDetails = async (company: Company) => {
-  // Validate company has required id
-  if (!company || !company.id) {
-    console.error("Invalid company data:", company);
+  if (!company?.id) {
     warning("ເກີດຂໍ້ຜິດພາດ", "ຂໍ້ມູນບໍລິສັດບໍ່ຖືກຕ້ອງ");
     return;
   }
 
   loading.value = true;
   try {
-    // Check if data already exists in store
-    let companyDetails = companyReportsStore.getCompanyById(company.id);
-
-    // If not found or needs refresh, load from API
-    if (!companyDetails) {
-      companyDetails = await companyReportsStore.loadCompanyReport(company.id.toString());
+    let details = companyReportsStore.getCompanyById(company.id);
+    if (!details) {
+      details = await companyReportsStore.loadCompanyReport(company.id.toString());
     }
-
-    // Set selected company for ApproveProposal and go to Tab 2
-    // ApproveProposal component will automatically load receipts via its watch
     selectedCompany.value = company;
     activeTab.value = "2";
-
     await nextTick();
   } catch (error) {
     console.error("Error loading company details:", error);
@@ -416,947 +350,295 @@ const showCompanyDetails = async (company: Company) => {
   }
 };
 
-// Mock data for purchase requests
-const mockPurchaseRequests = [
-  {
-    id: "PR001",
-    requestNumber: "PR2024-001",
-    title: "ຈັດຊື້ອຸປະກອນສໍານັກງານ",
-    department: "ພະແນກຊື້",
-    requester: "ສົມສະຫວາດ ວົງສາ",
-    amount: 2500000,
-    requestDate: "2024-11-01",
-    status: "pending", // pending, approved, rejected
-    urgency: "normal", // low, normal, high, urgent
-    items: 5,
-    company: "HAL ບໍລິສັດ",
-  },
-  {
-    id: "PR002",
-    requestNumber: "PR2024-002",
-    title: "ຈັດຊື້ວັດຖຸດິບຜ່ານການຜະລິດ",
-    department: "ພະແນກຜະລິດ",
-    requester: "ຄຳພອນ ໄຊຍະສາດ",
-    amount: 5800000,
-    requestDate: "2024-11-02",
-    status: "pending",
-    urgency: "high",
-    items: 12,
-    company: "HAL ບໍລິສັດ",
-  },
-  {
-    id: "PR003",
-    requestNumber: "PR2024-003",
-    title: "ຈັດຊື້ລົດຈັກບັນຊີ",
-    department: "ພະແນກບັນຊີ",
-    requester: "ມາລີ ດວງສະຫວັນ",
-    amount: 12000000,
-    requestDate: "2024-11-03",
-    status: "approved",
-    urgency: "normal",
-    items: 3,
-    company: "HAL Tech",
-  },
-  {
-    id: "PR004",
-    requestNumber: "PR2024-004",
-    title: "ຈັດຊື້ລະບົບຄວາມປອດໄພ",
-    department: "ພະແນກ IT",
-    requester: "ສົມພອນ ອິນທະວົງ",
-    amount: 8500000,
-    requestDate: "2024-11-04",
-    status: "pending",
-    urgency: "urgent",
-    items: 8,
-    company: "HAL Energy",
-  },
-  {
-    id: "PR005",
-    requestNumber: "PR2024-005",
-    title: "ຈັດຊື້ອາຫານສັດ",
-    department: "ພະແນກຊີການລູກຄ້າ",
-    requester: "ເດືອນ ໄຊຍະພອນ",
-    amount: 3200000,
-    requestDate: "2024-11-05",
-    status: "rejected",
-    urgency: "normal",
-    items: 15,
-    company: "HAL Service",
-  },
-];
+const handleViewDetails = (company: ViewDetailsPayload) => {
+  const isAffiliated = "receiptCount" in company;
+  const affiliated = isAffiliated ? (company as AffiliatedCompanyRecord) : null;
+  const base = isAffiliated ? null : (company as Company);
 
-// Filter purchase requests based on company
-const filteredPurchaseRequests = computed(() => {
-  if (filters.company === "all") {
-    return mockPurchaseRequests;
-  }
-
-  const companyName = getCompanyLabel(filters.company);
-  return mockPurchaseRequests.filter((req) => req.company === companyName);
-});
-
-// Get company label
-const getCompanyLabel = (companyValue: string) => {
-  const company = companyOptions.value.find((c) => c.value === companyValue);
-  return company ? company.label : companyValue;
-};
-
-// Handle view company details
-const handleViewDetails = (company: Company | AffiliatedCompany) => {
-  // console.log('🔍 handleViewDetails called with:', company);
-
-  // Convert company data to Company format if needed
-  const isAffiliatedCompany = "employees" in company && "contractType" in company;
-  const affiliatedCompany = company as AffiliatedCompany;
-  const companyData = company as Company;
+  const proposalCount = affiliated?.receiptCount ?? base?.proposalCount ?? 0;
+  const allocated = company.budget || base?.allocated_amount || 0;
 
   selectedDetailCompany.value = {
-    ...company,
-    // Map from AffiliatedCompany format if needed
-    userCount: isAffiliatedCompany ? affiliatedCompany.employees : companyData.userCount,
-    allocated_amount: company.budget || companyData.allocated_amount || 0,
-    balance_amount:
-      (company.budget || companyData.allocated_amount || 0) - (company.budgetUsed || 0),
-    approvalWorkflowCount: company.proposalCount || companyData.approvalWorkflowCount || 0,
-  } as Company;
-
-  // console.log('🔍 selectedDetailCompany set to:', selectedDetailCompany.value);
-  // console.log('🔍 Company ID being passed:', selectedDetailCompany.value?.id);
-
+    id: company.id,
+    name: company.name,
+    logo: company.logo,
+    color: (company.color ?? "blue") as ThemeColor,
+    proposalCount,
+    budget: company.budget,
+    budgetUsed: company.budgetUsed,
+    userCount: base?.userCount ?? 0,
+    allocated_amount: allocated,
+    balance_amount: allocated - (company.budgetUsed || 0),
+    approvalWorkflowCount: proposalCount,
+  };
   showCompanyDetail.value = true;
-  // console.log('🔍 showCompanyDetail set to:', showCompanyDetail.value);
 };
 
-// Close company detail view
 const closeCompanyDetail = () => {
   showCompanyDetail.value = false;
   selectedDetailCompany.value = null;
 };
-// Format currency
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("lo-LA", {
-    style: "currency",
-    currency: "LAK",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })
-    .format(amount)
-    .replace("LAK", "₭");
-};
 
-// Format large numbers with abbreviations
-const formatLargeNumber = (amount: number) => {
-  if (amount >= 1000000000) {
-    return `${(amount / 1000000000).toFixed(1)}B`;
-  } else if (amount >= 1000000) {
-    return `${(amount / 1000000).toFixed(1)}M`;
-  } else if (amount >= 1000) {
-    return `${(amount / 1000).toFixed(1)}K`;
-  }
-  return amount.toString();
-};
-
-
-// Calculate budget percentage
-const getBudgetPercentage = (budgetUsed: number, budget: number) => {
-  // Handle division by zero and invalid values
-  if (!budget || budget === 0) {
-    return 0; // Return 0% instead of NaN
-  }
-  if (!budgetUsed || budgetUsed === 0) {
-    return 0;
-  }
-  return Math.round((budgetUsed / budget) * 100);
-};
-
-// Get color classes for budget bars
-const getBudgetBarColor = (percentage: number) => {
-  // Gray/faded color for 0% (no usage)
-  if (percentage === 0) return "bg-gray-200";
-  if (percentage > 100) return "bg-red-500";
-  if (percentage === 100) return "bg-green-500"; // Exact 100% is still within budget
-  if (percentage > 90) return "bg-orange-500";
-  if (percentage > 70) return "bg-yellow-500";
-  return "bg-green-500";
-};
-
-// Get background color classes for company logos
-const getLogoBgColor = (color: string) => {
-  const colorMap: { [key: string]: string } = {
-    blue: "bg-blue-100",
-    green: "bg-green-100",
-    yellow: "bg-yellow-100",
-    purple: "bg-purple-100",
-    orange: "bg-orange-100",
-    red: "bg-red-100",
-    teal: "bg-teal-100",
-    indigo: "bg-indigo-100",
-    pink: "bg-pink-100",
-    cyan: "bg-cyan-100",
-  };
-  return colorMap[color] || "bg-gray-100";
-};
-
-// Get text color classes for company logos
-const getLogoTextColor = (color: string) => {
-  const colorMap: { [key: string]: string } = {
-    blue: "text-blue-600",
-    green: "text-green-600",
-    yellow: "text-yellow-600",
-    purple: "text-purple-600",
-    orange: "text-orange-600",
-    red: "text-red-600",
-    teal: "text-teal-600",
-    indigo: "text-indigo-600",
-    pink: "text-pink-600",
-    cyan: "text-cyan-600",
-  };
-  return colorMap[color] || "text-gray-600";
-};
-
-// Watch for tab changes and load data lazily
-watch(activeTab, async (newTab: string) => {
+watch(activeTab, async (newTab) => {
   if (newTab && !tabDataLoaded.value[newTab]) {
     await loadTabData(newTab);
   }
 });
 
 onMounted(async () => {
-  // Load initial data
   await loadInitialData();
-
-  // Initialize selectedCompany from company filter after data is loaded
   if (filters.company !== "all") {
     const company = companies.value.find((c) => c.name.includes(filters.company));
-    if (company) {
-      selectedCompany.value = company;
-    }
+    if (company) selectedCompany.value = company;
   }
 });
 </script>
 
 <template>
   <div class="hal-group-overview-container">
-    <!-- Global Loading Overlay -->
-    <div
-      v-if="pageLoading"
-      class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50"
-    >
-      <div class="text-center">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <p class="mt-4 text-gray-600 font-medium">ກຳລັງໂຫຼດຂໍ້ມູນ...</p>
-      </div>
-    </div>
+    <LoadingSpinner v-if="pageLoading" overlay message="ກຳລັງໂຫຼດຂໍ້ມູນ..." size="lg" />
 
-    <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-      <!-- Tabs Section - Moved to Top -->
-      <div class="bg-white rounded-lg shadow-sm">
+    <div class="mx-auto w-full max-w-screen-2xl 3xl:max-w-[120rem] p-3 sm:p-4 lg:p-6 space-y-4 lg:space-y-6">
+      <div class="bg-white rounded-xl shadow-sm">
         <Tabs v-model:activeKey="activeTab" type="card" size="large">
+          <!-- ───────────────────────── Tab 1 : Overview ───────────────────────── -->
           <Tabs.TabPane key="1" tab="ພາບລວມ">
-            <!-- Tab Loading State -->
-            <div v-if="tabLoading['1']" class="p-8 text-center">
-              <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p class="mt-2 text-gray-600">ກຳລັງໂຫຼດຂໍ້ມູນພາບລວມ...</p>
-            </div>
+            <LoadingSpinner v-if="tabLoading['1']" message="ກຳລັງໂຫຼດຂໍ້ມູນພາບລວມ..." />
 
-            <!-- Dynamic Header for Tab 1 -->
-            <div v-if="!tabLoading['1']" class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
-                    {{ t("hal-group.overview") }}
-                  </h1>
-                  <p class="text-gray-600 mt-1">{{ t("hal-group.followingDescription") }}</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {{ filteredCompanies.length }} ບໍລິສັດ
+            <template v-else>
+              <header class="border-b border-gray-200 p-4 lg:p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div>
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+                      {{ t("hal-group.overview") }}
+                    </h1>
+                    <p class="text-sm sm:text-base text-gray-600 mt-1">
+                      {{ t("hal-group.followingDescription") }}
+                    </p>
                   </div>
-                  <div
-                    class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    {{ new Date().getFullYear() }}
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
+                      {{ filteredCompanies.length }} ບໍລິສັດ
+                    </span>
+                    <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
+                      {{ currentYear }}
+                    </span>
                   </div>
                 </div>
-              </div>
-            </div>
+              </header>
 
-            <!-- Tab Content -->
-            <!-- Filters Section -->
-            <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
-              <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Icon icon="solar:filter-outline" class="text-base" />
-                {{ t("hal-group.filters") }}
-              </h2>
-              <div class="flex justify-between">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+              <!-- Filters -->
+              <section class="p-4 lg:p-6 border-b border-gray-100">
+                <h2 class="text-base sm:text-lg font-semibold mb-3 flex items-center gap-2 text-gray-800">
+                  <Icon icon="solar:filter-outline" />
+                  {{ t("hal-group.filters") }}
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4">
                   <UiFormItem>
                     <UiSelect
                       v-model="filters.year"
                       :options="years"
                       placeholder="ເລືອກປີ"
-                      @change="handleFilterChange"
                       :disabled="loading"
+                      @change="handleFilterChange"
                     />
                   </UiFormItem>
-
                   <UiFormItem>
                     <UiSelect
                       v-model="filters.departmentId"
                       :options="departmentOptions"
                       placeholder="ເລືອກພະແນກ"
-                      @change="handleFilterChange"
                       :disabled="loading"
+                      @change="handleFilterChange"
                     />
                   </UiFormItem>
-                  <!-- Company Filter -->
                   <UiFormItem>
                     <UiSelect
                       v-model="filters.company"
                       :options="companyOptions"
                       placeholder="ເລືອກບໍລິສັດ"
-                      @change="handleFilterChange"
                       :disabled="loading"
+                      @change="handleFilterChange"
                     />
                   </UiFormItem>
+                  <div class="hidden xl:flex items-center text-sm text-gray-500">
+                    {{ t("hal-group.showdata") }}{{ t("hal-group.overyear") }}
+                    {{ filters.year }} · {{ getCompanyLabel(filters.company) }}
+                  </div>
                 </div>
-                <div>
-                  {{ t("hal-group.showdata") }}{{ t("hal-group.overyear") }} {{ filters.year }}
-                  {{ getCompanyLabel(filters.company) }}
-                </div>
-              </div>
-            </div>
+              </section>
 
-            <!-- HAL Group State Summary -->
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-2 p-2"  v-if="reportHalStore.getHalGroupStateData()">
-              <div
-                class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
+              <!-- HAL Group State Summary -->
+              <section
+                v-if="halState"
+                class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-3 p-3 sm:p-4"
               >
-                <div class="flex items-center justify-between mb-3">
-                  <div class="p-2 bg-white/20 rounded-lg">
-                    <Icon
-                      icon="material-symbols:nest-clock-farsight-analog-outline"
-                      class="text-xl md:text-2xl"
-                    />
-                  </div>
-                  <span class="text-xs md:text-sm opacity-90 font-medium"
-                    >ໃບສະເໜີທີລໍຖ້າອະນຸມັດ</span
-                  >
-                </div>
-                <div class="space-y-1">
-                  <div
-                    class="text-2xl md:text-3xl font-bold tracking-tight"
-                    :title="`${reportHalStore.getHalGroupStateData()?.totalReceiptsPadding || 0} ໃບ`"
-                  >
-                    {{ reportHalStore.getHalGroupStateData()?.totalReceiptsPadding || 0 }}
-                  </div>
-                  <div class="text-xs md:text-sm opacity-80">
-                   {{ reportHalStore.getHalGroupStateData()?.totalReceiptsPadding || 0 }}
-                    ໃບ
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
-              >
-                <div class="flex items-center justify-between mb-3">
-                  <div class="p-2 bg-white/20 rounded-lg">
-                    <Icon icon="material-symbols:description" class="text-xl md:text-2xl" />
-                  </div>
-                  <span class="text-xs md:text-sm opacity-90 font-medium">ໃບສະເໜີທັງໝົດ</span>
-                </div>
-                <div class="space-y-1">
-                  <div
-                    class="text-2xl md:text-3xl font-bold tracking-tight"
-                    :title="`${reportHalStore.getHalGroupStateData()?.totalReceipts || 0} ໃບ`"
-                  >
-                    {{ reportHalStore.getHalGroupStateData()?.totalReceipts || 0 }}
-                  </div>
-                  <div class="text-xs md:text-sm opacity-80">
-                    ໂປດປະຈຳ:
-                    {{
-                      Math.round(
-                        filteredCompanies.reduce((sum, c) => sum + c.proposalCount, 0) /
-                          filteredCompanies.length
-                      )
-                    }}
-                    ໃບ/ບໍລິສັດ
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
-              >
-                <div class="flex items-center justify-between mb-3">
-                  <div class="p-2 bg-white/20 rounded-lg">
-                    <Icon icon="material-symbols:account-balance" class="text-xl md:text-2xl" />
-                  </div>
-                  <span class="text-xs md:text-sm opacity-90 font-medium">ງົບປະມານທັງໝົດ</span>
-                </div>
-                <div class="space-y-1">
-                  <div
-                    class="text-lg md:text-xl font-bold tracking-tight"
-                    :title="formatCurrency(reportHalStore.getHalGroupStateData()?.total_budget || 0)"
-                  >
-                     {{ formatLargeNumber(reportHalStore.getHalGroupStateData()?.total_budget || 0) }}
-                  </div>
-                  <div class="text-xs md:text-sm opacity-80">
-                    ບໍລິສັດສະເລຍ່:
-                    {{
-                      formatLargeNumber(
-                        filteredCompanies.reduce((sum, c) => sum + c.budget, 0) /
-                          filteredCompanies.length
-                      )
-                    }}
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
-              >
-                <div class="flex items-center justify-between mb-3">
-                  <div class="p-2 bg-white/20 rounded-lg">
-                    <Icon icon="material-symbols:payments" class="text-xl md:text-2xl" />
-                  </div>
-                  <span class="text-xs md:text-sm opacity-90 font-medium">ງົບທີໃຊ້ໄປ</span>
-                </div>
-                <div class="space-y-1">
-                  <div
-                    class="text-lg md:text-xl font-bold tracking-tight"
-                    :title="formatCurrency(reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0)"
-                  >
-                    {{ formatLargeNumber(reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0) }}
-                  </div>
-                  <div class="text-xs md:text-sm opacity-80">
-                    ໃຊ້ໄປແລ້ວ:
-                    {{
-                      Math.round(
-                        ((reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0) /
-                         (reportHalStore.getHalGroupStateData()?.total_budget || 1)) * 100
-                      )
-                    }}%
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
-              >
-                <div class="flex items-center justify-between mb-3">
-                  <div class="p-2 bg-white/20 rounded-lg">
-                    <Icon icon="material-symbols:savings" class="text-xl md:text-2xl" />
-                  </div>
-                  <span class="text-xs md:text-sm opacity-90 font-medium">ງົບປະມານຍັງຄ້າງ</span>
-                </div>
-                <div class="space-y-1">
-                  <div
-                    class="text-lg md:text-xl font-bold tracking-tight"
-                    :title="formatCurrency((reportHalStore.getHalGroupStateData()?.total_budget || 0) - (reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0))"
-                  >
-                    {{
-                      formatLargeNumber(
-                        (reportHalStore.getHalGroupStateData()?.total_budget || 0) -
-                        (reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0)
-                      )
-                    }}
-                  </div>
-                  <div class="text-xs md:text-sm opacity-80">
-                    ຍັງຄ້າງ:
-                    {{
-                      Math.round(
-                        (((reportHalStore.getHalGroupStateData()?.total_budget || 0) -
-                          (reportHalStore.getHalGroupStateData()?.totalUsedAmount || 0)) /
-                         (reportHalStore.getHalGroupStateData()?.total_budget || 1)) * 100
-                      )
-                    }}%
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300"
-              >
-                <div class="flex items-center justify-between mb-3">
-                  <div class="p-2 bg-white/20 rounded-lg">
-                    <Icon
-                      icon="material-symbols:group-outline-rounded"
-                      class="text-xl md:text-2xl"
-                    />
-                  </div>
-                  <span class="text-xs md:text-sm opacity-90 font-medium">ພະນັກງານ</span>
-                </div>
-                <div class="space-y-1">
-                  <div
-                    class="text-2xl md:text-3xl font-bold"
-                    :title="`${reportHalStore.getHalGroupStateData()?.totalUsers || 0} ຄົນ`"
-                  >{{ reportHalStore.getHalGroupStateData()?.totalUsers || 0 }}</div>
-                  <!-- <div class="text-xs md:text-sm opacity-80">ສະເລ່ຍ: 200ຄົນ/ບໍລິສັດ</div> -->
-                </div>
-              </div>
-            </div>
-
-            <div class="p-2 md:p-6 border-b border-gray-200">
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <h2 class="text-lg font-semibold flex items-center gap-2 flex-wrap">
-                  <Icon icon="material-symbols:description" class="text-blue-600" />
-                  <span class="break-words">ໃບສະເໜີທີລໍຖ້າອະນຸມັດ</span>
-                  <span class="text-blue-600 font-bold"
-                    >({{ filteredCompanies.reduce((sum, c) => sum + c.proposalCount, 0) }} ໃບ)</span
-                  >
-                  <span class="text-gray-600">ຈາກ {{ filteredCompanies.length }} ບໍລິສັດ</span>
-                </h2>
-                <span class="text-sm text-gray-500 font-normal whitespace-nowrap"
-                  >ລວມໃບສະເໜີທີລໍຖ້າອະນຸມັດ</span
+                <SummaryCard
+                  color="yellow"
+                  label="ໃບສະເໜີທີ່ລໍຖ້າອະນຸມັດ"
+                  icon="material-symbols:nest-clock-farsight-analog-outline"
+                  :value-title="`${halSummary.pendingReceipts} ໃບ`"
                 >
-              </div>
-            </div>
+                  {{ halSummary.pendingReceipts.toLocaleString() }}
+                  <template #footer>{{ halSummary.pendingReceipts }} ໃບ</template>
+                </SummaryCard>
 
-          
+                <SummaryCard
+                  color="blue"
+                  label="ໃບສະເໜີທັງໝົດ"
+                  icon="material-symbols:description"
+                  :value-title="`${halSummary.totalReceipts} ໃບ`"
+                >
+                  {{ halSummary.totalReceipts.toLocaleString() }}
+                  <template #footer>ສະເລ່ຍ: {{ halSummary.avgProposalsPerCompany }} ໃບ / ບໍລິສັດ</template>
+                </SummaryCard>
 
-            <!-- Company Boxes Grid -->
-            <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
-              <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <SummaryCard
+                  color="green"
+                  label="ງົບປະມານທັງໝົດ"
+                  icon="material-symbols:account-balance"
+                >
+                  <MoneyText :value="halSummary.totalBudget" compact />
+                  <template #footer>
+                    ສະເລ່ຍ: <MoneyText :value="halSummary.avgBudgetPerCompany" compact />
+                  </template>
+                </SummaryCard>
+
+                <SummaryCard
+                  color="orange"
+                  label="ງົບທີ່ໃຊ້ໄປ"
+                  icon="material-symbols:payments"
+                >
+                  <MoneyText :value="halSummary.totalUsed" compact />
+                  <template #footer>ໃຊ້ໄປແລ້ວ: {{ formatPercent(halSummary.usagePercent) }}</template>
+                </SummaryCard>
+
+                <SummaryCard
+                  color="purple"
+                  label="ງົບປະມານຍັງຄ້າງ"
+                  icon="material-symbols:savings"
+                >
+                  <MoneyText :value="halSummary.remaining" compact />
+                  <template #footer>ຍັງຄ້າງ: {{ formatPercent(halSummary.remainingPercent) }}</template>
+                </SummaryCard>
+
+                <SummaryCard
+                  color="teal"
+                  label="ພະນັກງານ"
+                  icon="material-symbols:group-outline-rounded"
+                  :value-title="`${halSummary.totalUsers} ຄົນ`"
+                >
+                  {{ halSummary.totalUsers.toLocaleString() }}
+                </SummaryCard>
+              </section>
+
+              <!-- Pending Proposals header -->
+              <section class="p-3 sm:p-4 lg:p-6 border-b border-gray-100">
+                <SectionHeader
+                  title="ໃບສະເໜີທີ່ລໍຖ້າອະນຸມັດ"
+                  subtitle="ລວມໃບສະເໜີທີ່ລໍຖ້າອະນຸມັດ"
+                  icon="material-symbols:description"
+                  icon-color="text-blue-600"
+                >
+                  <template #badge>
+                    <span class="text-blue-600 font-bold tabular-nums">
+                      ({{ halSummary.proposalTotal.toLocaleString() }} ໃບ)
+                    </span>
+                    <span class="text-gray-600 text-sm">ຈາກ {{ filteredCompanies.length }} ບໍລິສັດ</span>
+                  </template>
+                </SectionHeader>
+
                 <div
-                  v-for="company in filteredCompanies"
-                  :key="company.id"
-                  @click="showCompanyDetails(company)"
-                  class="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-blue-300 hover:scale-105"
+                  v-if="filteredCompanies.length"
+                  class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-7 gap-3 sm:gap-4"
                 >
-                  <!-- Company Logo -->
-                  <div class="flex justify-center mb-3">
-                    <!-- If logo is a URL, show image, otherwise show icon -->
-                    <div
-                      v-if="company.logo && company.logo.startsWith('http')"
-                      class="relative w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-gray-100"
-                    >
-                      <img
-                        :src="company.logo"
-                        :alt="company.name"
-                        class="w-full h-full object-cover"
-                        @error="(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.classList.add('hidden');
-                          target.parentElement!.querySelector('.fallback-icon')!.classList.remove('hidden');
-                        }"
-                      />
-                      <div
-                        class="fallback-icon hidden absolute inset-0 p-3 rounded-full"
-                        :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
-                      >
-                        <Icon icon="mdi:domain" class="text-2xl" />
-                      </div>
-                    </div>
-                    <div
-                      v-else
-                      class="p-3 rounded-full"
-                      :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
-                    >
-                      <Icon :icon="company.logo" class="text-2xl" />
-                    </div>
-                  </div>
-
-                  <!-- Company Name -->
-                  <h3 class="text-center font-semibold text-gray-900 mb-2 text-sm">
-                    {{ company.name }}
-                  </h3>
-
-                  <!-- Proposal Count -->
-                  <div class="text-center">
-                    <div class="text-xs text-gray-500 mb-1">ໃບສະເໜີ</div>
-                    <div class="text-lg font-bold text-blue-600">{{ company.proposalCount }}</div>
-                  </div>
-
-                  <!-- Budget Progress -->
-                  <div class="mt-3">
-                    <!-- Debug info (remove in production) -->
-                    <div class="text-xs text-gray-400 mb-1" style="font-size: 10px;">
-                      ງົບ: {{ formatLargeNumber(company.budget) }} | ໃຊ້: {{ formatLargeNumber(company.budgetUsed) }}
-                    </div>
-                    <div class="flex justify-between text-xs text-gray-600 mb-1">
-                      <span>ງົບປະມານ</span>
-                      <span
-                        class="font-medium"
-                        :class="{
-                          'text-red-600': getBudgetPercentage(company.budgetUsed, company.budget) > 100,
-                          'text-orange-600': getBudgetPercentage(company.budgetUsed, company.budget) > 90,
-                          'text-yellow-600': getBudgetPercentage(company.budgetUsed, company.budget) > 70,
-                          'text-gray-700': getBudgetPercentage(company.budgetUsed, company.budget) <= 70
-                        }"
-                      >
-                        {{ getBudgetPercentage(company.budgetUsed, company.budget) }}%
-                      </span>
-                    </div>
-                    <div class="relative w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                      <div
-                        class="h-2 rounded-full transition-all duration-300 relative"
-                        :class="
-                          getBudgetBarColor(getBudgetPercentage(company.budgetUsed, company.budget))
-                        "
-                        :style="`width: ${Math.min(
-                          getBudgetPercentage(company.budgetUsed, company.budget),
-                          100
-                        )}%`"
-                      >
-                        <!-- Over budget indicator -->
-                        <div
-                          v-if="getBudgetPercentage(company.budgetUsed, company.budget) > 100"
-                          class="absolute right-0 top-0 h-2 w-1 bg-red-600 animate-pulse"
-                        ></div>
-                      </div>
-                      <!-- Over budget text for very high percentages -->
-                      <span
-                        v-if="getBudgetPercentage(company.budgetUsed, company.budget) > 100"
-                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-white font-medium"
-                      >
-                        +{{ getBudgetPercentage(company.budgetUsed, company.budget) - 100 }}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Empty State -->
-              <div v-if="!loading && filteredCompanies.length === 0" class="p-8 text-center">
-                <div class="text-gray-400 mb-4">
-                  <Icon icon="solar:inbox-outline" class="text-4xl mx-auto" />
-                </div>
-                <p class="text-gray-600">ບໍ່ພົບຂໍ້ມູນບໍລິສັດ</p>
-              </div>
-            </div>
-
-            <div class="p-2 md:p-6 border-b border-gray-200">
-              <h2 class="text-lg font-semibold flex items-center gap-2">
-                ງົບປະມານຂອງບໍລິສັດໃນເຄືອ
-              </h2>
-              <span class="text-sm text-gray-500 font-normal">ລວມໃບສະເໜີທີລໍຖ້າອະນຸມັດ</span>
-            </div>
-
-            <!-- Budget Chart Section -->
-            <div class="bg-white rounded-lg shadow-sm p-4 md:p-6">
-              <h3 class="text-lg font-semibold mb-4">ການໃຊ້ງົບປະມານປະຈຳເດືອນ</h3>
-
-              <!-- Budget Summary -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div class="flex items-center gap-2 mb-2">
-                    <Icon icon="material-symbols:warning" class="text-red-600 text-xl" />
-                    <h4 class="text-red-800 font-semibold">ບໍລິສັດທີໃຊ້ງົບເກີນ</h4>
-                  </div>
-                  <div class="text-sm text-red-700">
-                    <div>
-                      ຈຳນວນ:
-                      {{ reportHalStore.getBudgetOverruns()?.amount || 0 }} ບໍລິສັດ
-                    </div>
-                    <div class="mt-1">
-                      ມູນຄ່າທີ່ເກີນ:
-                      <span class="font-bold">
-                        {{ formatCurrency(reportHalStore.getBudgetOverruns()?.total || 0) }}
-                      </span>
-                    </div>
-                  </div>
+                  <CompanyCard
+                    v-for="company in filteredCompanies"
+                    :key="company.id"
+                    :name="company.name"
+                    :logo="company.logo"
+                    :color="company.color"
+                    :proposal-count="company.proposalCount"
+                    :budget="company.budget"
+                    :budget-used="company.budgetUsed"
+                    @click="showCompanyDetails(company)"
+                  />
                 </div>
 
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div class="flex items-center gap-2 mb-2">
-                    <Icon icon="material-symbols:check-circle" class="text-green-600 text-xl" />
-                    <h4 class="text-green-800 font-semibold">ບໍລິສັດທີ່ຢູ່ໃນງົບ</h4>
-                  </div>
-                  <div class="text-sm text-green-700">
-                    <div>
-                      ຈຳນວນ:
-                      {{ reportHalStore.getWithinBudget()?.amount || 0 }} ບໍລິສັດ
-                    </div>
-                    <div class="mt-1">
-                      ງົບປະມານທີ່ຍັງຄ້າງ:
-                      <span class="font-bold">
-                        {{ formatCurrency(reportHalStore.getWithinBudget()?.total || 0) }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                <EmptyState
+                  v-else
+                  title="ບໍ່ພົບຂໍ້ມູນບໍລິສັດ"
+                  message="ລອງປ່ຽນຕົວກອງ ຫຼື ຄຳຄົ້ນຫາ"
+                  icon="solar:inbox-outline"
+                />
+              </section>
 
-              <!-- Compact Budget Chart -->
-              <div class="max-h-96 overflow-y-auto">
-                <!-- Over Budget Companies -->
-                <div v-if="overBudgetCompanies.length > 0" class="mb-4">
-                  <h4 class="text-sm font-semibold text-red-600 flex items-center gap-2 mb-2">
-                    <Icon icon="material-symbols:warning" />
-                    ບໍລິສັດທີໃຊ້ງົບເກີນ ({{ overBudgetCompanies.length }})
-                  </h4>
-                  <div class="space-y-2">
-                    <div
-                      v-for="company in overBudgetCompanies"
-                      :key="company.id"
-                      class="flex items-center gap-3 p-2 bg-red-50 rounded border border-red-200"
-                    >
-                      <!-- Company Logo -->
-                      <div class="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 relative">
-                        <img
-                          v-if="company.logo && company.logo.startsWith('http')"
-                          :src="company.logo"
-                          :alt="company.name"
-                          class="w-full h-full object-cover"
-                          @error="(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.classList.add('hidden');
-                            target.parentElement!.querySelector('.fallback-icon')!.classList.remove('hidden');
-                          }"
-                        />
-                        <div
-                          v-if="company.logo && company.logo.startsWith('http')"
-                          class="fallback-icon hidden absolute inset-0 rounded-full"
-                          :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
-                        >
-                          <Icon icon="mdi:domain" class="text-xs" />
-                        </div>
-                        <div
-                          v-else
-                          class="w-full h-full rounded-full flex items-center justify-center"
-                          :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
-                        >
-                          <Icon :icon="company.logo" class="text-xs" />
-                        </div>
-                      </div>
+              <!-- Budget split section -->
+              <section class="p-3 sm:p-4 lg:p-6 space-y-4">
+                <SectionHeader
+                  title="ງົບປະມານຂອງບໍລິສັດໃນເຄືອ"
+                  subtitle="ການໃຊ້ງົບປະມານ — ຈັດອັນດັບຕາມເປີເຊັນທີ່ໃຊ້"
+                >
+                  <template #badge>
+                    <span class="text-rose-600 text-xs sm:text-sm">
+                      ເກີນ: <MoneyText :value="reportHalStore.getBudgetOverruns()?.total || 0" class="font-bold" />
+                    </span>
+                    <span class="text-emerald-600 text-xs sm:text-sm">
+                      ໃນງົບ: <MoneyText :value="reportHalStore.getWithinBudget()?.total || 0" class="font-bold" />
+                    </span>
+                  </template>
+                </SectionHeader>
 
-                      <!-- Company Name & Over Budget -->
-                      <div class="w-32 flex-shrink-0">
-                        <div class="text-xs font-medium text-gray-900 truncate">
-                          {{ company.name }}
-                        </div>
-                        <div class="text-xs text-red-600 font-medium">
-                          +{{ formatCurrency(company.budgetUsed - company.budget) }}
-                        </div>
-                      </div>
-
-                      <!-- Compact Budget Bar -->
-                      <div class="flex-1 min-w-0">
-                        <div class="relative">
-                          <div class="w-full bg-red-100 rounded h-4 overflow-hidden">
-                            <div
-                              class="h-4 rounded bg-red-500 transition-all duration-300 relative"
-                              :style="`width: ${Math.min(
-                                getBudgetPercentage(company.budgetUsed, company.budget),
-                                100
-                              )}%`"
-                            >
-                              <!-- Over budget indicator -->
-                              <div
-                                v-if="getBudgetPercentage(company.budgetUsed, company.budget) > 100"
-                                class="absolute right-0 top-0 h-4 w-1 bg-red-700 animate-pulse"
-                              ></div>
-                            </div>
-                          </div>
-                          <span
-                            class="absolute right-1 top-0 text-xs text-red-700 font-medium leading-4"
-                          >
-                            {{ getBudgetPercentage(company.budgetUsed, company.budget) }}%
-                          </span>
-                          <!-- Over budget text -->
-                          <span
-                            v-if="getBudgetPercentage(company.budgetUsed, company.budget) > 100"
-                            class="absolute right-6 top-0 text-xs text-red-700 font-medium leading-4"
-                          >
-                            +{{ getBudgetPercentage(company.budgetUsed, company.budget) - 100 }}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Within Budget Companies -->
-                <div v-if="withinBudgetCompanies.length > 0">
-                  <h4 class="text-sm font-semibold text-green-600 flex items-center gap-2 mb-2">
-                    <Icon icon="material-symbols:check-circle" />
-                    ບໍລິສັດທີ່ຢູ່ໃນງົບ ({{ withinBudgetCompanies.length }})
-                  </h4>
-                  <div class="space-y-2">
-                    <div
-                      v-for="company in withinBudgetCompanies"
-                      :key="company.id"
-                      class="flex items-center gap-3 p-2 bg-green-50 rounded border border-green-200"
-                    >
-                      <!-- Company Logo -->
-                      <div class="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 relative">
-                        <img
-                          v-if="company.logo && company.logo.startsWith('http')"
-                          :src="company.logo"
-                          :alt="company.name"
-                          class="w-full h-full object-cover"
-                          @error="(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.classList.add('hidden');
-                            target.parentElement!.querySelector('.fallback-icon')!.classList.remove('hidden');
-                          }"
-                        />
-                        <div
-                          v-if="company.logo && company.logo.startsWith('http')"
-                          class="fallback-icon hidden absolute inset-0 rounded-full"
-                          :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
-                        >
-                          <Icon icon="mdi:domain" class="text-xs" />
-                        </div>
-                        <div
-                          v-else
-                          class="w-full h-full rounded-full flex items-center justify-center"
-                          :class="[getLogoBgColor(company.color), getLogoTextColor(company.color)]"
-                        >
-                          <Icon :icon="company.logo" class="text-xs" />
-                        </div>
-                      </div>
-
-                      <!-- Company Name & Remaining Budget -->
-                      <div class="w-32 flex-shrink-0">
-                        <div class="text-xs font-medium text-gray-900 truncate">
-                          {{ company.name }}
-                        </div>
-                        <div class="text-xs text-green-600 font-medium">
-                          ຍັງ: {{ formatCurrency(company.budget - company.budgetUsed) }}
-                        </div>
-                      </div>
-
-                      <!-- Compact Budget Bar -->
-                      <div class="flex-1 min-w-0">
-                        <div class="relative">
-                          <div class="w-full bg-gray-200 rounded h-4 overflow-hidden">
-                            <div
-                              class="h-4 rounded transition-all duration-300 relative"
-                              :class="
-                                getBudgetBarColor(
-                                  getBudgetPercentage(company.budgetUsed, company.budget)
-                                )
-                              "
-                              :style="`width: ${Math.min(
-                                getBudgetPercentage(company.budgetUsed, company.budget),
-                                100
-                              )}%`"
-                            >
-                              <!-- Over budget indicator (just in case) -->
-                              <div
-                                v-if="getBudgetPercentage(company.budgetUsed, company.budget) > 100"
-                                class="absolute right-0 top-0 h-4 w-1 bg-red-600 animate-pulse"
-                              ></div>
-                            </div>
-                          </div>
-                          <span
-                            class="text-xs text-gray-700 font-medium leading-4"
-                            :class="
-                              getBudgetPercentage(company.budgetUsed, company.budget) > 50
-                                ? 'absolute right-1 top-0 text-white'
-                                : 'absolute right-1 top-0'
-                            "
-                          >
-                            {{ getBudgetPercentage(company.budgetUsed, company.budget) }}%
-                          </span>
-                          <!-- Over budget text (just in case) -->
-                          <span
-                            v-if="getBudgetPercentage(company.budgetUsed, company.budget) > 100"
-                            class="absolute right-6 top-0 text-xs text-red-600 font-medium leading-4"
-                          >
-                            +{{ getBudgetPercentage(company.budgetUsed, company.budget) - 100 }}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                <BudgetUsageChart
+                  :over-budget="overBudgetCompanies"
+                  :within-budget="withinBudgetCompanies"
+                />
+              </section>
+            </template>
           </Tabs.TabPane>
 
-          <!-- Tab 2: ອະນຸມັດເອກະສານ  -->
+          <!-- ───────────────────────── Tab 2 : Approve ───────────────────────── -->
           <Tabs.TabPane key="2" tab="ອະນຸມັດເອກະສານ">
-            <!-- Tab Loading State -->
-            <div v-if="tabLoading['2']" class="p-8 text-center">
-              <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p class="mt-2 text-gray-600">ກຳລັງໂຫຼດຂໍ້ມູນການອະນຸມັດເອກະສານ...</p>
-            </div>
+            <LoadingSpinner v-if="tabLoading['2']" message="ກຳລັງໂຫຼດຂໍ້ມູນການອະນຸມັດເອກະສານ..." />
 
-            <!-- Compact Header for Tab 2 -->
-            <div v-if="!tabLoading['2']"
-              class="border-b border-gray-200 p-3 md:p-2 bg-gradient-to-r from-orange-50 to-yellow-50"
-            >
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <div>
-                  <h2 class="text-lg md:text-xl font-bold text-gray-900">ອະນຸມັດເອກະສານ</h2>
-                  <p class="text-sm text-gray-600 mt-0.5">ຈັດການການອະນຸມັດເອກະສານທັງໝົດ</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <div
-                    class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium"
-                  >
-                    <Icon icon="ant-design:clock-circle-outlined" class="inline mr-1" />
-                    {{
-                      filteredPurchaseRequests.filter((r) => r.status === "pending").length
-                    }}
-                    ລໍຖ້າອະນຸມັດ
-                  </div>
-                  |
-                  <div
-                    class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium"
-                  >
-                    ລວມເປັນຈຳນວນເງິນ
-                    {{
-                      formatCurrency(
-                        filteredPurchaseRequests
-                          .filter((r) => r.status === "approved")
-                          .reduce((sum, r) => sum + r.amount, 0)
-                      )
-                    }}
+            <template v-else>
+              <header class="border-b border-gray-200 p-3 lg:p-4 bg-gradient-to-r from-orange-50 to-amber-50">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div>
+                    <h2 class="text-lg md:text-xl font-bold text-gray-900">ອະນຸມັດເອກະສານ</h2>
+                    <p class="text-sm text-gray-600 mt-0.5">ຈັດການການອະນຸມັດເອກະສານທັງໝົດ</p>
                   </div>
                 </div>
-              </div>
-            </div>
-            <!-- Tab Content -->
-            <div class="p-0">
-              <!-- Replace with ApproveProposal Component -->
+              </header>
+
               <ApproveProposal
-                :selectedCompany="selectedCompany"
-                :searchKeyword="searchKeyword"
-                :statusFilter="'pending'"
-              
+                :selected-company="selectedCompany"
+                :search-keyword="searchKeyword"
+                :status-filter="'pending'"
               />
-            </div>
+            </template>
           </Tabs.TabPane>
 
-          <!-- Tab 3: ບໍລິສັດໃນເຄືອ -->
+          <!-- ───────────────────────── Tab 3 : Affiliated ───────────────────────── -->
           <Tabs.TabPane key="3" tab="ບໍລິສັດໃນເຄືອ">
-            <!-- Tab Loading State -->
-            <div v-if="tabLoading['3']" class="p-8 text-center">
-              <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p class="mt-2 text-gray-600">ກຳລັງໂຫຼດຂໍ້ມູນບໍລິສັດໃນເຄືອ...</p>
-            </div>
+            <LoadingSpinner v-if="tabLoading['3']" message="ກຳລັງໂຫຼດຂໍ້ມູນບໍລິສັດໃນເຄືອ..." />
 
-            <!-- Dynamic Header for Tab 3 -->
-            <div v-if="!tabLoading['3']"
-              class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-purple-50 to-pink-50"
-            >
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <h1 class="text-2xl md:text-3xl font-bold text-gray-900">ບໍລິສັດໃນເຄືອ</h1>
-                  <p class="text-gray-600 mt-1">ຈັດການບໍລິສັດທັງໝົດໃນເຄືອລະບົບ</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <div
-                    class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    <Icon icon="ant-design:building-outlined" class="inline mr-1" />
-                    9 ບໍລິສັດ
+            <template v-else>
+              <header class="border-b border-gray-200 p-4 lg:p-6 bg-gradient-to-r from-purple-50 to-pink-50">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div>
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">ບໍລິສັດໃນເຄືອ</h1>
+                    <p class="text-sm sm:text-base text-gray-600 mt-1">ຈັດການບໍລິສັດທັງໝົດໃນເຄືອລະບົບ</p>
                   </div>
+                  <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs sm:text-sm font-medium inline-flex items-center gap-1">
+                    <Icon icon="ant-design:building-outlined" />
+                    {{ companyReportStore.companiesWithReceipts?.length ?? 0 }} ບໍລິສັດ
+                  </span>
                 </div>
-              </div>
-            </div>
+              </header>
 
-            <!-- Tab Content -->
-            <div class="p-0">
-              <!-- Show Affiliated Company List if no detail selected -->
               <AffiliatedCompany
-                v-if="!showCompanyDetail && activeTab === '3'"
+                v-if="!showCompanyDetail"
                 :statistics="
                   companyReportStore.statistics
                     ? {
@@ -1366,163 +648,36 @@ onMounted(async () => {
                       }
                     : undefined
                 "
-                :companiesFromAPI="companyReportStore.companiesWithReceipts"
+                :companies-from-api="companyReportStore.companiesWithReceipts"
                 :loading="companyReportStore.loading"
                 @view-details="handleViewDetails"
               />
 
-              <!-- Debug Info - Remove this in production -->
-              <!-- <div v-if="activeTab === '3'" class="bg-yellow-50 p-2 mb-2 text-xs">
-                <div>showCompanyDetail: {{ showCompanyDetail }}</div>
-                <div>selectedDetailCompany ID: {{ selectedDetailCompany?.id }}</div>
-                <div>selectedDetailCompany Name: {{ selectedDetailCompany?.name }}</div>
-                <div>Active Tab: {{ activeTab }}</div>
-              </div> -->
-
-              <!-- Show Company Detail if selected -->
-              <div v-if="showCompanyDetail && selectedDetailCompany">
-                <div class="bg-gray-50 min-h-full">
-                  <!-- Detail Header -->
-                  <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                    <div class="px-6 py-4">
-                      <div class="flex items-center gap-4">
-                        <button
-                          @click="closeCompanyDetail"
-                          class="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                        >
-                          <Icon icon="mdi:arrow-left" class="text-xl" />
-                        </button>
-                        <h1 class="text-xl font-bold">ລາຍລະອຽດບໍລິສັດ</h1>
-                        <div class="ml-auto">
-                          <span class="bg-white/20 px-3 py-1 rounded-full text-sm">
-                            {{ selectedDetailCompany?.name }}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Company Detail Component -->
-                  <div class="p-0">
-                    <CompanyDetail
-                      :company-id="selectedDetailCompany?.id"
-                      :company-data="selectedDetailCompany"
-                      @close="closeCompanyDetail"
-                    />
+              <div v-else-if="selectedDetailCompany" class="bg-gray-50">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                  <div class="px-4 sm:px-6 py-4 flex items-center gap-4">
+                    <button
+                      type="button"
+                      class="p-2 hover:bg-white/20 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+                      @click="closeCompanyDetail"
+                    >
+                      <Icon icon="mdi:arrow-left" class="text-xl" />
+                    </button>
+                    <h1 class="text-lg sm:text-xl font-bold">ລາຍລະອຽດບໍລິສັດ</h1>
+                    <span class="ml-auto bg-white/20 px-3 py-1 rounded-full text-sm truncate max-w-[60%]">
+                      {{ selectedDetailCompany.name }}
+                    </span>
                   </div>
                 </div>
-              </div>
 
-              <!-- Show Affiliated Company List if no detail selected -->
-              <!-- <AffiliatedCompany
-                v-if="!showCompanyDetail"
-                @view-details="handleViewDetails"
-              /> -->
-            </div>
-          </Tabs.TabPane>
-
-          <!-- Tab 4: ການເງີນ -->
-          <!-- <Tabs.TabPane key="4" tab="ການເງີນ">
-           
-            <div
-              class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-green-50 to-emerald-50"
-            >
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <h1 class="text-2xl md:text-3xl font-bold text-gray-900">ການເງີນ</h1>
-                  <p class="text-gray-600 mt-1">ຈັດການການເງີນ ແລະ ງົບປະມານ</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <div
-                    class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    <Icon icon="ant-design:bank-outlined" class="inline mr-1" />
-                    3 ທະນາຄານ
-                  </div>
-                  <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                    <Icon icon="ant-design:credit-card-outlined" class="inline mr-1" />
-                    12 ບັນຊີ
-                  </div>
-                </div>
-              </div>
-              </div>
-            </div>
-          </Tabs.TabPane>
-
-          <!- Tab 4: ການເງີນ -->
-          <!-- <Tabs.TabPane key="4" tab="ການເງີນ">
-
-            <div
-              class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-green-50 to-emerald-50"
-            >
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <h1 class="text-2xl md:text-3xl font-bold text-gray-900">ການເງີນ</h1>
-                  <p class="text-gray-600 mt-1">ຈັດການການເງີນ ແລະ ງົບປະມານ</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <div
-                    class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    <Icon icon="ant-design:bank-outlined" class="inline mr-1" />
-                    3 ທະນາຄານ
-                  </div>
-                  <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                    <Icon icon="ant-design:credit-card-outlined" class="inline mr-1" />
-                    12 ບັນຊີ
-                  </div>
-                </div>
-              </div>
-            </div>
-
-
-            <div class="p-6">
-              <div class="text-center py-12">
-                <Icon icon="ant-design:bank-outlined" class="text-6xl text-gray-300 mx-auto mb-4" />
-                <h3 class="text-xl font-semibold text-gray-600 mb-2">ການເງີນ</h3>
-                <p class="text-gray-500">ຈັດການການເງີນ ແລະ ງົບປະມານ</p>
-              </div>
-            </div>
-          </Tabs.TabPane> -->
-
-          <!-- Tab 5: ລາຍງານປະມານ -->
-          <!-- <Tabs.TabPane key="5" tab="ລາຍງານປະມານ">
-          
-            <div
-              class="border-b border-gray-200 p-4 md:p-6 bg-gradient-to-r from-red-50 to-rose-50"
-            >
-              <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <h1 class="text-2xl md:text-3xl font-bold text-gray-900">ລາຍງານປະມານ</h1>
-                  <p class="text-gray-600 mt-1">ສະແດງລາຍງານງົບປະມານທັງໝົດ</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <div class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                    <Icon icon="ant-design:file-text-outlined" class="inline mr-1" />
-                    {{ new Date().getMonth() + 1 }} ເດືອນ
-                  </div>
-                  <div
-                    class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium"
-                  >
-                    <Icon icon="ant-design:exclamation-circle-outlined" class="inline mr-1" />
-                    4 ເກີນງົບ
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          
-            <div class="p-6">
-              <div class="text-center py-12">
-                <Icon
-                  icon="ant-design:bar-chart-outlined"
-                  class="text-6xl text-gray-300 mx-auto mb-4"
+                <CompanyDetail
+                  :company-id="selectedDetailCompany.id"
+                  :company-data="selectedDetailCompany"
+                  @close="closeCompanyDetail"
                 />
-                <h3 class="text-xl font-semibold text-gray-600 mb-2">ລາຍງານປະມານ</h3>
-                <p class="text-gray-500">ສະແດງລາຍງານງົບປະມານທັງໝົດ</p>
               </div>
-            </div>
-          </Tabs.TabPane> -->
+            </template>
+          </Tabs.TabPane>
         </Tabs>
       </div>
     </div>
@@ -1535,122 +690,29 @@ onMounted(async () => {
   background-color: #f8f9fa;
 }
 
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3.xl\:grid-cols-6 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 641px) and (max-width: 1024px) {
-  .grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3.xl\:grid-cols-6 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1025px) and (max-width: 1280px) {
-  .grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-3.xl\:grid-cols-6 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-/* Card hover effects */
-.grid > div {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.grid > div:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-/* Smooth transitions for all interactive elements */
-button,
-input,
-select {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Company box hover effects */
-.company-box {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.company-box:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-/* Budget bar animations */
-.budget-bar {
-  transition: width 0.5s ease-in-out;
-}
-
-/* Loading animation */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-/* Custom scrollbar for budget chart */
-.max-h-96::-webkit-scrollbar {
+/* Custom scrollbar used for the budget-list panes. */
+.hal-scroll::-webkit-scrollbar {
   width: 6px;
 }
-
-.max-h-96::-webkit-scrollbar-track {
+.hal-scroll::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
-
-.max-h-96::-webkit-scrollbar-thumb {
+.hal-scroll::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 3px;
 }
-
-.max-h-96::-webkit-scrollbar-thumb:hover {
+.hal-scroll::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
 
-/* Ensure text doesn't overflow in statistics cards */
-.text-2xl\.md\:text-3xl {
-  word-wrap: break-word;
-  word-break: break-all;
-  hyphens: auto;
-  overflow-wrap: break-word;
-}
-
-/* Responsive font sizes for large numbers */
-@media (max-width: 640px) {
-  .text-2xl.md\:text-3xl {
-    font-size: 1.25rem; /* 20px */
-    line-height: 1.4;
+/* Define a "3xl" breakpoint Tailwind doesn't ship by default. */
+@media (min-width: 1920px) {
+  .\33xl\:max-w-\[120rem\] {
+    max-width: 120rem;
   }
-}
-
-@media (min-width: 641px) and (max-width: 1024px) {
-  .text-2xl.md\:text-3xl {
-    font-size: 1.5rem; /* 24px */
-    line-height: 1.3;
+  .\33xl\:grid-cols-7 {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
-}
-
-/* Header responsive text */
-.break-words {
-  word-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-}
-
-/* Flex wrap for better responsive behavior */
-.flex-wrap {
-  flex-wrap: wrap;
 }
 </style>

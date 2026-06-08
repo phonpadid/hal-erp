@@ -3,7 +3,6 @@
 import { computed } from "vue";
 import { formatPrice } from "@/modules/shared/utils/format-price";
 import { getUserDisplayName, getApprovalStepLabel } from "@/modules/shared/utils/display-user";
-
 const props = defineProps<{
     /** Legacy: receipt object passed directly (used when no API JSON yet) */
     receipt?: any;
@@ -102,6 +101,34 @@ const receiptShopBank = computed(
     () => receiptItems.value[0]?.purchase_order_item?.selected_vendor?.[0]?.vendor_bank_account
 );
 const receiptSteps = computed(() => sortedSteps(receipt.value));
+
+// Transfer slip images uploaded during finance approval.
+// Merge from both the print API response and the locally fetched receipt
+// since the print endpoint may not include document_attachment.
+const transferSlips = computed<string[]>(() => {
+    const seen = new Set<string>();
+    const collect = (source: any) => {
+        const atts = source?.document_attachment ?? [];
+        for (const a of atts) {
+            const url = a?.file_name_url;
+            if (url && !seen.has(url)) seen.add(url);
+        }
+    };
+    collect(receipt.value);
+    collect(props.receipt);
+    return Array.from(seen);
+});
+
+
+// PR/Quotation document files attached on each selected vendor.
+// Merge from both sources for the same reason as transferSlips.
+
+// Structured proposal data built from the receipt items.
+// Mirrors what ApprovalDrawer.vue displays so the printed page carries the
+// same item-level proposal info — title, qty, unit, unit price, total,
+// price-in-words, the quotation file (if it's a printable image) and the
+// selected vendor — without depending on a PDF iframe.
+
 </script>
 
 <template>
@@ -483,6 +510,21 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
                 </table>
             </div>
         </section>
+
+        <!-- ========== TRANSFER SLIP PAGE ========== -->
+        <section v-if="receipt && transferSlips.length" class="print-page">
+            <div class="doc">
+                <div class="header">
+                    <h1 class="title">ຫຼັກຖານການໂອນເງິນ - TRANSFER SLIP</h1>
+                    <p class="doc-number">{{ receipt?.receipt_number }}</p>
+                </div>
+                <div class="attachment-grid">
+                    <div v-for="(url, index) in transferSlips" :key="`slip-${index}`" class="attachment-item">
+                        <img :src="url" alt="transfer slip" class="attachment-img" />
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 </template>
 
@@ -744,6 +786,89 @@ const receiptSteps = computed(() => sortedSteps(receipt.value));
     font-size: 9pt;
     color: #666;
     margin-top: 2px;
+}
+
+.attachment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8mm;
+    margin-top: 8mm;
+}
+
+.attachment-item {
+    border: 1px solid #000;
+    padding: 4mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    min-height: 80mm;
+}
+
+.attachment-img {
+    max-width: 100%;
+    max-height: 120mm;
+    object-fit: contain;
+}
+
+.quotation-image-block {
+    margin-top: 6mm;
+    border: 1px solid #000;
+}
+
+.quotation-image-block .section-label {
+    background: #f3f4f6;
+    padding: 5px 8px;
+    font-weight: bold;
+    border-bottom: 1px solid #000;
+    font-size: 10pt;
+}
+
+.quotation-image-block .attachment-grid {
+    margin: 4mm;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Proposal items table — adds vendor column + item thumbnail */
+.proposal-items-table .col-no { width: 5%; }
+.proposal-items-table .col-desc { width: 26%; }
+.proposal-items-table .col-qty { width: 7%; }
+.proposal-items-table .col-unit { width: 8%; }
+.proposal-items-table .col-price { width: 13%; }
+.proposal-items-table .col-total { width: 14%; }
+.proposal-items-table .col-vendor { width: 27%; }
+
+.item-title {
+    font-weight: 600;
+}
+
+.item-thumb {
+    max-width: 40mm;
+    max-height: 25mm;
+    object-fit: contain;
+    margin-top: 2mm;
+    display: block;
+    border: 1px solid #e5e7eb;
+}
+
+.text-vendor {
+    font-size: 9pt;
+    line-height: 1.3;
+}
+
+.vendor-bank {
+    color: #4b5563;
+    font-size: 8.5pt;
+    margin-top: 1mm;
+}
+
+.total-words {
+    text-align: right;
+    padding: 4px 10px !important;
+    font-style: italic;
+    color: #374151;
 }
 
 @media print {

@@ -1,171 +1,251 @@
-<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useNotification } from "@/modules/shared/utils/useNotification";
 import { Icon } from "@iconify/vue";
+
+import { useNotification } from "@/modules/shared/utils/useNotification";
 import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
+import UiButton from "@/common/shared/components/button/UiButton.vue";
+
 import AffiliatedCompany from "../affiliated-company/AffiliatedCompany.vue";
 import BudgetList from "../budget-list/BudgetList.vue";
 import ApproveProposal from "../approve-proposal/ApproveProposal.vue";
-import UiButton from "@/common/shared/components/button/UiButton.vue";
 
-// Import types from OverView
-type Company = {
+import {
+  SummaryCard,
+  MoneyText,
+  BudgetBar,
+  CompanyLogo,
+  EmptyState,
+  LoadingSpinner,
+  useBudgetStatus,
+  useCompanyTheme,
+  type ThemeColor,
+} from "../_shared";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Types — narrow union for the company shape we accept from the parent
+// ─────────────────────────────────────────────────────────────────────────────
+interface BaseCompany {
   id: number;
   name: string;
-  logo: string;
-  logo_url?: string;
+  logo?: string;
   logoUrl?: string;
-  proposalCount: number;
-  budget: number;
-  budgetUsed: number;
-  color: string;
-  userCount: number;
-  allocated_amount: number;
-  balance_amount: number;
-  approvalWorkflowCount: number;
-};
-
-type AffiliatedCompany = {
-  id: number;
-  name: string;
-  logo: string;
   logo_url?: string;
-  logoUrl?: string;
+  color?: string;
   proposalCount: number;
   budget: number;
   budgetUsed: number;
-  color: string;
-  status: "active" | "inactive" | "pending";
-  contractType: "annual" | "project" | "service";
-  establishedYear: number;
-  employees: number;
-  registrationNumber: string;
-};
-
-// Interface for company data
-interface CompanyDetail {
-  id: number;
-  name: string;
-  logo: string;
-  logoUrl:string;
-  color: string;
-  description: string;
-  proposalCount: number;
-  budget: number;
-  budgetUsed: number;
-  employees: number;
-  establishedYear: number;
-  registrationNumber: string;
-  phone: string;
-  email: string;
-  address: string;
-  director: string;
-  status: "active" | "inactive" | "pending";
-  contractType: "annual" | "project" | "service";
 }
 
-const { warning } = useNotification();
-const route = useRoute();
-const router = useRouter();
-const goBack = () => router.back();
-const receiptStore = useReceiptStore();
+interface ExtendedCompanyFields {
+  description?: string;
+  employees?: number;
+  userCount?: number;
+  establishedYear?: number;
+  registrationNumber?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  director?: string;
+  status?: "active" | "inactive" | "pending";
+  contractType?: "annual" | "project" | "service";
+}
 
-// Props
+type CompanyInput = BaseCompany & ExtendedCompanyFields;
+
 const props = defineProps<{
   companyId?: number;
-  companyData?: CompanyDetail | Company | AffiliatedCompany | null; // Add company data prop to receive from parent
+  companyData?: CompanyInput | null;
 }>();
 
-// Emits
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const emit = defineEmits<{
-  (e: 'close'): void;
-}>();
+const emit = defineEmits<{ (e: "close"): void }>();
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Dependencies
+// ─────────────────────────────────────────────────────────────────────────────
+const route = useRoute();
+const router = useRouter();
+const { warning } = useNotification();
+const receiptStore = useReceiptStore();
+
+const { getBudgetPercentage } = useBudgetStatus();
+const { colorForCompany } = useCompanyTheme();
+
+// ─────────────────────────────────────────────────────────────────────────────
 // State
-const loading = ref<boolean>(false);
-const showDetail = ref<boolean>(false);
-const selectedCompany = ref<CompanyDetail | Company | AffiliatedCompany | null>(null);
-const activeTab = ref<string>("proposals");
-const showApproveProposal = ref<boolean>(false);
+// ─────────────────────────────────────────────────────────────────────────────
+const loading = ref(false);
+const showDetail = ref(false);
+const showApproveProposal = ref(false);
+const activeTab = ref<"proposals" | "budget">("proposals");
+const selectedCompany = ref<CompanyInput | null>(null);
 
-// Receipts search and filter state
-const receiptSearch = ref<string>("");
-const selectedStatus = ref<string>("");
-const selectedDateRange = ref<string>("");
-const currentPage = ref<number>(1);
-const itemsPerPage = ref<number>(10);
+const receiptSearch = ref("");
+const selectedStatus = ref("");
+const selectedDateRange = ref("");
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
 
-// Helper functions to safely access company properties
-const getCompanyProperty = (property: string, fallback: any = '-') => {
-  if (!selectedCompany.value) return fallback;
+const goBack = () => router.back();
 
-  const company = selectedCompany.value;
-  // Check if property exists in the company object
-  if (property in company) {
-    return (company as any)[property];
-  }
+// ─────────────────────────────────────────────────────────────────────────────
+// Derived data
+// ─────────────────────────────────────────────────────────────────────────────
+const themeColor = computed<ThemeColor>(() =>
+  selectedCompany.value
+    ? colorForCompany(selectedCompany.value.id)
+    : "blue",
+);
 
-  // Map common properties between different company types
-  const propertyMap: { [key: string]: string[] } = {
-    'employees': ['userCount', 'employees'],
-    'description': ['description', 'name'],
-    'registrationNumber': ['registrationNumber', 'id'],
-    'establishedYear': ['establishedYear', 'id'],
-    'address': ['address', '-'],
-    'phone': ['phone', '-'],
-    'email': ['email', '-'],
-    'director': ['director', '-'],
-    'status': ['status', 'active'],
-    'contractType': ['contractType', 'annual'],
-    'logo': ['logo', 'mdi:company'],
-    'logoUrl': ['logoUrl', 'logo_url'],
-    'logo_url': ['logo_url', 'logoUrl']
-  };
+const logoSource = computed(() => {
+  const c = selectedCompany.value;
+  if (!c) return null;
+  return c.logoUrl || c.logo_url || c.logo || null;
+});
 
-  const possibleProperties = propertyMap[property] || [property];
-  for (const prop of possibleProperties) {
-    if (prop in company && (company as any)[prop]) {
-      return (company as any)[prop];
-    }
-  }
-
-  return fallback;
+const fieldValue = <K extends keyof ExtendedCompanyFields>(
+  key: K,
+  fallback: string = "-",
+): string => {
+  const value = selectedCompany.value?.[key];
+  if (value === undefined || value === null || value === "") return fallback;
+  return String(value);
 };
 
+const contractLabel = computed(() => {
+  const ct = selectedCompany.value?.contractType;
+  if (ct === "project") return "ຕາມໂຄງການ";
+  if (ct === "service") return "ບໍລິການ";
+  if (ct === "annual") return "ປະຈຳປີ";
+  return "-";
+});
 
-
-// Load company detail
-const loadCompanyDetail = async (companyId: number) => {
-  // console.log('🔍 loadCompanyDetail called with companyId:', companyId);
-
-  // Prevent double loading if already loading the same company
-  if (loading.value && selectedCompany.value?.id === companyId) {
-    return;
+const statusInfo = computed(() => {
+  const status = selectedCompany.value?.status ?? "active";
+  if (status === "active") {
+    return { label: "ກຳລັງຜູກສັນຍາ", class: "bg-emerald-100 text-emerald-800" };
   }
+  if (status === "pending") {
+    return { label: "ລໍຖ້າອະນຸມັດ", class: "bg-amber-100 text-amber-800" };
+  }
+  return { label: "ສິ້ນສຸດສັນຍາ", class: "bg-rose-100 text-rose-800" };
+});
+
+const budgetRemaining = computed(() => {
+  const c = selectedCompany.value;
+  return c ? Math.max(0, c.budget - c.budgetUsed) : 0;
+});
+
+const usagePercent = computed(() =>
+  selectedCompany.value
+    ? getBudgetPercentage(selectedCompany.value.budgetUsed, selectedCompany.value.budget)
+    : 0,
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Receipts: filtering + pagination
+// ─────────────────────────────────────────────────────────────────────────────
+const filteredReceipts = computed(() => {
+  let list = receiptStore.receipts;
+
+  if (receiptSearch.value) {
+    const term = receiptSearch.value.toLowerCase();
+    list = list.filter(
+      (r) =>
+        r.receipt_number?.toLowerCase().includes(term) ||
+        r.po_number?.toLowerCase().includes(term) ||
+        r.remark?.toLowerCase().includes(term),
+    );
+  }
+
+  if (selectedStatus.value) {
+    list = list.filter((r) => r.user_approval?.document_status?.name === selectedStatus.value);
+  }
+
+  if (selectedDateRange.value) {
+    const now = new Date();
+    const startMap: Record<string, Date> = {
+      today: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+      week: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+      month: new Date(now.getFullYear(), now.getMonth(), 1),
+      year: new Date(now.getFullYear(), 0, 1),
+    };
+    const start = startMap[selectedDateRange.value] ?? new Date(0);
+    list = list.filter((r) => {
+      const d = new Date(r.receipt_date);
+      return d >= start && d <= now;
+    });
+  }
+
+  return list;
+});
+
+const paginatedReceipts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  return filteredReceipts.value.slice(start, start + itemsPerPage.value);
+});
+
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(filteredReceipts.value.length / itemsPerPage.value)),
+);
+
+const statusOptions = computed(() => {
+  const unique = new Set<string>();
+  for (const r of receiptStore.receipts) {
+    const name = r.user_approval?.document_status?.name;
+    if (name) unique.add(name);
+  }
+  return [...unique].map((value) => ({ label: value, value }));
+});
+
+const pageTotals = computed(() => ({
+  subTotal: paginatedReceipts.value.reduce((sum, r) => sum + (r.sub_total || 0), 0),
+  vat: paginatedReceipts.value.reduce((sum, r) => sum + (r.vat || 0), 0),
+  total: paginatedReceipts.value.reduce((sum, r) => sum + (r.total || 0), 0),
+}));
+
+const hasActiveFilters = computed(
+  () => Boolean(receiptSearch.value || selectedStatus.value || selectedDateRange.value),
+);
+
+const clearFilters = () => {
+  receiptSearch.value = "";
+  selectedStatus.value = "";
+  selectedDateRange.value = "";
+  currentPage.value = 1;
+};
+
+const goToPage = (page: number) => {
+  currentPage.value = Math.min(Math.max(1, page), totalPages.value);
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Data loading
+// ─────────────────────────────────────────────────────────────────────────────
+const loadCompanyReceipts = async (companyId: number) => {
+  try {
+    receiptStore.$patch({ receipts: [] });
+    await receiptStore.fetchByCompanyId(companyId, { page: 1, limit: 100 });
+    clearFilters();
+  } catch (error) {
+    console.error("Error loading receipts:", error);
+  }
+};
+
+const loadCompanyDetail = async (companyId: number) => {
+  if (loading.value && selectedCompany.value?.id === companyId) return;
 
   loading.value = true;
   try {
-    // First try to use companyData from props if available
     if (props.companyData && props.companyData.id === companyId) {
-      // console.log('✅ Using companyData from props:', props.companyData);
       selectedCompany.value = props.companyData;
-    } else {
-      // Fallback to mock data search
-      await new Promise((resolve) => setTimeout(resolve, 500));
     }
-
     if (!selectedCompany.value) {
-      // console.log('❌ Company not found for ID:', companyId);
       warning("ຂໍ້ຜິດພາດ", "ບໍ່ພົບຂໍ້ມູນບໍລິສັດ");
-    } else {
-      // console.log('✅ Company found:', selectedCompany.value.name);
-
-      // ໂຫຼດข้อมูล receipt ของบริษัทนี้
-      await loadCompanyReceipts(companyId);
+      return;
     }
+    await loadCompanyReceipts(companyId);
   } catch (error) {
     console.error("Error loading company detail:", error);
     warning("ເກີດຂໍ້ຜິດພາດ", "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນໄດ້");
@@ -174,211 +254,47 @@ const loadCompanyDetail = async (companyId: number) => {
   }
 };
 
-// ໂຫຼດข้อมูล receipt ตาม company_id
-const loadCompanyReceipts = async (companyId: number) => {
-  try {
-    console.log('🔍 Loading receipts for company:', companyId);
-    // Clear receipt data before loading new data
-    receiptStore.receipts = [];
-    const result = await receiptStore.fetchByCompanyId(companyId, { page: 1, limit: 100 });
-    console.log('✅ Receipts loaded:', result?.data?.length || 0, 'items');
-
-    // Reset filters
-    receiptSearch.value = "";
-    selectedStatus.value = "";
-    selectedDateRange.value = "";
-    currentPage.value = 1;
-  } catch (error) {
-    console.error('❌ Error loading receipts:', error);
-  }
-};
-
-// Computed property for filtered receipts
-const filteredReceipts = computed(() => {
-  let filtered = receiptStore.receipts;
-
-  // Filter by search term
-  if (receiptSearch.value) {
-    const searchLower = receiptSearch.value.toLowerCase();
-    filtered = filtered.filter(receipt =>
-      receipt.receipt_number?.toLowerCase().includes(searchLower) ||
-      receipt.po_number?.toLowerCase().includes(searchLower) ||
-      receipt.remark?.toLowerCase().includes(searchLower)
-    );
-  }
-
-  // Filter by status
-  if (selectedStatus.value) {
-    filtered = filtered.filter(receipt =>
-      receipt.user_approval?.document_status?.name === selectedStatus.value
-    );
-  }
-
-  // Filter by date range
-  if (selectedDateRange.value) {
-    const now = new Date();
-    let startDate: Date;
-
-    switch(selectedDateRange.value) {
-      case 'today':
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        break;
-      case 'week':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case 'month':
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-        break;
-      case 'year':
-        startDate = new Date(now.getFullYear(), 0, 1);
-        break;
-      default:
-        startDate = new Date(0);
-    }
-
-    filtered = filtered.filter(receipt => {
-      const receiptDate = new Date(receipt.receipt_date);
-      return receiptDate >= startDate && receiptDate <= now;
-    });
-  }
-
-  return filtered;
-});
-
-// Computed property for paginated receipts
-const paginatedReceipts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredReceipts.value.slice(start, end);
-});
-
-// Computed property for total pages
-const totalPages = computed(() => {
-  return Math.ceil(filteredReceipts.value.length / itemsPerPage.value);
-});
-
-// Get unique statuses for filter options
-const statusOptions = computed(() => {
-  const statuses = [...new Set(receiptStore.receipts.map(r => r.user_approval?.document_status?.name).filter(Boolean))];
-  return statuses.map(status => ({ label: status, value: status }));
-});
-
-// Change page function
-const changePage = (page: number) => {
-  currentPage.value = page;
-};
-
-// Change items per page
-const changeItemsPerPage = (limit: number) => {
-  itemsPerPage.value = limit;
-  currentPage.value = 1;
-};
-
-// Show company detail
-const showCompanyDetail = (company: { id: number }) => {
+const showCompanyDetailFromList = (company: { id: number }) => {
   loadCompanyDetail(company.id);
   showDetail.value = true;
 };
 
+defineExpose({ showCompanyDetail: showCompanyDetailFromList });
 
-// Navigate to approve proposal
-const navigateToApproveProposal = () => {
-  showApproveProposal.value = true;
-};
-
-// Close approve proposal
-const closeApproveProposal = () => {
-  showApproveProposal.value = false;
-};
-
-// Format currency
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("lo-LA", {
-    style: "currency",
-    currency: "LAK",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })
-    .format(amount)
-    .replace("LAK", "₭");
-};
-
-// Calculate budget percentage
-const getBudgetPercentage = (budgetUsed: number, budget: number) => {
-  return Math.round((budgetUsed / budget) * 100);
-};
-
-// Get color classes for company logo
-const getLogoBgColor = (color: string) => {
-  const colorMap: { [key: string]: string } = {
-    blue: "bg-blue-100",
-    green: "bg-green-100",
-    yellow: "bg-yellow-100",
-    purple: "bg-purple-100",
-    orange: "bg-orange-100",
-    red: "bg-red-100",
-    teal: "bg-teal-100",
-    indigo: "bg-indigo-100",
-    pink: "bg-pink-100",
-    cyan: "bg-cyan-100",
-  };
-  return colorMap[color] || "bg-gray-100";
-};
-
-const getLogoTextColor = (color: string) => {
-  const colorMap: { [key: string]: string } = {
-    blue: "text-blue-600",
-    green: "text-green-600",
-    yellow: "text-yellow-600",
-    purple: "text-purple-600",
-    orange: "text-orange-600",
-    red: "text-red-600",
-    teal: "text-teal-600",
-    indigo: "text-indigo-600",
-    pink: "text-pink-600",
-    cyan: "text-cyan-600",
-  };
-  return colorMap[color] || "text-gray-600";
-};
-
-// Handle image error
-const handleImageError = (event: Event) => {
-  const target = event.target as HTMLImageElement;
-  target.style.display = 'none';
-};
-
-// Expose methods to parent
-defineExpose({
-  showCompanyDetail,
-});
-
-// Load company if companyId prop is provided or from route params
+// ─────────────────────────────────────────────────────────────────────────────
+// Lifecycle
+// ─────────────────────────────────────────────────────────────────────────────
 onMounted(() => {
   const companyId = props.companyId || Number(route.params.id);
-  // console.log('🔍 CompanyDetail onMounted - companyId:', companyId);
   if (companyId) {
     loadCompanyDetail(companyId);
     showDetail.value = true;
   }
 });
 
-// Watch for companyId prop changes
-watch(() => props.companyId, (newCompanyId) => {
-  // console.log('🔍 CompanyDetail watch - companyId changed:', newCompanyId);
-  if (newCompanyId) {
-    loadCompanyDetail(newCompanyId);
-    showDetail.value = true;
-  }
-}, { immediate: true });
+watch(
+  () => props.companyId,
+  (newId) => {
+    if (newId) {
+      loadCompanyDetail(newId);
+      showDetail.value = true;
+    }
+  },
+  { immediate: true },
+);
 
-// Watch for companyData prop changes
-watch(() => props.companyData, (newCompanyData) => {
-  // console.log('🔍 CompanyDetail watch - companyData changed:', newCompanyData);
-  if (newCompanyData) {
-    selectedCompany.value = newCompanyData;
-    showDetail.value = true;
-  }
-}, { immediate: true });
+watch(
+  () => props.companyData,
+  (newData) => {
+    if (newData) {
+      selectedCompany.value = newData;
+      showDetail.value = true;
+    }
+  },
+  { immediate: true },
+);
+
+void emit; // mark referenced
 </script>
 
 <template>
@@ -389,579 +305,447 @@ watch(() => props.companyData, (newCompanyData) => {
         size="small"
         class="flex items-center gap-2 text-white bg-blue-600 hover:!bg-blue-900 hover:!text-white"
         @click="goBack"
-        >ກັບຄືນ</UiButton
       >
+        ກັບຄືນ
+      </UiButton>
     </div>
-    <!-- Main Affiliated Company List -->
-    <AffiliatedCompany
-      v-if="!showDetail"
-      @view-details="showCompanyDetail"
-    />
 
-    <!-- Company Detail View -->
-    <div v-if="showDetail" class="company-detail-view">
-      <!-- Loading State -->
-      <div v-if="loading" class="flex items-center justify-center py-12">
-        <Icon icon="mdi:loading" class="text-4xl text-blue-600 animate-spin" />
-      </div>
+    <AffiliatedCompany v-if="!showDetail" @view-details="showCompanyDetailFromList" />
 
-      <!-- Company Detail Content -->
+    <div v-else class="company-detail-view">
+      <LoadingSpinner v-if="loading" message="ກຳລັງໂຫຼດຂໍ້ມູນ..." size="lg" />
+
       <div v-else-if="selectedCompany" class="bg-gray-50 min-h-screen">
-        <!-- Header -->
-        <!-- <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-          <div class="max-w-7xl mx-auto px-4 py-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-4">
-                <button
-                  @click="closeDetail"
-                  class="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <Icon icon="mdi:arrow-left" class="text-xl" />
-                </button>
-                <h1 class="text-2xl font-bold">ລາຍລະອຽດບໍລິສັດ</h1>
+        <div class="mx-auto w-full max-w-screen-2xl 3xl:max-w-[120rem] px-3 sm:px-4 lg:px-6 py-4 lg:py-6 space-y-4 lg:space-y-6">
+          <!-- Hero -->
+          <section class="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+            <div class="flex items-start gap-4 sm:gap-6 flex-col sm:flex-row">
+              <CompanyLogo :source="logoSource" :alt="selectedCompany.name" :color="themeColor" size="xl" />
+              <div class="flex-1 min-w-0">
+                <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 break-words">
+                  {{ selectedCompany.name }}
+                </h2>
+                <p class="text-gray-600 text-sm sm:text-base lg:text-lg">
+                  {{ fieldValue("description", selectedCompany.name) }}
+                </p>
+                <div class="mt-3 flex flex-wrap gap-2 text-xs sm:text-sm">
+                  <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">
+                    {{ contractLabel }}
+                  </span>
+                  <span class="px-2.5 py-1 rounded-full font-medium" :class="statusInfo.class">
+                    {{ statusInfo.label }}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        </div> -->
-        <div class="max-w-7xl mx-auto px-4 py-6">
-          <!-- Company Header Card -->
-          <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <div class="flex items-start gap-6">
-              <!-- Company Logo -->
-              <div
-                class="p-6 rounded-full flex-shrink-0 flex items-center justify-center"
-                :class="[getLogoBgColor(selectedCompany.color), getLogoTextColor(selectedCompany.color)]"
-              >
-                <!-- Show actual logo if logoUrl exists, otherwise show icon -->
-                <img
-                  v-if="getCompanyProperty('logoUrl')"
-                  :src="getCompanyProperty('logoUrl')"
-                  :alt="selectedCompany.name"
-                  class="w-20 h-20 rounded-full object-cover"
-                  @error="handleImageError"
-                />
-                <Icon
-                  v-else
-                  :icon="selectedCompany.logo"
-                  class="text-5xl"
-                />
-              </div>
+          </section>
 
-              <!-- Company Info -->
-              <div class="flex-1">
-                <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ selectedCompany.name }}</h2>
-                <p class="text-gray-600 text-lg">{{ getCompanyProperty('description', selectedCompany.name) }}</p>
-              </div>
-            </div>
-          </div>
+          <!-- Stats -->
+          <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <SummaryCard variant="tonal" color="blue" label="ໃບສະເໜີ" icon="mdi:file-document">
+              {{ selectedCompany.proposalCount.toLocaleString() }}
+            </SummaryCard>
+            <SummaryCard variant="tonal" color="green" label="ງົບປະມານຕົ້ນປີ" icon="mdi:account-balance">
+              <MoneyText :value="selectedCompany.budget" compact />
+            </SummaryCard>
+            <SummaryCard variant="tonal" color="orange" label="ງົບປະມານທີ່ໃຊ້ແລ້ວ" icon="mdi:cash-minus">
+              <MoneyText :value="selectedCompany.budgetUsed" compact />
+              <template #footer>
+                <BudgetBar
+                  :used="selectedCompany.budgetUsed"
+                  :allocated="selectedCompany.budget"
+                  size="sm"
+                  :show-label="false"
+                />
+              </template>
+            </SummaryCard>
+            <SummaryCard variant="tonal" color="purple" label="ງົບປະມານທີ່ຍັງເຫຼືອ" icon="mdi:cash-plus">
+              <MoneyText :value="budgetRemaining" compact />
+              <template #footer>ໃຊ້ໄປ {{ usagePercent }}%</template>
+            </SummaryCard>
+          </section>
 
-          <!-- Collapsible Information Section -->
-          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <!-- Company info -->
+          <section class="bg-white rounded-xl shadow-sm overflow-hidden">
             <details class="group">
-              <summary class="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 transition-colors">
-                <h3 class="text-lg font-semibold text-gray-900">ຂໍ້ມູນທົ່ວໄປຂອງບໍລິສັດ</h3>
-                <Icon
-                  icon="mdi:chevron-down"
-                  class="text-xl text-gray-500 group-open:rotate-180 transition-transform duration-200"
-                />
+              <summary class="flex items-center justify-between p-4 sm:p-6 cursor-pointer hover:bg-gray-50 transition-colors">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900">ຂໍ້ມູນທົ່ວໄປຂອງບໍລິສັດ</h3>
+                <Icon icon="mdi:chevron-down" class="text-xl text-gray-500 group-open:rotate-180 transition-transform duration-200" />
               </summary>
 
-              <div class="px-6 pb-6 border-t">
-                <div class="mt-6">
-                  <!-- Statistics Cards -->
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <!-- ໃບສະເໜີ -->
-                    <div class="bg-blue-50 rounded-lg p-4 text-center">
-                      <div class="text-2xl font-bold text-blue-600 mb-1">{{ selectedCompany.proposalCount }}</div>
-                      <div class="text-sm text-blue-700">ໃບສະເໜີ</div>
+              <div class="px-4 sm:px-6 pb-6 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mt-6">
+                <div>
+                  <h4 class="font-semibold text-gray-900 mb-2">ຂໍ້ມູນພື້ນຖານ</h4>
+                  <dl class="space-y-1.5 text-sm">
+                    <div class="flex justify-between gap-2">
+                      <dt class="text-gray-500">ເລກທະບຽນ:</dt>
+                      <dd class="font-medium text-right truncate">{{ fieldValue("registrationNumber") }}</dd>
                     </div>
-
-                    <!-- ງົບປະມານຕົ້ນປີ -->
-                    <div class="bg-green-50 rounded-lg p-4 text-center">
-                      <div class="text-2xl font-bold text-green-600 mb-1">{{ formatCurrency(selectedCompany.budget) }}</div>
-                      <div class="text-sm text-green-700">ງົບປະມານຕົ້ນປີ</div>
+                    <div class="flex justify-between gap-2">
+                      <dt class="text-gray-500">ປີທີ່ສ້າງ:</dt>
+                      <dd class="font-medium">{{ fieldValue("establishedYear") }}</dd>
                     </div>
-
-                    <!-- ງົບປະມານທີ່ໃຊ້ແລ້ວ -->
-                    <div class="bg-orange-50 rounded-lg p-4 text-center">
-                      <div class="text-2xl font-bold text-orange-600 mb-1">{{ formatCurrency(selectedCompany.budgetUsed) }}</div>
-                      <div class="text-sm text-orange-700">ງົບປະມານທີ່ໃຊ້ແລ້ວ</div>
+                    <div class="flex justify-between gap-2">
+                      <dt class="text-gray-500">ພະນັກງານ:</dt>
+                      <dd class="font-medium">
+                        {{ fieldValue("employees", fieldValue("userCount", "0")) }} ຄົນ
+                      </dd>
                     </div>
-
-                    <!-- ງົບປະມານທີ່ຍັງເຫຼືອ -->
-                    <div class="bg-purple-50 rounded-lg p-4 text-center">
-                      <div class="text-2xl font-bold text-purple-600 mb-1">
-                        {{ formatCurrency(Math.max(0, selectedCompany.budget - selectedCompany.budgetUsed)) }}
-                      </div>
-                      <div class="text-sm text-purple-700">ງົບປະມານທີ່ຍັງເຫຼືອ</div>
+                    <div class="flex justify-between gap-2">
+                      <dt class="text-gray-500">ປະເພດສັນຍາ:</dt>
+                      <dd class="font-medium">{{ contractLabel }}</dd>
                     </div>
-                  </div>
+                  </dl>
+                </div>
 
-                  <!-- Detailed Information -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Basic Info -->
-                    <div>
-                      <h4 class="font-semibold text-gray-900 mb-3">ຂໍ້ມູນພື້ນຖານ</h4>
-                      <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                          <span class="text-gray-600">ເລກທະບຽນ:</span>
-                          <span class="font-medium">{{ getCompanyProperty('registrationNumber') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span class="text-gray-600">ປີທີ່ສ້າງ:</span>
-                          <span class="font-medium">{{ getCompanyProperty('establishedYear') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span class="text-gray-600">ພະນັກງານ:</span>
-                          <span class="font-medium">{{ getCompanyProperty('employees') }} ຄົນ</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span class="text-gray-600">ປະເພດສັນຍາ:</span>
-                          <span class="font-medium">
-                            {{ getCompanyProperty('contractType') === 'annual' ? 'ປະຈຳປີ' : getCompanyProperty('contractType') === 'project' ? 'ຕາມໂຄງການ' : 'ບໍລິການ' }}
-                          </span>
-                        </div>
-                      </div>
+                <div>
+                  <h4 class="font-semibold text-gray-900 mb-2">ຂໍ້ມູນຕິດຕໍ່</h4>
+                  <dl class="space-y-1.5 text-sm">
+                    <div class="flex justify-between gap-2">
+                      <dt class="text-gray-500">ທີ່ຢູ່:</dt>
+                      <dd class="font-medium text-right break-words">{{ fieldValue("address") }}</dd>
                     </div>
-
-                    <!-- Contact Info -->
-                    <div>
-                      <h4 class="font-semibold text-gray-900 mb-3">ຂໍ້ມູນຕິດຕໍ່</h4>
-                      <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                          <span class="text-gray-600">ທີ່ຢູ່:</span>
-                          <span class="font-medium text-right">{{ getCompanyProperty('address') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span class="text-gray-600">ໂທລະສັບ:</span>
-                          <span class="font-medium">{{ getCompanyProperty('phone') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span class="text-gray-600">ອີເມວ:</span>
-                          <span class="font-medium">{{ getCompanyProperty('email') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span class="text-gray-600">ຜູ້ອຳນວຍການ:</span>
-                          <span class="font-medium">{{ getCompanyProperty('director') }}</span>
-                        </div>
-                      </div>
+                    <div class="flex justify-between gap-2">
+                      <dt class="text-gray-500">ໂທລະສັບ:</dt>
+                      <dd class="font-medium">{{ fieldValue("phone") }}</dd>
                     </div>
-
-                    <!-- Performance -->
-                    <div>
-                      <h4 class="font-semibold text-gray-900 mb-3">ຜົນດຳເນີນງານຂອງບໍລິສັດໃນເຄືອ</h4>
-                      <div class="space-y-3">
-                        <div>
-                          <div class="flex justify-between text-sm mb-1">
-                            <span class="text-gray-600">ການໃຊ້ງົບປະມານ</span>
-                            <span class="font-medium">{{ getBudgetPercentage(selectedCompany.budgetUsed, selectedCompany.budget) }}%</span>
-                          </div>
-                          <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div
-                              class="h-2 rounded-full transition-all duration-300"
-                              :class="getBudgetPercentage(selectedCompany.budgetUsed, selectedCompany.budget) > 100 ? 'bg-red-500' : 'bg-blue-500'"
-                              :style="`width: ${Math.min(getBudgetPercentage(selectedCompany.budgetUsed, selectedCompany.budget), 100)}%`"
-                            ></div>
-                          </div>
-                        </div>
-
-                        <div class="pt-2 border-t">
-                          <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">ສະຖານະບໍລິສັດ:</span>
-                            <span
-                              class="px-2 py-1 rounded-full text-xs font-medium"
-                              :class="getCompanyProperty('status') === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                            >
-                              {{ getCompanyProperty('status') === 'active' ? 'ກຳລັງຜູກສັນຍາ' : 'ສິ້ນສຸດສັນຍາ' }}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                    <div class="flex justify-between gap-2">
+                      <dt class="text-gray-500">ອີເມວ:</dt>
+                      <dd class="font-medium truncate">{{ fieldValue("email") }}</dd>
                     </div>
+                    <div class="flex justify-between gap-2">
+                      <dt class="text-gray-500">ຜູ້ອຳນວຍການ:</dt>
+                      <dd class="font-medium">{{ fieldValue("director") }}</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-gray-900 mb-2">ຜົນດຳເນີນງານ</h4>
+                  <BudgetBar :used="selectedCompany.budgetUsed" :allocated="selectedCompany.budget" size="md">
+                    <template #left>
+                      <span class="text-gray-500">ການໃຊ້ງົບປະມານ</span>
+                    </template>
+                  </BudgetBar>
+                  <div class="flex justify-between text-sm pt-3 mt-3 border-t border-gray-100">
+                    <span class="text-gray-500">ສະຖານະບໍລິສັດ:</span>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium" :class="statusInfo.class">
+                      {{ statusInfo.label }}
+                    </span>
                   </div>
                 </div>
               </div>
             </details>
-          </div>
+          </section>
 
-          <!-- Pending Proposals Section -->
-          <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <h3 class="text-lg font-semibold text-gray-900">ໃບສະເໜີທີ່ລໍຖ້າອະນຸມັດ</h3>
-                <div class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
+          <!-- Pending proposals -->
+          <section class="bg-white rounded-xl shadow-sm p-4 sm:p-5">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+              <div class="flex items-center gap-3 flex-wrap">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900">ໃບສະເໜີທີ່ລໍຖ້າອະນຸມັດ</h3>
+                <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                   {{ selectedCompany.proposalCount }} ໃບສະເໜີ
-                </div>
+                </span>
               </div>
-              <!-- Approve Button with Auto Zoom Animation -->
               <UiButton
-                class="relative px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-500 transform shadow-md hover:shadow-xl flex items-center gap-3 group overflow-hidden animate-zoom-in-out font-semibold text-base"
-                @click="navigateToApproveProposal"
+                class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold flex items-center gap-2"
                 size="large"
+                @click="showApproveProposal = true"
               >
-                <!-- Animated background ripple effect -->
-                <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-all duration-300 rounded-lg"></div>
-                <!-- Left side - Icon -->
-                <div class="relative z-10 icon-check">
-                  <Icon icon="mdi:check-circle" class="text-2xl" />
-                </div>
-                <!-- Center text -->
-                <div class="relative z-10">
-                  <span class="font-semibold block ">
-                    ອະນຸມັດໃບສະເໜີ
-                  </span>
-                </div>
-                <!-- Right side - Arrow -->
-                <div class="relative z-10">
-                  <Icon icon="mdi:arrow-right" class="text-xl" />
-                </div>
-                <!-- Shimmer effect -->
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000 rounded-lg"></div>
+                <Icon icon="mdi:check-circle" class="text-xl" />
+                ອະນຸມັດໃບສະເໜີ
+                <Icon icon="mdi:arrow-right" />
               </UiButton>
             </div>
 
-            <!-- Pending Proposals Summary -->
-            <div class="grid grid-cols-3 gap-3 mt-4">
-              <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center gap-3">
-                <div class="p-2 bg-yellow-100 rounded-full">
-                  <Icon icon="mdi:clock" class="text-yellow-600 text-xl" />
-                </div>
-                <div>
-                  <div class="text-xs text-yellow-700 font-medium">ລໍຖ້າອະນຸມັດ</div>
-                  <div class="text-xl font-bold text-yellow-900">{{ selectedCompany.proposalCount }}</div>
-                </div>
-              </div>
-
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-3">
-                <div class="p-2 bg-blue-100 rounded-full">
-                  <Icon icon="mdi:file-eye" class="text-blue-600 text-xl" />
-                </div>
-                <div>
-                  <div class="text-xs text-blue-700 font-medium">ກຳລັງພິຈາລະນາ</div>
-                  <div class="text-xl font-bold text-blue-900">{{ 8 }}</div>
-                </div>
-              </div>
-
-              <div class="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-3">
-                <div class="p-2 bg-green-100 rounded-full">
-                  <Icon icon="mdi:check-circle" class="text-green-600 text-xl" />
-                </div>
-                <div>
-                  <div class="text-xs text-green-700 font-medium">ອະນຸມັດແລ້ວ</div>
-                  <div class="text-xl font-bold text-green-900">{{ 22 }}</div>
-                </div>
-              </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <SummaryCard variant="tonal" color="yellow" label="ລໍຖ້າອະນຸມັດ" icon="mdi:clock">
+                {{ selectedCompany.proposalCount.toLocaleString() }}
+              </SummaryCard>
+              <SummaryCard variant="tonal" color="blue" label="ກຳລັງພິຈາລະນາ" icon="mdi:file-eye">
+                8
+              </SummaryCard>
+              <SummaryCard variant="tonal" color="green" label="ອະນຸມັດແລ້ວ" icon="mdi:check-circle">
+                22
+              </SummaryCard>
             </div>
-          </div>
+          </section>
 
-          <!-- Tabs Section -->
-          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-            <!-- Tab Headers -->
-            <div class="flex border-b">
+          <!-- Tabs -->
+          <section class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div class="flex border-b border-gray-100" role="tablist">
               <button
-                @click="activeTab = 'proposals'"
+                v-for="tab in [
+                  { key: 'proposals', label: 'ໃບສະເໜີ', icon: 'mdi:file-document' },
+                  { key: 'budget', label: 'ງົບປະມານ', icon: 'mdi:finance' },
+                ] as const"
+                :key="tab.key"
+                role="tab"
+                :aria-selected="activeTab === tab.key"
                 :class="[
-                  'flex-1 px-4 py-3 text-center font-medium transition-colors',
-                  activeTab === 'proposals'
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  'flex-1 px-4 py-3 text-center font-medium transition-colors flex items-center justify-center gap-1.5',
+                  activeTab === tab.key
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50',
                 ]"
+                @click="activeTab = tab.key"
               >
-                <Icon icon="mdi:file-document" class="inline mr-1" />
-                ໃບສະເໜີ
-              </button>
-
-              <button
-                @click="activeTab = 'budget'"
-                :class="[
-                  'flex-1 px-4 py-3 text-center font-medium transition-colors',
-                  activeTab === 'budget'
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                ]"
-              >
-                <Icon icon="mdi:finance" class="inline mr-1" />
-                ງົບປະມານ
+                <Icon :icon="tab.icon" />
+                {{ tab.label }}
               </button>
             </div>
 
-            <!-- Tab Content -->
-            <div class="p-4">
-              <!-- Proposals Tab (แสดง Receipts) -->
+            <div class="p-3 sm:p-4 lg:p-5">
               <div v-if="activeTab === 'proposals'">
-                <div class="space-y-4">
-                  <!-- Loading State -->
-                  <div v-if="receiptStore.loading" class="flex items-center justify-center py-8">
-                    <Icon icon="mdi:loading" class="text-4xl text-blue-600 animate-spin mr-2" />
-                    <span class="text-gray-600">ກຳລັງໂຫຼດຂໍ້ມູນຮັບເງິນ...</span>
-                  </div>
+                <LoadingSpinner v-if="receiptStore.loading" message="ກຳລັງໂຫຼດຂໍ້ມູນຮັບເງິນ..." />
 
-                  <!-- Receipts Table with Search and Filters -->
-                  <div v-else>
-                    <!-- Header with Title and Results Count -->
-                    <div class="bg-gray-50 rounded-lg p-4">
-                      <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-lg font-semibold text-gray-900">
-                          <Icon icon="mdi:receipt" class="inline mr-2" />
-                          ຂໍ້ມູນຮັບເງິນ
-                        </h4>
-                        <div class="text-sm text-gray-600">
-                          ພົບ {{ filteredReceipts.length }} ລາຍການ (ຈາກທັງໝົດ {{ receiptStore.receipts.length }} ລາຍການ)
-                        </div>
-                      </div>
-
-                      <!-- Search and Filter Controls -->
-                      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                        <!-- Search Input -->
-                        <div class="md:col-span-2">
-                          <div class="relative">
-                            <Icon icon="mdi:magnify" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                            <input
-                              v-model="receiptSearch"
-                              type="text"
-                              placeholder="ຄົ້ນຫາ ເລກທີ່ຮັບເງິນ, PO, ຫຼື ໝາຍເຫດ..."
-                              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                        </div>
-
-                        <!-- Status Filter -->
-                        <div>
-                          <select
-                            v-model="selectedStatus"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          >
-                            <option value="">ສະຖານະທັງໝົດ</option>
-                            <option v-for="status in statusOptions" :key="status.value" :value="status.value">
-                              {{ status.label }}
-                            </option>
-                          </select>
-                        </div>
-
-                        <!-- Date Range Filter -->
-                        <div>
-                          <select
-                            v-model="selectedDateRange"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          >
-                            <option value="">ວັນທີ່ທັງໝົດ</option>
-                            <option value="today">ມື້ນີ້</option>
-                            <option value="week">7 ວັນທີ່ຜ່ານມາ</option>
-                            <option value="month">ເດືອນນີ້</option>
-                            <option value="year">ປີນີ້</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <!-- Clear Filters Button -->
-                      <div v-if="receiptSearch || selectedStatus || selectedDateRange" class="mb-4">
-                        <button
-                          @click="
-                            receiptSearch = '';
-                            selectedStatus = '';
-                            selectedDateRange = '';
-                            currentPage = 1;
-                          "
-                          class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                        >
-                          <Icon icon="mdi:filter-remove" />
-                          ລ້າງຕົວກັ່ນ
-                        </button>
-                      </div>
-
-                      <!-- Results Table -->
-                      <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
-                          <thead class="bg-gray-100">
-                            <tr>
-                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ເລກທີ່ຮັບເງິນ</th>
-                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ເລກທີ່ PO</th>
-                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ວັນທີ່ຮັບເງິນ</th>
-                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ຜູ້ຮ້ອງຂໍ</th>
-                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ຈຸດຮັບ/ສົ່ງ</th>
-                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ຈຳນວນລາຍການ</th>
-                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ມູນຄ່າ</th>
-                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">VAT</th>
-                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ລວມທັງໝົດ</th>
-                              <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ສະຖານະ</th>
-                            </tr>
-                          </thead>
-                          <tbody class="divide-y divide-gray-200">
-                            <tr v-for="receipt in paginatedReceipts" :key="receipt.id" class="hover:bg-gray-50">
-                              <td class="px-4 py-3 text-sm">{{ receipt.receipt_number }}</td>
-                              <td class="px-4 py-3 text-sm">{{ receipt.po_number }}</td>
-                              <td class="px-4 py-3 text-sm">{{ receipt.receipt_date }}</td>
-                              <!-- Requester -->
-                              <td class="px-4 py-3 text-sm">
-                                <div class="flex flex-col">
-                                  <span class="font-medium">{{ receipt.document?.requester?.username || '-' }}</span>
-                                  <span class="text-xs text-gray-500">{{ receipt.document?.requester?.email || '-' }}</span>
-                                </div>
-                              </td>
-                              <!-- Department (Pickup/Delivery Point) -->
-                              <td class="px-4 py-3 text-sm">
-                                <div class="flex flex-col">
-                                  <span class="font-medium">{{ receipt.document?.department?.name || '-' }}</span>
-                                  <span class="text-xs text-gray-500">{{ receipt.document?.department?.code || '-' }}</span>
-                                </div>
-                              </td>
-                              <td class="px-4 py-3 text-sm text-center">{{ receipt.receipt_item?.length || 0 }}</td>
-                              <td class="px-4 py-3 text-sm text-right">{{ formatCurrency(receipt.sub_total || 0) }}</td>
-                              <td class="px-4 py-3 text-sm text-right">{{ formatCurrency(receipt.vat || 0) }}</td>
-                              <td class="px-4 py-3 text-sm text-right font-semibold">{{ formatCurrency(receipt.total || 0) }}</td>
-                              <td class="px-4 py-3 text-sm">
-                                <span
-                                  class="px-2 py-1 rounded-full text-xs font-medium"
-                                  :class="receipt.user_approval?.document_status?.name === 'APPROVED'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-yellow-100 text-yellow-800'"
-                                >
-                                  {{ receipt.user_approval?.document_status?.name || 'PENDING' }}
-                                </span>
-                              </td>
-                            </tr>
-                          </tbody>
-                          <tfoot class="bg-gray-50">
-                            <tr>
-                              <td colspan="6" class="px-4 py-3 text-sm font-semibold text-gray-700">ລວມທັງໝົດ:</td>
-                              <td class="px-4 py-3 text-sm text-right font-semibold">
-                                {{ formatCurrency(paginatedReceipts.reduce((sum, r) => sum + (r.sub_total || 0), 0)) }}
-                              </td>
-                              <td class="px-4 py-3 text-sm text-right font-semibold">
-                                {{ formatCurrency(paginatedReceipts.reduce((sum, r) => sum + (r.vat || 0), 0)) }}
-                              </td>
-                              <td class="px-4 py-3 text-sm text-right font-semibold">
-                                {{ formatCurrency(paginatedReceipts.reduce((sum, r) => sum + (r.total || 0), 0)) }}
-                              </td>
-                              <td></td>
-                            </tr>
-                          </tfoot>
-                        </table>
-                      </div>
-
-                      <!-- Pagination -->
-                      <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                          <span class="text-sm text-gray-600">ສະແດງລາຍການ:</span>
-                          <select
-                            v-model="itemsPerPage"
-                            @change="changeItemsPerPage(Number(($event.target as HTMLSelectElement)?.value))"
-                            class="px-3 py-1 border border-gray-300 rounded text-sm"
-                          >
-                            <option :value="10">10</option>
-                            <option :value="25">25</option>
-                            <option :value="50">50</option>
-                            <option :value="100">100</option>
-                          </select>
-                        </div>
-
-                        <div class="flex items-center gap-2">
-                          <button
-                            @click="changePage(1)"
-                            :disabled="currentPage === 1"
-                            class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                          >
-                            <Icon icon="mdi:page-first" />
-                          </button>
-                          <button
-                            @click="changePage(currentPage - 1)"
-                            :disabled="currentPage === 1"
-                            class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                          >
-                            <Icon icon="mdi:chevron-left" />
-                          </button>
-
-                          <span class="px-4 py-1 text-sm">
-                            ໜ້າ {{ currentPage }} ຈາກ {{ totalPages }}
-                          </span>
-
-                          <button
-                            @click="changePage(currentPage + 1)"
-                            :disabled="currentPage === totalPages"
-                            class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                          >
-                            <Icon icon="mdi:chevron-right" />
-                          </button>
-                          <button
-                            @click="changePage(totalPages)"
-                            :disabled="currentPage === totalPages"
-                            class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                          >
-                            <Icon icon="mdi:page-last" />
-                          </button>
-                        </div>
-                      </div>
+                <div v-else>
+                  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+                    <h4 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-1.5">
+                      <Icon icon="mdi:receipt" />
+                      ຂໍ້ມູນຮັບເງິນ
+                    </h4>
+                    <div class="text-xs sm:text-sm text-gray-500">
+                      ພົບ <span class="font-semibold text-gray-700">{{ filteredReceipts.length }}</span>
+                      ລາຍການ (ຈາກທັງໝົດ {{ receiptStore.receipts.length }})
                     </div>
                   </div>
 
-                  <!-- No Results After Filter -->
-                  <div v-if="filteredReceipts.length === 0 && receiptStore.receipts.length > 0" class="text-center py-8">
-                    <Icon icon="mdi:filter-off" class="text-6xl text-gray-300 mb-4" />
-                    <p class="text-gray-500 text-lg">ບໍ່ພົບຂໍ້ມູນທີ່ຕົງກັບຕົວກັ່ນ</p>
-                    <button
-                      @click="
-                        receiptSearch = '';
-                        selectedStatus = '';
-                        selectedDateRange = '';
-                        currentPage = 1;
-                      "
-                      class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  <!-- Filters -->
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                    <div class="md:col-span-2 relative">
+                      <Icon icon="mdi:magnify" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        v-model="receiptSearch"
+                        type="text"
+                        placeholder="ຄົ້ນຫາ ເລກທີ່ຮັບເງິນ, PO ຫຼື ໝາຍເຫດ..."
+                        class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <select
+                      v-model="selectedStatus"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      ລ້າງຕົວກັ່ນ
+                      <option value="">ສະຖານະທັງໝົດ</option>
+                      <option v-for="s in statusOptions" :key="s.value" :value="s.value">{{ s.label }}</option>
+                    </select>
+                    <select
+                      v-model="selectedDateRange"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">ວັນທີ່ທັງໝົດ</option>
+                      <option value="today">ມື້ນີ້</option>
+                      <option value="week">7 ວັນທີ່ຜ່ານມາ</option>
+                      <option value="month">ເດືອນນີ້</option>
+                      <option value="year">ປີນີ້</option>
+                    </select>
+                  </div>
+
+                  <div v-if="hasActiveFilters" class="mb-3">
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                      @click="clearFilters"
+                    >
+                      <Icon icon="mdi:filter-remove" />
+                      ລ້າງຕົວກອງ
                     </button>
                   </div>
 
-                  <!-- Empty State -->
-                  <div v-else-if="receiptStore.receipts.length === 0" class="text-center py-8">
-                    <Icon icon="mdi:receipt" class="text-6xl text-gray-300 mb-4" />
-                    <p class="text-gray-500 text-lg">ຍັງບໍ່ມີຂໍ້ມູນຮັບເງິນ</p>
-                    <p class="text-gray-400 text-sm mt-2">ບໍລິສັດນີ້ຍັງບໍ່ມີການດຳເນີນການຮັບເງິນ</p>
+                  <!-- Receipts table -->
+                  <div class="overflow-x-auto -mx-3 sm:mx-0">
+                    <table class="min-w-full bg-white border border-gray-100 rounded-lg text-sm">
+                      <thead class="bg-gray-50 text-gray-600">
+                        <tr>
+                          <th class="px-3 py-2.5 text-left font-medium">ເລກທີ່ຮັບເງິນ</th>
+                          <th class="px-3 py-2.5 text-left font-medium">ເລກທີ່ PO</th>
+                          <th class="px-3 py-2.5 text-left font-medium">ວັນທີ່ຮັບເງິນ</th>
+                          <th class="px-3 py-2.5 text-left font-medium">ຜູ້ຮ້ອງຂໍ</th>
+                          <th class="px-3 py-2.5 text-left font-medium">ຈຸດຮັບ/ສົ່ງ</th>
+                          <th class="px-3 py-2.5 text-right font-medium">ລາຍການ</th>
+                          <th class="px-3 py-2.5 text-right font-medium">ມູນຄ່າ</th>
+                          <th class="px-3 py-2.5 text-right font-medium">VAT</th>
+                          <th class="px-3 py-2.5 text-right font-medium">ລວມ</th>
+                          <th class="px-3 py-2.5 text-left font-medium">ສະຖານະ</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-100">
+                        <tr v-for="receipt in paginatedReceipts" :key="receipt.id" class="hover:bg-gray-50">
+                          <td class="px-3 py-2.5 tabular-nums">{{ receipt.receipt_number }}</td>
+                          <td class="px-3 py-2.5 tabular-nums">{{ receipt.po_number }}</td>
+                          <td class="px-3 py-2.5">{{ receipt.receipt_date }}</td>
+                          <td class="px-3 py-2.5">
+                            <div class="font-medium">{{ receipt.document?.requester?.username || "-" }}</div>
+                            <div class="text-xs text-gray-500 truncate max-w-[10rem]">
+                              {{ receipt.document?.requester?.email || "-" }}
+                            </div>
+                          </td>
+                          <td class="px-3 py-2.5">
+                            <div class="font-medium">{{ receipt.document?.department?.name || "-" }}</div>
+                            <div class="text-xs text-gray-500">{{ receipt.document?.department?.code || "-" }}</div>
+                          </td>
+                          <td class="px-3 py-2.5 text-right tabular-nums">{{ receipt.receipt_item?.length || 0 }}</td>
+                          <td class="px-3 py-2.5 text-right">
+                            <MoneyText :value="receipt.sub_total || 0" />
+                          </td>
+                          <td class="px-3 py-2.5 text-right">
+                            <MoneyText :value="receipt.vat || 0" />
+                          </td>
+                          <td class="px-3 py-2.5 text-right font-semibold">
+                            <MoneyText :value="receipt.total || 0" />
+                          </td>
+                          <td class="px-3 py-2.5">
+                            <span
+                              class="px-2 py-0.5 rounded-full text-xs font-medium"
+                              :class="
+                                receipt.user_approval?.document_status?.name === 'APPROVED'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-amber-100 text-amber-800'
+                              "
+                            >
+                              {{ receipt.user_approval?.document_status?.name || "PENDING" }}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot v-if="paginatedReceipts.length" class="bg-gray-50">
+                        <tr>
+                          <td colspan="6" class="px-3 py-2.5 font-semibold text-gray-700">ລວມໜ້ານີ້</td>
+                          <td class="px-3 py-2.5 text-right font-semibold">
+                            <MoneyText :value="pageTotals.subTotal" />
+                          </td>
+                          <td class="px-3 py-2.5 text-right font-semibold">
+                            <MoneyText :value="pageTotals.vat" />
+                          </td>
+                          <td class="px-3 py-2.5 text-right font-semibold">
+                            <MoneyText :value="pageTotals.total" />
+                          </td>
+                          <td></td>
+                        </tr>
+                      </tfoot>
+                    </table>
                   </div>
+
+                  <!-- Pagination -->
+                  <div
+                    v-if="totalPages > 1"
+                    class="mt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                  >
+                    <div class="flex items-center gap-2 text-sm">
+                      <span class="text-gray-500">ສະແດງລາຍການ:</span>
+                      <select
+                        v-model.number="itemsPerPage"
+                        class="px-2 py-1 border border-gray-300 rounded text-sm"
+                        @change="currentPage = 1"
+                      >
+                        <option v-for="size in [10, 25, 50, 100]" :key="size" :value="size">{{ size }}</option>
+                      </select>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button
+                        type="button"
+                        class="px-2.5 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="currentPage === 1"
+                        @click="goToPage(1)"
+                      >
+                        <Icon icon="mdi:page-first" />
+                      </button>
+                      <button
+                        type="button"
+                        class="px-2.5 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="currentPage === 1"
+                        @click="goToPage(currentPage - 1)"
+                      >
+                        <Icon icon="mdi:chevron-left" />
+                      </button>
+                      <span class="px-3 py-1 text-sm">ໜ້າ {{ currentPage }} ຈາກ {{ totalPages }}</span>
+                      <button
+                        type="button"
+                        class="px-2.5 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="currentPage === totalPages"
+                        @click="goToPage(currentPage + 1)"
+                      >
+                        <Icon icon="mdi:chevron-right" />
+                      </button>
+                      <button
+                        type="button"
+                        class="px-2.5 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="currentPage === totalPages"
+                        @click="goToPage(totalPages)"
+                      >
+                        <Icon icon="mdi:page-last" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <EmptyState
+                    v-if="filteredReceipts.length === 0 && receiptStore.receipts.length > 0"
+                    icon="mdi:filter-off"
+                    title="ບໍ່ພົບຂໍ້ມູນທີ່ຕົງກັບຕົວກອງ"
+                  >
+                    <template #action>
+                      <button
+                        type="button"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                        @click="clearFilters"
+                      >
+                        ລ້າງຕົວກອງ
+                      </button>
+                    </template>
+                  </EmptyState>
+
+                  <EmptyState
+                    v-else-if="receiptStore.receipts.length === 0"
+                    icon="mdi:receipt"
+                    title="ຍັງບໍ່ມີຂໍ້ມູນຮັບເງິນ"
+                    message="ບໍລິສັດນີ້ຍັງບໍ່ມີການດຳເນີນການຮັບເງິນ"
+                  />
                 </div>
               </div>
 
-              <!-- Budget Tab -->
-              <div v-if="activeTab === 'budget'">
+              <div v-else-if="activeTab === 'budget'">
                 <BudgetList :company-id="selectedCompany.id" />
               </div>
             </div>
-          </div>
+          </section>
+        </div>
 
-          <!-- Approve Proposal Modal/Overlay -->
+        <!-- Approve modal -->
+        <Transition name="fade">
           <div
             v-if="showApproveProposal"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            @click.self="closeApproveProposal"
+            class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            @click.self="showApproveProposal = false"
           >
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden animate-zoom-in">
-              <!-- Modal Header -->
-              <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="text-xl font-bold">ອະນຸມັດໃບສະເໜີ</h3>
-                    <p class="text-orange-100 mt-1">ຈັດການອະນຸມັດໃບສະເໜີຂອງ {{ selectedCompany?.name }}</p>
-                  </div>
-                  <button
-                    @click="closeApproveProposal"
-                    class="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                  >
-                    <Icon icon="mdi:close" class="text-xl" />
-                  </button>
+            <div
+              class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col"
+              role="dialog"
+              aria-modal="true"
+            >
+              <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 sm:p-5 flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <h3 class="text-lg sm:text-xl font-bold">ອະນຸມັດໃບສະເໜີ</h3>
+                  <p class="text-orange-100 text-sm mt-0.5 truncate">
+                    ຈັດການອະນຸມັດໃບສະເໜີຂອງ {{ selectedCompany.name }}
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  class="p-2 hover:bg-white/20 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+                  aria-label="ປິດ"
+                  @click="showApproveProposal = false"
+                >
+                  <Icon icon="mdi:close" class="text-xl" />
+                </button>
               </div>
-
-              <!-- Modal Content -->
-              <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 120px);">
+              <div class="p-4 sm:p-5 overflow-y-auto flex-1">
                 <ApproveProposal
-                  :selectedCompany="selectedCompany ? { name: selectedCompany.name, id: selectedCompany.id } : null"
-                  @approve="(ids) => console.log('Approved:', ids)"
-                  @reject="(ids) => console.log('Rejected:', ids)"
-                  @selectRequest="(request) => console.log('Selected:', request)"
+                  :selected-company="{ name: selectedCompany.name, id: selectedCompany.id }"
                 />
               </div>
             </div>
           </div>
-        </div>
+        </Transition>
       </div>
     </div>
   </div>
@@ -977,147 +761,25 @@ watch(() => props.companyData, (newCompanyData) => {
   background-color: #f8f9fa;
 }
 
-/* Loading animation */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-/* Zoom in animation for modal */
-@keyframes zoom-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-zoom-in {
-  animation: zoom-in 0.3s ease-out;
-}
-
-/* Pulse animation for badge */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Auto zoom in/out animation for approve button */
-@keyframes zoom-in-out {
-  0%, 100% {
-    transform: scale(1) translateY(0px);
-  }
-  25% {
-    transform: scale(1.02) translateY(-1px);
-  }
-  50% {
-    transform: scale(1.04) translateY(-2px);
-  }
-  75% {
-    transform: scale(1.02) translateY(-1px);
-  }
-}
-
-.animate-zoom-in-out {
-  background: linear-gradient(135deg, #fb923c, #ea580c) !important;
-  background-size: 200% 200% !important;
-  animation: zoom-in-out 2.5s ease-in-out infinite, gradient-shift 3.5s ease infinite, glow-pulse 2s ease-in-out infinite;
-}
-
-.animate-zoom-in-out:hover {
-  animation-play-state: paused;
-}
-
-/* Gradient animation */
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-/* Glow animation */
-@keyframes glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(251, 146, 60, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(251, 146, 60, 0.4);
-  }
-}
-
-/* Icon bounce animation */
-@keyframes icon-bounce {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-2px) scale(1.1);
-  }
-}
-
-/* Apply icon bounce to check icon */
-.animate-zoom-in-out .icon-check {
-  animation: icon-bounce 2.5s ease-in-out infinite;
-}
-
-/* Button hover effects */
-.button-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Modal backdrop blur */
-.backdrop-blur {
-  backdrop-filter: blur(4px);
-}
-
-/* Custom details styling */
 details summary::-webkit-details-marker {
   display: none;
 }
-
 details summary {
   list-style: none;
 }
 
-/* Focus styles */
-details summary:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-  border-radius: 0.5rem;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease-out;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-4 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-4 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (min-width: 1920px) {
+  .\33xl\:max-w-\[120rem\] {
+    max-width: 120rem;
   }
 }
 </style>
