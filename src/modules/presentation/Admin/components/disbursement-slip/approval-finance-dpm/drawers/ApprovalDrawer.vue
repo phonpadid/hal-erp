@@ -3,7 +3,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { formatPrice } from "@/modules/shared/utils/format-price";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { columnTitle } from "./column";
 import { usePurchaseOrderStore } from "../../../../stores/purchase_requests/purchase-order";
 import type { PurchaseOrderEntity } from "@/modules/domain/entities/purchase-order/purchase-order.entity";
@@ -12,6 +12,7 @@ import { numberToLaoWords } from "@/modules/shared/utils/read-number-lao";
 import { Icon } from "@iconify/vue";
 import type { ISelectVendor } from "@/modules/application/dtos/receipt.dto";
 import UiDrawer from "@/common/shared/components/Darwer/UiDrawer.vue";
+import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import VendorDrawer from "./VendorDrawer.vue";
 
 // Import the print helper
@@ -19,6 +20,9 @@ const purchaseOrderStore = usePurchaseOrderStore();
 const orderDetails = ref<PurchaseOrderEntity | null>(null);
 const dataVendor = ref<ISelectVendor | null>(null);
 const openVendor = ref(false);
+const previewVisible = ref(false);
+const previewUrl = ref("");
+const previewTitle = ref("");
   const { error } = useNotification();
 const { t } = useI18n();
 const props = defineProps<{
@@ -36,6 +40,31 @@ const vendorInfo = (data: ISelectVendor) => {
   dataVendor.value = data;
   openVendor.value = true;
 };
+
+const isPdfUrl = (url: string | null | undefined): boolean => {
+  if (!url) return false;
+  return url.includes("po_file_name/") || url.toLowerCase().endsWith(".pdf");
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const openProposalPreview = (record: any) => {
+  const url: string | null = record?.getQuotationImageUrl?.() ?? null;
+  if (!url) return;
+  previewUrl.value = url;
+  previewTitle.value =
+    record?.purchase_request_item?.title || "ໃບສະເໜີ";
+  previewVisible.value = true;
+};
+
+const previewIsPdf = computed(() => isPdfUrl(previewUrl.value));
+// Append PDF viewer hints so the embedded view starts at fit-to-width
+// without toolbar clutter. Harmless on non-PDF URLs but only used when isPdf.
+const pdfEmbedSrc = computed(() =>
+  previewUrl.value
+    ? `${previewUrl.value}#toolbar=1&navpanes=0&view=FitH`
+    : ""
+);
+
 onMounted( async () => {
   await fetchOrderDetails();
 });
@@ -94,18 +123,17 @@ onMounted( async () => {
               </template>
                 <template v-if="column.key === 'image'">
               <span>
-                <!-- Check if it's a PDF file by checking if URL contains po_file_name path -->
-                <a
-                  v-if="record.getQuotationImageUrl() && record.getQuotationImageUrl().includes('po_file_name/')"
-                  :href="record.getQuotationImageUrl()"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <!-- PDF: open in an embedded preview modal -->
+                <button
+                  v-if="isPdfUrl(record.getQuotationImageUrl())"
+                  type="button"
                   class="flex items-center gap-2 px-3 py-2 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-200"
+                  @click="openProposalPreview(record)"
                 >
                   <Icon icon="material-symbols:lab-profile-outline-rounded" class="text-red-600 text-2xl" />
                   <span class="text-xs text-red-700 font-medium">ເບິງຂໍ້ມູນໃບສະເໜີ</span>
-                </a>
-                <!-- Display image for non-PDF files -->
+                </button>
+                <!-- Image preview -->
                 <a-image
                   v-else-if="record.getQuotationImageUrl()"
                   :src="record.getQuotationImageUrl()"
@@ -239,6 +267,47 @@ onMounted( async () => {
   >
     <VendorDrawer :data="dataVendor" />
   </UiDrawer>
+
+  <UiModal
+    :title="previewTitle || 'ໃບສະເໜີ'"
+    title-icon="material-symbols:lab-profile-outline-rounded"
+    :visible="previewVisible"
+    :width="980"
+    @update:visible="previewVisible = $event"
+    @cancel="previewVisible = false"
+  >
+    <div class="proposal-preview">
+      <iframe
+        v-if="previewIsPdf"
+        :src="pdfEmbedSrc"
+        class="proposal-frame"
+        frameborder="0"
+      ></iframe>
+      <img
+        v-else-if="previewUrl"
+        :src="previewUrl"
+        :alt="previewTitle"
+        class="proposal-img"
+      />
+      <div v-else class="text-center text-slate-400 py-10">ບໍ່ມີຂໍ້ມູນ</div>
+    </div>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <a
+          v-if="previewUrl"
+          :href="previewUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 rounded-md"
+        >ເປີດໃນແທັບໃໝ່</a>
+        <button
+          type="button"
+          class="px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md"
+          @click="previewVisible = false"
+        >ປິດ</button>
+      </div>
+    </template>
+  </UiModal>
 </template>
 <style scoped>
 ::v-deep(.title .ant-table-thead > tr > th) {
@@ -264,6 +333,32 @@ onMounted( async () => {
 ::v-deep(.ant-table-tbody > tr > td) {
  padding-top: 12px;
  padding-bottom: 12px;
+}
+
+.proposal-preview {
+  width: 100%;
+  height: 75vh;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.proposal-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.proposal-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  margin: auto;
 }
 
 </style>
