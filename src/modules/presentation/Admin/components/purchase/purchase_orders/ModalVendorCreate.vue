@@ -198,7 +198,7 @@ const handleVendorChange = async (value: string) => {
   form.value.bank = "";
   if (value) {
     try {
-      await bankAccount.fetchBankAccounts(Number(value));
+      await bankAccount.fetchBankAccounts(Number(value), { page: 1, limit: 1000 });
     } catch (err) {
       console.error("Error fetching bank accounts for vendor:", err);
       error("เกิดข้อผิดพลาดในการโหลดข้อมูลบัญชีธนาคารของผู้ขาย");
