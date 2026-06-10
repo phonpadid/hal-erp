@@ -207,12 +207,17 @@ const createPurchaseOrderPayload = () => {
 
   const payload = {
     purchase_request_id: Number(requestDetail.value.getId()),
+    purposes: form.value.purposes || "",
     document: {
       description: form.value.descriptions || "",
       documentTypeId: finalDocTypeId,
     },
     items,
   };
+
+  console.log("🟡 [PO Payload] form.value.purposes:", form.value.purposes);
+  console.log("🟡 [PO Payload] payload.purposes:", payload.purposes);
+  console.log("🟡 [PO Payload] full payload:", payload);
 
   // console.log("=== FINAL PAYLOAD ===");
   // console.log("Full payload:", JSON.stringify(payload, null, 2));
@@ -508,6 +513,10 @@ onMounted(() => {
 // /******************************************************* */
 const handleConfirm = async () => {
   try {
+    if (!form.value.purposes || !form.value.purposes.trim()) {
+      error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາປ້ອນຈຸດປະສົ່ງສຳລັບໃບສັ່ງຊື້");
+      return;
+    }
     if (!isAllItemsHaveVendor.value) {
       error("ເກີດຂໍ້ຜິດພາດ", "ກະລຸນາເລືອກຮ້ານຄ້າໃຫ້ຄົບທຸກລາຍການ");
       return;
@@ -786,7 +795,6 @@ onMounted(async () => {
 
     if (result) {
       requestDetail.value = result;
-      form.value.purposes = result.getPurposes();
       const items = result.getItems();
       form.value.title = items.map((item) => item.getTitle()).join(", ");
       form.value.quantity = items
@@ -942,15 +950,21 @@ const handleFileClick = (fileUrl: string, filename: string) => {
           </div>
         </div>
         <div>
-          <span>ຈຸດປະສົ່ງ</span>
+          <span>ຈຸດປະສົ່ງຈາກໃບສະເໜີຊື້ (PR)</span>
+          <div class="flex items-start gap-4 mb-4">
+            <p class="text-gray-600 text-sm whitespace-pre-line">
+              {{ requestDetail?.getPurposes() || "-" }}
+            </p>
+          </div>
+        </div>
+        <div>
+          <span>ຈຸດປະສົ່ງສຳລັບໃບສັ່ງຊື້ (PO) <span class="text-red-500">*</span></span>
           <div class="flex items-start gap-4 mb-6">
             <UiInput
               v-model="form.purposes"
-              placeholder="ປ້ອນລະຫັດເອກະສານ"
+              placeholder="ກະລຸນາປ້ອນຈຸດປະສົ່ງສຳລັບໃບສັ່ງຊື້"
               class="w-full"
-              :default-value="requestDetail?.getPurposes()"
             />
-            <!-- {{ requestDetail?.getDocumentDescription() }} -->
           </div>
         </div>
 

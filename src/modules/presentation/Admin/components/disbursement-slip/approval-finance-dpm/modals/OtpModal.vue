@@ -22,7 +22,7 @@ const confirmOTP = ref(false);
 const resendLoading = ref(false);
 const resendCooldown = ref(false);
 const cooldownTime = ref(60);
-const { push } = useRouter();
+const { replace } = useRouter();
 const props = defineProps<{
   visible: boolean;
   title: string;
@@ -187,7 +187,7 @@ const finalConfirm = async () => {
         });
 
         if (props.dataHead.isStep_on) {
-          push({
+          replace({
             name: "approval-by-finance-department-detail.index",
             params: { id: props.rId },
           });
