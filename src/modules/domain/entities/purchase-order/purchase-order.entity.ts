@@ -138,7 +138,7 @@ export class PurchaseOrderEntity {
     // console.log("Purchase Request Data:", data.purchase_request);
     // console.log("Purposes from Purchase Request:", data.purchase_request?.purposes);
     const purchaseRequestId = data.purchase_request_id || 0;
-    const purposes = data.purposes || data.purchase_request?.purposes || "N/A";
+    const purposes = data.purposes ?? "N/A";
     const createdAt = data.created_at || "Invalid date";
     const updatedAt = data.updated_at || "Invalid date";
     const currentTimestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
