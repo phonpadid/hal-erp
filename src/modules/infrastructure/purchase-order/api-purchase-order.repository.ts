@@ -11,9 +11,14 @@ import { PurchaseOrderItemDataEntity } from "@/modules/domain/entities/purchase-
 export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
   async create(input: PurchaseOrderEntity): Promise<PurchaseOrderEntity> {
     try {
-      const response = (await api.post("/purchase-orders", this.toApiModel(input))) as {
+      const payload = this.toApiModel(input);
+      console.log("🟢 [PO Create] Request payload purposes:", payload.purposes);
+      console.log("🟢 [PO Create] Full request payload:", payload);
+      const response = (await api.post("/purchase-orders", payload)) as {
         data: ApiResponse<PurchaseOrderApiModel>;
       };
+      console.log("🟢 [PO Create] Response data purposes:", response.data.data?.purposes);
+      console.log("🟢 [PO Create] Response data PR purposes:", response.data.data?.purchase_request?.purposes);
       return this.toDomainModel(response.data.data);
     } catch (error) {
       throw this.handleApiError(error, "Failed to create purchase order");
@@ -165,6 +170,7 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
     return {
       purchase_order_item: [],
       purchase_request_id: input.getPurchaseRequestId(),
+      purposes: input.getPurposes(),
 
       document: {
         description: input.getDocument().description,
@@ -204,7 +210,7 @@ export class ApiPurchaseOrderRepository implements PurchaseOrderRepository {
       vat: data.vat || 0,
       total: data.total || 0,
       total_in_lak: data.total_in_lak ?? data.total ?? 0,
-      purposes: data.purposes || data.purchase_request?.purposes || "N/A",
+      purposes: data.purposes ?? "N/A",
       is_created_rc: data.is_created_rc ?? false,
       purchase_request_id: data.purchase_request_id,
       user_last_approval: data.user_last_approval || null,

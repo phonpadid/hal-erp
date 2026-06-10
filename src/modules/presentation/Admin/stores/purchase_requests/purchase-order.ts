@@ -97,6 +97,7 @@ export const usePurchaseOrderStore = defineStore("purchaseOrders", () => {
     try {
       const entity = PurchaseOrderEntity.create({
         purchase_request_id: data.purchase_request_id,
+        purposes: data.purposes,
         document: data.document,
         items: data.items,
       });
