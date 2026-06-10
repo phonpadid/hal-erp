@@ -9,11 +9,16 @@ import type { TablePaginationType } from "@/common/shared/components/table/Table
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
 import ResetPasswordForm from "../../components/user/ResetPasswordForm.vue";
+import MailWindowForm from "../../components/user/MailWindowForm.vue";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UserForm from "../../components/user/UserForm.vue";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import {
+  ApiMailPreferenceRepository,
+  type MailPreference,
+} from "@/modules/infrastructure/api-mail-preference.repository";
 
 
 const { t } = useI18n();
@@ -35,6 +40,13 @@ const resetPasswordModalVisible = ref<boolean>(false);
 const resetPasswordFormRef = ref();
 const userFormRef = ref();
 
+// Mail window modal state
+const mailWindowModalVisible = ref<boolean>(false);
+const mailWindowFormRef = ref();
+const mailWindowLoading = ref<boolean>(false);
+const mailWindowInitial = ref<MailPreference | null>(null);
+const mailPreferenceRepository = new ApiMailPreferenceRepository();
+
 // check show buttons - Company-admin ไม่สามารถจัดการ user ได้
 const canCreateUser = computed(() => {
   return !hasRole("company-admin") && hasCompanyPermission("write-user");
@@ -47,6 +59,9 @@ const canDeleteUser = computed(() => {
 });
 const canResetUserPassword = computed(() => {
   return !hasRole("company-admin") && hasCompanyPermission("reset-password-user");
+});
+const canManageMailWindow = computed(() => {
+  return !hasRole("company-admin") && hasCompanyPermission("update-user");
 });
 
 // Table pagination
@@ -127,6 +142,36 @@ const showDeleteModal = (user: UserInterface) => {
 const showResetPasswordModal = (user: UserInterface) => {
   selectedUser.value = user;
   resetPasswordModalVisible.value = true;
+};
+
+const showMailWindowModal = async (user: UserInterface) => {
+  selectedUser.value = user;
+  mailWindowInitial.value = null;
+  mailWindowModalVisible.value = true;
+  mailWindowLoading.value = true;
+  try {
+    mailWindowInitial.value = await mailPreferenceRepository.find(user.id);
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("user.mailWindow.loadFailed"), errorMessage);
+  } finally {
+    mailWindowLoading.value = false;
+  }
+};
+
+const handleMailWindowSubmit = async (data: MailPreference) => {
+  if (!selectedUser.value) return;
+  submitLoading.value = true;
+  try {
+    await mailPreferenceRepository.save(selectedUser.value.id, data);
+    success(t("user.success.title"), t("user.mailWindow.success"));
+    mailWindowModalVisible.value = false;
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    error(t("user.mailWindow.saveFailed"), errorMessage);
+  } finally {
+    submitLoading.value = false;
+  }
 };
 
 const handleModalOk = () => {
@@ -275,6 +320,18 @@ const handleDeleteConfirm = async () => {
           </UiButton>
 
           <UiButton
+            v-if="canManageMailWindow"
+            type=""
+            size="small"
+            shape="circle"
+            icon="ant-design:clock-circle-outlined"
+            @click="showMailWindowModal(record)"
+            colorClass="flex items-center justify-center text-emerald-600"
+            :title="t('user.mailWindow.title')"
+            :disabled="!!record.deleted_at"
+          />
+
+          <UiButton
             v-if="canDeleteUser"
             type=""
             danger
@@ -325,6 +382,31 @@ const handleDeleteConfirm = async () => {
         :loading="submitLoading"
         @submit="handleResetPassword"
       />
+    </UiModal>
+
+    <!-- Mail Send Window Modal -->
+    <UiModal
+      :title="t('user.mailWindow.title')"
+      :visible="mailWindowModalVisible"
+      :confirm-loading="submitLoading"
+      @update:visible="mailWindowModalVisible = $event"
+      @ok="mailWindowFormRef?.submitForm()"
+      @cancel="mailWindowModalVisible = false"
+      :okText="t('user.mailWindow.save')"
+      :cancelText="t('button.cancel')"
+      titleIcon="ant-design:clock-circle-outlined"
+    >
+      <p class="mb-3">
+        {{ t("user.mailWindow.subtitle", { username: selectedUser?.username || "-" }) }}
+      </p>
+      <a-spin :spinning="mailWindowLoading">
+        <MailWindowForm
+          ref="mailWindowFormRef"
+          :loading="submitLoading"
+          :initial="mailWindowInitial"
+          @submit="handleMailWindowSubmit"
+        />
+      </a-spin>
     </UiModal>
 
     <!-- Delete Confirmation Modal -->
