@@ -82,6 +82,31 @@
     "restored": "User restored successfully",
     "passwordReset": "Password has been reset successfully"
   },
+  "mailWindow": {
+    "title": "Mail Send Window",
+    "subtitle": "User: {username}",
+    "enableLabel": "Limit email sending window",
+    "startDateLabel": "Start date",
+    "startDatePlaceholder": "Start date (optional)",
+    "endDateLabel": "End date",
+    "endDatePlaceholder": "End date (optional)",
+    "startLabel": "Start time",
+    "startPlaceholder": "e.g. 08:00",
+    "endLabel": "End time",
+    "endPlaceholder": "e.g. 17:00",
+    "help": "Approval emails generated outside this window will be delivered automatically when the window opens.",
+    "timezoneNote": "Times are interpreted in Laos timezone (Asia/Vientiane).",
+    "save": "Save",
+    "validation": {
+      "startRequired": "Please choose a start time",
+      "endRequired": "Please choose an end time",
+      "endAfterStart": "End time must be after start time (cross-midnight ranges are not supported)",
+      "endDateAfterStart": "End date must be on or after the start date"
+    },
+    "success": "Mail send window saved",
+    "loadFailed": "Failed to load mail send window",
+    "saveFailed": "Failed to save mail send window"
+  },
   "error": {
     "loadFailed": "Failed to load users",
     "saveFailed": "Failed to save user",
