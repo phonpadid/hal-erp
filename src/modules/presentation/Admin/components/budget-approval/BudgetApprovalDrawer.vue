@@ -5,17 +5,20 @@ import { columns } from "./column";
 import { useI18n } from "vue-i18n";
 import { useCurrencyFormat } from "@/modules/shared/utils/useCurrencyFormat";
 import InputSearch from "@/common/shared/components/Input/InputSearch.vue";
+import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import Radio from "@/common/shared/components/Input/Radio.vue";
 import Table, { type TableRecord } from "@/common/shared/components/table/Table.vue";
 import { useBudgetItemStore } from "../../stores/budget/budget-item.store";
+import { departmentStore as useDepartmentStore } from "../../stores/departments/department.store";
 
-// Props
-const props = defineProps<{
+// Props (kept for backwards compatibility; no longer used to auto-filter)
+defineProps<{
   departmentId?: number;
 }>();
 
 // State
 const budgetItemStore = useBudgetItemStore();
+const departmentStore = useDepartmentStore();
 const selectedValue = ref<string>("1");
 const { formatCurrency } = useCurrencyFormat();
 const { t } = useI18n();
@@ -25,6 +28,14 @@ const options = [
 ];
 const selectedBudget = ref<any>(null);
 const searchQuery = ref<string>("");
+const selectedDepartmentId = ref<number | null>(null);
+
+const departmentOptions = computed(() =>
+  departmentStore.departments.map((d) => ({
+    label: d.getName(),
+    value: Number(d.getId()),
+  }))
+);
 
 const isValid = computed(() => {
   return selectedBudget.value !== null;
@@ -32,8 +43,8 @@ const isValid = computed(() => {
 
 const fetchData = async () => {
   const budgetType = selectedValue.value === "1" ? "expenditure" : "advance";
-  // console.log("Fetching budget items with departmentId:", props.departmentId);
-  await budgetItemStore.getAllReport({ page: 1, limit: 1000 }, budgetType, props.departmentId);
+  const deptId = selectedDepartmentId.value ?? undefined;
+  await budgetItemStore.getAllReport({ page: 1, limit: 1000 }, budgetType, deptId);
 };
 
 const filteredBudgetData = computed<any[]>(() => {
@@ -103,13 +114,15 @@ watch(searchQuery, () => {
   fetchData();
 });
 
-// Watch for departmentId changes
-watch(() => props.departmentId, () => {
+// Refetch whenever the user changes the department in the select
+watch(selectedDepartmentId, () => {
+  selectedBudget.value = null;
   fetchData();
-}, { immediate: true });
+});
 
-onMounted(() => {
-  // fetchData will be called by watch with immediate: true
+onMounted(async () => {
+  await departmentStore.fetchDepartment({ page: 1, limit: 1000 });
+  fetchData();
 });
 // Emits
 const emit = defineEmits<{
@@ -150,6 +163,15 @@ const getRowClassName = (record: TableRecord) => {
     <div class="budget-type-section mb-6 mt-4">
       <h3 class="text-gray-600 font-bold mb-2">ປະເພດງົບປະມານ</h3>
       <Radio v-model="selectedValue" :options="options" :gap="80" />
+    </div>
+    <div class="department-filter-section mb-4">
+      <h3 class="text-gray-600 font-bold mb-2">ພະແນກ</h3>
+      <InputSelect
+        v-model="selectedDepartmentId"
+        :options="departmentOptions"
+        :loading="departmentStore.loading"
+        placeholder="ເລືອກພະແນກ"
+      />
     </div>
     <div v-if="selectedBudget" class="mb-6">
       <div class="mb-2">
