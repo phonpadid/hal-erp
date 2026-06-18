@@ -51,7 +51,7 @@
             icon="ant-design:delete-outlined"
             size="small"
             shape="circle"
-            @click="deleteRole(record.id)"
+            @click="showDeleteModal(record)"
             colorClass="flex items-center justify-center text-red-500"
           />
         </div>
@@ -65,6 +65,23 @@
         <h2 class="text-lg font-semibold">{{ t("departmentRole.list.tableTitle") }}</h2>
       </template>
     </Table>
+
+    <!-- Delete Confirmation Modal -->
+    <UiModal
+      :title="t('department-role.confirm.deleteTitle')"
+      :visible="deleteModalVisible"
+      :confirm-loading="submitLoading"
+      @update:visible="deleteModalVisible = $event"
+      @ok="handleDeleteConfirm"
+      @cancel="deleteModalVisible = false"
+      :ok-text="t('department-role.buttons.confirm')"
+      :cancel-text="t('department-role.buttons.cancel')"
+      ok-type="primary"
+      :danger="true"
+    >
+      <p>{{ t("department-role.confirm.deleteMessage") }}</p>
+      <p class="text-red-500">{{ t("department-role.modal.deleteWarning") }}</p>
+    </UiModal>
   </div>
 </template>
 
@@ -74,10 +91,10 @@ import { useI18n } from "vue-i18n";
 import { formatDate } from "@/modules/shared/formatdate";
 import { useRouter } from "vue-router";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import { Modal } from "ant-design-vue";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 import InputSelect from "@/common/shared/components/Input/InputSelect.vue";
 import type { DepartmentRoleWithDetailsDTO } from "@/modules/application/dtos/departments/department-role.dto";
 import { useDepartmentRoleStore } from "../../../stores/departments/department-role.store";
@@ -92,8 +109,12 @@ const departmentRoleStore = useDepartmentRoleStore();
 const departmentStore = useDepartmentStore();
 const departmentRoles = ref<DepartmentRoleWithDetailsDTO[]>([]);
 const router = useRouter();
-const { success } = useNotification();
+const { success, warning } = useNotification();
 const { hasPermission, isSuperAdmin, isAdmin } = usePermissions();
+
+const deleteModalVisible = ref<boolean>(false);
+const submitLoading = ref<boolean>(false);
+const selectedRole = ref<DepartmentRoleWithDetailsDTO | null>(null);
 
 // check show or hide buttons based on permissions
 // Super-admin and admin can only view (no edit buttons)
@@ -134,19 +155,25 @@ const editRole = (role: DepartmentRoleWithDetailsDTO): void => {
   router.push({ name: "department_role.edit", params: { id: role.id.toString() } });
 };
 
-const deleteRole = async (id: string): Promise<void> => {
-  Modal.confirm({
-    title: t("department-role.confirm.deleteTitle"),
-    content: t("department-role.confirm.deleteMessage"),
-    okText: t("department-role.buttons.confirm"),
-    okType: "danger",
-    cancelText: t("department-role.buttons.cancel"),
-    async onOk() {
-      await departmentRoleStore.deleteDepartmentRole(id);
-      success(t("department-role.messages.deleteSuccess"));
-      await loadDepartmentRoles();
-    },
-  });
+const showDeleteModal = (role: DepartmentRoleWithDetailsDTO): void => {
+  selectedRole.value = role;
+  deleteModalVisible.value = true;
+};
+
+const handleDeleteConfirm = async (): Promise<void> => {
+  if (!selectedRole.value) return;
+  try {
+    submitLoading.value = true;
+    await departmentRoleStore.deleteDepartmentRole(selectedRole.value.id.toString());
+    success(t("messages.notification"), t("department-role.success.deleted"));
+    deleteModalVisible.value = false;
+    await loadDepartmentRoles();
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("department-role.error.deleteFailed"), errorMessage);
+  } finally {
+    submitLoading.value = false;
+  }
 };
 
 // Table pagination

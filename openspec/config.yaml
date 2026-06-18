@@ -1,20 +1,82 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+# Project context (shown to AI when creating artifacts).
+# Keep this concise — for the full guide, see openspec/AGENTS.md.
+context: |
+  Project: HAL-ERP — a Vue 3 + TypeScript SPA Procurement ERP front-end
+  (Purchase Request → PO → Receipt → Disbursement, gated by multi-step approvals).
+  No back-end source in this repo — talks to a remote REST API via Axios.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Tech stack:
+    - Vue 3.5 Composition API (<script setup>), TypeScript 5.8, Vite 6
+    - Pinia 3 (setup-style stores), Vue Router 4
+    - Ant Design Vue 4 + Tailwind 3 + SCSS
+    - vue-i18n 11 with locales: en, la (Lao), cn — fallback English
+    - pnpm as package manager
+    - No automated tests
+
+  Architecture: Clean / Hexagonal with strict layer separation under src/modules/:
+    - domain/        (entities + repository interfaces — no I/O)
+    - application/   (dtos, ports, useCases, services)
+    - infrastructure/ (api-*.repository.ts HTTP adapters)
+    - presentation/Admin/ (views, components, stores, router)
+    Dependency direction: presentation → stores → services → repository interfaces
+    (← implemented by infrastructure → domain entities). Never break it.
+
+  Cross-cutting under src/common/: axios instance, i18n, locales, layouts,
+  global components, guards, the canonical usePermissions, and the single
+  router composition point.
+
+  File naming conventions (match exactly):
+    - api-<feature>.repository.ts     (HTTP repo)
+    - <feature>.service.ts            (service impl)
+    - <feature>.store.ts              (Pinia store)
+    - <feature>.entity.ts             (domain entity)
+    - <feature>.dto.ts                (DTO)
+    - <Feature>{List,Create,Edit,Detail}View.vue (routed views)
+  Permission strings: <verb>-<resource> where verb ∈ {create, update, delete, view}.
+
+  Already-global building blocks (do NOT re-invent — import these):
+    - HTTP error modals (401/403/500) — handled in common/config/axios/axios.ts
+    - Notifications — useNotification() in modules/shared/utils/useNotification.ts
+    - Permissions — usePermissions() in common/shared/store/usePermissions.ts
+      (canonical; duplicate at modules/shared/utils/usePermissions.ts is deprecated)
+    - Pagination types — modules/shared/pagination.ts
+    - Date formatting — modules/shared/formatdate.ts
+    - UI: UiModal, UiForm, UiButton, Table/UiTable, InputSearch, LoadingSpinner,
+      Upload*, plus (after extract-list-view-globals lands) ConfirmDeleteModal
+      and RowActionButtons. Full inventory in docs/shared-components-audit.md.
+
+  Pitfalls:
+    - Two usePermissions composables exist (canonical + deprecated). Use the canonical one.
+    - useAuthStore.login() force-appends "write-purchase-request" to every user — legacy hack.
+    - IDs cross the wire as numbers but become strings in entities (.toString() in repos).
+    - Folder names mix kebab-case and snake_case in places — match what's already there.
+    - Some router filenames have typos (e.g. purchase-reques.router.ts) — don't rename.
+    - Hard-coded Lao strings exist in a handful of components — always add new i18n keys
+      to all three locales (en, la, cn).
+    - Auth state is dual-sourced: useAuthStore + localStorage. Write to both.
+
+  More context:
+    - openspec/AGENTS.md           — full working guide
+    - openspec/project-structure.md — file/folder walkthrough
+    - docs/system-architecture.md  — narrative architecture
+    - docs/shared-components-audit.md — duplicated patterns + refactor roadmap
+
+# Per-artifact rules
+rules:
+  proposal:
+    - Always include a "Non-goals" subsection so scope is unambiguous
+    - Identify capabilities in kebab-case and check openspec/specs/ before naming
+    - Note impact on i18n (en/la/cn) if any user-facing strings change
+  design:
+    - For any decision, name at least one rejected alternative and why
+    - Always state the rollback plan (this repo has no automated tests)
+  specs:
+    - Scenarios MUST use exactly 4 hashtags (#### Scenario:) — 3 hashtags fail silently
+    - Every requirement MUST have at least one scenario
+    - Use SHALL/MUST in normative requirement text
+  tasks:
+    - Every task MUST be `- [ ] N.M description` — non-checkbox lines are invisible to apply
+    - Include a task to run `pnpm type-check && pnpm lint` before marking a phase done
+    - For multi-view migrations, list each view as its own group of tasks

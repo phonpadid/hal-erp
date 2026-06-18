@@ -17,6 +17,7 @@
   "total": "总计",
   "item": "项",
   "add": "添加信息",
+  "totalPeople": "共 {count} 人",
   "header_form": {
     "add": "审批工作流步骤创建表单",
     "edit": "审批工作流步骤更新表单"

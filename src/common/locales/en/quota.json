@@ -34,7 +34,14 @@
       "quantity": "Please enter quantity",
       "year": "Please enter year",
       "quantity_min": "Quantity must be greater than 0",
-      "year_format": "Please enter a valid year (e.g. 2025)"
+      "year_format": "Please enter a valid year (e.g. 2025)",
+      "title": "Error",
+      "loadFailed": "Failed to load quotas",
+      "createFailed": "Failed to create quota",
+      "updateFailed": "Failed to update quota",
+      "deleteFailed": "Failed to delete quota",
+      "saveFailed": "Failed to save quota",
+      "fillAllFields": "Please fill in all required fields"
     },
     "field": {
       "company": "Company",
@@ -81,14 +88,5 @@
       "created": "Quota created successfully",
       "updated": "Quota updated successfully",
       "deleted": "Quota deleted successfully"
-    },
-    "errors": {
-      "title": "Error",
-      "loadFailed": "Failed to load quotas",
-      "createFailed": "Failed to create quota",
-      "updateFailed": "Failed to update quota",
-      "deleteFailed": "Failed to delete quota",
-      "saveFailed": "Failed to save quota",
-      "fillAllFields": "Please fill in all required fields"
     }
   }

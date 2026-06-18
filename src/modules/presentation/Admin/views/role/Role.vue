@@ -8,17 +8,21 @@ import { useRoleStore } from "../../stores/role.store";
 import { formatDate } from "@/modules/shared/formatdate";
 import { useRouter } from "vue-router";
 import { useNotification } from "@/modules/shared/utils/useNotification";
-import { Modal } from "ant-design-vue";
 import type { TablePaginationType } from "@/common/shared/components/table/Table.vue";
 import Table from "@/common/shared/components/table/Table.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
+import UiModal from "@/common/shared/components/Modal/UiModal.vue";
 
 const { t } = useI18n();
 
 const rolesStore = useRoleStore();
 const roles = ref<RoleResponse[]>([]);
 const router = useRouter();
-const { success } = useNotification();
+const { success, warning } = useNotification();
+
+const deleteModalVisible = ref<boolean>(false);
+const submitLoading = ref<boolean>(false);
+const selectedRole = ref<Roleinterface | null>(null);
 
 const addRole = (): void => {
   router.push({ name: "roleCreate" });
@@ -27,19 +31,26 @@ const addRole = (): void => {
 const editRole = (role: Roleinterface): void => {
   router.push({ name: "roleEdit", params: { id: role.id.toString() } });
 };
-const deleteRole = async (role: Roleinterface): Promise<void> => {
-Modal.confirm({
-    title: t("role.confirm.deleteTitle"),
-    content: t("role.confirm.deleteMessage"),
-    okText: t("role.buttons.confirm"),
-    okType: "danger",
-    cancelText: t("role.buttons.cancel"),
-    async onOk() {
-      await rolesStore.deleteRole(role.id);
-      success(("ລົບຂໍ້ມູນສຳເລັດ"));
-      await loadRoles();
-    },
-  });
+
+const showDeleteModal = (role: Roleinterface): void => {
+  selectedRole.value = role;
+  deleteModalVisible.value = true;
+};
+
+const handleDeleteConfirm = async (): Promise<void> => {
+  if (!selectedRole.value) return;
+  try {
+    submitLoading.value = true;
+    await rolesStore.deleteRole(selectedRole.value.id);
+    success(t("role.success.title") || t("messages.notification"), t("role.success.deleted"));
+    deleteModalVisible.value = false;
+    await loadRoles();
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("role.error.deleteFailed"), errorMessage);
+  } finally {
+    submitLoading.value = false;
+  }
 };
 
 // Table pagination
@@ -53,7 +64,7 @@ const tablePagination = computed(() => ({
 
 // Handle pagination and sorting
 const handleTableChange = async (pagination: TablePaginationType): Promise<void> => {
-  
+
   rolesStore.setPagination({
     page: pagination.current || 1,
     limit: pagination.pageSize || 10,
@@ -114,7 +125,7 @@ onMounted(async () => {
         {{ t("role.list.btn") }}
       </UiButton>
     </div>
-    
+
     <Table
       :columns="column(t)"
       :dataSource="roles"
@@ -139,9 +150,8 @@ onMounted(async () => {
             icon="ant-design:delete-outlined"
             size="small"
             shape="circle"
-            @click="deleteRole(record)"
+            @click="showDeleteModal(record)"
             colorClass="flex items-center justify-center text-red-500"
-           
           />
         </div>
       </template>
@@ -154,6 +164,23 @@ onMounted(async () => {
         <h2 class="text-lg font-semibold">{{ t("role.list.tableTitle") }}</h2>
       </template>
     </Table>
+
+    <!-- Delete Confirmation Modal -->
+    <UiModal
+      :title="t('role.confirm.deleteTitle')"
+      :visible="deleteModalVisible"
+      :confirm-loading="submitLoading"
+      @update:visible="deleteModalVisible = $event"
+      @ok="handleDeleteConfirm"
+      @cancel="deleteModalVisible = false"
+      :ok-text="t('role.buttons.confirm')"
+      :cancel-text="t('role.buttons.cancel')"
+      ok-type="primary"
+      :danger="true"
+    >
+      <p>{{ t("role.confirm.deleteMessage") }}</p>
+      <p class="text-red-500">{{ t("role.modal.deleteWarning") }}</p>
+    </UiModal>
   </div>
 </template>
 

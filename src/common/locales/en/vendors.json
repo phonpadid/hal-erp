@@ -26,6 +26,7 @@
     "accountNamePlaceholder": "Enter Account Name",
     "accountNumber": "Account Number",
     "accountNumberPlaceholder": "Enter Account Number",
+    "vendor_bank_account": "Please enter vendor bank account",
     "completeBankAccount": " Bank account added successfully",
     "bankPlaceholder": "Select Bank"
   },

@@ -3,6 +3,7 @@
     "number": "编号",
     "code": "编码",
     "amount": "金额",
+    "name": "预算名称",
     "quantity": "数量",
     "remark": "内容",
     "id_name": "预算ID",

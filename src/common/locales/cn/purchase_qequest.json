@@ -19,7 +19,7 @@
   "error":{
     "document_type_required":"单据类型为必填项.",
     "remark_required":"备注为必填项.",
-    "unit_id_required":"单位为必填项."
-
+    "unit_id_required":"单位为必填项.",
+    "images_required":"图片为必填项."
   }
 }

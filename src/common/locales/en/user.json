@@ -76,6 +76,7 @@
     "resetPasswordConfirm": "Reset password for user {username}?"
   },
   "success": {
+    "title": "Success",
     "created": "User created successfully",
     "updated": "User updated successfully",
     "deleted": "User deleted successfully",
@@ -113,6 +114,7 @@
     "deleteFailed": "Failed to delete user",
     "restoreFailed": "Failed to restore user",
     "passwordResetFailed": "Failed to reset password",
+    "uploadFailed": "Failed to upload file",
     "messages": {
       "loading": "Loading..."
     },

@@ -65,9 +65,6 @@
     "restoreFailed": "Failed to restore department role",
     "duplicateName": "This department role already exists"
   },
-  "messages": {
-    "deleteSuccess": "Department role deleted successfully"
-  },
   "filter": {
     "allDepartments": "All",
     "search": "filter by department"

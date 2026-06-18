@@ -44,6 +44,7 @@
   "form": {
     "name": "ຊື່ຕໍາແໜ່ງ",
     "namePlaceholder": "ປ້ອນຊື່ຕໍາແໜ່ງ",
+    "code": "ລະຫັດ",
     "codePlaceholder": "ປ້ອນລະຫັດຕໍາແໜ່ງ"
   },
    "success": {

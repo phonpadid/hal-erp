@@ -2,66 +2,72 @@
   "title": "ຂໍ້ມູນບໍລິສັດ",
   "add": "ເພີ່ມບໍລິສັດໃໝ່",
   "create": "ສ້າງບໍລິສັດ",
-  "createDescription": "ຕອອນຂໍ້ມູນບໍລິສັດ ແານສ້າບັນຊີຜູ້ໃຊ້ຜູ້ດຳເນີນ",
+  "createDescription": "ປ້ອນຂໍ້ມູນບໍລິສັດ ແລະ ສ້າງບັນຊີຜູ້ດຳເນີນການ",
   "loading": "ກຳລັງໂຫຼດຂໍ້ມູນບໍລິສັດ...",
+  "placeholder": {
+    "name": "ກະລຸນາປ້ອນຊື່ບໍລິສັດ",
+    "search": "ຄົ້ນຫາຊື່ບໍລິສັດ"
+  },
+  "field": {
+    "name": "ຊື່ບໍລິສັດ",
+    "logo": "ໂລໂກ",
+    "tel": "ເບີໂທ",
+    "email": "ອີເມວ",
+    "address": "ທີ່ຢູ່",
+    "created": "ເວລາສ້າງ",
+    "updated": "ເວລາແກ້ໄຂ",
+    "manage": "ຈັດການ"
+  },
+  "notify": {
+    "created": "ສ້າງບໍລິສັດສຳເລັດ",
+    "updated": "ອັບເດດບໍລິສັດສຳເລັດ",
+    "deleted": "ລຶບບໍລິສັດສຳເລັດ"
+  },
+  "validation": {
+    "nameRequired": "ກະລຸນາປ້ອນຊື່",
+    "nameMin": "ຊື່ຕ້ອງມີຢ່າງໜ້ອຍ 2 ຕົວອັກສອນ",
+    "nameMax": "ຊື່ບໍ່ສາມາດເກີນ 200 ຕົວອັກສອນ",
+    "nameExists": "ຊື່ບໍລິສັດນີ້ມີຢູ່ແລ້ວ",
+    "telRequired": "ກະລຸນາປ້ອນເບີໂທ",
+    "telFormat": "ເບີໂທຕ້ອງມີ 8-15 ຕົວເລກ",
+    "telExists": "ເບີໂທບໍລິສັດນີ້ມີຢູ່ແລ້ວ",
+    "emailRequired": "ກະລຸນາປ້ອນອີເມວ",
+    "emailFormat": "ກະລຸນາປ້ອນອີເມວທີ່ຖືກຕ້ອງ",
+    "emailExists": "ອີເມວບໍລິສັດນີ້ມີຢູ່ແລ້ວ",
+    "addressRequired": "ກະລຸນາປ້ອນທີ່ຢູ່",
+    "addressMin": "ທີ່ຢູ່ຕ້ອງມີຢ່າງໜ້ອຍ 5 ຕົວອັກສອນ",
+    "addressMax": "ທີ່ຢູ່ບໍ່ສາມາດເກີນ 500 ຕົວອັກສອນ",
+    "usernameRequired": "ກະລຸນາປ້ອນຊື່ຜູ້ໃຊ້",
+    "usernameMin": "ຊື່ຜູ້ໃຊ້ຕ້ອງມີຢ່າງໜ້ອຍ 3 ຕົວອັກສອນ",
+    "usernameMax": "ຊື່ຜູ້ໃຊ້ບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ",
+    "usernameFormat": "ຊື່ຜູ້ໃຊ້ສາມາດປະກອບດ້ວຍຕົວອັກສອນ, ຕົວເລກ, ແລະ ຂີດລຸ່ມເທົ່ານັ້ນ",
+    "usernameExists": "ຊື່ຜູ້ໃຊ້ນີ້ມີຢູ່ແລ້ວ",
+    "userEmailRequired": "ກະລຸນາປ້ອນອີເມວຜູ້ໃຊ້",
+    "userEmailFormat": "ກະລຸນາປ້ອນອີເມວທີ່ຖືກຕ້ອງ",
+    "userEmailExists": "ອີເມວຜູ້ໃຊ້ນີ້ມີຢູ່ແລ້ວ",
+    "userTelRequired": "ກະລຸນາປ້ອນເບີໂທຜູ້ໃຊ້",
+    "userTelFormat": "ເບີໂທຜູ້ໃຊ້ຕ້ອງມີ 8-15 ຕົວເລກ",
+    "userTelExists": "ເບີໂທຜູ້ໃຊ້ນີ້ມີຢູ່ແລ້ວ",
+    "passwordRequired": "ກະລຸນາປ້ອນລະຫັດຜ່ານ",
+    "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ",
+    "confirmPasswordRequired": "ກະລຸນາຢືນຢັນລະຫັດຜ່ານ",
+    "passwordMismatch": "ລະຫັດຜ່ານບໍ່ຕົງກັນ",
+    "firstNameRequired": "ກະລຸນາປ້ອນຊື່",
+    "firstNameFormat": "ຊື່ຕ້ອງເປັນຕົວໜັງສືເທົ່ານັ້ນ",
+    "firstNameMax": "ຊື່ບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ",
+    "lastNameRequired": "ກະລຸນາປ້ອນນາມສະກຸນ",
+    "lastNameFormat": "ນາມສະກຸນຕ້ອງເປັນຕົວໜັງສືເທົ່ານັ້ນ",
+    "lastNameMax": "ນາມສະກຸນບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ"
+  },
   "modal": {
     "create": "ສ້າງບໍລິສັດ",
     "edit": "ແກ້ໄຂບໍລິສັດ",
     "delete": "ລຶບບໍລິສັດ",
-    "deleteConfirm": "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບບໍລິສັດ?",
+    "deleteConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບບໍລິສັດ?",
     "deleteWarning": "ການກະທຳນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້."
   },
-   "placeholder": {
-      "name": "ກະລຸນາປ້ອນຊື່ບໍລິສັດ",
-      "search": "ຄົ້ນຫາຊື່ບໍລິສັດ"
-    },
-  "field": {
-      "name": "ຊື່ບໍລິສັດ",
-      "logo": "ໂລໂກ",
-      "tel": "ເບີໂທ",
-      "email": "ອີເມວ",
-      "address": "ທີ່ຢູ່",
-      "created": "ເວລາສ້າງ",
-      "updated": "ເວລາແກ້ໄຂ",
-      "manage": "ຈັດການ"
-    },
-   "validation": {
-      "nameRequired": "ກະລຸນາປ້ອນຊື່",
-      "nameMin": "ຊື່ຕ້ອງມີຢ່າງໜ້ອຍ 2 ຕົວອັກສອນ",
-      "nameMax": "ຊື່ບໍ່ສາມາດເກີນ 200 ຕົວອັກສອນ",
-      "nameExists": "ຊື່ບໍລິສັດນີ້ມີ້ຢູ່ແລ້ວ",
-      "telRequired": "ເບີຣໂທຣຟອນຈຳເປັນ",
-      "telFormat": "ເບີຣໂທຣຟອນຕ້ອງມີ 8-15 ຕົວເລກ",
-      "telExists": "ເບີຣໂທຣຟອນບໍລິສັດນີ້ມີ້ຢູ່ແລ້ວ",
-      "emailRequired": "ອີເມວຈຳເປັນ",
-      "emailFormat": "ກະລຸນາປ້ອນອີເມວທີ່ຖືກຕ້ອງ",
-      "emailExists": "ອີເມວບໍລິສັດນີ້ມີ້ຢູ່ແລ້ວ",
-      "addressRequired": "ທີ່ຢູ່ຈຳເປັນ",
-      "addressMin": "ທີ່ຢູ່ຕ້ອງມີຢ່າງໜ້ອຍ 5 ຕົວອັກສອນ",
-      "addressMax": "ທີ່ຢູ່ບໍ່ສາມາດເກີນ 500 ຕົວອັກສອນ",
-      "usernameRequired": "ຊື່ຜູ້ໃຊ້ຈຳເປັນ",
-      "usernameMin": "ຊື່ຜູ້ໃຊ້ຕ້ອງມີຢ່າງໜ້ອຍ 3 ຕົວອັກສອນ",
-      "usernameMax": "ຊື່ຜູ້ໃຊ້ບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ",
-      "usernameFormat": "ຊື່ຜູ້ໃຊ້ສາມາດປະກອບດ້ວຍຕົວອັກສອນ, ຕົວເລກ, ແລະ ຂີດລຸ່ມເທົ່າງເທົ່າ",
-      "usernameExists": "ຊື່ຜູ້ໃຊ້ນີ້ມີ້ຢູ່ແລ້ວ",
-      "userEmailRequired": "ອີເມວຜູ້ໃຊ້ຈຳເປັນ",
-      "userEmailFormat": "ກະລຸນາປ້ອນອີເມວທີ່ຖືກຕ້ອງ",
-      "userEmailExists": "ອີເມວຜູ້ໃຊ້ນີ້ມີ້ຢູ່ແລ້ວ",
-      "userTelRequired": "ເບີຣໂທຣຟອນຜູ້ໃຊ້ຈຳເປັນ",
-      "userTelFormat": "ເບີຣໂທຣຟອນຜູ້ໃຊ້ຕ້ອງມີ 8-15 ຕົວເລກ",
-      "userTelExists": "ເບີຣໂທຣຟອນຜູ້ໃຊ້ນີ້ມີ້ຢູ່ແລ້ວ",
-      "passwordRequired": "ລະຫັດຜ່ານຈຳເປັນ",
-      "passwordMin": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ",
-      "confirmPasswordRequired": "ຢືນຢັນລະຫັດຜ່ານຈຳເປັນ",
-      "passwordMismatch": "ລະຫັດຜ່ານບໍ່ຕົງກັນ",
-      "firstNameRequired": "ກະລຸນາປ້ອນຊື່",
-      "firstNameFormat": "ຊື່ຕ້ອງເປັນຕົວໜັງສືເທົ່ານັ້ນ",
-      "firstNameMax": "ຊື່ບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ",
-      "lastNameRequired": "ກະລຸນາປ້ອນນາມສະກຸນ",
-      "lastNameFormat": "ນາມສະກຸນຕ້ອງເປັນຕົວໜັງສືເທົ່ານັ້ນ",
-      "lastNameMax": "ນາມສະກຸນບໍ່ສາມາດເກີນ 50 ຕົວອັກສອນ"
-    },
   "form": {
+    "companyInfo": "ຂໍ້ມູນບໍລິສັດ",
     "name": "ຊື່ບໍລິສັດ",
     "namePlaceholder": "ປ້ອນຊື່ບໍລິສັດ",
     "logo": "ໂລໂກບໍລິສັດ",
@@ -71,7 +77,7 @@
     "emailPlaceholder": "ປ້ອນອີເມວ",
     "address": "ທີ່ຢູ່",
     "addressPlaceholder": "ປ້ອນທີ່ຢູ່",
-    "userSection": "ຂໍ້ມູນບັນຊີຜູ້ດຳເນີນ",
+    "userSection": "ຂໍ້ມູນບັນຊີຜູ້ດຳເນີນການ",
     "firstName": "ຊື່",
     "firstNamePlaceholder": "ປ້ອນຊື່",
     "lastName": "ນາມສະກຸນ",
@@ -80,83 +86,35 @@
     "usernamePlaceholder": "ປ້ອນຊື່ຜູ້ໃຊ້",
     "userEmail": "ອີເມວຜູ້ໃຊ້",
     "userEmailPlaceholder": "ປ້ອນອີເມວຜູ້ໃຊ້",
-    "userTel": "ເບີຣໂທຣຟອນຜູ້ໃຊ້",
-    "userTelPlaceholder": "ປ້ອນເບີຣໂທຣຟອນຜູ້ໃຊ້",
+    "userTel": "ເບີໂທຜູ້ໃຊ້",
+    "userTelPlaceholder": "ປ້ອນເບີໂທຜູ້ໃຊ້",
     "password": "ລະຫັດຜ່ານ",
     "passwordPlaceholder": "ປ້ອນລະຫັດຜ່ານ",
     "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
     "confirmPasswordPlaceholder": "ຢືນຢັນລະຫັດຜ່ານ",
     "signature": "ລາຍເຊັນຜູ້ໃຊ້",
-    "companyInfo": "ຂໍ້ມູນບໍລິສັດ",
     "uploadLogo": "ອັບໂຫລດໂລໂກບໍລິສັດຂອງທ່ານທີ່ນີ້",
     "uploadSignature": "ອັບໂຫລດລາຍເຊັນຜູ້ໃຊ້ຂອງທ່ານທີ່ນີ້",
     "companySetup": "ການຕັ້ງຄ່າບໍລິສັດ",
     "companySetupDescription": "ຕັ້ງຄ່າຂໍ້ມູນໂປຣຟາຍບໍລິສັດຂອງທ່ານໃຫ້ສຳເລັດ"
   },
-  "header_form": {
-    "add": "ເພີ່ມບໍລິສັດໃໝ່",
-    "edit": "ແກ້ໄຂບໍລິສັດ",
-    "delete": {
-      "title": "ຢືນຢັນການລຶບ",
-      "content": "ທ່ານແນ່ໃຈບໍວ່າຈະລຶບ",
-      "description": "ການລຶບນີ້ບໍ່ສາມາດກັບຄືນໄດ້"
-    },
-   
-    "notify": {
-      "created": "ສ້າງບໍລິສັດສຳເລັດ",
-      "updated": "ອັບເດດບໍລິສັດສຳເລັດ",
-      "deleted": "ລຶບບໍລິສັດສຳເລັດ"
-    },
-    "modal": {
-      "create": "ສ້າງບໍລິສັດ",
-      "edit": "ແກ້ໄຂບໍລິສັດ",
-      "delete": "ລຶບບໍລິສັດ",
-      "deleteConfirm": "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບບໍລິສັດ?",
-      "deleteWarning": "ການກະທຳນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້."
-    },
-    "form": {
-      "companyInfo": "ຂໍ້ມູນບໍລິສັດ",
-      "name": "ຊື່ບໍລິສັດ",
-      "namePlaceholder": "ປ້ອນຊື່ບໍລິສັດ",
-      "logo": "ໂລໂກບໍລິສັດ",
-      "tel": "ເບີຣໂທຣຟອນ",
-      "telPlaceholder": "ປ້ອນເບີຣໂທຣຟອນ",
-      "email": "ອີເມວ",
-      "emailPlaceholder": "ປ້ອນອີເມວ",
-      "address": "ທີ່ຢູ່",
-      "addressPlaceholder": "ປ້ອນທີ່ຢູ່",
-      "userSection": "ຂໍ້ມູນບັນຊີຜູ້ດຳເນີນ",
-      "username": "ຊື່ຜູ້ໃຊ້",
-      "usernamePlaceholder": "ປ້ອນຊື່ຜູ້ໃຊ້",
-      "userEmail": "ອີເມວຜູ້ໃຊ້",
-      "userEmailPlaceholder": "ປ້ອນອີເມວຜູ້ໃຊ້",
-      "userTel": "ເບີຣໂທຣຟອນຜູ້ໃຊ້",
-      "userTelPlaceholder": "ປ້ອນເບີຣໂທຣຟອນຜູ້ໃຊ້",
-      "password": "ລະຫັດຜ່ານ",
-      "passwordPlaceholder": "ປ້ອນລະຫັດຜ່ານ",
-      "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
-      "confirmPasswordPlaceholder": "ຢືນຢັນລະຫັດຜ່ານ",
-      "signature": "ລາຍເຊັນຜູ້ໃຊ້"
-    },
-    "success": {
-      "title": "ສຳເລັດ",
-      "created": "ສ້າງບໍລິສັດສຳເລັດ",
-      "updated": "ອັບເດດບໍລິສັດສຳເລັດ",
-      "deleted": "ລຶບບໍລິສັດສຳເລັດ"
-    },
-    "button": {
-      "back": "ກັບຄືນ",
-      "cancel": "ຍົິນ",
-      "createCompany": "ສ້າງບໍລິສັດ"
-    },
-
-    "error": {
-      "name": "ກະລຸນາປ້ອນຊື່ບໍລິສັດ",
-      "title": "ເກີດຂໍ້ຜິດພາດ",
-      "loadFailed": "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນບໍລິສັດ",
-      "createFailed": "ບໍ່ສາມາດສ້າງບໍລິສັດ",
-      "updateFailed": "ບໍ່ສາມາດອັບເດດບໍລິສັດ",
-      "deleteFailed": "ບໍ່ສາມາດລຶບບໍລິສັດ"
-    }
+  "success": {
+    "title": "ສຳເລັດ",
+    "created": "ສ້າງບໍລິສັດສຳເລັດ",
+    "updated": "ອັບເດດບໍລິສັດສຳເລັດ",
+    "deleted": "ລຶບບໍລິສັດສຳເລັດ"
+  },
+  "button": {
+    "back": "ກັບຄືນ",
+    "cancel": "ຍົກເລີກ",
+    "createCompany": "ສ້າງບໍລິສັດ"
+  },
+  "error": {
+    "name": "ກະລຸນາປ້ອນຊື່ບໍລິສັດ",
+    "title": "ເກີດຂໍ້ຜິດພາດ",
+    "loadFailed": "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນບໍລິສັດ",
+    "createFailed": "ບໍ່ສາມາດສ້າງບໍລິສັດ",
+    "updateFailed": "ບໍ່ສາມາດອັບເດດບໍລິສັດ",
+    "deleteFailed": "ບໍ່ສາມາດລຶບບໍລິສັດ"
   }
 }

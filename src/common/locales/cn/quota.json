@@ -34,7 +34,14 @@
       "quantity": "请输入数量",
       "year": "请输入年份",
       "quantity_min": "数量必须大于0",
-      "year_format": "请输入有效年份（例如 2025）"
+      "year_format": "请输入有效年份（例如 2025）",
+      "title": "错误",
+      "loadFailed": "加载配额失败",
+      "createFailed": "创建配额失败",
+      "updateFailed": "更新配额失败",
+      "deleteFailed": "删除配额失败",
+      "saveFailed": "保存配额失败",
+      "fillAllFields": "请填写所有必填字段"
     },
     "field": {
       "company": "公司",
@@ -81,14 +88,5 @@
       "created": "配额创建成功",
       "updated": "配额更新成功",
       "deleted": "配额删除成功"
-    },
-    "errors": {
-      "title": "错误",
-      "loadFailed": "加载配额失败",
-      "createFailed": "创建配额失败",
-      "updateFailed": "更新配额失败",
-      "deleteFailed": "删除配额失败",
-      "saveFailed": "保存配额失败",
-      "fillAllFields": "请填写所有必填字段"
     }
   }
