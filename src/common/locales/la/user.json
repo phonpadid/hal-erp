@@ -11,7 +11,8 @@
     "status": "ສະຖານະ",
     "createdAt": "ວັນທີສ້າງ",
     "updatedAt": "ວັນທີແກ້ໄຂ",
-    "actions": "ຈັດການ"
+    "actions": "ຈັດການ",
+    "btn": "ເພີ່ມບົດບາດ"
   },
   "status": {
     "active": "ໃຊ້ງານຢູ່",
@@ -110,6 +111,15 @@
     "saveFailed": "ບໍ່ສາມາດບັນທຶກຂໍ້ມູນຜູ້ໃຊ້ງານໄດ້",
     "deleteFailed": "ບໍ່ສາມາດລຶບຜູ້ໃຊ້ງານໄດ້",
     "restoreFailed": "ບໍ່ສາມາດກູ້ຄືນຜູ້ໃຊ້ງານໄດ້",
-    "passwordResetFailed": "ບໍ່ສາມາດຣີເຊັດລະຫັດຜ່ານໄດ້"
+    "passwordResetFailed": "ບໍ່ສາມາດຣີເຊັດລະຫັດຜ່ານໄດ້",
+    "uploadFailed": "ອັບໂຫລດໄຟລ໌ບໍ່ສຳເລັດ",
+    "messages": {
+      "loading": "ກຳລັງໂຫລດ..."
+    },
+    "deshboard": "ໜ້າຫຼັກລະບົບ ERP",
+    "menu_sidebar": {
+      "menu": "ເມນູ",
+      "deshboard": "ແດຊບອດ"
+    }
   }
 }

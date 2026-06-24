@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useVendorStore } from "../../../stores/vendors/vendor.store";
-import { message } from "ant-design-vue";
 import { useVendorBankAccountStore } from "../../../stores/vendors/vendor-bank-accounts.store";
 import { useNotification } from "@/modules/shared/utils/useNotification";
 import UiModal from "@/common/shared/components/Modal/UiModal.vue";
@@ -29,8 +29,9 @@ const props = defineProps<{
   };
 }>();
 
+const { t } = useI18n();
 const vendorStore = useVendorStore();
-const { error } = useNotification();
+const { error, warning } = useNotification();
 const visible = ref(false);
 const selectedVendor = ref<string>("");
 const bankAccount = useVendorBankAccountStore();
@@ -253,15 +254,15 @@ const setSelectedType = (type: string) => {
 
 const handleOk = () => {
   if (!selectedVendor.value) {
-    message.warning("ກະລຸນາເລືອກຮ້ານຄ້າ");
+    warning(t("messages.notification"), "ກະລຸນາເລືອກຮ້ານຄ້າ");
     return;
   }
   if (uploadedFileNames.value.length === 0) {
-    message.warning("ກະລຸນາເລືອກໄຟລ໌ PDF ແລະອັບໂຫລດໃຫ້ສຳເລັດ");
+    warning(t("messages.notification"), "ກະລຸນາເລືອກໄຟລ໌ PDF ແລະອັບໂຫລດໃຫ້ສຳເລັດ");
     return;
   }
   if (!form.value.bank) {
-    message.warning("ກະລຸນາເລືອກບັນຊີທະນາຄານ");
+    warning(t("messages.notification"), "ກະລຸນາເລືອກບັນຊີທະນາຄານ");
     return;
   }
   if (uploadLoading.value) return;

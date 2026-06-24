@@ -3,6 +3,7 @@
     "number": "Number",
     "code": "Code",
     "amount": "Amount",
+    "name": "Budget Name",
     "quantity": "Quantity",
     "remark": "Content",
     "id_name": "Id Budget",

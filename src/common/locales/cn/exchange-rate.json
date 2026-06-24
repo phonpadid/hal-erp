@@ -2,6 +2,7 @@
     "title": "汇率信息",
     "title_from_create": "汇率创建表单",
     "title_from_edit": "汇率更新表单",
+    "title_del": "删除数据",
     "is_active": "启用",
     "in_active": "停用",
     "message": {
@@ -9,7 +10,7 @@
         "create": "创建成功",
         "update": "更新成功",
         "delete": "删除成功",
-        "faild": "错误"
+        "failed": "错误"
     },
 
     "alert": {

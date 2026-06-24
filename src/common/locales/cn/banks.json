@@ -25,6 +25,10 @@
     "manage": "管理",
     "upload_logo":"上传标志"
   },
+  "status": {
+    "active": "启用",
+    "inactive": "已删除"
+  },
   "notify": {
     "created": "信息创建成功",
     "updated": "信息更新成功",

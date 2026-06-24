@@ -76,11 +76,37 @@
     "resetPasswordConfirm": "为用户 {username} 重置密码？"
   },
   "success": {
+    "title": "成功",
     "created": "用户创建成功",
     "updated": "用户更新成功",
     "deleted": "用户删除成功",
     "restored": "用户恢复成功",
     "passwordReset": "密码重置成功"
+  },
+  "mailWindow": {
+    "title": "邮件发送时间窗口",
+    "subtitle": "用户: {username}",
+    "enableLabel": "限制邮件发送时间窗口",
+    "startDateLabel": "开始日期",
+    "startDatePlaceholder": "开始日期（可选）",
+    "endDateLabel": "结束日期",
+    "endDatePlaceholder": "结束日期（可选）",
+    "startLabel": "开始时间",
+    "startPlaceholder": "例如 08:00",
+    "endLabel": "结束时间",
+    "endPlaceholder": "例如 17:00",
+    "help": "在此时间窗口之外生成的审批邮件将在窗口开启时自动发送。",
+    "timezoneNote": "时间以老挝时区（Asia/Vientiane）为准。",
+    "save": "保存",
+    "validation": {
+      "startRequired": "请选择开始时间",
+      "endRequired": "请选择结束时间",
+      "endAfterStart": "结束时间必须晚于开始时间（不支持跨午夜的时间段）",
+      "endDateAfterStart": "结束日期必须等于或晚于开始日期"
+    },
+    "success": "邮件发送时间窗口保存成功",
+    "loadFailed": "加载邮件发送时间窗口失败",
+    "saveFailed": "保存邮件发送时间窗口失败"
   },
   "error": {
     "loadFailed": "加载用户失败",
@@ -88,6 +114,7 @@
     "deleteFailed": "删除用户失败",
     "restoreFailed": "恢复用户失败",
     "passwordResetFailed": "重置密码失败",
+    "uploadFailed": "文件上传失败",
     "messages": {
       "loading": "加载中..."
     },

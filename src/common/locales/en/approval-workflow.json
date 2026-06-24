@@ -18,6 +18,7 @@
   "total": "Total",
   "item": "items",
   "add": "Add Info",
+  "totalPeople": "Total {count} people",
   "header_form": {
     "add": "Approval Workflow Creation Form",
     "edit": "Approval Workflow Update Form"

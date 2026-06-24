@@ -17,7 +17,6 @@ import {
 } from "@/modules/shared/utils/get-user.login";
 import UploadSlipModal from "./modals/UploadSlipModal.vue";
 import { uploadFile } from "@/modules/application/services/upload.service";
-import { message } from "ant-design-vue";
 import UiInput from "@/common/shared/components/Input/UiInput.vue";
 import InputNumber from "@/common/shared/components/Input/InputNumber.vue";
 import type { ISelectVendor } from "@/modules/application/dtos/receipt.dto";
@@ -196,17 +195,16 @@ const handleImageUpload = async (files: File[]) => {
 
       if (file_name) {
         formState.value.files.push({ file_name });
-        message.success(`ອັບໂຫລດ ${file.name} ສຳເລັດ`);
+        notifySuccess(t("messages.notification"), `ອັບໂຫລດ ${file.name} ສຳເລັດ`);
       } else {
         throw new Error("Filename not found in API response.");
       }
     }
-    // ✅ close modal
     createModalVisible.value = false;
     uploadCompleted.value = true;
-  } catch (error) {
-    console.error("File upload failed:", error);
-    message.error("ອັບໂຫລດຮູບພາບບໍ່ສຳເລັດ");
+  } catch (err) {
+    console.error("File upload failed:", err);
+    notifyError(t("messages.error.title"), "ອັບໂຫລດຮູບພາບບໍ່ສຳເລັດ");
 
     // Remove the blob URL if upload failed
     if (uploadedImages.value.length > 0) {
@@ -402,7 +400,7 @@ const openPrintModal = () => {
 
 const handlePrintConfirm = async () => {
   if (!receiptId) {
-    message.error("ບໍ່ພົບລະຫັດໃບເບີກຈ່າຍ");
+    notifyError(t("messages.error.title"), "ບໍ່ພົບລະຫັດໃບເບີກຈ່າຍ");
     return;
   }
   try {
@@ -411,7 +409,7 @@ const handlePrintConfirm = async () => {
     printModalVisible.value = false;
   } catch (err) {
     console.error("Print error:", err);
-    message.error("ບໍ່ສາມາດພິມເອກະສານໄດ້");
+    notifyError(t("messages.error.title"), "ບໍ່ສາມາດພິມເອກະສານໄດ້");
   } finally {
     printLoading.value = false;
   }

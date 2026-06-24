@@ -2,6 +2,7 @@
     "title": "Exchange Rate Info",
     "title_from_create": "Exchange rate create form",
     "title_from_edit": "Exchange rate update form",
+    "title_del": "Delete data",
     "is_active": "Activate",
     "in_active": "Deactivate",
     "message": {
@@ -9,7 +10,7 @@
         "create": "Create successfully",
         "update": "Update successfully",
         "delete": "Delete successfully",
-        "faild": "Wrong"
+        "failed": "Wrong"
     },
 
     "alert": {

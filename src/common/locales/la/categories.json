@@ -45,6 +45,7 @@
   "form": {
     "name": "ຊື່ໝວດໝູ່",
     "namePlaceholder": "ປ້ອນຊື່ໝວດໝູ່",
+    "code": "ລະຫັດ",
     "codePlaceholder": "ປ້ອນລະຫັດໝວດໝູ່"
   },
   "success": {

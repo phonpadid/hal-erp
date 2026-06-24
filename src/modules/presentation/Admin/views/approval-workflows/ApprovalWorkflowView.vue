@@ -20,7 +20,6 @@ import type { ApprovalWorkflowApiModel } from "@/modules/interfaces/approval-wor
 import { approvalWorkflowStore } from "../../stores/approval-workflow.store";
 import { useUserStore } from "../../stores/user.store";
 import { useRouter } from "vue-router";
-import { Modal } from "ant-design-vue";
 import { usePermissions } from "@/modules/shared/utils/usePermissions";
 
 const search = ref<string>("");
@@ -57,6 +56,10 @@ const formModel = reactive({
   name: "",
   document_type_id: "",
 });
+
+// Verify confirmation modal state
+const verifyModalVisible = ref<boolean>(false);
+const verifyTargetRecord = ref<ApprovalWorkflowApiModel | null>(null);
 
 // Send mail modal state
 const sendMailModalVisible = ref<boolean>(false);
@@ -226,35 +229,29 @@ const handleSendMail = async (): Promise<void> => {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const verify = async (record: any) => {
-  Modal.confirm({
-    title: t("approval-workflow.confirm.title"),
-    content:
-      record.status === "approved"
-        ? t("approval-workflow.confirm.toPending")
-        : t("approval-workflow.confirm.toApproved"),
-    okText: t("button.confirm"),
-    cancelText: t("button.cancel"),
-    okType: "primary",
-    async onOk() {
-      try {
-        loading.value = true;
-        const payload = {
-          status: record.status === "approved" ? "pending" : "approved",
-        };
-        await store.approvalStatus(record.id, payload);
+const verify = (record: ApprovalWorkflowApiModel) => {
+  verifyTargetRecord.value = record;
+  verifyModalVisible.value = true;
+};
 
-        success(t("approval-workflow.notify.verifySuccess"));
-        await loadData();
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        warning(t("approval-workflow.error.verifyFailed"), errorMessage);
-      } finally {
-        loading.value = false;
-      }
-    },
-  });
+const handleVerifyConfirm = async (): Promise<void> => {
+  if (!verifyTargetRecord.value) return;
+  try {
+    loading.value = true;
+    const payload = {
+      status:
+        verifyTargetRecord.value.status === "approved" ? "pending" : "approved",
+    };
+    await store.approvalStatus(verifyTargetRecord.value.id, payload);
+    success(t("approval-workflow.notify.verifySuccess"));
+    verifyModalVisible.value = false;
+    await loadData();
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    warning(t("approval-workflow.notify.verifyFailed"), errorMessage);
+  } finally {
+    loading.value = false;
+  }
 };
 
 onMounted(async () => {
@@ -367,6 +364,27 @@ onMounted(async () => {
       <p>{{ $t("departments.alert.message") }}: "{{ selectedData?.name }}"?</p>
       <p class="text-red-500">
         {{ t("departments.alert.remark") }}
+      </p>
+    </UiModal>
+
+    <!-- Verify Status Confirmation Modal -->
+    <UiModal
+      :title="t('approval-workflow.confirm.title')"
+      :visible="verifyModalVisible"
+      :confirm-loading="loading"
+      @update:visible="verifyModalVisible = $event"
+      @ok="handleVerifyConfirm"
+      @cancel="verifyModalVisible = false"
+      :ok-text="t('button.confirm')"
+      :cancel-text="t('button.cancel')"
+      ok-type="primary"
+    >
+      <p>
+        {{
+          verifyTargetRecord?.status === "approved"
+            ? t("approval-workflow.confirm.toPending")
+            : t("approval-workflow.confirm.toApproved")
+        }}
       </p>
     </UiModal>
 

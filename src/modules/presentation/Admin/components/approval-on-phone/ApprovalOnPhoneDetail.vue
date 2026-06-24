@@ -8,7 +8,6 @@ import ApvLayout from "./ApvLayout.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import { useReceiptStore } from "@/modules/presentation/Admin/stores/receipt.store";
 import { uploadFile } from "@/modules/application/services/upload.service";
-import { message } from "ant-design-vue";
 import { UserRoleEnum } from "@/modules/shared/utils/get-user.login";
 import SignatureConfirmModal from "./modal/SignatureConfirmModal.vue";
 import { useNotification } from "@/modules/shared/utils/useNotification";
@@ -268,14 +267,14 @@ const handleImageUpload = async (files: File[]) => {
 
       if (file_name) {
         formState.value.files.push({ file_name });
-        message.success(`ອັບໂຫລດ ${file.name} ສຳເລັດ`);
+        showSuccess(t("messages.notification"), `ອັບໂຫລດ ${file.name} ສຳເລັດ`);
       } else {
         throw new Error("Filename not found in API response.");
       }
     }
-  } catch (error) {
-    console.log("File upload failed:", error);
-    message.error("ອັບໂຫລດຮູບພາບບໍ່ສຳເລັດ");
+  } catch (err) {
+    console.log("File upload failed:", err);
+    showError(t("messages.error.title"), "ອັບໂຫລດຮູບພາບບໍ່ສຳເລັດ");
 
     if (uploadedImages.value.length > 0) {
       const lastBlobUrl = uploadedImages.value.pop();
