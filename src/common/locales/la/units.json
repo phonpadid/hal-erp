@@ -43,6 +43,7 @@
   "form": {
     "name": "ຊື່ຫົວໜ່ວຍ",
     "namePlaceholder": "ປ້ອນຊື່ຫົວໜ່ວຍ",
+    "code": "ລະຫັດ",
     "codePlaceholder": "ປ້ອນລະຫັດຫົວໜ່ວຍ"
   },
   "success": {

@@ -19,7 +19,6 @@ import { useVendorStore } from "../../../stores/vendors/vendor.store";
 import { useI18n } from "vue-i18n";
 import type { Key } from "ant-design-vue/lib/table/interface";
 import { usePurchaseOrderStore } from "../../../stores/purchase_requests/purchase-order";
-import { Modal } from "ant-design-vue";
 import type { RowSelectionType } from "ant-design-vue/es/table/interface";
 import type {
   FormStateInterface,
@@ -351,18 +350,20 @@ const editVendorForItem = (itemId: string | number) => {
   if (!itemData) return;
   openVendorReasonModal(itemId, itemData.vendor_id);
 };
+const removeVendorModalVisible = ref<boolean>(false);
+const removeVendorItemId = ref<string | number | null>(null);
+
 const removeVendorForItem = (itemId: string | number) => {
-  Modal.confirm({
-    title: "ຢືນຢັນການລຶບ",
-    content: "ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບຮ້ານຄ້ານີ້ອອກຈາກລາຍການ?",
-    okText: "ຢືນຢັນ",
-    okType: "danger",
-    cancelText: "ຍົກເລີກ",
-    onOk() {
-      delete itemVendors.value[itemId.toString()];
-      success("ລຶບຮ້ານຄ້າອອກຈາກລາຍການສຳເລັດແລ້ວ");
-    },
-  });
+  removeVendorItemId.value = itemId;
+  removeVendorModalVisible.value = true;
+};
+
+const handleRemoveVendorConfirm = () => {
+  if (removeVendorItemId.value === null) return;
+  delete itemVendors.value[removeVendorItemId.value.toString()];
+  success("ລຶບຮ້ານຄ້າອອກຈາກລາຍການສຳເລັດແລ້ວ");
+  removeVendorModalVisible.value = false;
+  removeVendorItemId.value = null;
 };
 /**********************logic Tabel Select *************************** */
 const selectedRowKeys = ref<Key[]>([]);
@@ -1217,6 +1218,21 @@ const handleFileClick = (fileUrl: string, filename: string) => {
         </div>
       </div>
     </div>
+
+    <!-- Remove Vendor Confirmation Modal -->
+    <UiModal
+      title="ຢືນຢັນການລຶບ"
+      :visible="removeVendorModalVisible"
+      @update:visible="removeVendorModalVisible = $event"
+      @ok="handleRemoveVendorConfirm"
+      @cancel="removeVendorModalVisible = false"
+      ok-text="ຢືນຢັນ"
+      cancel-text="ຍົກເລີກ"
+      ok-type="primary"
+      :danger="true"
+    >
+      <p>ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບຮ້ານຄ້ານີ້ອອກຈາກລາຍການ?</p>
+    </UiModal>
   </div>
 </template>
 

@@ -22,6 +22,8 @@
     "display_namePlaceholder": "Enter display name",
     "description": "Description",
     "descriptionPlaceholder": "Enter description (optional)",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm new password",
     "create": "Create Role",
     "update": "Update Role",
     "department": "Department"
@@ -30,7 +32,11 @@
     "nameRequired": "Please enter role name",
     "nameLength": "Role name must be at least 3 characters",
     "namePattern": "Role name can only contain letters, numbers and underscore",
-    "displayNameRequired": "Please enter display name"
+    "displayNameRequired": "Please enter display name",
+    "passwordRequired": "Please enter password",
+    "passwordMin": "Password must be at least 6 characters",
+    "confirmPasswordRequired": "Please confirm password",
+    "passwordMismatch": "Passwords do not match"
   },
   "modal": {
     "create": "Create New Role",

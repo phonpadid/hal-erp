@@ -272,7 +272,15 @@ const submitDecision = async (action: "approve" | "reject", remark: string) => {
     const ok = await approvalStepStore.submitApprovalDepartMent(previewId.value, payload);
     if (ok) {
       previewVisible.value = false;
-      await fetchData({ resetPage: true });
+      // Stay on the current page after approving/rejecting instead of
+      // jumping back to page 1.
+      await fetchData();
+      // If the approved item was the last row on this page, the page is now
+      // empty — step back to the previous page instead of showing nothing.
+      if (purchaseOrderStore.orders.length === 0 && purchaseOrderStore.pagination.page > 1) {
+        purchaseOrderStore.pagination.page -= 1;
+        await fetchData();
+      }
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);

@@ -3,8 +3,9 @@
 // --- IMPORTS ---
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { Ref } from "vue";
-import { DatePicker, message, Select as ASelect } from "ant-design-vue";
+import { DatePicker, Select as ASelect } from "ant-design-vue";
 import dayjs from "dayjs";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 
 // --- YOUR SHARED COMPONENTS ---
 import Textarea from "@/common/shared/components/Input/Textarea.vue";
@@ -40,6 +41,7 @@ import { useAuthStore } from "@/modules/presentation/Admin/stores/authentication
 
 // --- SCRIPT LOGIC ---
 const { t } = useI18n();
+const { error: notifyError } = useNotification();
 const formRef = ref();
 const loading = ref<boolean>(false);
 const uploadLoading = ref<boolean>(false);
@@ -244,9 +246,9 @@ const handleImageUpload = async (files: File[]) => {
     } else {
       throw new Error("Filename not found in API response.");
     }
-  } catch (error) {
-    console.error("File upload failed:", error);
-    message.error("ອັບໂຫລດໄຟລ໌ບໍ່ສຳເລັດ");
+  } catch (err) {
+    console.error("File upload failed:", err);
+    notifyError(t("messages.error.title"), "ອັບໂຫລດໄຟລ໌ບໍ່ສຳເລັດ");
   } finally {
     uploadLoading.value = false;
   }
@@ -307,9 +309,9 @@ const fetchQuotasByVendor = async (vendorId: string) => {
       { page: 1, limit: 1000 },
     );
     // console.log("Quotas fetched for vendor:", quotaStore.quotas.length);
-  } catch (error) {
-    console.error("Error fetching quotas for vendor:", error);
-    message.error("ບໍ່ສາມາດໂຫຼດຂໍ້ມູນ Quota ຕາມຮ້ານຄ້ານີ້ໄດ້");
+  } catch (err) {
+    console.error("Error fetching quotas for vendor:", err);
+    notifyError(t("messages.error.title"), "ບໍ່ສາມາດໂຫຼດຂໍ້ມູນ Quota ຕາມຮ້ານຄ້ານີ້ໄດ້");
   } finally {
     isSearchingQuota.value = false;
   }
@@ -344,9 +346,9 @@ const handleQuotaSearch = (searchValue: string) => {
           { page: 1, limit: 1000 },
         );
       }
-    } catch (error) {
-      console.error("Error searching quotas:", error);
-      message.error("ບໍ່ສາມາດຄົ້ນຫາ Quota ໄດ້");
+    } catch (err) {
+      console.error("Error searching quotas:", err);
+      notifyError(t("messages.error.title"), "ບໍ່ສາມາດຄົ້ນຫາ Quota ໄດ້");
     } finally {
       isSearchingQuota.value = false;
     }
@@ -364,26 +366,25 @@ async function handleSave(): Promise<any | null> {
   loading.value = true;
   const isValid = await validateForm();
   if (!isValid) {
-    message.error(t("purchase-rq.msg.validate_fail"));
+    notifyError(t("messages.error.title"), t("purchase-rq.msg.validate_fail"));
     loading.value = false;
     return null;
   }
 
   const formData = getFormData();
   if (!formData.expired_date) {
-    message.error("Expired Date is required.");
+    notifyError(t("messages.error.title"), "Expired Date is required.");
     loading.value = false;
     return null;
   }
 
-  // Validate per-item quota selection
   if (!props.isEditing) {
     const itemsWithoutQuota = formData.addMore
       .map((item, index) => ({ item, index }))
       .filter(({ index }) => !itemQuotaSelections.value[index]);
 
     if (itemsWithoutQuota.length > 0) {
-      message.error("ກະລຸນາເລືອກ Quota ສິນຄ້າ ສຳລັບທຸກລາຍການ");
+      notifyError(t("messages.error.title"), "ກະລຸນາເລືອກ Quota ສິນຄ້າ ສຳລັບທຸກລາຍການ");
       loading.value = false;
       return null;
     }
@@ -417,7 +418,7 @@ async function handleSave(): Promise<any | null> {
     } else {
       // --- CREATE LOGIC ---
       if (!props.documentTypeId) {
-        message.error("Document Type is required.");
+        notifyError(t("messages.error.title"), "Document Type is required.");
         loading.value = false;
         return null;
       }
@@ -436,12 +437,12 @@ async function handleSave(): Promise<any | null> {
     if (result) {
       return result;
     } else {
-      message.error(purchaseRequestStore.error || "ເກີດຂໍ້ຜິດພາດ");
+      notifyError(t("messages.error.title"), purchaseRequestStore.error || "ເກີດຂໍ້ຜິດພາດ");
       return null;
     }
   } catch (err) {
     console.error("Save/Update failed:", err);
-    message.error("ເກີດຂໍ້ຜິດພາດ ກະລຸນາລອງໃໝ່");
+    notifyError(t("messages.error.title"), "ເກີດຂໍ້ຜິດພາດ ກະລຸນາລອງໃໝ່");
     return null;
   } finally {
     loading.value = false;

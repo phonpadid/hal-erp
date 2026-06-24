@@ -15,8 +15,9 @@ import UiSelect from "@/common/shared/components/Input/InputSelect.vue";
 import PermissionSelector from "@/modules/presentation/Admin/components/permission/PermissionSelector.vue";
 import UiButton from "@/common/shared/components/button/UiButton.vue";
 import UploadFile from "@/common/shared/components/Upload/UploadFile.vue";
-import { message } from "ant-design-vue";
+import { useNotification } from "@/modules/shared/utils/useNotification";
 const { t } = useI18n();
+const { error: notifyError } = useNotification();
 const roleStore = useRoleStore();
 const permissionStore = usePermissionStore();
 
@@ -86,10 +87,10 @@ const handleFileChange = async (file: File) => {
     } else {
       throw new Error("Upload failed: No filename returned");
     }
-  } catch (error) {
-    console.error("Error uploading signature:", error);
-    signatureUploaded.value = false; // Reset flag on error
-    message.error(t("user.error.uploadFailed"));
+  } catch (err) {
+    console.error("Error uploading signature:", err);
+    signatureUploaded.value = false;
+    notifyError(t("messages.error.title"), t("user.error.uploadFailed"));
   }
 };
 

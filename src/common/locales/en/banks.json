@@ -25,6 +25,10 @@
     "manage": "Manage",
     "upload_logo":"upload logo"
   },
+  "status": {
+    "active": "Active",
+    "inactive": "Deleted"
+  },
   "notify": {
     "created": "Info created successfully",
     "updated": "Info updated successfully",

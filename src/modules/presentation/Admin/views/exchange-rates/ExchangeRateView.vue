@@ -211,7 +211,7 @@ const handleFormSubmit = async (
     await loadExchangeRates();
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    warning(t("exchange-rate.message.faild"), String(errorMessage));
+    warning(t("exchange-rate.message.failed"), String(errorMessage));
   } finally {
     submitLoading.value = false;
   }
@@ -232,7 +232,7 @@ const handleDeleteConfirm = async () => {
     await loadExchangeRates();
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    warning(t("exchange-rate.message.faild"), String(errorMessage));
+    warning(t("exchange-rate.message.failed"), String(errorMessage));
   } finally {
     submitLoading.value = false;
   }
