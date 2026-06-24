@@ -17,14 +17,9 @@
     "sub_total": "Sub Total"
   },
   "error":{
-<<<<<<< HEAD
-    "document_type_required":"document type not required"
-   
-=======
     "document_type_required":"document type not required",
     "remark_required":"remark not required",
     "images_required":"Image is required",
     "unit_id_required":"Unit is required"
->>>>>>> cluade-code
   }
 }

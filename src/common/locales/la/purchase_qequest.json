@@ -17,14 +17,9 @@
     "sub_total": "ລາຄາລວມ"
   },
   "error":{
-<<<<<<< HEAD
-    "document_type_required":"ກະລຸນາປ້ອນຈຸດປະສົ່ງໃບສະເໜີ",
-    "images_required":"ຮູບພາບບໍ່ຄວນຫວ່າງ"
-=======
     "document_type_required":"ກະລຸນາປ້ອນຂໍ້ມູນຈຸດປະສົ່ງໃບສະເໜີ",
     "images_required":"ຮູບພາບບໍ່ຄວນຫວ່າງ",
     "remark_required":"ໝາຍເຫດບໍ່ຄວນຫວ່າງ",
     "unit_id_required":"ຫົວໜ່ວຍຕ້ອງຖືກລົງລະບຽບ"
->>>>>>> cluade-code
   }
 }
