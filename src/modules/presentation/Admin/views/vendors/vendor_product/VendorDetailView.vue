@@ -34,13 +34,15 @@ const loadVendor = async () => {
     if (vendorData) {
       vendor.value = vendorData;
     } else {
-      error(t("vendorProduct.error.notFound"), t("vendorProduct.error.notFoundMessage"));
-      router.push({ name: "vendors.index" });
+      // Keep the user on the detail route and surface the error state with a
+      // retry, instead of bouncing to the list (which forced a manual refresh).
+      vendor.value = null;
+      error(t("vendor-product.error.notFound"), t("vendor-product.error.notFoundMessage"));
     }
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    error(t("vendor.error.loadFailed"), errorMessage);
-    router.push({ name: "vendors.index" });
+    vendor.value = null;
+    error(t("vendors.error.loadFailed"), errorMessage);
   } finally {
     loading.value = false;
   }
@@ -74,13 +76,17 @@ const goBack = () => {
     <!-- Error State -->
     <div v-else class="text-center py-8">
       <p class="text-red-500">{{ t("vendor-product.error.notFound") }}</p>
-      <UiButton
-        type="primary"
-        @click="goBack"
-        class="mt-4"
-      >
-        ກັບຄືນ
-      </UiButton>
+      <div class="flex items-center justify-center gap-2 mt-4">
+        <UiButton
+          type="primary"
+          @click="loadVendor"
+        >
+          {{ t("common.retry") }}
+        </UiButton>
+        <UiButton @click="goBack">
+          ກັບຄືນ
+        </UiButton>
+      </div>
     </div>
   </div>
 </template>

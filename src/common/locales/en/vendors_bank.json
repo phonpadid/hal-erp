@@ -4,6 +4,9 @@
     "search": "Search...",
     "add": "Add Bank Account"
   },
+  "placeholder": {
+    "search": "Search bank account information"
+  },
   "modal": {
     "title": "Add Bank Account",
     "editTitle": "Edit Bank Account",

@@ -4,6 +4,9 @@
     "add": "Add Document Type",
     "search": "Search document types..."
   },
+  "placeholder": {
+    "search": "Search document type information"
+  },
   "form": {
     "name": "Name",
     "namePlaceholder": "Enter document type name",

@@ -4,6 +4,9 @@
     "search": "搜索",
     "add": "添加供应商"
   },
+  "placeholder": {
+    "search": "搜索供应商信息"
+  },
   "table": {
     "name": "名称",
     "contact_info": "联系信息",

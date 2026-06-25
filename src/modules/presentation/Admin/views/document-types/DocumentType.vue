@@ -176,7 +176,7 @@ const handleDeleteConfirm = async () => {
         <InputSearch
           v-model:value="searchKeyword"
           @keyup.enter="handleSearch"
-          :placeholder="t('currency.placeholder.search')"
+          :placeholder="t('documentType.placeholder.search')"
         />
         <UiButton
           v-if="canCreate"

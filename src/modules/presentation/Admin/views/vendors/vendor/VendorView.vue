@@ -161,7 +161,7 @@ const viewAccDetail = (id: number) => {
         <InputSearch
           v-model:value="searchKeyword"
           @keyup.enter="handleSearch"
-          :placeholder="t('currency.placeholder.search')"
+          :placeholder="t('vendors.placeholder.search')"
         />
         <UiButton
           type="primary"
