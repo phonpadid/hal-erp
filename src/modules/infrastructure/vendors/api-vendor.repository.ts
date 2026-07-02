@@ -48,6 +48,11 @@ export class ApiVendorsRepository implements VendorsRepository {
   async findById(id: string): Promise<VendorsEntity | null> {
     try {
       const response = await api.get(`${this.baseUrl}/${id}`);
+      // Guard the envelope like findAll does: an empty/partial 200 payload
+      // must degrade to "not found" instead of crashing in toDomainModel.
+      if (!response.data || !response.data.data) {
+        return null;
+      }
       return this.toDomainModel(response.data.data);
     } catch (error) {
       const axiosError = error as AxiosError;

@@ -9,6 +9,8 @@
   "category": "Categories",
   "product_type": "Product Types",
   "product": "Products",
+  "company_product": "Company Products",
+  "company_vendor": "Company Vendors",
   "vats": "VAT",
   "bank": "Banks",
   "document_type": "Document types",

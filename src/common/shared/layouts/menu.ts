@@ -20,6 +20,8 @@ export const menuItems = computed<ItemType[]>(() => {
 
     { key: "product.index", label: t("menu-sidebar.product"), companyPermission: "read-product" },
 
+    { key: "company-product.index", label: t("menu-sidebar.company_product"), companyPermission: "read-company-product" },
+
     { key: "vat.index", label: t("menu-sidebar.vats"), companyPermission: "read-vat" },
 
     { key: "bank.index", label: t("menu-sidebar.bank"), companyPermission: "read-bank" },
@@ -33,6 +35,8 @@ export const menuItems = computed<ItemType[]>(() => {
     },
 
     { key: "vendors.index", label: t("menu-sidebar.vendor"), companyPermission: "read-vendor" },
+
+    { key: "company-vendor.index", label: t("menu-sidebar.company_vendor"), companyPermission: "read-company-vendor" },
 
     // {
     //   key: "user_approval.index",

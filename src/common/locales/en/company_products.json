@@ -1,0 +1,43 @@
+{
+  "title": "Company Products",
+  "add": "Assign products",
+  "header_form": {
+    "add": "Assign products to company",
+    "edit": "Update company product",
+    "delete": {
+      "title": "Confirm unassign",
+      "content": "Are you sure you want to unassign this product from the company?",
+      "description": "This action can be re-assigned later."
+    }
+  },
+  "placeholder": {
+    "search": "Search by product name",
+    "product": "Please select products",
+    "company": "Please select a company",
+    "status": "Please select status"
+  },
+  "field": {
+    "product": "Product",
+    "company": "Company",
+    "status": "Status",
+    "created": "Created at",
+    "manage": "Manage"
+  },
+  "status_option": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "validation": {
+    "productRequired": "Please select at least one product",
+    "statusRequired": "Please select a status"
+  },
+  "success": {
+    "title": "Success",
+    "assigned": "Products assigned successfully",
+    "updated": "Company product updated successfully",
+    "all_skipped": "All selected products were already assigned"
+  },
+  "error": {
+    "title": "Error"
+  }
+}

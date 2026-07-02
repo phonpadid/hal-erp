@@ -210,7 +210,7 @@ const handleToggleIsSelected = async (record: VendorBankAccountInterface) => {
          <InputSearch
           v-model:value="searchKeyword"
           @keyup.enter="handleSearch"
-          :placeholder="t('currency.placeholder.search')"
+          :placeholder="t('vendors_bank.placeholder.search')"
         />
         <UiButton
           type="primary"

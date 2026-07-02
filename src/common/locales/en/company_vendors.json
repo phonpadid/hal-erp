@@ -1,0 +1,47 @@
+{
+  "title": "Company Vendors",
+  "add": "Assign vendor",
+  "header_form": {
+    "add": "Assign vendor to company",
+    "edit": "Update company vendor",
+    "delete": {
+      "title": "Confirm unassign",
+      "content": "Are you sure you want to unassign this vendor from the company?",
+      "description": "This action can be re-assigned later."
+    }
+  },
+  "placeholder": {
+    "search": "Search by vendor name",
+    "vendor": "Please select a vendor",
+    "company": "Please select a company",
+    "status": "Please select status",
+    "credit_term_days": "Enter credit term (days)",
+    "credit_limit": "Enter credit limit",
+    "payment_term": "e.g. Net 30"
+  },
+  "field": {
+    "vendor": "Vendor",
+    "company": "Company",
+    "credit_term_days": "Credit term (days)",
+    "credit_limit": "Credit limit",
+    "payment_term": "Payment term",
+    "status": "Status",
+    "manage": "Manage"
+  },
+  "status_option": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "validation": {
+    "vendorRequired": "Please select a vendor",
+    "statusRequired": "Please select a status"
+  },
+  "success": {
+    "title": "Success",
+    "assigned": "Vendor assigned successfully",
+    "updated": "Company vendor updated successfully"
+  },
+  "error": {
+    "title": "Error"
+  }
+}

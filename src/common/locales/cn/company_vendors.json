@@ -1,0 +1,47 @@
+{
+  "title": "公司供应商",
+  "add": "分配供应商",
+  "header_form": {
+    "add": "为公司分配供应商",
+    "edit": "更新公司供应商",
+    "delete": {
+      "title": "确认取消分配",
+      "content": "确定要从公司取消分配此供应商吗？",
+      "description": "之后可以重新分配。"
+    }
+  },
+  "placeholder": {
+    "search": "按供应商名称搜索",
+    "vendor": "请选择供应商",
+    "company": "请选择公司",
+    "status": "请选择状态",
+    "credit_term_days": "输入信用期限（天）",
+    "credit_limit": "输入信用额度",
+    "payment_term": "例如：Net 30"
+  },
+  "field": {
+    "vendor": "供应商",
+    "company": "公司",
+    "credit_term_days": "信用期限（天）",
+    "credit_limit": "信用额度",
+    "payment_term": "付款条件",
+    "status": "状态",
+    "manage": "管理"
+  },
+  "status_option": {
+    "active": "启用",
+    "inactive": "停用"
+  },
+  "validation": {
+    "vendorRequired": "请选择供应商",
+    "statusRequired": "请选择状态"
+  },
+  "success": {
+    "title": "成功",
+    "assigned": "供应商分配成功",
+    "updated": "公司供应商更新成功"
+  },
+  "error": {
+    "title": "错误"
+  }
+}
