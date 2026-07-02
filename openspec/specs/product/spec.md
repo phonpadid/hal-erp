@@ -30,12 +30,26 @@ API base path: `/products`. Endpoints: `GET /products`, `GET /products/:id`, `PO
 
 ### Requirement: List products with pagination and search
 
-The system SHALL fetch products from `GET /products`, passing `page`, `limit`, `search`, `sort_by`, `sortDirection`, and `include_deleted`. Each row MUST be mapped to a `ProductEntity` and pagination exposed as `{ page, limit, total, totalPages }` (read from the top-level `response.data.pagination`).
+The system SHALL fetch products from `GET /products`, passing `page`, `limit`, `search`, `sort_by`, `sortDirection`, `include_deleted`, and an optional `company_id`. Each row MUST be mapped to a `ProductEntity` and pagination exposed as `{ page, limit, total, totalPages }` (read from the top-level `response.data.pagination`).
 
 #### Scenario: Fetch list
 
 - **WHEN** the list view loads
 - **THEN** the repository calls `GET /products` with the pagination params and returns mapped `ProductEntity[]` with `totalPages` from `pagination.total_pages`
+
+### Requirement: Company-scoped product listing
+
+`GET /products` is auto-scoped by the caller's company on the server. The client SHALL forward an optional `company_id` (from `PaginationParams.company_id`) on the list query so that an admin/super-admin can view a chosen company's catalogue; when omitted, axios drops the param and the server applies its default scope. `getProductById` (get one) is NOT company-scoped and MUST stay unchanged.
+
+#### Scenario: Admin filters by company
+
+- **WHEN** `findAll` is called with `params.company_id` set
+- **THEN** the repository sends `GET /products?company_id=<id>` and returns that company's assigned products
+
+#### Scenario: Non-admin auto-scope
+
+- **WHEN** `findAll` is called without `company_id`
+- **THEN** the repository omits the `company_id` query param and the server returns only the caller's company's `active` products (empty when the company has no assignments)
 
 ### Requirement: Create a product
 

@@ -25,6 +25,8 @@ Reverse-engineered canonical specs for every feature in the codebase. Each links
 | Category | [category](./category/spec.md) | Product category CRUD with restore. |
 | Product Type | [product-type](./product-type/spec.md) | Product types linked to category. |
 | Product | [product](./product/spec.md) | Products linked to product-type + unit. |
+| Company Product | [company-product](./company-product/spec.md) | Assign shared catalogue products to a company (array assign, idempotent, soft-delete). |
+| Company Vendor | [company-vendor](./company-vendor/spec.md) | Assign shared vendors to a company with per-company credit terms (single assign, 409 on duplicate). |
 | Unit | [unit](./unit/spec.md) | Measurement units. |
 | Currency | [currency](./currency/spec.md) | Currencies (batch create, no restore). |
 | Exchange Rate | [exchange-rate](./exchange-rate/spec.md) | Exchange rates (batch create, active flag). |
