@@ -53,6 +53,9 @@ import { permissionGuard } from "../guards/permission.guard";
 import { reportRoutes } from "@/modules/presentation/Admin/router/reports/report-pr";
 import { reportPoRoutes } from "@/modules/presentation/Admin/router/reports/report-po";
 import { quotaRoutes } from "@/modules/presentation/Admin/router/quotas/quota.routers";
+import { companyProductRoutes } from "@/modules/presentation/Admin/router/companyProductRoutes";
+import { companyVendorRoutes } from "@/modules/presentation/Admin/router/companyVendorRoutes";
+import { expressDisbursementRequestRoutes } from "@/modules/presentation/Admin/router/expressDisbursementRequestRoutes";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -107,6 +110,9 @@ const routes: RouteRecordRaw[] = [
       ...quotaRoutes,
       ...reportRoutes,
       ...reportPoRoutes,
+      ...companyProductRoutes,
+      ...companyVendorRoutes,
+      ...expressDisbursementRequestRoutes,
     ],
   },
   ...authRoutes,

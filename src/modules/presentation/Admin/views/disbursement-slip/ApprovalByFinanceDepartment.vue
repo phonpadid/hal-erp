@@ -320,7 +320,12 @@ const submitDecision = async (action: "approve" | "reject", remark: string) => {
     await rStore.approvalReceipt(step.id, payload);
     success("ສຳເລັດ", action === "approve" ? "ອະນຸມັດສຳເລັດ" : "ປະຕິເສດສຳເລັດ");
     previewVisible.value = false;
-    await loadFilteredReceipts(true);
+    // Reload the current page (do NOT reset to page 1) so the user stays on the
+    // page they approved from. If approving emptied the last page, step back one.
+    if (rStore.receipts.length <= 1 && rStore.pagination.page > 1) {
+      rStore.pagination.page -= 1;
+    }
+    await loadFilteredReceipts();
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     showError("ເກີດຂໍ້ຜິດພາດ", errorMessage);

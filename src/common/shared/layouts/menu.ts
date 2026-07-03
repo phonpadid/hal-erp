@@ -20,6 +20,8 @@ export const menuItems = computed<ItemType[]>(() => {
 
     { key: "product.index", label: t("menu-sidebar.product"), companyPermission: "read-product" },
 
+    { key: "company-product.index", label: t("menu-sidebar.company_product"), companyPermission: "read-company-product" },
+
     { key: "vat.index", label: t("menu-sidebar.vats"), companyPermission: "read-vat" },
 
     { key: "bank.index", label: t("menu-sidebar.bank"), companyPermission: "read-bank" },
@@ -33,6 +35,8 @@ export const menuItems = computed<ItemType[]>(() => {
     },
 
     { key: "vendors.index", label: t("menu-sidebar.vendor"), companyPermission: "read-vendor" },
+
+    { key: "company-vendor.index", label: t("menu-sidebar.company_vendor"), companyPermission: "read-company-vendor" },
 
     // {
     //   key: "user_approval.index",
@@ -314,6 +318,20 @@ export const menuItems = computed<ItemType[]>(() => {
       // companyPermission: "read-approval-department",
     },
   ].filter((item) => hasCompanyPermission(item.companyPermission));
+
+  // TODO(express): restore permission gating once the backend defines the
+  // "view-express-disbursement-request" permission. Temporarily always visible
+  // for UI testing. To re-gate: append back
+  //   .filter((item) => hasCompanyPermission(item.companyPermission))
+  const expressMenuItems = [
+    {
+      key: "express_disbursement_request.index",
+      icon: () => h(Icon, { icon: "mdi:cash-fast", class: "text-base" }),
+      label: t("menu-sidebar.express_disbursement_request"),
+      companyPermission: "view-express-disbursement-request",
+    },
+  ];
+
   const menuStructure = [
     {
       label: t("menu-sidebar.menu"),
@@ -480,6 +498,7 @@ export const menuItems = computed<ItemType[]>(() => {
         //     ]
         //   : []),
         ...receiptsMenuItems,
+        ...expressMenuItems,
         // ...budgetApprovalMenuItems,
         // {
         //   key: "director-list",

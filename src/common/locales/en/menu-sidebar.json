@@ -1,5 +1,6 @@
 {
   "menu": "Menu",
+  "express_disbursement_request": "Express Disbursement",
   "dashboard": "Dashboard",
   "company": "Companies",
   "company_user": "User accounts",
@@ -9,6 +10,8 @@
   "category": "Categories",
   "product_type": "Product Types",
   "product": "Products",
+  "company_product": "Company Products",
+  "company_vendor": "Company Vendors",
   "vats": "VAT",
   "bank": "Banks",
   "document_type": "Document types",

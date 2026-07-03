@@ -1,0 +1,43 @@
+{
+  "title": "公司产品",
+  "add": "分配产品",
+  "header_form": {
+    "add": "为公司分配产品",
+    "edit": "更新公司产品",
+    "delete": {
+      "title": "确认取消分配",
+      "content": "确定要从公司取消分配此产品吗？",
+      "description": "之后可以重新分配。"
+    }
+  },
+  "placeholder": {
+    "search": "按产品名称搜索",
+    "product": "请选择产品",
+    "company": "请选择公司",
+    "status": "请选择状态"
+  },
+  "field": {
+    "product": "产品",
+    "company": "公司",
+    "status": "状态",
+    "created": "创建时间",
+    "manage": "管理"
+  },
+  "status_option": {
+    "active": "启用",
+    "inactive": "停用"
+  },
+  "validation": {
+    "productRequired": "请至少选择一个产品",
+    "statusRequired": "请选择状态"
+  },
+  "success": {
+    "title": "成功",
+    "assigned": "产品分配成功",
+    "updated": "公司产品更新成功",
+    "all_skipped": "所选产品均已分配"
+  },
+  "error": {
+    "title": "错误"
+  }
+}

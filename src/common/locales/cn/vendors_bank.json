@@ -4,6 +4,9 @@
     "search": "搜索...",
     "add": "添加银行账户"
   },
+  "placeholder": {
+    "search": "搜索银行账户信息"
+  },
   "modal": {
     "title": "添加银行账户",
     "editTitle": "编辑银行账户",

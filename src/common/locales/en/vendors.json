@@ -4,6 +4,9 @@
     "search": "Search",
     "add": "Add Vendor"
   },
+  "placeholder": {
+    "search": "Search vendor information"
+  },
   "table": {
     "name": "Name",
     "contact_info": "Contact Information",

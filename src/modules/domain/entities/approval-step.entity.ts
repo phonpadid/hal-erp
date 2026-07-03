@@ -1,4 +1,4 @@
-type ApprovalType = "pr" | "po" | "r";
+type ApprovalType = "pr" | "po" | "r" | "ex";
 
 interface ApprovalPurchaseOrderItem {
   id: number;
@@ -78,8 +78,8 @@ export class ApprovalStepEntity {
     } = data;
 
     // Validation
-    if (!["pr", "po", "r"].includes(type)) {
-      throw new Error("Invalid approval type. Must be 'pr', 'po', or 'r'.");
+    if (!["pr", "po", "r", "ex"].includes(type)) {
+      throw new Error("Invalid approval type. Must be 'pr', 'po', 'r', or 'ex'.");
     }
 
     if (typeof statusId !== "number" && typeof statusId !== "string") {

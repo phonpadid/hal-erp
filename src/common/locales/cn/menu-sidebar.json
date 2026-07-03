@@ -1,5 +1,6 @@
 {
   "menu": "菜单",
+  "express_disbursement_request": "快速付款申请",
   "dashboard": "仪表板",
   "company": "公司",
   "company_user": "用户账户",
@@ -9,6 +10,8 @@
   "category": "类别",
   "product_type": "产品类型",
   "product": "产品",
+  "company_product": "公司产品",
+  "company_vendor": "公司供应商",
   "vats": "增值税",
   "bank": "银行",
   "document_type": "单据类型",

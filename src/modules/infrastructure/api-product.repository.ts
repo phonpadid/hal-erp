@@ -46,6 +46,10 @@ export class ApiProductRepository implements ProductRepository {
           sort_by: params.sortBy,
           sortDirection: params.sortDirection,
           include_deleted: includeDeleted,
+          // Optional company scope. Admin/super-admin may pass company_id to view a
+          // single company's catalogue; non-admins are auto-scoped server-side and
+          // this stays undefined (axios omits it). See api-company-product-vendor.md.
+          company_id: params.company_id,
         },
       });
 

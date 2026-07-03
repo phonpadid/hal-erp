@@ -17,6 +17,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Deployment
 - `pnpm deploy` - Deploy dist/ to production server via SCP
 
+## Change Safety Principle — Additive-First (READ FIRST)
+
+**Adding a new file or feature MUST NEVER break existing, working code.** This is a hard rule, not a preference.
+
+- **New code is additive.** Prefer creating new files/components/keys over editing shared ones. A new feature should be isolated enough that deleting its files removes it cleanly.
+- **When you MUST touch a shared file** (e.g. register a route in `common/shared/router/index.ts`, add a locale key, extend a barrel/index), only **append**. Do not rename, reorder, change signatures, or alter existing entries that other code depends on.
+- **Never repurpose an existing symbol.** Don't change what an existing function/prop/key/route does to fit a new need — add a new one beside it.
+- **Backward compatible by default.** Existing imports, props, store return shapes, route names, and i18n keys must keep working unchanged. If a breaking change is truly unavoidable, STOP and ask the user first; do it as its own OpenSpec change with a migration note.
+- **Verify you didn't regress.** After adding code, confirm `pnpm type-check` still passes and search for usages of anything you touched. If a shared edit forces changes in unrelated files, that's a red flag — rethink the design.
+
+When in doubt: add, don't modify.
+
 ## Architecture Overview
 
 This is a **Vue 3 + TypeScript ERP system** following **Clean Architecture/Hexagonal Architecture** principles with strict layer separation.

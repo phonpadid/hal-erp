@@ -1,0 +1,71 @@
+{
+  "title": "快速付款申请单",
+  "add": "创建申请",
+  "create_title": "创建快速付款申请单",
+  "detail_title": "快速付款申请单",
+  "edit_title": "编辑快速付款申请单",
+  "table": {
+    "no": "序号",
+    "edr_number": "单据编号",
+    "purpose": "目的",
+    "total": "合计",
+    "status": "状态",
+    "created_at": "创建时间",
+    "actions": "操作"
+  },
+  "status": {
+    "pending": "待审批",
+    "approved": "已批准",
+    "rejected": "已拒绝"
+  },
+  "filter": {
+    "status": "按状态筛选"
+  },
+  "form": {
+    "purpose": "目的",
+    "purpose_placeholder": "描述本申请的目的",
+    "items": "明细项目",
+    "add_item": "添加项目",
+    "remove_item": "删除",
+    "item_title": "项目",
+    "unit": "单位",
+    "quantity": "数量",
+    "price": "单价",
+    "remark": "备注",
+    "attachment": "附件",
+    "total": "合计"
+  },
+  "validation": {
+    "purpose": "请填写目的",
+    "items": "请完整填写所有明细字段"
+  },
+  "notify": {
+    "title": "快速付款申请单",
+    "created": "申请创建成功",
+    "updated": "申请更新成功"
+  },
+  "detail": {
+    "requester": "申请人",
+    "department": "部门",
+    "budget_item": "预算项目",
+    "approval_steps": "审批步骤",
+    "empty": "暂无数据"
+  },
+  "approval": {
+    "title": "审批快速付款申请单",
+    "select_budget": "为每个项目分配预算",
+    "budget_placeholder": "选择预算项目",
+    "upload_slip": "上传转账凭证",
+    "account_code": "会计科目",
+    "account_code_placeholder": "输入会计科目",
+    "not_your_turn": "该步骤未等待您的审批。",
+    "otp_title": "输入验证码",
+    "otp_placeholder": "6 位验证码",
+    "reason_placeholder": "拒绝原因",
+    "err_budget": "请为每个项目分配预算",
+    "err_slip": "请上传转账凭证",
+    "err_account": "请输入会计科目",
+    "err_otp": "验证码必须为 6 位",
+    "err_reason": "请输入原因"
+  }
+}
