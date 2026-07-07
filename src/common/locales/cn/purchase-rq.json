@@ -97,7 +97,7 @@
     "min_price": "最小价格为1",
     "max_price": "价格不能超过12位数字",
     "max_title": "标题最多255个字符",
-     "images_required":"图片为必填项",
+     "images_required":"请为每个项目附上图片或PDF",
     "deleteFailed": "删除失败",
     "cannotDeleteApproved": "无法删除已批准或已拒绝的申请单",
     "unit_id_required": "单位为必填项"

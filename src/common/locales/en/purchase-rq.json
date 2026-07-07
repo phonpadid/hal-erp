@@ -97,7 +97,7 @@
     "min_price": "Minimum price is 1",
     "max_price": "Price cannot exceed 12 digits",
     "max_title": "Title must be at most 255 characters",
-     "images_required":"images not required",
+    "images_required":"Please attach an image or PDF for every item",
     "deleteFailed": "Delete failed",
     "cannotDeleteApproved": "Cannot delete approved or rejected proposals",
     "unit_id_required": "Unit is required"
