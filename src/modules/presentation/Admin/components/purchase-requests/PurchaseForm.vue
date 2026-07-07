@@ -378,6 +378,17 @@ async function handleSave(): Promise<any | null> {
     return null;
   }
 
+  // ✅ ບັງຄັບໃຫ້ທຸກລາຍການຕ້ອງແນບຮູບພາບ ຫຼື PDF ກ່ອນຈຶ່ງສ້າງ PR ໄດ້
+  const itemsWithoutImage = formData.addMore
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => !item.file_name);
+
+  if (itemsWithoutImage.length > 0) {
+    notifyError(t("messages.error.title"), t("purchase-rq.error.images_required"));
+    loading.value = false;
+    return null;
+  }
+
   if (!props.isEditing) {
     const itemsWithoutQuota = formData.addMore
       .map((item, index) => ({ item, index }))
