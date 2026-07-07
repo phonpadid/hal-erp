@@ -1,0 +1,71 @@
+{
+  "title": "Express Disbursement Requests",
+  "add": "Create request",
+  "create_title": "Create Express Disbursement Request",
+  "detail_title": "Express Disbursement Request",
+  "edit_title": "Edit Express Disbursement Request",
+  "table": {
+    "no": "No.",
+    "edr_number": "Document No.",
+    "purpose": "Purpose",
+    "total": "Total",
+    "status": "Status",
+    "created_at": "Created",
+    "actions": "Actions"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "filter": {
+    "status": "Filter by status"
+  },
+  "form": {
+    "purpose": "Purpose",
+    "purpose_placeholder": "Describe the purpose of this request",
+    "items": "Line items",
+    "add_item": "Add item",
+    "remove_item": "Remove",
+    "item_title": "Item",
+    "unit": "Unit",
+    "quantity": "Quantity",
+    "price": "Price",
+    "remark": "Remark",
+    "attachment": "Attachment",
+    "total": "Total"
+  },
+  "validation": {
+    "purpose": "Purpose is required",
+    "items": "Please complete all line item fields"
+  },
+  "notify": {
+    "title": "Express Disbursement Request",
+    "created": "Request created successfully",
+    "updated": "Request updated successfully"
+  },
+  "detail": {
+    "requester": "Requester",
+    "department": "Department",
+    "budget_item": "Budget item",
+    "approval_steps": "Approval steps",
+    "empty": "No data"
+  },
+  "approval": {
+    "title": "Approve Express Disbursement Request",
+    "select_budget": "Assign budget to each item",
+    "budget_placeholder": "Select budget item",
+    "upload_slip": "Upload transfer slip",
+    "account_code": "Account code",
+    "account_code_placeholder": "Enter account code",
+    "not_your_turn": "This step is not awaiting your approval.",
+    "otp_title": "Enter OTP",
+    "otp_placeholder": "6-digit OTP",
+    "reason_placeholder": "Reason for rejection",
+    "err_budget": "Please assign a budget to every item",
+    "err_slip": "Please upload the transfer slip",
+    "err_account": "Please enter the account code",
+    "err_otp": "OTP must be 6 digits",
+    "err_reason": "Please enter a reason"
+  }
+}

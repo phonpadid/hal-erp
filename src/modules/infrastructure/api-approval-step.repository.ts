@@ -4,7 +4,7 @@ import { ApprovalStepEntity } from "../domain/entities/approval-step.entity";
 import type { ApprovalStepRepository } from "../domain/repository/approval-step.repository";
 
 interface ApprovalStepApiModel {
-  type: "pr" | "po" | "r";
+  type: "pr" | "po" | "r" | "ex";
   statusId: number;
   remark?: string;
   approvalStepId: number;

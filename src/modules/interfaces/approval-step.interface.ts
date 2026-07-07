@@ -20,7 +20,7 @@ interface PurchaseOrderinterface {
   budget_item_id: number;
 }
 export interface SubmitApprovalStepInterface {
-  type: "pr" | "po" | "r";
+  type: "pr" | "po" | "r" | "ex";
   statusId: string | number;
   approval_id?: number;
   step_number?: number;
@@ -38,7 +38,7 @@ export interface SubmitApprovalStepInterface {
 }
 
 export interface SubmitApprovalStepDepartment {
-  type: "pr" | "po" | "r";
+  type: "pr" | "po" | "r" | "ex";
   statusId: string | number;
   approval_id?: number;
   step_number?: number;
