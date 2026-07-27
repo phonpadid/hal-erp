@@ -19,6 +19,12 @@ import {
   getStatusText,
 } from "@/modules/shared/utils/format-status.util";
 import UiTag from "@/common/shared/components/tag/UiTag.vue";
+import {
+  getReceiptPaymentStatus,
+  getReceiptPaymentStatusColor,
+  getReceiptPaymentStatusIcon,
+  getReceiptPaymentStatusKey,
+} from "@/modules/shared/utils/receipt-payment-status.util";
 import dayjs, { type Dayjs } from "dayjs";
 import { departmentStore } from "../../stores/departments/department.store";
 import { formatPrice } from "@/modules/shared/utils/format-price";
@@ -597,15 +603,11 @@ onMounted(async () => {
         </template>
         <template #payment_status="{ record }">
           <UiTag
-            v-if="(record.document_attachment?.length ?? 0) > 0"
-            color="green"
-            class="rounded-full"
-          >
-            ໂອນຈ່າຍສຳເລັດ
-          </UiTag>
-          <UiTag v-else color="orange" class="rounded-full">
-            ຍັງບໍ່ໄດ້ຈ່າຍ
-          </UiTag>
+            class="inline-flex justify-center items-center w-auto rounded-full"
+            :color="getReceiptPaymentStatusColor(getReceiptPaymentStatus(record))"
+            :icon="getReceiptPaymentStatusIcon(getReceiptPaymentStatus(record))"
+            :text="t(getReceiptPaymentStatusKey(getReceiptPaymentStatus(record)))"
+          />
         </template>
         <template #actions="{ record }">
           <div class="flex items-center justify-center gap-2">
