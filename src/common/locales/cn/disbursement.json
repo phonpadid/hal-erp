@@ -17,6 +17,13 @@
         "total": "总计",
         "receipt_number": "收据编号"
     },
+    "payment_status": {
+        "title": "付款状态",
+        "paid": "转账完成",
+        "unpaid": "尚未付款",
+        "await_upload": "请上传转账凭证",
+        "upload_success": "转账凭证上传成功"
+    },
     "vendor": {
         "title": "商店信息",
         "name": "商店",

@@ -17,6 +17,13 @@
         "total": "Total",
         "receipt_number": "Receipt Number"
     },
+    "payment_status": {
+        "title": "Payment status",
+        "paid": "Transfer completed",
+        "unpaid": "Not paid yet",
+        "await_upload": "Please upload the transfer slip",
+        "upload_success": "Transfer slip uploaded successfully"
+    },
     "vendor": {
         "title": "Store Info",
         "name": "Store",
