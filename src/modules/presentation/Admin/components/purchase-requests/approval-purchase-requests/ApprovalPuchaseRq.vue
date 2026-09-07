@@ -535,7 +535,7 @@ onMounted(async () => {
             </UiButton>
           </div>
         </div>
-        <div class="add flex items-end">
+        <!-- <div class="add flex items-end">
           <UiButton
             type="primary"
             @click="push({ name: 'create_purchase_request' })"
@@ -543,7 +543,7 @@ onMounted(async () => {
           >
             {{ t("purchase-rq.created") }}
           </UiButton>
-        </div>
+        </div> -->
       </div>
 
       <!-- Export Excel section -->
