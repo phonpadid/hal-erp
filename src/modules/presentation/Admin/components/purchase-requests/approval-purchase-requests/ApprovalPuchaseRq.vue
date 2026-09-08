@@ -47,15 +47,13 @@ if (Number.isFinite(queryLimit) && queryLimit > 0) {
   purchaseRequestStore.pagination.limit = queryLimit;
 }
 const selectedDocType = ref(
-  typeof route.query.document_type_id === "string" ? route.query.document_type_id : "all"
+  typeof route.query.document_type_id === "string" ? route.query.document_type_id : "all",
 );
 const STATUS_USER_NAMES = ["PENDING", "APPROVED", "REJECTED", "CANCELLED"] as const;
 const selectedStatusUserId = ref<string>(
-  typeof route.query.status_user_id === "string" ? route.query.status_user_id : ""
+  typeof route.query.status_user_id === "string" ? route.query.status_user_id : "",
 );
-const selectedType = ref(
-  typeof route.query.type === "string" ? route.query.type : "all"
-);
+const selectedType = ref(typeof route.query.type === "string" ? route.query.type : "all");
 
 const syncStateToUrl = () => {
   router.replace({
@@ -87,11 +85,11 @@ const previewTotal = ref(0);
 const previewCanApprove = ref(false);
 const previewCurrentStep = ref<{ id: number; is_otp: boolean } | null>(null);
 
-const approvedStatusId = computed(
-  () => documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId()
+const approvedStatusId = computed(() =>
+  documentStatusStore.document_Status.find((s) => s.getName() === "APPROVED")?.getId(),
 );
-const rejectedStatusId = computed(
-  () => documentStatusStore.document_Status.find((s) => s.getName() === "REJECTED")?.getId()
+const rejectedStatusId = computed(() =>
+  documentStatusStore.document_Status.find((s) => s.getName() === "REJECTED")?.getId(),
 );
 
 const computeCurrentApprovalStep = (detail: any) => {
@@ -160,19 +158,15 @@ const docItem = computed(() => [
 
 const statusUserItem = computed(() =>
   documentStatusStore.document_Status
-    .filter((s) =>
-      (STATUS_USER_NAMES as readonly string[]).includes(s.getName())
-    )
+    .filter((s) => (STATUS_USER_NAMES as readonly string[]).includes(s.getName()))
     .map((s) => ({
       value: String(s.getId()),
       label: t(`purchase-rq.status_user.${s.getName()}`),
-    }))
+    })),
 );
 
 const pendingStatusId = computed(() => {
-  const item = documentStatusStore.document_Status.find(
-    (s) => s.getName() === "PENDING"
-  );
+  const item = documentStatusStore.document_Status.find((s) => s.getName() === "PENDING");
   return item ? String(item.getId()) : "";
 });
 
@@ -243,11 +237,14 @@ watch(globalSearchTrigger, () => {
 });
 
 const statusCounts = computed(() => {
-  return purchaseRequestStore.statusSummary.reduce((acc, current) => {
-    const statusKey = current.status.toLowerCase();
-    acc[statusKey] = current.amount;
-    return acc;
-  }, {} as Record<string, number>);
+  return purchaseRequestStore.statusSummary.reduce(
+    (acc, current) => {
+      const statusKey = current.status.toLowerCase();
+      acc[statusKey] = current.amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 });
 
 const statusCards = computed(() => {
@@ -344,13 +341,9 @@ const goToDetail = () => {
   navigateToDetailPage(id);
 };
 
-const submitDecision = async (
-  action: "approve" | "reject",
-  remark: string
-) => {
+const submitDecision = async (action: "approve" | "reject", remark: string) => {
   if (!previewId.value || !previewCurrentStep.value) return;
-  const statusId =
-    action === "approve" ? approvedStatusId.value : rejectedStatusId.value;
+  const statusId = action === "approve" ? approvedStatusId.value : rejectedStatusId.value;
   if (!statusId) {
     showError(t("purchase-rq.error.title"), "ບໍ່ພົບສະຖານະ");
     return;
@@ -395,7 +388,7 @@ const handleRejectFromModal = (reason: string) => {
 
 const showDeleteModal = (id: string) => {
   // Find the record to check its status
-  const record = purchaseRequestStore.requests.find(req => req.getId() === id);
+  const record = purchaseRequestStore.requests.find((req) => req.getId() === id);
   if (!canDelete(record?.getStatus() || "")) {
     showError(t("purchase-rq.error.deleteFailed"), t("purchase-rq.error.cannotDeleteApproved"));
     return;
@@ -413,10 +406,7 @@ const handleDeleteConfirm = async () => {
     const successDelete = await purchaseRequestStore.remove(selectedDeleteId.value);
 
     if (successDelete) {
-      success(
-        t("purchase-rq.success.title"),
-        t("purchase-rq.success.deleted")
-      );
+      success(t("purchase-rq.success.title"), t("purchase-rq.success.deleted"));
       deleteModalVisible.value = false;
       await fetchData({ resetPage: true });
     } else {
@@ -452,7 +442,7 @@ watch(
       dirty = true;
     }
     if (dirty) fetchData();
-  }
+  },
 );
 
 onMounted(async () => {
@@ -535,15 +525,20 @@ onMounted(async () => {
             </UiButton>
           </div>
         </div>
-        <!-- <div class="add flex items-end">
-          <UiButton
-            type="primary"
-            @click="push({ name: 'create_purchase_request' })"
-            class="w-full md:w-auto"
-          >
-            {{ t("purchase-rq.created") }}
-          </UiButton>
-        </div> -->
+        <div class="add flex items-end">
+          <a href="https://erp.hal-logistics.la/new/documents">
+            <UiButton type="primary" class="w-full md:w-auto">
+              {{ t("purchase-rq.created") }}
+            </UiButton>
+          </a>
+          <!-- <UiButton
+              type="primary"
+              @click="push({ name: 'create_purchase_request' })"
+              class="w-full md:w-auto"
+            >
+              {{ t("purchase-rq.created") }}
+            </UiButton> -->
+        </div>
       </div>
 
       <!-- Export Excel section -->
@@ -620,22 +615,14 @@ onMounted(async () => {
             color="blue"
           />
           <span v-else class="text-blue-400">
-            <div class="flex items-center">
-              <Icon icon="solar:clipboard-check-bold" />ສຳເລັດ
-            </div>
+            <div class="flex items-center"><Icon icon="solar:clipboard-check-bold" />ສຳເລັດ</div>
           </span>
         </template>
         <template #po_status="{ record }">
-          <UiTag
-            v-if="record.getIsCreatedPo()"
-            color="green"
-            class="rounded-full"
-          >
+          <UiTag v-if="record.getIsCreatedPo()" color="green" class="rounded-full">
             ສ້າງໃບສັ່ງຊື້ສຳເລັດ
           </UiTag>
-          <UiTag v-else color="orange" class="rounded-full">
-            ກະລຸນາສ້າງໃບຈັດຊື້
-          </UiTag>
+          <UiTag v-else color="orange" class="rounded-full"> ກະລຸນາສ້າງໃບຈັດຊື້ </UiTag>
         </template>
         <template #actions="{ record }">
           <div class="flex items-center justify-start gap-2">
